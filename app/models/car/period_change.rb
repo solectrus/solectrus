@@ -2,8 +2,12 @@
 # nothing outside its period, so the data of the days between the old and the
 # new bounds must follow:
 #
+# - A wallbox session of the car outside the new period loses the car, also
+#   a car that the user chose, and the next build runs the detection on
+#   these days again (see ChargingSession::Detection).
 # - The summaries of the changed days go, so the next build makes them again
-#   with the values of the car.
+#   with the values of the car and the records of each step (see
+#   Summary::Steps).
 class Car::PeriodChange
   def initialize(car)
     @car = car
@@ -12,6 +16,12 @@ class Car::PeriodChange
   def call
     days = changed_days
     return if days.empty?
+
+    car
+      .charging_sessions
+      .wallbox
+      .where.not(started_at: car.period_times)
+      .update_all(car_id: nil, assigned_manually: false) # rubocop:disable Rails/SkipsModelValidations
 
     days.each { Summary.where(date: it).delete_all }
   end

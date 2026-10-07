@@ -66,6 +66,60 @@ describe Price do
     it { is_expected.to validate_uniqueness_of(:starts_at).scoped_to(:name) }
   end
 
+  describe 'a change of a price' do
+    let!(:first) { described_class.electricity.create!(starts_at: Date.new(2026, 1, 1), value: 0.30) }
+    let!(:second) { described_class.electricity.create!(starts_at: Date.new(2026, 4, 1), value: 0.32) }
+
+    before do
+      described_class.where.not(id: [first.id, second.id]).delete_all
+      [Date.new(2026, 1, 1), Date.new(2026, 3, 31), Date.new(2026, 4, 1)].each do |date|
+        start = date.in_time_zone.change(hour: 10)
+        ChargingSession.create!(kind: 'wallbox', origin: 'detection', started_at: start, ended_at: start + 2.hours, kwh: 10, cost: 3.0)
+      end
+    end
+
+    def costs = ChargingSession.order(:started_at).pluck(:cost).map(&:to_f)
+
+    it 'prices the sessions of the price again' do
+      first.update!(value: 0.31)
+
+      expect(costs).to eq([3.1, 3.1, 3.0])
+    end
+
+    it 'prices the sessions up to today for the last price' do
+      second.update!(value: 0.33)
+
+      expect(costs).to eq([3.0, 3.0, 3.3])
+    end
+
+    it 'prices the sessions of the old and of the new start' do
+      second.update!(starts_at: Date.new(2026, 3, 31))
+
+      expect(costs).to eq([3.0, 3.2, 3.2])
+    end
+
+    it 'prices the sessions of a removed price with the price before' do
+      second.destroy!
+
+      expect(costs).to eq([3.0, 3.0, 3.0])
+    end
+
+    it 'keeps the cost for a new note' do
+      first.update!(note: 'Tariff')
+
+      expect(costs).to eq([3.0, 3.0, 3.0])
+    end
+
+    it 'leaves an offsite session alone' do
+      car = Car.create!(id: 1, short_name: '1', active_from: Date.new(2025, 1, 1))
+      offsite = ChargingSession.create!(kind: 'offsite', origin: 'user', car:, started_at: Time.zone.local(2026, 2, 1, 10), kwh: 10, cost: 5.0)
+
+      first.update!(value: 0.31)
+
+      expect(offsite.reload.cost).to eq(5.0)
+    end
+  end
+
   describe '.seed!' do
     before { described_class.delete_all }
 

@@ -57,11 +57,17 @@ module Sensor
       pending = pending_summaries(chunk)
       return 0 if pending.empty?
 
+      # Each step waits for InfluxDB, so it overlaps with the queries and the
+      # build of the values. It needs no database once made.
+      dates = pending.map(&:first)
+      steps = start_steps(dates)
+
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(pending)
-      persist(built)
+      built = build(pending, prefetch(dates))
+      steps.each(&:result)
+      persist(built, steps)
 
       built.size
     end
@@ -80,9 +86,13 @@ module Sensor
       end
     end
 
-    def build(pending)
-      prefetched = prefetch(pending.map(&:first))
+    # A run of each step with something to do, on each day of the build (see
+    # Summary::Steps)
+    def start_steps(dates)
+      Summary::Steps.enabled.map { StepRun.new(it, dates) }
+    end
 
+    def build(pending, prefetched)
       pending.map do |date, summary|
         data =
           Sensor::SummaryBuilder.new(
@@ -124,19 +134,31 @@ module Sensor
     # Everything a chunk writes goes into one transaction: on a spinning disk
     # each commit costs an fsync, which dominated the writes when every day
     # committed on its own.
-    def persist(built)
+    #
+    # The steps write in the same transaction (see StepRun#persist)
+    def persist(built, steps)
       ActiveRecord::Base.transaction do
         upsert_summaries(built)
         upsert_summary_values(built.flat_map { |entry| entry[:valid_records] })
         cleanup_empty_values(built)
+
+        steps.each(&:persist)
       end
     end
 
     def upsert_summaries(built)
+      return if built.empty?
+
       now = Time.current
 
       Summary.upsert_all(
-        built.map { |entry| { date: entry[:date], created_at: now, updated_at: now } },
+        built.map do |entry|
+          {
+            date: entry[:date],
+            created_at: now,
+            updated_at: now,
+          }
+        end,
         unique_by: :date,
         # A day that is already there only gets touched, and Rails must not add
         # a touch of its own - it would assign updated_at twice in one

@@ -136,6 +136,31 @@ describe Car do
       ((day - 1)..(day + 1)).each do |date|
         Summary.create!(date:)
       end
+      ChargingSession.create!(
+        kind: :wallbox, origin: :detection, car:, started_at: day.in_time_zone.change(hour: 12), ended_at: day.in_time_zone.change(hour: 13), kwh: 10,
+      )
+    end
+
+    it 'takes the car from each wallbox session outside the period' do
+      car.update!(active_until: day - 1)
+
+      expect(ChargingSession.sole.car_id).to be_nil
+    end
+
+    it 'gives the detection a session outside the period that the user assigned' do
+      ChargingSession.sole.update_columns(assigned_manually: true) # rubocop:disable Rails/SkipsModelValidations
+
+      car.update!(active_until: day - 1)
+
+      expect(ChargingSession.sole).to have_attributes(car_id: nil, assigned_manually: false)
+    end
+
+    # Shortly after local midnight is the previous day in UTC
+    it 'keeps the car of a session on the first day of the period' do
+      ChargingSession.sole.update!(started_at: day.in_time_zone.change(hour: 0, min: 30))
+      car.update!(active_from: day)
+
+      expect(ChargingSession.sole.car_id).to eq(car.id)
     end
 
     it 'removes the summaries of the days between the old and the new bound' do

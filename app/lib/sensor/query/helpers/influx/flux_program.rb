@@ -3,7 +3,8 @@ module Sensor
     module Helpers
       module Influx
         # The parts of a hand-built Flux program that unions one stream per
-        # day or per period (see DailyBatch and DailyDiffs)
+        # day or per period (see DailyBatch, DailyCurves, DailyDiffs and
+        # ChargingSession::Detection)
         module FluxProgram
           # Runs the program with the event of a per-day query, so it stays
           # visible to log and APM subscribers

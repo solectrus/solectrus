@@ -46,6 +46,7 @@
 # The user enters each offsite session, so the user also chose its car.
 class ChargingSession < ApplicationRecord
   include ChargingSession::Holder
+  include ChargingSession::Repricing
 
   enum :kind, wallbox: 'wallbox', offsite: 'offsite'
   enum :origin, { detection: 'detection', user: 'user' }, prefix: true

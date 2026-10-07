@@ -2,8 +2,9 @@ module Sensor
   module Query
     module Helpers
       module Influx
-        # The selection of sensors in a hand-built Flux program, and the way
-        # back from a row to its sensor (see DailyDiffs)
+        # The selection of sensors in a Flux program, and the way back from a
+        # row to its sensor (see Base, DailyCurves, DailyDiffs and
+        # ChargingSession::Detection)
         module SensorFilter
           # The Flux predicate that selects the given sensors, with the fields
           # of a measurement grouped

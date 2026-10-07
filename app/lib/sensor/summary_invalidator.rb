@@ -47,6 +47,11 @@ class Sensor::SummaryInvalidator
       # If any sensor configuration changes, the summaries become invalid
       sensors_in_summary: sensors_in_summary_config,
       #
+      # Version of each step of the daily build with something to do (see
+      # Summary::Steps). A day holds the records of each step, so a new
+      # version invalidates the summaries
+      steps: Summary::Steps.versions,
+      #
       # List of sensors excluded from house_power calculation.
       # If this list changes, house_power calculations become invalid
       excluded_from_house_power:
@@ -55,11 +60,13 @@ class Sensor::SummaryInvalidator
   end
 
   private_class_method def self.sensors_in_summary_config
-    # Returns a hash of sensors with InfluxDB configuration that affects summary validity
+    # Returns a hash of sensors with InfluxDB configuration that affects summary validity:
+    # the sensors in the summaries and the sensors that the steps read (see Summary::Steps)
     # Only includes sensors that have actual InfluxDB configuration (not calculated sensors)
+    step_sensor_names = Summary::Steps.sensor_names
     Sensor::Config
       .sensors
-      .select(&:store_in_summary?)
+      .select { it.store_in_summary? || step_sensor_names.include?(it.name) }
       .filter_map do |sensor|
         mapping = Sensor::Config.mapping(sensor.name)
         next unless mapping # Skip sensors without InfluxDB configuration (calculated sensors)
@@ -80,18 +87,38 @@ class Sensor::SummaryInvalidator
     base_keys = %w[version time_zone excluded_from_house_power]
     return true if base_keys.any? { |key| old_config[key] != new_config[key] }
 
+    changed_step?(old_config, new_config) || changed_sensors?(old_config, new_config)
+  end
+
+  # A sensor that reads another field, or that is added or removed with
+  # history
+  private_class_method def self.changed_sensors?(old_config, new_config)
     old_sensors = old_config['sensors_in_summary'] || {}
     new_sensors = new_config['sensors_in_summary'] || {}
 
     changed_sensor?(old_sensors, new_sensors) ||
       changed_inverter_power_source?(old_sensors, new_sensors) ||
-      history_changed?(old_sensors, new_sensors)
+      history_changed?(old_sensors, new_sensors, added_steps(old_config, new_config))
   end
 
   # A sensor that exists in both configurations but reads another field
   private_class_method def self.changed_sensor?(old_sensors, new_sensors)
     common_sensors = old_sensors.keys & new_sensors.keys
     common_sensors.any? { |sensor| old_sensors[sensor] != new_sensors[sensor] }
+  end
+
+  # A step that has something to do in both configurations, but in another
+  # version
+  private_class_method def self.changed_step?(old_config, new_config)
+    old_steps = old_config['steps'] || {}
+    new_steps = new_config['steps'] || {}
+
+    (old_steps.keys & new_steps.keys).any? { old_steps[it] != new_steps[it] }
+  end
+
+  # The steps with something to do now, but not before
+  private_class_method def self.added_steps(old_config, new_config)
+    (new_config['steps'] || {}).keys - (old_config['steps'] || {}).keys
   end
 
   # inverter_power is stored in every summary, whether measured or calculated
@@ -110,10 +137,14 @@ class Sensor::SummaryInvalidator
   #
   # The configuration cannot tell this apart. A new device has no history, but
   # a new sensor can also point to a field with years of data.
-  private_class_method def self.history_changed?(old_sensors, new_sensors)
+  #
+  # A step with something to do now has no records in the existing summaries,
+  # so its sensors count as added.
+  private_class_method def self.history_changed?(old_sensors, new_sensors, added_steps)
     return false unless Summary.exists?(['date < ?', Date.current])
 
-    added_with_history?(new_sensors.keys - old_sensors.keys) ||
+    step_sensors = added_steps.flat_map { Summary::Steps[it].sensor_names.map(&:to_s) } & new_sensors.keys
+    added_with_history?((new_sensors.keys - old_sensors.keys) | step_sensors) ||
       removed_inverters_in_summaries?(old_sensors, new_sensors)
   end
 

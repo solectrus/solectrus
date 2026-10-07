@@ -402,6 +402,14 @@ describe Sensor::Summarizer do
       it 'does not update Summary' do
         expect { call }.not_to(change { summary.reload.updated_at })
       end
+
+      it 'runs no step' do
+        allow(ChargingSession::Detection).to receive(:new).and_call_original
+
+        call
+
+        expect(ChargingSession::Detection).not_to have_received(:new)
+      end
     end
 
     context 'when stale summary already exists' do
@@ -415,6 +423,14 @@ describe Sensor::Summarizer do
 
       it 'updates Summary' do
         expect { call }.to(change { summary.reload.updated_at })
+      end
+
+      it 'runs each step with something to do on the day' do
+        allow(ChargingSession::Detection).to receive(:new).and_call_original
+
+        call
+
+        expect(ChargingSession::Detection).to have_received(:new).with([date])
       end
     end
 
