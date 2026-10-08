@@ -1,9 +1,9 @@
-# The selection of a car on the car page and in the list of the charging
-# sessions. The address has the car in front of the page
-# (/cars/2/car_charging/2025). A page offers the cars in use in its
-# timeframe. Without the car, it shows "all": the sum of the cars, and not
-# the sum of the wallbox, because a wallbox session without a car counts for
-# no car. An id without an offered car is no selection, and the page goes to
+# The selection of a car on the car page, in the list of the charging
+# sessions and in the list of the visits. The address has the car in front of
+# the page (/cars/2/car_charging/2025). A page offers the cars in use in its
+# timeframe. Without the car, it shows "all": the sum of the cars, and not the
+# sum of the wallbox, because a wallbox session without a car counts for no
+# car. An id without an offered car is no selection, and the page goes to
 # "all".
 #
 # The list of the charging sessions also selects the extras of its kind

@@ -31,6 +31,8 @@
 @import '../stylesheets/range.css' layer(base);
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
+/* No layer() — overrides the styles of MapLibre, which have no layer */
+@import '../stylesheets/car_map.css';
 
 @theme {
   --breakpoint-3xl: 1920px;

@@ -1,0 +1,33 @@
+div
+  div class='flex items-center gap-1.5 font-semibold'
+    = name
+    - label_icons.each do |label, icon_name|
+      = icon icon_name, class: 'shrink-0 font-normal text-slate-500', title: Place.human_label(label)
+
+  - if facts.any?
+    / The line breaks only between the facts, not inside "3 visits"
+    .text-slate-500.dark:text-slate-400
+      = safe_join(facts.map { tag.span(it, class: 'whitespace-nowrap') }, ' · ')
+
+  / The actions below a line, one per row, each icon in a column of the same
+    width. The tooltip closes after the click on the form, which opens in the
+    modal.
+  .mt-2.pt-2.flex.flex-col.gap-1.border-t.border-slate-200.dark:border-slate-700
+    = link_to helpers.edit_settings_place_path(place),
+              class: 'flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-4 focus-ring rounded',
+              data: { turbo_frame: 'modal', controller: 'modal-launcher', action: 'car--map--component#closeTooltip' } do
+      span.flex.w-4.justify-center = icon 'pencil', class: 'text-xs'
+      = t('.edit')
+    = link_to google_maps_url,
+              class: 'flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-4 focus-ring rounded',
+              target: '_blank',
+              rel: 'noopener noreferrer' do
+      span.flex.w-4.justify-center = icon 'map-location-dot', class: 'text-xs'
+      = t('.google_maps')
+
+  - if cars.any?
+    .mt-2.pt-2.flex.flex-col.gap-1.border-t.border-slate-200.text-slate-500.dark:border-slate-700.dark:text-slate-400
+      - cars.each do |car|
+        span.flex.items-center.gap-2
+          span class='size-2.5 shrink-0 rounded-full ring-1 ring-black/10 dark:ring-white/20' style="background-color: #{car.display_color}"
+          = car.display_name

@@ -1,0 +1,7 @@
+de:
+  unknown_place: Unbekannter Ort
+  visits:
+    one: 1 Besuch
+    other: '%{count} Besuche'
+  edit: Ort bearbeiten
+  google_maps: Google Maps

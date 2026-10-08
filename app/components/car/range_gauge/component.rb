@@ -14,6 +14,9 @@ class Car::RangeGauge::Component < ViewComponent::Base
     'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'.freeze
   private_constant :SMALL_BADGE
 
+  # A badge below the plug and the charging power, for example the place
+  renders_one :location
+
   # The block below the arc, for example the odometer
   renders_one :footer
 

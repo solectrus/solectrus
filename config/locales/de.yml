@@ -123,6 +123,7 @@ de:
     car_range_short: Reichweite
     car_max_range: Maximale Reichweite
     car_max_range_short: Max. Reichweite
+    car_location: Standorte
     car_km_per_day_unit: Tag
     car_avg_max_range_short: Ø Max. Reichweite
     car_cost_per_100km_short: Ø Fahrkosten/100 km
@@ -181,8 +182,36 @@ de:
     total: Stromverbrauch
     costs_note:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
+  visits:
+    name: Besuche
+    description: Ein Besuch dauert von der Ankunft eines Autos an einem Ort bis zur Abfahrt. Ein Besuch unter 30 Minuten fehlt, zum Beispiel eine Vorbeifahrt. Meldet das Auto seltener, liegt diese Grenze höher.
+    empty: Noch kein Besuch.
+    period: Zeitraum
+    duration: Dauer
+    remove_filter: Filter entfernen
+    filter_place: Nur Besuche an diesem Ort
+    filter_car: Nur Besuche dieses Autos
+    # The times of a visit in the list of one day
+    from: ab %{time}
+    since: seit %{time}
+    until: bis %{time}
+    until_now: bis jetzt
+    all_day: ganztägig
+  places:
+    # The labels of a place (Place::LABELS)
+    labels:
+      home: Zuhause
+    label_hints:
+      home: Hier steht auch die Wallbox. Bei der automatischen Zuordnung von Ladevorgängen wird der Auto-Standort berücksichtigt.
   cars:
     default_name: Auto %{number}
+    # The time a car spent at a place, on the map of the places
+    duration:
+      days:
+        one: '%{count} Tag'
+        other: '%{count} Tage'
+      hours: '%{count} Std.'
+      minutes: '%{count} Min.'
   car_breakdown:
     home: Wallbox
     guest_additional: Für Gäste bezahlt
@@ -197,12 +226,14 @@ de:
     guest_sessions: Ladevorgänge von Gästen
     charging: Laden
     driving: Fahren
+    visits: Besuche
     wallbox_short: Wallbox
     wallbox_sessions: Ladevorgänge an der Wallbox
     guest_short: Gast
     offsite_short: Auswärts
     sessions: Ladevorgänge
     no_charging: Keine Ladung
+    on_the_road: Unterwegs
     costs: Kosten
     consumption: Ø Verbrauch
     per_100km: pro 100 km
@@ -238,6 +269,7 @@ de:
     car_none_in_use: Im gewählten Zeitraum war kein Auto in Gebrauch.
     car_no_charging: Im gewählten Zeitraum nicht geladen.
     car_no_charging_cost: Für die Ladevorgänge im gewählten Zeitraum ist kein Preis hinterlegt.
+    car_no_location: Kein Standort im gewählten Zeitraum.
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln
@@ -378,6 +410,14 @@ de:
       today: heute
       active_from_hint: Der erste Tag mit diesem Auto.
       active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.
+    places:
+      name: Standorte
+      edit: Ort bearbeiten
+      home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
+      description: SOLECTRUS legt einen Ort an, sobald ein Auto mindestens 30 Minuten dort stand, bei seltenen Meldungen des Autos länger. Gib einem Ort einen eigenen Namen, zum Beispiel „Zuhause“. Die Karten und die Live-Ansicht zeigen dann diesen Namen.
+      empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
+      unnamed: Ohne Namen
+      time: Zeit
     cash_flows:
       name: Zahlungen
       description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
@@ -449,6 +489,7 @@ de:
   activerecord:
     models:
       car: Auto
+      place: Ort
       price: Preis
       cash_flow: Zahlung
       charging_session: Ladevorgang
@@ -461,6 +502,10 @@ de:
         active_from: In Gebrauch ab
         active_until: In Gebrauch bis
         color: Farbe
+      place:
+        name: Name
+        town: Ort laut OpenStreetMap
+        labels: Markierung
       charging_session:
         kind: Art
         kinds:
@@ -563,10 +608,11 @@ de:
     car_range: 'Verbleibende Reichweite des E-Autos.'
     car_max_range: 'Geschätzte Reichweite, hochgerechnet auf eine voll geladene Batterie (100%).'
     car_odometer: 'Kilometerstand des E-Autos. Ein aktueller Wert oder eine Kurve ist der Stand, eine Summe über einen Zeitraum die gefahrene Strecke.'
-    car_distance: 'Gefahrene Strecke des E-Autos im Zeitraum.'
     car_connected: 'Ob das E-Auto aktuell an einer Wallbox angeschlossen ist.'
     car_latitude: 'Breitengrad des aktuellen Standorts des E-Autos.'
     car_longitude: 'Längengrad des aktuellen Standorts des E-Autos.'
+    car_location: 'Orte, an denen das E-Auto im Zeitraum stand.'
+    car_distance: 'Gefahrene Strecke des E-Autos im Zeitraum.'
     car_charging_costs: 'Ladekosten des E-Autos (Wallbox und auswärtiges Laden).'
     car_charging: 'In das E-Auto geladene Energie (Wallbox und auswärtiges Laden zusammen).'
     car_consumption_rate: 'Verbrauch des E-Autos in kWh pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'

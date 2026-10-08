@@ -357,8 +357,14 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           name: t('layout.logout'),
           icon: 'arrow-right-from-bracket',
           href: session_path(return_to: logout_return_to),
+          # Permanent frames (the live stats) can hold admin-only content, the
+          # location of a car for example. So the logout drops them, and the
+          # "advance" visit renders the page anew instead of morphing it.
           data: {
             'turbo-method': :delete,
+            'turbo-action': :advance,
+            controller: 'force-reload',
+            action: 'click->force-reload#perform',
           },
         }
       else

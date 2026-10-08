@@ -19,6 +19,14 @@ Keep every section, an empty one included.
 ## New features
 
 - An amber dot at the HELIOS menu item and at the button that opens the menu shows when HELIOS needs your attention: the configuration is incomplete, or the services wait for a restart or fail
+- Electric vehicles: a new car page shows the distance, the charged energy and the costs for charging and driving. It also shows the usage, the driving cost per 100 km and the maximum range, for each car or for all cars together. Settings > Electric vehicles gives each car a name, a short name, a period of use and a color (#3517, #5836)
+- Electric vehicles: up to five cars are possible. Each car needs the sensors `INFLUX_SENSOR_CAR_ODOMETER_1` and `INFLUX_SENSOR_CAR_RANGE_1` (`_2` to `_5` for more cars). A variable without a number, for example `INFLUX_SENSOR_CAR_BATTERY_SOC`, stays valid for the first car. After you add the sensors, SOLECTRUS builds the daily summaries again at the next start, so the page also shows the past days
+- Electric vehicles: SOLECTRUS finds the charging sessions in the power curve of the wallbox and assigns each one to a car. The menu links to the list of charging sessions, which shows the PV share of each session. An admin can mark a session as a guest charge, assign it to another car, or add a session at a public charging station. A new detection keeps these changes
+- Electric vehicles: the optional sensor `INFLUX_SENSOR_CAR_CONNECTED_1` tells whether a car is plugged in. The live view shows it, and SOLECTRUS uses it to assign the charging sessions. The live view shows the charging power of the wallbox at the car that is plugged in at home
+- Electric vehicles: the live view keeps the values of a car until the car reports again, and shows the time of the latest reading. This helps for a car that sleeps or a source that sends only changes, for example TeslaMate
+- Electric vehicles: the optional sensors `INFLUX_SENSOR_CAR_LATITUDE_1` and `INFLUX_SENSOR_CAR_LONGITUDE_1` give the location of a car, which only the admin sees. The live view shows where each car is and opens a map. The chart menu of a period opens a map of the places where the cars stood, with the time at each place
+- Electric vehicles: Settings > Electric vehicles > Locations lists these places. You can give each place a name, for example "Office", and mark one place as home, where your wallbox is. SOLECTRUS then assigns a charging session at the wallbox only to a car at home
+- Electric vehicles: the Visits page lists when a car arrived at a place and when it left. The driving card of the car page counts the visits and locations of a period, and opens their list or the map
 
 ## Improvements
 

@@ -45,6 +45,28 @@ class Car::DrivingCard::Component < ViewComponent::Base
     cars.any? { it.sensor?(:car_max_range) }
   end
 
+  # The visits at the places in the timeframe, at the foot of the card like
+  # the sessions of the charging card. Only a car with a location has visits.
+  # A guest sees the counts too, like the sessions, but the list asks for the
+  # login and the map shows no places (see the `personal` DSL).
+  def visits? = chart_sensor_name('car_location').present?
+
+  # [[label, count, href, data], ...]: the visits that overlap the timeframe,
+  # and their places. The visits open their list, the places load the map of
+  # the places in place, so they take the name of its chart.
+  def visit_badges
+    counts = report.visit_counts
+    [
+      [t('car_breakdown.visits'), counts[:visits], visits_path, {}],
+      [t('sensors.car_location'), counts[:places], chart_link_url(:car_location), chart_link_data(:car_location)],
+    ]
+  end
+
+  # The list of the visits, for the timeframe and the selected car
+  def visits_path = helpers.cars_visits_path(timeframe: timeframe.to_param, car: report.car&.id)
+
+  def badge_classes = [Car::Card::Component::BADGE, 'bg-slate-200 dark:bg-slate-700/60']
+
   # The row of the driving cost: the sum and the cost per 100 km side by
   # side under one title. A phone shows it as a tile in the full width.
   def cost_row_classes = "#{Car::Card::Component::ROW} max-sm:col-span-2"

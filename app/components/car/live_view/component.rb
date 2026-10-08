@@ -1,8 +1,9 @@
 # The live view of the car page: a cell for each car in use today with its
 # name, the gauge of its range and its odometer. The gauge shows the plug of
 # the car, and next to it the charging power: the power of the wallbox for
-# the car at the wallbox, else zero (see Car::Live). The live view has no
-# chart, so the cars take its place.
+# the car at the wallbox, else zero (see Car::Live). Below the odometer, the
+# admin sees the town of the location, which opens the map. The live view has
+# no chart, so the cars take its place.
 #
 # Below the cars, the charging power of the wallbox shows only when no car
 # shows it: a guest charges, or no car has a plug. The plug of the wallbox
@@ -51,6 +52,13 @@ class Car::LiveView::Component < ViewComponent::Base
 
     l(time, format: time.today? ? :now : :short)
   end
+
+  # The location is personal data, so only the admin sees it
+  def location?(state) = helpers.admin? && !state.location.nil?
+
+  # The name of the place of the car. The live view does not wait for
+  # Nominatim, so an unknown name comes later (see Car::LocationBadge::Component).
+  def place_name(state) = Place.known_name_at(*state.location)
 
   # A cell keeps a minimum height, so a narrow screen scrolls through the
   # cars. The class names stay literal, so Tailwind finds them.

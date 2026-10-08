@@ -4,6 +4,10 @@ class Cars::StatsController < ApplicationController
   include SponsoredFrame
   include CarSelectable
 
+  # A guest gets the chart of a personal sensor without its data (see
+  # ChartLoader::Component)
+  skip_before_action :forbid_personal_sensor
+
   before_action :refresh_summaries_if_needed
 
   def index

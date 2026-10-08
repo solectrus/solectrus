@@ -1,0 +1,6 @@
+= render layout: 'settings/cars/pages' do
+  - if sponsored?
+    = render layout: 'settings/cars/visits_build', locals: { pending_days: @pending_days } do
+      = render 'list', places: @places, pagy: @pagy
+  - else
+    = render DemoLink::Component.new(feature: Sensor::HomePage.feature(:cars))

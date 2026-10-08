@@ -106,6 +106,15 @@ describe Car::DrivingCard::Component, type: :component do
     )
   end
 
+  it 'gives the visits a title' do
+    allow(report).to receive(:visit_counts).and_return(visits: 2, places: 1)
+    Sensor::Config.setup(env.merge('INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude', 'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude'))
+
+    expect(html.text.squish).to include(I18n.t('car_breakdown.on_the_road'))
+  ensure
+    Sensor::Config.setup(ENV)
+  end
+
   it 'has no note when all days have a rate' do
     expect(tooltips.join).not_to include('lack charging data')
   end
@@ -166,6 +175,52 @@ describe Car::DrivingCard::Component, type: :component do
 
     it 'opens the charts of the distance and the maximum range, because the others need more than a day' do
       expect(html.css('a').filter_map { it['data-stats-with-chart--component-sensor-name-param'] }).to eq(%w[car_distance car_max_range])
+    end
+  end
+
+  describe 'the visits' do
+    let(:cars) { [Car.configured.first] }
+
+    before do
+      Sensor::Config.setup(
+        env.merge(
+          'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+          'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+        ),
+      )
+      allow(report).to receive(:visit_counts).and_return(visits: 2, places: 1)
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    context 'with the admin' do
+      before { allow(vc_test_controller).to receive(:admin?).and_return(true) }
+
+      it 'counts the visits and their places' do
+        badges = html.css('.grid-cols-2:not(.divide-x) > a')
+
+        expect(badges.map { |badge| badge.css('span').map { it.text.squish } }).to eq([%w[Visits 2], %w[Locations 1]])
+      end
+
+      it 'links the visits to their list' do
+        expect(html.css('a[href^="/cars/1/visits"]').pluck('href')).to eq(['/cars/1/visits/2025'])
+      end
+
+      it 'loads the map of the places' do
+        locations = html.css('a').find { it.text.include?('Locations') }
+
+        expect(locations['data-stats-with-chart--component-sensor-name-param']).to eq('car_location')
+      end
+    end
+
+    context 'with a guest' do
+      before { allow(vc_test_controller).to receive(:admin?).and_return(false) }
+
+      it 'counts the visits and their places, too' do
+        badges = html.css('.grid-cols-2:not(.divide-x) > a')
+
+        expect(badges.map { |badge| badge.css('span').map { it.text.squish } }).to eq([%w[Visits 2], %w[Locations 1]])
+      end
     end
   end
 end

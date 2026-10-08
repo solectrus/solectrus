@@ -23,6 +23,10 @@
     / house, so the live view has no chart and refreshes less often. The cars
     / take its place.
     = render StatsWithChart::Component.new(sensor_name:, timeframe:, chart: !timeframe.now?, min_interval: 30.seconds)
+    / The map of the location of a car fills the window. Its frame is outside
+      the live view, so the refresh keeps it.
+    - if timeframe.now? && admin?
+      = turbo_frame_tag Car::Location::Component::FRAME_ID
   - else
     = render Message::Component.new do |c|
       - c.with_watermark do

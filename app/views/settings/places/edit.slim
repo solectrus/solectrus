@@ -1,0 +1,13 @@
+- if request.get?
+  / The address and the map show the user which place this is
+  = render TurboModal::Component.new(title: @place.address || t('settings.places.edit')) do
+    div class='flex h-64 my-4'
+      = render Car::Map::Component.new(cars: map_cars, live: true)
+    = render 'form', place: @place
+
+    / The form asked Nominatim, so the list gets the locality. A stream
+      inside the frame runs when the modal opens.
+    - if @place.saved_change_to_geocoding?
+      = safe_join(replace_place(@place))
+- else
+  = turbo_stream.replace(dom_id(@place, :form), partial: 'form', locals: { place: @place })

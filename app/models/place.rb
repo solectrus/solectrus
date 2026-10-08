@@ -64,7 +64,19 @@ class Place < ApplicationRecord
 
   def self.home = labeled('home').first
 
+  def self.human_label(label) = I18n.t("places.labels.#{label}")
+
   def home? = labels.include?('home')
+
+  # Each place with the time of the cars there (`seconds`), from the visits of
+  # the daily build, the place with the most time first. A place without a
+  # visit has 0, for example a place that a click in the live view made.
+  def self.with_seconds
+    left_joins(:visits)
+      .group(:id)
+      .select('places.*', 'COALESCE(SUM(place_visits.seconds), 0) AS seconds')
+      .order(Arel.sql('seconds DESC'), :id)
+  end
 
   # The places in the box around a location, which holds each place within
   # RADIUS. The database selects them, so a request loads a few places and
