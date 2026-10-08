@@ -1,0 +1,9 @@
+/ The name of the place of a visit. It opens the place in the modal, with the
+  map and the form of the settings. The form replaces each name of the list
+  after a change (see Settings::PlacesController).
+.flex.items-center.gap-2.min-w-0 data-visit-place-name=place.id
+  = link_to place.display_name || t('settings.places.unnamed'),
+            edit_settings_place_path(place),
+            class: class_names('truncate hover:underline underline-offset-4', 'italic text-gray-500': !place.display_name),
+            data: { turbo_frame: 'modal', controller: 'modal-launcher' }
+  = place_label_icons(place)

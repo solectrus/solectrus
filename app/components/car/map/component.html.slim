@@ -1,0 +1,20 @@
+= tag.div class: root_classes,
+          role: 'region',
+          aria: { label: t('.label') },
+          data: { \
+            controller: 'car--map--component',
+            car__map__component_cars_value: cars.to_json,
+            car__map__component_live_value: live?,
+            car__map__component_tooltip_url_value: tooltip_url,
+            car__map__component_unknown_place_value: t('.unknown_place'),
+          } do
+  / MapLibre makes its container relative, so the container takes the height
+  / from the flex layout
+  .flex-1.min-h-0 data-car--map--component-target='container'
+
+  / The tooltip while it loads, smaller than each tooltip, so it grows to its
+    content (see Car::PlaceTooltip::Component)
+  - if tooltip_url
+    template data-car--map--component-target='loading'
+      div class='flex h-[3lh] w-24 items-center justify-center text-slate-400 dark:text-slate-500' role='status'
+        = icon 'spinner', class: 'fa-spin text-lg'

@@ -144,8 +144,9 @@ module Sensor
         end
 
         # A sensor with personal data, like the location of a car. Only the
-        # admin sees it: a guest gets no chart and no value of it, and the
-        # MCP server does not offer it.
+        # admin sees it: a guest gets no value of it, and the MCP server does
+        # not offer it. Only the car page shows a guest its chart, without the
+        # data and with a hint (see ChartLoader::Component).
         def personal
           meta_data[:personal] = true
         end

@@ -63,6 +63,20 @@ describe Place do
     end
   end
 
+  describe '.with_seconds' do
+    it 'adds up the visits of each place, the most time first' do
+      car = Car.configured.first
+      work = described_class.create!(latitude: 50.906, longitude: 6.407)
+      empty = described_class.create!(latitude: 50.8, longitude: 6.4)
+      start = Date.yesterday.beginning_of_day
+      home.visits.create!(car:, date: start.to_date, started_at: start, ended_at: start + 600)
+      work.visits.create!(car:, date: start.to_date, started_at: start + 1.hour, ended_at: start + 2.hours)
+      home.visits.create!(car:, date: Date.current, started_at: start + 1.day, ended_at: start + 1.day + 900)
+
+      expect(described_class.with_seconds.map { [it, it.seconds] }).to eq([[work, 3600], [home, 1500], [empty, 0]])
+    end
+  end
+
   describe '#labels' do
     it 'keeps the known labels, in their order' do
       home.update!(labels: ['', 'unknown', 'home', 'home'])

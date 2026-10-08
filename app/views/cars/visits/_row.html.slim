@@ -1,0 +1,38 @@
+/ A phone wraps the cells into two lines of their own width: the place and
+  the duration, then the town and the times. The place cell dissolves for
+  it, so its name and its town take a line each.
+.group.col-span-full.grid.grid-cols-subgrid.items-baseline.hover:bg-gray-100.dark:hover:bg-gray-700.max-sm:flex.max-sm:flex-wrap.max-sm:gap-x-3.max-sm:p-2 class='max-sm:*:p-0'
+  .p-2.tabular-nums.whitespace-nowrap.max-sm:order-5.max-sm:ml-auto.max-sm:text-sm.max-sm:text-gray-500
+    / The list of one day names the times on the day, and below them a start
+      or an end outside it
+    - if timeframe.day?
+      - line, note = visit_day_times(visit, timeframe.effective_beginning_date)
+      time datetime=visit.started_at.iso8601
+        = line
+      - if note
+        span.sm:hidden ,
+        .text-sm.text-gray-500.max-sm:inline.max-sm:ml-1 = note
+    - else
+      time datetime=visit.started_at.iso8601
+        / On a phone, the short year leaves room for the town
+        span.sm:hidden = visit.started_at.in_time_zone.strftime('%d.%m.%y')
+        span.hidden.sm:inline = visit.started_at.in_time_zone.strftime('%d.%m.%Y')
+      .text-sm.text-gray-500.max-sm:inline.max-sm:ml-1
+        = visit_time_range(visit)
+  - if car_column?
+    .p-2.min-w-0.flex.items-center.gap-1.max-sm:order-1.max-sm:self-center
+      / Inline, so the name keeps the baseline of the row
+      span.truncate
+        = car_icon(visit.car.display_color, class: 'sm:mr-2')
+        span.max-sm:sr-only = visit.car.display_name
+      .contents.max-sm:hidden
+        = render 'filter_chevron', path: visits_path_with(car: visit.car_id), label: t('visits.filter_car')
+  .p-2.min-w-0.max-sm:contents
+    .flex.items-center.gap-1.min-w-0.max-sm:order-1.max-sm:flex-1
+      = render 'place_name', place: visit.place
+      - unless place
+        = render 'filter_chevron', path: visits_path_with(place: visit.place_id), label: t('visits.filter_place')
+    = render 'place_locality', place: visit.place
+  .p-2.tabular-nums.whitespace-nowrap.text-right.max-sm:order-2
+    = DurationText.call(visit.current_seconds)
+  .sm:hidden.order-3.basis-full

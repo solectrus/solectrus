@@ -62,6 +62,60 @@ describe 'Car Stats' do
           expect(response.body).not_to include(I18n.t('sensors.wallbox_car_connected_short'))
         end
       end
+
+      context 'with the location of the car' do
+        before do
+          Sensor::Config.setup(
+            ENV.to_h.merge(
+              'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+              'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+            ),
+          )
+          add_influx_point(name: 'Trabant', fields: { 'latitude' => 50.92263, 'longitude' => 6.40706 })
+          stub_request(:get, /nominatim/)
+        end
+
+        after { Sensor::Config.setup(ENV) }
+
+        def request_live_view
+          get cars_stats_path(timeframe: 'now'),
+              headers: {
+                'Turbo-Frame' => 'random-turbo-frame',
+              }
+        end
+
+        it 'shows the name of the place to the admin, with a link to the map' do
+          Place.create!(latitude: 50.92265, longitude: 6.4071, name: 'Home')
+          login_as_admin
+          request_live_view
+
+          expect(response.body).to include('Home', cars_location_path(car: 1))
+          expect(response.body).not_to include(cars_place_path(car: 1))
+        end
+
+        it 'loads the town of an unknown place into the badge, without waiting for Nominatim' do
+          login_as_admin
+          request_live_view
+
+          expect(response.body).to include('h-[0.75em] w-[4.5em] rounded-full', cars_place_path(car: 1))
+          expect(a_request(:get, /nominatim/)).not_to have_been_made
+        end
+
+        it 'shows a generic label without Nominatim' do
+          allow(Rails.configuration.x).to receive(:nominatim_url).and_return(nil)
+          login_as_admin
+          request_live_view
+
+          expect(response.body).to include('>Location</span>')
+          expect(response.body).not_to include(cars_place_path(car: 1))
+        end
+
+        it 'hides the location from a guest' do
+          request_live_view
+
+          expect(response.body).not_to include(cars_location_path(car: 1))
+        end
+      end
     end
 
     context 'with a driven period' do

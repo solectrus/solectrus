@@ -1,0 +1,10 @@
+- if places.empty?
+  = render EmptyList::Component.new(icon: 'location-dot', text: t('settings.places.empty'))
+- else
+  .grid.w-full class="grid-cols-[1fr_auto_auto]"
+    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
+      .p-2 = Place.human_attribute_name(:name)
+      .p-2 = t('settings.places.time')
+      .p-2.flex.justify-center
+        = render InfoIcon::Component.new(text: t('settings.places.description'), position: '')
+    = render 'rows', places:, pagy:

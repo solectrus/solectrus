@@ -83,6 +83,10 @@
 #                 edit_settings_car GET              /settings/cars/:id/edit(.:format)                             settings/cars#edit
 #                      settings_car PATCH            /settings/cars/:id(.:format)                                  settings/cars#update
 #                                   PUT              /settings/cars/:id(.:format)                                  settings/cars#update
+#                   settings_places GET              /settings/places(.:format)                                    settings/places#index
+#               edit_settings_place GET              /settings/places/:id/edit(.:format)                           settings/places#edit
+#                    settings_place PATCH            /settings/places/:id(.:format)                                settings/places#update
+#                                   PUT              /settings/places/:id(.:format)                                settings/places#update
 #    visibility_settings_cash_flows PATCH            /settings/cash_flows/visibility(.:format)                     settings/cash_flows#visibility
 #               settings_cash_flows GET              /settings/cash_flows(.:format)                                settings/cash_flows#index
 #                                   POST             /settings/cash_flows(.:format)                                settings/cash_flows#create
@@ -92,6 +96,10 @@
 #                                   PUT              /settings/cash_flows/:id(.:format)                            settings/cash_flows#update
 #                                   DELETE           /settings/cash_flows/:id(.:format)                            settings/cash_flows#destroy
 #                          settings GET              /settings(.:format)                                           redirect(301, /settings/general)
+#                     cars_location GET              /cars/location/:car(.:format)                                 cars/locations#show {car: /\d+/}
+#                        cars_place GET              /cars/location/:car/place(.:format)                           cars/places#show {car: /\d+/}
+#                cars_place_tooltip GET              /cars(/:car)/places/:place/tooltip/:timeframe(.:format)       cars/place_tooltips#show {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                       cars_visits GET              /cars(/:car)(/places/:place)/visits(/:timeframe)(.:format)    cars/visits#index {car: /\d/, place: /\d+/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format) cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                                   POST             /cars/charging_sessions(.:format)                             cars/charging_sessions#create
 #         new_cars_charging_session GET              /cars/charging_sessions/new(.:format)                         cars/charging_sessions#new
@@ -282,6 +290,7 @@ Rails.application.routes.draw do
     end
 
     resources :cars, only: %i[index edit update]
+    resources :places, only: %i[index edit update]
 
     resources :cash_flows, except: :show do
       patch :visibility, on: :collection
@@ -291,6 +300,33 @@ Rails.application.routes.draw do
 
   # The pages of the car page beside its sensor pages
   scope :cars, module: :cars, as: :cars do
+    # The location of a car on a map that fills the window
+    get 'location/:car',
+        to: 'locations#show',
+        as: :location,
+        constraints: { car: /\d+/ }
+
+    # The name of the place of a car, for the badge of the live view
+    get 'location/:car/place',
+        to: 'places#show',
+        as: :place,
+        constraints: { car: /\d+/ }
+
+    # The tooltip of a place on the map of the places, with the selected car.
+    # The place has no constraint, so the map can build the address with
+    # ":id" in place of the id.
+    get '(:car)/places/:place/tooltip/:timeframe',
+        to: 'place_tooltips#show',
+        as: :place_tooltip,
+        constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
+
+    # The visits of the cars at the places, with the selected car and the
+    # selected place in front
+    get '(:car)(/places/:place)/visits(/:timeframe)',
+        to: 'visits#index',
+        as: :visits,
+        constraints: { car: CarSelection::CAR, place: /\d+/, timeframe: Timeframe::REGEX }
+
     # The list of the charging sessions, with the selected car in front. The
     # list also selects the extras of its kind there (see CarSelection::EXTRAS).
     # Before the resources, so the list keeps the name.

@@ -1,0 +1,8 @@
+/ A chevron behind a name that narrows the list to it. It shows on hover of
+  the row, and always on a touch screen.
+= link_to path,
+          class: 'flex items-center justify-center size-6 shrink-0 rounded-full text-xs text-gray-500 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100 hover:bg-gray-200 hover:text-gray-800 dark:hover:bg-gray-600 dark:hover:text-gray-200 focus-ring',
+          title: label,
+          aria: { label: },
+          data: { turbo_frame: '_top', controller: 'tooltip' } do
+  = icon 'chevron-right'

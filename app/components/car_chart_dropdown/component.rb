@@ -13,6 +13,7 @@ class CarChartDropdown::Component < ViewComponent::Base
     car_battery_soc
     car_range
     car_max_range
+    car_location
   ].freeze
   private_constant :ORDER
 

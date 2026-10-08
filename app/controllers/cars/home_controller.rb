@@ -1,6 +1,10 @@
 class Cars::HomeController < HomePageController
   include CarSelectable
 
+  # A guest gets the chart of a personal sensor without its data (see
+  # ChartLoader::Component)
+  skip_before_action :forbid_personal_sensor
+
   private
 
   def page_key = :cars

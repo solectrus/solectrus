@@ -111,6 +111,31 @@ describe 'Administrator login' do
       end
     end
 
+    # The stats frame is permanent, so a refresh keeps its content. It can hold
+    # admin-only content (the location of a car), which must go with the
+    # logout. The day page polls only every 5 minutes, so no poll removes the
+    # marker in between.
+    it 'renders the permanent stats frame anew after logging out' do
+      visit '/power_balance/day'
+      stats = 'turbo-frame[data-stats-with-chart--component-target="stats"]'
+      expect(page).to have_css(stats, text: 'Erzeugung')
+
+      page.execute_script(<<~JS)
+        const marker = document.createElement('div');
+        marker.id = 'admin-marker';
+        document.querySelector('#{stats}').append(marker);
+      JS
+      expect(page).to have_css('#admin-marker', visible: :all)
+
+      page.execute_script(
+        "document.querySelector('a[href^=\"/logout\"]').click()",
+      )
+
+      expect(page).to have_link(href: '/login', visible: :all)
+      expect(page).to have_no_css('#admin-marker', visible: :all, wait: 1)
+      expect(page).to have_css(stats, text: 'Erzeugung')
+    end
+
     it 'returns to the homepage when logging out from an admin-only page' do
       visit '/settings/general'
       page.execute_script(

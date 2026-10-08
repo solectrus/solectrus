@@ -32,6 +32,12 @@ export default defineConfig(({ mode }) => ({
               name: 'hotwire',
               test: /node_modules\/(stimulus|@hotwired|@rails)/,
             },
+            // Only the map of the car page imports it, on demand. In the
+            // group below, each page would load it.
+            {
+              name: 'maplibre',
+              test: /node_modules\/maplibre-gl/,
+            },
             {
               name: 'other-vendor',
               test: /node_modules/,
@@ -40,6 +46,10 @@ export default defineConfig(({ mode }) => ({
         },
       },
     },
+  },
+  // The worker of MapLibre imports a shared module, which needs the ES format
+  worker: {
+    format: 'es',
   },
   server: {
     port: 3036,

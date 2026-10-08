@@ -4,6 +4,12 @@
       arc when the arc is narrower than the space
     .min-w-0.min-h-0.flex.flex-col.items-center role='group' aria-label=state.car.display_name
       = render Car::RangeGauge::Component.new(state:) do |gauge|
+        / The place of the car, which opens the map
+        - if location?(state)
+          - gauge.with_location do
+            - name = place_name(state)
+            = render Car::LocationBadge::Component.new(car: state.car, name:, deferred: name.nil?)
+
         / The odometer as a mechanical counter
         - if state.odometer
           - gauge.with_footer do

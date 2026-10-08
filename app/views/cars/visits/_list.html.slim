@@ -1,0 +1,24 @@
+/ The place of the list as a chip that removes it. The timeframe and the car
+  have their selects in the header.
+- if place
+  .flex.flex-wrap.gap-2.mb-4
+    = render layout: 'filter', locals: { remove: visits_path_with(place: nil) } do
+      = icon 'location-dot', class: 'text-gray-500'
+      span.truncate class=('italic text-gray-500' unless place.display_name)
+        = place.display_name || t('settings.places.unnamed')
+      = place_label_icons(place)
+
+- if visits.empty?
+  = render EmptyList::Component.new(icon: 'location-dot', text: t('visits.empty'))
+- else
+  / A phone has columns only for the header, the rows wrap (see the row)
+  .grid.w-full class=(car_column? ? 'grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[auto_auto_1fr_auto]' : 'grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[auto_1fr_auto]')
+    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
+      .max-sm:hidden.p-2 = t('visits.period')
+      - if car_column?
+        .max-sm:hidden.p-2 = Car.model_name.human
+      .p-2 = Place.model_name.human
+      .p-2.flex.items-center.justify-end.gap-2
+        = t('visits.duration')
+        = render InfoIcon::Component.new(text: t('visits.description'), position: '')
+    = render 'rows', visits:, pagy:

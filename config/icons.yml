@@ -54,6 +54,7 @@ solid:
   - leaf
   - location-dot
   - lock
+  - map-location-dot
   - message
   - pencil
   - piggy-bank

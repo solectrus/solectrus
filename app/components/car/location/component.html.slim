@@ -1,0 +1,23 @@
+= helpers.turbo_frame_tag FRAME_ID do
+  / The whole window, like a zoomed chart
+  div class='fixed inset-0 z-45 p-4 sm:p-6 flex flex-col gap-4 bg-white dark:bg-slate-900' data-controller='car--location--component'
+    .relative.flex.flex-wrap.items-center.justify-center.gap-x-3.gap-y-1.min-h-10.px-12
+      = render Car::Badge::Component.new(car:, prominent: true)
+      - if location
+        span = name || t('.unknown')
+
+      button[
+        class='absolute right-0 top-0 flex items-center justify-center size-10 rounded-full cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 focus-ring'
+        type='button'
+        data-action='car--location--component#close'
+        data-controller='tooltip'
+        title=t('.close')
+        aria-label=t('.close')
+      ]
+        = helpers.icon 'xmark', class: 'fa-lg'
+
+    - if location
+      .flex-1.min-h-0.flex
+        = render Car::Map::Component.new(cars: map_cars, live: true)
+    - else
+      p.my-6.text-center = t('data.car_no_location')

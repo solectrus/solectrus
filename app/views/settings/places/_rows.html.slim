@@ -1,0 +1,3 @@
+= render LazyRows::Component.new(prefix: Settings::PlacesController::PAGE_FRAME_PREFIX, pagy:, frame: local_assigns[:frame]) do
+  - places.each do |place|
+    = render 'row', place:

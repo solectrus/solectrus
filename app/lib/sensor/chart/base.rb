@@ -38,6 +38,10 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     timeframe.short? ? 'line' : 'bar'
   end
 
+  # A view component that shows the chart in place of the canvas of
+  # Chart.js, or nil for the canvas (see ChartLoader::Component)
+  def component = nil
+
   # Override in subclasses for custom chart labels
   def label
     chart_sensors.first&.display_name

@@ -2,8 +2,9 @@
 # title below. Charging stands on the left and driving on the right, like
 # the source and the usage of the power balance.
 class Car::Card::Component < ViewComponent::Base
-  # A badge at the foot of a card: the charging sessions of the charging card.
-  # Side by side they are narrow, so there the label stands above the count.
+  # A badge at the foot of a card: the charging sessions of the charging card
+  # and the visits of the driving card. Side by side they are narrow, so
+  # the label stands above the count.
   BADGE =
     'click-animation flex flex-col items-center justify-center min-w-0 ' \
     'rounded-lg px-2 md:px-3 py-2 sm:py-1 md:py-1.5 ' \

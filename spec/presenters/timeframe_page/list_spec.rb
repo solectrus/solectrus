@@ -9,7 +9,7 @@ describe TimeframePage::List do
   end
 
   it 'offers the hours as given and no forecast' do
-    page = described_class.new(route: :cars_charging_sessions_path, params: { kind: 'offsite' }, hours: false)
+    page = described_class.new(route: :cars_visits_path, params: {}, hours: false)
 
     expect(page).not_to be_hours
     expect(page).not_to be_forecast

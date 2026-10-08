@@ -39,6 +39,15 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
                 = helpers.icon 'bolt', class: ('text-sensor-pv' if charging?)
               = render SensorValue::Component.new(charging_power, :wallbox_power, context: :rate)
 
+    / The slot below the plug, for example the place of the car. It sits
+      between the two ends of the arc, its bottom flush with their labels: at
+      93% plus their line height of 1.5 times their font size. Its width is
+      the room between the ends (26/34 of the gauge) less the labels: half a
+      label of up to 4em on each side, and a gap of 0.5em.
+    - if location?
+      div class="absolute left-1/2 bottom-[calc(7%-1.5*clamp(0.75rem,4cqi,1.125rem))] -translate-x-1/2 flex max-w-[calc(100cqi*26/34-5*clamp(0.75rem,4cqi,1.125rem))] text-[clamp(0.75rem,3.5cqi,1rem)]"
+        = location
+
     / The two ends of the arc, at x 70 and 330: the scale from 0 to the
       maximum range. Without a maximum range there is no scale.
     - if scale?
