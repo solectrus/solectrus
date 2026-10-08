@@ -71,7 +71,13 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # list_sensors call before it can ask for the PV generation, or invents
       # a name (pv_production, pv_generation) and pays for the rejection and
       # the recovery on top.
-      'tool definitions + instructions' => 31_000,
+      #
+      # The base fee raised this ceiling from 31_000, by ~320 bytes in the
+      # description of get_prices. The response gained two fields, and the last
+      # sentence of that paragraph is what the bytes buy: the fee is already
+      # inside the grid costs, so a model that adds it to a get_totals figure
+      # counts it twice. There is no cheaper place to say it.
+      'tool definitions + instructions' => 31_400,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -199,7 +205,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
         Price.create!(
           name: price_name,
           starts_at: Date.new(2021, 7, 1) + (index * 3).months,
-          value: noisy(price_name == 'electricity' ? 0.30 : 0.08, index).round(5),
+          amount_per_kwh: noisy(price_name == 'electricity' ? 0.30 : 0.08, index).round(5),
           note: "Tariff adjustment #{index + 1}",
         )
       end

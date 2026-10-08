@@ -1,13 +1,29 @@
 .tooltip-layout.tooltip-layout-table
   = render TooltipHeader::Component.new(title: t('.title'), sheet_only: true)
 
+  - if base_fee?
+    / A step of its own: the grid costs, split into energy costs and base fee
+    dl.tooltip-group
+      div
+        = render CalcRow::Component.new(label: t('sensors.grid_energy_costs_short')) do
+          = render SensorValue::Component.new(import_costs.parts.last, :grid_energy_costs, sign: :negative, **import_costs.options)
+        p.tooltip-detail
+          = t('.grid.detail_html', energy: render(SensorValue::Component.new(data, :grid_import_power, context: :total)))
+
+      = render CalcRow::Component.new(label: t('sensors.grid_base_fee_short'), operator: :plus) do
+        = render SensorValue::Component.new(import_costs.parts.first, :grid_base_fee, sign: :negative, **import_costs.options)
+
+      = render CalcRow::Component.new(label: t('.grid.import_costs'), operator: :equals) do
+        = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
+
   / One sum: each part of the costs, with the energy it comes from below it
   dl.tooltip-group
-    div
-      = render CalcRow::Component.new(label: t('.grid.import_costs')) do
-        = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
-      p.tooltip-detail
-        = t('.grid.detail_html', energy: render(SensorValue::Component.new(data, :grid_import_power, context: :total)))
+    - unless base_fee?
+      div
+        = render CalcRow::Component.new(label: t('.grid.import_costs')) do
+          = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
+        p.tooltip-detail
+          = t('.grid.detail_html', energy: render(SensorValue::Component.new(data, :grid_import_power, context: :total)))
 
     div
       = render CalcRow::Component.new(label: t('.pv.opportunity_costs'), operator: :plus) do

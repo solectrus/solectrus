@@ -46,7 +46,12 @@ describe Sensor::Query::Helpers::Influx::Total do
     subject(:call) { query.call }
 
     before do
-      freeze_time
+      # Pinned to a date in mid-month, not merely frozen: a P24H window ending
+      # on the first of a month falls on two days of two months, and those two
+      # divide the monthly base fee by a different number of days. One day of
+      # the fee is then not one thirtyfirst of it, and the example below would
+      # fail all day on the first.
+      travel_to Time.zone.local(2025, 3, 15, 12, 0)
 
       # Setup test data - power readings over 25 hours
       influx_batch do
@@ -181,7 +186,7 @@ describe Sensor::Query::Helpers::Influx::Total do
         # Create a price for finance calculations
         Price.create!(
           name: :electricity,
-          value: 0.30,
+          amount_per_kwh: 0.30,
           starts_at: 1.year.ago.to_date,
         )
       end
@@ -190,6 +195,57 @@ describe Sensor::Query::Helpers::Influx::Total do
         expect(call).to be_a(Sensor::Data::Single)
         expect(call.grid_import_power).to be_a(Float)
         expect(call.grid_import_power).to be > 0
+      end
+    end
+
+    context 'with a base fee' do
+      let(:query) do
+        described_class.new(Timeframe.new('P24H')) do |q|
+          q.sum :grid_import_power
+          q.sum :grid_energy_costs
+          q.sum :grid_base_fee
+          q.sum :grid_costs
+        end
+      end
+
+      let(:energy_costs) { query.call.grid_import_power * 0.30 / 1000.0 }
+
+      before do
+        Price.delete_all
+        Price.create!(
+          name: :electricity,
+          amount_per_kwh: 0.30,
+          amount_per_month: 30,
+          starts_at: 1.year.ago.to_date,
+        )
+      end
+
+      # A P24H window covers exactly one day worth of the fee, no matter which
+      # two calendar days it straddles.
+      it 'adds one day of the base fee to the grid costs' do
+        expected_fee = 30.0 / Date.current.end_of_month.day
+
+        expect(query.call.grid_costs).to be_within(0.01).of(
+          energy_costs + expected_fee,
+        )
+      end
+
+      it 'reports the two halves on their own' do
+        expected_fee = 30.0 / Date.current.end_of_month.day
+        result = query.call
+
+        expect(result.grid_energy_costs).to be_within(0.0001).of(energy_costs)
+        expect(result.grid_base_fee).to be_within(0.01).of(expected_fee)
+      end
+
+      # What the tooltip shows. All three come out of this one query, so the
+      # breakdown adds up to the sum above it, to the cent.
+      it 'adds the two halves up to the grid costs' do
+        result = query.call
+
+        expect(result.grid_energy_costs + result.grid_base_fee).to be_within(
+          0.0001,
+        ).of(result.grid_costs)
       end
     end
 

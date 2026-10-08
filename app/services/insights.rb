@@ -49,6 +49,11 @@ class Insights # rubocop:disable Metrics/ClassLength
     costs_by_source(:pv)
   end
 
+  # The part of #costs_grid that is the base fee, where the sensor carries it.
+  def base_fee
+    data.grid_base_fee if costs_grid && sensor.costs_carry_base_fee?
+  end
+
   def sensors_with_grid_ratio
     @sensors_with_grid_ratio ||=
       %i[
@@ -322,7 +327,7 @@ class Insights # rubocop:disable Metrics/ClassLength
       return []
     end
 
-    [costs_sensor_name]
+    [costs_sensor_name, *(:grid_base_fee if sensor.costs_carry_base_fee?)]
   end
 
   # Example: custom_01_costs, house_without_custom_costs, wallbox_costs, ...

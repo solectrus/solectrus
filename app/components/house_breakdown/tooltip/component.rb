@@ -25,7 +25,7 @@ class HouseBreakdown::Tooltip::Component < ViewComponent::Base
     return if timeframe.now?
     return unless costs
 
-    render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs:, pv_costs:)
+    render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs:, pv_costs:, base_fee:)
   end
 
   def costs
@@ -49,6 +49,10 @@ class HouseBreakdown::Tooltip::Component < ViewComponent::Base
 
   def pv_costs
     sensor_costs_field(:costs_pv_sensor_name)
+  end
+
+  def base_fee
+    data.try(:grid_base_fee) if sensor.costs_carry_base_fee?
   end
 
   def sensor_costs_field(method)

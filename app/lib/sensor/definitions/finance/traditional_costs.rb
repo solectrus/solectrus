@@ -9,12 +9,20 @@ class Sensor::Definitions::TraditionalCosts < Sensor::Definitions::FinanceBase
     [:electricity]
   end
 
+  # Without PV the same base fee would still be on the bill, so it belongs in
+  # this comparison. It cancels out against grid_costs in savings, which keeps
+  # the base fee out of the savings and out of the amortization.
+  def carries_base_fee?
+    true
+  end
+
   def sql_calculation
     parts = dependencies.map { |dep| "COALESCE(#{dep}_sum,0)" }
 
-    "(#{parts.join(' + ')}) * pb_money_per_kwh / 1000.0"
+    with_base_fee_sql("(#{parts.join(' + ')}) * pb_money_per_kwh / 1000.0")
   end
 
+  # The fee itself is added by Sensor::Definitions::FinanceBase#with_base_fee.
   def calculate_with_prices(prices:, **values)
     electricity_price = prices[:electricity]
     return unless electricity_price

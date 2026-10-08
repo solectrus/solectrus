@@ -42,6 +42,7 @@
                     power_grid_ratio: data.house_power_grid_ratio,
                     grid_costs: data.house_costs_grid,
                     pv_costs: data.house_costs_pv,
+                    base_fee: (data.try(:grid_base_fee) if Sensor::Registry[:house_power].costs_carry_base_fee?),
                   )
 
         button.mt-0.mb-3.relative.touch-target.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[

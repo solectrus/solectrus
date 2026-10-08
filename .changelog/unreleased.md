@@ -21,6 +21,7 @@ Keep every section, an empty one included.
 - An amber dot at the HELIOS menu item and at the button that opens the menu shows when HELIOS needs your attention: the configuration is incomplete, or the services wait for a restart or fail
 - The chart of the total timeframe can now compare the years month by month, quarter by quarter, or season by season. Pick "Months across the years", "Quarters across the years" or "Seasons across the years" in the OVERALL menu to turn the comparison on, and the chart then fills the whole width. A period that stands on fewer days than it has is drawn hatched: the one that is still running, and the first one, if your records start after its first day. Click a bar to open that period. A dashed line across each group of bars shows the average of the years, so you see at once which bars are above it. It counts complete periods only, and it needs at least two of them. A season runs over three months, winter from December to February, and it counts into the year it begins in. (#2131)
 - The timeframe tabs now name what they can show. The current tab opens a menu with its readings, for example "This month" and "Last 30 days", or "This year", "Last 12 months" and "Last 365 days". You reached these by clicking the tab again before, which nothing told you.
+- Prices: an electricity tariff can carry a base fee for the grid connection now. It is prorated by day, so a day, a week and a month each show the part that falls on it, and the grid costs contain it. The house costs carry the base fee. The costs of the heat pump, the wallbox and the other consumers do not, because they do not make the fee higher (#2560)
 
 ## Improvements
 
@@ -33,6 +34,13 @@ Keep every section, an empty one included.
 - The insights now show everything that the tooltip of a bar shows: the share from photovoltaics for the battery charging and for a consumer on the house page, the costs of a consumer, the CO₂ reduction for the generation, the grid import costs for the grid import and the feed-in revenue for the feed-in. The heat pump also shows its energy from photovoltaics and from the grid, and its costs split into grid import costs and lost feed-in revenue
 - Without a sponsorship, the light bulb next to the chart now also shows the total and the values of the tooltip, above the note on the insights
 - On a phone, the settings now open on a list of all sections, as on an iPhone. A tap on a row opens the section, and the round arrow at the top left leads back to the list. The pages slide in and out to the side. The sensors show their groups (generators, consumers, battery) as a list of the same kind. Before, a dropdown at the top switched between the sections
+- Resetting the summaries now also works when the database is damaged, for example by a failing SD card (#5952)
+- The battery case temperature now shows blue for a normal temperature, and red only from about 45 °C. Before, all values from 40 °C were bright red. In dark mode, the colors of the case temperature and the heat pump tank temperature now match the other charts
+- The sponsorship page now tells you how to close it: with "Maybe later", after you log in as administrator. An update no longer brings the page back
+- In dark mode, red and green text is easier to read, for example amounts, trends and error messages. It has the color of the matching bar in the balance
+- AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
+- Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
+- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes
 
