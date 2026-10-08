@@ -24,4 +24,31 @@ describe SensorPathHelper do
       it { is_expected.to eq('/heatpump_cop/2026') }
     end
   end
+
+  describe '#sensor_insights_path' do
+    subject(:path) do
+      helper.sensor_insights_path(Sensor::Registry[sensor_name], timeframe:)
+    end
+
+    let(:timeframe) { Timeframe.new('2026-01') }
+
+    context 'with a sensor that has a trend' do
+      let(:sensor_name) { :battery_charging_power }
+
+      it { is_expected.to eq('/insights/battery_charging_power/2026-01') }
+    end
+
+    context 'with the current values' do
+      let(:sensor_name) { :battery_charging_power }
+      let(:timeframe) { Timeframe.now }
+
+      it { is_expected.to be_nil }
+    end
+
+    context 'with a sensor without a trend' do
+      let(:sensor_name) { :house_power_without_custom }
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

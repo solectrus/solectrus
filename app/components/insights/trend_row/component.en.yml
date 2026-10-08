@@ -1,0 +1,6 @@
+en:
+  from_same_month: '%b %-d'
+  to_same_month: '%-d, %Y'
+  from_same_year: '%b %-d'
+  to: '%b %-d, %Y'
+  month: '%b %Y'

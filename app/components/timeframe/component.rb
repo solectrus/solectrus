@@ -10,6 +10,27 @@ class Timeframe::Component < ViewComponent::Base
     forecast_days.present?
   end
 
+  # The period for the bottom sheet of a tooltip. The sheet covers this
+  # navigation, so it repeats the period (utils/tooltipSheet.ts).
+  def period_name
+    forecast_mode? ? t('forecast.next_days', count: forecast_days) : timeframe.localized
+  end
+
+  # First and last date of a period whose name does not say them. A phone
+  # hides them in the navigation, the sheet has the room.
+  def period_dates
+    return if forecast_mode?
+
+    case timeframe.id
+    when :days, :week
+      "#{l timeframe.beginning.to_date, format: :default} – #{l timeframe.ending.to_date, format: :default}"
+    when :months
+      "#{l timeframe.beginning.to_date, format: :month} – #{l timeframe.ending.to_date, format: :month}"
+    when :years
+      "#{timeframe.beginning.year} – #{timeframe.ending.year}"
+    end
+  end
+
   # Check if navigation is possible at all
   # - timeframe can be paginated, or
   # - in forecast mode
@@ -73,7 +94,18 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def paginate_button_classes
-    interactive_button_classes(padding_x: 'lg:landscape:px-2')
+    interactive_button_classes(padding_x: 'lg:landscape:px-2 relative touch-target')
+  end
+
+  # A fixed width keeps the arrows in place while one paginates
+  def link_width_class
+    case timeframe.id
+    when :day then 'md:w-72 text-center'
+    when :week then 'md:w-80 text-center'
+    when :month then 'w-36 text-center'
+    when :year then 'w-16 text-center'
+    else 'text-center'
+    end
   end
 
   def timeframe_link_classes(additional_classes = nil)
