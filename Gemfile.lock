@@ -120,7 +120,7 @@ GEM
       base64
       ssrf_filter (~> 1.5)
     csv (3.3.6)
-    date (3.5.1)
+    date (3.6.0)
     diff-lcs (1.6.2)
     dotenv (3.2.0)
     drb (2.2.3)
