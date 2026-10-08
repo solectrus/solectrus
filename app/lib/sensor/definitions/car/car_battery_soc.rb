@@ -1,5 +1,7 @@
 class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
-  value unit: :percent, range: (0..100), category: :battery, nameable: true
+  include Sensor::Definitions::CarNumber
+
+  value unit: :percent, range: (0..100), category: :car
 
   # A car reports a change of its state, often only while it is online,
   # so the value holds until the next reading

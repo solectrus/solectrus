@@ -148,7 +148,7 @@ describe Sensor::Query::Latest do
       end
     end
 
-    context 'with car_battery_soc, which is a state' do
+    context 'with car_battery_soc_1, which is a state' do
       before do
         influx_batch do
           add_influx_point(
@@ -163,8 +163,37 @@ describe Sensor::Query::Latest do
       end
 
       it 'keeps an older value' do
-        result = described_class.new(:car_battery_soc).call
-        expect(result.car_battery_soc).to eq(60.0)
+        result = described_class.new(:car_battery_soc_1).call
+        expect(result.car_battery_soc_1).to eq(60.0)
+      end
+
+      # A source like TeslaMate sends only a change, so a parked car is quiet
+      it 'keeps a value older than the day that the query reads' do
+        influx_batch { add_influx_point(name: 'Trabant', fields: { range: 210.0 }, time: 3.days.ago) }
+        Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_RANGE_1' => 'Trabant:range'))
+
+        result = described_class.new(%i[car_battery_soc_1 car_range_1]).call
+
+        expect(result.car_range_1).to eq(210.0)
+        expect(result.time_for(:car_range_1)).to be_within(1.second).of(3.days.ago)
+      ensure
+        Sensor::Config.setup(ENV)
+      end
+
+      # The maximum range is calculated, so it never has a reading of its own.
+      # The search of the history reads its inputs from before the day.
+      it 'keeps the values of the day over older ones' do
+        influx_batch do
+          add_influx_point(name: 'Trabant', fields: { soc: 70.0, range: 210.0 }, time: 3.days.ago)
+          add_influx_point(name: 'Trabant', fields: { range: 150.0 }, time: 90.minutes.ago)
+        end
+        Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_RANGE_1' => 'Trabant:range'))
+
+        result = described_class.new(%i[car_battery_soc_1 car_range_1 car_max_range_1]).call
+
+        expect([result.car_battery_soc_1, result.car_range_1, result.car_max_range_1]).to eq([60.0, 150.0, 250.0])
+      ensure
+        Sensor::Config.setup(ENV)
       end
     end
   end

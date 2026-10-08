@@ -40,6 +40,7 @@ solid:
   - expand
   - fan
   - filter
+  - gauge
   - gear
   - gift
   - grip
@@ -56,8 +57,10 @@ solid:
   - piggy-bank
   - plug
   - plus
+  - road
   - robot
   - rotate-left
+  - route
   - sack-dollar
   - slash
   - sliders

@@ -85,6 +85,35 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
       end
     end
 
+    context 'with an odometer' do
+      before do
+        stub_const('ENV', ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:mileage'))
+        stub_feature(:car)
+
+        influx_batch do
+          seeded_dates.each_with_index do |date, day|
+            add_influx_point(
+              name: 'Trabant',
+              fields: { 'mileage' => (day * 40) + 1000.0 },
+              time: date.beginning_of_day,
+            )
+          end
+        end
+      end
+
+      it 'reads the distance outside the aggregation program' do
+        expect(Sensor::SummaryBuilder.aggregation_sensor_names).not_to include(:car_odometer_1)
+        expect(call[dates[1]][:diffs][:car_odometer_1]).to eq(40)
+      end
+
+      it 'returns the same distance as the day on its own' do
+        date = dates[1]
+        separate = Sensor::SummaryBuilder.new(Timeframe.new(date.iso8601)).call
+
+        expect(separate.car_odometer_1).to eq(call[date][:diffs][:car_odometer_1])
+      end
+    end
+
     context 'when a day has no data at all' do
       let(:dates) { [Date.current, 400.days.ago.to_date] }
 

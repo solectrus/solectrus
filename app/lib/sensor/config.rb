@@ -64,6 +64,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
     parse_configurations
     auto_configure_power_splitter_sensors
+    @car_warnings = Sensor::Cars.config_warnings(@env)
 
     log_configurations
 
@@ -333,10 +334,8 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     @sensor_logs.each { |log| log_line(log) }
     log_house_power_status
 
-    return if @sensor_warnings.empty?
-
-    log_section_header('⚠️  DUPLICATE CONFIGURATIONS', char: '·')
-    @sensor_warnings.each { |warning| log_line("- #{warning}") }
+    log_warnings('⚠️  DUPLICATE CONFIGURATIONS', @sensor_warnings)
+    log_warnings('⚠️  CARS', @car_warnings)
   end
 
   def check_for_duplicates(sensor_name)

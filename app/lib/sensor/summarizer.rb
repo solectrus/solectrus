@@ -195,10 +195,17 @@ module Sensor
           records << {
             field: sensor_name.to_s,
             aggregation: aggregation.to_s,
-            value:,
+            value: (value if recorded?(sensor_name, date)),
             date:,
           }
         end
+    end
+
+    # A day on which the sensor records nothing, like a car outside its period
+    # of use, gets no value, and #cleanup_empty_values removes an existing one
+    def recorded?(sensor_name, date)
+      definition = Sensor::Registry.find(sensor_name)
+      definition.nil? || definition.recorded_on?(date)
     end
   end
 end

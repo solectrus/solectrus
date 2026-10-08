@@ -64,6 +64,15 @@ de:
     years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme
   sensors:
+    car_roles:
+      car_battery_soc: Ladestand
+      car_odometer: Kilometerstand
+      car_range: Reichweite
+      car_max_range: Max. Reichweite
+      car_connected: Angeschlossen
+    car_sensor:
+      named: '%{car} (%{role})'
+      unnamed: 'Auto %{number}: %{role}'
     power_balance: Strombilanz
     inverter_power: Erzeugung
     inverter_power_1: Erzeugung 1
@@ -141,6 +150,8 @@ de:
     total: Stromverbrauch
     costs_note:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
+  cars:
+    default_name: Auto %{number}
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -340,10 +351,39 @@ de:
 
   activerecord:
     models:
+      car: Auto
       price: Preis
       cash_flow: Zahlung
+      charging_session: Ladevorgang
       settings: Einstellungen
     attributes:
+      car:
+        id: Nummer
+        name: Name
+        active_from: In Gebrauch ab
+        active_until: In Gebrauch bis
+        color: Farbe
+      charging_session:
+        kind: Art
+        kinds:
+          wallbox: Wallbox
+          offsite: Auswärtsladung
+        car: Auto
+        car_id: Auto
+        guest: Gastladung
+        kwh_grid: Energie aus dem Netz
+        started_at: Beginn
+        ended_at: Ende
+        kwh: Energie
+        cost: Kosten
+        power_type: Ladeart
+        power_types:
+          ac: AC (Normalladen)
+          dc: DC (Schnellladen)
+        evse_id: EVSE-ID
+        provider: Fahrstromanbieter
+        address: Adresse
+        note: Bemerkung
       price:
         name: Name
         names:
@@ -373,6 +413,21 @@ de:
         plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers
     errors:
+      models:
+        car:
+          attributes:
+            active_until:
+              before_active_from: darf nicht vor dem ersten Tag liegen
+          offsite_sessions_outside:
+            one: Der Zeitraum lässt 1 Auswärtsladung des Autos aus.
+            other: Der Zeitraum lässt %{count} Auswärtsladungen des Autos aus.
+        charging_session:
+          attributes:
+            guest:
+              wallbox_only: ist nur an der eigenen Wallbox möglich
+              without_car: ist nur ohne Auto möglich
+            car_id:
+              inactive: ist zur Zeit des Ladevorgangs nicht in Gebrauch
       messages:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)
@@ -408,6 +463,10 @@ de:
     case_temp: 'Gehäusetemperatur des Akkus.'
     car_battery_soc: 'Ladestand der E-Auto-Batterie (SOC).'
     wallbox_car_connected: 'Ob aktuell ein E-Auto mit der Wallbox verbunden ist.'
+    car_range: 'Verbleibende Reichweite des E-Autos.'
+    car_max_range: 'Geschätzte Reichweite, hochgerechnet auf eine voll geladene Batterie (100%).'
+    car_odometer: 'Kilometerstand des E-Autos. Ein aktueller Wert oder eine Kurve ist der Stand, eine Summe über einen Zeitraum die gefahrene Strecke.'
+    car_connected: 'Ob das E-Auto aktuell an einer Wallbox angeschlossen ist.'
     outdoor_temp: 'Außenlufttemperatur.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
     co2_reduction: 'Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung.'
@@ -436,6 +495,7 @@ de:
       total: 'Gesamt'
       costs: 'Kosten'
     derived:
+      car: '%{description} Auto: %{car}.'
       split: 'Anteil von %{subject}, %{clause}.'
       total: '%{subject}, summiert über alle Wechselrichter/Verbraucher.'
       clause:
@@ -457,6 +517,7 @@ de:
     money_per_kwh: 'Preis pro Kilowattstunde in der konfigurierten Währung (ISO-4217-Code in get_system_info).'
     percent: 'Prozent (0–100).'
     celsius: 'Temperatur in Grad Celsius.'
+    kilometer: 'Strecke in Kilometern (km).'
     gram: 'Masse in Gramm (z. B. CO₂), über einen Zeitraum aggregiert.'
     gram_per_hour: 'Massenstrom in Gramm pro Stunde (g/h), z. B. das bei aktueller Erzeugung vermiedene CO₂. Über einen Zeitraum aggregiert wird daraus ein Gramm-Wert.'
     boolean: 'Wahrheitswert (true/false).'
