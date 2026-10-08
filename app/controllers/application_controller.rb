@@ -69,4 +69,9 @@ class ApplicationController < ActionController::Base
   # of the car page. Each link to the same page keeps them, and a link to
   # another page does not get them (see ApplicationHelper#selection_params).
   def selection_params = {}
+
+  # The options of the charts of a selection, for example the cars of the
+  # car page (see Sensor::Definitions::Base#chart). Each chart of the page
+  # gets them (see ApplicationHelper#chart_options).
+  def chart_options = {}
 end

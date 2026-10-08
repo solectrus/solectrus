@@ -8,6 +8,7 @@ describe Sensor::Cars do
   # number
   it 'makes a chart of each role without a number for the car page' do
     expect(Sensor::Registry[:car_distance]).to be_chart_only
+    expect(Sensor::Registry[:car_distance].home_pages).to eq([:cars])
     expect(Sensor::Registry[:car_odometer_1].home_pages).to be_empty
   end
 

@@ -7,31 +7,40 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
   # so the value holds until the next reading
   state
 
+  # The level of a state of charge: critical up to 5%, low up to 20%. The
+  # color here and the badge of Car::RangeGauge follow it.
+  def self.level(percent)
+    if percent <= 5
+      :critical
+    elsif percent <= 20
+      :low
+    else
+      :good
+    end
+  end
+
   color do |percent|
-    # Battery color scheme: 0-4% red, 5-20% orange/yellow, 21-100% green
-    if percent.nil?
+    case percent && Sensor::Definitions::CarBatterySoc.level(percent)
+    when nil
       # Default for nil - neutral/no data
       {
         background: 'bg-sky-400 dark:bg-sky-600',
         text: 'text-sky-100 dark:text-sky-400',
         border: 'border-transparent',
       }
-    elsif percent <= 5
-      # 0-5%: red (critical battery)
+    when :critical
       {
         background: 'xl:tall:bg-red-200 dark:xl:tall:bg-red-900',
         text: 'text-signal-negative',
         border: 'border-red-200 dark:border-red-900',
       }
-    elsif percent <= 20
-      # 6-20%: orange/yellow (low battery)
+    when :low
       {
         background: 'xl:tall:bg-orange-200 dark:xl:tall:bg-amber-900',
         text: 'text-signal-warning',
         border: 'border-orange-200 dark:border-amber-900',
       }
     else
-      # 21-100%: green (good battery level)
       {
         background: 'xl:tall:bg-emerald-200 dark:xl:tall:bg-emerald-900',
         text: 'text-signal-positive',

@@ -1,0 +1,13 @@
+= turbo_stream.update frame_id('timeframe') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now?
+  = turbo_stream.update frame_id('status') do
+    = render Status::Component.new time: data.time
+
+= turbo_stream.update scoped_frame_id('stats'), method: :morph do
+  / The live view fills the whole height, so the pills and the odometer need
+  / space to the edges
+  .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5 id= "stats-#{timeframe.id}" class=('py-4 md:py-6' if timeframe.now?)
+    - if timeframe.now?
+      = render Car::LiveView::Component.new(live: data, named: car_selection.installed.many?)

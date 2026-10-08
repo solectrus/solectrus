@@ -21,9 +21,13 @@ module ParamsHandling
       admin? || raise(ForbiddenError)
     end
 
+    # The car is no parameter of the page itself. The car selection reads it
+    # (see CarSelectable), and each link adds it from there. It is named here,
+    # because selection_params reads the timeframe, which reads these
+    # parameters.
     helper_method def permitted_params
       @permitted_params ||=
-        params.permit(
+        params.except(:car).permit(
           :sensor_name,
           :timeframe,
           :period,

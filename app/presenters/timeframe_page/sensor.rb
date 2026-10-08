@@ -4,9 +4,9 @@
 class TimeframePage::Sensor
   include Rails.application.routes.url_helpers
 
-  # `params` are the parameters that each link of the page keeps (see
-  # ApplicationController#selection_params). The route has a place for each
-  # of them in front of the timeframe.
+  # `params` are the parameters that each link of the page keeps, like the
+  # selected car (see ApplicationController#selection_params). The route has
+  # a place for each of them in front of the timeframe.
   def initialize(namespace:, sensor_name:, params: {})
     @namespace = namespace
     @sensor_name = sensor_name
@@ -25,4 +25,6 @@ class TimeframePage::Sensor
 
   # Forward from today into the forecast
   def forecast? = Sensor::Config.exists?(:inverter_power_forecast)
+
+  def hours? = Sensor::HomePage.hours?(@namespace.to_sym)
 end

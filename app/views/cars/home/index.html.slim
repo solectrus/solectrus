@@ -1,0 +1,35 @@
+- turbo_exempts_page_from_cache
+- content_for :full_height, true
+- extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
+
+- if @missing_or_stale_summary_days.present?
+  = render 'shared/home_sub_nav'
+  = turbo_stream.update frame_id('timeframe') do
+    = render Timeframe::Component.new(timeframe:)
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days, steps: Car::Report::STEPS)
+
+- elsif Sensor::HomePage.permitted?(page_key)
+  / The driving cost is the main number of the page, so its dependencies
+  / (odometer and wallbox) decide whether the page has anything to show.
+  - if Sensor::Config.exists?(:car_driving_costs)
+    / With more than one car, the select stays also for a timeframe with one
+    / car, so it does not come and go with the timeframe. The live view shows
+    / each car in use, with its name, so it needs no select.
+    - if car_selection.installed.many? && !timeframe.now?
+      - content_for :sub_nav_select do
+        = render Car::Select::Component.new(cars: car_selection.offered, car:)
+    = render 'shared/home_sub_nav'
+    / The sensors of a car report far less often than the sensors of the
+    / house, so the live view has no chart and refreshes less often. The cars
+    / take its place.
+    = render StatsWithChart::Component.new(sensor_name:, timeframe:, chart: !timeframe.now?, min_interval: 30.seconds)
+  - else
+    = render Message::Component.new do |c|
+      - c.with_watermark do
+        = icon 'car'
+      = c.with_title { t('layout.incomplete_car') }
+      = c.with_body { raw t('layout.missing_car') }
+
+- else
+  = render DemoLink::Component.new feature: Sensor::HomePage.feature(page_key),
+                                   url: { **permitted_params }

@@ -264,7 +264,7 @@ export default class extends Controller {
       currentTime === undefined ||
       lastPointTime === undefined
     ) {
-      if (this.hasCurrentValues && !chart) {
+      if (this.hasChartTarget && this.hasCurrentValues && !chart) {
         // We got a value, but no chart. Reload the frames to get the chart
         this.reloadFrames({ chart: true });
       }
@@ -533,7 +533,9 @@ export default class extends Controller {
   // errors to the console for debugging.
   private async reloadFrames(options: { chart: boolean }) {
     const reloads = [this.statsTarget.reload()];
-    if (options.chart) reloads.push(this.chartTarget.reload());
+    // A page without a chart (the live view of the cars) has no chart frame
+    if (options.chart && this.hasChartTarget)
+      reloads.push(this.chartTarget.reload());
 
     const results = await Promise.allSettled(reloads);
     for (const result of results) {

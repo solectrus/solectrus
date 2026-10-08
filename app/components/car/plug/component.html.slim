@@ -1,0 +1,6 @@
+- if compact?
+  span data-controller='tooltip' data-tooltip-touch-value='true' title=label aria-label=label role='img'
+    = helpers.icon 'plug', class: icon_class
+- else
+  = helpers.icon 'plug', class: icon_class
+  = label

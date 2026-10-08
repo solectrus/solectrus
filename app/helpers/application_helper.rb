@@ -35,10 +35,23 @@ module ApplicationHelper
     "#{controller_namespace}-#{prefix}-#{timeframe_identifier}"
   end
 
+  # The frame of the stats is permanent. A refresh of the page morphs it, and
+  # a morph keeps each permanent element. A page that shows another selection
+  # in the same timeframe therefore gives the stats and the frame around them
+  # an id of its own, so the morph replaces both.
+  def scoped_frame_id(prefix)
+    [frame_id(prefix), *selection_params.values.compact].join('-')
+  end
+
   # See ApplicationController#selection_params. A preview has no such
   # controller.
   def selection_params
     controller.respond_to?(:selection_params, true) ? controller.__send__(:selection_params) : {}
+  end
+
+  # See ApplicationController#chart_options. A preview has no such controller.
+  def chart_options
+    controller.respond_to?(:chart_options, true) ? controller.__send__(:chart_options) : {}
   end
 
   # The theme the visitor picked, written by the theme selector. A cookie and

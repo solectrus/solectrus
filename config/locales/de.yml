@@ -27,6 +27,7 @@ de:
     inverter: Erzeugung
     house: Hausverbrauch
     heatpump: Wärmepumpe
+    car: E-Auto
     amortization: Amortisation
     essentials: Einzelwerte
     forecast: Prognose
@@ -51,6 +52,8 @@ de:
     missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     incomplete_heatpump: Wärmepumpe
     missing_heatpump: Hier könnten Arbeitszahl, erzeugte Wärme und weitere interessante Messwerte deiner Wärmepumpe visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
+    incomplete_car: E-Auto
+    missing_car: Hier könnten Kilometerstand, Reichweite und Ladekosten deines E-Autos visualisiert werden. Ergänze deine Konfiguration um den Kilometerstand des Autos (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>) und für das Laden zu Hause um die Wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
     insights: Kennzahlen & Trend
   timeframe:
     now: Aktuell
@@ -109,6 +112,9 @@ de:
     battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
     car_battery_soc_short: Ladestand
+    car_charging_power_short: Ladeleistung
+    wallbox_car_connected_short: Angeschlossen
+    wallbox_car_disconnected_short: Nicht angeschlossen
     car_distance: Fahrleistung
     car_distance_short: Fahrleistung
     car_range: Reichweite
@@ -154,7 +160,7 @@ de:
     specific_yield: Spezifischer Ertrag
     heatpump_status: Wärmepumpen-Status
     custom_power_total: Benutzerdefinierte Verbraucher
-    wallbox_car_connected: Auto verbunden
+    wallbox_car_connected: Auto angeschlossen
     grid_balance: Netzbilanz
     house_costs: Hauskosten
     house_without_custom_costs: Hauskosten (ohne benutzerdef.)
@@ -344,6 +350,7 @@ de:
       enable_forecast: Seite "Prognose" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
       enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
+      enable_car: Seite "E-Auto" in der Navigation anbieten
   amortization:
     nav:
       chart: Saldo
@@ -499,7 +506,6 @@ de:
     battery_soc: 'Ladestand des Hausakkus (SOC).'
     case_temp: 'Gehäusetemperatur des Akkus.'
     car_battery_soc: 'Ladestand der E-Auto-Batterie (SOC).'
-    wallbox_car_connected: 'Ob aktuell ein E-Auto mit der Wallbox verbunden ist.'
     car_range: 'Verbleibende Reichweite des E-Autos.'
     car_max_range: 'Geschätzte Reichweite, hochgerechnet auf eine voll geladene Batterie (100%).'
     car_odometer: 'Kilometerstand des E-Autos. Ein aktueller Wert oder eine Kurve ist der Stand, eine Summe über einen Zeitraum die gefahrene Strecke.'
@@ -512,6 +518,7 @@ de:
     car_consumption_rate: 'Verbrauch des E-Autos in kWh pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
     car_cost_rate: 'Kosten des E-Autos pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
     car_driving_costs: 'Fahrkosten des E-Autos: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
+    wallbox_car_connected: 'Ob aktuell ein E-Auto an der Wallbox angeschlossen ist.'
     outdoor_temp: 'Außenlufttemperatur.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
     co2_reduction: 'Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung.'

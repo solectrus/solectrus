@@ -8,11 +8,5 @@ class Sensor::Definitions::CarRangeChart < Sensor::Definitions::Base
 
   value unit: :kilometer, category: :car
 
-  chart { |timeframe, cars: Car.configured, **| Sensor::Chart::CarRange.new(timeframe:, cars:) }
-
-  chart_only
-
-  def static_dependencies = Sensor::Cars.dependency(:car_range)
-
-  requires_permission :car
+  chart { |timeframe, cars: nil, **| Sensor::Chart::CarRange.new(timeframe:, cars:) }
 end

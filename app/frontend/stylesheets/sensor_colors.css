@@ -157,6 +157,11 @@
   --color-signal-warning: var(--palette-standard-light-autarky-mid);
   --color-signal-positive: var(--color-sensor-pv);
 
+  /* The battery and the plug of a car: the blue of the contrast palette in
+     every palette, because the green of the standard battery reads as a
+     state. Dark mode lightens it, so it stands apart from a grey track. */
+  --color-car-battery: var(--palette-contrast-light-battery);
+
   /* Standard inverter shades (hardcoded — non-linear hue bias
      can't be reproduced via color-mix) */
   --color-sensor-inverter-1: #047857;
@@ -224,6 +229,12 @@
     --color-signal-negative: var(--palette-standard-light-grid);
     --color-signal-warning: var(--palette-standard-dark-autarky-mid);
     --color-signal-positive: var(--palette-standard-light-pv);
+
+    --color-car-battery: color-mix(
+      in oklch,
+      var(--palette-contrast-dark-battery),
+      white 20%
+    );
 
     --color-sensor-inverter-1: #047857;
     --color-sensor-inverter-2: #056e52;

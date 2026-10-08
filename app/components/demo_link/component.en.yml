@@ -14,6 +14,9 @@ en:
   heatpump:
     title: Heat pump
     description: SOLECTRUS can monitor and visualize the heat output, coefficient of performance, and outdoor temperature.
+  car:
+    title: Electric vehicle
+    description: SOLECTRUS shows what driving an electric vehicle costs – per day, month and year, and per 100 km. It also shows the consumption including charging losses, the distance driven by energy source, and the maximum range.
   power_balance_chart:
     title: Power balance chart
     description: Shows the source and usage of electricity over time.

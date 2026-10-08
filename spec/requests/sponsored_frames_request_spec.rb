@@ -79,4 +79,22 @@ describe 'Sponsored frames' do
       end
     end
   end
+
+  # The car page has no hours view, and its frames have none either.
+  describe 'an hours timeframe' do
+    let(:features) { %i[car relative_timeframe] }
+
+    it 'answers nothing on the car page' do
+      get_frame '/cars/charts/car_charging/P24H'
+      expect(response).to have_http_status(:not_found)
+
+      get_frame '/cars/stats/car_charging/P24H'
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'answers the chart of another page' do
+      get_frame '/charts/inverter_power/P24H'
+      expect(response).to have_http_status(:success)
+    end
+  end
 end
