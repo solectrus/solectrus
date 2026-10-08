@@ -27,12 +27,36 @@ export type DatasetWithId = ChartDataset & {
   hatchFill?: boolean | boolean[];
   tooltipColor?: string;
   tooltipAbs?: boolean;
+  // False when the tooltip title names the dataset already, so its rows leave
+  // the label out.
+  tooltipPrefix?: boolean;
+  // The key of the dataset's list in `averages`.
+  sensorName?: string;
 };
 
 // A chart may state whether its fills cover each other instead of leaving that
 // to isOverlapping, whose dataset-count heuristic misreads stacked fills.
 export type ChartDataWithOverlap = ChartData & {
   overlapping?: boolean;
+};
+
+// A chart of grouped bars may carry the average of each group, one value per
+// label and null where it has none. One list per sensor, because a pair of
+// opposite bars has an average above the zero line and one below it.
+export type ChartDataWithAverages = ChartData & {
+  averages?: Record<string, (number | null)[]>;
+  averageLabel?: string;
+};
+
+// What a data point may carry beyond its coordinates. One type, so the shape
+// the server writes is described in one place rather than guessed at each
+// reader.
+//
+// `tooltipTitle`: the point names itself, for a chart whose axis label is
+// abbreviated for want of room ("Sep" on the axis, "September 2024" in the
+// tooltip).
+export type ChartPointExtras = {
+  tooltipTitle?: string;
 };
 
 // The lowest and highest value of what is shown together: the axis for a
@@ -74,8 +98,18 @@ export type TooltipConfig = NonNullable<
   NonNullable<ChartOptions['plugins']>['tooltip']
 >;
 
-// Extended tick options with custom callback marker
+// What a chart may state about its tooltip beyond the options Chart.js knows.
+//
+// `anchorToValues`: the tooltip sits at the height of the value it shows,
+// instead of in the middle of the plot where it sits by default.
+export type TooltipConfigExtras = TooltipConfig & {
+  anchorToValues?: boolean;
+};
+
+// Extended tick options with custom callback marker, and the index of the one
+// label a chart wants drawn in bold.
 export type ExtendedTickOptions = {
   callback?:
     ((value: number | string) => string) | 'formatTemperature' | 'formatAbs';
+  emphasize?: number;
 };

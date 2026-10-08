@@ -33,6 +33,14 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     "#{own} (& #{Sensor::Registry[partner].display_name})"
   end
 
+  # The button stands over the chart. Where the chart shares the row with the
+  # stats its half is narrow, so the menu hangs from the right edge rather than
+  # running past the card. A chart that has the row to itself has the room, and
+  # a menu under its own button reads better there.
+  def menu_position
+    helpers.year_comparison? ? :center_always : :center
+  end
+
   def sensor_groups
     @sensor_groups ||= build_grouped_sensor_items
   end
@@ -164,26 +172,47 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def build_menu_item(sensor_name)
+    compare = compare_for(sensor_name)
+
     MenuItem::Component.new(
       name: item_display_name(sensor_name),
       sensor_name:,
       id: item_id(sensor_name),
       separator_before: menu_item_separator_before?(sensor_name),
-      href:
-        url_for(
-          controller: "#{helpers.controller_namespace}/home",
-          sensor_name:,
-          timeframe:,
-          **helpers.selection_params,
-        ),
-      data: {
-        action: 'stats-with-chart--component#loadChart dropdown--component#toggle',
-        stats_with_chart__component_sensor_name_param: sensor_name,
-        stats_with_chart__component_chart_url_param:
-          charts_path(sensor_name:),
-      },
+      href: path_for('home', sensor_name:, compare:),
+      data: item_data(sensor_name, compare),
       current: current_item?(sensor_name),
     )
+  end
+
+  # Whether this sensor stays in the year comparison, and in which of them. One
+  # that has no value of its own cannot be compared, so picking it leaves the
+  # comparison behind.
+  def compare_for(sensor_name)
+    return unless helpers.year_comparison?
+    return unless Sensor::Chart::YearComparison.available_for?(
+      Sensor::Registry[sensor_name],
+    )
+
+    helpers.year_comparison
+  end
+
+  # Normally a pick swaps the chart frame alone, which is why the item carries
+  # the URL of that frame. Leaving the comparison changes the layout of the
+  # page instead: the stats come back beside the chart, and only a full load
+  # brings them. Such an item drops the frame swap and navigates.
+  def item_data(sensor_name, compare)
+    if helpers.year_comparison? && compare.nil?
+      return { action: 'dropdown--component#toggle' }
+    end
+
+    {
+      action:
+        'stats-with-chart--component#loadChart dropdown--component#toggle',
+      stats_with_chart__component_sensor_name_param: sensor_name,
+      stats_with_chart__component_chart_url_param:
+        path_for('charts', sensor_name:, compare:),
+    }
   end
 
   def current_item?(sensor_name)
@@ -198,11 +227,12 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     sensor_name
   end
 
-  def charts_path(sensor_name:)
+  def path_for(kind, sensor_name:, compare:)
     url_for(
-      controller: "#{helpers.controller_namespace}/charts",
+      controller: "#{helpers.controller_namespace}/#{kind}",
       sensor_name:,
       timeframe:,
+      compare:,
       **helpers.selection_params,
     )
   end

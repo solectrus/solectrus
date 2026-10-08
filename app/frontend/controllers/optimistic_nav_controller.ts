@@ -32,11 +32,18 @@ export default class extends Controller {
     this.forget();
   }
 
+  // The items are the children of the bar. An item may hold a menu of its own,
+  // and the links in there are not items: marking one would dress it as a tab
+  // and dress the tapped tab as a menu entry, which is a different size.
+  //
+  // An item that opens a menu is a button rather than a link, so it carries no
+  // marking to move. There is nothing to swap with then, and the bar waits for
+  // the page like it did before.
   markCurrent(event: Event) {
     const target = (event.target as Element | null)?.closest?.('a[href]');
-    if (!target) return;
+    if (!target || target.parentElement !== this.element) return;
 
-    const current = this.element.querySelector('a[aria-current]');
+    const current = this.element.querySelector(':scope > a[aria-current]');
     if (!current || current === target) return;
 
     this.undo = this.swap(current, target);

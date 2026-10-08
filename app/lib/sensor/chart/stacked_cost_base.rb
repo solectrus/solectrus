@@ -24,9 +24,14 @@ class Sensor::Chart::StackedCostBase < Sensor::Chart::FinanceBase
   end
 
   # Both segments are charted in the color of the power sensor they were
-  # calculated from, so they match the corresponding power chart.
+  # calculated from, so they match the corresponding power chart. The year
+  # comparison draws the finance sensor itself and asks this chart for its
+  # color, so anything else keeps the color of its own sensor.
   def color_class(sensor)
-    Sensor::Registry[color_sources[sensor.name]].color_background
+    source = color_sources[sensor.name]
+    return super unless source
+
+    Sensor::Registry[source].color_background
   end
 
   private
