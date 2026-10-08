@@ -15,6 +15,12 @@
 # conflict it has not seen, the script stops: resolve it, commit, and run the
 # script again. The run starts over and replays that resolution too.
 #
+# rerere records no conflict where one side changes a file and the other
+# deletes it. The state before the rebuild settled such a conflict already, if
+# it merged the same branch or holds the same commit. The script then takes the
+# file from that state: gone there, it goes; present there, it gets that
+# content.
+#
 # The script does not push.
 
 set -euo pipefail
@@ -65,10 +71,29 @@ EOF
   exit 1
 }
 
+# A conflict between a change and a deletion of a file, settled by the state
+# before the rebuild (see the top of this file)
+replay_deletions() {
+  local path
+  git status --porcelain | sed -nE 's/^(DU|UD) //p' | while read -r path; do
+    if git cat-file -e "$source:$path" 2>/dev/null; then
+      git checkout --quiet "$source" -- "$path"
+      echo "  $path: kept as in $source"
+    else
+      git rm --quiet -- "$path"
+      echo "  $path: deleted as in $source"
+    fi
+  done
+}
+
 # Conflicts that rerere resolved in full need no one, so commit them. The
 # editor is set by GIT_EDITOR, which wins over core.editor and is set by the
 # terminal of an IDE such as VS Code.
 resolve_or_stop() {
+  if [[ ${3:-} == settled ]]; then
+    replay_deletions
+  fi
+
   if [[ -n $(git diff --name-only --diff-filter=U) ]]; then
     git diff --name-only --diff-filter=U | sed 's/^/  conflict: /' >&2
     stop "$1"
@@ -77,15 +102,17 @@ resolve_or_stop() {
   echo "  conflicts resolved by rerere"
 }
 
+merged_before=$(
+  git log --reverse --first-parent --merges --format=%s "$base..$source" |
+    sed -n "s/^Merge branch '\(.*\)' into $preview\$/\1/p" |
+    grep -vx develop |
+    awk '!seen[$0]++' || true
+)
+
 if (($#)); then
   branches=$(printf '%s\n' "$@")
 else
-  branches=$(
-    git log --reverse --first-parent --merges --format=%s "$base..$source" |
-      sed -n "s/^Merge branch '\(.*\)' into $preview\$/\1/p" |
-      grep -vx develop |
-      awk '!seen[$0]++' || true
-  )
+  branches=$merged_before
 fi
 
 # Commits on the preview branch itself: first parents only, so nothing from a
@@ -113,15 +140,20 @@ while read -r branch; do
     continue
   fi
 
+  settled=
+  if grep -qxF -- "$branch" <<<"$merged_before"; then
+    settled=settled
+  fi
+
   echo "- merge $branch"
   git -c rerere.autoUpdate=true merge --quiet --no-ff --no-edit "$branch" ||
-    resolve_or_stop "Merging $branch stopped on a conflict." merge
+    resolve_or_stop "Merging $branch stopped on a conflict." merge "$settled"
 done <<<"$branches"
 
 for commit in $own_commits; do
   echo "- pick $(git log -1 --format='%h %s' "$commit")"
   git -c rerere.autoUpdate=true cherry-pick --empty=drop "$commit" >/dev/null ||
-    resolve_or_stop "Picking $commit stopped on a conflict." cherry-pick
+    resolve_or_stop "Picking $commit stopped on a conflict." cherry-pick settled
 done
 
 git update-ref "$base_ref" "$new_base"
