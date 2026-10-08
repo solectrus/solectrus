@@ -253,6 +253,10 @@ GEM
       nenv (~> 0.1)
       shellany (~> 0.0)
     ostruct (0.6.3)
+    pagy (43.7.0)
+      json
+      uri
+      yaml
     parallel (2.3.0)
     parallel_tests (5.8.0)
       parallel
@@ -490,6 +494,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
+    yaml (0.4.0)
     yard (0.9.45)
     zeitwerk (2.8.3)
 
@@ -519,6 +524,7 @@ DEPENDENCIES
   lograge
   lookbook
   mcp
+  pagy
   parallel_tests
   pg (~> 1.1)
   puma (>= 5.0)

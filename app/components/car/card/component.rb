@@ -2,6 +2,14 @@
 # title below. Charging stands on the left and driving on the right, like
 # the source and the usage of the power balance.
 class Car::Card::Component < ViewComponent::Base
+  # A badge at the foot of a card: the charging sessions of the charging card.
+  # Side by side they are narrow, so there the label stands above the count.
+  BADGE =
+    'click-animation flex flex-col items-center justify-center min-w-0 ' \
+    'rounded-lg px-2 md:px-3 py-2 sm:py-1 md:py-1.5 ' \
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-700 dark:focus-visible:ring-gray-400'.freeze
+  public_constant :BADGE
+
   # A row of the driving card: the rows stand one below the other, divided
   # by a line, close below the distance. A phone shows them as tiles, in a
   # card without a frame.

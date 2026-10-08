@@ -1,6 +1,7 @@
 # The addresses of a page with a timeframe, for the timeframe navigation
 # (Timeframe::Component) and the timeframe select (TimeframeSelect::Component).
-# This is the sensor page of a section.
+# This is the sensor page of a section. A page that is not a sensor page gives
+# its own class with the same methods, like TimeframePage::List.
 class TimeframePage::Sensor
   include Rails.application.routes.url_helpers
 
@@ -22,6 +23,9 @@ class TimeframePage::Sensor
   def base_url
     url_for(controller: "/#{@namespace}/home", action: 'index', sensor_name: @sensor_name, **@params, only_path: true)
   end
+
+  # The name of the timeframe "all", nil for the default
+  def label_for_all = nil
 
   # Forward from today into the forecast
   def forecast? = Sensor::Config.exists?(:inverter_power_forecast)

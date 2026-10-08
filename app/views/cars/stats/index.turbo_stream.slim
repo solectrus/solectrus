@@ -39,7 +39,7 @@
         / driving, so its charging takes the full width.
         .flex-1.min-h-0.grid.gap-4.md:gap-6 class=(data.driving? ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1')
           .contents data-car-cards-target='charging' class=('max-sm:hidden' if toggle && card != 'charging')
-            = render Car::ChargingCard::Component.new(report: data)
+            = render Car::ChargingCard::Component.new(report: data, all: car.nil?)
           - if data.driving?
             .contents data-car-cards-target='driving' class=('max-sm:hidden' unless card == 'driving')
               = render Car::DrivingCard::Component.new(report: data)

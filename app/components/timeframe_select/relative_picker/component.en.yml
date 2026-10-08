@@ -2,6 +2,7 @@ en:
   hours: Hours
   days: Days
   months: Months
+  last_all: '<strong>Total</strong>'
   last_24_hours: '<strong>24</strong>'
   last_48_hours: '<strong>48</strong>'
   last_72_hours: '<strong>72</strong>'

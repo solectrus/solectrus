@@ -1,0 +1,35 @@
+- content_for :fixed_nav, true
+- content_for :sub_nav do
+  .relative.flex.flex-col-reverse.gap-2.lg:landscape:gap-0.lg:landscape:items-center.justify-between.lg:landscape:flex-row.pt-2.pb-3.lg:landscape:py-5
+    /! Desktop starts with the way back to the car page and shows pill
+      buttons. Mobile has the bottom navigation for the way back, so it shows
+      only underline tabs, beside the car.
+    .hidden.lg:flex.items-center.gap-2
+      = render Car::BackLink::Component.new(path: back_path)
+      = render Nav::Sub::Component.new(abbreviate: false) do |c|
+        - c.with_items nav_items
+
+    / On the lower edge of the header. Mobile has it in the list instead.
+    - add_button_class = 'hidden lg:landscape:flex absolute top-full left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 size-14 rounded-full ring-2 ring-white dark:ring-slate-900 shadow-lg bg-indigo-600 dark:bg-indigo-800 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-white'
+    = render ChargingSession::AddButton::Component.new(kind:, selection: car_selection, css_class: add_button_class)
+
+    .flex.flex-col.items-center.w-full.lg:landscape:w-auto.lg:landscape:flex-row.lg:landscape:justify-end
+      .lg:landscape:h-8.space-x-4.flex.items-center.justify-between.lg:landscape:justify-end.w-full.lg:landscape:flex-1
+        = render Timeframe::Component.new(timeframe:, page: timeframe_page)
+
+      / Below the timeframe on mobile, before it on desktop
+      .flex.items-center.justify-between.gap-4.w-full.pt-2.lg:landscape:w-auto.lg:landscape:pt-0.lg:landscape:order-first
+        nav.lg:hidden.flex.gap-4 aria-label="Tabs"
+          - nav_items.each do |item|
+            - current_classes = 'border-white text-white'
+            - default_classes = 'border-transparent text-indigo-200 dark:text-gray-400 hover:text-white hover:border-indigo-300/50 dark:hover:border-gray-500'
+            = link_to item[:name],
+                      item[:href],
+                      class: [ \
+                        'py-1.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
+                        (item[:current] ? current_classes : default_classes),
+                      ],
+                      'aria-current': (item[:current] ? 'page' : nil)
+        - if @missing_or_stale_summary_days.blank?
+          .empty:hidden.lg:landscape:mr-4
+            = render ChargingSession::Filter::Component.new(kind:, timeframe:, cars: car_selection.offered, current: car_selection.to_param)
