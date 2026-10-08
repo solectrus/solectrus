@@ -14,4 +14,6 @@ class Sensor::Definitions::CarCharging < Sensor::Definitions::Base
       Sensor::Chart::CarSessions.new(timeframe:, cars:, measure: :energy)
     end
   end
+
+  trend
 end

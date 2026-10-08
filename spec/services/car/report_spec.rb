@@ -161,6 +161,28 @@ describe Car::Report do
     end
   end
 
+  describe '#maximum' do
+    it 'finds the day with the highest distance' do
+      expect(report.maximum(:car_distance)).to eq([Date.new(2026, 1, 10), 120])
+    end
+
+    # 20 kWh of car 2, without the guest session and the unassigned one
+    it 'finds the day with the most charged energy in Wh' do
+      expect(report.maximum(:car_charging)).to eq([Date.new(2026, 1, 11), 20_000])
+    end
+
+    it 'finds the day with the highest driving cost' do
+      date, cost = report.maximum(:car_driving_costs)
+
+      expect(date).to eq(Date.new(2026, 1, 10))
+      expect(cost).to be_within(0.001).of(5.6)
+    end
+
+    it 'has none for a rate' do
+      expect(report.maximum(:car_cost_rate)).to be_nil
+    end
+  end
+
   describe 'a number that a page reads more than once' do
     # Each spy calls the original
     def spy_on(klass, *methods)

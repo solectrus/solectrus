@@ -7,7 +7,9 @@
   .mt-2.mb-4
     = timeframe.localized
 
-  - if ApplicationPolicy.insights?
+  - if ApplicationPolicy.insights? && sensor.is_a?(Sensor::Definitions::CarPageChart)
+    = render Car::Insights::Component.new(sensor:, timeframe:, car: params[:car])
+  - elsif ApplicationPolicy.insights?
     = render Insights::Component.new(sensor:, timeframe:, controller_namespace:)
   - else
     = render DemoLink::Component.new feature: 'insights',

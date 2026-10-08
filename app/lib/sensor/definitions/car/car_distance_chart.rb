@@ -11,4 +11,7 @@ class Sensor::Definitions::CarDistanceChart < Sensor::Definitions::Base
   value unit: :kilometer, category: :car
 
   chart { |timeframe, cars: nil, **| Sensor::Chart::CarDistance.new(timeframe:, cars:) }
+
+  # Less driving is the better outcome, like car_odometer_<n>
+  trend
 end

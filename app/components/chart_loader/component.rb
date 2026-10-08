@@ -48,7 +48,8 @@ class ChartLoader::Component < ViewComponent::Base
     return if timeframe.now?
     return unless sensor.trendable?
 
-    helpers.insights_path(sensor_name: sensor.name, timeframe:)
+    # The car page keeps its selected car (see Car::Insights::Component)
+    helpers.insights_path(sensor_name: sensor.name, timeframe:, **helpers.selection_params)
   end
 
   def demo_url

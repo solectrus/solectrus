@@ -138,6 +138,31 @@ class Car::Report
     driving.cost if distance && driving.cost_rated?
   end
 
+  # The value of a chart of the car page for its insights and its trend (see
+  # Car::Trend), nil without one. The energy is in Wh, like a column of the
+  # chart. Sessions without a price have no cost.
+  def value(sensor_name) # rubocop:disable Metrics/CyclomaticComplexity
+    case sensor_name
+    when :car_distance then distance
+    when :car_charging then sessions.kwh * 1000
+    when :car_charging_costs then sessions.cost if sessions.cost?
+    when :car_driving_costs then driving_cost
+    when :car_cost_rate then driving.cost_per_100km
+    when :car_consumption_rate then driving.consumption_per_100km
+    when :car_max_range then max_range
+    end
+  end
+
+  # [date, value] of the day with the highest distance, charged energy (Wh)
+  # or driving cost, nil without one
+  def maximum(sensor_name)
+    case sensor_name
+    when :car_distance then max_distance_day
+    when :car_charging then max_charging_day
+    when :car_driving_costs then max_driving_cost_day
+    end
+  end
+
   private
 
   attr_reader :ledger
@@ -150,6 +175,33 @@ class Car::Report
     return @memo[key] if @memo.key?(key)
 
     @memo[key] = yield
+  end
+
+  # The daily distance is the sum of the cars on each day, so the database
+  # finds the day
+  def max_distance_day
+    SummaryValue
+      .where(field: cars.map { it.sensor_name(:car_odometer).to_s }, aggregation: 'sum', date: dates)
+      .group(:date)
+      .order(Arel.sql('SUM(value) DESC'))
+      .pick(:date, Arel.sql('SUM(value)'))
+  end
+
+  # The energy of the sessions of the cars, without the guest sessions
+  def max_charging_day
+    date, kwh = ChargingSession.where(car: cars).on_dates(dates).max_daily_kwh
+    [date, kwh.to_f * 1000] if kwh
+  end
+
+  # The driving cost of a day comes from the rates of its window (see
+  # Car::Driving), so it exists in Ruby only
+  def max_driving_cost_day
+    days =
+      dates.filter_map do |date|
+        day = rates.totals(date..date, cars:)
+        [date, day.cost] if day.cost_rated?
+      end
+    days.max_by(&:last)
   end
 
   def rates

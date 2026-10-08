@@ -14,4 +14,6 @@ class Sensor::Definitions::CarChargingCosts < Sensor::Definitions::Base
       Sensor::Chart::CarSessions.new(timeframe:, cars:, measure: :cost)
     end
   end
+
+  trend
 end
