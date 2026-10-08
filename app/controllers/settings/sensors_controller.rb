@@ -49,7 +49,6 @@ class Settings::SensorsController < ApplicationController
                  battery_discharging_power
                  case_temp
                  battery_soc
-                 car_battery_soc
                ],
              )
             @battery_sensors << sensor

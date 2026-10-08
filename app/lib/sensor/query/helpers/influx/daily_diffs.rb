@@ -18,9 +18,18 @@ module Sensor
         # reading before the run and the first reading after it. One query
         # fetches exactly these points.
         #
+        # A wrong reading, like a 0 of an offline car, is left out (see
+        # Sensor::MeterReadings). A second query then reads the readings
+        # around it (see #fetch_points).
+        #
         # Influx::DailyBatch runs it next to its other programs, so the diffs
         # cost no extra round trip.
         class DailyDiffs
+          # How far the filter on the value reads before and after a run of
+          # days (see #run_streams)
+          EDGE_WINDOW = 30.days
+          private_constant :EDGE_WINDOW
+
           def initialize(dates, sensor_names)
             @dates = dates
             @sensor_names = sensor_names.select { Sensor::Config.configured?(it) }
@@ -50,7 +59,7 @@ module Sensor
             dates.index_with do |date|
               day = Timeframe.new(date.iso8601)
               stop = [day.beginning_of_next, Time.current].min
-              sensor_names.index_with { [value_at(points[it], day.beginning), value_at(points[it], stop)] }
+              sensor_names.index_with { [value_at(points[it], day.beginning), value_at(points[it], stop, first_stands_in: false)] }
             end
           end
 
@@ -58,13 +67,23 @@ module Sensor
 
           # The reading at the time, interpolated between the readings around
           # it. A reading exactly at the time counts as the one before it.
-          def value_at(points, time)
+          #
+          # Before the first reading, the first reading stands in at the start
+          # of a day, so the day of the first reading keeps its increase. At
+          # the end of a day before the first reading, the meter had not read
+          # yet, so the day has no value and not an increase of 0.
+          def value_at(points, time, first_stands_in: true)
             return if time <= installation_time
 
-            before = points.select { |t, _| t <= time }.max_by(&:first)
-            after = points.select { |t, _| t > time }.min_by(&:first)
-            interpolate(before, after, time)
+            before = reading_before(points, time)
+            return unless before || first_stands_in
+
+            interpolate(before, reading_after(points, time), time)
           end
+
+          def reading_before(points, time) = points.select { |t, _| t <= time }.max_by(&:first)
+
+          def reading_after(points, time) = points.select { |t, _| t > time }.min_by(&:first)
 
           def interpolate(before, after, time)
             # Without an earlier reading, the first reading stands in. A
@@ -82,60 +101,98 @@ module Sensor
           end
 
           # { sensor_name => [[Time, value], ...] }
+          #
+          # The edges of the ranges, which InfluxDB reads from its storage directly.
+          # A wrong reading at an edge hides the readings beside it, so only then
+          # a second program reads the edges of its sensors above 0 (see
+          # #run_streams). A day of a car that sends no 0 thus costs no more.
           def fetch_points
-            parse(FluxProgram.query(build_flux, class_name: self.class.name, sensors: sensor_names))
+            points = read_points(sensor_names, 'source')
+            wrong = sensor_names.select { points[it].size > plausible(points[it]).size }
+            points.merge!(read_points(wrong, 'valid')) if wrong.any?
+
+            points.to_h { |name, readings| [name, plausible(readings)] }
           end
 
-          def build_flux
-            list = streams
-            names = Array.new(list.size) { "p#{it}" }
+          def read_points(names, reader)
+            flux = build_flux(names, reader)
+            parse(FluxProgram.query(flux, class_name: self.class.name, sensors: names), names)
+          end
+
+          def build_flux(names, reader)
+            list = streams(reader)
+            stream_names = Array.new(list.size) { "p#{it}" }
 
             <<~FLUX
-              #{FluxProgram.source(SensorFilter.predicate(sensor_names))}
+              #{FluxProgram.source(SensorFilter.predicate(names))}
+              valid = (start, stop) => source(start, stop) |> filter(fn: (r) => float(v: r._value) > 0.0)
               #{list.each_with_index.map { |stream, index| "p#{index} = #{stream}" }.join("\n")}
 
-              #{FluxProgram.union(names)}
+              #{FluxProgram.union(stream_names)}
                 |> keep(columns: ["_time", "_value", "_field", "_measurement"])
             FLUX
           end
 
           # The streams of each run of consecutive dates, so a chunk of
           # scattered dates costs its days and not the span between them
-          def streams
-            FluxProgram.runs(dates).flat_map { run_streams(it) }
+          def streams(reader)
+            FluxProgram.runs(dates).flat_map { run_streams(it, reader) }
           end
 
-          # The last reading before the run, the first and the last reading
-          # of each day of the run, and the first reading after it
-          def run_streams(run)
+          # The last reading before the run, the first and the last reading of
+          # each day of the run, and the first reading after it. The reader
+          # `valid` reads the readings above 0 alone. Its filter on the value
+          # reads each row of its range, which is cheap for a day. Before and
+          # after the run, it reads EDGE_WINDOW only, and a reading beyond comes
+          # from the open range without the filter.
+          def run_streams(run, reader)
             days = run.map { Timeframe.new(it.iso8601) }
             first_start = days.first.beginning
             last_stop = [days.last.beginning_of_next, Time.current].min
 
             [
-              ("source(#{FluxProgram.range_args(installation_time, first_start)}) |> last()" if first_start > installation_time),
+              *before_run(first_start, reader),
               *days.flat_map do |day|
                 range = FluxProgram.range_args(day.beginning, day.beginning_of_next)
-                ["source(#{range}) |> first()", "source(#{range}) |> last()"]
+                ["#{reader}(#{range}) |> first()", "#{reader}(#{range}) |> last()"]
               end,
-              "from(bucket: \"#{FluxProgram.bucket}\") |> range(start: #{last_stop.iso8601}) |> filter(fn: sensors) |> first()",
-            ].compact
+              *after_run(last_stop, reader),
+            ]
           end
 
-          def parse(rows)
-            lookup = SensorFilter.lookup(sensor_names)
-            result = sensor_names.index_with { [] }
+          def before_run(first_start, reader)
+            return [] if first_start <= installation_time
+
+            open = "source(#{FluxProgram.range_args(installation_time, first_start)}) |> last()"
+            return [open] if reader == 'source'
+
+            ["valid(#{FluxProgram.range_args([first_start - EDGE_WINDOW, installation_time].max, first_start)}) |> last()", open]
+          end
+
+          def after_run(last_stop, reader)
+            open = "from(bucket: \"#{FluxProgram.bucket}\") |> range(start: #{last_stop.iso8601}) |> filter(fn: sensors) |> first()"
+            return [open] if reader == 'source'
+
+            ["valid(#{FluxProgram.range_args(last_stop, last_stop + EDGE_WINDOW)}) |> first()", open]
+          end
+
+          def parse(rows, names)
+            lookup = SensorFilter.lookup(names)
+            result = names.index_with { [] }
 
             rows.each do |row|
-              names = lookup[[row['_measurement'], row['_field']]]
-              next if names.empty?
+              row_names = lookup[[row['_measurement'], row['_field']]]
+              next if row_names.empty?
 
               reading = [Time.iso8601(row['_time']), row['_value']]
-              names.each { result[it] << reading }
+              row_names.each { result[it] << reading }
             end
 
             result
           end
+
+          # The plausible readings, sorted by time
+          def plausible(readings) = Sensor::MeterReadings.new(readings).call
 
           def installation_time = FluxProgram.installation_time
         end

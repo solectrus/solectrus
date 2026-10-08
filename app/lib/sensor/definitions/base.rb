@@ -146,6 +146,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.meta_data[:chart_only].present?
   end
 
+  # Whether the sensor records a value on the date. The daily build keeps no
+  # value of another day (see Sensor::Summarizer).
+  def recorded_on?(_date) = true
+
   def chart(timeframe, **)
     config = self.class.meta_data[:chart]
     return unless config

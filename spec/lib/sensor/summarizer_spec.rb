@@ -169,9 +169,9 @@ describe Sensor::Summarizer do
           %i[battery_soc max] => 30,
           %i[battery_soc min] => 30,
           %i[battery_soc avg] => 30,
-          %i[car_battery_soc max] => 40,
-          %i[car_battery_soc min] => 40,
-          %i[car_battery_soc avg] => 40,
+          %i[car_battery_soc_1 max] => 40,
+          %i[car_battery_soc_1 min] => 40,
+          %i[car_battery_soc_1 avg] => 40,
           %i[case_temp max] => 50,
           %i[case_temp min] => 50,
           %i[case_temp avg] => 50,
@@ -240,9 +240,9 @@ describe Sensor::Summarizer do
           %w[battery_soc avg],
           %w[battery_soc max],
           %w[battery_soc min],
-          %w[car_battery_soc avg],
-          %w[car_battery_soc max],
-          %w[car_battery_soc min],
+          %w[car_battery_soc_1 avg],
+          %w[car_battery_soc_1 max],
+          %w[car_battery_soc_1 min],
           %w[case_temp avg],
           %w[case_temp max],
           %w[case_temp min],
@@ -351,6 +351,28 @@ describe Sensor::Summarizer do
 
       def value_for(field, aggregation: 'sum')
         summary.values.find_by(field:, aggregation:).value
+      end
+    end
+
+    context 'when the day is outside the period of the car' do
+      let(:date) { Date.yesterday }
+
+      before { Car.create!(id: 1, active_until: date - 1) }
+
+      it 'stores no value of the car' do
+        call
+
+        expect(SummaryValue.where(date:, field: 'car_battery_soc_1')).to be_empty
+        expect(SummaryValue.where(date:, field: 'battery_soc')).to be_present
+      end
+
+      it 'removes an existing value of the car' do
+        Summary.create!(date:, updated_at: date.middle_of_day)
+        SummaryValue.create!(date:, field: 'car_battery_soc_1', aggregation: 'avg', value: 40)
+
+        call
+
+        expect(SummaryValue.where(date:, field: 'car_battery_soc_1')).to be_empty
       end
     end
 
