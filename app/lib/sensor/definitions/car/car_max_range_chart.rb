@@ -11,5 +11,8 @@ class Sensor::Definitions::CarMaxRangeChart < Sensor::Definitions::Base
 
   chart { |timeframe, cars: nil, **| Sensor::Chart::CarMaxRange.new(timeframe:, cars:) }
 
+  # Higher max range is better (less battery degradation), like car_max_range_<n>
+  trend aggregation: :avg, more_is_better: true
+
   def static_dependencies = Sensor::Cars.dependency(:car_range, :car_battery_soc)
 end

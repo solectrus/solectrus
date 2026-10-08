@@ -4,4 +4,6 @@ class Sensor::Definitions::CarDrivingCosts < Sensor::Definitions::Base
   value unit: :money, category: :car
 
   color background: 'bg-sensor-costs', text: 'text-white dark:text-slate-400'
+
+  trend
 end

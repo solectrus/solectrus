@@ -166,6 +166,12 @@ class ChargingSession < ApplicationRecord
     end
   end
 
+  # [local date, kWh] of the day with the most energy of the scope, nil
+  # without a session
+  def self.max_daily_kwh
+    group(local_date_sql).order(Arel.sql('SUM(kwh) DESC NULLS LAST')).pick(local_date_sql, Arel.sql('SUM(kwh)'))
+  end
+
   # The detection cuts a charge over midnight into one session for each day
   # (see ChargingSession::Detection). The user sees one charge, so the list
   # joins these sessions again, and a count counts the charge once.
