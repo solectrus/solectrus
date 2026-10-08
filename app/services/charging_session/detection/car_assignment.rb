@@ -45,7 +45,7 @@ class ChargingSession::Detection::CarAssignment
 
   # A rise of the odometer above this is a drive (km)
   MIN_DRIVE = 0.5
-  private_constant :MIN_DRIVE
+  public_constant :MIN_DRIVE
 
   # The car sensors that the heuristics read
   ROLES = %i[car_battery_soc car_odometer].freeze

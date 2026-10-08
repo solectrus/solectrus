@@ -9,7 +9,7 @@ class Sensor::Definitions::CarCharging < Sensor::Definitions::Base
   # sessions, so the sensor itself never carries a scalar value.
   chart do |timeframe, cars: nil, **|
     if timeframe.short?
-      Sensor::Chart::CarChargingPower.new(timeframe:)
+      Sensor::Chart::CarChargingPower.new(timeframe:, cars:)
     else
       Sensor::Chart::CarSessions.new(timeframe:, cars:, measure: :energy)
     end

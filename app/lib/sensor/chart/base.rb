@@ -208,12 +208,17 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     return unless series
 
     items = build_chart_data_items
-    master = items.max_by { |item| item[:labels]&.length || 0 }
-    return unless master
+    labels = master_labels(items)
+    return unless labels
 
-    align_to_master_grid!(master[:labels], items)
+    align_to_master_grid!(labels, items)
 
-    { labels: master[:labels], datasets: datasets(items), overlapping: overlapping_datasets? }.compact
+    { labels:, datasets: datasets(items), overlapping: overlapping_datasets? }.compact
+  end
+
+  # The grid of the chart: the labels of the longest series
+  def master_labels(items)
+    items.max_by { |item| item[:labels]&.length || 0 }&.dig(:labels)
   end
 
   # Whether the fills cover each other, which decides how opaque they have to
