@@ -217,6 +217,57 @@ describe ChargingSession do
     end
   end
 
+  describe '.list_for' do
+    let!(:recent_offsite) { described_class.create!(kind: :offsite, origin: :user, car:, started_at: 2.days.ago, kwh: 10, cost: 5) }
+    let!(:old_offsite) { described_class.create!(kind: :offsite, origin: :user, car:, started_at: 2.years.ago, kwh: 20, cost: 10) }
+    let!(:guest) do
+      described_class.create!(kind: :wallbox, origin: :detection, guest: true, started_at: 1.day.ago, ended_at: 1.day.ago + 1.hour, kwh: 7)
+    end
+    let!(:open_task) do
+      described_class.create!(kind: :wallbox, origin: :detection, started_at: 3.days.ago, ended_at: 3.days.ago + 1.hour, kwh: 5)
+    end
+
+    it 'scopes by kind and orders by started_at desc when timeframe is nil' do
+      expect(described_class.list_for(:offsite)).to eq([recent_offsite, old_offsite])
+    end
+
+    it 'returns all matching sessions for timeframe all' do
+      expect(described_class.list_for(:offsite, timeframe: Timeframe.new('all'))).to eq([recent_offsite, old_offsite])
+    end
+
+    it 'filters by timeframe range when not all' do
+      expect(described_class.list_for(:offsite, timeframe: Timeframe.new(Date.current.strftime('%Y'))))
+        .to eq([recent_offsite])
+    end
+
+    it 'filters by car, guest and not assigned' do
+      expect(described_class.list_for(:offsite, filter: 1)).to eq([recent_offsite, old_offsite])
+      expect(described_class.list_for(:wallbox, filter: :guest)).to eq([guest])
+      expect(described_class.list_for(:wallbox, filter: :unassigned)).to eq([open_task])
+    end
+  end
+
+  describe '.sums' do
+    before do
+      described_class.create!(kind: :offsite, origin: :user, car:, started_at: 1.day.ago, kwh: 10, cost: 5.5)
+      described_class.create!(
+        kind: :wallbox, origin: :detection, car:, started_at: 2.days.ago, ended_at: 2.days.ago + 1.hour, kwh: 15, kwh_grid: 5, cost: 2.5,
+      )
+      described_class.create!(kind: :wallbox, origin: :detection, car:, started_at: 3.days.ago, ended_at: 3.days.ago + 1.hour, kwh: 7)
+    end
+
+    it 'sums the energy and the cost, and counts the sessions without a cost or a split' do
+      expect(described_class.sums).to have_attributes(kwh: 32.0, kwh_grid: 5.0, cost: 8.0, count: 3, rows: 3, uncosted: 1, unsplit: 1)
+    end
+
+    it 'gives the PV share of the wallbox sessions with a split' do
+      sums = described_class.wallbox.where.not(kwh_grid: nil).sums
+
+      expect(sums).to have_attributes(kwh_pv: 10.0, pv_percent: 67)
+      expect(described_class.wallbox.sums.kwh_pv).to be_nil
+    end
+  end
+
   describe '.daily_sums' do
     def wallbox(start, kwh:, kwh_grid: nil, cost: nil, cost_grid: nil)
       described_class.create!(kind: :wallbox, origin: :detection, car:, started_at: start, ended_at: start + 1.hour, kwh:, kwh_grid:, cost:, cost_grid:)
@@ -233,9 +284,9 @@ describe ChargingSession do
 
       expect(described_class.daily_sums).to eq(
         [car.id, false, day, 'wallbox'] =>
-          ChargingSession::Sums.new(count: 2, kwh: 13.0, kwh_grid: 2.0, cost: 1.4, cost_grid: 0.6, uncosted: 1, unsplit: 1),
+          ChargingSession::Sums.new(count: 2, rows: 2, kwh: 13.0, kwh_grid: 2.0, cost: 1.4, cost_grid: 0.6, uncosted: 1, unsplit: 1),
         [car.id, false, day, 'offsite'] =>
-          ChargingSession::Sums.new(count: 1, kwh: 5.0, kwh_grid: 0.0, cost: 3.0, cost_grid: 0.0, uncosted: 0, unsplit: 0),
+          ChargingSession::Sums.new(count: 1, rows: 1, kwh: 5.0, kwh_grid: 0.0, cost: 3.0, cost_grid: 0.0, uncosted: 0, unsplit: 0),
       )
     end
 
@@ -248,6 +299,110 @@ describe ChargingSession do
         Date.new(2026, 1, 15) => 13.0,
         session.date => 1.0,
       )
+    end
+  end
+
+  describe 'a charge over midnight' do
+    let(:midnight) { Time.zone.local(2026, 1, 16) }
+
+    # The detection cuts the charge at midnight (see Detection::Periods)
+    let!(:evening) do
+      described_class.create!(
+        kind: :wallbox,
+        car:,
+        started_at: midnight - 2.hours,
+        ended_at: midnight - 1.second,
+        kwh: 10,
+        kwh_grid: 2,
+        cost: 2,
+        origin: :detection,
+        note: 'Trip',
+      )
+    end
+    let!(:morning) do
+      described_class.create!(kind: :wallbox, origin: :detection, car:, started_at: midnight, ended_at: midnight + 3.hours, kwh: 15, kwh_grid: 3, cost: 3)
+    end
+
+    it 'is one charge in the list' do
+      charge = described_class.list_for(:wallbox).sole
+
+      expect(charge).to have_attributes(
+        id: evening.id,
+        part_ids: [evening.id, morning.id],
+        started_at: evening.started_at,
+        ended_at: morning.ended_at,
+        kwh: 25,
+        kwh_grid: 5,
+        cost: 5,
+        note: 'Trip',
+        car_id: car.id,
+      )
+    end
+
+    it 'has no cost when a part has none' do
+      morning.update!(cost: nil)
+
+      expect(described_class.list_for(:wallbox).sole.cost).to be_nil
+    end
+
+    it 'counts once, and keeps the energy on each day' do
+      expect(described_class.sums).to have_attributes(count: 1, rows: 2, kwh: 25.0)
+      expect(described_class.daily_sums.transform_keys { it[2] }.transform_values { [it.count, it.kwh] }).to eq(
+        Date.new(2026, 1, 15) => [1, 10.0],
+        Date.new(2026, 1, 16) => [0, 15.0],
+      )
+    end
+
+    it 'shows the part of a timeframe without the part before it' do
+      charges = described_class.list_for(:wallbox, timeframe: Timeframe.new('2026-01-16'))
+
+      expect(charges.map(&:part_ids)).to eq([[morning.id]])
+      expect(described_class.on_dates(Date.new(2026, 1, 16)..Date.new(2026, 1, 16)).sums).to have_attributes(count: 1, rows: 1)
+    end
+
+    it 'joins no sessions of two holders' do
+      morning.update!(car_id: nil, guest: true)
+
+      expect(described_class.list_for(:wallbox).map(&:part_ids)).to eq([[morning.id], [evening.id]])
+    end
+
+    it 'joins no sessions with a gap that ends a period' do
+      morning.update!(started_at: midnight + 20.minutes)
+
+      expect(described_class.sums).to have_attributes(count: 2, rows: 2)
+    end
+
+    it 'joins a gap over midnight that does not end a period' do
+      evening.update!(ended_at: midnight - 10.minutes)
+      morning.update!(started_at: midnight + 4.minutes)
+
+      expect(described_class.sums).to have_attributes(count: 1, rows: 2)
+    end
+
+    it 'joins no sessions of one day' do
+      evening.update!(ended_at: midnight - 1.hour)
+      morning.update!(started_at: midnight - 50.minutes, ended_at: midnight - 30.minutes)
+
+      expect(described_class.sums).to have_attributes(count: 2, rows: 2)
+    end
+
+    describe '#update_parts' do
+      it 'changes each part, and keeps the note at the head' do
+        charge = morning.charge
+
+        expect(charge.update_parts(car_id: nil, guest: true, note: 'Visitor')).to be(true)
+        expect(evening.reload).to have_attributes(guest: true, car_id: nil, assigned_manually: true, note: 'Visitor')
+        expect(morning.reload).to have_attributes(guest: true, car_id: nil, assigned_manually: true, note: nil)
+      end
+
+      it 'changes no part when one part is invalid' do
+        other = Car.create!(id: 2, active_until: Date.new(2026, 1, 15))
+        charge = evening.charge
+
+        expect(charge.update_parts(car_id: other.id)).to be(false)
+        expect(charge.errors[:car_id]).to be_present
+        expect([evening.reload.car_id, morning.reload.car_id]).to eq([car.id, car.id])
+      end
     end
   end
 end

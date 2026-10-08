@@ -28,6 +28,7 @@ en:
     house: House consumption
     heatpump: Heat pump
     car: Electric vehicle
+    charging_sessions: EV charging sessions
     amortization: Amortization
     essentials: Essentials
     forecast: Forecast
@@ -66,6 +67,7 @@ en:
     year: This year
     years: Last %{count} years
     all: Since commissioning
+    total: All time
   sensors:
     car_roles:
       car_battery_soc: SOC
@@ -191,8 +193,15 @@ en:
     share_wallbox: at the wallbox
     home_grid: Grid
     offsite: Offsite charging
+    offsite_sessions: Charging sessions away from home
+    guest_sessions: Charging sessions of guests
     charging: Charging
     driving: Driving
+    wallbox_short: Wallbox
+    wallbox_sessions: Charging sessions at the wallbox
+    guest_short: Guest
+    offsite_short: Offsite
+    sessions: Charging sessions
     no_charging: No charging
     costs: Costs
     consumption: Ø Consumption
@@ -200,6 +209,9 @@ en:
     in_total: in total
     avg_per_100km: Ø per 100 km
     range: Ø Range
+    unassigned:
+      one: 1 session not assigned
+      other: '%{count} sessions not assigned'
     daily_rate: Each day at the rate of the %{days} days before and after it
     total: Total
   balance_sheet:
@@ -300,7 +312,24 @@ en:
       continue: Register now
       login_required: Please log in as an administrator to complete the registration.
   charging_sessions:
+    edit: Edit charging session
+    new: New charging session
+    guest: Guest
+    unassigned: Not assigned
+    no_cost: No cost, because the day has no price
     cost_incomplete: At least, because a charging session has no cost
+    count:
+      one: charging session
+      other: charging sessions
+    description:
+      wallbox: Charging sessions at your own wallbox, detected automatically.
+      offsite: Charging sessions at public charging stations or on other people's wallboxes.
+    empty:
+      wallbox: No charging sessions at the wallbox
+      offsite: No offsite charging sessions
+    form:
+      assigned_manually: You chose this. A new detection keeps your choice.
+      assigned_by_detection: Detected automatically. You can correct it.
   crud:
     new: New
     edit: Edit

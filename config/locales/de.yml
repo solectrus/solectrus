@@ -28,6 +28,7 @@ de:
     house: Hausverbrauch
     heatpump: Wärmepumpe
     car: E-Auto
+    charging_sessions: Ladevorgänge für E-Auto
     amortization: Amortisation
     essentials: Einzelwerte
     forecast: Prognose
@@ -66,6 +67,7 @@ de:
     year: Dieses Jahr
     years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme
+    total: Gesamter Zeitraum
   sensors:
     car_roles:
       car_battery_soc: Ladestand
@@ -191,8 +193,15 @@ de:
     share_wallbox: an der Wallbox
     home_grid: Netzbezug
     offsite: Auswärtsladung
+    offsite_sessions: Ladevorgänge auswärts
+    guest_sessions: Ladevorgänge von Gästen
     charging: Laden
     driving: Fahren
+    wallbox_short: Wallbox
+    wallbox_sessions: Ladevorgänge an der Wallbox
+    guest_short: Gast
+    offsite_short: Auswärts
+    sessions: Ladevorgänge
     no_charging: Keine Ladung
     costs: Kosten
     consumption: Ø Verbrauch
@@ -200,6 +209,9 @@ de:
     in_total: insgesamt
     avg_per_100km: Ø pro 100 km
     range: Ø Reichweite
+    unassigned:
+      one: 1 Ladung nicht zugeordnet
+      other: '%{count} Ladungen nicht zugeordnet'
     daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
     total: Gesamt
   balance_sheet:
@@ -300,7 +312,24 @@ de:
       continue: Jetzt registrieren
       login_required: Um die Registrierung vorzunehmen, melde dich bitte als Admin an.
   charging_sessions:
+    edit: Ladevorgang bearbeiten
+    new: Neuer Ladevorgang
+    guest: Gast
+    unassigned: Nicht zugeordnet
+    no_cost: Keine Kosten, weil für den Tag kein Preis hinterlegt ist
     cost_incomplete: Mindestens, weil ein Ladevorgang keine Kosten hat
+    count:
+      one: Ladevorgang
+      other: Ladevorgänge
+    description:
+      wallbox: Laden an deiner eigenen Wallbox, automatisch erkannt.
+      offsite: Laden an öffentlichen Ladesäulen oder fremden Wallboxen.
+    empty:
+      wallbox: Keine Ladevorgänge an der Wallbox
+      offsite: Keine Auswärtsladungen
+    form:
+      assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
+      assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.
   crud:
     new: Neu
     edit: Bearbeiten

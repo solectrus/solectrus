@@ -62,6 +62,9 @@ gem 'http_accept_language'
 # Ruby on Rails applications monitoring (https://www.rorvswild.com)
 gem 'rorvswild'
 
+# Pagy - The Leaping Gem! (https://github.com/ddnexus/pagy)
+gem 'pagy'
+
 group :development, :test do
   # Boot large ruby/rails apps faster (https://github.com/rails/bootsnap).
   # Development and test only: a container starts fresh every time, so the

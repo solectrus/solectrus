@@ -1,7 +1,12 @@
 describe Car::ChargingCard::Component, type: :component do
   subject(:html) { render_inline(described_class.new(report:)) }
 
-  def sums(**) = ChargingSession::Sums.empty.with(**)
+  def sums(count: 0, **) = ChargingSession::Sums.empty.with(count:, rows: count, **)
+
+  # A badge is a block with a link over its whole area
+  def badges(html = self.html) = html.css('a.inset-0[aria-label]').map(&:parent)
+
+  def badge(path, html = self.html) = badges(html).find { it.at_css('a.inset-0')['href'].include?(path) }
 
   def ring(html = self.html) = html.at_css('.donut-chart [style*="conic-gradient"]')
 
@@ -28,6 +33,7 @@ describe Car::ChargingCard::Component, type: :component do
       cars: [car],
       car:,
       guest_sessions: guest,
+      unassigned_sessions: sums,
     )
   end
 
@@ -88,6 +94,51 @@ describe Car::ChargingCard::Component, type: :component do
       expect(ring_colors).to eq(%w[--color-sensor-pv --color-sensor-grid])
       expect(energies.size).to eq(2)
     end
+  end
+
+  it 'shows the sessions' do
+    expect(html.text.squish).to include(
+      I18n.t('car_breakdown.wallbox_short'),
+      '12',
+      I18n.t('car_breakdown.offsite_short'),
+      '7',
+    )
+  end
+
+  it 'links the wallbox and the offsite badge to the sessions of the car' do
+    expect(html.css('a').pluck('href')).to include(
+      a_string_including('/cars/1/charging_sessions/wallbox'),
+      a_string_including('/cars/1/charging_sessions/offsite'),
+    )
+  end
+
+  it 'links the guest badge to the guest sessions, in the color of the others' do
+    badge = badge('/cars/guest/charging_sessions/wallbox')
+
+    expect(badge).to be_present
+    expect(badge['class']).to include('bg-slate-200')
+  end
+
+  it 'gives each badge a tooltip with its energy and its cost' do
+    tooltips = badges.map { it.at_css('[data-tooltip-target="html"]').text.squish }
+
+    expect(badges.pluck('title').compact).to be_empty
+    expect(tooltips).to match(
+      [
+        a_string_including(I18n.t('car_breakdown.wallbox_sessions'), '1,924', '312'),
+        a_string_including(I18n.t('car_breakdown.offsite_sessions'), '154', '60'),
+        a_string_including(I18n.t('car_breakdown.guest_sessions'), '21', '6.5'),
+      ],
+    )
+  end
+
+  it 'points to the wallbox sessions that are not assigned on "all"' do
+    allow(report).to receive(:unassigned_sessions).and_return(sums(count: 6, kwh: 123.8))
+    html = render_inline(described_class.new(report:, all: true))
+    badge = badge('/cars/1/charging_sessions/wallbox', html)
+
+    expect(badge.css('a[href*="/cars/unassigned/charging_sessions/wallbox"] svg[data-icon="circle-question"]')).to be_present
+    expect(badge.at_css('[data-tooltip-target="html"]').text.squish).to include('6 sessions not assigned', '123.8')
   end
 
   context 'with costs that round apart' do
@@ -158,6 +209,13 @@ describe Car::ChargingCard::Component, type: :component do
     it 'gives the shares and names the missing price in the tooltip of the ring' do
       expect(tooltip_rows.size).to eq(3)
       expect(tooltip.text.squish).to include('56 %', I18n.t('car_breakdown.cost_missing'))
+    end
+
+    it 'shows no cost in the tooltips of the ring and the badges' do
+      tooltips = [tooltip, *badges.map { it.at_css('[data-tooltip-target="html"]') }]
+
+      expect(tooltips.size).to eq(4)
+      expect(tooltips.map(&:text).join).not_to match(/[€$]/)
     end
   end
 

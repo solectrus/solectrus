@@ -1,0 +1,58 @@
+.col-span-full.grid.grid-cols-subgrid.items-center.group.hover:bg-gray-100.dark:hover:bg-gray-700
+  .col-start-1.p-1.sm:p-2.tabular-nums.text-left.whitespace-nowrap
+    = link_to day_path do
+      time datetime= charging_session.started_at.iso8601
+        / On a phone, the short year leaves room for the car
+        span.group-hover:underline.underline-offset-4
+          span.sm:hidden = charging_session.started_at.in_time_zone.strftime('%d.%m.%y')
+          span.hidden.sm:inline = charging_session.started_at.in_time_zone.strftime('%d.%m.%Y')
+        span.hidden.lg:inline
+          =< time_range
+  .col-start-2.p-1.sm:p-2.min-w-0
+    = render Car::Badge::Component.new(charging_session:, short: true)
+  / Grid items must follow the order of their columns: the PV share takes
+    the wide column after the energy, the address the one before it
+  - if pv_share?
+    .col-start-3.p-1.sm:p-2.tabular-nums.text-right.whitespace-nowrap
+      = render SensorValue::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+    .col-start-4.hidden.sm:block.p-1.sm:p-2.sm:px-3.lg:px-8.tabular-nums.whitespace-nowrap
+      - if charging_session.pv_percent
+        = render ChargingSession::PvShareBar::Component.new(percent: charging_session.pv_percent)
+      - else
+        span.text-gray-400 –
+  - else
+    .col-start-3.hidden.md:block.p-2.text-gray-500.text-sm.truncate.min-w-0
+      = charging_session.address.presence || charging_session.provider.presence || charging_session.note
+    .col-start-4.p-1.sm:p-2.tabular-nums.text-right.whitespace-nowrap
+      = render SensorValue::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+  .col-start-5.p-1.sm:p-2.tabular-nums.text-right.whitespace-nowrap
+    - if charging_session.cost
+      = number_to_currency(charging_session.cost, unit: Currency.symbol)
+    - else
+      span.text-gray-400 title=t('charging_sessions.no_cost') –
+
+  .col-start-6.p-2
+    .flex.space-x-1
+      = render Button::Component.new path: edit_cars_charging_session_path(charging_session),
+                                     icon: 'pencil',
+                                     type: :button,
+                                     style: :secondary,
+                                     options: { \
+                                       method: :get,
+                                       params: helpers.list_params,
+                                       data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                       'aria-label': t('crud.edit'),
+                                     }
+
+      - if charging_session.offsite?
+        = render Button::Component.new path: cars_charging_session_path(charging_session),
+                                       icon: 'trash',
+                                       type: :button,
+                                       style: :secondary,
+                                       options: { \
+                                         method: :delete,
+                                         params: helpers.list_params,
+                                         'aria-label': t('crud.delete'),
+                                         form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
+                                         class: 'hover:text-orange-500',
+                                       }

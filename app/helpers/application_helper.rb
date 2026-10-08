@@ -91,4 +91,13 @@ module ApplicationHelper
   def chrome_background_style
     "background-color: var(--color-chrome, #{ThemeConfig.x.color(chosen_theme)})"
   end
+
+  # The start and the end of a session or a visit: both times on the same
+  # day, otherwise the start and the block with the end
+  def time_range(started_at, ended_at)
+    from = started_at.strftime('%H:%M')
+    return "#{from}–#{ended_at.strftime('%H:%M')}" if ended_at.to_date == started_at.to_date
+
+    "#{from} – #{yield ended_at}"
+  end
 end

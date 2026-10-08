@@ -92,6 +92,13 @@
 #                                   PUT              /settings/cash_flows/:id(.:format)                            settings/cash_flows#update
 #                                   DELETE           /settings/cash_flows/:id(.:format)                            settings/cash_flows#destroy
 #                          settings GET              /settings(.:format)                                           redirect(301, /settings/general)
+#            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format) cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                                   POST             /cars/charging_sessions(.:format)                             cars/charging_sessions#create
+#         new_cars_charging_session GET              /cars/charging_sessions/new(.:format)                         cars/charging_sessions#new
+#        edit_cars_charging_session GET              /cars/charging_sessions/:id/edit(.:format)                    cars/charging_sessions#edit
+#             cars_charging_session PATCH            /cars/charging_sessions/:id(.:format)                         cars/charging_sessions#update
+#                                   PUT              /cars/charging_sessions/:id(.:format)                         cars/charging_sessions#update
+#                                   DELETE           /cars/charging_sessions/:id(.:format)                         cars/charging_sessions#destroy
 #                              root GET              /                                                             balance/home#index
 #  turbo_recede_historical_location GET              /recede_historical_location(.:format)                         turbo/native/navigation#recede
 #  turbo_resume_historical_location GET              /resume_historical_location(.:format)                         turbo/native/navigation#resume
@@ -281,6 +288,23 @@ Rails.application.routes.draw do
     end
   end
   get '/settings', to: redirect('/settings/general')
+
+  # The pages of the car page beside its sensor pages
+  scope :cars, module: :cars, as: :cars do
+    # The list of the charging sessions, with the selected car in front. The
+    # list also selects the extras of its kind there (see CarSelection::EXTRAS).
+    # Before the resources, so the list keeps the name.
+    get '(:car)/charging_sessions(/:kind)(/:timeframe)',
+        to: 'charging_sessions#index',
+        as: :charging_sessions,
+        constraints: {
+          car: CarSelection::CAR_OR_EXTRA,
+          kind: Regexp.union(ChargingSession.kinds.keys),
+          timeframe: Timeframe::REGEX,
+        }
+
+    resources :charging_sessions, except: %i[index show]
+  end
 
   root to: 'balance/home#index'
 end

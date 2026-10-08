@@ -352,6 +352,22 @@ describe 'Car Stats' do
         end
       end
 
+      context 'with a session that is not assigned' do
+        before { wallbox(day, kwh: 7, kwh_grid: 7, cost: 2.1, car_id: nil, hour: 18) }
+
+        it 'names its energy in the selection "all"' do
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
+
+          expect(response.body).to include('1 session not assigned', 'data-icon="circle-question"')
+        end
+
+        it 'names nothing for one car' do
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 1), headers:)
+
+          expect(response.body).not_to include('not assigned')
+        end
+      end
+
       context 'with the power splitter and an offsite session' do
         before do
           stub_feature(:car, :power_splitter)

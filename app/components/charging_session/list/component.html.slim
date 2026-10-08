@@ -1,0 +1,28 @@
+/ Mobile has the add button above the list, desktop in the header
+= render add_button
+
+- if sessions.empty?
+  = render EmptyList::Component.new(icon: 'charging-station', text: t("charging_sessions.description.#{kind}"))
+    p.text-gray-900.bg-gray-200.dark:bg-gray-700.dark:text-gray-400.px-2.py-1.rounded
+      = t "charging_sessions.empty.#{kind}"
+- else
+  / On a phone, the car column takes the free space
+  .grid.w-full.select-text class=(pv_share? ? 'grid-cols-[auto_minmax(0,1fr)_auto_0_auto_auto] sm:grid-cols-[auto_auto_auto_1fr_auto_auto]' : 'grid-cols-[auto_minmax(0,1fr)_0_auto_auto_auto] md:grid-cols-[auto_auto_1fr_auto_auto_auto]')
+    = render ChargingSession::Rows::Component.new(sessions:, pagy:)
+
+    / One session would only repeat its row
+    - if totals?
+      .col-span-full.grid.grid-cols-subgrid.border-t.border-current.sticky.bottom-0.z-10.bg-white.dark:bg-slate-900.text-gray-800.dark:text-gray-400.font-bold
+        .col-start-1.col-span-2.min-w-0.truncate.p-1.sm:p-2.pt-3.sm:pt-4.text-left.text-sm.sm:text-base
+          = totals.count
+          span.font-light<
+            = t('charging_sessions.count', count: totals.count)
+        .p-1.sm:p-2.pt-3.sm:pt-4.text-sm.sm:text-base.tabular-nums.text-right.whitespace-nowrap class=(pv_share? ? 'col-start-3' : 'col-start-4')
+          = render SensorValue::Component.new(totals.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+        - if pv_share? && totals.pv_percent
+          .col-start-4.hidden.sm:block.p-1.sm:p-2.sm:px-3.lg:px-8.pt-3.sm:pt-4.tabular-nums.whitespace-nowrap
+            = render ChargingSession::PvShareBar::Component.new(percent: totals.pv_percent)
+        .col-start-5.p-1.sm:p-2.pt-3.sm:pt-4.text-sm.sm:text-base.tabular-nums.text-right.whitespace-nowrap
+          - if cost_incomplete?
+            span.text-gray-400 title=t('charging_sessions.cost_incomplete') ≥
+          = number_to_currency(totals.cost, unit: Currency.symbol)

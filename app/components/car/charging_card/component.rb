@@ -1,9 +1,13 @@
 # The charging of a period: the charged energy with the energy of each source
-# in its tooltip, and a ring of the sources with the share of PV in the
-# center. The tooltip of the ring gives the share and the cost of each source
-# and the charging cost. Without the power splitter, the wallbox has no PV and
-# grid, so the ring has the wallbox and the offsite sessions. The numbers are
-# the charging sessions of the selected cars (see Car::Report).
+# in its tooltip, a ring of the sources with the share of PV in the center,
+# and the number of wallbox, offsite and guest sessions. The tooltip of the ring
+# gives the share and the cost of each source and the charging cost. Without
+# the power splitter, the wallbox has no PV and grid, so the ring has the
+# wallbox and the offsite sessions. The numbers are the charging sessions of
+# the selected cars (see Car::Report).
+#
+# A badge with sessions that its count leaves out shows an icon, and its
+# tooltip names them (see #omitted).
 class Car::ChargingCard::Component < ViewComponent::Base
   include CarChartLink
 
@@ -11,14 +15,27 @@ class Car::ChargingCard::Component < ViewComponent::Base
   MIN_PERCENT = 0.3
   private_constant :MIN_PERCENT
 
+  # Each badge with its sessions and the list it opens. Without a wallbox
+  # there is no wallbox or guest session, and their badges are hidden, not
+  # zero.
+  Badge = Data.define(:kind, :sums, :params)
+  private_constant :Badge
+
+  # The sessions that the count of a badge leaves out, with their energy
+  # where it counts for nothing, and their list
+  Omitted = Data.define(:text, :kwh, :path)
+  private_constant :Omitted
+
   # A source of the charged energy (see Car::Report#sources) with its style,
   # its share in percent and its whole share
   Part = Data.define(:source, :style, :percent, :whole_percent)
   private_constant :Part
 
-  def initialize(report:)
+  # `all` is whether the page shows "all" and not one selected car
+  def initialize(report:, all: false)
     super()
     @report = report
+    @all = all
   end
 
   attr_reader :report
@@ -99,13 +116,48 @@ class Car::ChargingCard::Component < ViewComponent::Base
     )
   end
 
-  def energy_value(kwh, **)
+  def energy_value(kwh, precision: self.precision, **)
     SensorValue::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, precision:, **)
   end
+
+  def badges
+    car = report.car&.id
+    [
+      (Badge.new(:wallbox, wallbox, { kind: 'wallbox', car: }) if wallbox?),
+      Badge.new(:offsite, offsite, { kind: 'offsite', car: }),
+      (Badge.new(:guest, report.guest_sessions, { kind: 'wallbox', car: CarSelection::GUEST }) if wallbox?),
+    ].compact
+  end
+
+  # The sessions that the count of the badge leaves out, or nil: on "all"
+  # the wallbox sessions that are not assigned. These count for no car, so
+  # without the hint the numbers of "all" are too small without a reason.
+  def omitted(badge)
+    return unless badge.kind == :wallbox
+
+    sessions = report.unassigned_sessions
+    Omitted.new(t('car_breakdown.unassigned', count: sessions.count), sessions.kwh, sessions_path('wallbox', CarSelection::UNASSIGNED)) if @all && sessions.any?
+  end
+
+  def sessions_path(kind, car) = helpers.cars_charging_sessions_path(kind:, timeframe:, car:)
+
+  def badge_cost(badge, **)
+    SensorValue::Component.new(badge.sums.cost, :total_costs, **)
+  end
+
+  def badge_classes = [Car::Card::Component::BADGE, 'bg-slate-200 dark:bg-slate-700/60']
 
   private
 
   def charged = report.sessions
+
+  def wallbox = report.sessions(:wallbox)
+
+  def offsite = report.sessions(:offsite)
+
+  def wallbox?
+    Sensor::Config.exists?(:wallbox_power)
+  end
 
   def build_parts
     sources = report.sources.select { it.kwh.positive? }

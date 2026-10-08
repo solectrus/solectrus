@@ -17,6 +17,8 @@ class Timeframe::Component < ViewComponent::Base
     )
   end
 
+  delegate :label_for_all, to: :page
+
   def forecast_mode?
     forecast_days.present?
   end

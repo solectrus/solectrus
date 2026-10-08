@@ -47,6 +47,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     helper_method def desktop_secondary_items
       @desktop_secondary_items ||=
         [
+          *charging_sessions_group,
           helios_item,
           settings_item,
           registration_item,
@@ -149,6 +150,26 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         href:
           cars_home_path(sensor_name: ('car_distance' unless live), timeframe:, car: nil),
         current: helpers.controller_namespace == 'cars',
+      }
+    end
+
+    # The data of the menu stands apart from the configuration below it
+    def charging_sessions_group
+      item = charging_sessions_item
+      [item, ___] if item
+    end
+
+    # The list of all charging sessions. Like the settings, a guest sees the
+    # link and the list asks to log in (see CarPageGate). The link starts
+    # without the car, kind and timeframe of the current page.
+    def charging_sessions_item
+      return unless Sensor::HomePage.open?(:cars)
+
+      {
+        name: t('layout.charging_sessions'),
+        icon: 'charging-station',
+        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe: nil),
+        current: helpers.controller.is_a?(Cars::ChargingSessionsController),
       }
     end
 
