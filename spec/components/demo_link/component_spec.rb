@@ -33,6 +33,18 @@ describe DemoLink::Component, type: :component do
     )
   end
 
+  # A page a sponsorship opens renders this teaser in place of its data, so
+  # each of these features needs a text of its own.
+  Sensor::HomePage.all.filter_map { Sensor::HomePage.feature(it) }.each do |feature|
+    I18n.available_locales.each do |locale|
+      it "has a text for the #{feature} page in #{locale}" do
+        I18n.with_locale(locale) { render_inline(described_class.new(feature:)) }
+
+        expect(page).to have_no_css('.translation_missing')
+      end
+    end
+  end
+
   context 'when the free month is still unused' do
     before do
       allow(PremiumStatus).to receive(:trial_available?).and_return(true)

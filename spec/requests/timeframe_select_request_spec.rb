@@ -17,4 +17,18 @@ describe 'Timeframe select' do
 
     expect(response.body).to include('data-timeframe-select--component-base-url-value="/house/house_power"')
   end
+
+  it 'offers no hours on the car page' do
+    get_select('/cars/car_charging/day')
+
+    expect(response.body).to include('data-timeframe-select--component-base-url-value="/cars/car_charging"', 'data-value="P7D"')
+    expect(response.body).not_to include('data-value="P24H"')
+  end
+
+  it 'keeps the car of the car page' do
+    car = Car.configured.first
+    get_select("/cars/#{car.id}/car_charging/day")
+
+    expect(response.body).to include(%(data-timeframe-select--component-base-url-value="/cars/#{car.id}/car_charging"))
+  end
 end

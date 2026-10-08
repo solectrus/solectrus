@@ -1,11 +1,13 @@
 class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
-  def initialize(timeframe:, min_date: nil)
+  # Without `hours`, the group of the hours is left out
+  def initialize(timeframe:, min_date: nil, hours: true)
     super()
     @timeframe = timeframe
     @min_date = min_date
+    @hours = hours
   end
 
-  attr_reader :timeframe, :min_date
+  attr_reader :timeframe, :min_date, :hours
 
   OPTION_DEFINITIONS = [
     { value: 'P24H', label_key: '.last_24_hours', group: :hours },
@@ -48,6 +50,8 @@ class TimeframeSelect::RelativePicker::Component < ViewComponent::Base
 
     GROUPED_DEFINITIONS
       .each do |group_key, definitions|
+        next if group_key == :hours && !hours
+
         options = build_options(definitions)
         next if options.empty?
 

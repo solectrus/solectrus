@@ -7,3 +7,6 @@ hr.my-5.text-transparent
 = f.check_box 'general[enable_heatpump]',
               checked: Setting.enable_heatpump,
               label: I18n.t('settings.sensors.enable_heatpump')
+= f.check_box 'general[enable_car]',
+              checked: Setting.enable_car,
+              label: I18n.t('settings.sensors.enable_car')

@@ -10,11 +10,5 @@ class Sensor::Definitions::CarDistanceChart < Sensor::Definitions::Base
 
   value unit: :kilometer, category: :car
 
-  chart { |timeframe, cars: Car.configured, **| Sensor::Chart::CarDistance.new(timeframe:, cars:) }
-
-  chart_only
-
-  def static_dependencies = Sensor::Cars.dependency(:car_odometer)
-
-  requires_permission :car
+  chart { |timeframe, cars: nil, **| Sensor::Chart::CarDistance.new(timeframe:, cars:) }
 end

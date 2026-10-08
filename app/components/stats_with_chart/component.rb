@@ -1,11 +1,18 @@
 class StatsWithChart::Component < ViewComponent::Base
-  def initialize(sensor_name:, timeframe:)
+  # `min_interval` makes the live view refresh less often than the data
+  # arrives, for a page whose values change slowly
+  def initialize(sensor_name:, timeframe:, chart: true, min_interval: nil)
     super()
     @sensor_name = sensor_name
     @timeframe = timeframe
+    @chart = chart
+    @min_interval = min_interval
   end
 
-  attr_reader :sensor_name, :timeframe
+  attr_reader :sensor_name, :timeframe, :min_interval
+
+  # Without a chart, the stats take the whole height
+  def chart? = @chart
 
   def refresh_options
     {
@@ -16,7 +23,7 @@ class StatsWithChart::Component < ViewComponent::Base
           if timeframe.past?
             0
           elsif timeframe.now?
-            Influx::PollInterval.current
+            [Influx::PollInterval.current, min_interval].compact.max
           else
             5.minutes
           end

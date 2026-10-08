@@ -6,8 +6,8 @@ class TimeframeSelect::Component < ViewComponent::Base
 
   public_constant :LABEL_CLASSES, :INPUT_CLASSES, :BACK_BUTTON_CLASSES
 
-  # `page` gives the address of the selected timeframe (see
-  # TimeframePage::Sensor)
+  # `page` gives the address of the selected timeframe and tells whether the
+  # page offers the hours (see TimeframePage::Sensor)
   def initialize(timeframe:, page:)
     super()
     @timeframe = timeframe
@@ -16,7 +16,7 @@ class TimeframeSelect::Component < ViewComponent::Base
 
   attr_reader :timeframe
 
-  delegate :base_url, to: :@page
+  delegate :base_url, :hours?, to: :@page
 
   def min_date
     Rails.application.config.x.installation_date

@@ -39,6 +39,24 @@ describe Sensor::HomePage do
     end
   end
 
+  describe '.hours?' do
+    it 'gives the car page no hours view' do
+      expect(described_class.hours?(:cars)).to be(false)
+      expect(described_class.hours?(:balance)).to be(true)
+    end
+  end
+
+  describe '.live_chart?' do
+    it 'gives the live view of the car page no chart' do
+      expect(described_class.live_chart?(:cars)).to be(false)
+      expect(described_class.live_chart?(:balance)).to be(true)
+    end
+
+    it 'answers for a page that is no home page' do
+      expect(described_class.live_chart?(:insights)).to be(true)
+    end
+  end
+
   describe '.page_for' do
     # The invariant that keeps links working: a link built for a sensor must
     # land on a page that renders it. Otherwise the controller sends the user
@@ -156,11 +174,12 @@ describe Sensor::HomePage do
         expect(described_class).not_to be_permitted(:heatpump)
         expect(described_class).not_to be_permitted(:house)
         expect(described_class).not_to be_permitted(:inverter)
+        expect(described_class).not_to be_permitted(:cars)
       end
     end
 
     context 'with the features' do
-      before { stub_feature(:custom_consumer, :heatpump, :multi_inverter) }
+      before { stub_feature(:car, :custom_consumer, :heatpump, :multi_inverter) }
 
       it 'permits every page' do
         locked = described_class.all.reject { described_class.permitted?(it) }

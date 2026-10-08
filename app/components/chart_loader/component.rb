@@ -56,7 +56,8 @@ class ChartLoader::Component < ViewComponent::Base
 
   def chart
     @chart ||=
-      sensor.chart(timeframe, variant:)&.tap do |c|
+      # The selection of the page, like the cars of the car page
+      sensor.chart(timeframe, variant:, **helpers.chart_options)&.tap do |c|
         c.interval = timeframe.day? ? interval : nil
       end
   end

@@ -25,6 +25,7 @@ solid:
   - battery-three-quarters
   - bolt
   - car
+  - charging-station
   - chart-bar
   - chart-line
   - check
@@ -72,6 +73,7 @@ solid:
   - triangle-exclamation
   - trophy
   - up-right-and-down-left-from-center
+  - user
   - wand-magic-sparkles
   - xmark
 

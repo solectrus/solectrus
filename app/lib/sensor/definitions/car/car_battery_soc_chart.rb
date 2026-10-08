@@ -8,11 +8,5 @@ class Sensor::Definitions::CarBatterySocChart < Sensor::Definitions::Base
 
   value unit: :percent, category: :car
 
-  chart { |timeframe, cars: Car.configured, **| Sensor::Chart::CarBatterySoc.new(timeframe:, cars:) }
-
-  chart_only
-
-  def static_dependencies = Sensor::Cars.dependency(:car_battery_soc)
-
-  requires_permission :car
+  chart { |timeframe, cars: nil, **| Sensor::Chart::CarBatterySoc.new(timeframe:, cars:) }
 end

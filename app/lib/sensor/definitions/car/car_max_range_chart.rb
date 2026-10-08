@@ -9,11 +9,7 @@ class Sensor::Definitions::CarMaxRangeChart < Sensor::Definitions::Base
 
   value unit: :kilometer, category: :car
 
-  chart { |timeframe, cars: Car.configured, **| Sensor::Chart::CarMaxRange.new(timeframe:, cars:) }
-
-  chart_only
+  chart { |timeframe, cars: nil, **| Sensor::Chart::CarMaxRange.new(timeframe:, cars:) }
 
   def static_dependencies = Sensor::Cars.dependency(:car_range, :car_battery_soc)
-
-  requires_permission :car
 end

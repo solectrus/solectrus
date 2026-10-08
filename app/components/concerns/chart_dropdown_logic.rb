@@ -30,8 +30,18 @@ module ChartDropdownLogic
   private
 
   # Which sensors a page shows is a decision of the sensors, not of the menu.
+  # The menu offers a chart only where it can draw the timeframe and the
+  # selection of the page (see Sensor::Chart::Base.supports?), and a
+  # personal sensor only to the admin.
   def sensor_names
-    @sensor_names ||= Sensor::HomePage.sensor_names(page_key)
+    @sensor_names ||= Sensor::HomePage.sensor_names(page_key).select { offered?(Sensor::Registry[it]) }
+  end
+
+  def offered?(sensor)
+    return false if sensor.personal? && !helpers.admin?
+    return true unless timeframe
+
+    sensor.chart(timeframe, **helpers.chart_options)&.supported? != false
   end
 
   def menu_config

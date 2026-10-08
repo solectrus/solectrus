@@ -1,0 +1,12 @@
+= turbo_stream_update_navigation
+
+/ Each choice of the car select keeps the chart
+- if car_selection.installed.many? && !timeframe.now?
+  = turbo_stream.update frame_id('car-select') do
+    = render car_select_component
+
+= turbo_stream.update frame_id('chart') do
+  .flex.flex-col.flex-auto.min-h-20.sm:gap-2.relative
+    - unless timeframe.out_of_scope?
+      = render CarChartDropdown::Component.new(sensor_name:, timeframe:)
+      = render ChartLoader::Component.new(sensor_name:, timeframe:, interval:)
