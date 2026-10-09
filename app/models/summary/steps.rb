@@ -15,13 +15,17 @@
 #   .derived    the model whose records come from the build alone, which a
 #               reset of the summaries empties, or nil when the records
 #               keep changes of the user
-#   .new(dates) a step for the given days
+#   .new(dates, **shared)
+#               a step for the given days, with what the steps of a chunk
+#               share (see .shared)
 #   #call       reads InfluxDB and returns a result, without the database,
 #               so it can run in a thread of its own
 #   #persist    writes the result, inside the transaction of the build
 module Summary::Steps
   # The names of the step classes, so a step loads only when it is needed
-  CLASSES = %w[ChargingSession::Detection Place::VisitDetection].freeze
+  # A step writes in this order, so a later step can read the records of an
+  # earlier one: the proposals of offsite sessions read the wallbox sessions.
+  CLASSES = %w[ChargingSession::Detection Place::VisitDetection ChargingSession::OffsiteDetection].freeze
   private_constant :CLASSES
 
   def self.all = CLASSES.map(&:constantize)
@@ -35,6 +39,12 @@ module Summary::Steps
 
   # The steps with something to do
   def self.enabled = all.select(&:enabled?)
+
+  # What the steps of a chunk share, as the keywords of .new: the curves of
+  # the wallbox and of the cars, which the detection and the proposals both
+  # read (see ChargingSession::Curves). A step that does not read them
+  # ignores them.
+  def self.shared(dates) = { curves: ChargingSession::Curves.new(dates) }
 
   # The version of each of the steps, as summaries.steps stores it after a
   # build

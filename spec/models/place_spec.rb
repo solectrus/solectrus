@@ -114,6 +114,23 @@ describe Place do
     end
   end
 
+  describe '#postal_address' do
+    def postal_address(address) = described_class.new(geocoding: { 'address' => address }).postal_address
+
+    it 'puts the country, the postcode and the town first' do
+      expect(postal_address('country_code' => 'de', 'postcode' => '65520', 'town' => 'Bad Camberg', 'road' => 'Neumarkt', 'house_number' => '3'))
+        .to eq('DE-65520 Bad Camberg, Neumarkt 3')
+    end
+
+    it 'leaves out a missing part' do
+      expect(postal_address('town' => 'Bad Camberg', 'road' => 'Neumarkt')).to eq('Bad Camberg, Neumarkt')
+    end
+
+    it 'is nil before an answer of Nominatim' do
+      expect(described_class.new.postal_address).to be_nil
+    end
+  end
+
   describe '#locality' do
     def locality(address) = described_class.new(geocoding: { 'address' => address }).locality
 

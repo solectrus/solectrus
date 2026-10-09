@@ -139,6 +139,16 @@ class Place < ApplicationRecord
     end
   end
 
+  # The address at a location for an offsite session (see #postal_address).
+  # It asks Nominatim like .name_at, but keeps no place and no cache,
+  # because the user asks for it once in the form.
+  def self.address_at(latitude, longitude)
+    place = near(latitude, longitude)
+    return place.geocode!.postal_address if place
+
+    new(latitude:, longitude:, geocoding: Place::Nominatim.reverse(latitude, longitude)).postal_address
+  end
+
   # Two decimals are about one kilometer, so a car on the road asks Nominatim
   # far less often than the live view refreshes. A town is larger, so its name
   # stays correct except near its border. Nominatim answers in the locale.
@@ -175,6 +185,17 @@ class Place < ApplicationRecord
     locality = [parts['postcode'], town].compact.join(' ').presence
 
     [street, locality].compact.join(', ').presence
+  end
+
+  # The country, the postcode and the town first, like the address of a
+  # charging point: "DE-12345 Town, Main Street 15"
+  def postal_address
+    parts = address_parts
+    code = [parts['country_code']&.upcase, parts['postcode']].compact.join('-').presence
+    locality = [code, town].compact.join(' ').presence
+    street = parts.values_at('road', 'house_number').compact.join(' ').presence
+
+    [locality, street].compact.join(', ').presence
   end
 
   def geocoded? = geocoding.present?

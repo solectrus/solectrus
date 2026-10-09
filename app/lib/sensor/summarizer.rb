@@ -118,10 +118,17 @@ module Sensor
     # A run of each step with something to do. A step runs on a rebuilt day,
     # and on a day on which it waits.
     def start_steps(pending)
-      Summary::Steps.enabled.filter_map do |step|
-        dates = pending.filter_map { |date, summary| date if rebuild?(summary) || summary.step_pending?(step) }
-        StepRun.new(step, dates) if dates.any?
-      end
+      runs = Summary::Steps.enabled.index_with { step_dates(pending, it) }.select { |_, dates| dates.any? }
+      return [] if runs.empty?
+
+      # The steps share what they read alike, for example the curves of the
+      # cars, so one Flux program reads it (see Summary::Steps.shared)
+      shared = Summary::Steps.shared(runs.values.flatten.uniq.sort)
+      runs.map { |step, dates| StepRun.new(step, dates, shared) }
+    end
+
+    def step_dates(pending, step)
+      pending.filter_map { |date, summary| date if rebuild?(summary) || summary.step_pending?(step) }
     end
 
     # Each day reads the meters from the diffs that the chunk shares with its

@@ -20,7 +20,9 @@
 # The detection runs in two steps: #call queries InfluxDB outside the
 # transaction of the build, and #persist writes inside it (see
 # ChargingSession::Detection::Persistence). The car of each session comes from
-# ChargingSession::Detection::CarAssignment. The cars, the prices and the
+# ChargingSession::Detection::CarAssignment, and the state of charge of each
+# candidate car from ChargingSession::Detection::StateOfCharge. The cars, the
+# prices and the
 # home are read when the detection is made, so #call needs no database and
 # can run in a thread of its own, next to the build of the summaries.
 class ChargingSession::Detection
@@ -42,7 +44,7 @@ class ChargingSession::Detection
   WALLBOX_POWER = %i[wallbox_power wallbox_power_grid].freeze
   private_constant :WALLBOX_POWER
 
-  Session = Data.define(:started_at, :ended_at, :kwh, :kwh_grid, :cost, :cost_grid, :car_id)
+  Session = Data.define(:started_at, :ended_at, :kwh, :kwh_grid, :cost, :cost_grid, :car_id, :socs)
   public_constant :Session
 
   # SOLECTRUS reads the curves only when the wallbox has a configuration
@@ -50,11 +52,16 @@ class ChargingSession::Detection
     Sensor::Config.configured?(:wallbox_power)
   end
 
-  def initialize(dates, cars: Car.configured, prices: Price::Schedule.new)
+  # `curves` are the curves of the wallbox and of the cars, which the
+  # proposals of the offsite sessions read as well (see
+  # ChargingSession::Curves)
+  def initialize(dates, cars: Car.configured, prices: Price::Schedule.new, curves: ChargingSession::Curves.new(dates, cars:))
     @dates = dates
     @cars = cars
+    @curves = curves
     @cost = ChargingSession::Cost.new(prices)
     @assignment = CarAssignment.new(cars, curves: method(:curve), home: Place.home)
+    @state_of_charge = StateOfCharge.new(cars, curves: method(:curve))
   end
 
   attr_reader :dates
@@ -63,6 +70,7 @@ class ChargingSession::Detection
   def call
     return dates.index_with { [] } unless self.class.enabled?
 
+    curves.start
     found = dates.index_with { |date| periods(date) }
     energies = integrals(found.values.flatten(1))
 
@@ -78,7 +86,7 @@ class ChargingSession::Detection
 
   private
 
-  attr_reader :cars, :cost, :assignment
+  attr_reader :cars, :cost, :assignment, :state_of_charge, :curves
 
   def session(date, from, to, kwh, kwh_grid)
     return unless kwh && kwh >= MIN_KWH
@@ -96,6 +104,7 @@ class ChargingSession::Detection
       cost: session_cost,
       cost_grid:,
       car_id: assignment.car_for(date, from, to)&.id,
+      socs: state_of_charge.call(date, from, to),
     )
   end
 
@@ -104,28 +113,10 @@ class ChargingSession::Detection
     Periods.new(date, power: curve(date, :wallbox_power), connected: curve(date, :wallbox_car_connected)).call
   end
 
+  # The curve of a wallbox sensor or of a car sensor on a day
   def curve(date, sensor_name)
-    curves.dig(date, sensor_name) || []
-  end
-
-  # The curves the detection needs, for Influx::DailyCurves. The curves of the
-  # cars only on a day with more than one car in use, because the heuristics
-  # read them only then.
-  def curve_requests
-    [
-      # A period needs the buckets with power alone (see Periods)
-      { sensor_names: [:wallbox_power], positive: true },
-      { sensor_names: [:wallbox_car_connected].select { Sensor::Config.configured?(it) } },
-      {
-        sensor_names: assignment.sensor_names(dates),
-        margin: ChargingSession::Detection::CarAssignment::READING_DISTANCE,
-        state: true,
-      },
-    ]
-  end
-
-  def curves
-    @curves ||= Sensor::Query::Helpers::Influx::DailyCurves.new(dates, curve_requests).call
+    source = ChargingSession::Curves::WALLBOX.include?(sensor_name) ? curves.wallbox : curves.cars
+    source.dig(date, sensor_name) || []
   end
 
   # { [from, to] => [kWh, kWh of the grid or nil] }, from one program for all

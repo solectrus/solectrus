@@ -17,14 +17,18 @@ class ChargingSession::List::Component < ViewComponent::Base
 
   # The Sums of all sessions of the list, not only of its first page
   def totals
-    @totals ||= ChargingSession.list_for(kind, timeframe:, filter: @selection.filter).reorder(nil).sums
+    @totals ||= ChargingSession.effective.list_for(kind, timeframe:, filter: @selection.filter).reorder(nil).sums
   end
 
+  # A proposal does not count, so the list can show more rows than this
   def totals? = totals.count > 1 # rubocop:disable Style/CollectionQuerying
 
   # A wallbox session has no cost on a day without a price, so the total
   # cost is too small
   def cost_incomplete? = !totals.costed?
+
+  # The key of the empty list: its kind, or the proposals
+  def empty_key = @selection.filter == :proposals ? 'proposals' : kind
 
   # The add button of mobile, with a label. Desktop has it in the header.
   def add_button

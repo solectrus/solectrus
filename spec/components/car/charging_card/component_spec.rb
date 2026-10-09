@@ -33,6 +33,7 @@ describe Car::ChargingCard::Component, type: :component do
       cars: [car],
       car:,
       guest_sessions: guest,
+      proposal_count: 0,
       unassigned_sessions: sums,
     )
   end
@@ -132,6 +133,14 @@ describe Car::ChargingCard::Component, type: :component do
     )
   end
 
+  it 'points to the unconfirmed offsite sessions, which the count leaves out' do
+    allow(report).to receive(:proposal_count).and_return(3)
+    badge = badge('/cars/1/charging_sessions/offsite')
+
+    expect(badge.css('a[href*="/cars/proposals/charging_sessions/offsite"] svg[data-icon="circle-question"]')).to be_present
+    expect(badge.at_css('[data-tooltip-target="html"]').text).to include('3 unconfirmed sessions')
+  end
+
   it 'points to the wallbox sessions that are not assigned on "all"' do
     allow(report).to receive(:unassigned_sessions).and_return(sums(count: 6, kwh: 123.8))
     html = render_inline(described_class.new(report:, all: true))
@@ -139,6 +148,10 @@ describe Car::ChargingCard::Component, type: :component do
 
     expect(badge.css('a[href*="/cars/unassigned/charging_sessions/wallbox"] svg[data-icon="circle-question"]')).to be_present
     expect(badge.at_css('[data-tooltip-target="html"]').text.squish).to include('6 sessions not assigned', '123.8')
+  end
+
+  it 'shows no icon without unconfirmed sessions' do
+    expect(html.css('svg[data-icon="circle-question"]')).to be_empty
   end
 
   context 'with costs that round apart' do

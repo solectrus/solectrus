@@ -5,6 +5,7 @@
 #  id           :integer          not null, primary key
 #  active_from  :date             not null
 #  active_until :date
+#  battery_kwh  :decimal(5, 1)
 #  color        :string
 #  name         :string
 #  short_name   :string           not null
@@ -21,6 +22,12 @@ describe Car do
     it 'accepts a hex code as color' do
       expect(described_class.new(id: 1, color: '#3B82F6')).to be_valid
       expect(described_class.new(id: 1, color: 'blue')).not_to be_valid
+    end
+
+    it 'accepts a positive battery capacity or none' do
+      expect(described_class.new(id: 1, battery_kwh: 77.4)).to be_valid
+      expect(described_class.new(id: 1, battery_kwh: nil)).to be_valid
+      expect(described_class.new(id: 1, battery_kwh: 0)).not_to be_valid
     end
 
     it 'limits the short name' do
@@ -179,6 +186,30 @@ describe Car do
 
       expect(SummaryValue.where(field: 'car_odometer_1').pluck(:date)).to contain_exactly(day - 1, day)
       expect(SummaryValue.where(field: 'car_odometer_2').count).to eq(3)
+    end
+
+    it 'removes a proposal outside the period, but keeps it inside' do
+      ChargingSession.insert_all!(
+        [day - 1, day + 1].map { { kind: 'offsite', origin: 'detection', car_id: car.id, started_at: it.in_time_zone.change(hour: 10), soc_from: 30, soc_to: 70 } },
+      )
+
+      car.update!(active_until: day)
+
+      expect(ChargingSession.proposals.map(&:date)).to eq([day - 1])
+    end
+
+    it 'takes the state of charge from a wallbox session outside the period' do
+      ChargingSession.sole.update_columns(soc_from: 30, soc_to: 70) # rubocop:disable Rails/SkipsModelValidations
+
+      car.update!(active_until: day - 1)
+
+      expect(ChargingSession.sole).to have_attributes(soc_from: nil, soc_to: nil)
+    end
+
+    it 'allows a period that leaves out a proposal' do
+      ChargingSession.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: (day + 1).in_time_zone.change(hour: 10) }) # rubocop:disable Rails/SkipsModelValidations
+
+      expect(car.update(active_until: day)).to be(true)
     end
 
     it 'builds the days again that the period gains' do

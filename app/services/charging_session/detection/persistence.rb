@@ -1,7 +1,7 @@
 # Writes the detected sessions of each day: an upsert on the start of a
 # session, and the removal of each wallbox session of the day that the new
 # result does not contain. It touches only the wallbox sessions of its own
-# origin.
+# origin. A session gets the state of charge of the car that it keeps.
 #
 # A row keeps the holder of an existing row (see #holder) and its note:
 #
@@ -20,7 +20,7 @@
 class ChargingSession::Detection::Persistence
   # Each session of the upsert writes these columns. #merge has put the
   # changes of the user into them already.
-  UPDATED_COLUMNS = %i[ended_at kwh kwh_grid cost cost_grid car_id guest assigned_manually note].freeze
+  UPDATED_COLUMNS = %i[ended_at kwh kwh_grid cost cost_grid car_id guest assigned_manually note soc_from soc_to].freeze
   private_constant :UPDATED_COLUMNS
 
   # The rank of a holder. A holder replaces the holder of a row with the same
@@ -37,7 +37,7 @@ class ChargingSession::Detection::Persistence
     return if results.empty?
 
     existing = existing_by_date(results.keys)
-    rows = results.flat_map { |date, sessions| merge(date, sessions, existing.fetch(date, [])) }
+    rows = results.flat_map { |date, sessions| merge(date, sessions, existing.fetch(date, [])) }.map { with_soc(it) }
     kept = rows.to_set { it[:started_at].to_i }
     removed = existing.values.flatten.reject { kept.include?(it.started_at.to_i) }
 
@@ -101,6 +101,13 @@ class ChargingSession::Detection::Persistence
     elsif old.car&.active_on?(date)
       { car_id: old.car_id, guest: false, assigned_manually: false, rank: RANKS[:detection] }
     end
+  end
+
+  # The state of charge of the car that the session keeps (see
+  # ChargingSession::Detection::StateOfCharge)
+  def with_soc(row)
+    soc_from, soc_to = row.delete(:socs)[row[:car_id]]
+    row.merge(soc_from:, soc_to:)
   end
 
   def rank(row)

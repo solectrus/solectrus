@@ -7,8 +7,8 @@ describe ChargingSession::Detection::Persistence do
 
   def at(hour, min = 0) = day.in_time_zone.change(hour:, min:)
 
-  def detected(from, to, kwh: 10, car_id: nil)
-    ChargingSession::Detection::Session.new(started_at: from, ended_at: to, kwh:, kwh_grid: nil, cost: 3, cost_grid: nil, car_id:)
+  def detected(from, to, kwh: 10, car_id: nil, socs: {})
+    ChargingSession::Detection::Session.new(started_at: from, ended_at: to, kwh:, kwh_grid: nil, cost: 3, cost_grid: nil, car_id:, socs:)
   end
 
   def stored(from, to, **)
@@ -31,6 +31,20 @@ describe ChargingSession::Detection::Persistence do
 
     expect(Sensor::Cars.configured_numbers).not_to include(3)
     expect(session.reload.car_id).to eq(3)
+  end
+
+  it 'gives a session the state of charge of the car that it keeps' do
+    stored(at(8), at(9), car: other_car, assigned_manually: true)
+
+    persistence.call(day => [detected(at(8), at(9), car_id: 1, socs: { 1 => [30, 80], 2 => [40, 70] })])
+
+    expect(ChargingSession.sole).to have_attributes(car_id: 2, soc_from: 40, soc_to: 70)
+  end
+
+  it 'gives a session without a car no state of charge' do
+    persistence.call(day => [detected(at(8), at(9), socs: { 1 => [30, 80] })])
+
+    expect(ChargingSession.sole).to have_attributes(soc_from: nil, soc_to: nil)
   end
 
   it 'keeps a guest mark' do

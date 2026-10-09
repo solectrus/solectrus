@@ -7,15 +7,20 @@
 #  assigned_manually :boolean          default(FALSE), not null
 #  cost              :decimal(10, 2)
 #  cost_grid         :decimal(10, 2)
+#  dismissed         :boolean          default(FALSE), not null
 #  ended_at          :datetime
 #  guest             :boolean          default(FALSE), not null
 #  kind              :string           not null
-#  kwh               :decimal(10, 3)   not null
+#  kwh               :decimal(10, 3)
 #  kwh_grid          :decimal(10, 3)
+#  latitude          :float
+#  longitude         :float
 #  note              :text
 #  origin            :string           not null
 #  power_type        :string
 #  provider          :string
+#  soc_from          :decimal(4, 1)
+#  soc_to            :decimal(4, 1)
 #  started_at        :datetime         not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
@@ -34,7 +39,7 @@
 #
 # A charge of a car. The kind says where the energy flowed, and the origin
 # says who made the row: the detection (see ChargingSession::Detection) or
-# the user.
+# the user. An accepted proposal keeps its origin.
 #
 # A wallbox session is in one of three states: it belongs to a car, it is a
 # guest charge, or it is not assigned yet. Only a session of a car counts for
@@ -44,9 +49,17 @@
 # `assigned_manually` marks a state that the user chose. A new build of the
 # detection never changes it (see ChargingSession::Detection::Persistence).
 # The user enters each offsite session, so the user also chose its car.
+#
+# An offsite session without the mark is a proposal: the daily build found a
+# charge away from the wallbox (see ChargingSession::OffsiteDetection). The
+# user accepts it with a save, which sets the mark, or dismisses it. A
+# dismissed proposal keeps its row with the mark, so the next build does not
+# make it again. Only the effective sessions count (see .effective).
 class ChargingSession < ApplicationRecord
   include ChargingSession::Holder
+  include ChargingSession::Proposal
   include ChargingSession::Repricing
+  include ChargingSession::StateOfCharge
 
   enum :kind, wallbox: 'wallbox', offsite: 'offsite'
   enum :origin, { detection: 'detection', user: 'user' }, prefix: true
@@ -84,8 +97,13 @@ class ChargingSession < ApplicationRecord
     'BOOL_OR(assigned_manually) AS assigned_manually',
     'MIN(started_at) AS started_at',
     'MAX(ended_at) AS ended_at',
+    'BOOL_OR(dismissed) AS dismissed',
+    # The state of charge at the start of the first part and at the end of
+    # the last part
+    '(ARRAY_AGG(soc_from ORDER BY started_at))[1] AS soc_from',
+    '(ARRAY_AGG(soc_to ORDER BY started_at DESC))[1] AS soc_to',
     *%w[kwh kwh_grid cost cost_grid].map { "CASE WHEN COUNT(#{it}) = COUNT(*) THEN SUM(#{it}) END AS #{it}" },
-    *%w[evse_id power_type provider address].map { "MIN(#{it}) AS #{it}" },
+    *%w[evse_id power_type provider address latitude longitude].map { "MIN(#{it}) AS #{it}" },
     "STRING_AGG(note, E'\\n' ORDER BY started_at) AS note",
     'MIN(created_at) AS created_at',
     'MAX(updated_at) AS updated_at',
@@ -96,11 +114,14 @@ class ChargingSession < ApplicationRecord
 
   validates :kind, presence: true
   validates :started_at, presence: true
-  validates :kwh, presence: true, numericality: { greater_than: 0 }
+  # A save through the model is a choice of the user, so it accepts a
+  # proposal and needs its energy and its cost. Only a dismissed proposal
+  # can be without them.
+  validates :kwh, presence: true, numericality: { greater_than: 0 }, unless: :dismissed?
   validates :cost,
             presence: true,
             numericality: { greater_than_or_equal_to: 0 },
-            if: :offsite?
+            if: -> { offsite? && !dismissed? }
   validates :car, presence: true, if: :offsite?
   validates :ended_at, presence: true, if: :wallbox?
   validate :guest_without_car
@@ -122,15 +143,18 @@ class ChargingSession < ApplicationRecord
   scope :unassigned, -> { wallbox.where(car_id: nil, guest: false) }
 
   # The list of the charges of a kind (see .joined), newest first. The
-  # filter is a car id, :guest or :unassigned (see CarSelection#filter).
+  # filter is a car id, :guest, :unassigned or :proposals (see
+  # CarSelection#filter). The list shows the proposals, but not the dismissed
+  # ones.
   scope :list_for,
         lambda { |kind, timeframe: nil, filter: nil|
-          scope = where(kind:)
+          scope = where(kind:, dismissed: false)
           scope = scope.where(started_at: timeframe.beginning..timeframe.ending) if timeframe && !timeframe.all?
           scope =
             case filter
             when :unassigned then scope.unassigned
             when :guest then scope.where(guest: true)
+            when :proposals then scope.proposals
             when Integer then scope.where(car_id: filter)
             else scope
             end
@@ -253,7 +277,7 @@ class ChargingSession < ApplicationRecord
   # The PV share in whole percent, nil without the power splitter
   def pv_percent
     share = kwh_pv
-    (share * 100 / kwh).round if share && kwh.positive?
+    (share * 100 / kwh).round if share && kwh&.positive?
   end
 
   private

@@ -33,9 +33,10 @@
 # each session gets this car, and the user marks a guest charge by hand. A
 # session that no candidate was connected to stays not assigned.
 class ChargingSession::Detection::CarAssignment
-  # How long after a session a reading of the state of charge counts, and
-  # the margin of the curves of a day. A car reports its state only while it
-  # is online, so a reading long after the session says nothing about it.
+  # How long after a session a reading of the state of charge counts. A car
+  # reports its state only while it is online, so a reading long after the
+  # session says nothing about it. The curves of a day reach further (see
+  # ChargingSession::Curves::MARGIN).
   READING_DISTANCE = 2.hours
   public_constant :READING_DISTANCE
 
@@ -46,14 +47,6 @@ class ChargingSession::Detection::CarAssignment
   # A rise of the odometer above this is a drive (km)
   MIN_DRIVE = 0.5
   public_constant :MIN_DRIVE
-
-  # The car sensors that the heuristics read
-  ROLES = %i[car_battery_soc car_odometer].freeze
-  private_constant :ROLES
-
-  # The car sensors of the position
-  POSITION = %i[car_latitude car_longitude].freeze
-  private_constant :POSITION
 
   # A curve has the mean of 5 minutes, at the end of its bucket (see
   # Sensor::Query::Helpers::Influx::DailyCurves)
@@ -67,13 +60,6 @@ class ChargingSession::Detection::CarAssignment
     @cars = cars
     @curves = curves
     @home = home
-  end
-
-  # The car sensors that the assignment reads on the given dates: the
-  # connection of each candidate, and the heuristics only on a day with more
-  # than one candidate
-  def sensor_names(dates)
-    dates.flat_map { sensor_names_on(it) }.uniq.select { Sensor::Config.configured?(it) }
   end
 
   # The car of a session, or nil when it is not assigned
@@ -101,14 +87,6 @@ class ChargingSession::Detection::CarAssignment
   # The cars whose period holds the day
   def candidates_on(date)
     cars.select { it.active_on?(date) }
-  end
-
-  def sensor_names_on(date)
-    candidates = candidates_on(date)
-    roles = candidates.size > 1 ? [:car_connected, *ROLES] : [:car_connected]
-    roles += POSITION if home
-
-    candidates.flat_map { |car| roles.map { car.sensor_name(it) } }
   end
 
   # :connected when the car reports a connection during the session,

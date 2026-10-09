@@ -19,9 +19,20 @@ describe ChargingSession::Filter::Component, type: :component do
     expect(page).to have_css('option[selected][value="/cars/charging_sessions/wallbox"]')
   end
 
-  it 'renders nothing for offsite with one car' do
+  it 'renders nothing for offsite with one car and without a state of charge' do
+    allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(false)
+
     render_inline(described_class.new(kind: 'offsite', timeframe: nil, cars:, current: nil))
 
     expect(page).to have_no_select
+  end
+
+  it 'adds the proposals for offsite with a state of charge' do
+    allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(true)
+
+    render_inline(described_class.new(kind: 'offsite', timeframe: nil, cars:, current: 'proposals'))
+
+    expect(page).to have_css('a.border-t[aria-current="page"][href="/cars/proposals/charging_sessions/offsite"]', text: 'Unconfirmed sessions')
+    expect(page).to have_css('a[href="/cars/proposals/charging_sessions/offsite"] svg[data-icon="circle-question"]')
   end
 end

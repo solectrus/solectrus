@@ -5,8 +5,9 @@ module Sensor
     # with the build of the values, and it writes its result in the
     # transaction of the build.
     class StepRun
-      def initialize(step_class, dates)
-        @step = step_class.new(dates)
+      # `shared` is what the steps of a chunk share (see Summary::Steps.shared)
+      def initialize(step_class, dates, shared = {})
+        @step = step_class.new(dates, **shared)
         @dates = dates
         @future = Concurrent::Future.execute { @step.call }
       end

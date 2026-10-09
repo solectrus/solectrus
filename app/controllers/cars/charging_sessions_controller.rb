@@ -2,7 +2,7 @@ class Cars::ChargingSessionsController < ApplicationController
   include Pagy::Method
   include CarListPage
 
-  before_action :load_charging_session, only: %i[edit update destroy]
+  before_action :load_charging_session, only: %i[edit update destroy dismiss]
   before_action :new_charging_session, only: %i[new create]
 
   def index
@@ -26,7 +26,13 @@ class Cars::ChargingSessionsController < ApplicationController
   def new
   end
 
+  # An offsite session can have a position from the build, and the form
+  # offers its address
   def edit
+    charging_session = @charging_session
+    return unless charging_session.offsite? && charging_session.latitude && charging_session.address.blank?
+
+    charging_session.address = Place.address_at(charging_session.latitude, charging_session.longitude)
   end
 
   def create
@@ -45,6 +51,15 @@ class Cars::ChargingSessionsController < ApplicationController
     end
   end
 
+  # A proposal keeps its row, so the next build does not make it again (see
+  # ChargingSession::Proposal)
+  def dismiss
+    return head(:unprocessable_content) unless @charging_session.proposal?
+
+    @charging_session.dismiss!
+    render_list
+  end
+
   # Only an offsite session can go (see ChargingSession)
   def destroy
     return head(:unprocessable_content) unless @charging_session.destroy
@@ -54,12 +69,19 @@ class Cars::ChargingSessionsController < ApplicationController
 
   private
 
-  # The days of the timeframe whose sessions wait for the detection. The
-  # page builds them first, like the car page (see SummaryBuilder::Component).
+  # The days of the timeframe whose sessions wait for their step. The page
+  # builds them first, like the car page (see SummaryBuilder::Component).
+  # Without a state of charge, the offsite sessions come from the user alone.
   def pending_days
-    return [] if timeframe.now? || kind != 'wallbox'
+    return [] if timeframe.now? || (kind == 'offsite' && !ChargingSession::OffsiteDetection.enabled?)
 
-    Summary.missing_or_stale_days_for(timeframe, steps: [ChargingSession::Detection::KEY])
+    Summary.missing_or_stale_days_for(timeframe, steps: pending_steps)
+  end
+
+  # The step that writes the sessions of the list: the detection of the
+  # wallbox sessions, or the proposals of the offsite sessions
+  helper_method def pending_steps
+    [kind == 'wallbox' ? ChargingSession::Detection::KEY : ChargingSession::OffsiteDetection::KEY]
   end
 
   def list_scope

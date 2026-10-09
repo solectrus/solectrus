@@ -84,10 +84,14 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
       t.date :active_from, null: false
       t.date :active_until
       t.string :color
+      # The usable capacity of the battery, for the estimate of an offsite
+      # session and the loss of a charge
+      t.decimal :battery_kwh, precision: 5, scale: 1
 
       t.timestamps
 
       t.check_constraint 'active_until IS NULL OR active_until >= active_from', name: 'cars_period_order'
+      t.check_constraint 'battery_kwh IS NULL OR battery_kwh > 0', name: 'cars_battery_kwh'
     end
   end
 
@@ -104,7 +108,8 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
       t.boolean :assigned_manually, null: false, default: false
       t.datetime :started_at, null: false
       t.datetime :ended_at
-      t.decimal :kwh, precision: 10, scale: 3, null: false
+      # A proposal of an offsite session can be without energy
+      t.decimal :kwh, precision: 10, scale: 3
       t.decimal :kwh_grid, precision: 10, scale: 3
       t.decimal :cost, precision: 10, scale: 2
       t.decimal :cost_grid, precision: 10, scale: 2
@@ -113,6 +118,13 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
       t.string :provider
       t.string :address
       t.text :note
+      # A proposal of an offsite session that the user dismissed. Its row
+      # stays, so the next build does not make it again.
+      t.boolean :dismissed, null: false, default: false
+      # The state of charge of the car at the start and at the end
+      t.decimal :soc_from, :soc_to, precision: 4, scale: 1
+      # The position of a proposal of an offsite session
+      t.float :latitude, :longitude
 
       t.timestamps
 
@@ -124,15 +136,22 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
                          name: 'charging_sessions_guest'
       t.check_constraint "kind <> 'offsite' OR car_id IS NOT NULL",
                          name: 'charging_sessions_offsite_car'
-      # The detection makes no guest and no offsite session
-      t.check_constraint "assigned_manually OR (kind = 'wallbox' AND NOT guest)",
+      # The detection makes no guest. An offsite session without the mark
+      # is a proposal of the build.
+      t.check_constraint 'assigned_manually OR NOT guest',
                          name: 'charging_sessions_assigned_manually'
+      t.check_constraint "NOT dismissed OR (kind = 'offsite' AND assigned_manually)",
+                         name: 'charging_sessions_dismissed'
       # The user enters only offsite sessions
       t.check_constraint "origin <> 'user' OR (kind = 'offsite' AND assigned_manually)",
                          name: 'charging_sessions_user'
       t.check_constraint "kind <> 'wallbox' OR ended_at IS NOT NULL",
                          name: 'charging_sessions_wallbox_end'
       t.check_constraint 'kwh > 0', name: 'charging_sessions_kwh'
+      t.check_constraint "kwh IS NOT NULL OR (kind = 'offsite' AND (NOT assigned_manually OR dismissed))",
+                         name: 'charging_sessions_kwh_present'
+      t.check_constraint '(soc_from IS NULL OR soc_from BETWEEN 0 AND 100) AND (soc_to IS NULL OR soc_to BETWEEN 0 AND 100)',
+                         name: 'charging_sessions_soc'
       t.check_constraint 'kwh_grid IS NULL OR kwh_grid BETWEEN 0 AND kwh',
                          name: 'charging_sessions_kwh_grid'
       t.check_constraint 'ended_at IS NULL OR ended_at >= started_at',

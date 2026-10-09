@@ -1,5 +1,5 @@
 - if request.get?
-  = render TurboModal::Component.new(title: t('charging_sessions.edit'), wide: !@charging_session.wallbox?) do
+  = render TurboModal::Component.new(title: t(@charging_session.proposal? ? 'charging_sessions.proposal.title' : 'charging_sessions.edit'), wide: !@charging_session.wallbox?) do
     = render 'form', charging_session: @charging_session
 - else
   = turbo_stream.replace(dom_id(@charging_session, :form), partial: 'form', locals: { charging_session: @charging_session })

@@ -4,7 +4,11 @@
 #
 # - A wallbox session of the car outside the new period loses the car, also
 #   a car that the user chose, and the next build runs the detection on
-#   these days again (see ChargingSession::Detection).
+#   these days again (see ChargingSession::Detection). It also loses its
+#   state of charge, which belongs to the car.
+# - A proposal of an offsite session of the car outside the new period
+#   goes, and the next build finds the proposals of these days again (see
+#   ChargingSession::OffsiteDetection).
 # - A daily value of the car outside the new period goes (see
 #   Sensor::Summarizer).
 # - A visit of the car at a place outside the new period goes, and the next
@@ -20,22 +24,24 @@ class Car::PeriodChange
     days = changed_days
     return if days.empty?
 
-    car
-      .charging_sessions
-      .wallbox
-      .where.not(started_at: car.period_times)
-      .update_all(car_id: nil, assigned_manually: false) # rubocop:disable Rails/SkipsModelValidations
-
+    release_sessions
     SummaryValue.where(field: sensor_names).where.not(date: car.active_from..car.active_until).delete_all
     Summary.where(date: gained_days(days)).delete_all
     car.place_visits.where.not(date: car.active_from..car.active_until).delete_all
-    Summary.reset_step(ChargingSession::Detection::KEY, days)
-    Summary.reset_step(Place::VisitDetection::KEY, days)
+    [ChargingSession::Detection, Place::VisitDetection, ChargingSession::OffsiteDetection].each { Summary.reset_step(it::KEY, days) }
   end
 
   private
 
   attr_reader :car
+
+  # The sessions of the car outside the new period: a wallbox session loses
+  # the car, a proposal goes
+  def release_sessions
+    outside = car.charging_sessions.where.not(started_at: car.period_times)
+    outside.wallbox.update_all(car_id: nil, assigned_manually: false, soc_from: nil, soc_to: nil) # rubocop:disable Rails/SkipsModelValidations
+    outside.proposals.delete_all
+  end
 
   # The sensors of the car with a daily value. car_connected has none.
   def sensor_names

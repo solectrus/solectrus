@@ -27,6 +27,8 @@ Keep every section, an empty one included.
 - Electric vehicles: the optional sensors `INFLUX_SENSOR_CAR_LATITUDE_1` and `INFLUX_SENSOR_CAR_LONGITUDE_1` give the location of a car, which only the admin sees. The live view shows where each car is and opens a map. The chart menu of a period opens a map of the places where the cars stood, with the time at each place
 - Electric vehicles: Settings > Electric vehicles > Locations lists these places. You can give each place a name, for example "Office", and mark one place as home, where your wallbox is. SOLECTRUS then assigns a charging session at the wallbox only to a car at home
 - Electric vehicles: the Visits page lists when a car arrived at a place and when it left. The driving card of the car page counts the visits and locations of a period, and opens their list or the map
+- Electric vehicles: offsite charging sessions that you did not enter now show up as unconfirmed sessions, found from the rise of the charge level of a car away from home. You confirm such a session with its cost, or dismiss it. An unconfirmed session does not count until you confirm it. The car filter of the list can show the unconfirmed sessions alone
+- Electric vehicles: Settings > Electric vehicles takes the battery capacity of a car. It estimates the energy of a proposed charging session. The list of charging sessions shows the charge level at the start and at the end of each session, also of a session you entered. With the capacity, the form of a session also shows the charging loss
 
 ## Improvements
 

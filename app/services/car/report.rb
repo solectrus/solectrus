@@ -72,6 +72,13 @@ class Car::Report
     memo(:unassigned_sessions) { ledger.unassigned_sessions(dates) }
   end
 
+  # The number of the proposals of the cars (see ChargingSession::Proposal).
+  # A proposal does not count, so the page only points to it. The page does
+  # not wait for the step of the proposals, so the number can be behind.
+  def proposal_count
+    memo(:proposal_count) { ChargingSession.proposals.where(car_id: cars.map(&:id)).on_dates(dates).count }
+  end
+
   # The sources of the charging of the dates (see .sources_of)
   def sources(dates: self.dates)
     memo(:sources, dates) { self.class.sources_of(sessions(:wallbox, dates:), sessions(:offsite, dates:), split: split?) }
@@ -189,7 +196,7 @@ class Car::Report
 
   # The energy of the sessions of the cars, without the guest sessions
   def max_charging_day
-    date, kwh = ChargingSession.where(car: cars).on_dates(dates).max_daily_kwh
+    date, kwh = ChargingSession.effective.where(car: cars).on_dates(dates).max_daily_kwh
     [date, kwh.to_f * 1000] if kwh
   end
 

@@ -143,6 +143,7 @@ class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
       if timeframe.day?
         ChargingSession
           .offsite
+          .effective
           .includes(:car)
           .where(car_id: cars.map(&:id))
           .where(started_at: ..timeframe.ending)

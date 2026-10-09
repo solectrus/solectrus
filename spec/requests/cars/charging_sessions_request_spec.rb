@@ -1,5 +1,11 @@
 describe 'Charging sessions' do
-  before { login_as_admin }
+  before do
+    login_as_admin
+
+    # The list of the offsite sessions waits for the proposals of the build.
+    # Most examples need no build (see 'the proposals').
+    allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(false)
+  end
 
   let(:car) { Car.create!(id: 1, name: 'Trabant') }
   let!(:recent) do
@@ -41,6 +47,12 @@ describe 'Charging sessions' do
     it 'offers a new offsite session' do
       get '/cars/charging_sessions/offsite'
       expect(response.body).to include('/cars/charging_sessions/new')
+    end
+
+    it 'shows no proposal hint in the form of a new session' do
+      get '/cars/charging_sessions/new', headers: { 'Turbo-Frame' => 'modal' }
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include(I18n.t('charging_sessions.proposal.form_hint'))
     end
 
     it 'offers no new wallbox session, the detection writes them' do
@@ -390,6 +402,96 @@ describe 'Charging sessions' do
 
       expect(response.body).to include(recent.started_at.iso8601)
       expect(response.body).not_to include(old.started_at.iso8601)
+    end
+  end
+
+  describe 'the proposals' do
+    let(:started_at) { 1.day.ago.change(hour: 10) }
+    let!(:proposal) do
+      ChargingSession.insert!( # rubocop:disable Rails/SkipsModelValidations
+        { kind: 'offsite', origin: 'detection', car_id: car.id, started_at:, ended_at: started_at + 1.hour, soc_from: 30, soc_to: 70, kwh: 20, latitude: 50.0, longitude: 8.0 },
+      )
+      ChargingSession.proposals.sole
+    end
+
+    it 'shows a proposal with its estimate, but leaves it out of the sums' do
+      get '/cars/charging_sessions/offsite'
+
+      expect(response.body).to include('Unconfirmed, from readings', '30 → 70%', "/cars/charging_sessions/#{proposal.id}/dismiss")
+      expect(response.body).to include('2 <span class="font-light">charging sessions</span>')
+    end
+
+    it 'waits for the build of the proposals' do
+      allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(true)
+
+      get "/cars/charging_sessions/offsite/#{Date.current.year}"
+
+      expect(response.body).to include('steps=offsite_sessions')
+    end
+
+    it 'dismisses a proposal' do
+      patch "/cars/charging_sessions/#{proposal.id}/dismiss", as: :turbo_stream
+
+      expect(proposal.reload).to have_attributes(dismissed: true, assigned_manually: true)
+      expect(response.body).not_to include(proposal.started_at.iso8601)
+    end
+
+    it 'lists the proposals alone, without the sums' do
+      get '/cars/proposals/charging_sessions/offsite'
+
+      expect(response.body).to include(proposal.started_at.iso8601)
+      expect(response.body).not_to include(recent.started_at.iso8601)
+      expect(response.body).not_to include('<span class="font-light">charging sessions</span>')
+    end
+
+    it 'keeps the list of the proposals after a dismiss' do
+      patch "/cars/charging_sessions/#{proposal.id}/dismiss", params: { car: 'proposals' }, as: :turbo_stream
+
+      expect(response.body).to include('No unconfirmed charging sessions')
+    end
+
+    it 'drops the proposals in the list of the wallbox sessions' do
+      get '/cars/proposals/charging_sessions/offsite'
+
+      expect(response.body).to include('href="/cars/charging_sessions/wallbox/all"')
+    end
+
+    it 'dismisses no session of the user' do
+      patch "/cars/charging_sessions/#{recent.id}/dismiss", as: :turbo_stream
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(recent.reload.dismissed).to be(false)
+    end
+
+    it 'names the known place at the position of a session without an address' do
+      Place.create!(latitude: 50.0, longitude: 8.0, name: 'Supercharger')
+
+      get '/cars/charging_sessions/offsite'
+
+      expect(response.body).to include('Supercharger')
+    end
+
+    it 'offers the address of the position for an entered session too' do
+      recent.update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations
+      allow(Place).to receive(:address_at).with(50.0, 8.0).and_return('DE-12345 Town, Main Street 1')
+
+      get "/cars/charging_sessions/#{recent.id}/edit"
+
+      expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to eq('DE-12345 Town, Main Street 1')
+    end
+
+    it 'offers the address of the position in the form' do
+      allow(Place).to receive(:address_at).with(50.0, 8.0).and_return('Main Street 1, 12345 Town')
+
+      get "/cars/charging_sessions/#{proposal.id}/edit"
+
+      expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to eq('Main Street 1, 12345 Town')
+    end
+
+    it 'accepts a proposal with its cost' do
+      patch "/cars/charging_sessions/#{proposal.id}", params: { charging_session: { cost: 9 } }, as: :turbo_stream
+
+      expect(proposal.reload).to have_attributes(assigned_manually: true, cost: 9)
     end
   end
 end

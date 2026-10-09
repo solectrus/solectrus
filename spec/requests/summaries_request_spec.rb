@@ -44,7 +44,7 @@ describe 'Summaries' do
       it 'runs the detection for a page that reads the sessions' do
         get "/summaries/#{date}?steps=charging_sessions"
 
-        expect(Summary.find(date).steps).to eq('charging_sessions' => ChargingSession::Detection::VERSION)
+        expect(Summary.find(date).steps).to include('charging_sessions' => ChargingSession::Detection::VERSION)
       end
     end
 

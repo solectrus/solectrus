@@ -421,7 +421,10 @@ describe Sensor::Summarizer do
       # A step without something to do, like the visits without a location,
       # gets no mark
       it 'marks the day with the current version of each enabled step' do
-        expect { call }.to change { summary.reload.steps }.from({}).to('charging_sessions' => ChargingSession::Detection::VERSION)
+        expect { call }.to change { summary.reload.steps }.from({}).to(
+          'charging_sessions' => ChargingSession::Detection::VERSION,
+          'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
+        )
       end
     end
 

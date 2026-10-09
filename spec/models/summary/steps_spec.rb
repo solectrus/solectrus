@@ -4,6 +4,7 @@ describe Summary::Steps do
       expect(described_class.versions).to eq(
         'charging_sessions' => ChargingSession::Detection::VERSION,
         'place_visits' => Place::VisitDetection::VERSION,
+        'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
       )
     end
 

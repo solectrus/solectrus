@@ -1,5 +1,6 @@
 # The facts of a wallbox session the detection writes: the time, the energy,
-# its PV share and the cost. The form shows them read-only above its fields.
+# its PV share, the cost, the state of charge and the loss. The form shows
+# them read-only above its fields.
 class ChargingSession::Facts::Component < ViewComponent::Base
   def initialize(charging_session:)
     super()

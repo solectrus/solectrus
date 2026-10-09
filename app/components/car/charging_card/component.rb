@@ -129,14 +129,19 @@ class Car::ChargingCard::Component < ViewComponent::Base
     ].compact
   end
 
-  # The sessions that the count of the badge leaves out, or nil: on "all"
-  # the wallbox sessions that are not assigned. These count for no car, so
-  # without the hint the numbers of "all" are too small without a reason.
+  # The sessions that the count of the badge leaves out, or nil: the
+  # proposals of the offsite sessions, and on "all" the wallbox sessions that
+  # are not assigned. These count for no car, so without the hint the numbers
+  # of "all" are too small without a reason.
   def omitted(badge)
-    return unless badge.kind == :wallbox
-
-    sessions = report.unassigned_sessions
-    Omitted.new(t('car_breakdown.unassigned', count: sessions.count), sessions.kwh, sessions_path('wallbox', CarSelection::UNASSIGNED)) if @all && sessions.any?
+    case badge.kind
+    when :offsite
+      count = report.proposal_count
+      Omitted.new(t('car_breakdown.unconfirmed', count:), nil, sessions_path('offsite', CarSelection::PROPOSALS)) if count.positive?
+    when :wallbox
+      sessions = report.unassigned_sessions
+      Omitted.new(t('car_breakdown.unassigned', count: sessions.count), sessions.kwh, sessions_path('wallbox', CarSelection::UNASSIGNED)) if @all && sessions.any?
+    end
   end
 
   def sessions_path(kind, car) = helpers.cars_charging_sessions_path(kind:, timeframe:, car:)

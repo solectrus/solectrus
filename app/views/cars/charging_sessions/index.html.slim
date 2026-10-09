@@ -1,7 +1,7 @@
 = render 'sub_nav'
 
 - if @missing_or_stale_summary_days.present?
-  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days, steps: [ChargingSession::Detection::KEY])
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days, steps: pending_steps)
 - else
   / The list keeps the z-index of its sticky rows to itself. Otherwise they
     cover the lower half of the add button, which reaches down from the header.

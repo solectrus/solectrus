@@ -43,11 +43,18 @@ describe CarSelection do
       expect(described_class.new('unassigned', timeframe:, extras: true).filter).to eq(:unassigned)
     end
 
+    it 'selects the proposals' do
+      expect(described_class.new('proposals', timeframe:, extras: true).filter).to eq(:proposals)
+    end
+
     it 'drops them in the list of the other kind' do
       guest = described_class.new('guest', timeframe:, extras: true)
+      proposals = described_class.new('proposals', timeframe:, extras: true)
 
       expect(guest.to_param_for('wallbox')).to eq('guest')
       expect(guest.to_param_for('offsite')).to be_nil
+      expect(proposals.to_param_for('offsite')).to eq('proposals')
+      expect(proposals.to_param_for('wallbox')).to be_nil
     end
 
     it 'selects no extra on the car page' do

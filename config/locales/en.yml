@@ -240,6 +240,9 @@ en:
     in_total: in total
     avg_per_100km: Ø per 100 km
     range: Ø Range
+    unconfirmed:
+      one: 1 unconfirmed session
+      other: '%{count} unconfirmed sessions'
     unassigned:
       one: 1 session not assigned
       other: '%{count} sessions not assigned'
@@ -350,15 +353,29 @@ en:
     unassigned: Not assigned
     no_cost: No cost, because the day has no price
     cost_incomplete: At least, because a charging session has no cost
+    loss: '%{percent} loss'
+    soc: 'Charge level %{range}'
+    proposal:
+      name: Unconfirmed
+      title: Confirm the charging session
+      hint: Unconfirmed, from readings
+      estimate: Estimated from the state of charge and the battery capacity
+      no_estimate: No estimate without the battery capacity of the car
+      accept: Confirm
+      dismiss: Dismiss
+      confirm_dismiss: Dismiss this charging session? It does not come back.
+      form_hint: Detected from the car readings. Time and energy are estimates, the cost is missing.
     count:
       one: charging session
       other: charging sessions
     description:
       wallbox: Charging sessions at your own wallbox, detected automatically.
       offsite: Charging sessions at public charging stations or on other people's wallboxes.
+      proposals: Offsite charging sessions detected from the car readings. You can confirm or dismiss them.
     empty:
       wallbox: No charging sessions at the wallbox
       offsite: No offsite charging sessions
+      proposals: No unconfirmed charging sessions
     form:
       assigned_manually: You chose this. A new detection keeps your choice.
       assigned_by_detection: Detected automatically. You can correct it.
@@ -410,6 +427,7 @@ en:
       today: today
       active_from_hint: The first day with this car.
       active_until_hint: Leave empty if the car is in use.
+      battery_kwh_hint: The usable capacity. It estimates the energy of an unconfirmed offsite charge and gives the loss of a charge.
     places:
       name: Locations
       edit: Edit place
@@ -502,6 +520,7 @@ en:
         active_from: In use from
         active_until: In use until
         color: Color
+        battery_kwh: Battery capacity
       place:
         name: Name
         town: Town according to OpenStreetMap

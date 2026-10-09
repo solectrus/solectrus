@@ -100,8 +100,9 @@
 #                        cars_place GET              /cars/location/:car/place(.:format)                           cars/places#show {car: /\d+/}
 #                cars_place_tooltip GET              /cars(/:car)/places/:place/tooltip/:timeframe(.:format)       cars/place_tooltips#show {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                       cars_visits GET              /cars(/:car)(/places/:place)/visits(/:timeframe)(.:format)    cars/visits#index {car: /\d/, place: /\d+/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format) cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format) cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest|proposals/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                                   POST             /cars/charging_sessions(.:format)                             cars/charging_sessions#create
+#      dismiss_cars_charging_session PATCH            /cars/charging_sessions/:id/dismiss(.:format)                 cars/charging_sessions#dismiss
 #         new_cars_charging_session GET              /cars/charging_sessions/new(.:format)                         cars/charging_sessions#new
 #        edit_cars_charging_session GET              /cars/charging_sessions/:id/edit(.:format)                    cars/charging_sessions#edit
 #             cars_charging_session PATCH            /cars/charging_sessions/:id(.:format)                         cars/charging_sessions#update
@@ -339,7 +340,10 @@ Rails.application.routes.draw do
           timeframe: Timeframe::REGEX,
         }
 
-    resources :charging_sessions, except: %i[index show]
+    resources :charging_sessions, except: %i[index show] do
+      # The user dismisses a proposal of the build
+      patch :dismiss, on: :member
+    end
   end
 
   root to: 'balance/home#index'

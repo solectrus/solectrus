@@ -240,6 +240,9 @@ de:
     in_total: insgesamt
     avg_per_100km: Ø pro 100 km
     range: Ø Reichweite
+    unconfirmed:
+      one: 1 unbestätigte Ladung
+      other: '%{count} unbestätigte Ladungen'
     unassigned:
       one: 1 Ladung nicht zugeordnet
       other: '%{count} Ladungen nicht zugeordnet'
@@ -350,15 +353,29 @@ de:
     unassigned: Nicht zugeordnet
     no_cost: Keine Kosten, weil für den Tag kein Preis hinterlegt ist
     cost_incomplete: Mindestens, weil ein Ladevorgang keine Kosten hat
+    loss: '%{percent} Ladeverlust'
+    soc: 'Ladestand %{range}'
+    proposal:
+      name: Unbestätigt
+      title: Ladung bestätigen
+      hint: Unbestätigt, aus Messwerten
+      estimate: Geschätzt aus Ladestand und Akkukapazität
+      no_estimate: Ohne Akkukapazität des Autos keine Schätzung
+      accept: Bestätigen
+      dismiss: Verwerfen
+      confirm_dismiss: Diese Ladung verwerfen? Sie kommt nicht wieder.
+      form_hint: Aus den Messwerten des Autos erkannt. Zeit und Energie sind geschätzt, die Kosten fehlen.
     count:
       one: Ladevorgang
       other: Ladevorgänge
     description:
       wallbox: Laden an deiner eigenen Wallbox, automatisch erkannt.
       offsite: Laden an öffentlichen Ladesäulen oder fremden Wallboxen.
+      proposals: Aus den Messwerten des Autos erkannte Auswärtsladungen, die du bestätigen oder verwerfen kannst.
     empty:
       wallbox: Keine Ladevorgänge an der Wallbox
       offsite: Keine Auswärtsladungen
+      proposals: Keine unbestätigten Ladungen
     form:
       assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
       assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.
@@ -410,6 +427,7 @@ de:
       today: heute
       active_from_hint: Der erste Tag mit diesem Auto.
       active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.
+      battery_kwh_hint: Die nutzbare Kapazität. Sie schätzt die Energie einer unbestätigten Auswärtsladung und ergibt den Ladeverlust.
     places:
       name: Standorte
       edit: Ort bearbeiten
@@ -502,6 +520,7 @@ de:
         active_from: In Gebrauch ab
         active_until: In Gebrauch bis
         color: Farbe
+        battery_kwh: Akkukapazität
       place:
         name: Name
         town: Ort laut OpenStreetMap

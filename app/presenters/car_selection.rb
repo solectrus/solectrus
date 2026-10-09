@@ -8,7 +8,7 @@
 #
 # The list of the charging sessions also selects the extras of its kind
 # (`extras: true`): the wallbox sessions that are not assigned and the guest
-# sessions.
+# sessions, or the proposals of the offsite sessions.
 class CarSelection
   GUEST = ChargingSession::GUEST
   public_constant :GUEST
@@ -16,8 +16,11 @@ class CarSelection
   UNASSIGNED = 'unassigned'.freeze
   public_constant :UNASSIGNED
 
+  PROPOSALS = 'proposals'.freeze
+  public_constant :PROPOSALS
+
   # The extras of the list of each kind of charging session
-  EXTRAS = { 'wallbox' => [UNASSIGNED, GUEST], 'offsite' => [] }.freeze
+  EXTRAS = { 'wallbox' => [UNASSIGNED, GUEST], 'offsite' => [PROPOSALS] }.freeze
   public_constant :EXTRAS
 
   # The car in the address. One digit (see Sensor::Cars::MAX), so it never
@@ -81,8 +84,8 @@ class CarSelection
     @param.nil? || to_param.present?
   end
 
-  # The filter of ChargingSession.list_for: a car id, :guest or
-  # :unassigned, nil for "all"
+  # The filter of ChargingSession.list_for: a car id, :guest, :unassigned or
+  # :proposals, nil for "all"
   def filter
     extra&.to_sym || car&.id
   end

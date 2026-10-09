@@ -34,6 +34,30 @@ describe Car::Report do
     ChargingSession.create!(kind: :offsite, origin: :user, car_id: 1, started_at: Time.zone.local(2026, 1, 14, 12), kwh: 8, cost: 4.0)
   end
 
+  describe '#proposal_count' do
+    before do
+      ChargingSession.insert_all!(
+        [
+          { kind: 'offsite', origin: 'detection', car_id: 1, started_at: Time.zone.local(2026, 1, 15, 12) },
+          { kind: 'offsite', origin: 'detection', car_id: 2, started_at: Time.zone.local(2026, 1, 16, 12) },
+          { kind: 'offsite', origin: 'detection', car_id: 1, started_at: Time.zone.local(2026, 2, 1, 12) },
+        ],
+      )
+    end
+
+    it 'counts the proposals of the cars in the timeframe' do
+      expect(report.proposal_count).to eq(2)
+    end
+
+    context 'with one car' do
+      let(:selected_cars) { [cars.first] }
+
+      it 'counts the proposals of this car' do
+        expect(report.proposal_count).to eq(1)
+      end
+    end
+  end
+
   describe '.pending_days' do
     it 'asks for the days of the timeframe plus the margin, with the detection' do
       allow(Summary).to receive(:missing_or_stale_days).and_return([])
