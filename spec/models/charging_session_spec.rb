@@ -7,15 +7,20 @@
 #  assigned_manually :boolean          default(FALSE), not null
 #  cost              :decimal(10, 2)
 #  cost_grid         :decimal(10, 2)
+#  dismissed         :boolean          default(FALSE), not null
 #  ended_at          :datetime
 #  guest             :boolean          default(FALSE), not null
 #  kind              :string           not null
-#  kwh               :decimal(10, 3)   not null
+#  kwh               :decimal(10, 3)
 #  kwh_grid          :decimal(10, 3)
+#  latitude          :float
+#  longitude         :float
 #  note              :text
 #  origin            :string           not null
 #  power_type        :string
 #  provider          :string
+#  soc_from          :decimal(4, 1)
+#  soc_to            :decimal(4, 1)
 #  started_at        :datetime         not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
@@ -245,6 +250,12 @@ describe ChargingSession do
       expect(described_class.list_for(:wallbox, filter: :guest)).to eq([guest])
       expect(described_class.list_for(:wallbox, filter: :unassigned)).to eq([open_task])
     end
+
+    it 'filters by proposals' do
+      described_class.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: 1.day.ago }) # rubocop:disable Rails/SkipsModelValidations
+
+      expect(described_class.list_for(:offsite, filter: :proposals)).to eq([described_class.proposals.sole])
+    end
   end
 
   describe '.sums' do
@@ -309,13 +320,13 @@ describe ChargingSession do
     let!(:evening) do
       described_class.create!(
         kind: :wallbox,
+        origin: :detection,
         car:,
         started_at: midnight - 2.hours,
         ended_at: midnight - 1.second,
         kwh: 10,
         kwh_grid: 2,
         cost: 2,
-        origin: :detection,
         note: 'Trip',
       )
     end
@@ -402,6 +413,143 @@ describe ChargingSession do
         expect(charge.update_parts(car_id: other.id)).to be(false)
         expect(charge.errors[:car_id]).to be_present
         expect([evening.reload.car_id, morning.reload.car_id]).to eq([car.id, car.id])
+      end
+    end
+  end
+
+  describe 'a proposal' do
+    let(:day) { Date.new(2026, 6, 15) }
+
+    def at(hour) = day.in_time_zone.change(hour:)
+
+    # The build writes a proposal without the model (see OffsiteDetection)
+    def proposal(from = at(10), to = at(11), **)
+      described_class.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: from, ended_at: to, soc_from: 30, soc_to: 70, kwh: 20, ** }) # rubocop:disable Rails/SkipsModelValidations
+      described_class.find_by!(started_at: from)
+    end
+
+    it 'is open and does not count' do
+      session = proposal
+
+      expect(session).to be_proposal
+      expect(described_class.proposals).to eq([session])
+      expect(described_class.effective).to be_empty
+    end
+
+    it 'is no new session that the user enters' do
+      expect(described_class.new(kind: 'offsite', car:)).not_to be_proposal
+    end
+
+    it 'shows in the list, but not in its sums' do
+      proposal
+
+      expect(described_class.list_for(:offsite).size).to eq(1)
+      expect(described_class.effective.list_for(:offsite).sums.count).to eq(0)
+    end
+
+    it 'is accepted with a save, which needs the cost' do
+      session = proposal
+
+      expect(session.update(note: 'Trip')).to be(false)
+      expect(session.update(cost: 9)).to be(true)
+      expect(session.reload).to have_attributes(assigned_manually: true, proposal?: false, origin: 'detection')
+      expect(described_class.effective).to eq([session])
+    end
+
+    it 'is dismissed without energy and cost' do
+      session = proposal(kwh: nil)
+
+      session.dismiss!
+
+      expect(session.reload).to have_attributes(dismissed: true, assigned_manually: true)
+      expect(described_class.effective).to be_empty
+      expect(described_class.list_for(:offsite)).to be_empty
+    end
+
+    it 'goes when the user enters the same charge' do
+      proposal
+
+      described_class.create!(kind: :offsite, origin: :user, car:, started_at: at(11) + 30.minutes, ended_at: at(12), kwh: 20, cost: 9)
+
+      expect(described_class.proposals).to be_empty
+    end
+
+    it 'stays when the user enters a charge at another time' do
+      proposal
+
+      described_class.create!(kind: :offsite, origin: :user, car:, started_at: at(18), ended_at: at(19), kwh: 20, cost: 9)
+
+      expect(described_class.proposals.count).to eq(1)
+    end
+
+    it 'gets a new estimate with the capacity of the car' do
+      session = proposal(kwh: nil)
+
+      car.update!(battery_kwh: 60)
+
+      expect(session.reload.kwh).to eq(24)
+    end
+  end
+
+  describe '#blocked_period' do
+    let(:start) { Time.zone.local(2026, 6, 15, 10) }
+
+    it 'adds the margin around a session with an end' do
+      session = described_class.new(kind: :offsite, started_at: start, ended_at: start + 1.hour)
+
+      expect(session.blocked_period).to eq((start - 1.hour)...(start + 2.hours))
+    end
+
+    it 'blocks the whole day of a session without an end' do
+      session = described_class.new(kind: :offsite, started_at: start)
+
+      expect(session.blocked_period).to eq(start.beginning_of_day...(start.beginning_of_day + 1.day))
+    end
+  end
+
+  describe 'the state of charge' do
+    let(:session) do
+      described_class.create!(kind: :wallbox, origin: :detection, car:, started_at: 1.day.ago, ended_at: 1.day.ago + 2.hours, kwh: 22, soc_from: 30, soc_to: 70)
+    end
+
+    it 'goes with a change of the car' do
+      session.update!(holder: ChargingSession::GUEST)
+
+      expect(session.reload).to have_attributes(soc_from: nil, soc_to: nil)
+    end
+
+    it 'goes with a change of the car of an offsite session' do
+      other_car = Car.create!(id: 2)
+      offsite = described_class.create!(kind: :offsite, origin: :user, car:, started_at: 1.day.ago, kwh: 10, cost: 5, soc_from: 30, soc_to: 50)
+
+      offsite.update!(car: other_car)
+
+      expect(offsite.reload).to have_attributes(soc_from: nil, soc_to: nil)
+    end
+
+    it 'stays with a change of the note' do
+      session.update!(note: 'Trip')
+
+      expect(session.reload).to have_attributes(soc_from: 30, soc_to: 70)
+    end
+
+    describe '#loss' do
+      it 'needs the capacity of the car' do
+        expect(session.loss).to be_nil
+      end
+
+      it 'gives the share of the energy that did not reach the battery' do
+        car.update!(battery_kwh: 50)
+
+        # 40 % of 50 kWh = 20 kWh of 22 kWh
+        expect(session.reload.loss).to be_within(0.001).of(1 - (20.0 / 22))
+      end
+
+      it 'needs a rise of 20 points' do
+        car.update!(battery_kwh: 50)
+        session.update!(soc_to: 45)
+
+        expect(session.reload.loss).to be_nil
       end
     end
   end

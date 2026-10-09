@@ -16,3 +16,6 @@
   - if charging_session.pv_percent
     .mt-3.text-sm.text-gray-500.dark:text-gray-400
       = render ChargingSession::PvShareBar::Component.new(percent: charging_session.pv_percent)
+
+  - if (soc = helpers.charging_session_soc_facts(charging_session))
+    p.mt-3.text-sm.text-gray-500.dark:text-gray-400.tabular-nums = soc

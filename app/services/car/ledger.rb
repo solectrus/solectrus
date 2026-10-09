@@ -80,6 +80,7 @@ class Car::Ledger
       ChargingSession
         .where(car: cars)
         .or(ChargingSession.wallbox.where(car_id: nil))
+        .effective
         .on_dates(dates)
         .daily_sums
         .map { |(car_id, guest, date, kind), sums| Row.new(date:, car_id:, guest:, kind:, sums:) }

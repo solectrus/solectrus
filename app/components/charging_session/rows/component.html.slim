@@ -1,3 +1,3 @@
 = render LazyRows::Component.new(prefix: FRAME_PREFIX, pagy:, frame:) do
   - sessions.each do |charging_session|
-    = render ChargingSession::Row::Component.new(charging_session:)
+    = render ChargingSession::Row::Component.new(charging_session:, place: place_of(charging_session))

@@ -4,7 +4,11 @@
 #
 # - A wallbox session of the car outside the new period loses the car, also
 #   a car that the user chose, and the next build runs the detection on
-#   these days again (see ChargingSession::Detection).
+#   these days again (see ChargingSession::Detection). It also loses its
+#   state of charge, which belongs to the car.
+# - A proposal of an offsite session of the car outside the new period
+#   goes, and the next build finds the proposals of these days again (see
+#   ChargingSession::OffsiteDetection).
 # - A visit of the car at a place outside the new period goes, and the next
 #   build finds the visits of these days again (see Place::VisitDetection).
 # - The summaries of the changed days go, so the next build makes them again
@@ -19,12 +23,7 @@ class Car::PeriodChange
     days = changed_days
     return if days.empty?
 
-    car
-      .charging_sessions
-      .wallbox
-      .where.not(started_at: car.period_times)
-      .update_all(car_id: nil, assigned_manually: false) # rubocop:disable Rails/SkipsModelValidations
-
+    release_sessions
     car.place_visits.where.not(date: car.active_from..car.active_until).delete_all
     days.each { Summary.where(date: it).delete_all }
   end
@@ -32,6 +31,14 @@ class Car::PeriodChange
   private
 
   attr_reader :car
+
+  # The sessions of the car outside the new period: a wallbox session loses
+  # the car, a proposal goes
+  def release_sessions
+    outside = car.charging_sessions.where.not(started_at: car.period_times)
+    outside.wallbox.update_all(car_id: nil, assigned_manually: false, soc_from: nil, soc_to: nil) # rubocop:disable Rails/SkipsModelValidations
+    outside.proposals.delete_all
+  end
 
   # The days between the old and the new value of each bound. A missing
   # bound reaches the installation date (a new car) or today (no last day).

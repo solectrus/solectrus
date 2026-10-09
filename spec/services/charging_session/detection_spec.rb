@@ -82,6 +82,21 @@ describe ChargingSession::Detection do
     expect(sessions.map(&:car_id).uniq).to eq([1])
   end
 
+  # Also with one car, which needs no heuristics
+  it 'reads the state of charge of the car' do
+    influx_batch do
+      [[7, 30], [9, 70]].each do |hour, soc|
+        add_influx_point(
+          name: Sensor::Config.measurement(:car_battery_soc_1),
+          fields: { Sensor::Config.field(:car_battery_soc_1) => soc },
+          time: day.in_time_zone.change(hour:),
+        )
+      end
+    end
+
+    expect(sessions.first.socs).to eq(1 => [30, 70])
+  end
+
   # The sessions nearly hold the wallbox energy of the day, and never more.
   # The difference is the idle time: the standby power and what integral gives
   # to the edges, because it connects two points with a straight line.

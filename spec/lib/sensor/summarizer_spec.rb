@@ -436,7 +436,7 @@ describe Sensor::Summarizer do
 
         call
 
-        expect(ChargingSession::Detection).to have_received(:new).with([date])
+        expect(ChargingSession::Detection).to have_received(:new).with([date], hash_including(:curves))
         expect(Place::VisitDetection).not_to have_received(:new)
       end
     end

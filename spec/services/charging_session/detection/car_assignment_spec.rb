@@ -99,17 +99,6 @@ describe ChargingSession::Detection::CarAssignment do
     end
   end
 
-  it 'reads the heuristics only on a day with more than one candidate' do
-    allow(Sensor::Config).to receive(:configured?).and_return(true)
-
-    expect(assignment.sensor_names([day])).to eq(
-      %i[car_connected_1 car_battery_soc_1 car_odometer_1 car_connected_2 car_battery_soc_2 car_odometer_2],
-    )
-
-    other_car.active_until = day - 1
-    expect(assignment.sensor_names([day])).to eq(%i[car_connected_1])
-  end
-
   describe 'with home' do
     subject(:assignment) { described_class.new(cars, curves: ->(_date, name) { curves.fetch(name, []) }, home:) }
 
@@ -150,13 +139,6 @@ describe ChargingSession::Detection::CarAssignment do
       position(1, at(8), 50.906, 6.407)
 
       expect(assignment.car_for(day, from, to)).to be_nil
-    end
-
-    it 'reads the position of each candidate' do
-      allow(Sensor::Config).to receive(:configured?).and_return(true)
-      other_car.active_until = day - 1
-
-      expect(assignment.sensor_names([day])).to eq(%i[car_connected_1 car_latitude_1 car_longitude_1])
     end
   end
 end

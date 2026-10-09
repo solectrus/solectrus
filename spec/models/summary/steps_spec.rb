@@ -5,7 +5,16 @@ describe Summary::Steps do
     it 'gives the version of each step with something to do' do
       expect(described_class.versions).to eq(
         'charging_sessions' => ChargingSession::Detection::VERSION,
+        'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
       )
+    end
+
+    # The proposals read the state of charge, which needs the permission :car
+    it 'does not depend on the permission of the sensors' do
+      stub_feature
+
+      expect(described_class.enabled).to include(ChargingSession::OffsiteDetection)
+      expect(described_class.versions).to include('offsite_sessions' => ChargingSession::OffsiteDetection::VERSION)
     end
   end
 

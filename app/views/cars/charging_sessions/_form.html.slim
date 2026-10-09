@@ -17,6 +17,12 @@
       = f.text_area :note, rows: 3
 
   - else
+    - if charging_session.proposal?
+      / A save accepts the proposal of the build
+      .mt-2.mb-4.rounded-lg.p-4.text-sm.bg-amber-50.text-amber-900.dark:bg-amber-900/20.dark:text-amber-200.flex.items-center.gap-3
+        = icon 'circle-question', class: 'shrink-0 text-base text-amber-500 dark:text-amber-400'
+        p = t('charging_sessions.proposal.form_hint')
+
     / Side by side on a wide screen, so the form fits the height of a laptop
     .grid.grid-cols-1.lg:grid-cols-2.lg:gap-x-10
       div
@@ -26,15 +32,19 @@
             = f.datetime_local_field :started_at,
                                      autofocus: true
             = f.datetime_local_field :ended_at
-          .grid.grid-cols-1.md:grid-cols-2.gap-4
-            = f.number_field :kwh,
-                             in: 0..10_000,
-                             step: '0.001',
-                             suffix: 'kWh'
-            = f.number_field :cost,
-                             in: 0..10_000,
-                             step: '0.01',
-                             suffix: Currency.symbol
+          div
+            .grid.grid-cols-1.md:grid-cols-2.gap-4
+              = f.number_field :kwh,
+                               in: 0..10_000,
+                               step: '0.001',
+                               suffix: 'kWh'
+              = f.number_field :cost,
+                               in: 0..10_000,
+                               step: '0.01',
+                               suffix: Currency.symbol
+            / Below both fields, so the facts of the charge fit on one line
+            - if (soc = charging_session_soc_facts(charging_session))
+              p.mt-3.label-hint = soc
 
       div
         = f.group do

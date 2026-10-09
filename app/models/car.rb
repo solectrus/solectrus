@@ -2,8 +2,8 @@
 # which names its sensors (car_odometer_2) and its environment variables
 # (INFLUX_SENSOR_CAR_ODOMETER_2). The environment stays the source of the
 # sensor configuration, because Helios writes it. The table holds what the
-# environment cannot: the name, the short name, the period of use and the
-# color.
+# environment cannot: the name, the short name, the period of use, the
+# color and the usable capacity of the battery.
 #
 # The number of a car never changes, because the daily values store its
 # history under the sensor name with the number. SOLECTRUS never removes a
@@ -15,6 +15,7 @@
 #  id           :integer          not null, primary key
 #  active_from  :date             not null
 #  active_until :date
+#  battery_kwh  :decimal(5, 1)
 #  color        :string
 #  name         :string
 #  short_name   :string           not null
@@ -50,12 +51,14 @@ class Car < ApplicationRecord
   validates :short_name, presence: true, length: { maximum: SHORT_NAME_MAX }
   validates :active_from, presence: true
   validates :color, format: { with: COLOR_FORMAT }, allow_nil: true
+  validates :battery_kwh, numericality: { greater_than: 0, less_than: 10_000 }, allow_nil: true
   validate :period_in_order
   validate :offsite_sessions_in_period, if: -> { will_save_change_to_active_from? || will_save_change_to_active_until? }
 
   # A new car takes its number as short name, until the user gives it one
   before_validation -> { self.short_name ||= id&.to_s }, on: :create
   after_save -> { Car::PeriodChange.new(self).call }, if: -> { saved_change_to_active_from? || saved_change_to_active_until? }
+  after_save -> { ChargingSession.reestimate(self) }, if: :saved_change_to_battery_kwh?
   after_commit :clear_current
 
   # The id is the order of the cars
@@ -147,12 +150,13 @@ class Car < ApplicationRecord
     errors.add(:active_until, :before_active_from)
   end
 
-  # An offsite session has no detection, so nothing could take its car away
-  # again. The period must therefore hold each offsite session of the car.
+  # An offsite session of the user has no detection, so nothing could take
+  # its car away again. The period must therefore hold each such session of
+  # the car. A proposal outside goes (see Car::PeriodChange).
   def offsite_sessions_in_period
     return if new_record? || active_from.nil?
 
-    outside = charging_sessions.offsite.where.not(started_at: period_times).count
+    outside = charging_sessions.offsite.effective.where.not(started_at: period_times).count
     return if outside.zero?
 
     errors.add(:base, :offsite_sessions_outside, count: outside)

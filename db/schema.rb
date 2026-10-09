@@ -25,9 +25,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_102209) do
     t.date "active_from", null: false
     t.date "active_until"
     t.string "color"
+    t.decimal "battery_kwh", precision: 5, scale: 1
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.check_constraint "active_until IS NULL OR active_until >= active_from", name: "cars_period_order"
+    t.check_constraint "battery_kwh IS NULL OR battery_kwh > 0::numeric", name: "cars_battery_kwh"
   end
 
   create_table "cash_flows", force: :cascade do |t|
@@ -48,7 +50,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_102209) do
     t.boolean "assigned_manually", default: false, null: false
     t.datetime "started_at", null: false
     t.datetime "ended_at"
-    t.decimal "kwh", precision: 10, scale: 3, null: false
+    t.decimal "kwh", precision: 10, scale: 3
     t.decimal "kwh_grid", precision: 10, scale: 3
     t.decimal "cost", precision: 10, scale: 2
     t.decimal "cost_grid", precision: 10, scale: 2
@@ -57,17 +59,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_27_102209) do
     t.string "provider"
     t.string "address"
     t.text "note"
+    t.boolean "dismissed", default: false, null: false
+    t.decimal "soc_from", precision: 4, scale: 1
+    t.decimal "soc_to", precision: 4, scale: 1
+    t.float "latitude"
+    t.float "longitude"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["car_id", "started_at"], name: "index_charging_sessions_on_car_id_and_started_at"
     t.index ["kind", "started_at"], name: "index_charging_sessions_on_kind_and_started_at"
     t.index ["started_at"], name: "index_charging_sessions_on_wallbox_start", unique: true, where: "(((kind)::text = 'wallbox'::text) AND ((origin)::text = 'detection'::text))"
-    t.check_constraint "assigned_manually OR kind::text = 'wallbox'::text AND NOT guest", name: "charging_sessions_assigned_manually"
+    t.check_constraint "(soc_from IS NULL OR soc_from >= 0::numeric AND soc_from <= 100::numeric) AND (soc_to IS NULL OR soc_to >= 0::numeric AND soc_to <= 100::numeric)", name: "charging_sessions_soc"
+    t.check_constraint "NOT dismissed OR kind::text = 'offsite'::text AND assigned_manually", name: "charging_sessions_dismissed"
     t.check_constraint "NOT guest OR kind::text = 'wallbox'::text AND car_id IS NULL", name: "charging_sessions_guest"
+    t.check_constraint "assigned_manually OR NOT guest", name: "charging_sessions_assigned_manually"
     t.check_constraint "ended_at IS NULL OR ended_at >= started_at", name: "charging_sessions_period_order"
     t.check_constraint "kind::text <> 'offsite'::text OR car_id IS NOT NULL", name: "charging_sessions_offsite_car"
     t.check_constraint "kind::text <> 'wallbox'::text OR ended_at IS NOT NULL", name: "charging_sessions_wallbox_end"
     t.check_constraint "kwh > 0::numeric", name: "charging_sessions_kwh"
+    t.check_constraint "kwh IS NOT NULL OR kind::text = 'offsite'::text AND (NOT assigned_manually OR dismissed)", name: "charging_sessions_kwh_present"
     t.check_constraint "kwh_grid IS NULL OR kwh_grid >= 0::numeric AND kwh_grid <= kwh", name: "charging_sessions_kwh_grid"
     t.check_constraint "origin::text <> 'user'::text OR kind::text = 'offsite'::text AND assigned_manually", name: "charging_sessions_user"
   end

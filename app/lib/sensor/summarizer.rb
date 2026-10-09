@@ -111,7 +111,13 @@ module Sensor
     # A run of each step with something to do, on each day of the build (see
     # Summary::Steps)
     def start_steps(dates)
-      Summary::Steps.enabled.map { StepRun.new(it, dates) }
+      steps = Summary::Steps.enabled
+      return [] if steps.empty?
+
+      # The steps share what they read alike, for example the curves of the
+      # cars, so one Flux program reads it (see Summary::Steps.shared)
+      shared = Summary::Steps.shared(dates)
+      steps.map { StepRun.new(it, dates, shared) }
     end
 
     # Each day reads the meters from the diffs that the chunk shares with its

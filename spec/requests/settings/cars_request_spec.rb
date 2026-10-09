@@ -31,6 +31,12 @@ describe 'Settings cars' do
         expect(response.body).to include('Model Y')
       end
 
+      it 'saves the battery capacity' do
+        patch '/settings/cars/1', params: { car: { battery_kwh: '77.5' } }
+
+        expect(Car.find(1).battery_kwh).to eq(77.5)
+      end
+
       it 'stores no color of its own for the default color' do
         patch settings_car_path(1), params: { car: { color: Car::DEFAULT_COLOR } }, as: :turbo_stream
 

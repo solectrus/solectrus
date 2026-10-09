@@ -262,8 +262,8 @@ describe Sensor::SummaryInvalidator do
       end
     end
 
-    # The test configuration has a wallbox, so the detection has something
-    # to do
+    # The test configuration has a wallbox and the state of charge of the
+    # first car, so the detection and the proposals have something to do
     context 'with a summary of a past day and the steps' do
       let(:current_steps) { current_config[:steps] }
 

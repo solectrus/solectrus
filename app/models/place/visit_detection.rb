@@ -85,7 +85,9 @@ class Place::VisitDetection
     Sensor::Cars.configured_numbers.flat_map { |number| roles.map { Sensor::Cars.sensor_name(it, number) } }
   end
 
-  def initialize(dates, cars: Car.configured)
+  # The visits read the positions with a query of their own (see #positions),
+  # so they ignore the shared curves (see Summary::Steps.shared)
+  def initialize(dates, cars: Car.configured, curves: nil) # rubocop:disable Lint/UnusedMethodArgument
     @dates = dates.sort
     @cars = cars.select { Sensor::Cars.located?(it.id, check_policy: false) && it.active_during?(@dates.first..@dates.last) }
   end

@@ -23,6 +23,8 @@
     .grid.grid-cols-1.md:grid-cols-2.gap-4
       = f.date_field :active_from, required: true, hint: t('settings.cars.active_from_hint')
       = f.date_field :active_until, hint: t('settings.cars.active_until_hint')
+    .grid.grid-cols-1.md:grid-cols-2.gap-4
+      = f.number_field :battery_kwh, in: 0.1..9999.9, step: '0.1', suffix: 'kWh', hint: t('settings.cars.battery_kwh_hint')
 
   / The sensors come from the configuration, so the form only shows them
   = f.group title: t('settings.sensors.name') do
