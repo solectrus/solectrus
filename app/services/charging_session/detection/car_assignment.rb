@@ -4,7 +4,8 @@
 #
 # 1. A candidate that reports a position away from home is excluded.
 # 2. One candidate reports a connection during the session: that car.
-# 3. A candidate that reports no connection is excluded.
+# 3. A candidate that reports no connection is excluded, unless its state of
+#    charge rises during the session.
 # 4. One candidate remains: that car.
 # 5. More than one candidate remains: the car that the heuristics find.
 # 6. Otherwise: not assigned.
@@ -17,6 +18,14 @@
 # The connection comes from car_connected of a car. A car without this sensor
 # gives no sign, so it stays a candidate. When two cars report a connection,
 # one of them is at another charger, and the heuristics choose between them.
+# A car that is offline while it charges can repeat its last state, so a rise
+# of its state of charge outweighs a reading of no connection. A car whose
+# readings do not change during the session at all is offline, and its
+# source only repeats the state before the session, which is no sign.
+#
+# A car reports late, up to REPORT_LAG after the change. The position and the
+# connection therefore count up to REPORT_LAG after the session, so a short
+# session at the arrival of a car has the arrival.
 #
 # A sensor of a car is a state, which holds until its next reading (see the
 # DSL `state`). So the state at the start of the session is the last reading
@@ -39,6 +48,15 @@ class ChargingSession::Detection::CarAssignment
   # ChargingSession::Curves::MARGIN).
   READING_DISTANCE = 2.hours
   public_constant :READING_DISTANCE
+
+  # How late a car reports a change of its position or its connection: one
+  # interval of a source that polls the car
+  REPORT_LAG = 15.minutes
+  public_constant :REPORT_LAG
+
+  # The sensors that show whether a car is online: one of them changes
+  OFFLINE_ROLES = %i[car_battery_soc car_odometer car_connected].freeze
+  private_constant :OFFLINE_ROLES
 
   # A rise of the state of charge below this is noise (percentage points)
   MIN_SOC_RISE = 1
@@ -69,10 +87,10 @@ class ChargingSession::Detection::CarAssignment
     connected = candidates.select { connections[it] == :connected }
     return connected.first if connected.one?
 
-    candidates = connected.presence || candidates.reject { connections[it] == :disconnected }
+    signs = candidates.index_with { soc_sign(date, it, from, to) }
+    candidates = connected.presence || candidates.reject { unplugged?(connections[it], signs[it]) }
     return candidates.first if candidates.size <= 1
 
-    signs = candidates.index_with { soc_sign(date, it, from, to) }
     charged = candidates.select { signs[it] == :rose }
     return charged.first if charged.one?
 
@@ -92,13 +110,28 @@ class ChargingSession::Detection::CarAssignment
   # :connected when the car reports a connection during the session,
   # :disconnected when it reports none, nil without a reading. A curve has
   # the end of each bucket, so a reading after the start is during the
-  # session. Without one, the state at the start counts.
+  # session, and a reading up to REPORT_LAG after it as well. Without one, or
+  # with the readings of an offline car, the state at the start counts.
   def connection_sign(date, car, from, to)
-    during = readings(date, :car_connected, car, from + 1, to)
-    return sign_before(state_at(date, :car_connected, car, from)) if during.empty?
+    during = readings(date, :car_connected, car, from + 1, to + REPORT_LAG)
+    return sign_before(state_at(date, :car_connected, car, from)) if during.empty? || offline?(date, car, from, to)
 
     during.any? { it.last.positive? } ? :connected : :disconnected
   end
+
+  # Whether no reading of the car changes during the session: the source
+  # repeats the last state of a car that is offline (see OFFLINE_ROLES)
+  def offline?(date, car, from, to)
+    OFFLINE_ROLES.all? do |role|
+      before = state_at(date, role, car, from)&.last
+      readings(date, role, car, from + 1, to + REPORT_LAG).all? { it.last == before }
+    end
+  end
+
+  # Whether a car did not charge because it reports no connection. A rise of
+  # its state of charge shows that the reading is old, from a car that is
+  # offline while it charges.
+  def unplugged?(connection, soc_sign) = connection == :disconnected && soc_sign != :rose
 
   # The sign of the state at the start of the session: only a connection. A
   # car is plugged in before it charges, so a reading of no connection can be
@@ -121,14 +154,15 @@ class ChargingSession::Detection::CarAssignment
 
   # Whether the car reports positions during the session, and none of them
   # within Place::RADIUS of home. Only a bucket after the start counts,
-  # because the reading before can be from the drive home. A mean of a
+  # because the reading before can be from the drive home, and a bucket up to
+  # REPORT_LAG after the end counts too. A mean of a
   # bucket on a drive is no real position, but a car on a drive does not
   # charge at the wallbox either.
   def away?(date, car, from, to)
     return false unless home
 
-    latitudes = readings(date, :car_latitude, car, from + BUCKET, to).to_h
-    positions = readings(date, :car_longitude, car, from + BUCKET, to).filter_map do |time, longitude|
+    latitudes = readings(date, :car_latitude, car, from + BUCKET, to + REPORT_LAG).to_h
+    positions = readings(date, :car_longitude, car, from + BUCKET, to + REPORT_LAG).filter_map do |time, longitude|
       [latitudes[time], longitude] if latitudes[time]
     end
 
