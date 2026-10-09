@@ -4,12 +4,14 @@
 class Car::Select::Component < ViewComponent::Base
   # `cars` are the cars of the timeframe, `car` is the selected one, or nil
   # for "all". A page other than the car page gives the address of a choice
-  # as `path`, which takes the car id, or nil for "all".
-  def initialize(cars:, car:, path: nil, button_class: Dropdown::Component::HEADER_BUTTON_CLASS)
+  # as `path`, which takes the car id, or nil for "all". A page that shows
+  # one car at a time leaves out "all".
+  def initialize(cars:, car:, path: nil, all: true, button_class: Dropdown::Component::HEADER_BUTTON_CLASS)
     super()
     @cars = cars
     @car = car
     @path = path
+    @all = all
     @button_class = button_class
   end
 
@@ -18,7 +20,7 @@ class Car::Select::Component < ViewComponent::Base
   # Each choice, "all" first
   def items
     @items ||= [
-      (item(t('.all'), nil) unless cars.one?),
+      (item(t('.all'), nil) if @all && !cars.one?),
       *cars.map { item(it.display_name, it) },
     ].compact
   end

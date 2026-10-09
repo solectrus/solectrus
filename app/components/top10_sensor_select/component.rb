@@ -1,4 +1,12 @@
 class Top10SensorSelect::Component < ViewComponent::Base
+  # A car sensor shows as its role, because the car select picks the car.
+  # The ranking of the odometer sums the days, so it ranks the distance.
+  CAR_ROLE_NAMES = {
+    car_odometer: 'sensors.car_distance',
+    car_max_range: 'sensors.car_max_range',
+  }.freeze
+  private_constant :CAR_ROLE_NAMES
+
   def initialize(current_sensor:, permitted_params:)
     super()
     @current_sensor = current_sensor
@@ -9,6 +17,10 @@ class Top10SensorSelect::Component < ViewComponent::Base
 
   def sensor_groups
     @sensor_groups ||= build_grouped_sensor_items
+  end
+
+  def display_name
+    current_sensor.try(:car_role) ? car_role_name(current_sensor) : current_sensor.display_name(:short)
   end
 
   private
@@ -67,14 +79,12 @@ class Top10SensorSelect::Component < ViewComponent::Base
   def build_menu_items_for_sensors(sensors)
     sensors
       .map { |sensor_name| build_menu_item(sensor_name) }
-      .sort_by do |item|
-        Sensor::Registry[item.sensor_name].display_name(:long).downcase
-      end
+      .sort_by { it.name.downcase }
   end
 
   def build_menu_item(sensor_name)
     MenuItem::Component.new(
-      name: Sensor::Registry[sensor_name].display_name(:long),
+      name: menu_name(Sensor::Registry[sensor_name]),
       id: sensor_name,
       href: helpers.url_for(**permitted_params, sensor_name:, only_path: true),
       data: {
@@ -85,8 +95,22 @@ class Top10SensorSelect::Component < ViewComponent::Base
     )
   end
 
+  def menu_name(sensor)
+    sensor.try(:car_role) ? car_role_name(sensor) : sensor.display_name(:long)
+  end
+
+  def car_role_name(sensor)
+    I18n.t(CAR_ROLE_NAMES.fetch(sensor.car_role) { "sensors.car_roles.#{sensor.car_role}" })
+  end
+
+  # One entry for each role of the cars. It keeps the current car, or all
+  # cars, and else takes the first car with the role.
   def available_sensors
-    @available_sensors ||= Sensor::Config.top10_sensors.map(&:name)
+    @available_sensors ||=
+      Sensor::Config.top10_sensors
+        .group_by { it.try(:car_role) || it.name }
+        .map { |_, sensors| sensors.find { it.try(:car_number) == current_sensor.try(:car_number) } || sensors.first }
+        .map(&:name)
   end
 
   # Define the order in which categories should appear

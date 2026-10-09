@@ -411,6 +411,25 @@ describe McpServer::Tools::Totals do
       end
     end
 
+    # The distance of all cars ranks for the top 10, but the chart has no total
+    # of its own, so the sensor of each car answers instead
+    describe 'a chart that ranks' do
+      before do
+        Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer'))
+        Current.cars = nil
+      end
+
+      after { Sensor::Config.setup(ENV) }
+
+      it 'rejects it and names the sensors with its data' do
+        response = described_class.call(server_context: nil, timeframe: '2024-06-15', sensors: ['car_distance'])
+
+        expect(response.error?).to be(true)
+        expect(response.content.first[:text]).to include('car_odometer_1')
+        expect(McpServer::SupportedTools.code(Sensor::Registry[:car_distance])).to eq('r')
+      end
+    end
+
     it 'rounds every percent-unit sensor consistently to one decimal' do
       create_summary(
         date: '2024-06-15',

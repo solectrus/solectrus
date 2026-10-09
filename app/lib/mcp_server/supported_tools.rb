@@ -17,7 +17,7 @@ module McpServer
     def for(sensor)
       live = live?(sensor)
 
-      totals = !sensor.forecast? && aggregations(sensor).any?
+      totals = !sensor.forecast? && !sensor.chart_only? && aggregations(sensor).any?
 
       {
         current: live,
@@ -111,10 +111,13 @@ module McpServer
     # Mirrors the `totals` flag: a forecast first, since that is the reason a
     # client can act on (get_forecast exists), and only then the absence of an
     # aggregation, which is a property of the sensor rather than of the ask.
+    # A chart-only sensor with an aggregation ranks, like car_distance, but
+    # has no total of its own.
     def totals_rejection(sensor)
       return :forecast if sensor.forecast?
+      return :no_aggregation if aggregations(sensor).empty?
 
-      :no_aggregation if aggregations(sensor).empty?
+      :chart_only if sensor.chart_only?
     end
 
     # Mirrors the `ranking` flag, in the order the two reasons refine each
