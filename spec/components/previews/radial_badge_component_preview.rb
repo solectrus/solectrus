@@ -26,6 +26,10 @@ class RadialBadgeComponentPreview < ViewComponent::Preview
     radial_badge(:autarky, nil)
   end
 
+  def battery_soc_min
+    radial_badge(:battery_soc, 0)
+  end
+
   def battery_soc_negative
     radial_badge(:battery_soc, 5)
   end

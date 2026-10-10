@@ -18,6 +18,10 @@ describe RadialBadge::Component, type: :component do
       it 'renders component with text' do
         expect(page).to have_css '.badge', text: '0%'
       end
+
+      it 'renders no arc' do
+        expect(page).to have_no_css '.badge.percent'
+      end
     end
 
     context 'when percent is low (18%)' do
@@ -28,6 +32,10 @@ describe RadialBadge::Component, type: :component do
 
       it 'renders component with text' do
         expect(page).to have_css '.badge', text: '18%'
+      end
+
+      it 'renders an arc' do
+        expect(page).to have_css '.badge.percent'
       end
     end
 

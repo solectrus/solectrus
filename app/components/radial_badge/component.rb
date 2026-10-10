@@ -22,8 +22,9 @@ class RadialBadge::Component < ViewComponent::Base
     !percent? || value.nil? || sensor_color_border.nil?
   end
 
+  # Without an arc at 0%, the round caps would still draw a dot at the top
   def variant_class
-    'percent' if percent? && value
+    'percent' if percent? && value&.positive?
   end
 
   def border_color
