@@ -46,12 +46,12 @@ describe Place::VisitDetection do
     expect(described_class).to be_enabled
   end
 
-  # Without the permission, the query gives no position, so the step would
-  # remove the visits of its days
-  it 'waits without the permission of the car sensors' do
-    stub_feature
+  # The permission opens the pages, the build does not ask for it
+  it 'finds the stops also without the permission of the car sensors' do
+    allow(ApplicationPolicy.instance).to receive(:feature_enabled?).and_return(false)
 
-    expect(described_class).not_to be_enabled
+    expect(described_class).to be_enabled
+    expect(detection.call[1]).to be_present
   end
 
   describe '#call' do

@@ -56,8 +56,8 @@ module Sensor::Cars
   end
 
   # Whether the car of the number has both coordinates, so it has places
-  def self.located?(number)
-    %i[car_latitude car_longitude].all? { Sensor::Config.exists?(sensor_name(it, number)) }
+  def self.located?(number, check_policy: true)
+    %i[car_latitude car_longitude].all? { Sensor::Config.exists?(sensor_name(it, number), check_policy:) }
   end
 
   # The sensors of the configured cars with the given role, for example

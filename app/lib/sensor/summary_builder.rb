@@ -58,7 +58,7 @@ module Sensor
       private
 
       def sensors_for_summary_aggregation(aggregation_type)
-        Sensor::Config.sensors.select do |sensor|
+        Sensor::Config.sensors_for_build.select do |sensor|
           sensor.store_in_summary? &&
             sensor.summary_aggregations.include?(aggregation_type)
         end
@@ -178,7 +178,7 @@ module Sensor
     end
 
     def calculated_sensors_for_aggregation(aggregation_type)
-      Sensor::Config.sensors.select do |s|
+      Sensor::Config.sensors_for_build.select do |s|
         s.store_in_summary? &&
           s.summary_aggregations.include?(aggregation_type) && s.calculated? &&
           !sensor_has_influx_data?(s)
@@ -412,7 +412,7 @@ module Sensor
 
     def sensors_with_sum_and_max
       @sensors_with_sum_and_max ||=
-        Sensor::Config.sensors.select do |s|
+        Sensor::Config.sensors_for_build.select do |s|
           s.store_in_summary? && s.summary_aggregations.include?(:sum) &&
             s.summary_aggregations.include?(:max)
         end
@@ -526,7 +526,7 @@ module Sensor
 
     def calculate_custom_consumer_sensors
       all_custom_power_sensor =
-        (Sensor::Config.sensors || []).grep(Sensor::Definitions::CustomPower)
+        (Sensor::Config.sensors_for_build || []).grep(Sensor::Definitions::CustomPower)
       excluded_sensors = Sensor::Config.house_power_excluded_sensors || []
 
       included_custom_sensors =

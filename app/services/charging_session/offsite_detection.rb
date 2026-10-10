@@ -85,9 +85,10 @@ class ChargingSession::OffsiteDetection
   end
   public_constant :Rise
 
-  # The state of charge needs the permission of the sensors, like each query
+  # The proposals read the state of charge. The build does not ask for the
+  # permission of the sensors (see Summary::Steps).
   def self.enabled?
-    Sensor::Cars.configured_numbers.any? { Sensor::Config.exists?(Sensor::Cars.sensor_name(:car_battery_soc, it)) }
+    Sensor::Cars.configured_numbers.any? { Sensor::Config.configured?(Sensor::Cars.sensor_name(:car_battery_soc, it)) }
   end
 
   # The curves of the cars. The wallbox sessions come from the database.
@@ -98,8 +99,8 @@ class ChargingSession::OffsiteDetection
   def initialize(dates, cars: Car.configured, curves: ChargingSession::Curves.new(dates, cars:))
     @dates = dates.sort
     @curves = curves
-    @cars = cars.select { it.sensor?(:car_battery_soc) && it.active_during?(@dates.first..@dates.last) }
-    @located = @cars.select(&:located?).to_set(&:id)
+    @cars = cars.select { Sensor::Config.configured?(it.sensor_name(:car_battery_soc)) && it.active_during?(@dates.first..@dates.last) }
+    @located = @cars.map(&:id).select { Sensor::Cars.located?(it, check_policy: false) }.to_set
     @home = Place.home
   end
 

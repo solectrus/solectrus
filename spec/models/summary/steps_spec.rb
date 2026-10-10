@@ -8,6 +8,14 @@ describe Summary::Steps do
         'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
       )
     end
+
+    # The proposals read the state of charge, which needs the permission :car
+    it 'does not depend on the permission of the sensors' do
+      stub_feature
+
+      expect(described_class.enabled).to include(ChargingSession::OffsiteDetection)
+      expect(described_class.versions).to include('offsite_sessions' => ChargingSession::OffsiteDetection::VERSION)
+    end
   end
 
   describe '.sensor_names' do

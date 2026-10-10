@@ -365,6 +365,9 @@ summary. These changes remove the summaries, and the next build makes the days a
 - A new period of use of a car removes the summaries of the changed days (see
   [The period of use](#the-period-of-use)).
 
+A step does not ask for the permission of its sensors. A sponsorship opens pages, and the
+records are there before it.
+
 A new build keeps the state of an existing session and its note
 (`Detection::Persistence`). A state that the user chose stays, and so does a car that the
 detection chose, as long as the period of the car holds the day. A session that the
@@ -670,10 +673,8 @@ dark style and have the names in each language.
 
 A visit lasts from the arrival of a car at a place to its departure. The visits are a step
 of the daily build (table `place_visits`, `Place::VisitDetection`, see
-[When the detection runs](#when-the-detection-runs)). Without the permission `:car`, the
-step does not run. If the permission comes back, the next start resets the summaries like
-for any step that has something to do now. "Delete the summaries" also deletes the visits,
-and the places keep their names.
+[When the detection runs](#when-the-detection-runs)). "Delete the summaries" also deletes
+the visits, and the places keep their names.
 
 The step reads the positions of each car, and a position lasts until the car drives away
 (see [Sensors](#sensors)). A night at home is therefore one visit, also when the car sends

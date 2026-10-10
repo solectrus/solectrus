@@ -73,11 +73,10 @@ class Place::VisitDetection
   public_constant :Stop
 
   # SOLECTRUS reads the positions of a car with a latitude and a longitude.
-  # The positions need the permission of the sensors, like their query (see
-  # Sensor::Query::Positions). Without it, the step waits, so it neither
-  # removes the visits of a day nor marks the day as done.
+  # The build does not ask for the permission of the sensors (see
+  # Summary::Steps).
   def self.enabled?
-    Sensor::Cars.configured_numbers.any? { Sensor::Cars.located?(it) }
+    Sensor::Cars.configured_numbers.any? { Sensor::Cars.located?(it, check_policy: false) }
   end
 
   # The positions of each car (see #positions)
@@ -90,7 +89,7 @@ class Place::VisitDetection
   # so they ignore the shared curves (see Summary::Steps.shared)
   def initialize(dates, cars: Car.configured, curves: nil) # rubocop:disable Lint/UnusedMethodArgument
     @dates = dates.sort
-    @cars = cars.select { it.located? && it.active_during?(@dates.first..@dates.last) }
+    @cars = cars.select { Sensor::Cars.located?(it.id, check_policy: false) && it.active_during?(@dates.first..@dates.last) }
   end
 
   attr_reader :dates
