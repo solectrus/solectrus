@@ -11,6 +11,9 @@
 # - a new home (see Place)
 # - a new period of use of a car, on the changed days (see Car::PeriodChange)
 #
+# A step does not ask for the permission of its sensors. A sponsorship opens
+# pages, and the records are there before it.
+#
 # A step class answers:
 #
 #   KEY         its name in the configuration of the summaries

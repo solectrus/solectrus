@@ -704,6 +704,10 @@ Sensor::Registry[:car_battery_soc].permitted?  # => true/false
 Sensor::Config.exists?(:car_battery_soc)       # => false if not permitted
 ```
 
+The daily summaries do not ask for the permission. A sponsorship opens pages, so the
+summaries hold the values before it. The build reads `Sensor::Config.sensors_for_build`
+instead of `Sensor::Config.sensors`.
+
 **All sponsor features**, from the `SPONSOR_FEATURES` list inside
 `ApplicationPolicy` (a `private_constant`, so read it there). Each one gets a
 class-level predicate, for example `ApplicationPolicy.heatpump?`:

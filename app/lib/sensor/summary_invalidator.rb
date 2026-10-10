@@ -65,7 +65,7 @@ class Sensor::SummaryInvalidator
     # Only includes sensors that have actual InfluxDB configuration (not calculated sensors)
     step_sensor_names = Summary::Steps.sensor_names
     Sensor::Config
-      .sensors
+      .sensors_for_build
       .select { it.store_in_summary? || step_sensor_names.include?(it.name) }
       .filter_map do |sensor|
         mapping = Sensor::Config.mapping(sensor.name)
