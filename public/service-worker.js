@@ -23,19 +23,46 @@ const ASSET_PREFIX =
 const BASE = ASSET_PREFIX.replace(/assets\/$/, '');
 const MANIFEST = `${BASE}manifest.json`;
 
-// The manifest maps every entry to its built file, and names the CSS and the
-// chunks each entry pulls in. Collecting all three covers what a cold page load
-// asks for.
+// The manifest maps every entry and image to its built file, and names the CSS,
+// the assets and the chunks each one imports. Following the static imports from
+// what no other chunk refers to covers what a cold page load asks for. A chunk
+// that only a dynamic import reaches (MapLibre of the car map) stays out with
+// its CSS and assets: only the pages that need it load it, and the browser
+// cache keeps it like any immutable asset.
 const assetPaths = (manifest) => {
+  const chunks = Object.entries(manifest).filter(
+    ([, chunk]) => typeof chunk === 'object' && chunk !== null,
+  );
+  const imported = new Set(
+    chunks.flatMap(([, chunk]) => [
+      ...(chunk.imports ?? []),
+      ...(chunk.dynamicImports ?? []),
+    ]),
+  );
+  const owned = new Set(
+    chunks.flatMap(([, chunk]) => [
+      ...(chunk.css ?? []),
+      ...(chunk.assets ?? []),
+    ]),
+  );
+
   const paths = new Set();
+  const seen = new Set();
 
-  for (const entry of Object.values(manifest)) {
-    if (typeof entry !== 'object' || entry === null) continue;
+  const visit = (key) => {
+    const chunk = manifest[key];
+    if (seen.has(key) || typeof chunk !== 'object' || chunk === null) return;
+    seen.add(key);
 
-    if (typeof entry.file === 'string') paths.add(`${BASE}${entry.file}`);
-    for (const path of [...(entry.css ?? []), ...(entry.assets ?? [])]) {
+    if (typeof chunk.file === 'string') paths.add(`${BASE}${chunk.file}`);
+    for (const path of [...(chunk.css ?? []), ...(chunk.assets ?? [])]) {
       paths.add(`${BASE}${path}`);
     }
+    for (const key of chunk.imports ?? []) visit(key);
+  };
+
+  for (const [key, chunk] of chunks) {
+    if (!imported.has(key) && !owned.has(chunk.file)) visit(key);
   }
 
   return [...paths];
