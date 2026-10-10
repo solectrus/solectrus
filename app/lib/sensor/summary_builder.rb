@@ -13,7 +13,7 @@ module Sensor
     class << self
       def needed_aggregations
         Sensor::Config
-          .sensors
+          .sensors_for_build
           .select(&:store_in_summary?)
           .flat_map(&:summary_aggregations)
           .uniq
