@@ -24,12 +24,13 @@ module Sensor
           DAY = 'day'.freeze
           private_constant :DAY
 
-          def initialize(dates, sum_sensor_names:, aggregation_sensor_names:, meter_sensor_names:)
+          def initialize(dates, sum_sensor_names:, aggregation_sensor_names:, meter_sensor_names:, state_sensor_names: [])
             @dates = dates
             @sum_sensor_names = sum_sensor_names
             @aggregation_sensor_names = aggregation_sensor_names
             @meter_sensor_names = meter_sensor_names
             @meter_diffs = DailyDiffs.new(dates, meter_sensor_names)
+            @states = DailyStates.new(dates, state_sensor_names)
           end
 
           attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names, :meter_sensor_names
@@ -38,21 +39,28 @@ module Sensor
           # Sensor::Summarizer::MeterGaps read it.
           attr_reader :meter_diffs
 
+          # The daily min, max and avg of the states. Sensor::SummaryBuilder
+          # reads it.
+          attr_reader :states
+
           # => { Date => { sum: Sensor::Data::Single, aggregation: ... } }
           #
           # A value is nil when that kind was not asked for at all; the caller
           # then falls back to querying the day on its own. The diffs of the
-          # meters are ready in #meter_diffs afterwards.
+          # meters and the values of the states are ready in #meter_diffs and
+          # #states afterwards.
           def call
             # The programs are independent, so they overlap just like the
             # per-day queries they replace.
             sum = Concurrent::Future.execute { resolve(:sum) }
             aggregation = Concurrent::Future.execute { resolve(:aggregation) }
             diff = Concurrent::Future.execute { meter_diffs.call }
+            state = Concurrent::Future.execute { states.call }
 
             sums = sum.value!
             aggregations = aggregation.value!
             diff.wait!
+            state.wait!
 
             dates.index_with { { sum: sums[it], aggregation: aggregations[it] } }
           end

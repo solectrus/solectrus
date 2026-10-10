@@ -6,6 +6,7 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
       aggregation_sensor_names:
         Sensor::SummaryBuilder.aggregation_sensor_names,
       meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
+      state_sensor_names: Sensor::SummaryBuilder.state_sensor_names,
     )
   end
 
@@ -136,12 +137,12 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
         end
       end
 
+      # The state of charge holds 50 until the reading of 51 at noon
       it 'gives the values to both cars' do
-        result = call[dates[1]]
+        call
 
         expect(batch.meter_diffs.call[dates[1]].values_at(:car_odometer_1, :car_odometer_2)).to eq([40, 40])
-        expect(result[:aggregation].car_battery_soc_1(:avg)).to eq(51)
-        expect(result[:aggregation].car_battery_soc_2(:avg)).to eq(51)
+        expect(batch.states.call[dates[1]].values_at(:car_battery_soc_1, :car_battery_soc_2).pluck(:avg)).to eq([50.5, 50.5])
       end
 
       it 'returns the same values as the day on its own' do

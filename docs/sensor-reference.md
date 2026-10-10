@@ -203,6 +203,11 @@ value holds until the next reading, at any age. A chart holds it between two
 readings. The car sensors are states, because a car reports only while it is
 awake, and some sources send only a change.
 
+The daily summary holds the value too (`Influx::DailyStates`). The min, max and
+avg of a day come from its 5-minute buckets, and a bucket without a reading
+holds the value of the bucket before it. Each bucket thus counts the same, and
+a day without a reading gets the last reading before it.
+
 ### `depends_on` - Dependencies
 
 ```ruby

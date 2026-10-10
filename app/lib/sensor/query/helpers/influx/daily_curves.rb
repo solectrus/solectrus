@@ -20,7 +20,7 @@ module Sensor
           private_constant :DAY
 
           BUCKET = 5.minutes
-          private_constant :BUCKET
+          public_constant :BUCKET
 
           # The prefix of the day of the reading before a run (see
           # #state_streams)
