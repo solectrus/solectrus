@@ -3,6 +3,10 @@ module Sensor
   # It uses Sensor::Query::Helpers::Influx::Integral and Sensor::Query::Helpers::Influx::Aggregation
   # to collect raw data and returns a single Sensor::Data::Single object.
   class SummaryBuilder # rubocop:disable Metrics/ClassLength
+    # The aggregations of a state (see Influx::DailyStates)
+    STATE_AGGREGATIONS = %i[min max avg].freeze
+    private_constant :STATE_AGGREGATIONS
+
     # Which sensors a summary is built from does not depend on the day, so
     # Sensor::Summarizer resolves this once for a whole batch of days and
     # Influx::DailyBatch queries them all in one go.
@@ -28,6 +32,16 @@ module Sensor
         end
       end
 
+      # A state, like the state of charge of a car, holds its value between
+      # its readings. Its min, max and avg come from the buckets of the day
+      # (see Influx::DailyStates), not from its readings alone.
+      def state_sensor_names
+        STATE_AGGREGATIONS
+          .flat_map { sensors_for_summary_aggregation(it) }
+          .uniq
+          .filter_map { it.name if it.state? && Sensor::Config.configured?(it.name) }
+      end
+
       def aggregation_sensor_names
         names =
           (needed_aggregations - [:sum]).flat_map do |aggregation|
@@ -46,9 +60,10 @@ module Sensor
             sensor.unit == :watt && Sensor::Config.configured?(sensor.name)
           end
         when :max, :min, :avg
-          # Only sensors that specifically support this aggregation type
+          # Only sensors that specifically support this aggregation type. A
+          # state has its own query (see #state_sensor_names).
           sensors_for_summary_aggregation(aggregation_type).select do |sensor|
-            Sensor::Config.configured?(sensor.name)
+            !sensor.state? && Sensor::Config.configured?(sensor.name)
           end
         else
           []
@@ -69,13 +84,15 @@ module Sensor
     # fetched for this day, as `{ sum:, aggregation: }`. Without it the two
     # queries are run here, one day at a time. `meter_diffs` is the
     # Influx::DailyDiffs of the chunk that the build of the summaries shares
-    # with its meter gaps (see Sensor::Summarizer::MeterGaps).
-    def initialize(timeframe, prefetched: nil, meter_diffs: nil)
+    # with its meter gaps (see Sensor::Summarizer::MeterGaps). `states` is the
+    # Influx::DailyStates of the batch.
+    def initialize(timeframe, prefetched: nil, meter_diffs: nil, states: nil)
       raise ArgumentError unless timeframe.day?
 
       @timeframe = timeframe
       @prefetched = prefetched
       @meter_diffs = meter_diffs
+      @states = states
     end
 
     attr_reader :timeframe, :prefetched
@@ -97,22 +114,16 @@ module Sensor
     private
 
     def collect_all_sensor_data
-      has_sum = needed_aggregations.include?(:sum)
       non_sum_aggregations = needed_aggregations - [:sum]
 
-      sum_task = (defer { collect_data_for_aggregation(:sum) } if has_sum)
-      meter_task = (defer { collect_meter_data } if meter_sensor_names.any?)
+      tasks = [
+        (defer { collect_data_for_aggregation(:sum) } if needed_aggregations.include?(:sum)),
+        (defer { collect_meter_data } if meter_sensor_names.any?),
+        (defer { collect_state_data } if state_sensor_names.any?),
+        (defer { collect_combined_non_sum_aggregations(non_sum_aggregations) } if non_sum_aggregations.any?),
+      ]
 
-      non_sum_task =
-        unless non_sum_aggregations.empty?
-          defer { collect_combined_non_sum_aggregations(non_sum_aggregations) }
-        end
-
-      result = {}
-      result.merge!(sum_task.call) if sum_task
-      result.merge!(meter_task.call) if meter_task
-      result.merge!(non_sum_task.call) if non_sum_task
-      result
+      tasks.compact.each_with_object({}) { |task, result| result.merge!(task.call) }
     end
 
     # The queries are independent, so they run in parallel - unless the
@@ -248,6 +259,20 @@ module Sensor
       meter_sensor_names.to_h { [[it, :sum], diffs[it]] }
     end
 
+    # The aggregations of each state that its sensor stores, from the states
+    # of the batch. Without them the day reads all states in one program of
+    # its own.
+    def collect_state_data
+      states = @states || Sensor::Query::Helpers::Influx::DailyStates.new([timeframe.date], state_sensor_names)
+      values = states.call
+
+      state_sensor_names.each_with_object({}) do |name, result|
+        (Sensor::Registry[name].summary_aggregations & STATE_AGGREGATIONS).each do |aggregation|
+          result[[name, aggregation]] = values.dig(timeframe.date, name, aggregation)
+        end
+      end
+    end
+
     def collect_combined_non_sum_aggregations(aggregation_types)
       all_sensors = collect_sensors_for_aggregation_types(aggregation_types)
       return {} if all_sensors.empty?
@@ -323,6 +348,10 @@ module Sensor
 
     def meter_sensor_names
       @meter_sensor_names ||= self.class.meter_sensor_names
+    end
+
+    def state_sensor_names
+      @state_sensor_names ||= self.class.state_sensor_names
     end
 
     # ============================================

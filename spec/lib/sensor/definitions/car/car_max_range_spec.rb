@@ -37,12 +37,13 @@ describe Sensor::Definitions::CarMaxRange do # rubocop:disable RSpec/SpecFilePat
       end
     end
 
-    # 250 km at 75 %
+    # Each value holds until the next reading: 12 hours at 200 km and 50 %,
+    # then 4 hours at 300 km and 100 %, so 225 km at 62.5 %
     it 'calculates the daily average from the stored averages' do
       data = Sensor::SummaryBuilder.new(Timeframe.new(date.iso8601)).call
 
-      expect(data.car_range_1(:avg)).to eq(250)
-      expect(data.car_max_range_1(:avg)).to be_within(0.01).of(333.33)
+      expect(data.car_range_1(:avg)).to eq(225)
+      expect(data.car_max_range_1(:avg)).to eq(360)
     end
   end
 

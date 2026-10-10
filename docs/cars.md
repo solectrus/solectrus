@@ -172,11 +172,13 @@ has an odometer, because the energy and the cost can come from the offsite sessi
 A car sensor is a state (`state` in the definition): its value holds until the next
 reading, at any age. A car reports only while it is online, and some sources send only a
 change, for example TeslaMate. A parked car can therefore send nothing for days, and a
-maximum age hides its state. The live view, the charts of a day, the visits and the
-assignment of the sessions therefore read the last reading before their time. A position
-has one more limit: it ends when the odometer rises by more than 1 km after it, because
-then the car drove away. A small rise is the end of the drive home, which can come after
-the position.
+maximum age hides its state. The live view, the charts of a day, the daily values, the
+visits and the assignment of the sessions therefore read the last reading before their
+time. A daily value like the average state of charge counts each 5 minutes of the day the
+same, so a parked day keeps its value and a drive does not count more (see `state` in
+[sensor-reference.md](sensor-reference.md)). A position has one more limit: it ends when
+the odometer rises by more than 1 km after it, because then the car drove away. A small
+rise is the end of the drive home, which can come after the position.
 
 A boolean sensor like `car_connected_<n>` accepts a boolean, a number or a text such as
 `on`, because a collector for MQTT often sends text (`Sensor::Units::Boolean`).

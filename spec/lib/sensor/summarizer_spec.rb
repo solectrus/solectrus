@@ -169,9 +169,6 @@ describe Sensor::Summarizer do
           %i[battery_soc max] => 30,
           %i[battery_soc min] => 30,
           %i[battery_soc avg] => 30,
-          %i[car_battery_soc_1 max] => 40,
-          %i[car_battery_soc_1 min] => 40,
-          %i[car_battery_soc_1 avg] => 40,
           %i[case_temp max] => 50,
           %i[case_temp min] => 50,
           %i[case_temp avg] => 50,
@@ -212,6 +209,14 @@ describe Sensor::Summarizer do
         instance_double(
           Sensor::Query::Helpers::Influx::Aggregation,
           call: aggregation_result,
+        ),
+      )
+
+      # The same states on each day
+      allow(Sensor::Query::Helpers::Influx::DailyStates).to receive(:new).and_return(
+        instance_double(
+          Sensor::Query::Helpers::Influx::DailyStates,
+          call: Hash.new { { car_battery_soc_1: { min: 40, max: 40, avg: 40 } } },
         ),
       )
     end
@@ -507,6 +512,7 @@ describe Sensor::Summarizer do
             Sensor::Query::Helpers::Influx::DailyBatch,
             call: prefetched,
             meter_diffs: Sensor::Query::Helpers::Influx::DailyDiffs.new(dates, []),
+            states: Sensor::Query::Helpers::Influx::DailyStates.new(dates, []),
           ),
         )
       end
@@ -522,6 +528,7 @@ describe Sensor::Summarizer do
           aggregation_sensor_names:
             Sensor::SummaryBuilder.aggregation_sensor_names,
           meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
+          state_sensor_names: Sensor::SummaryBuilder.state_sensor_names,
         )
       end
 

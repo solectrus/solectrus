@@ -75,7 +75,7 @@ module Sensor
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(pending, batch ? batch.call : {}, diffs)
+      built = build(pending, batch ? batch.call : {}, diffs, batch&.states)
       steps.each(&:result)
       gaps.result
       persist(built, steps, gaps)
@@ -121,14 +121,15 @@ module Sensor
     end
 
     # Each day reads the meters from the diffs that the chunk shares with its
-    # gaps (see #meter_diffs)
-    def build(pending, prefetched, meter_diffs)
+    # gaps (see #meter_diffs), and the states from the batch
+    def build(pending, prefetched, meter_diffs, states)
       pending.map do |date, summary|
         data =
           Sensor::SummaryBuilder.new(
             Timeframe.new(date.iso8601),
             prefetched: prefetched[date],
             meter_diffs:,
+            states:,
           ).call
 
         records = summary_records(date, data)
@@ -161,6 +162,7 @@ module Sensor
         aggregation_sensor_names:
           Sensor::SummaryBuilder.aggregation_sensor_names,
         meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
+        state_sensor_names: Sensor::SummaryBuilder.state_sensor_names,
       )
     end
 
