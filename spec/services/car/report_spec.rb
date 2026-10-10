@@ -59,13 +59,13 @@ describe Car::Report do
   end
 
   describe '.pending_days' do
-    it 'asks for the days of the timeframe plus the margin, with the detection' do
+    it 'asks for the days of the timeframe plus the margin' do
       allow(Summary).to receive(:missing_or_stale_days).and_return([])
 
       described_class.pending_days(timeframe)
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Date.new(2025, 12, 18), to: Date.new(2026, 2, 14), steps: Car::Report::STEPS,
+        from: Date.new(2025, 12, 18), to: Date.new(2026, 2, 14),
       )
     end
   end
@@ -120,9 +120,10 @@ describe Car::Report do
     context 'with a car that starts in the period' do
       let(:selected_cars) { [cars.second] }
 
-      # A new build gives the days that the period gains a value
+      # The period as the build saw it, so the summaries stay (see
+      # Car::PeriodChange). The build gives the first day in use a value.
       before do
-        cars.second.update!(active_from: Date.new(2026, 1, 22))
+        cars.second.update_columns(active_from: Date.new(2026, 1, 22)) # rubocop:disable Rails/SkipsModelValidations
         summary(22, 'car_odometer_2', 'sum', 0)
       end
 
@@ -134,8 +135,8 @@ describe Car::Report do
     # One car until the 14th, the other one from the 22nd: 24 days in use
     context 'with "all" and a gap between the periods' do
       before do
-        cars.first.update!(active_until: Date.new(2026, 1, 14))
-        cars.second.update!(active_from: Date.new(2026, 1, 22))
+        cars.first.update_columns(active_until: Date.new(2026, 1, 14)) # rubocop:disable Rails/SkipsModelValidations
+        cars.second.update_columns(active_from: Date.new(2026, 1, 22)) # rubocop:disable Rails/SkipsModelValidations
         summary(22, 'car_odometer_2', 'sum', 0)
       end
 

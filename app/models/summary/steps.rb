@@ -2,16 +2,23 @@
 # the detection of the charging sessions (docs/cars.md). A step reads the
 # InfluxDB data of its days and writes records of its own.
 #
-# A step has a version. The summary of a day stores the version of each step
-# that ran on it (summaries.steps), so a new version runs the step again on
-# each day, and only the step. A page asks only for the steps whose records it
-# reads, so a new version of a step rebuilds no day for the other pages.
+# A step runs on each day that the build makes, and only there. So a summary
+# holds the values and the records of each step, and a day is built in full
+# or not at all. What changes the result of a step removes the summaries:
+#
+# - a new VERSION of a step, a step with something to do now, or a new sensor
+#   of a step (see Sensor::SummaryInvalidator)
+# - a new home (see Place)
+# - a new period of use of a car, on the changed days (see Car::PeriodChange)
 #
 # A step class answers:
 #
-#   KEY         its name in summaries.steps
-#   VERSION     bump it to run the step on each day again
+#   KEY         its name in the configuration of the summaries
+#   VERSION     bump it to build each day again
 #   .enabled?   whether the configuration gives the step anything to do
+#   .sensor_names
+#               the sensors that the step reads, also the ones without a
+#               configuration
 #   .derived    the model whose records come from the build alone, which a
 #               reset of the summaries empties, or nil when the records
 #               keep changes of the user
@@ -30,8 +37,6 @@ module Summary::Steps
 
   def self.all = CLASSES.map(&:constantize)
 
-  def self.keys = all.map { it::KEY }
-
   def self.[](key) = all.find { key.to_sym == it::KEY } || raise(ArgumentError, "Unknown step: #{key}")
 
   # The models whose records come from the build alone (see Summary.reset!)
@@ -46,14 +51,10 @@ module Summary::Steps
   # ignores them.
   def self.shared(dates) = { curves: ChargingSession::Curves.new(dates) }
 
-  # The version of each of the steps, as summaries.steps stores it after a
-  # build
-  def self.versions(steps = all) = steps.to_h { [it::KEY.to_s, it::VERSION] }
+  # The version of each step with something to do, for the configuration of
+  # the summaries (see Sensor::SummaryInvalidator)
+  def self.versions = enabled.to_h { [it::KEY.to_s, it::VERSION] }
 
-  # The steps of a parameter like "charging_sessions,places". An unknown name
-  # is left out, so a hand-made address cannot fail.
-  def self.parse(param)
-    names = param.to_s.split(',').map(&:strip)
-    keys.select { names.include?(it.to_s) }
-  end
+  # The sensors that the steps with something to do read
+  def self.sensor_names = enabled.flat_map(&:sensor_names).uniq
 end

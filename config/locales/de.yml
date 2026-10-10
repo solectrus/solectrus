@@ -202,7 +202,7 @@ de:
     labels:
       home: Zuhause
     label_hints:
-      home: Hier steht auch die Wallbox. Bei der automatischen Zuordnung von Ladevorgängen wird der Auto-Standort berücksichtigt.
+      home: Hier steht auch die Wallbox. Bei der automatischen Zuordnung von Ladevorgängen wird der Auto-Standort berücksichtigt. Eine Änderung berechnet alle Zusammenfassungen neu.
   cars:
     default_name: Auto %{number}
     # The time a car spent at a place, on the map of the places

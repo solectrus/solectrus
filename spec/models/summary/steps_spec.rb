@@ -1,31 +1,28 @@
 describe Summary::Steps do
+  # The test configuration has a wallbox and the state of charge of the first
+  # car, but no location
   describe '.versions' do
-    it 'gives the version of each step' do
+    it 'gives the version of each step with something to do' do
       expect(described_class.versions).to eq(
         'charging_sessions' => ChargingSession::Detection::VERSION,
-        'place_visits' => Place::VisitDetection::VERSION,
         'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
       )
     end
+  end
 
-    it 'gives the version of the given steps' do
-      expect(described_class.versions([Place::VisitDetection])).to eq('place_visits' => Place::VisitDetection::VERSION)
+  describe '.sensor_names' do
+    it 'names the sensors of the steps with something to do' do
+      expect(described_class.sensor_names).to include(:wallbox_power, :wallbox_car_connected, :car_battery_soc_1, :car_connected_1)
+    end
+
+    it 'names each sensor once' do
+      expect(described_class.sensor_names).to eq(described_class.sensor_names.uniq)
     end
   end
 
   describe '.derived' do
     it 'names the visits, but not the charging sessions with the changes of the user' do
       expect(described_class.derived).to eq([PlaceVisit])
-    end
-  end
-
-  describe '.parse' do
-    it 'takes the known steps of a parameter' do
-      expect(described_class.parse('charging_sessions,unknown')).to eq([:charging_sessions])
-    end
-
-    it 'takes nothing without a parameter' do
-      expect(described_class.parse(nil)).to eq([])
     end
   end
 

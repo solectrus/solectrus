@@ -8,7 +8,7 @@
 #
 # The time comes from the visits of the daily build (see
 # Place::VisitDetection), so the car page builds the days first (see
-# Car::Report::STEPS). A day outside the period of use of a car has no visit
+# Car::Report.pending_days). A day outside the period of use of a car has no visit
 # of it.
 class Sensor::Chart::CarLocation < Sensor::Chart::Base
   include Sensor::Chart::Concerns::SelectedCars

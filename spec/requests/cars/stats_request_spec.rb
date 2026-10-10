@@ -138,7 +138,7 @@ describe 'Car Stats' do
         # Only the admin sees the names of the cars
         login_as_admin
 
-        Summary.create!(steps: Summary::Steps.versions, date: day, updated_at: 1.day.ago)
+        Summary.create!(date: day, updated_at: 1.day.ago)
         SummaryValue.create!(date: day, field: :car_odometer_1, aggregation: :sum, value: 150)
         SummaryValue.create!(date: day, field: :car_odometer_2, aggregation: :sum, value: 50)
 
@@ -158,7 +158,7 @@ describe 'Car Stats' do
 
       # The car page needs the summaries of the rate window around its days
       def summarize(dates)
-        Summary.upsert_all(dates.map { { date: it, steps: Summary::Steps.versions, updated_at: 1.day.ago } }, unique_by: :date)
+        Summary.upsert_all(dates.map { { date: it, updated_at: 1.day.ago } }, unique_by: :date)
       end
 
       # The header of a tablet and of a desktop has the select
@@ -270,7 +270,13 @@ describe 'Car Stats' do
       end
 
       context 'with a car outside the timeframe' do
-        before { Car.find(2).update!(active_from: day + 1) }
+        # The new period removes the summary of the day, and the build makes it
+        # again without the second car
+        before do
+          Car.find(2).update!(active_from: day + 1)
+          Summary.create!(date: day, updated_at: 1.day.ago)
+          SummaryValue.create!(date: day, field: :car_odometer_1, aggregation: :sum, value: 150)
+        end
 
         it 'offers only the cars in use in the timeframe' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)

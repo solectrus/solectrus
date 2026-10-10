@@ -69,19 +69,14 @@ class Cars::ChargingSessionsController < ApplicationController
 
   private
 
-  # The days of the timeframe whose sessions wait for their step. The page
-  # builds them first, like the car page (see SummaryBuilder::Component).
+  # The days of the timeframe without a fresh summary, and so without their
+  # sessions. The page builds them first, like the car page (see
+  # SummaryBuilder::Component).
   # Without a state of charge, the offsite sessions come from the user alone.
   def pending_days
     return [] if timeframe.now? || (kind == 'offsite' && !ChargingSession::OffsiteDetection.enabled?)
 
-    Summary.missing_or_stale_days_for(timeframe, steps: pending_steps)
-  end
-
-  # The step that writes the sessions of the list: the detection of the
-  # wallbox sessions, or the proposals of the offsite sessions
-  helper_method def pending_steps
-    [kind == 'wallbox' ? ChargingSession::Detection::KEY : ChargingSession::OffsiteDetection::KEY]
+    Summary.missing_or_stale_days_for(timeframe)
   end
 
   def list_scope

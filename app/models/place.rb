@@ -60,6 +60,10 @@ class Place < ApplicationRecord
   # A new home takes the label from the old one
   before_save :release_home, if: -> { home? && labels_changed? }
 
+  # The detection and the proposals of the offsite sessions read home, so a
+  # new home builds each day again (see Summary::Steps)
+  after_commit -> { Summary.reset! }, on: %i[create update], if: -> { Array(labels_before_last_save).include?('home') != home? }
+
   scope :labeled, ->(label) { where('? = ANY(labels)', label) }
 
   def self.home = labeled('home').first

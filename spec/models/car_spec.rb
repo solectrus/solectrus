@@ -141,7 +141,7 @@ describe Car do
     before do
       travel_to Date.new(2026, 9, 23).in_time_zone.change(hour: 12)
       ((day - 1)..(day + 1)).each do |date|
-        Summary.create!(date:, steps: Summary::Steps.versions)
+        Summary.create!(date:)
       end
       ChargingSession.create!(
         kind: :wallbox, origin: :detection, car:, started_at: day.in_time_zone.change(hour: 12), ended_at: day.in_time_zone.change(hour: 13), kwh: 10,
@@ -170,22 +170,10 @@ describe Car do
       expect(ChargingSession.sole.car_id).to eq(car.id)
     end
 
-    it 'marks the days between the old and the new bound for the detection' do
+    it 'removes the summaries of the days between the old and the new bound' do
       car.update!(active_until: day)
 
-      expect(Summary.without_step(:charging_sessions).pluck(:date)).to contain_exactly(day, day + 1)
-    end
-
-    it 'removes the daily values of the car outside the period' do
-      ((day - 1)..(day + 1)).each do |date|
-        SummaryValue.create!(date:, field: 'car_odometer_1', aggregation: 'sum', value: 30)
-        SummaryValue.create!(date:, field: 'car_odometer_2', aggregation: 'sum', value: 20)
-      end
-
-      car.update!(active_until: day)
-
-      expect(SummaryValue.where(field: 'car_odometer_1').pluck(:date)).to contain_exactly(day - 1, day)
-      expect(SummaryValue.where(field: 'car_odometer_2').count).to eq(3)
+      expect(Summary.pluck(:date)).to contain_exactly(day - 1)
     end
 
     it 'removes a proposal outside the period, but keeps it inside' do
@@ -210,13 +198,6 @@ describe Car do
       ChargingSession.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: (day + 1).in_time_zone.change(hour: 10) }) # rubocop:disable Rails/SkipsModelValidations
 
       expect(car.update(active_until: day)).to be(true)
-    end
-
-    it 'builds the days again that the period gains' do
-      car.update!(active_from: day)
-      car.update!(active_from: day - 1)
-
-      expect(Summary.pluck(:date)).to contain_exactly(day, day + 1)
     end
   end
 

@@ -99,7 +99,7 @@ class Cars::VisitsController < ApplicationController
     days = super
     return days unless timeframe.all?
 
-    (days | Summary.missing_or_stale_days_for(Timeframe.new('day'), steps: [Place::VisitDetection::KEY])).sort
+    (days | Summary.missing_or_stale_days_for(Timeframe.new('day'))).sort
   end
 
   def page_frame_request? = LazyRows::Component.request?(request, PAGE_FRAME_PREFIX)

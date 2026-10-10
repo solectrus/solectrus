@@ -1,7 +1,6 @@
-# The cars, their numbered daily values, the charging sessions, the places
-# with the visits of the cars and the versions of the steps of the daily
-# build (docs/cars.md). It starts from the database of v1.3, which has
-# car_battery_soc as its only car record.
+# The cars, their numbered daily values, the charging sessions and the places
+# with the visits of the cars (docs/cars.md). It starts from the database
+# of v1.3, which has car_battery_soc as its only car record.
 class AddCarSupport < ActiveRecord::Migration[8.1]
   # Sensor::Cars::MAX, repeated here because a migration must not change
   # with the application code
@@ -36,12 +35,6 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
     create_cars
     create_charging_sessions
     create_places
-
-    # The version of each step of the daily build that ran on a day (see
-    # Summary::Steps). An empty object marks each existing day as pending
-    # for each step.
-    add_column :summaries, :steps, :jsonb, null: false, default: {}
-
     move_car_name
   end
 
@@ -52,7 +45,6 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
       MigrationSetting.write('sensor_names', names.merge('car_battery_soc' => name))
     end
 
-    remove_column :summaries, :steps
     drop_table :place_visits
     drop_table :places
     drop_table :charging_sessions
@@ -65,8 +57,9 @@ class AddCarSupport < ActiveRecord::Migration[8.1]
 
   # car_battery_soc stays as it is, so that an older version of the
   # application still runs on the database. The daily values of the first car
-  # come from the next build: each day waits for the new steps, and a day with
-  # a waiting step is built again in full (see Sensor::Summarizer).
+  # and the records of the steps come from the next build:
+  # Sensor::SummaryInvalidator resets the summaries at the next start (see
+  # Summary::Steps).
   def add_field_enum_values
     %w[car_battery_soc car_odometer car_max_range car_range].each do |field|
       NUMBERS.each do |number|

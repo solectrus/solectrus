@@ -218,7 +218,7 @@ describe 'Charging sessions' do
 
     before do
       (Date.current.beginning_of_year..Date.current).each do |date|
-        Summary.create!(date:, steps: Summary::Steps.versions)
+        Summary.create!(date:)
       end
     end
 
@@ -267,12 +267,12 @@ describe 'Charging sessions' do
       expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{Date.current.year}"))
     end
 
-    it 'builds the detection of a pending day first' do
-      Summary.find(day).update!(steps: {})
+    it 'builds a missing day first' do
+      Summary.find(day).destroy!
 
       get "/cars/charging_sessions/wallbox/#{Date.current.year}"
 
-      expect(response.body).to include("d_#{day}_#{day}", 'steps=charging_sessions')
+      expect(response.body).to include("d_#{day}_#{day}")
     end
 
     it 'assigns a session to a car' do
@@ -315,7 +315,7 @@ describe 'Charging sessions' do
       # A single charge has no sums, the row says it all
       it 'shows one charge and counts it once' do
         evening, morning = charge
-        Summary.find_or_create_by!(date: day - 1) { it.steps = Summary::Steps.versions }
+        Summary.find_or_create_by!(date: day - 1)
 
         get "/cars/#{car.id}/charging_sessions/wallbox/#{day - 1}..#{day}"
 
@@ -421,12 +421,12 @@ describe 'Charging sessions' do
       expect(response.body).to include('2 <span class="font-light">charging sessions</span>')
     end
 
-    it 'waits for the build of the proposals' do
+    it 'builds the missing days first' do
       allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(true)
 
       get "/cars/charging_sessions/offsite/#{Date.current.year}"
 
-      expect(response.body).to include('steps=offsite_sessions')
+      expect(response.body).to include('sequential-frames')
     end
 
     it 'dismisses a proposal' do

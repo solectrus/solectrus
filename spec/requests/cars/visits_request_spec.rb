@@ -1,7 +1,7 @@
 describe 'Cars Visits' do
   let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Home') }
   let(:work) { Place.create!(latitude: 50.906, longitude: 6.407, name: 'Work') }
-  # No day waits for the visits, unless a spec says so
+  # Each day has a fresh summary, unless a spec says so
   let(:pending_days) { [] }
 
   def visit_at(place, from, to)
@@ -40,29 +40,29 @@ describe 'Cars Visits' do
       end
     end
 
-    context 'with a day that waits for the visits' do
+    context 'with a day without a fresh summary' do
       let(:pending_days) { [Date.current] }
 
       it 'builds the day first' do
         login_as_admin
         get cars_visits_path
 
-        expect(response.body).to include('sequential-frames', 'steps=place_visits')
-        expect(Summary).to have_received(:missing_or_stale_days_for).with(an_object_having_attributes(id: :all), steps: [:place_visits])
+        expect(response.body).to include('sequential-frames')
+        expect(Summary).to have_received(:missing_or_stale_days_for).with(an_object_having_attributes(id: :all))
       end
 
       it 'keeps the current day as fresh as in a day' do
         login_as_admin
         get cars_visits_path
 
-        expect(Summary).to have_received(:missing_or_stale_days_for).with(an_object_having_attributes(id: :day), steps: [:place_visits])
+        expect(Summary).to have_received(:missing_or_stale_days_for).with(an_object_having_attributes(id: :day))
       end
 
       it 'builds only the days of a timeframe' do
         login_as_admin
         get cars_visits_path(timeframe: '2026-09')
 
-        expect(Summary).to have_received(:missing_or_stale_days_for).once.with(an_object_having_attributes(id: :month), steps: [:place_visits])
+        expect(Summary).to have_received(:missing_or_stale_days_for).once.with(an_object_having_attributes(id: :month))
       end
     end
 

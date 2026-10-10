@@ -30,7 +30,7 @@ class ChargingSession::Detection
   KEY = :charging_sessions
   public_constant :KEY
 
-  # Bump to build the sessions of each day again
+  # Bump to build each day again (see Summary::Steps)
   VERSION = 1
   public_constant :VERSION
 
@@ -51,6 +51,9 @@ class ChargingSession::Detection
   def self.enabled?
     Sensor::Config.configured?(:wallbox_power)
   end
+
+  # The energy, the periods, and the car and its state of charge
+  def self.sensor_names = [*WALLBOX_POWER, *ChargingSession::Curves::WALLBOX, *ChargingSession::Curves.car_sensor_names]
 
   # `curves` are the curves of the wallbox and of the cars, which the
   # proposals of the offsite sessions read as well (see

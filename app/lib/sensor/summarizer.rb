@@ -64,13 +64,10 @@ module Sensor
       pending = pending_summaries(chunk)
       return 0 if pending.empty?
 
-      # A fresh summary on which a step waits needs this step alone
-      rebuild = pending.select { |_, summary| rebuild?(summary) }
-
       # Each step waits for InfluxDB, so it overlaps with the queries and the
       # build of the values. It needs no database once made.
-      steps = start_steps(pending)
-      dates = rebuild.map(&:first)
+      dates = pending.map(&:first)
+      steps = start_steps(dates)
       batch = batch_for(dates)
       diffs = meter_diffs(dates, batch)
       gaps = MeterGaps.new(dates, diffs, built: built_dates)
@@ -78,13 +75,13 @@ module Sensor
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(rebuild, batch ? batch.call : {}, diffs)
+      built = build(pending, batch ? batch.call : {}, diffs)
       steps.each(&:result)
       gaps.result
       persist(built, steps, gaps)
       built_dates.merge(dates)
 
-      pending.size
+      built.size
     end
 
     # The days that this run built, so each of them saw every reading up to
@@ -97,38 +94,30 @@ module Sensor
       @gap_dates ||= []
     end
 
-    # Days whose summary is missing or stale, or on which a step waits, paired
-    # with the record to write. Checked before any InfluxDB query, so a day
-    # that turns out to be fresh costs nothing.
+    # Days whose summary is missing or stale, paired with the record to write.
+    # Checked before any InfluxDB query, so a day that turns out to be fresh
+    # costs nothing.
     def pending_summaries(chunk)
       existing = Summary.where(date: chunk).index_by(&:date)
 
       chunk.filter_map do |date|
         summary = existing[date] || Summary.new(date:)
-        next unless rebuild?(summary) || summary.steps_pending?
+        next unless summary.new_record? || summary.stale?(current_tolerance: 0)
 
         [date, summary]
       end
     end
 
-    def rebuild?(summary)
-      summary.new_record? || summary.stale?(current_tolerance: 0)
-    end
-
-    # A run of each step with something to do. A step runs on a rebuilt day,
-    # and on a day on which it waits.
-    def start_steps(pending)
-      runs = Summary::Steps.enabled.index_with { step_dates(pending, it) }.select { |_, dates| dates.any? }
-      return [] if runs.empty?
+    # A run of each step with something to do, on each day of the build (see
+    # Summary::Steps)
+    def start_steps(dates)
+      steps = Summary::Steps.enabled
+      return [] if steps.empty?
 
       # The steps share what they read alike, for example the curves of the
       # cars, so one Flux program reads it (see Summary::Steps.shared)
-      shared = Summary::Steps.shared(runs.values.flatten.uniq.sort)
-      runs.map { |step, dates| StepRun.new(step, dates, shared) }
-    end
-
-    def step_dates(pending, step)
-      pending.filter_map { |date, summary| date if rebuild?(summary) || summary.step_pending?(step) }
+      shared = Summary::Steps.shared(dates)
+      steps.map { StepRun.new(it, dates, shared) }
     end
 
     # Each day reads the meters from the diffs that the chunk shares with its

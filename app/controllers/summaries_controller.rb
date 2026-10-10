@@ -42,11 +42,10 @@ class SummariesController < ApplicationController
   end
 
   # One request answers for one chunk, so a hand-crafted range cannot make it
-  # summarize years at a time. The chunk counts the same days as the page that
-  # asks for it (see SummaryBuilder::Component).
+  # summarize years at a time.
   def pending_days
-    Summary
-      .missing_or_stale_days(from: @from, to: @to, steps: Summary::Steps.parse(params[:steps]))
-      .first(Sensor::Summarizer::CHUNK_SIZE)
+    Summary.missing_or_stale_days(from: @from, to: @to).first(
+      Sensor::Summarizer::CHUNK_SIZE,
+    )
   end
 end

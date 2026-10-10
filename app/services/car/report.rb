@@ -10,22 +10,17 @@
 #
 # The driving cost and the two rates come from the window around each day
 # (see Car::Driving), so they read the days around the timeframe too. These
-# days need a summary and a detection (see .pending_days).
+# days need a summary (see .pending_days).
 class Car::Report
   # A source of the charged energy with its energy (kWh) and its cost
   Source = Data.define(:key, :kwh, :cost)
   public_constant :Source
 
-  # The steps of the daily build whose records the car page reads: the
-  # charging sessions, and the visits on the map of the places
-  STEPS = [ChargingSession::Detection::KEY, Place::VisitDetection::KEY].freeze
-  public_constant :STEPS
-
   # The days that a report of the timeframe reads and that have no fresh
-  # summary or no detection yet
+  # summary yet
   def self.pending_days(timeframe)
     reach = Car::Driving.reach(timeframe.effective_dates, min_date: timeframe.min_date)
-    Summary.missing_or_stale_days(from: reach.begin, to: reach.end, steps: STEPS)
+    Summary.missing_or_stale_days(from: reach.begin, to: reach.end)
   end
 
   # The sources of the Sums of the wallbox and the offsite sessions, from the

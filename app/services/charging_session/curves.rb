@@ -25,12 +25,17 @@ class ChargingSession::Curves
   MARGIN = 12.hours
   public_constant :MARGIN
 
-  def initialize(dates, cars: Car.configured)
-    wallbox = wallbox_requests
-    car = car_request(dates, cars)
+  # The sensors of the cars that the curves read, for each configured number
+  def self.car_sensor_names
+    Sensor::Cars.configured_numbers.flat_map { |number| CAR_ROLES.map { Sensor::Cars.sensor_name(it, number) } }
+  end
 
-    @wallbox = Concurrent::Promises.delay { query(dates, wallbox) }
-    @cars = Concurrent::Promises.delay { query(dates, [car]) }
+  def initialize(dates, cars: Car.configured)
+      wallbox = wallbox_requests
+      car = car_request(dates, cars)
+
+      @wallbox = Concurrent::Promises.delay { query(dates, wallbox) }
+      @cars = Concurrent::Promises.delay { query(dates, [car]) }
   end
 
   # Starts the programs of the wallbox and of the cars in the background

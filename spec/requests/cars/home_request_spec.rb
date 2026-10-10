@@ -101,7 +101,7 @@ describe 'Car Home' do
     context 'with a past day that has a summary, but its window has none' do
       let(:day) { Date.new(2025, 6, 26) }
 
-      before { Summary.create!(steps: Summary::Steps.versions, date: day, updated_at: day + 2.days) }
+      before { Summary.create!(date: day, updated_at: day + 2.days) }
 
       it 'builds the summaries of the window first' do
         get cars_home_path(sensor_name: 'car_charging', timeframe: day.iso8601)

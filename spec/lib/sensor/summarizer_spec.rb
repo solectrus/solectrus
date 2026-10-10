@@ -57,7 +57,6 @@ describe Sensor::Summarizer do
         expect(Summary).to have_received(:missing_or_stale_days).with(
           from: timeframe.effective_beginning_date,
           to: timeframe.effective_ending_date,
-          steps: [],
         )
       end
 
@@ -380,7 +379,7 @@ describe Sensor::Summarizer do
     context 'when fresh summary from today exists' do
       let(:date) { Date.current }
 
-      let!(:summary) { Summary.create!(steps: Summary::Steps.versions, date:, updated_at: 1.minute.ago) }
+      let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
 
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
@@ -394,7 +393,7 @@ describe Sensor::Summarizer do
     context 'when fresh summary from the past exists' do
       let(:date) { Date.yesterday }
 
-      let!(:summary) { Summary.create!(steps: Summary::Steps.versions, date:, updated_at: 1.minute.ago) }
+      let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
 
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
@@ -403,35 +402,20 @@ describe Sensor::Summarizer do
       it 'does not update Summary' do
         expect { call }.not_to(change { summary.reload.updated_at })
       end
-    end
 
-    # The migration marks each existing day as pending for the detection
-    context 'when a fresh summary waits for the detection' do
-      let(:date) { Date.yesterday }
+      it 'runs no step' do
+        allow(ChargingSession::Detection).to receive(:new).and_call_original
 
-      let!(:summary) { Summary.create!(steps: {}, date:, updated_at: 1.minute.ago) }
+        call
 
-      it 'runs the detection alone' do
-        allow(Sensor::SummaryBuilder).to receive(:new).and_call_original
-
-        expect { call }.not_to(change { summary.reload.updated_at })
-        expect(Sensor::SummaryBuilder).not_to have_received(:new)
-      end
-
-      # A step without something to do, like the visits without a location,
-      # gets no mark
-      it 'marks the day with the current version of each enabled step' do
-        expect { call }.to change { summary.reload.steps }.from({}).to(
-          'charging_sessions' => ChargingSession::Detection::VERSION,
-          'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
-        )
+        expect(ChargingSession::Detection).not_to have_received(:new)
       end
     end
 
     context 'when stale summary already exists' do
       let(:date) { Date.yesterday }
 
-      let!(:summary) { Summary.create!(steps: Summary::Steps.versions, date:, updated_at: date.middle_of_day) }
+      let!(:summary) { Summary.create!(date:, updated_at: date.middle_of_day) }
 
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
@@ -439,6 +423,16 @@ describe Sensor::Summarizer do
 
       it 'updates Summary' do
         expect { call }.to(change { summary.reload.updated_at })
+      end
+
+      it 'runs each step with something to do on the day' do
+        allow(ChargingSession::Detection).to receive(:new).and_call_original
+        allow(Place::VisitDetection).to receive(:new).and_call_original
+
+        call
+
+        expect(ChargingSession::Detection).to have_received(:new).with([date], hash_including(:curves))
+        expect(Place::VisitDetection).not_to have_received(:new)
       end
     end
 
@@ -470,7 +464,7 @@ describe Sensor::Summarizer do
         end
 
         gap_days.each do |day|
-          Summary.create!(steps: Summary::Steps.versions, date: day, updated_at: date.beginning_of_day + 2.hours)
+          Summary.create!(date: day, updated_at: date.beginning_of_day + 2.hours)
           SummaryValue.create!(date: day, field: 'car_odometer_1', aggregation: 'sum', value: day == monday ? 16.667 : 0)
         end
       end
@@ -553,7 +547,7 @@ describe Sensor::Summarizer do
       end
 
       context 'when one of them is already fresh' do
-        before { Summary.create!(steps: Summary::Steps.versions, date: dates.first, updated_at: Time.current) }
+        before { Summary.create!(date: dates.first, updated_at: Time.current) }
 
         it 'skips it' do
           expect(call).to eq(2)

@@ -28,7 +28,7 @@ class Place::VisitDetection
   KEY = :place_visits
   public_constant :KEY
 
-  # Bump to build the visits of each day again
+  # Bump to build each day again (see Summary::Steps)
   VERSION = 1
   public_constant :VERSION
 
@@ -78,6 +78,12 @@ class Place::VisitDetection
   # removes the visits of a day nor marks the day as done.
   def self.enabled?
     Sensor::Cars.configured_numbers.any? { Sensor::Cars.located?(it) }
+  end
+
+  # The positions of each car (see #positions)
+  def self.sensor_names
+    roles = %i[car_latitude car_longitude car_odometer]
+    Sensor::Cars.configured_numbers.flat_map { |number| roles.map { Sensor::Cars.sensor_name(it, number) } }
   end
 
   # The visits read the positions with a query of their own (see #positions),

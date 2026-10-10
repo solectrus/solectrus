@@ -45,7 +45,7 @@ class ChargingSession::OffsiteDetection
   KEY = :offsite_sessions
   public_constant :KEY
 
-  # Bump to build the proposals of each day again
+  # Bump to build each day again (see Summary::Steps)
   VERSION = 1
   public_constant :VERSION
 
@@ -89,6 +89,9 @@ class ChargingSession::OffsiteDetection
   def self.enabled?
     Sensor::Cars.configured_numbers.any? { Sensor::Config.exists?(Sensor::Cars.sensor_name(:car_battery_soc, it)) }
   end
+
+  # The curves of the cars. The wallbox sessions come from the database.
+  def self.sensor_names = ChargingSession::Curves.car_sensor_names
 
   # `curves` are the curves of the cars, which the detection of the wallbox
   # sessions reads as well (see ChargingSession::Curves)

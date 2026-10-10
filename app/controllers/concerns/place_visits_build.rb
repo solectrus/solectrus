@@ -1,5 +1,5 @@
-# The lists of the places and of the visits build the days that wait for the
-# visits first, like the car page (see SummaryBuilder::Component). The visits
+# The lists of the places and of the visits build the days without a fresh
+# summary first, like the car page (see SummaryBuilder::Component). The visits
 # give the time of each place, and the build makes the new places, so both
 # lists are at most a few minutes old.
 module PlaceVisitsBuild
@@ -18,6 +18,6 @@ module PlaceVisitsBuild
   def pending_visit_days
     return [] unless Place::VisitDetection.enabled?
 
-    Summary.missing_or_stale_days_for(build_timeframe, steps: [Place::VisitDetection::KEY])
+    Summary.missing_or_stale_days_for(build_timeframe)
   end
 end

@@ -30,7 +30,7 @@ describe 'Settings Places' do
       login_as_admin
       get settings_places_path
 
-      expect(response.body).to include('sequential-frames', 'steps=place_visits')
+      expect(response.body).to include('sequential-frames')
     end
 
     it 'lists the places with their time, without a request to Nominatim' do

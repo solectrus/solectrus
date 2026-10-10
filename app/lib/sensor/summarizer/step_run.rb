@@ -8,7 +8,6 @@ module Sensor
       # `shared` is what the steps of a chunk share (see Summary::Steps.shared)
       def initialize(step_class, dates, shared = {})
         @step = step_class.new(dates, **shared)
-        @dates = dates
         @future = Concurrent::Future.execute { @step.call }
       end
 
@@ -17,12 +16,9 @@ module Sensor
         @result ||= @future.value!
       end
 
-      # Each day of the step gets the current version of the step, also
-      # without a record of it. A day without the mark waits for the step
-      # forever.
+      # Writes the result, inside the transaction
       def persist
         @step.persist(result)
-        Summary.mark_step(@step.class, @dates)
       end
     end
   end

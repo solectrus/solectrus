@@ -202,7 +202,7 @@ en:
     labels:
       home: Home
     label_hints:
-      home: The wallbox is here too. The automatic assignment of charging sessions takes the location of the car into account.
+      home: The wallbox is here too. The automatic assignment of charging sessions takes the location of the car into account. A change rebuilds all daily summaries.
   cars:
     default_name: Car %{number}
     # The time a car spent at a place, on the map of the places

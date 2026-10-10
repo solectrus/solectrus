@@ -1,6 +1,6 @@
 = render 'sub_nav'
 
 - if @pending_days.present?
-  = render SummaryBuilder::Component.new(timeframe: build_timeframe, missing_or_stale_days: @pending_days, steps: [Place::VisitDetection::KEY])
+  = render SummaryBuilder::Component.new(timeframe: build_timeframe, missing_or_stale_days: @pending_days)
 - else
   = render 'list', visits: @visits, pagy: @pagy

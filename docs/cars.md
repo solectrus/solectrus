@@ -126,11 +126,10 @@ of the car. A charging session can only go to a car whose period holds its time.
 
 - A wallbox session of the car outside the new period loses the car, also a car that the
   user chose.
-- The daily values, the proposals and the visits of the car outside the new period go.
-- The changed days get the detection, the proposals and the visits again.
-- A day that the period gains has no value of the car yet. Its summary goes, and the next
-  build makes it again. A move of `active_from` by years therefore builds these years
-  again.
+- The proposals and the visits of the car outside the new period go.
+- The summaries of the changed days go. The next build makes them again, with the daily
+  values of the car and the records of each step. A move of `active_from` by years
+  therefore builds these years again.
 
 An offsite session of the user has no detection, so the model refuses a period that leaves
 an accepted offsite session of the car outside.
@@ -352,24 +351,19 @@ one day, like a daily summary. So the detection is a step of the daily build
 (`Summary::Steps`), with the rules for a missing and a stale day, the progress bar and the
 MCP path of the build. "Delete the summaries" builds the sessions again.
 
-Each step has its own mark in `summaries.steps`: the version that ran on the day, for
-example `{"charging_sessions": 1}`. A day is pending for a step when its mark is missing or
-older than the `VERSION` of the step, and such a day gets the step alone. A new version of a
-step therefore builds the full history again for this step, and a new installation gets
-the backfill the same way.
+A step runs on each day that the build makes, and only there. So a summary holds the daily
+values and the records of each step, and a page waits only for a missing or a stale
+summary. These changes remove the summaries, and the next build makes the days again:
 
-A page waits only for the steps that it reads:
-
-| Page                         | Waits for                  |
-| ---------------------------- | -------------------------- |
-| car page                     | charging sessions, visits  |
-| list of the wallbox sessions | charging sessions          |
-| list of the offsite sessions | proposals                  |
-| list of the visits           | visits                     |
-| other pages, MCP             | a missing or stale summary |
-
-A new version of the detection therefore builds no day again for the power balance. The
-settings page counts all steps in its share of the built days.
+- A new `VERSION` of a step resets the summaries at the next start
+  (`Sensor::SummaryInvalidator`).
+- A step that has something to do now, or a new sensor of a step, resets the summaries at
+  the next start if its sensors have data before today. So an update from v1.3 with a
+  wallbox builds the full history once.
+- A new home resets the summaries at once, because the detection and the proposals read
+  it.
+- A new period of use of a car removes the summaries of the changed days (see
+  [The period of use](#the-period-of-use)).
 
 A new build keeps the state of an existing session and its note
 (`Detection::Persistence`). A state that the user chose stays, and so does a car that the
@@ -382,7 +376,7 @@ as history.
 
 `ChargingSession::OffsiteDetection` finds the charges of a car away from the wallbox. It is
 a step of the daily build after the detection, and it writes each charge as a proposal of an
-offsite session. The car page does not wait for it, because a proposal does not count.
+offsite session. A proposal does not count in the numbers of the car page.
 
 The sign is a rise of the state of charge in one charge (`ChargingSession::SocRuns`):
 
@@ -677,8 +671,9 @@ dark style and have the names in each language.
 A visit lasts from the arrival of a car at a place to its departure. The visits are a step
 of the daily build (table `place_visits`, `Place::VisitDetection`, see
 [When the detection runs](#when-the-detection-runs)). Without the permission `:car`, the
-step waits and marks no day as done. "Delete the summaries" also deletes the visits, and the
-places keep their names.
+step does not run. If the permission comes back, the next start resets the summaries like
+for any step that has something to do now. "Delete the summaries" also deletes the visits,
+and the places keep their names.
 
 The step reads the positions of each car, and a position lasts until the car drives away
 (see [Sensors](#sensors)). A night at home is therefore one visit, also when the car sends
@@ -710,6 +705,8 @@ Without it, a place shows its town. The list of the places is a page of the sett
 A place has labels (`Place::LABELS`). The labels are a string array, so a new label needs no
 migration. The label "Home" marks the place of the wallbox, and only one place has it. The
 assignment of the charging sessions uses it (see [Which car charged](#which-car-charged)).
+A new home therefore resets the summaries (see
+[When the detection runs](#when-the-detection-runs)).
 
 ### Address
 

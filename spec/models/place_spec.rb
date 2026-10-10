@@ -92,6 +92,24 @@ describe Place do
       expect(described_class.home).to eq(work)
       expect(home.reload).not_to be_home
     end
+
+    it 'builds each day again when home comes or goes' do
+      allow(Summary).to receive(:reset!)
+
+      home.update!(labels: ['home'])
+      home.update!(labels: [])
+
+      expect(Summary).to have_received(:reset!).twice
+    end
+
+    it 'keeps the summaries with another change' do
+      home.update!(labels: ['home'])
+      allow(Summary).to receive(:reset!)
+
+      home.update!(name: 'Home')
+
+      expect(Summary).not_to have_received(:reset!)
+    end
   end
 
   describe '#display_name' do
