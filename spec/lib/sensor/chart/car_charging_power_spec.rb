@@ -90,6 +90,45 @@ describe Sensor::Chart::CarChargingPower do
     end
   end
 
+  context 'with wallbox sessions of the car, of a guest and of another car' do
+    def wallbox(from, to, **)
+      ChargingSession.create!(kind: :wallbox, origin: :detection, started_at: from, ended_at: to, kwh: 1, **)
+    end
+
+    def wallbox_at(time)
+      data = chart.data[:datasets].find { it[:id] == 'wallbox_power' }[:data]
+      data[chart.data[:labels].index(time.to_i * 1000)]
+    end
+
+    before do
+      influx_batch do
+        [at(10, 2), at(12, 2), at(14, 2), at(16, 2)].each do |time|
+          add_influx_point(name: Sensor::Config.measurement(:wallbox_power), fields: { Sensor::Config.field(:wallbox_power) => 7_000 }, time:)
+        end
+      end
+
+      wallbox(at(10), at(10, 5), car:)
+      wallbox(at(12), at(12, 5), guest: true)
+      wallbox(at(14), at(14, 5), car: other_car)
+    end
+
+    it 'draws the session of the car and a charge without a session' do
+      expect([wallbox_at(at(10, 5)), wallbox_at(at(16, 5))]).to eq([7_000, 7_000])
+    end
+
+    it 'leaves out the guest and the other car' do
+      expect([wallbox_at(at(12, 5)), wallbox_at(at(14, 5))]).to eq([0, 0])
+    end
+
+    context 'with all cars' do
+      let(:cars) { [car, other_car] }
+
+      it 'leaves out the guest alone' do
+        expect([wallbox_at(at(10, 5)), wallbox_at(at(12, 5)), wallbox_at(at(14, 5))]).to eq([7_000, 0, 7_000])
+      end
+    end
+  end
+
   context 'with the power splitter, but without its data' do
     before { stub_feature(:power_splitter) }
 

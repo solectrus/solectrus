@@ -2,6 +2,9 @@
 # wallbox. A charging session belongs to a full day, so a shorter timeframe
 # has no columns of sessions (see Sensor::Chart::CarSessions).
 #
+# A day leaves out the wallbox sessions that count for no selected car: a
+# guest, a session that is not assigned, and a session of another car.
+#
 # A day with the power splitter stacks the PV and the grid part of the
 # wallbox, from the bottom up like the columns. The live view has no split,
 # because the power splitter writes every 5 minutes.
@@ -56,11 +59,47 @@ class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
   # PV and grid instead of the wallbox, when the power splitter wrote them.
   # Without them, the power splitter does not run, and the wallbox stays.
   def datasets(chart_data_items)
-    wallbox, pv, grid = chart_data_items
+    wallbox, pv, grid = chart_data_items.map { without_other_sessions(it) }
     split = [pv, grid].all? && [pv, grid].any? { it[:data].any?(&:positive?) }
     parts = split ? [split_dataset(pv, :pv), split_dataset(grid, :grid).merge(fill: '-1')] : super([wallbox])
 
     offsite_sessions.any? ? [*parts, offsite_dataset(wallbox[:labels])] : parts
+  end
+
+  # The curve without the wallbox sessions of others, so a day shows what the
+  # selected cars charged, like the charged energy beside it (see
+  # Car::Report). A charge that the detection has not found yet stays.
+  def without_other_sessions(chart_data_item)
+    return chart_data_item if other_windows.empty?
+
+    labels = chart_data_item[:labels]
+    data = chart_data_item[:data].each_with_index.map { |watt, index| watt && other_window?(labels[index]) ? 0 : watt }
+    chart_data_item.merge(data:)
+  end
+
+  # Whether the bucket of a label lies in a session of others. A label is the
+  # end of its bucket, and a session starts and ends at the edges of its
+  # buckets (see ChargingSession::Detection::Periods).
+  def other_window?(label)
+    other_windows.any? { |from, to| label > from && label <= to }
+  end
+
+  # [[from, to], ...] in milliseconds: the wallbox sessions of the day that
+  # count for no selected car, a guest, a session that is not assigned or a
+  # session of another car. The live view has none.
+  def other_windows
+    @other_windows ||=
+      if timeframe.day?
+        car_ids = cars.map(&:id)
+        ChargingSession
+          .wallbox
+          .where(started_at: timeframe.beginning..timeframe.ending)
+          .pluck(:car_id, :started_at, :ended_at)
+          .reject { |car_id, _, _| car_ids.include?(car_id) }
+          .map { |_, from, to| [timestamp_to_ms(from), timestamp_to_ms(to)] }
+      else
+        []
+      end
   end
 
   def split_dataset(chart_data_item, source)

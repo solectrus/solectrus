@@ -561,9 +561,10 @@ value.
 
 These rules are decisions:
 
-- A day does not split the curve of the wallbox by car. With one car, the split curve is
-  almost the curve of the wallbox. With more cars, the list of the charging sessions shows
-  the car of each session.
+- A day shows the curve of the wallbox without the wallbox sessions that count for no
+  selected car: a guest, a session that is not assigned, and a session of another car. So
+  the curve agrees with the charged energy of the day. A charge that the detection has not
+  found yet stays in the curve. The live view shows the full wallbox.
 - The distance has no split by energy source. The source of the energy belongs to the
   charge, not to the drive.
 
