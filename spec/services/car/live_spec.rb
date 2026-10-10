@@ -149,6 +149,76 @@ describe Car::Live do
     end
   end
 
+  # The car sends no new reading for a long time, for example when it sleeps
+  context 'when the plug of the car contradicts the plug of the wallbox' do
+    let(:cars) { [Car.create!(id: 1)] }
+    let(:data) do
+      Sensor::Data::Single.new(
+        { car_connected_1: !wallbox_connected, wallbox_power: 11_000, wallbox_car_connected: wallbox_connected },
+        timeframe: Timeframe.now,
+        times: { car_connected_1: 1.day.ago },
+      )
+    end
+    let(:wallbox_connected) { true }
+
+    before do
+      allow(Sensor::Query::ChangedSince).to receive(:new).and_return(instance_double(Sensor::Query::ChangedSince, call: changed))
+    end
+
+    context 'when the wallbox changed since the reading of the car' do
+      let(:changed) { true }
+
+      it 'gives the car the charging power and the plug of the wallbox' do
+        expect(live.states.first).to have_attributes(charging_power: 11_000, connected: true)
+        expect(live).to be_car_at_wallbox
+        expect(Sensor::Query::ChangedSince).to have_received(:new).with(:wallbox_car_connected, since: data.time_for(:car_connected_1))
+      end
+
+      context 'when the wallbox was unplugged' do
+        let(:wallbox_connected) { false }
+
+        it 'gives the car the plug of the wallbox' do
+          expect(live.states.first).to have_attributes(charging_power: 0, connected: false)
+        end
+      end
+    end
+
+    context 'when the wallbox did not change since the reading of the car' do
+      let(:changed) { false }
+
+      it 'gives the car zero next to its plug' do
+        expect(live.states.first).to have_attributes(charging_power: 0, connected: false)
+        expect(live).not_to be_car_at_wallbox
+      end
+
+      # For example a car at a public charger
+      context 'when the wallbox is unplugged' do
+        let(:wallbox_connected) { false }
+
+        it 'keeps the plug of the car' do
+          expect(live.states.first).to have_attributes(connected: true)
+        end
+      end
+    end
+  end
+
+  context 'when the plug of the car agrees with the plug of the wallbox' do
+    let(:data) do
+      Sensor::Data::Single.new(
+        { car_connected_1: true, wallbox_car_connected: true },
+        timeframe: Timeframe.now,
+        times: { car_connected_1: 1.day.ago },
+      )
+    end
+
+    it 'asks for no change of the wallbox' do
+      allow(Sensor::Query::ChangedSince).to receive(:new)
+      live.states
+
+      expect(Sensor::Query::ChangedSince).not_to have_received(:new)
+    end
+  end
+
   context 'with two cars without a sign' do
     let(:data) do
       Sensor::Data::Single.new({ wallbox_power: 11_000 }, timeframe: Timeframe.now)

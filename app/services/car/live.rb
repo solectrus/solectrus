@@ -71,13 +71,31 @@ class Car::Live
     @own_states ||= cars.map { state_of(it) }
   end
 
-  # One car in use without a plug of its own shows the plug of the wallbox,
-  # because the live view has no other car to show it.
   def state_of(car)
     in_use = car.in?(cars_in_use)
     state = State.new(car:, charging_power: nil, time: (time_of(car) if in_use), **ROLES.transform_values { value(car.sensor_name(it)) if in_use })
     state = state.with(latitude: nil, longitude: nil) if left_location?(car, state)
-    in_use && cars_in_use.one? && state.connected.nil? ? state.with(connected: wallbox_car_connected) : state
+    state.with(connected: connected_of(car, state))
+  end
+
+  # The plug of the car. One car in use without a plug of its own shows the
+  # plug of the wallbox, because the live view has no other car to show it.
+  def connected_of(car, state)
+    connected = state.connected unless outdated_plug?(car, state)
+    connected.nil? && car.in?(cars_in_use) && cars_in_use.one? ? wallbox_car_connected : connected
+  end
+
+  # Whether the plug of the car contradicts the plug of the wallbox, and the
+  # plug of the wallbox changed since the reading of the car. Such a reading
+  # cannot know of the change, so the plug of the car is unknown. A car can
+  # send no new reading for a long time, for example when it sleeps. Without
+  # a change, the contradiction is real: a car at a public charger, or a
+  # guest at the wallbox.
+  def outdated_plug?(car, state)
+    return false if state.connected.nil? || wallbox_car_connected.nil? || state.connected == wallbox_car_connected
+
+    time = data.time_for(car.sensor_name(:car_connected))
+    time.present? && Sensor::Query::ChangedSince.new(:wallbox_car_connected, since: time).call
   end
 
   # Whether the car drove away from its latest position: its odometer rose
