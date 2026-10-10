@@ -148,9 +148,19 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         icon: 'car',
         icon_only: true,
         href:
-          cars_home_path(sensor_name: ('car_distance' unless live), timeframe:, car: nil),
+          cars_home_path(sensor_name: (car_sensor_name unless live), timeframe:, car: nil),
         current: helpers.controller_namespace == 'cars',
       }
+    end
+
+    # From the wallbox on the start page, the car page shows the charging, so
+    # the topic stays. The reverse of Sensor::HomePage.balance_sensor.
+    def car_sensor_name
+      if helpers.controller_namespace == 'balance' && params[:sensor_name] == 'wallbox_power'
+        'car_charging'
+      else
+        'car_distance'
+      end
     end
 
     # The data of the menu stands apart from the configuration below it
