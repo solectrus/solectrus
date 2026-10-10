@@ -28,6 +28,12 @@ describe ChargingSession::Detection::StateOfCharge do
     expect(state_of_charge.call(day, at(8), at(10))).to eq({})
   end
 
+  it 'gives nothing when the state at the end is below the state at the start' do
+    curves[:car_battery_soc_1] = [[at(6), 62], [at(8, 1), 40]]
+
+    expect(state_of_charge.call(day, at(8), at(10))).to eq({})
+  end
+
   it 'ignores a reading of 0' do
     curves[:car_battery_soc_1] = [[at(6), 40], [at(7), 0], [at(9), 60]]
 

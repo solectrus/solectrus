@@ -311,7 +311,9 @@ useful list.
   The car page then names the missing price.
 - The state of charge at the start is the last reading before it. The state at the end is
   the highest reading up to 2 hours after it, because a car that is offline during the
-  charge reports its end late. A reading of 0 or less is no reading.
+  charge reports its end late. A reading of 0 or less is no reading. A charge never lowers
+  the state of charge. If the state at the end is below the state at the start, the session
+  gets no states, because both readings are old.
 
 The sessions of a day nearly hold the wallbox energy of the day, and never more.
 

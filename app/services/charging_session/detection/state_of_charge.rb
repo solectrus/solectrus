@@ -8,6 +8,10 @@
 # stale state in between, so the state at the end is the highest reading up
 # to READING_DISTANCE after it. A reading of 0 or less is no reading, because
 # some collectors send 0 while the car is offline.
+#
+# A charge never lowers the state of charge. A state at the end below the
+# state at the start therefore gives no states: both are stale readings of a
+# car that was offline during the charge.
 class ChargingSession::Detection::StateOfCharge
   # `curves` gives the curve of a car sensor on a date:
   # ->(date, sensor_name) { [[Time, value], ...] }
@@ -31,6 +35,8 @@ class ChargingSession::Detection::StateOfCharge
     after = readings.select { |time, _| time > from && time <= to + ChargingSession::Detection::CarAssignment::READING_DISTANCE }
     return if before.nil? || after.empty?
 
-    [before.last.round(1), after.map(&:last).max.round(1)]
+    soc_from = before.last.round(1)
+    soc_to = after.map(&:last).max.round(1)
+    [soc_from, soc_to] if soc_to >= soc_from
   end
 end
