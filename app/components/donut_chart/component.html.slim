@@ -8,29 +8,33 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
             = center
 
   - else
-    div class="relative mx-auto size-[min(100cqi,100cqb,24rem)] @container-[size]" data-controller="tooltip" data-tooltip-placement-value=tooltip_placement data-tooltip-force-tap-to-close-value="false" data-tooltip-touch-value="long"
+    div class="relative mx-auto size-[min(100cqi,100cqb,24rem)] @container-[size]" data-controller="tooltip" data-tooltip-placement-value=tooltip_placement data-tooltip-force-tap-to-close-value="false" data-tooltip-touch-value=tooltip_touch
       / Donut ring via conic-gradient + radial mask
       div class=['absolute inset-0 rounded-full', ring_hidden_class] style=donut_style
 
       / Clickable wedge overlays (navigation + chart loading)
-      - segment_overlays.each do |seg|
-        = link_to url,
-                  class: ['absolute inset-0 block cursor-pointer', ring_hidden_class],
-                  style: "clip-path: #{seg[:clip_path]}",
-                  data: { \
-                    turbo_prefetch: 'false',
-                    action: 'stats-with-chart--component#loadChart',
-                    stats_with_chart__component_sensor_name_param: seg[:sensor_name],
-                    stats_with_chart__component_chart_url_param: chart_url,
-                  } do
-          span
+      - if url
+        - segment_overlays.each do |seg|
+          = link_to url,
+                    class: ['absolute inset-0 block cursor-pointer', ring_hidden_class],
+                    style: "clip-path: #{seg[:clip_path]}",
+                    data: { \
+                      turbo_prefetch: 'false',
+                      action: 'stats-with-chart--component#loadChart',
+                      stats_with_chart__component_sensor_name_param: seg[:sensor_name],
+                      stats_with_chart__component_chart_url_param: chart_url,
+                    } do
+            span
 
       / Single tooltip content for all segments
       .hidden data-tooltip-target="html"
-        .space-y-1
-          - segments.zip(rounded_percents).each do |seg, percent|
-            = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
-              = number_to_percentage(percent, precision: 0)
+        - if tooltip?
+          = tooltip
+        - else
+          .space-y-1
+            - segments.zip(rounded_percents).each do |seg, percent|
+              = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
+                = number_to_percentage(percent, precision: 0)
 
       / Center content (COP)
       .absolute.inset-1/4.flex.items-center.justify-center.pointer-events-none

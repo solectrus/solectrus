@@ -1,6 +1,9 @@
 class DonutChart::Component < ViewComponent::Base
   renders_one :center
 
+  # The content of the tooltip, instead of the share of each segment
+  renders_one :tooltip
+
   ARC_STEP_DEGREES = 5.0
   private_constant :ARC_STEP_DEGREES
 
@@ -33,6 +36,12 @@ class DonutChart::Component < ViewComponent::Base
 
   def ring_hidden_class
     RING_HIDDEN_CLASS
+  end
+
+  # Without a url the ring has no link, so a tap opens the tooltip. With a
+  # link, a tap opens the chart and the tooltip needs a long press.
+  def tooltip_touch
+    url ? 'long' : 'true'
   end
 
   def placeholder_style
