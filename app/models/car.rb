@@ -35,7 +35,7 @@ class Car < ApplicationRecord
   SHORT_NAME_MAX = 5
   public_constant :SHORT_NAME_MAX
 
-  NAMES_CACHE_KEY = 'cars/names'.freeze
+  NAMES_CACHE_KEY = 'cars/name_pairs'.freeze
   private_constant :NAMES_CACHE_KEY
 
   # The first day of use, the installation date unless the user knows better
@@ -95,22 +95,30 @@ class Car < ApplicationRecord
     configured.find { it.id.to_s == id.to_s } || raise(ActiveRecord::RecordNotFound)
   end
 
-  # { id => name } of the cars with a name. Without the table there is no
+  # { id => [name, short name] } of the cars. Without the table there is no
   # name, and a guest gets none (see Current.car_names_hidden).
   def self.names
     Current.car_names ||=
       if table_exists? && !Current.car_names_hidden
-        Rails.cache.fetch(NAMES_CACHE_KEY) { where.not(name: nil).pluck(:id, :name).to_h }
+        Rails.cache.fetch(NAMES_CACHE_KEY) { pluck(:id, :name, :short_name).to_h { |id, *names| [id, names] } }
       else
         {}
       end
   end
 
-  def self.name_of(id) = names[id]
+  def self.name_of(id) = names.dig(id, 0)
 
-  # The name of the car, or the default name of its id
+  # The name of the car, or else its short name. The short name of a new car
+  # is its number, which says less than the default name, so it does not
+  # count.
+  def self.given_name_of(id)
+    name, short_name = names[id]
+    name || (short_name unless short_name == id.to_s)
+  end
+
+  # The given name of the car, or the default name of its id
   def self.display_name_of(id)
-    name_of(id) || I18n.t('cars.default_name', number: id)
+    given_name_of(id) || I18n.t('cars.default_name', number: id)
   end
 
   def display_name = self.class.display_name_of(id)

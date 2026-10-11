@@ -83,11 +83,13 @@ describe Car do
   end
 
   describe '.names' do
-    it 'reads the names of the cars with a name' do
-      described_class.create!(id: 1, name: 'Model Y')
+    it 'reads the name and the short name of each car' do
+      described_class.create!(id: 1, name: 'Model Y', short_name: 'MY')
       described_class.create!(id: 2)
 
-      expect(described_class.names).to eq(1 => 'Model Y')
+      expect(described_class.names).to eq(1 => ['Model Y', 'MY'], 2 => [nil, '2'])
+      expect(described_class.name_of(1)).to eq('Model Y')
+      expect(described_class.name_of(2)).to be_nil
     end
 
     it 'clears the names after a write' do
@@ -109,6 +111,27 @@ describe Car do
 
       expect(car.display_name).to eq('Car 1')
       expect(car.short_name).to eq('Car 1')
+    end
+
+    it 'names a car without a name by its short name' do
+      described_class.create!(id: 1, short_name: 'ZOE')
+
+      expect(described_class.display_name_of(1)).to eq('ZOE')
+    end
+
+    # The short name of a new car is its number
+    it 'has the default name for a car with the number as short name' do
+      described_class.create!(id: 1)
+
+      expect(described_class.given_name_of(1)).to be_nil
+      expect(described_class.display_name_of(1)).to eq('Car 1')
+    end
+
+    it 'gives a guest the default name in place of the short name' do
+      car = described_class.create!(id: 1, short_name: 'ZOE')
+      Current.car_names_hidden = true
+
+      expect(car.display_name).to eq('Car 1')
     end
   end
 

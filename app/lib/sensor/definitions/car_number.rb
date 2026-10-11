@@ -26,10 +26,10 @@ module Sensor
       end
 
       # The name of the car plus the role: "Model Y (SOC)". A car without a
-      # name gets the default of I18n: "Car 2: Odometer".
+      # given name gets the default of I18n: "Car 2: Odometer".
       def display_name(_format = :long)
         role = I18n.t("sensors.car_roles.#{car_role}")
-        car_name = Car.name_of(car_number)
+        car_name = Car.given_name_of(car_number)
         return I18n.t('sensors.car_sensor.unnamed', number: car_number, role:) unless car_name
 
         I18n.t('sensors.car_sensor.named', car: car_name, role:)
@@ -42,8 +42,9 @@ module Sensor
         car.nil? || car.active_on?(date)
       end
 
+      # The name or the short name of the car, as in #display_name
       def user_defined_name?
-        Car.name_of(car_number).present?
+        Car.given_name_of(car_number).present?
       end
 
       def description

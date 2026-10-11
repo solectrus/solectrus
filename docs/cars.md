@@ -100,10 +100,13 @@ car, because a configured number gets its car by itself.
 
 ### Name and color
 
-The name of a car sensor is the car name plus the role: "Model Y (SOC)". The name of a car
-is personal data, so only the admin sees it. A guest sees "Car 2" in each place. The short
-name stands where a long name takes too much space, for example in the button of the car
-select.
+The name of a car sensor is the car name plus the role: "Model Y (SOC)". The short name
+stands where a long name takes too much space, for example in the button of the car select.
+A car without a name shows its short name in each place. A new car has its number as short
+name, which says less than the default name "Car 2", so it shows the default name.
+
+The name and the short name of a car are personal data, so only the admin sees them. A
+guest sees "Car 2" in each place.
 
 The color of a car marks it where cars stand side by side: the badge of a charging session
 and the select of the car. In the charts of all cars, it tints the parts of the distance
