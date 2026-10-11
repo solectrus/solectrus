@@ -10,15 +10,17 @@ class Car::Map::Component < ViewComponent::Base
   # place has the same color.
   # A `live` map shows one location as a marker, without a tooltip. With a
   # `tooltip_timeframe`, the map loads the tooltip of a place in this
-  # timeframe when the pointer rests on it (see #tooltip_url).
-  def initialize(cars:, live: false, tooltip_timeframe: nil)
+  # timeframe when the pointer rests on it (see #tooltip_url). A live map
+  # with a `name` shows it next to its marker.
+  def initialize(cars:, live: false, tooltip_timeframe: nil, name: nil)
     super()
     @cars = cars
     @live = live
     @tooltip_timeframe = tooltip_timeframe
+    @name = name
   end
 
-  attr_reader :cars
+  attr_reader :cars, :name
 
   # The tooltip of a place, with ":id" for the id of the place, like
   # "/cars/places/:id/tooltip/2026" (see Cars::PlaceTooltipsController).

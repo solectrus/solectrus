@@ -30,6 +30,10 @@ const STROKE = {
   live: { light: '#ffffff', dark: '#cbd5e1' },
 };
 
+// The live marker, in pixels
+const LIVE_RADIUS = 9;
+const LIVE_STROKE = 3;
+
 interface PlaceFeature {
   type: 'Feature';
   geometry: { type: 'Point'; coordinates: [number, number] };
@@ -142,6 +146,7 @@ export default class extends Controller<HTMLElement> {
     live: Boolean,
     tooltipUrl: String,
     unknownPlace: String,
+    name: String,
   };
 
   declare readonly containerTarget: HTMLElement;
@@ -150,6 +155,7 @@ export default class extends Controller<HTMLElement> {
   declare readonly liveValue: boolean;
   declare readonly tooltipUrlValue: string;
   declare readonly unknownPlaceValue: string;
+  declare readonly nameValue: string;
 
   private lib?: MapLibre;
   private map?: MapLibreMap;
@@ -213,7 +219,9 @@ export default class extends Controller<HTMLElement> {
     map.on('drag', () => this.closeAttribution());
     document.addEventListener('keydown', this.handleKeydown, true);
 
-    if (!this.liveValue) {
+    if (this.liveValue) {
+      this.showName(lib);
+    } else {
       this.map.on('mousemove', LAYER, (event) => this.showPopup(event));
       this.map.on('click', LAYER, (event) => this.showPopup(event));
       this.map.on('mouseleave', LAYER, () => this.scheduleHide());
@@ -402,10 +410,10 @@ export default class extends Controller<HTMLElement> {
 
   private get livePaint() {
     return {
-      'circle-radius': 9,
+      'circle-radius': LIVE_RADIUS,
       'circle-color': COLOR,
       'circle-stroke-color': this.stroke,
-      'circle-stroke-width': 3,
+      'circle-stroke-width': LIVE_STROKE,
     };
   }
 
@@ -429,6 +437,28 @@ export default class extends Controller<HTMLElement> {
       bounds.extend([longitude, latitude]);
     }
     map.fitBounds(bounds, { padding: 40, maxZoom: ZOOM.max, animate: false });
+  }
+
+  // The name of the live location stays open next to its marker. The popup
+  // is an element over the map, so a new style keeps it.
+  private showName(lib: MapLibre) {
+    const map = this.map;
+    const point = this.points[0];
+    if (!map || !point || !this.nameValue) return;
+
+    const [latitude, longitude] = point;
+    this.popup = new lib.Popup({
+      closeButton: false,
+      closeOnClick: false,
+      focusAfterOpen: false,
+      // The radius of the marker and its halo, and a small gap
+      offset: LIVE_RADIUS + LIVE_STROKE + 6,
+      maxWidth: '280px',
+      className: 'car-map-popup',
+    })
+      .setLngLat([longitude, latitude])
+      .setText(this.nameValue)
+      .addTo(map);
   }
 
   private showPopup(event: MapLayerMouseEvent) {
