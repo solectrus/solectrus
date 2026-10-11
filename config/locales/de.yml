@@ -422,6 +422,7 @@ de:
       edit: Auto %{number} bearbeiten
       empty: Es ist kein Auto konfiguriert. Ergänze deine Konfiguration um die Variablen eines Autos, zum Beispiel <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Bis zu %{max} Autos sind möglich.
       period: Zeitraum
+      active_sensors: Aktive Sensoren
       today: heute
       active_from_hint: Der erste Tag mit diesem Auto.
       active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.

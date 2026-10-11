@@ -422,6 +422,7 @@ en:
       edit: Edit car %{number}
       empty: No car is configured. Add the variables of a car to your configuration, for example <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Up to %{max} cars are possible.
       period: Period of use
+      active_sensors: Active sensors
       today: today
       active_from_hint: The first day with this car.
       active_until_hint: Leave empty if the car is in use.
