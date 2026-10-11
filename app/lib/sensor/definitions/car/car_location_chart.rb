@@ -13,5 +13,5 @@ class Sensor::Definitions::CarLocationChart < Sensor::Definitions::Base
 
   def static_dependencies = Sensor::Cars.dependency(:car_latitude, :car_longitude)
 
-  personal
+  admin_only
 end

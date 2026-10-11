@@ -48,7 +48,7 @@ class Car::DrivingCard::Component < ViewComponent::Base
   # The visits at the places in the timeframe, at the foot of the card like
   # the sessions of the charging card. Only a car with a location has visits.
   # A guest sees the counts too, like the sessions, but the list asks for the
-  # login and the map shows no places (see the `personal` DSL).
+  # login and the map shows no places (see the `admin_only` DSL).
   def visits? = chart_sensor_name('car_location').present?
 
   # [[label, count, href, data], ...]: the visits that overlap the timeframe,

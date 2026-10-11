@@ -666,7 +666,7 @@ alone. A car with an odometer and without a value in the period shows the drivin
 ## Location
 
 `car_latitude_<n>` and `car_longitude_<n>` give the location of a car. The location is
-personal data, so only the admin sees it. The definitions declare `personal`:
+personal data, so only the admin sees it. The definitions declare `admin_only`:
 
 - A guest gets no value of the sensors. The map of the car page shows a guest no places and
   a note that it is for the admin.

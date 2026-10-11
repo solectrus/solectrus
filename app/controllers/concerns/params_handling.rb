@@ -10,13 +10,13 @@ module ParamsHandling
   private_constant :ALLOWED_INTERVALS
 
   included do
-    before_action :forbid_personal_sensor
+    before_action :forbid_admin_only_sensor
 
     private
 
-    # Only the admin sees a personal sensor (see the `personal` DSL)
-    def forbid_personal_sensor
-      return unless sensor_name && Sensor::Registry.find(sensor_name)&.personal?
+    # Only the admin sees an admin-only sensor (see the `admin_only` DSL)
+    def forbid_admin_only_sensor
+      return unless sensor_name && Sensor::Registry.find(sensor_name)&.admin_only?
 
       admin? || raise(ForbiddenError)
     end

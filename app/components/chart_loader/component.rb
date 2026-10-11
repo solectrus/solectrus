@@ -60,10 +60,10 @@ class ChartLoader::Component < ViewComponent::Base
     }
   end
 
-  # A guest gets the chart of a personal sensor without its data, and a hint
-  # (see the `personal` DSL)
+  # A guest gets the chart of an admin-only sensor without its data, and a
+  # hint (see the `admin_only` DSL)
   def teaser?
-    sensor.personal? && !helpers.admin?
+    sensor.admin_only? && !helpers.admin?
   end
 
   # The component of a chart that is no canvas, like the map of the places

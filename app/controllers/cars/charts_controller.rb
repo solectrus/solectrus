@@ -4,9 +4,9 @@ class Cars::ChartsController < ApplicationController
   include SponsoredFrame
   include CarSelectable
 
-  # A guest gets the chart of a personal sensor without its data (see
+  # A guest gets the chart of an admin-only sensor without its data (see
   # ChartLoader::Component)
-  skip_before_action :forbid_personal_sensor
+  skip_before_action :forbid_admin_only_sensor
 
   def index
     if turbo_frame_request?

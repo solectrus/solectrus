@@ -155,9 +155,9 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # value of another day (see Sensor::Summarizer).
   def recorded_on?(_date) = true
 
-  # Whether only the admin sees this sensor (see the `personal` DSL)
-  def personal?
-    self.class.meta_data[:personal].present?
+  # Whether only the admin sees this sensor (see the `admin_only` DSL)
+  def admin_only?
+    self.class.meta_data[:admin_only].present?
   end
 
   def chart(timeframe, **)

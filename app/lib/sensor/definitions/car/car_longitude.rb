@@ -13,5 +13,5 @@ class Sensor::Definitions::CarLongitude < Sensor::Definitions::Base
 
   requires_permission :car
 
-  personal
+  admin_only
 end

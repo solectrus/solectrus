@@ -1,6 +1,6 @@
-describe 'Personal sensors' do
-  # Every page that takes the sensor from the URL. Only the admin sees a
-  # personal sensor (see ParamsHandling), so a new page must refuse it to a
+describe 'Admin-only sensors' do
+  # Every page that takes the sensor from the URL. Only the admin sees an
+  # admin-only sensor (see ParamsHandling), so a new page must refuse it to a
   # guest, too. A route that does not take the sensor answers 404. The car
   # page shows a guest the chart without its data (see
   # spec/requests/cars/charts_request_spec.rb).
