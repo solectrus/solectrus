@@ -1,7 +1,8 @@
-.flex.items-center.gap-2
+/ On a touch screen, the gap keeps the tap targets of the icons off the version
+.flex.items-center.gap-2.pointer-coarse:gap-4
   .space-x-2
     = link_to github_url,
-            class: 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
+            class: 'relative touch-target focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
             target: '_blank',
             rel: 'noopener' do
       = icon 'github', class: 'fa-lg'
@@ -9,15 +10,20 @@
     code.select-text[
       data-controller = 'tooltip'
       data-tooltip-touch-value= 'true'
-      title= l(commit_time)
+      data-sheet-caption= current_version
     ]
       = current_version
+      / The sheet names the version in its caption, the date stands below it
+      span.hidden data-tooltip-target= 'html'
+        / A single line needs no padding beyond that of the tooltip itself
+        .tooltip-layout.p-0
+          .tooltip-detail.mt-0.text-center.whitespace-nowrap = l(commit_time)
 
   - if version_valid?
     - case outdated?
     - when true
       = link_to latest_release_url,
-                class: 'relative flex focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-full',
+                class: 'relative touch-target flex focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded-full',
                 data: { controller: 'tooltip' },
                 title: t('layout.version_outdated', latest_version:),
                 target: '_blank',
@@ -27,7 +33,7 @@
 
     - when false
       = link_to latest_release_url,
-                class: 'focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
+                class: 'relative touch-target focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 rounded',
                 data: { controller: 'tooltip' },
                 title: t('layout.version_uptodate'),
                 target: '_blank',

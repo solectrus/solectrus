@@ -18,7 +18,7 @@
             = icon 'circle-exclamation', class: 'fa-sm'
 
         = link_to house_home_path(sensor_name: 'house_power', timeframe:),
-                  class: 'bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
+                  class: 'relative touch-target bg-white dark:bg-slate-900 pb-2 md:pb-4 pl-3',
                   title: Sensor::Registry[:house_power].display_name,
                   data: { \
                     controller: 'tooltip',
@@ -35,9 +35,8 @@
 
           - if !timeframe.now? && data.house_costs&.positive?
             .hidden id="tooltip-content-house_power" data-tooltip-target="html"
-              .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2
-                = Sensor::Registry[:house_power].display_name
-                = render SensorValue::Component.new(data.house_power || 0, :house_power, context: :total, precision: 3, class: 'text-xl')
+              .tooltip-layout
+                = render TooltipHeader::Component.new(title: Sensor::Registry[:house_power].display_name, sensor_name: :house_power, value: data.house_power || 0, total: true)
                 = render SplittedCosts::Component.new( \
                     costs: data.house_costs,
                     power_grid_ratio: data.house_power_grid_ratio,
@@ -45,7 +44,7 @@
                     pv_costs: data.house_costs_pv,
                   )
 
-        button.mt-0.mb-3.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
+        button.mt-0.mb-3.relative.touch-target.flex.items-center.justify-center.size-8.rounded-full.border.border-gray-300.dark:border-gray-600.bg-gray-100.dark:bg-gray-800.hover:bg-gray-200.dark:hover:bg-gray-700.text-slate-500.dark:text-slate-400.cursor-pointer.transition-colors[
           data-controller="tooltip"
           data-tooltip-placement-value="right"
           data-tooltip-force-tap-to-close-value="false"

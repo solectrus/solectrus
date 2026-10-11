@@ -90,8 +90,9 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
 
         = render 'shared/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
+        = render BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
 
-      = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: desktop_secondary_items, unread_count: unread_notifications_count)
+      = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: mobile_secondary_items, unread_count: unread_notifications_count)
 
       footer.hidden.lg:landscape:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2
