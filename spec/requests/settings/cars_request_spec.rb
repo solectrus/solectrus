@@ -10,6 +10,22 @@ describe 'Settings cars' do
         expect(response.body).to include('Car 1', I18n.t('settings.cars.never_removed'))
         expect(response.body).not_to include('Trabant:soc')
       end
+
+      context 'with two cars' do
+        before do
+          Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_2' => 'Wartburg:odometer'))
+          Current.cars = nil
+          Car.configured.each { it.update!(name: "Model #{it.id}", active_from: Date.new(it.id + 2020, 1, 1)) }
+        end
+
+        after { Sensor::Config.setup(ENV) }
+
+        it 'lists the newest car first' do
+          get settings_cars_path
+
+          expect(response.body.index('Model 2')).to be < response.body.index('Model 1')
+        end
+      end
     end
 
     describe 'GET /settings/cars/:id/edit' do

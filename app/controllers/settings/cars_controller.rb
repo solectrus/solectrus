@@ -9,7 +9,7 @@ class Settings::CarsController < ApplicationController
   before_action :load_car, only: %i[edit update]
 
   def index
-    @cars = Car.configured
+    @cars = listed_cars
   end
 
   def edit
@@ -19,7 +19,7 @@ class Settings::CarsController < ApplicationController
     if @car.update(permitted_params)
       flash.now[:notice] = t('crud.success')
       render turbo_stream: [
-               turbo_stream.update('list', partial: 'settings/cars/list', locals: { cars: Car.configured }),
+               turbo_stream.update('list', partial: 'settings/cars/list', locals: { cars: listed_cars }),
                turbo_stream_update_flash,
              ]
     else
@@ -31,6 +31,11 @@ class Settings::CarsController < ApplicationController
 
   helper_method def title
     t('settings.cars.name')
+  end
+
+  # The newest car first, like the prices
+  def listed_cars
+    Car.configured.sort_by { [it.active_from, it.id] }.reverse
   end
 
   # The default color is no color of its own
