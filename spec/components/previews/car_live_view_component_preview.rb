@@ -79,7 +79,6 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
       template: 'car_live_view_component_preview/frame',
       locals: {
         live: Live.new(cars, data),
-        named: cars.many?,
       },
     )
   end

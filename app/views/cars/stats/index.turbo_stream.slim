@@ -14,7 +14,7 @@
     data-controller=('car-cards' unless timeframe.now?)
   ]
     - if timeframe.now?
-      = render Car::LiveView::Component.new(live: data, named: car_selection.installed.many?)
+      = render Car::LiveView::Component.new(live: data)
 
     - else
       / A phone shows one card at a time, with a toggle and the car select

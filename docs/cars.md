@@ -620,7 +620,7 @@ The live view shows each car in use today, also when the page has a selected car
 no select. Each car has its name as a badge in its color, a gauge of its range, filled to
 the state of charge, its odometer and the time of its latest reading. The time is
 necessary, because a car sensor holds its value at any age. For the admin, the gauge also
-shows the place of the car.
+shows the place of the car. The badge shows also for the only car.
 
 The gauge shows the plug of the car (`car_connected_<n>`) and the charging power. Only the
 car at the wallbox shows the power of the wallbox (`Car::Live`). When no car is at the

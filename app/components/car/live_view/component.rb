@@ -1,5 +1,6 @@
 # The live view of the car page: a cell for each car in use today with its
-# name, the gauge of its range and its odometer. The gauge shows the plug of
+# name, the gauge of its range and its odometer. The name shows also for the
+# only car, because the live view has no select of the car. The gauge shows the plug of
 # the car, and next to it the charging power: the power of the wallbox for
 # the car at the wallbox, else zero (see Car::Live). Below the odometer, the
 # admin sees the town of the location, which opens the map. The live view has
@@ -15,17 +16,13 @@ class Car::LiveView::Component < ViewComponent::Base
     'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'.freeze
   private_constant :PILL_CLASSES
 
-  # `live` is a Car::Live. `named` shows the name of each car, because the
-  # live view has no select of the car.
-  def initialize(live:, named:)
+  # `live` is a Car::Live
+  def initialize(live:)
     super()
     @live = live
-    @named = named
   end
 
   attr_reader :live
-
-  def named? = @named
 
   delegate :wallbox_power, :wallbox_car_connected, to: :live
 
