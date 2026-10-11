@@ -16,7 +16,7 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
     div class="absolute inset-x-0 top-[22%] bottom-[16%] flex flex-col items-center justify-center"
       - if range?
         .text-center
-          span class="block font-medium tabular-nums leading-none text-[clamp(1.75rem,15cqi,3.75rem)]"
+          span class="block font-medium tabular-nums leading-none text-[clamp(1.75rem,12cqi,3.75rem)]"
             = render SensorValue::Component.new(range, sensor_name(:car_range))
           span class="block mt-1 uppercase tracking-wide text-slate-500 dark:text-slate-400 text-[clamp(0.625rem,3cqi,0.875rem)]"
             = t('sensors.car_range_short')
