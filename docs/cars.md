@@ -364,8 +364,8 @@ summary. These changes remove the summaries, and the next build makes the days a
 - A step that has something to do now, or a new sensor of a step, resets the summaries at
   the next start if its sensors have data before today. So an update from v1.3 with a
   wallbox builds the full history once.
-- A new home resets the summaries at once, because the detection and the proposals read
-  it.
+- A new home removes the summaries at once, but only on the days on which a car can have a
+  position (see [Places](#places)).
 - A new period of use of a car removes the summaries of the changed days (see
   [The period of use](#the-period-of-use)).
 
@@ -725,7 +725,13 @@ Without it, a place shows its town. The list of the places is a page of the sett
 A place has labels (`Place::LABELS`). The labels are a string array, so a new label needs no
 migration. The label "Home" marks the place of the wallbox, and only one place has it. The
 assignment of the charging sessions uses it (see [Which car charged](#which-car-charged)).
-A new home therefore resets the summaries (see
+The proposals of the offsite sessions use it too.
+
+Both read home only at a position of a car. A position lasts until the next reading, so a
+parked car also has a position on a day without a reading. A new home therefore removes the
+summaries of each car with a location, from its first position in InfluxDB to the end of its
+period of use (`Place::HomeChange`). Without such a car, the summaries stay. If InfluxDB
+cannot give the first position, all summaries go (see
 [When the detection runs](#when-the-detection-runs)).
 
 ### Address

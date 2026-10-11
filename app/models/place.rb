@@ -61,8 +61,9 @@ class Place < ApplicationRecord
   before_save :release_home, if: -> { home? && labels_changed? }
 
   # The detection and the proposals of the offsite sessions read home, so a
-  # new home builds each day again (see Summary::Steps)
-  after_commit -> { Summary.reset! }, on: %i[create update], if: -> { Array(labels_before_last_save).include?('home') != home? }
+  # new home builds the days with a position of a car again (see
+  # Place::HomeChange)
+  after_commit -> { Place::HomeChange.new.call }, on: %i[create update], if: -> { Array(labels_before_last_save).include?('home') != home? }
 
   scope :labeled, ->(label) { where('? = ANY(labels)', label) }
 

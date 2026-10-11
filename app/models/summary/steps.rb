@@ -8,7 +8,7 @@
 #
 # - a new VERSION of a step, a step with something to do now, or a new sensor
 #   of a step (see Sensor::SummaryInvalidator)
-# - a new home (see Place)
+# - a new home, on the days with a position of a car (see Place::HomeChange)
 # - a new period of use of a car, on the changed days (see Car::PeriodChange)
 #
 # A step does not ask for the permission of its sensors. A sponsorship opens

@@ -93,22 +93,24 @@ describe Place do
       expect(home.reload).not_to be_home
     end
 
-    it 'builds each day again when home comes or goes' do
-      allow(Summary).to receive(:reset!)
+    describe 'a change of home' do
+      let(:home_change) { instance_double(Place::HomeChange, call: nil) }
 
-      home.update!(labels: ['home'])
-      home.update!(labels: [])
+      before { allow(Place::HomeChange).to receive(:new).and_return(home_change) }
 
-      expect(Summary).to have_received(:reset!).twice
-    end
+      it 'builds the days again when home comes or goes' do
+        home.update!(labels: ['home'])
+        home.update!(labels: [])
 
-    it 'keeps the summaries with another change' do
-      home.update!(labels: ['home'])
-      allow(Summary).to receive(:reset!)
+        expect(home_change).to have_received(:call).twice
+      end
 
-      home.update!(name: 'Home')
+      it 'keeps the summaries with another change' do
+        home.update!(labels: ['home'])
+        home.update!(name: 'Home')
 
-      expect(Summary).not_to have_received(:reset!)
+        expect(home_change).to have_received(:call).once
+      end
     end
   end
 
