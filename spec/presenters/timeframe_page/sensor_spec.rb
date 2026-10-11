@@ -34,5 +34,12 @@ describe TimeframePage::Sensor do
     it 'offers no hours' do
       expect(page).not_to be_hours
     end
+
+    it 'leads not into the forecast' do
+      allow(Sensor::Config).to receive(:exists?).and_call_original
+      allow(Sensor::Config).to receive(:exists?).with(:inverter_power_forecast).and_return(true)
+
+      expect(page).not_to be_forecast
+    end
   end
 end

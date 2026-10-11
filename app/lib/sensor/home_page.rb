@@ -19,8 +19,8 @@ module Sensor::HomePage
   # neither. The balance sensor stands for the page on the start page. A key
   # is the prefix of the route helper of the page, so SensorPathHelper can
   # build a path from it. The car page has no hours view, because its numbers
-  # come from full days, and no chart in its live view, because its sensors
-  # report far less often.
+  # come from full days, no chart in its live view, because its sensors
+  # report far less often, and no way forward into the PV forecast.
   PAGES = {
     balance: {},
     heatpump: {
@@ -44,6 +44,7 @@ module Sensor::HomePage
       balance_sensor: :wallbox_power,
       hours: false,
       live_chart: false,
+      forecast: false,
     },
   }.freeze
   private_constant :PAGES
@@ -66,6 +67,9 @@ module Sensor::HomePage
     # Whether the page offers the hours view. Without it, the page sends an
     # hours timeframe to today, and the timeframe select hides it.
     def hours?(key) = page(key).fetch(:hours, true)
+
+    # Whether the timeframe navigation leads from today into the PV forecast
+    def forecast?(key) = page(key).fetch(:forecast, true)
 
     # Whether the live view of the page has a chart. Without one, the address
     # of the live view has no sensor. A page that is no home page has its

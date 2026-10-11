@@ -28,7 +28,9 @@ class TimeframePage::Sensor
   def label_for_all = nil
 
   # Forward from today into the forecast
-  def forecast? = Sensor::Config.exists?(:inverter_power_forecast)
+  def forecast?
+    Sensor::HomePage.forecast?(@namespace.to_sym) && Sensor::Config.exists?(:inverter_power_forecast)
+  end
 
   def hours? = Sensor::HomePage.hours?(@namespace.to_sym)
 end
