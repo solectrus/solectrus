@@ -136,7 +136,7 @@ module LlmTest
       numbers = self.class.numbers_in(result.answer)
 
       Array(expect_facts).filter_map do |fact|
-        truth = Dataset.facts.fetch(fact) # rubocop:disable Style/HashLookupMethod
+        truth = Dataset.facts[fact]
         next if numbers.any? { |number| close?(number, truth) }
 
         # The answer itself, not the numbers parsed out of it: a run that fails
