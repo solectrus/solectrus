@@ -2,11 +2,12 @@ class Sensor::Chart::GridPower < Sensor::Chart::Base
   # Import is negated to grow downward (see #transform_data).
   include Sensor::Chart::Concerns::OppositeDirectionBars
 
-  private
-
-  def chart_sensor_names
+  # Public: the year comparison draws the same pair.
+  def opposite_sensor_names
     %i[grid_export_power grid_import_power]
   end
+
+  private
 
   # Transform import data to negative values
   def transform_data(data, sensor_name)

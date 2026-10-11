@@ -1,0 +1,39 @@
+.relative.flex-1.lg:landscape:flex-initial data-controller='dropdown--component'
+  button[
+    type='button'
+    class=button_classes
+    aria-haspopup='true'
+    aria-expanded='false'
+    data-dropdown--component-target='button'
+    data-action='click->dropdown--component#toggle'
+  ]
+    = label
+    = menu_caret
+
+  / An invisible native select over the button, for the widths with no room for
+  / a chevron. It hands the choice to the picker of the phone, which is easier
+  / to hit than a menu of our own and says by itself that there is a choice.
+  select.absolute.inset-0.w-full.appearance-none.opacity-0.sm:hidden aria-label=name data-action='change->dropdown--component#choose'
+    - items.each do |item|
+      option value=item[:href] selected=item[:current] = item[:name]
+
+  / Aligned to the right edge of its tab: the last tab of the row is the one
+  / most likely to carry a menu, and centered under that one the menu would
+  / run past the edge of a phone.
+  /
+  / `hidden` is the closed state the controller takes off again. `max-sm:hidden`
+  / is not: below that width the select answers instead, and the menu stays out
+  / of the way whatever the controller does with it.
+  div[
+    class=menu_classes
+    role='menu'
+    data-dropdown--component-target='menu'
+    data-transition-enter='transition ease-out duration-100'
+    data-transition-enter-start='opacity-0 scale-95'
+    data-transition-enter-end='opacity-100 scale-100'
+    data-transition-leave='transition ease-in duration-75'
+    data-transition-leave-start='opacity-100 scale-100'
+    data-transition-leave-end='opacity-0 scale-95'
+  ]
+    - items.each do |item|
+      = link_to item[:name], item[:href], class: entry_classes(item), role: 'menuitem', 'aria-current': (item[:current] ? 'true' : nil)
