@@ -65,8 +65,10 @@ describe Sensor::Definitions::TraditionalCosts do # rubocop:disable RSpec/SpecFi
         expect(sql_calculation).to include('house_power_sum')
         expect(sql_calculation).not_to include('heatpump_power_sum')
         expect(sql_calculation).not_to include('wallbox_power_sum')
+        energy = '(COALESCE(house_power_sum,0)) * pb_money_per_kwh / 1000.0'
+
         expect(sql_calculation).to eq(
-          '(COALESCE(house_power_sum,0)) * pb_money_per_kwh / 1000.0',
+          "COALESCE(#{energy} + pb_base_fee_per_day, #{energy}, pb_base_fee_per_day)",
         )
       end
     end
@@ -75,10 +77,13 @@ describe Sensor::Definitions::TraditionalCosts do # rubocop:disable RSpec/SpecFi
       include_context 'with an excluded custom consumer'
 
       it 'includes the excluded consumer in the sum' do
-        expect(sql_calculation).to eq(
+        energy =
           '(COALESCE(house_power_sum,0) + COALESCE(heatpump_power_sum,0) + ' \
             'COALESCE(wallbox_power_sum,0) + COALESCE(custom_power_01_sum,0)) ' \
-            '* pb_money_per_kwh / 1000.0',
+            '* pb_money_per_kwh / 1000.0'
+
+        expect(sql_calculation).to eq(
+          "COALESCE(#{energy} + pb_base_fee_per_day, #{energy}, pb_base_fee_per_day)",
         )
       end
     end

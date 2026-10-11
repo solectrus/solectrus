@@ -245,6 +245,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # Returns the sensor name for PV/opportunity costs (e.g., :house_costs_pv)
   def costs_pv_sensor_name = nil
 
+  # Whether the grid costs of this sensor contain the base fee of the tariff,
+  # which a cost breakdown names then.
+  def costs_carry_base_fee? = false
+
   def sql_calculated?
     respond_to?(:sql_calculation)
   end
