@@ -85,30 +85,7 @@ module Sensor
           end
 
           def filter_predicate(selected_sensors: available_sensors)
-            # Group sensors by their measurement
-            grouped =
-              selected_sensors.each_with_object(
-                Hash.new { |h, k| h[k] = [] },
-              ) do |sensor, result|
-                measurement = Sensor::Config.measurement(sensor)
-                field = Sensor::Config.field(sensor)
-                result[measurement] << field if measurement && field
-              end
-
-            return '(r) => false' if grouped.empty?
-
-            # Generate filter conditions
-            filter_conditions =
-              grouped.map do |measurement, fields|
-                field_conditions =
-                  fields
-                    .map { |field| "r[\"_field\"] == \"#{field}\"" }
-                    .join(' or ')
-
-                "r[\"_measurement\"] == \"#{measurement}\" and (#{field_conditions})"
-              end
-
-            "(r) => #{filter_conditions.join(' or ')}"
+            SensorFilter.predicate(selected_sensors)
           end
 
           def range(start:, stop: nil)
@@ -138,12 +115,7 @@ module Sensor
           # emitting it afterwards would leave every subscriber reading
           # `event.duration` (APM tooling, for one) with a flat zero.
           def query_without_cache(string)
-            ActiveSupport::Notifications.instrument(
-              'query.sensor_influx',
-              class: self.class.name,
-              query: string,
-              sensors: @sensor_names,
-            ) { ::Influx.query(string) }
+            FluxProgram.query(string, class_name: self.class.name, sensors: @sensor_names)
           end
 
           # Build a short cache key from the query string to avoid hitting the 250 chars
@@ -165,14 +137,14 @@ module Sensor
             { expires_in: 3.minutes }
           end
 
-          def find_sensor_by_measurement_and_field(measurement, field)
+          # The sensors that read a field. Two sensors can read the same field,
+          # so a row can belong to more than one.
+          def sensors_by_measurement_and_field(measurement, field)
             sensor_lookup[[measurement, field]]
           end
 
           def sensor_lookup
-            @sensor_lookup ||= available_sensors.index_by do |sensor|
-              [Sensor::Config.measurement(sensor), Sensor::Config.field(sensor)]
-            end
+            @sensor_lookup ||= SensorFilter.lookup(available_sensors)
           end
 
           # Standard InfluxDB result parsing - can be used by subclasses
@@ -180,21 +152,17 @@ module Sensor
             result = { times: {} }
 
             flux_result.each do |record|
-              sensor =
-                find_sensor_by_measurement_and_field(
-                  record['_measurement'],
-                  record['_field'],
-                )
-
-              next unless sensor
-
-              result[sensor] = record['_value']
+              sensors = sensors_by_measurement_and_field(record['_measurement'], record['_field'])
+              next if sensors.empty?
 
               # Track per-sensor timestamp (used to detect stale "latest" values)
               # and the overall newest time across all sensors (used for the
               # adaptive poll-interval estimator and live-status indicators).
               time = Time.zone.parse record['_time']
-              result[:times][sensor] = time
+              sensors.each do |sensor|
+                result[sensor] = record['_value']
+                result[:times][sensor] = time
+              end
               result[:time] = time if result[:time].nil? || time > result[:time]
             end
 

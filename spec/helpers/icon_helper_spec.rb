@@ -74,4 +74,29 @@ describe IconHelper do
       end
     end
   end
+
+  describe '#slashed_icon' do
+    subject(:svg) { helper.slashed_icon('plug', class: 'text-8xl') }
+
+    it 'carries the Font Awesome classes and the extra ones' do
+      expect(svg).to include('svg-inline--fa fa-plug text-8xl')
+    end
+
+    it 'draws the icon in the box of the slash' do
+      expect(svg).to include(
+        'viewBox="0 0 576 512"',
+        'translate(64 0)',
+        IconSet.find('plug').path,
+        IconSet.find('slash').path,
+      )
+    end
+
+    it 'cuts a gap along the slash out of the icon' do
+      expect(svg).to include('<mask id="plug-slash-mask"', 'mask="url(#plug-slash-mask)"')
+    end
+
+    it 'hides the icon from assistive technology' do
+      expect(svg).to include('aria-hidden="true"')
+    end
+  end
 end

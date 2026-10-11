@@ -47,11 +47,11 @@ module Sensor
         "#{seconds}s"
       end
 
-      def call(interpolate: false, lookback: 0)
+      def call(interpolate: false)
         return empty_result if available_sensors.empty?
         return empty_result if @timeframe.now?
 
-        raw_data = fetch_aggregated_series(interpolate:, lookback:)
+        raw_data = fetch_aggregated_series(interpolate:)
 
         create_data_instance(raw_data, @timeframe).tap do |data|
           ensure_sensor_accessors(data)
@@ -67,30 +67,28 @@ module Sensor
 
       private
 
-      def fetch_aggregated_series(interpolate: false, lookback: 0)
-        query_string = build_series_flux_query(interpolate:, lookback:)
+      def fetch_aggregated_series(interpolate: false)
+        query_string = build_series_flux_query(interpolate:)
         result = query(query_string)
         parse_series_result(result)
       end
 
-      def build_series_flux_query(interpolate: false, lookback: 0)
+      def build_series_flux_query(interpolate: false)
         forecast, other = available_sensors.partition { |name| Sensor::Registry[name]&.forecast? }
 
         # plain-query is fine when there is no forecast at all, or when only
         # forecast samples are queried with interpolation: provider samples
         # already sit on the requested grid, so neither alignment with a
-        # dense sensor nor a cadence-shift is needed. lookback only seeds the
-        # leading edge of sparse single-sensor charts (no forecast), so it
-        # rides along here and is ignored by the forecast-shifted path.
+        # dense sensor nor a cadence-shift is needed.
         if forecast.empty? || (interpolate && other.empty?)
-          build_plain_query(interpolate:, lookback:)
+          build_plain_query(interpolate:)
         else
           build_forecast_shifted_query(forecast, other, interpolate:)
         end
       end
 
-      def build_plain_query(interpolate:, lookback: 0)
-        pipeline = base_pipeline(lookback:)
+      def build_plain_query(interpolate:)
+        pipeline = base_pipeline
         pipeline = densify(pipeline) if interpolate
 
         [*script_prefix(interpolate:), pipeline, *aggregation_tail].join("\n")
@@ -181,13 +179,10 @@ module Sensor
         'bounds = fc_0_raw |> filter(fn: (r) => false)'
       end
 
-      # `lookback` extends the range before the window start so a sparse,
-      # persistent sensor (e.g. battery SOC) carries its last pre-window
-      # sample into the leading edge instead of opening with an empty gap.
-      def base_pipeline(sensors: available_sensors, lookback: 0)
+      def base_pipeline(sensors: available_sensors)
         <<~FLUX.chomp
           #{from_bucket}
-          |> #{range(start: @timeframe.beginning - lookback, stop: @timeframe.ending)}
+          |> #{range(start: @timeframe.beginning, stop: @timeframe.ending)}
           |> #{filter(selected_sensors: sensors)}
         FLUX
       end
@@ -265,13 +260,14 @@ module Sensor
         flux_result.each do |record|
           # Skip rows whose measurement/field don't map to a configured
           # sensor (e.g. stray fields shared in the same Influx series).
-          sensor = find_sensor_by_measurement_and_field(record['_measurement'], record['_field'])
-          next unless sensor
+          sensors = sensors_by_measurement_and_field(record['_measurement'], record['_field'])
+          next if sensors.empty?
 
           raw_time = record['_time']
           time_key = time_cache[raw_time] ||=
             Time.zone.parse(raw_time).public_send(@timestamp_method)
-          result[[sensor, @aggregation, @aggregation]][time_key] = record['_value']&.round(1)
+          value = record['_value']&.round(1)
+          sensors.each { |sensor| result[[sensor, @aggregation, @aggregation]][time_key] = value }
         end
 
         result

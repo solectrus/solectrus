@@ -1,0 +1,45 @@
+= turbo_stream.update frame_id('timeframe') do
+  = render Timeframe::Component.new(timeframe:)
+
+- if timeframe.now?
+  = turbo_stream.update frame_id('status') do
+    = render Status::Component.new time: data.time
+
+= turbo_stream.update scoped_frame_id('stats'), method: :morph do
+  / The live view fills the whole height, so the pills and the odometer need
+  / space to the edges
+  .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5[
+    id="stats-#{timeframe.id}"
+    class=('py-4 md:py-6' if timeframe.now?)
+    data-controller=('car-cards' unless timeframe.now?)
+  ]
+    - if timeframe.now?
+      = render Car::LiveView::Component.new(live: data, named: car_selection.installed.many?)
+
+    - else
+      / A phone shows one card at a time, with a toggle and the car select
+        above it. The header of a phone has no room for the select.
+      - card = Car::CardToggle::Component.card(cookies)
+      - toggle = data.cars.any? && data.driving?
+      - if toggle || car_selection.installed.many?
+        .sm:hidden.flex.items-center.gap-3
+          - if toggle
+            = render Car::CardToggle::Component.new(card:)
+          - if car_selection.installed.many?
+            .ml-auto
+              = render Car::Select::Component.new(cars: car_selection.offered, car:, button_class: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300')
+
+      - if data.cars.empty?
+        .flex-1.flex.items-center.justify-center.text-slate-500.dark:text-slate-400.text-center.px-4
+          = t('data.car_none_in_use')
+
+      - else
+        / Charging on the left and driving on the right, like the source and
+        / the usage of the power balance. A car without an odometer has no
+        / driving, so its charging takes the full width.
+        .flex-1.min-h-0.grid.gap-4.md:gap-6 class=(data.driving? ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1')
+          .contents data-car-cards-target='charging' class=('max-sm:hidden' if toggle && card != 'charging')
+            = render Car::ChargingCard::Component.new(report: data, all: car.nil?)
+          - if data.driving?
+            .contents data-car-cards-target='driving' class=('max-sm:hidden' unless card == 'driving')
+              = render Car::DrivingCard::Component.new(report: data)

@@ -1,4 +1,5 @@
-// Builds tooltip callbacks (title/label/footer/labelColor) based on data and stacks.
+// Builds tooltip callbacks (title/label/afterBody/footer/labelColor) based on
+// data and stacks.
 
 import type { ChartData, ChartType, Color, TooltipItem } from 'chart.js';
 import { roundedParts, roundedSum } from '@/utils/roundedParts';
@@ -19,8 +20,6 @@ type TooltipFlags = {
   isTotalConsumptionStack: boolean;
 };
 
-const HEATPUMP_COSTS_STACK = 'HeatpumpCosts';
-
 type TooltipHelpers = {
   locale: string;
   formattedNumber: (value: number, range?: Range) => string;
@@ -28,7 +27,7 @@ type TooltipHelpers = {
   extractNumericValue: (value: unknown, mode: 'max' | 'min') => number | null;
 };
 
-// Builds Chart.js tooltip callbacks (title/label/footer).
+// Builds Chart.js tooltip callbacks (title/label/afterBody/footer).
 export const buildTooltipCallbacks = (
   helpers: TooltipHelpers,
   data: ChartData,
@@ -36,6 +35,7 @@ export const buildTooltipCallbacks = (
 ): {
   title: (tooltipItems: TooltipItem<ChartType>[]) => string | undefined;
   label: (tooltipItem: TooltipItem<ChartType>) => string | string[];
+  afterBody: (tooltipItems: TooltipItem<ChartType>[]) => string[] | undefined;
   labelColor: (
     tooltipItem: TooltipItem<ChartType>,
   ) => { backgroundColor: Color; borderColor: Color } | undefined;
@@ -73,11 +73,12 @@ export const buildTooltipCallbacks = (
       if (sum) return { rows, sum };
     }
 
-    const costs = points.filter(
-      (item) => item.dataset.stack === HEATPUMP_COSTS_STACK,
+    // The parts of a stack that adds up to a total, by source or by car
+    const parts = points.filter(
+      (item) => (item.dataset as DatasetWithId).summed,
     );
-    if (costs.length > 1) {
-      const rows = costs.filter((item) => typeof item.parsed.y === 'number');
+    if (parts.length > 1) {
+      const rows = parts.filter((item) => typeof item.parsed.y === 'number');
       const sum = sumOf(rows);
       if (sum) return { rows, sum };
     }
@@ -236,6 +237,15 @@ export const buildTooltipCallbacks = (
           range,
         )
       );
+    },
+
+    // The notes that the server gives the data point, such as the calculation
+    // behind the value.
+    afterBody: (tooltipItems) => {
+      if (!tooltipItems.length) return;
+
+      const { dataset, dataIndex } = tooltipItems[0];
+      return (dataset as DatasetWithId).tooltipNotes?.[dataIndex] ?? undefined;
     },
 
     // Return the solid resolved color for tooltip color swatches.

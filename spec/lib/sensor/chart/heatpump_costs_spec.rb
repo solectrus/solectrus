@@ -43,6 +43,7 @@ describe Sensor::Chart::HeatpumpCosts do
 
     expect(pv_dataset[:id]).to eq('heatpump_costs_pv')
     expect(pv_dataset[:stack]).to eq('HeatpumpCosts')
+    expect(data[:datasets].pluck(:summed)).to all(be(true))
     expect(pv_dataset[:data].compact).to all(be_within(0.0001).of(0.05))
   end
 

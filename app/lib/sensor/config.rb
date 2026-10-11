@@ -28,6 +28,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :configured?,
                    :exists?,
                    :sensors,
+                   :sensors_for_build,
                    :house_power_excluded_sensors,
                    :house_power_excluded_custom_sensors,
                    :house_power_included_custom_sensors,
@@ -64,6 +65,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
 
     parse_configurations
     auto_configure_power_splitter_sensors
+    @car_warnings = Sensor::Cars.config_warnings(@env)
 
     log_configurations
 
@@ -171,6 +173,12 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     @sensors ||= Sensor::Registry.all.select { |sensor| exists?(sensor.name) }
   end
 
+  # The sensors for the daily summaries, also without the permission. A
+  # sponsorship opens pages, so the summaries hold the values before it.
+  def sensors_for_build
+    @sensors_for_build ||= Sensor::Registry.all.select { |sensor| exists?(sensor.name, check_policy: false) }
+  end
+
   def nameable_sensors
     @nameable_sensors ||= sensors.select(&:nameable?)
   end
@@ -220,6 +228,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   def clear_cache!
     %i[
       @sensors
+      @sensors_for_build
       @nameable_sensors
       @inverter_sensors
       @custom_inverter_sensors
@@ -333,10 +342,8 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     @sensor_logs.each { |log| log_line(log) }
     log_house_power_status
 
-    return if @sensor_warnings.empty?
-
-    log_section_header('⚠️  DUPLICATE CONFIGURATIONS', char: '·')
-    @sensor_warnings.each { |warning| log_line("- #{warning}") }
+    log_warnings('⚠️  DUPLICATE CONFIGURATIONS', @sensor_warnings)
+    log_warnings('⚠️  CARS', @car_warnings)
   end
 
   def check_for_duplicates(sensor_name)

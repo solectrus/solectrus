@@ -20,6 +20,10 @@ export type DatasetWithId = ChartDataset & {
   noGradient?: boolean;
   opacity?: number;
   colorClass?: string;
+  // A hex color that tints the color of colorClass, like the color of a car
+  tintColor?: string;
+  // A part of a stack that adds up to a total, so the tooltip shows the sum
+  summed?: boolean;
   colorScale?: ColorScaleStop[];
   opacities?: number[];
   // Hatches the whole dataset, or with one entry for each data point only
@@ -27,6 +31,8 @@ export type DatasetWithId = ChartDataset & {
   hatchFill?: boolean | boolean[];
   tooltipColor?: string;
   tooltipAbs?: boolean;
+  // Lines of plain text below the value, one entry for each data point
+  tooltipNotes?: (string[] | null)[];
 };
 
 // A chart may state whether its fills cover each other instead of leaving that

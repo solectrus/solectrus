@@ -20,6 +20,7 @@
     "chartjs-plugin-crosshair": "^2.0.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "luxon": "^3.7.2",
+    "maplibre-gl": "^6.13.0",
     "stimulus-vite-helpers": "^3.1.0",
     "throttle-debounce": "^5.0.2"
   },
@@ -57,9 +58,19 @@
   },
   "size-limit": [
     {
+      "name": "App",
       "limit": "200 kB",
       "gzip": true,
-      "path": "public/vite/assets/*.js"
+      "path": [
+        "public/vite/assets/*.js",
+        "!public/vite/assets/maplibre-*.js"
+      ]
+    },
+    {
+      "name": "Map (car page only)",
+      "limit": "440 kB",
+      "gzip": true,
+      "path": "public/vite/assets/maplibre-*.js"
     }
   ],
   "engines": {

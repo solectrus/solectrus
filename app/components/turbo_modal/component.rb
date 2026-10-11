@@ -8,15 +8,23 @@ class TurboModal::Component < ViewComponent::Base
 
   include Turbo::FramesHelper
 
-  def initialize(title: nil, narrow: false)
+  def initialize(title: nil, narrow: false, wide: false)
     super()
     @title = title
     @narrow = narrow
+    @wide = wide
   end
 
   # Width on desktop. Forms need the room, running text does not: a narrow
-  # panel keeps a line below ~65 characters.
+  # panel keeps a line below ~65 characters. A wide panel lets a long form
+  # put its fields side by side, so it fits the height of a laptop screen.
   def width_class
-    @narrow ? 'md:max-w-xl' : 'md:max-w-3xl'
+    if @narrow
+      'md:max-w-xl'
+    elsif @wide
+      'md:max-w-3xl lg:max-w-5xl'
+    else
+      'md:max-w-3xl'
+    end
   end
 end

@@ -13,15 +13,24 @@ module Sensor
     # missing from the live window, get_system_info only when that window is
     # empty for every sensor at once.
     class LastSeen < Helpers::Influx::Base
-      def initialize(sensor_names)
+      # `before` ends the search at a time, for example at the start of a
+      # chart. A search that ends in the past stays cached.
+      def initialize(sensor_names, before: nil)
         super(sensor_names, Timeframe.new('all'))
+        @before = before
       end
 
       # { sensor_name => Time }, omitting sensors that never delivered.
       def call
-        return {} if available_sensors.empty?
+        readings[:times]
+      end
 
-        parse_flux_result(query(build_flux_query))[:times]
+      # The last value of each sensor with its time, like
+      # Sensor::Query::Latest: { sensor_name => value, times: { ... } }
+      def readings
+        return { times: {} } if available_sensors.empty?
+
+        @readings ||= parse_flux_result(query(build_flux_query))
       end
 
       private
@@ -29,7 +38,7 @@ module Sensor
       def build_flux_query
         <<~FLUX
           #{from_bucket}
-          |> #{range(start: @timeframe.beginning, stop: @timeframe.ending)}
+          |> #{range(start: @timeframe.beginning, stop: @before || @timeframe.ending)}
           |> #{filter}
           |> last()
         FLUX

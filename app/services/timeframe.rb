@@ -1,6 +1,4 @@
 class Timeframe # rubocop:disable Metrics/ClassLength
-  include ActionView::Helpers::DateHelper
-
   # The longest hour window there is. An hour window is answered from the raw
   # InfluxDB samples rather than from the summaries, so its cost grows with its
   # width - the bound is a performance rule, not a spelling one. REGEX_HOURS
@@ -301,15 +299,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     when :years
       I18n.t('timeframe.years', count: relative_count)
     when :all
-      I18n.t(
-        'timeframe.all',
-        since:
-          distance_of_time_in_words_to_now(
-            min_date,
-            only: :years,
-            scope: 'datetime.distance_in_words.dativ',
-          ),
-      )
+      I18n.t('timeframe.all')
     end
   end
 
@@ -348,6 +338,11 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   # Date of the ending, but not after max_date or today
   def effective_ending_date
     [ending.to_date, max_date].compact.min
+  end
+
+  # The dates from the effective beginning to the effective ending
+  def effective_dates
+    effective_beginning_date..effective_ending_date
   end
 
   # Whether the period starting on `date` stands on fewer days than the period

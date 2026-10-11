@@ -8,12 +8,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       [
         root_item,
         (inverter_item if Setting.enable_multi_inverter),
-        (
-          forecast_item if Setting.enable_forecast &&
-            Sensor::Config.exists?(:inverter_power_forecast)
-        ),
+        (forecast_item if forecast_enabled?),
         (house_item if Setting.enable_custom_consumer),
         (heatpump_item if Setting.enable_heatpump),
+        (car_item if Setting.enable_car),
         essentials_item,
         top10_item,
         amortization_item,
@@ -21,25 +19,35 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     helper_method def all_mobile_items
-      @all_mobile_items ||=
-        [
-          root_item,
-          (inverter_item if Setting.enable_multi_inverter),
-          (house_item if Setting.enable_custom_consumer),
-          (heatpump_item if Setting.enable_heatpump),
-          (
-            forecast_item if Setting.enable_forecast &&
-              Sensor::Config.exists?(:inverter_power_forecast)
-          ),
-          essentials_item,
-          top10_item,
-          amortization_item,
-        ].compact
+      @all_mobile_items ||= build_mobile_items
+    end
+
+    def build_mobile_items
+      [
+        root_item,
+        (house_item if Setting.enable_custom_consumer),
+        (heatpump_item if Setting.enable_heatpump),
+        (car_item if Setting.enable_car),
+        (inverter_item if Setting.enable_multi_inverter),
+        (forecast_item if forecast_enabled?),
+        essentials_item,
+        top10_item,
+        amortization_item,
+      ].compact
+    end
+
+    def forecast_enabled?
+      return @forecast_enabled if defined?(@forecast_enabled)
+
+      @forecast_enabled =
+        Setting.enable_forecast &&
+          Sensor::Config.exists?(:inverter_power_forecast)
     end
 
     helper_method def desktop_secondary_items
       @desktop_secondary_items ||=
         [
+          *charging_sessions_group,
           helios_item,
           settings_item,
           registration_item,
@@ -81,22 +89,8 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.balance'),
         href:
-          case helpers.controller_namespace
-          when 'house'
-            balance_home_path(
-              sensor_name: 'house_power',
-              timeframe: computed_timeframe,
-            )
-          when 'inverter'
-            balance_home_path(
-              sensor_name: 'inverter_power',
-              timeframe: computed_timeframe,
-            )
-          when 'heatpump'
-            balance_home_path(
-              sensor_name: 'heatpump_power',
-              timeframe: computed_timeframe,
-            )
+          if (sensor_name = root_sensor_name)
+            balance_home_path(sensor_name:, timeframe: computed_timeframe)
           else
             balance_home_path
           end,
@@ -106,6 +100,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           action: 'click->force-reload#perform',
         },
       }
+    end
+
+    def root_sensor_name
+      Sensor::HomePage.balance_sensor(helpers.controller_namespace.to_sym)
     end
 
     def inverter_item
@@ -136,6 +134,52 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         href:
           heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe: computed_timeframe),
         current: helpers.controller_namespace == 'heatpump',
+      }
+    end
+
+    # The live view of the car page has no sensor in its address (see
+    # Sensor::HomePage.live_chart?)
+    def car_item
+      timeframe = computed_timeframe
+      live = timeframe.nil? || timeframe.try(:now?)
+
+      {
+        name: t('layout.car'),
+        icon: 'car',
+        icon_only: true,
+        href:
+          cars_home_path(sensor_name: (car_sensor_name unless live), timeframe:, car: nil),
+        current: helpers.controller_namespace == 'cars',
+      }
+    end
+
+    # From the wallbox on the start page, the car page shows the charging, so
+    # the topic stays. The reverse of Sensor::HomePage.balance_sensor.
+    def car_sensor_name
+      if helpers.controller_namespace == 'balance' && params[:sensor_name] == 'wallbox_power'
+        'car_charging'
+      else
+        'car_distance'
+      end
+    end
+
+    # The data of the menu stands apart from the configuration below it
+    def charging_sessions_group
+      item = charging_sessions_item
+      [item, ___] if item
+    end
+
+    # The list of all charging sessions. Like the settings, a guest sees the
+    # link and the list asks to log in (see CarPageGate). The link starts
+    # without the car, kind and timeframe of the current page.
+    def charging_sessions_item
+      return unless Sensor::HomePage.open?(:cars)
+
+      {
+        name: t('layout.charging_sessions'),
+        icon: 'charging-station',
+        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe: nil),
+        current: helpers.controller.is_a?(Cars::ChargingSessionsController),
       }
     end
 
@@ -323,8 +367,14 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           name: t('layout.logout'),
           icon: 'arrow-right-from-bracket',
           href: session_path(return_to: logout_return_to),
+          # Permanent frames (the live stats) can hold admin-only content, the
+          # location of a car for example. So the logout drops them, and the
+          # "advance" visit renders the page anew instead of morphing it.
           data: {
             'turbo-method': :delete,
+            'turbo-action': :advance,
+            controller: 'force-reload',
+            action: 'click->force-reload#perform',
           },
         }
       else

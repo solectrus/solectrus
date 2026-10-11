@@ -92,8 +92,8 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
         [:custom_power_01, :max, 200],
         [:battery_soc, :min, 40.0],
         [:battery_soc, :max, 90.0],
-        [:car_battery_soc, :min, 30.0],
-        [:car_battery_soc, :max, 85.0],
+        [:car_battery_soc_1, :min, 30.0],
+        [:car_battery_soc_1, :max, 85.0],
         [:case_temp, :min, 30.0],
         [:case_temp, :max, 35.0],
         [:heatpump_heating_power, :sum, 2400],
@@ -216,9 +216,9 @@ module SystemTestHelpers # rubocop:disable Metrics/ModuleLength
       .hours
       .step(0, -5.minutes) do |i|
         add_influx_point(
-          name: measurement_car_battery_soc,
+          name: measurement_car_battery_soc_1,
           fields: {
-            field_car_battery_soc => 70,
+            field_car_battery_soc_1 => 70,
           },
           time: base_time - i.seconds,
         )

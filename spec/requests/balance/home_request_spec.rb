@@ -63,6 +63,21 @@ describe 'Home' do
       end
     end
 
+    # The car link keeps the topic of the chart
+    context 'with the wallbox' do
+      it 'links the car page to the charging' do
+        get balance_home_path(sensor_name: 'wallbox_power', timeframe: '2024-09-07')
+
+        expect(response.body).to include('href="/cars/car_charging/2024-09-07"')
+      end
+
+      it 'links the car page to the distance from another sensor' do
+        get balance_home_path(sensor_name: 'house_power', timeframe: '2024-09-07')
+
+        expect(response.body).to include('href="/cars/car_distance/2024-09-07"')
+      end
+    end
+
     context 'when param :timeframe is in the future' do
       it 'redirects to forecast for day' do
         get balance_home_path(

@@ -71,6 +71,8 @@ module Solectrus
         .presence
 
     config.x.plausible_url = ENV['PLAUSIBLE_URL'].presence
+    # Empty turns the geocoding off (see Place::Nominatim)
+    config.x.nominatim_url = ENV.fetch('NOMINATIM_URL', 'https://nominatim.openstreetmap.org').strip.presence
     config.x.honeybadger.api_key = ENV['HONEYBADGER_API_KEY'].presence
     config.x.rorvswild.api_key = ENV['RORVSWILD_API_KEY'].presence
     config.x.co2_emission_factor = ENV.fetch('CO2_EMISSION_FACTOR', 401).to_i # g / kWh
@@ -97,6 +99,11 @@ module Solectrus
       next if skip_initialization?
 
       ThemeConfig.setup(ENV)
+
+      # The block below already reads and resets tables, so a test database
+      # with an older schema fails before rails_helper can load the current
+      # one. Load it here instead, rails_helper then finds nothing to do.
+      ActiveRecord::Migration.maintain_test_schema! if Rails.env.test?
 
       ActiveRecord::Base.connection_pool.with_connection do
         if ActiveRecord::Base.connection.table_exists?(:settings)

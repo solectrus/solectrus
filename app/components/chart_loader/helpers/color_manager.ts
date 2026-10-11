@@ -12,9 +12,12 @@ import type {
   ResolvedColorScaleStop,
 } from './types';
 
+// The share (%) of a tint in a dataset color
+const TINT_SHARE = 35;
+
 // Applies dataset colors, gradients, and color scales based on chart data.
 export class ColorManager {
-  private readonly colorClassCache = new Map<string, string>();
+  private readonly colorCache = new Map<string, string>();
   private readonly hatchPatternCache = new Map<string, CanvasPattern>();
   private typeValue: ChartType = 'line';
 
@@ -27,7 +30,7 @@ export class ColorManager {
   }
 
   clearCache(): void {
-    this.colorClassCache.clear();
+    this.colorCache.clear();
     this.hatchPatternCache.clear();
   }
 
@@ -56,7 +59,10 @@ export class ColorManager {
           : undefined;
 
       if (datasetWithId.colorClass) {
-        const resolvedColor = this.resolveColorClass(datasetWithId.colorClass);
+        const resolvedColor = this.tinted(
+          this.resolveColorClass(datasetWithId.colorClass),
+          datasetWithId.tintColor,
+        );
         if (resolvedColor) {
           datasetWithId.tooltipColor = resolvedColor;
           const lineDataset = dataset as ChartDataset<'line'>;
@@ -498,12 +504,41 @@ export class ColorManager {
     return value.toString(16).padStart(2, '0');
   }
 
+  // The color of the class with a share of the tint. The palette color stays
+  // the base, so it fits the other charts in light and dark mode.
+  private tinted(
+    color: string | undefined,
+    tint: string | undefined,
+  ): string | undefined {
+    if (!color || !tint) return color;
+
+    return (
+      this.probeBackground(`${color}|${tint}`, (element) => {
+        element.style.backgroundColor = `color-mix(in oklab, ${color}, ${tint} ${TINT_SHARE}%)`;
+      }) ?? color
+    );
+  }
+
   private resolveColorClass(colorClass: string): string | undefined {
-    const cached = this.colorClassCache.get(colorClass);
+    // A color of the user, like the color of a car, is a hex code, because
+    // Tailwind has no class for a color that only the database knows.
+    if (colorClass.startsWith('#')) return resolveColor(colorClass);
+
+    return this.probeBackground(colorClass, (element) => {
+      element.className = colorClass;
+    });
+  }
+
+  // The computed background color of a hidden element, cached under the key
+  private probeBackground(
+    key: string,
+    style: (element: HTMLElement) => void,
+  ): string | undefined {
+    const cached = this.colorCache.get(key);
     if (cached) return cached;
 
     const element = document.createElement('div');
-    element.className = colorClass;
+    style(element);
     element.style.position = 'absolute';
     element.style.left = '-9999px';
     element.style.width = '1px';
@@ -524,7 +559,7 @@ export class ColorManager {
     const resolved = resolveColor(computed);
     if (!resolved) return;
 
-    this.colorClassCache.set(colorClass, resolved);
+    this.colorCache.set(key, resolved);
     return resolved;
   }
 

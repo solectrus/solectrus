@@ -17,7 +17,7 @@ module McpServer
     def for(sensor)
       live = live?(sensor)
 
-      totals = !sensor.forecast? && aggregations(sensor).any?
+      totals = !sensor.forecast? && !sensor.chart_only? && aggregations(sensor).any?
 
       {
         current: live,
@@ -81,12 +81,17 @@ module McpServer
     # rejected for - which sent a client asking for power_balance to
     # get_totals, a tool that rejects it too.
     def rejection(sensor, tool)
-      case tool
-      when :series then series_rejection(sensor)
-      when :current then current_rejection(sensor)
-      when :totals, :periods then totals_rejection(sensor)
-      when :ranking then ranking_rejection(sensor)
-      end
+      reason =
+        case tool
+        when :series then series_rejection(sensor)
+        when :current then current_rejection(sensor)
+        when :totals, :periods then totals_rejection(sensor)
+        when :ranking then ranking_rejection(sensor)
+        end
+
+      # Other sensors can hold the data of a chart-only sensor, like the
+      # sensor of each car (see Sensor::Definitions::Base#data_sensors)
+      reason == :chart_only && sensor.data_sensors ? :data_sensors : reason
     end
 
     def series_rejection(sensor)
@@ -106,10 +111,13 @@ module McpServer
     # Mirrors the `totals` flag: a forecast first, since that is the reason a
     # client can act on (get_forecast exists), and only then the absence of an
     # aggregation, which is a property of the sensor rather than of the ask.
+    # A chart-only sensor with an aggregation ranks, like car_distance, but
+    # has no total of its own.
     def totals_rejection(sensor)
       return :forecast if sensor.forecast?
+      return :no_aggregation if aggregations(sensor).empty?
 
-      :no_aggregation if aggregations(sensor).empty?
+      :chart_only if sensor.chart_only?
     end
 
     # Mirrors the `ranking` flag, in the order the two reasons refine each

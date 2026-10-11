@@ -32,6 +32,8 @@ class Sensor::LegacyConfigAdapter
       adapted_env.delete('INFLUX_MEASUREMENT_FORECAST')
     end
 
+    number_first_car(adapted_env)
+
     log_summary
 
     adapted_env
@@ -67,6 +69,30 @@ class Sensor::LegacyConfigAdapter
   }.freeze
   private_constant :FALLBACK_MEASUREMENTS
 
+  # SOLECTRUS reads each car variable without a number as the variable of
+  # the first car, so an installation with one car needs no number. The
+  # state of charge had no number before cars had numbers. Unlike the legacy
+  # mode above, this is not deprecated. If both exist, the numbered variable
+  # wins.
+  def number_first_car(adapted_env)
+    Sensor::Cars::CONFIGURABLE_ROLES.each do |role|
+      unnumbered = "INFLUX_SENSOR_#{role.upcase}"
+      numbered = "#{unnumbered}_1"
+      value = adapted_env.delete(unnumbered)
+      next if value.blank?
+
+      if adapted_env[numbered].present?
+        conflicts << "#{unnumbered} is ignored, because #{numbered} is set"
+      else
+        adapted_env[numbered] = value
+      end
+    end
+  end
+
+  def conflicts
+    @conflicts ||= []
+  end
+
   def build_from_deprecated_config(sensor_name)
     measurement_env_var, field = FALLBACK_SENSORS[sensor_name]
 
@@ -97,6 +123,8 @@ class Sensor::LegacyConfigAdapter
   end
 
   def log_summary
+    log_warnings('⚠️  CONFLICTING VARIABLES', conflicts)
+
     if warnings.empty?
       log_line 'Configuration is up-to-date, no legacy conversion required'
       return

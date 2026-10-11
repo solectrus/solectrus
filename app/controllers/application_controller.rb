@@ -40,6 +40,9 @@ class ApplicationController < ActionController::Base
   helper_method def title
   end
 
+  # The names of the cars are personal, so a guest sees their numbers
+  before_action { Current.car_names_hidden = !admin? }
+
   before_action :check_for_registration
   before_action :check_for_sponsoring
 
@@ -66,4 +69,9 @@ class ApplicationController < ActionController::Base
   # of the car page. Each link to the same page keeps them, and a link to
   # another page does not get them (see ApplicationHelper#selection_params).
   def selection_params = {}
+
+  # The options of the charts of a selection, for example the cars of the
+  # car page (see Sensor::Definitions::Base#chart). Each chart of the page
+  # gets them (see ApplicationHelper#chart_options).
+  def chart_options = {}
 end

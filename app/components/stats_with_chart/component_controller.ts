@@ -2,6 +2,7 @@ import { Controller, type ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
 import { IntervalTimer } from '@/utils/intervalTimer';
+import TooltipController from '@/controllers/tooltip_controller';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
   id: string;
@@ -41,7 +42,7 @@ const HEAT_STACK = {
 } as const;
 
 export default class extends Controller {
-  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
+  static readonly targets = ['current', 'stats', 'chart', 'canvas', 'kept'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
@@ -54,6 +55,8 @@ export default class extends Controller {
 
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
+
+  declare readonly hasKeptTarget: boolean;
 
   static readonly values = {
     // Field to display in the chart
@@ -123,6 +126,9 @@ export default class extends Controller {
   private createTimer() {
     this.timer = new IntervalTimer(() => {
       if (this.shouldStopRequests) return;
+      // A reload would take the tooltip away from under the pointer, so the
+      // next tick reloads instead
+      if (TooltipController.isShownWithin(this.statsTarget)) return;
 
       this.reload();
     }, this.intervalValue * 1000);
@@ -260,7 +266,7 @@ export default class extends Controller {
       currentTime === undefined ||
       lastPointTime === undefined
     ) {
-      if (this.hasCurrentValues && !chart) {
+      if (this.hasChartTarget && this.hasCurrentValues && !chart) {
         // We got a value, but no chart. Reload the frames to get the chart
         this.reloadFrames({ chart: true });
       }
@@ -529,7 +535,11 @@ export default class extends Controller {
   // errors to the console for debugging.
   private async reloadFrames(options: { chart: boolean }) {
     const reloads = [this.statsTarget.reload()];
-    if (options.chart) reloads.push(this.chartTarget.reload());
+    // A page without a chart (the live view of the cars) has no chart frame.
+    // A chart with a component of its own keeps its frame, so the zoom and
+    // the position of the user on a map stay.
+    if (options.chart && this.hasChartTarget && !this.hasKeptTarget)
+      reloads.push(this.chartTarget.reload());
 
     const results = await Promise.allSettled(reloads);
     for (const result of results) {

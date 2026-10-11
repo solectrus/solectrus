@@ -1,0 +1,14 @@
+= turbo_stream_update_navigation
+
+/ The map of the places reaches the edges of the card, so its negative
+/ margins match the padding of the card. Beside the stats, the chart menu
+/ floats on the map. The map isolates its layers, so a menu of the header
+/ stays above the chart menu. A zoomed map covers the header, so there it
+/ drops the isolation.
+= turbo_stream.update frame_id('chart') do
+  .flex.flex-col.flex-auto.min-h-20.sm:gap-2.relative class=('isolate group-data-zoomed/zoom:isolation-auto -mx-4 -mb-3 sm:-mx-6 sm:-mb-5 lg:landscape:ml-0 lg:landscape:-mt-5' if map?)
+    - unless timeframe.out_of_scope?
+      div class=('z-10 flex justify-center pointer-events-none lg:landscape:absolute lg:landscape:inset-x-0 lg:landscape:top-3' if map?)
+        div class=('pointer-events-auto lg:landscape:rounded-full lg:landscape:px-3 lg:landscape:bg-white/85 lg:landscape:shadow-sm lg:landscape:backdrop-blur-sm dark:lg:landscape:bg-slate-900/85' if map?)
+          = render CarChartDropdown::Component.new(sensor_name:, timeframe:)
+      = render ChartLoader::Component.new(sensor_name:, timeframe:, interval:)

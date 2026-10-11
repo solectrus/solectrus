@@ -191,15 +191,22 @@ value unit: :watt,              # Required: Unit type
 `#clamp_value`, so a declared bound holds without the block repeating it. A
 sensor with `unit: :percent` gets `(0..100)` even when it declares no range.
 
-### `max_age` - Staleness Limit
+### `state` - Value Holds Until the Next Reading
 
 ```ruby
-max_age 2.hours   # Default: Sensor::Definitions::Dsl::DEFAULT_MAX_AGE (15 minutes)
+state
 ```
 
-A "latest" reading older than `max_age` counts as stale. The current stats hide
-it. Override this for a sensor that reports rarely. `car_battery_soc` does,
-because a car only reports while it is awake.
+A "latest" reading older than 15 minutes (`Sensor::Query::Latest::MAX_AGE`)
+counts as stale, and the current stats hide it. A state never goes stale: its
+value holds until the next reading, at any age. A chart holds it between two
+readings. The car sensors are states, because a car reports only while it is
+awake, and some sources send only a change.
+
+The daily summary holds the value too (`Influx::DailyStates`). The min, max and
+avg of a day come from its 5-minute buckets, and a bucket without a reading
+holds the value of the bucket before it. Each bucket thus counts the same, and
+a day without a reading gets the last reading before it.
 
 ### `depends_on` - Dependencies
 
@@ -372,6 +379,17 @@ requires_permission :car  # ApplicationPolicy.feature_enabled?(:car)
 # Alternative with block
 permitted { ApplicationPolicy.custom_check? }
 ```
+
+### `personal` - Personal Data
+
+```ruby
+personal  # Only the admin sees the sensor
+```
+
+A personal sensor holds personal data, for example the location of a car. A guest gets no
+chart of it: a request with its name gets the status 403 (`ParamsHandling`). The MCP server
+does not offer it (`McpServer::Sensors`). A component that shows its value must ask
+`helpers.admin?` itself.
 
 ### `trend` - Trend Tracking
 
@@ -690,6 +708,10 @@ end
 Sensor::Registry[:car_battery_soc].permitted?  # => true/false
 Sensor::Config.exists?(:car_battery_soc)       # => false if not permitted
 ```
+
+The daily summaries do not ask for the permission. A sponsorship opens pages, so the
+summaries hold the values before it. The build reads `Sensor::Config.sensors_for_build`
+instead of `Sensor::Config.sensors`.
 
 **All sponsor features**, from the `SPONSOR_FEATURES` list inside
 `ApplicationPolicy` (a `private_constant`, so read it there). Each one gets a

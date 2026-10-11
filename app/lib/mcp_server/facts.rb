@@ -102,6 +102,11 @@ module McpServer
       'A chart-only composite has no value of its own: it exists to feed a ' \
         'chart, which composes what it shows from other sensors.'.freeze
 
+    # A chart whose data other sensors hold, for example car_battery_soc,
+    # whose data each car holds in a numbered sensor
+    DATA_SENSORS =
+      'This chart has no value of its own: other sensors hold its data, for example a numbered sensor for each car.'.freeze
+
     NON_AGGREGATABLE =
       'Boolean and string sensors (e.g. a car-connected flag, a status text) ' \
         'cannot be averaged into a time bucket at all.'.freeze
@@ -231,6 +236,7 @@ module McpServer
                     :COMPACT_AXIS,
                     :MONEY_ACCUMULATED,
                     :CHART_ONLY,
+                    :DATA_SENSORS,
                     :NON_AGGREGATABLE,
                     :NO_AGGREGATION,
                     :FORECAST_NOT_MEASURED,

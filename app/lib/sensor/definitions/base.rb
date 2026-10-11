@@ -8,7 +8,7 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
            :allowed_aggregations,
            :summary_meta_aggregations,
            :trend_aggregation,
-           :max_age,
+           :state?,
            to: :class
 
   def initialize
@@ -146,6 +146,20 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.meta_data[:chart_only].present?
   end
 
+  # { sensor_name => label } of the sensors that hold the data of a
+  # chart-only sensor, so a client can ask them instead. Nil when no other
+  # sensor holds it (see Sensor::Definitions::CarRoleChart).
+  def data_sensors = nil
+
+  # Whether the sensor records a value on the date. The daily build keeps no
+  # value of another day (see Sensor::Summarizer).
+  def recorded_on?(_date) = true
+
+  # Whether only the admin sees this sensor (see the `personal` DSL)
+  def personal?
+    self.class.meta_data[:personal].present?
+  end
+
   def chart(timeframe, **)
     config = self.class.meta_data[:chart]
     return unless config
@@ -156,6 +170,8 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   def top10_enabled?
     evaluate_config_value(:top10_enabled, default: false)
   end
+
+  delegate :meter?, to: :class
 
   def top10_permitted?
     block = self.class.inherited_meta_data(:top10_permitted)

@@ -66,6 +66,11 @@ RSpec.configure do |config|
   # database state again.
   config.before { Setting.clear_cache }
 
+  # Rails resets Current between requests, but not between examples outside
+  # a request. Without the reset, an example reads the cars of the one
+  # before it.
+  config.before { Current.reset }
+
   # Disable transactional fixtures for system tests to allow data sharing
   # System tests have read-only access to shared InfluxDB and Postgres data
   config.around(:each, type: :system) do |example|
@@ -82,6 +87,11 @@ RSpec.configure do |config|
     Setting.delete_all
     Setting.clear_cache
     Setting.seed!
+
+    # System tests run without a transaction, and their pages create the cars
+    # (see Car.configured) and the charging sessions of the daily build
+    ChargingSession.delete_all
+    Car.delete_all
   end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.

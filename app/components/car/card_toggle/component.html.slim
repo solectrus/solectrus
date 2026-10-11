@@ -1,0 +1,10 @@
+.inline-flex.rounded-lg.bg-slate-100.dark:bg-slate-800.p-1 role='group'
+  - CARDS.each do |name|
+    button.px-4.py-1.5.rounded-md.text-sm.font-medium.text-slate-500.dark:text-slate-400.aria-pressed:bg-white.aria-pressed:text-slate-800.aria-pressed:shadow-sm.dark:aria-pressed:bg-slate-600.dark:aria-pressed:text-white.focus-ring[
+      type='button'
+      aria-pressed=(name == card).to_s
+      data-car-cards-target='button'
+      data-action='car-cards#show'
+      data-car-cards-card-param=name
+    ]
+      = t("car_breakdown.#{name}")

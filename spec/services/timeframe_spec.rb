@@ -95,6 +95,14 @@ describe Timeframe do
     end
   end
 
+  describe '#effective_dates' do
+    let(:string) { 'all' }
+
+    it 'reaches from the min date to today' do
+      expect(decoder.effective_dates).to eq(Date.new(2019, 5, 2)..today)
+    end
+  end
+
   context 'when string is "now"' do
     let(:string) { 'now' }
 
@@ -1692,7 +1700,7 @@ describe Timeframe do
     end
 
     it 'returns the correct localized' do
-      expect(decoder.localized).to eq('Since commissioning over 3 years ago')
+      expect(decoder.localized).to eq('Since commissioning')
     end
 
     it 'returns the correct corresponding_day' do

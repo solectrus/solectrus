@@ -1,0 +1,36 @@
+= tag.div class: class_names('flex-1 min-h-0 grid auto-rows-[minmax(16rem,1fr)] gap-x-4 gap-y-6 overflow-y-auto', grid_classes) do
+  - states.each do |state|
+    / The name and the odometer belong to the gauge, so they stay close to the
+      arc when the arc is narrower than the space
+    .min-w-0.min-h-0.flex.flex-col.items-center role='group' aria-label=state.car.display_name
+      = render Car::RangeGauge::Component.new(state:) do |gauge|
+        / The place of the car, which opens the map
+        - if location?(state)
+          - gauge.with_location do
+            - name = place_name(state)
+            = render Car::LocationBadge::Component.new(car: state.car, name:, deferred: name.nil?)
+
+        / The odometer as a mechanical counter
+        - if state.odometer
+          - gauge.with_footer do
+            = render Car::Odometer::Component.new(value: state.odometer)
+
+        / The name of the car, and below it the time of its state
+        - if named? || as_of(state)
+          .flex.flex-col.items-center.gap-1
+            - if named?
+              = render Car::Badge::Component.new(car: state.car, prominent: true)
+            - if as_of(state)
+              span.text-base.text-slate-500.dark:text-slate-400.tabular-nums title=t('.as_of') data-controller='tooltip'
+                = as_of(state)
+
+- if wallbox?
+  .flex.flex-wrap.justify-center.gap-2
+    - if wallbox_power?
+      = tag.div class: pill_classes('font-semibold text-slate-700 dark:text-slate-200': charging?), title: t('sensors.car_charging_power_short'), aria: { label: t('sensors.car_charging_power_short') }, data: { controller: 'tooltip' } do
+        = helpers.icon 'bolt', class: charging? ? 'text-sensor-pv' : 'opacity-40'
+        = render SensorValue::Component.new(live.data, :wallbox_power, context: :rate)
+
+    - if wallbox_plug?
+      div class=pill_classes
+        = render Car::Plug::Component.new(connected: wallbox_car_connected)

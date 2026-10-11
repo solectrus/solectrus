@@ -81,6 +81,7 @@ services:
       - HONEYBADGER_API_KEY
       - RORVSWILD_API_KEY
       - PLAUSIBLE_URL
+      - NOMINATIM_URL
       - LOCKUP_CODEWORD
       - UI_THEME
     labels:

@@ -1,0 +1,11 @@
+/ The bar fills the width the column leaves
+.flex.items-center.gap-2.w-full
+  .flex.flex-1.min-w-12.h-2.gap-px.rounded-sm.overflow-hidden aria-hidden='true'
+    - if percent.positive?
+      .bg-sensor-pv style="width: #{percent}%"
+    - if grid_percent.positive?
+      .bg-sensor-grid style="width: #{grid_percent}%"
+  span.w-12.text-right aria-hidden='true'
+    = number_to_percentage(percent, precision: 0)
+  span.sr-only
+    = label

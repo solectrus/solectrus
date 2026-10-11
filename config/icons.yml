@@ -25,6 +25,7 @@ solid:
   - battery-three-quarters
   - bolt
   - car
+  - charging-station
   - chart-bar
   - chart-line
   - check
@@ -40,6 +41,7 @@ solid:
   - expand
   - fan
   - filter
+  - gauge
   - gear
   - gift
   - grip
@@ -50,23 +52,30 @@ solid:
   - id-card
   - language
   - leaf
+  - location-dot
   - lock
+  - map-location-dot
   - message
   - pencil
   - piggy-bank
   - plug
   - plus
+  - road
   - robot
   - rotate-left
+  - route
   - sack-dollar
+  - slash
   - sliders
   - solar-panel
+  - spinner
   - sun
   - table-list
   - trash
   - triangle-exclamation
   - trophy
   - up-right-and-down-left-from-center
+  - user
   - wand-magic-sparkles
   - xmark
 

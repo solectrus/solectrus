@@ -14,7 +14,7 @@ en:
     generation_grid_battery: Generation, Grid & Battery
     consumer: Consumers
     heatpump: Heat Pump
-    car: Car
+    car: Electric vehicle
     economic: Finance
     forecast: Forecast
     power_splitter: Power split
@@ -27,6 +27,8 @@ en:
     inverter: Generation
     house: House consumption
     heatpump: Heat pump
+    car: Electric vehicle
+    charging_sessions: EV charging sessions
     amortization: Amortization
     essentials: Essentials
     forecast: Forecast
@@ -51,6 +53,8 @@ en:
     missing_multi_inverter: Here you could visualize multiple inverters. Add additional sensors to your configuration (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> to <code>_5</code>).
     incomplete_heatpump: Heat pump
     missing_heatpump: Here you could visualize COP, heat generated, and other interesting metrics of your heat pump. Add additional sensors to your configuration (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
+    incomplete_car: Electric vehicle
+    missing_car: Here you could visualize the distance driven, remaining range and charging costs of your electric vehicle. Add the odometer of the car to your configuration (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>), and for charging at home the wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
     insights: Figures & Trends
   timeframe:
     now: Now
@@ -62,8 +66,20 @@ en:
     months: Last %{count} months
     year: This year
     years: Last %{count} years
-    all: Since commissioning %{since} ago
+    all: Since commissioning
+    total: All time
   sensors:
+    car_roles:
+      car_battery_soc: SOC
+      car_odometer: Odometer
+      car_range: Range
+      car_max_range: Max. range
+      car_connected: Connected
+      car_latitude: Latitude
+      car_longitude: Longitude
+    car_sensor:
+      named: '%{car} (%{role})'
+      unnamed: 'Car %{number}: %{role}'
     power_balance: Power balance
     inverter_power: Generation
     inverter_power_1: Generation 1
@@ -77,6 +93,15 @@ en:
     house_power: House consumption
     house_power_without_custom: Other consumers
     wallbox_power: EV charging
+    wallbox_power_short: Power consumption
+    car_charging: Charging sessions
+    car_charging_short: Charging sessions
+    wallbox_costs_short: Costs
+    car_charging_costs: Charging costs
+    car_charging_costs_short: Costs
+    car_consumption_rate: Usage/100 km
+    car_cost_rate: Driving cost/100 km
+    car_driving_costs: Driving costs
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid import and export
@@ -88,6 +113,22 @@ en:
     battery_soc: Home battery SOC
     battery_soc_short: SOC
     car_battery_soc: EV SOC
+    car_battery_soc_short: SOC
+    car_charging_power_short: Charging power
+    wallbox_car_connected_short: Connected
+    wallbox_car_disconnected_short: Not connected
+    car_distance: Distance driven
+    car_distance_short: Distance driven
+    car_range: Range
+    car_range_short: Range
+    car_max_range: Maximum range
+    car_max_range_short: Max. range
+    car_location: Locations
+    car_km_per_day_unit: day
+    car_avg_max_range_short: Ø max. range
+    car_cost_per_100km_short: Ø driving cost/100 km
+    car_consumption_per_100km_short: Ø usage/100 km
+    car_charged_short: Charged
     case_temp: Case
     grid_export_limit: Limit
     heatpump_power: Heat pump
@@ -141,6 +182,72 @@ en:
     total: Power consumption
     costs_note:
       battery_charging_power: Grid electricity is attributed to the consumers.
+  visits:
+    name: Visits
+    description: A visit lasts from the arrival of a car at a place to its departure. A visit shorter than 30 minutes is left out, for example a drive past. When the car reports less often, this limit is higher.
+    empty: No visit yet.
+    period: Period
+    duration: Duration
+    remove_filter: Remove filter
+    filter_place: Only visits at this place
+    filter_car: Only visits of this car
+    # The times of a visit in the list of one day
+    from: from %{time}
+    since: since %{time}
+    until: until %{time}
+    until_now: until now
+    all_day: all day
+  places:
+    # The labels of a place (Place::LABELS)
+    labels:
+      home: Home
+    label_hints:
+      home: The wallbox is here too. The automatic assignment of charging sessions takes the location of the car into account. A change rebuilds all daily summaries.
+  cars:
+    default_name: Car %{number}
+    # The time a car spent at a place, on the map of the places
+    duration:
+      days:
+        one: '%{count} day'
+        other: '%{count} days'
+      hours: '%{count} h'
+      minutes: '%{count} min'
+  car_breakdown:
+    home: Wallbox
+    guest_additional: Paid for guests
+    cost_incomplete: A charging session has no cost, because its day has no price. The charging cost is therefore too small.
+    cost_missing: The charging sessions have no cost, because their days have no price.
+    home_pv: Photovoltaics
+    share_pv: from PV
+    share_wallbox: at the wallbox
+    home_grid: Grid
+    offsite: Offsite charging
+    offsite_sessions: Charging sessions away from home
+    guest_sessions: Charging sessions of guests
+    charging: Charging
+    driving: Driving
+    visits: Visits
+    wallbox_short: Wallbox
+    wallbox_sessions: Charging sessions at the wallbox
+    guest_short: Guest
+    offsite_short: Offsite
+    sessions: Charging sessions
+    no_charging: No charging
+    on_the_road: On the road
+    costs: Costs
+    consumption: Ø Consumption
+    per_100km: per 100 km
+    in_total: in total
+    avg_per_100km: Ø per 100 km
+    range: Ø Range
+    unconfirmed:
+      one: 1 unconfirmed session
+      other: '%{count} unconfirmed sessions'
+    unassigned:
+      one: 1 session not assigned
+      other: '%{count} sessions not assigned'
+    daily_rate: Each day at the rate of the %{days} days before and after it
+    total: Total
   balance_sheet:
     left: Source
     right: Usage
@@ -162,6 +269,10 @@ en:
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
     inverter_no_production: No production
+    car_none_in_use: No car was in use in the selected period.
+    car_no_charging: Not charged in the selected period.
+    car_no_charging_cost: The charging sessions in the selected period have no price.
+    car_no_location: No location in the selected period.
   chart:
     inverter_total: Combined
     inverter_split: Individual
@@ -235,6 +346,39 @@ en:
       p2: Registration helps to gauge how widely the software is used and to prioritize future development.
       continue: Register now
       login_required: Please log in as an administrator to complete the registration.
+  charging_sessions:
+    edit: Edit charging session
+    new: New charging session
+    guest: Guest
+    unassigned: Not assigned
+    no_cost: No cost, because the day has no price
+    cost_incomplete: At least, because a charging session has no cost
+    loss: '%{percent} loss'
+    soc: 'Charge level %{range}'
+    proposal:
+      name: Unconfirmed
+      title: Confirm the charging session
+      hint: Unconfirmed, from readings
+      estimate: Estimated from the state of charge and the battery capacity
+      no_estimate: No estimate without the battery capacity of the car
+      accept: Confirm
+      dismiss: Dismiss
+      confirm_dismiss: Dismiss this charging session? It does not come back.
+      form_hint: Detected from the car readings. Time and energy are estimates, the cost is missing.
+    count:
+      one: charging session
+      other: charging sessions
+    description:
+      wallbox: Charging sessions at your own wallbox, detected automatically.
+      offsite: Charging sessions at public charging stations or on other people's wallboxes.
+      proposals: Offsite charging sessions detected from the car readings. You can confirm or dismiss them.
+    empty:
+      wallbox: No charging sessions at the wallbox
+      offsite: No offsite charging sessions
+      proposals: No unconfirmed charging sessions
+    form:
+      assigned_manually: You chose this. A new detection keeps your choice.
+      assigned_by_detection: Detected automatically. You can correct it.
   crud:
     new: New
     edit: Edit
@@ -271,6 +415,27 @@ en:
       description:
         electricity: Price per kWh consumed, paid to the electricity supplier. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
+    cars:
+      name: Electric vehicles
+      vehicles: Vehicles
+      edit: Edit car %{number}
+      description: Each car has a number, which names its variables, for example INFLUX_SENSOR_CAR_ODOMETER_2. A number with a variable gets its car by itself. Here you give each car a name, a period of use and a color.
+      never_removed: SOLECTRUS never removes a car. A car that you sell keeps its number and its history. Give it a last day of use, and give the next car a new number.
+      variable_change: If you change a variable of a number, SOLECTRUS rebuilds the daily summaries, and the history of the number changes.
+      empty: No car is configured. Add the variables of a car to your configuration, for example <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Up to %{max} cars are possible.
+      period: Period of use
+      today: today
+      active_from_hint: The first day with this car.
+      active_until_hint: Leave empty if the car is in use.
+      battery_kwh_hint: The usable capacity. It estimates the energy of an unconfirmed offsite charge and gives the loss of a charge.
+    places:
+      name: Locations
+      edit: Edit place
+      home_moved: 'Saved. Until now, "%{previous}" was home.'
+      description: SOLECTRUS adds a place when a car stood there for 30 minutes or more, longer when the car reports less often. Give a place a name of its own, for example "Home". The maps and the live view then show this name.
+      empty: No place yet. A place comes into being when a car stood at one spot for 30 minutes or more, longer when the car reports less often.
+      unnamed: Without a name
+      time: Time
     cash_flows:
       name: Cash flows
       description: Investments, costs and subsidies around the PV system – the basis for the amortization calculation.
@@ -297,6 +462,7 @@ en:
       enable_forecast: Enable "Forecast" page in the navigation
       enable_custom_consumer: Enable "House consumption" page in the navigation
       enable_heatpump: Enable "Heat pump" page in the navigation
+      enable_car: Enable "Electric vehicle" page in the navigation
   amortization:
     nav:
       chart: Balance
@@ -340,10 +506,46 @@ en:
 
   activerecord:
     models:
+      car: Car
+      place: Place
       price: Price
       cash_flow: Cash flow
+      charging_session: Charging session
       settings: Settings
     attributes:
+      car:
+        id: Number
+        name: Name
+        short_name: Short name
+        active_from: In use from
+        active_until: In use until
+        color: Color
+        battery_kwh: Battery capacity
+      place:
+        name: Name
+        town: Town according to OpenStreetMap
+        labels: Labels
+      charging_session:
+        kind: Type
+        kinds:
+          wallbox: Wallbox
+          offsite: Offsite charging
+        car: Car
+        car_id: Car
+        guest: Guest charging
+        kwh_grid: Energy from the grid
+        started_at: Start
+        ended_at: End
+        kwh: Energy
+        cost: Cost
+        power_type: Charging type
+        power_types:
+          ac: AC (standard)
+          dc: DC (fast charging)
+        evse_id: EVSE ID
+        provider: Charging provider
+        address: Address
+        note: Note
       price:
         name: Name
         names:
@@ -373,6 +575,21 @@ en:
         plant_name: Name of the plant
         operator_name: Name of the operator
     errors:
+      models:
+        car:
+          attributes:
+            active_until:
+              before_active_from: must not be before the first day of use
+          offsite_sessions_outside:
+            one: The period leaves out 1 offsite charging session of the car.
+            other: The period leaves out %{count} offsite charging sessions of the car.
+        charging_session:
+          attributes:
+            guest:
+              wallbox_only: is possible only at the own wallbox
+              without_car: is possible only without a car
+            car_id:
+              inactive: is not in use at the time of the charging session
       messages:
         must_be_negative: must be negative for this category (outflow)
         must_be_positive: must be positive for this category (inflow)
@@ -407,6 +624,19 @@ en:
     battery_soc: 'Home battery state of charge (SOC).'
     case_temp: 'Battery enclosure temperature.'
     car_battery_soc: 'Electric vehicle battery state of charge (SOC).'
+    car_range: 'Remaining driving range of the electric vehicle.'
+    car_max_range: 'Estimated range extrapolated to a fully charged (100%) battery.'
+    car_odometer: 'Odometer of the electric vehicle. A live value or a curve is the reading, a total over a period is the distance driven.'
+    car_connected: 'Whether the electric vehicle is currently connected to a wallbox.'
+    car_latitude: 'Latitude of the current location of the electric vehicle.'
+    car_longitude: 'Longitude of the current location of the electric vehicle.'
+    car_location: 'Places where the electric vehicle stood in the period.'
+    car_distance: 'Distance driven by the electric vehicle in the period.'
+    car_charging_costs: 'Charging costs of the electric vehicle (wallbox and offsite charging).'
+    car_charging: 'Energy charged into the electric vehicle (wallbox and offsite charging combined).'
+    car_consumption_rate: 'Consumption of the electric vehicle in kWh per 100 km. Each day takes the rate of the 28 days around it.'
+    car_cost_rate: 'Cost of the electric vehicle per 100 km. Each day takes the rate of the 28 days around it.'
+    car_driving_costs: 'Driving costs of the electric vehicle: the distance of each day times the cost per 100 km of the days around it.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'
     outdoor_temp_forecast: 'Forecasted outdoor air temperature.'
@@ -436,6 +666,7 @@ en:
       total: 'Total'
       costs: 'Costs'
     derived:
+      car: '%{description} Car: %{car}.'
       split: 'Portion of %{subject} %{clause}.'
       total: '%{subject}, summed across all inverters/consumers.'
       clause:
@@ -457,6 +688,9 @@ en:
     money_per_kwh: 'Price per kilowatt-hour in the configured currency (its ISO-4217 code is in get_system_info).'
     percent: 'Percentage (0-100).'
     celsius: 'Temperature in degrees Celsius.'
+    kilometer: 'Distance in kilometres (km).'
+    kwh_per_100km: 'Energy consumption in kilowatt hours per 100 km.'
+    money_per_100km: 'Cost per 100 km in the configured currency (ISO 4217 code in get_system_info).'
     gram: 'Mass in grams (e.g. CO₂), aggregated over a period.'
     gram_per_hour: 'Mass rate in grams per hour (g/h), e.g. the CO₂ avoided at the current generation. Aggregated over a period it becomes a gram.'
     boolean: 'Boolean state (true/false).'

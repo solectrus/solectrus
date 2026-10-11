@@ -1,10 +1,23 @@
 class Timeframe::Component < ViewComponent::Base
-  def initialize(timeframe:, forecast_days: nil)
+  # A page that is not a sensor page gives its own addresses as `page`, see
+  # TimeframePage::Sensor
+  def initialize(timeframe:, forecast_days: nil, page: nil)
     super()
     @timeframe = timeframe
     @forecast_days = forecast_days
+    @page = page
   end
   attr_reader :timeframe, :forecast_days
+
+  def page
+    @page ||= TimeframePage::Sensor.new(
+      namespace: helpers.controller_namespace,
+      sensor_name: helpers.sensor_name,
+      params: helpers.selection_params,
+    )
+  end
+
+  delegate :label_for_all, to: :page
 
   def forecast_mode?
     forecast_days.present?
@@ -36,7 +49,7 @@ class Timeframe::Component < ViewComponent::Base
     if timeframe.next
       true
     else
-      timeframe.id == :day && Sensor::Config.exists?(:inverter_power_forecast)
+      timeframe.id == :day && page.forecast?
     end
   end
 
@@ -44,12 +57,8 @@ class Timeframe::Component < ViewComponent::Base
     return if forecast_mode?
 
     if timeframe.next
-      url_for(
-        controller: "#{helpers.controller_namespace}/home",
-        sensor_name: helpers.sensor_name,
-        timeframe: timeframe.next,
-      )
-    elsif Sensor::Config.exists?(:inverter_power_forecast)
+      page.path(timeframe.next)
+    elsif page.forecast?
       forecast_path
     end
   end
@@ -58,18 +67,12 @@ class Timeframe::Component < ViewComponent::Base
     if forecast_mode?
       balance_home_path(sensor_name: 'inverter_power', timeframe: 'day')
     else
-      url_for(
-        controller: "#{helpers.controller_namespace}/home",
-        sensor_name: helpers.sensor_name,
-        timeframe: timeframe.prev,
-      )
+      page.path(timeframe.prev)
     end
   end
 
   def timeframe_select_path
-    return if forecast_mode?
-
-    helpers.timeframe_select_path(sensor_name: helpers.sensor_name, timeframe:)
+    page.path(timeframe) unless forecast_mode?
   end
 
   def paginate_button_classes
@@ -78,6 +81,13 @@ class Timeframe::Component < ViewComponent::Base
 
   def timeframe_link_classes(additional_classes = nil)
     interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
+  end
+
+  LABEL_WIDTHS = { day: 'md:w-72', week: 'w-36', month: 'w-36', year: 'w-16' }.freeze
+  private_constant :LABEL_WIDTHS
+
+  def label_classes
+    "text-center #{LABEL_WIDTHS[timeframe.id]}"
   end
 
   private

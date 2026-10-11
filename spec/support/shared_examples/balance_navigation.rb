@@ -186,7 +186,7 @@ shared_examples_for 'balance navigation' do |paths|
     if path.in? %w[
                   autarky
                   self_consumption_quote
-                  car_battery_soc
+                  car_battery_soc_1
                   co2_reduction
                 ]
       return

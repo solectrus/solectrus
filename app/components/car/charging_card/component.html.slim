@@ -1,0 +1,73 @@
+= render Car::Card::Component.new(title: t('car_breakdown.charging')) do
+  - tag_name, options = charging_wrapper(class: 'block min-w-0 text-center focus:outline-none', link_class: 'click-animation')
+  = content_tag tag_name, **options do
+    .text-3xl.md:text-4xl.font-semibold.leading-none.text-slate-700.dark:text-slate-200.whitespace-nowrap
+      = render energy_value(total_kwh)
+
+    - if parts.any?
+      .hidden data-tooltip-target='html'
+        .space-y-1
+          - parts.each do |part|
+            = render TooltipRow::Component.new(label: t(part.style.label_key), color_class: part.style.color_class) do
+              = render energy_value(part.source.kwh)
+
+  / The sources as a ring, with the share of PV in the center. The tooltip
+    gives the shares and the costs and opens to the right, like the source
+    column of the power balance.
+  = render DonutChart::Component.new(segments: donut_segments.presence, url: donut_url, chart_url: donut_chart_url, tooltip_placement: 'right') do |chart|
+    - if (share = center_share)
+      - whole_percent, label = share
+      - chart.with_center do
+        div class="font-semibold tabular-nums leading-none text-slate-700 dark:text-slate-200 text-[clamp(1.25rem,18cqmin,3rem)]"
+          = "#{whole_percent} %"
+        div class="mt-1 leading-tight text-slate-500 dark:text-slate-400 text-[clamp(0.875rem,8cqmin,1.5rem)]"
+          = label
+    - elsif parts.none?
+      - chart.with_center do
+        div class="leading-tight text-slate-500 dark:text-slate-400 text-[clamp(0.875rem,8cqmin,1.5rem)]"
+          = t('car_breakdown.no_charging')
+    - if parts.any?
+      - chart.with_tooltip do
+        = render donut_tooltip
+
+  / The wallbox, offsite and guest sessions under their heading, always
+    shown, so the layout stays the same
+  div
+    = render Car::SectionTitle::Component.new(title: t('car_breakdown.sessions'))
+    div class="grid grid-cols-3 gap-3 sm:gap-1.5 md:gap-2"
+      - badges.each do |badge|
+        / The badge opens its list with a link over its whole area. The icon of
+          the sessions that the count leaves out opens their list, above the link.
+        - omitted = omitted(badge)
+        = tag.div class: [badge_classes, 'relative'],
+                  data: { \
+                    controller: 'tooltip',
+                    tooltip_placement_value: 'top',
+                    tooltip_force_tap_to_close_value: false,
+                    tooltip_touch_value: 'long',
+                  } do
+          span.truncate.text-sm.sm:text-xs.md:text-sm.text-slate-500.dark:text-slate-400
+            = t("car_breakdown.#{badge.kind}_short")
+          span.flex.items-center.gap-1.whitespace-nowrap.text-lg.sm:text-sm.md:text-base.font-semibold.tabular-nums.text-slate-700.dark:text-slate-300
+            = badge.sums.count
+            - if omitted
+              = link_to omitted.path,
+                        class: 'relative z-10 -m-1 p-1 text-amber-500 dark:text-amber-400 hover:text-amber-600 dark:hover:text-amber-300',
+                        aria: { label: omitted.text } do
+                = icon 'circle-question', class: 'text-xs'
+          = tag.a href: helpers.cars_charging_sessions_path(timeframe:, **badge.params),
+                  class: 'absolute inset-0 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-700 dark:focus-visible:ring-gray-400',
+                  aria: { label: t("car_breakdown.#{badge.kind}_sessions") }
+
+          .hidden data-tooltip-target='html'
+            .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2.label-value-stacked
+              = t("car_breakdown.#{badge.kind}_sessions")
+              = render energy_value(badge.sums.kwh, class: 'text-xl')
+              - if badge.sums.cost?
+                = render badge_cost(badge, class: 'text-xl')
+              - if omitted
+                .flex.items-center.gap-1.5.text-sm.text-amber-600.dark:text-amber-400
+                  = icon 'circle-question'
+                  = omitted.text
+                  - if omitted.kwh
+                    = render energy_value(omitted.kwh, precision: 1)

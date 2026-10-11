@@ -1,0 +1,6 @@
+/ The build of the days that wait for the visits, before the list (see
+  PlaceVisitsBuild). The page loads again when it is done.
+- if pending_days.present?
+  = render SummaryBuilder::Component.new(timeframe: build_timeframe, missing_or_stale_days: pending_days)
+- else
+  = yield

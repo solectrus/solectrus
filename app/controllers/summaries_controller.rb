@@ -20,7 +20,7 @@ class SummariesController < ApplicationController
                'summaries',
                partial: 'settings/generals/summaries',
                locals: {
-                 summary_completion_rate: 0,
+                 summary_completion_rate: nil,
                },
              ),
              turbo_stream_update_flash,

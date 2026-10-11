@@ -27,6 +27,8 @@ de:
     inverter: Erzeugung
     house: Hausverbrauch
     heatpump: Wärmepumpe
+    car: E-Auto
+    charging_sessions: Ladevorgänge für E-Auto
     amortization: Amortisation
     essentials: Einzelwerte
     forecast: Prognose
@@ -51,6 +53,8 @@ de:
     missing_multi_inverter: Hier könnten mehrere Erzeuger visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_INVERTER_POWER_1</code> bis <code>_5</code>).
     incomplete_heatpump: Wärmepumpe
     missing_heatpump: Hier könnten Arbeitszahl, erzeugte Wärme und weitere interessante Messwerte deiner Wärmepumpe visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
+    incomplete_car: E-Auto
+    missing_car: Hier könnten Kilometerstand, Reichweite und Ladekosten deines E-Autos visualisiert werden. Ergänze deine Konfiguration um den Kilometerstand des Autos (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>) und für das Laden zu Hause um die Wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
     insights: Kennzahlen & Trend
   timeframe:
     now: Aktuell
@@ -62,8 +66,20 @@ de:
     months: Letzte %{count} Monate
     year: Dieses Jahr
     years: Letzte %{count} Jahre
-    all: Seit Inbetriebnahme vor %{since}
+    all: Seit Inbetriebnahme
+    total: Gesamter Zeitraum
   sensors:
+    car_roles:
+      car_battery_soc: Ladestand
+      car_odometer: Kilometerstand
+      car_range: Reichweite
+      car_max_range: Max. Reichweite
+      car_connected: Angeschlossen
+      car_latitude: Breitengrad
+      car_longitude: Längengrad
+    car_sensor:
+      named: '%{car} (%{role})'
+      unnamed: 'Auto %{number}: %{role}'
     power_balance: Strombilanz
     inverter_power: Erzeugung
     inverter_power_1: Erzeugung 1
@@ -77,6 +93,15 @@ de:
     house_power: "Haus\u00ADverbrauch"
     house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto
+    wallbox_power_short: Stromverbrauch
+    car_charging: Beladungen
+    car_charging_short: Beladungen
+    wallbox_costs_short: Kosten
+    car_charging_costs: Ladekosten
+    car_charging_costs_short: Kosten
+    car_consumption_rate: Verbrauch/100 km
+    car_cost_rate: Fahrkosten/100 km
+    car_driving_costs: Fahrkosten
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
     grid_power: Netzbezug und -einspeisung
@@ -88,6 +113,22 @@ de:
     battery_soc: Ladestand Hausakku
     battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
+    car_battery_soc_short: Ladestand
+    car_charging_power_short: Ladeleistung
+    wallbox_car_connected_short: Angeschlossen
+    wallbox_car_disconnected_short: Nicht angeschlossen
+    car_distance: Fahrleistung
+    car_distance_short: Fahrleistung
+    car_range: Reichweite
+    car_range_short: Reichweite
+    car_max_range: Maximale Reichweite
+    car_max_range_short: Max. Reichweite
+    car_location: Standorte
+    car_km_per_day_unit: Tag
+    car_avg_max_range_short: Ø Max. Reichweite
+    car_cost_per_100km_short: Ø Fahrkosten/100 km
+    car_consumption_per_100km_short: Ø Verbrauch/100 km
+    car_charged_short: Geladen
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
@@ -127,7 +168,7 @@ de:
     specific_yield: Spezifischer Ertrag
     heatpump_status: Wärmepumpen-Status
     custom_power_total: Benutzerdefinierte Verbraucher
-    wallbox_car_connected: Auto verbunden
+    wallbox_car_connected: Auto angeschlossen
     grid_balance: Netzbilanz
     house_costs: Hauskosten
     house_without_custom_costs: Hauskosten (ohne benutzerdef.)
@@ -141,6 +182,72 @@ de:
     total: Stromverbrauch
     costs_note:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
+  visits:
+    name: Besuche
+    description: Ein Besuch dauert von der Ankunft eines Autos an einem Ort bis zur Abfahrt. Ein Besuch unter 30 Minuten fehlt, zum Beispiel eine Vorbeifahrt. Meldet das Auto seltener, liegt diese Grenze höher.
+    empty: Noch kein Besuch.
+    period: Zeitraum
+    duration: Dauer
+    remove_filter: Filter entfernen
+    filter_place: Nur Besuche an diesem Ort
+    filter_car: Nur Besuche dieses Autos
+    # The times of a visit in the list of one day
+    from: ab %{time}
+    since: seit %{time}
+    until: bis %{time}
+    until_now: bis jetzt
+    all_day: ganztägig
+  places:
+    # The labels of a place (Place::LABELS)
+    labels:
+      home: Zuhause
+    label_hints:
+      home: Hier steht auch die Wallbox. Bei der automatischen Zuordnung von Ladevorgängen wird der Auto-Standort berücksichtigt. Eine Änderung berechnet alle Zusammenfassungen neu.
+  cars:
+    default_name: Auto %{number}
+    # The time a car spent at a place, on the map of the places
+    duration:
+      days:
+        one: '%{count} Tag'
+        other: '%{count} Tage'
+      hours: '%{count} Std.'
+      minutes: '%{count} Min.'
+  car_breakdown:
+    home: Wallbox
+    guest_additional: Für Gäste bezahlt
+    cost_incomplete: Ein Ladevorgang hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist. Die Ladekosten sind deshalb zu klein.
+    cost_missing: Die Ladevorgänge haben keine Kosten, weil für ihre Tage kein Preis hinterlegt ist.
+    home_pv: Photovoltaik
+    share_pv: aus PV
+    share_wallbox: an der Wallbox
+    home_grid: Netzbezug
+    offsite: Auswärtsladung
+    offsite_sessions: Ladevorgänge auswärts
+    guest_sessions: Ladevorgänge von Gästen
+    charging: Laden
+    driving: Fahren
+    visits: Besuche
+    wallbox_short: Wallbox
+    wallbox_sessions: Ladevorgänge an der Wallbox
+    guest_short: Gast
+    offsite_short: Auswärts
+    sessions: Ladevorgänge
+    no_charging: Keine Ladung
+    on_the_road: Unterwegs
+    costs: Kosten
+    consumption: Ø Verbrauch
+    per_100km: pro 100 km
+    in_total: insgesamt
+    avg_per_100km: Ø pro 100 km
+    range: Ø Reichweite
+    unconfirmed:
+      one: 1 unbestätigte Ladung
+      other: '%{count} unbestätigte Ladungen'
+    unassigned:
+      one: 1 Ladung nicht zugeordnet
+      other: '%{count} Ladungen nicht zugeordnet'
+    daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
+    total: Gesamt
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -162,6 +269,10 @@ de:
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
     heatpump_no_heating: Kein Heizbetrieb
     inverter_no_production: Keine Erzeugung
+    car_none_in_use: Im gewählten Zeitraum war kein Auto in Gebrauch.
+    car_no_charging: Im gewählten Zeitraum nicht geladen.
+    car_no_charging_cost: Für die Ladevorgänge im gewählten Zeitraum ist kein Preis hinterlegt.
+    car_no_location: Kein Standort im gewählten Zeitraum.
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln
@@ -235,6 +346,39 @@ de:
       p2: Die Registrierung hilft dabei, die Verbreitung der Software besser einzuschätzen und die Weiterentwicklung gezielt zu priorisieren.
       continue: Jetzt registrieren
       login_required: Um die Registrierung vorzunehmen, melde dich bitte als Admin an.
+  charging_sessions:
+    edit: Ladevorgang bearbeiten
+    new: Neuer Ladevorgang
+    guest: Gast
+    unassigned: Nicht zugeordnet
+    no_cost: Keine Kosten, weil für den Tag kein Preis hinterlegt ist
+    cost_incomplete: Mindestens, weil ein Ladevorgang keine Kosten hat
+    loss: '%{percent} Ladeverlust'
+    soc: 'Ladestand %{range}'
+    proposal:
+      name: Unbestätigt
+      title: Ladung bestätigen
+      hint: Unbestätigt, aus Messwerten
+      estimate: Geschätzt aus Ladestand und Akkukapazität
+      no_estimate: Ohne Akkukapazität des Autos keine Schätzung
+      accept: Bestätigen
+      dismiss: Verwerfen
+      confirm_dismiss: Diese Ladung verwerfen? Sie kommt nicht wieder.
+      form_hint: Aus den Messwerten des Autos erkannt. Zeit und Energie sind geschätzt, die Kosten fehlen.
+    count:
+      one: Ladevorgang
+      other: Ladevorgänge
+    description:
+      wallbox: Laden an deiner eigenen Wallbox, automatisch erkannt.
+      offsite: Laden an öffentlichen Ladesäulen oder fremden Wallboxen.
+      proposals: Aus den Messwerten des Autos erkannte Auswärtsladungen, die du bestätigen oder verwerfen kannst.
+    empty:
+      wallbox: Keine Ladevorgänge an der Wallbox
+      offsite: Keine Auswärtsladungen
+      proposals: Keine unbestätigten Ladungen
+    form:
+      assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
+      assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.
   crud:
     new: Neu
     edit: Bearbeiten
@@ -271,6 +415,27 @@ de:
       description:
         electricity: An den Stromversorger zu zahlender Arbeitspreis pro bezogene kWh. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
+    cars:
+      name: E-Autos
+      vehicles: Fahrzeuge
+      edit: Auto %{number} bearbeiten
+      description: Jedes Auto hat eine Nummer, die seine Variablen benennt, zum Beispiel INFLUX_SENSOR_CAR_ODOMETER_2. Eine Nummer mit einer Variablen bekommt ihr Auto von selbst. Hier gibst du jedem Auto einen Namen, einen Zeitraum und eine Farbe.
+      never_removed: SOLECTRUS entfernt nie ein Auto. Ein verkauftes Auto behält seine Nummer und seine Historie. Gib ihm einen letzten Tag und dem nächsten Auto eine neue Nummer.
+      variable_change: Wenn du eine Variable einer Nummer änderst, baut SOLECTRUS die Tageszusammenfassungen neu auf, und die Historie der Nummer ändert sich.
+      empty: Es ist kein Auto konfiguriert. Ergänze deine Konfiguration um die Variablen eines Autos, zum Beispiel <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Bis zu %{max} Autos sind möglich.
+      period: Zeitraum
+      today: heute
+      active_from_hint: Der erste Tag mit diesem Auto.
+      active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.
+      battery_kwh_hint: Die nutzbare Kapazität. Sie schätzt die Energie einer unbestätigten Auswärtsladung und ergibt den Ladeverlust.
+    places:
+      name: Standorte
+      edit: Ort bearbeiten
+      home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
+      description: SOLECTRUS legt einen Ort an, sobald ein Auto mindestens 30 Minuten dort stand, bei seltenen Meldungen des Autos länger. Gib einem Ort einen eigenen Namen, zum Beispiel „Zuhause“. Die Karten und die Live-Ansicht zeigen dann diesen Namen.
+      empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
+      unnamed: Ohne Namen
+      time: Zeit
     cash_flows:
       name: Zahlungen
       description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
@@ -297,6 +462,7 @@ de:
       enable_forecast: Seite "Prognose" in der Navigation anbieten
       enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
       enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
+      enable_car: Seite "E-Auto" in der Navigation anbieten
   amortization:
     nav:
       chart: Saldo
@@ -340,10 +506,46 @@ de:
 
   activerecord:
     models:
+      car: Auto
+      place: Ort
       price: Preis
       cash_flow: Zahlung
+      charging_session: Ladevorgang
       settings: Einstellungen
     attributes:
+      car:
+        id: Nummer
+        name: Name
+        short_name: Kurzname
+        active_from: In Gebrauch ab
+        active_until: In Gebrauch bis
+        color: Farbe
+        battery_kwh: Akkukapazität
+      place:
+        name: Name
+        town: Ort laut OpenStreetMap
+        labels: Markierung
+      charging_session:
+        kind: Art
+        kinds:
+          wallbox: Wallbox
+          offsite: Auswärtsladung
+        car: Auto
+        car_id: Auto
+        guest: Gastladung
+        kwh_grid: Energie aus dem Netz
+        started_at: Beginn
+        ended_at: Ende
+        kwh: Energie
+        cost: Kosten
+        power_type: Ladeart
+        power_types:
+          ac: AC (Normalladen)
+          dc: DC (Schnellladen)
+        evse_id: EVSE-ID
+        provider: Fahrstromanbieter
+        address: Adresse
+        note: Bemerkung
       price:
         name: Name
         names:
@@ -373,6 +575,21 @@ de:
         plant_name: Bezeichnung der Anlage
         operator_name: Name des Betreibers
     errors:
+      models:
+        car:
+          attributes:
+            active_until:
+              before_active_from: darf nicht vor dem ersten Tag liegen
+          offsite_sessions_outside:
+            one: Der Zeitraum lässt 1 Auswärtsladung des Autos aus.
+            other: Der Zeitraum lässt %{count} Auswärtsladungen des Autos aus.
+        charging_session:
+          attributes:
+            guest:
+              wallbox_only: ist nur an der eigenen Wallbox möglich
+              without_car: ist nur ohne Auto möglich
+            car_id:
+              inactive: ist zur Zeit des Ladevorgangs nicht in Gebrauch
       messages:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)
@@ -407,7 +624,20 @@ de:
     battery_soc: 'Ladestand des Hausakkus (SOC).'
     case_temp: 'Gehäusetemperatur des Akkus.'
     car_battery_soc: 'Ladestand der E-Auto-Batterie (SOC).'
-    wallbox_car_connected: 'Ob aktuell ein E-Auto mit der Wallbox verbunden ist.'
+    car_range: 'Verbleibende Reichweite des E-Autos.'
+    car_max_range: 'Geschätzte Reichweite, hochgerechnet auf eine voll geladene Batterie (100%).'
+    car_odometer: 'Kilometerstand des E-Autos. Ein aktueller Wert oder eine Kurve ist der Stand, eine Summe über einen Zeitraum die gefahrene Strecke.'
+    car_connected: 'Ob das E-Auto aktuell an einer Wallbox angeschlossen ist.'
+    car_latitude: 'Breitengrad des aktuellen Standorts des E-Autos.'
+    car_longitude: 'Längengrad des aktuellen Standorts des E-Autos.'
+    car_location: 'Orte, an denen das E-Auto im Zeitraum stand.'
+    car_distance: 'Gefahrene Strecke des E-Autos im Zeitraum.'
+    car_charging_costs: 'Ladekosten des E-Autos (Wallbox und auswärtiges Laden).'
+    car_charging: 'In das E-Auto geladene Energie (Wallbox und auswärtiges Laden zusammen).'
+    car_consumption_rate: 'Verbrauch des E-Autos in kWh pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
+    car_cost_rate: 'Kosten des E-Autos pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
+    car_driving_costs: 'Fahrkosten des E-Autos: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
+    wallbox_car_connected: 'Ob aktuell ein E-Auto an der Wallbox angeschlossen ist.'
     outdoor_temp: 'Außenlufttemperatur.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
     co2_reduction: 'Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung.'
@@ -436,6 +666,7 @@ de:
       total: 'Gesamt'
       costs: 'Kosten'
     derived:
+      car: '%{description} Auto: %{car}.'
       split: 'Anteil von %{subject}, %{clause}.'
       total: '%{subject}, summiert über alle Wechselrichter/Verbraucher.'
       clause:
@@ -457,6 +688,9 @@ de:
     money_per_kwh: 'Preis pro Kilowattstunde in der konfigurierten Währung (ISO-4217-Code in get_system_info).'
     percent: 'Prozent (0–100).'
     celsius: 'Temperatur in Grad Celsius.'
+    kilometer: 'Strecke in Kilometern (km).'
+    kwh_per_100km: 'Energieverbrauch in Kilowattstunden pro 100 km.'
+    money_per_100km: 'Kosten pro 100 km in der konfigurierten Währung (ISO-4217-Code in get_system_info).'
     gram: 'Masse in Gramm (z. B. CO₂), über einen Zeitraum aggregiert.'
     gram_per_hour: 'Massenstrom in Gramm pro Stunde (g/h), z. B. das bei aktueller Erzeugung vermiedene CO₂. Über einen Zeitraum aggregiert wird daraus ein Gramm-Wert.'
     boolean: 'Wahrheitswert (true/false).'

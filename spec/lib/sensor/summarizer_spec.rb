@@ -169,9 +169,6 @@ describe Sensor::Summarizer do
           %i[battery_soc max] => 30,
           %i[battery_soc min] => 30,
           %i[battery_soc avg] => 30,
-          %i[car_battery_soc max] => 40,
-          %i[car_battery_soc min] => 40,
-          %i[car_battery_soc avg] => 40,
           %i[case_temp max] => 50,
           %i[case_temp min] => 50,
           %i[case_temp avg] => 50,
@@ -214,6 +211,14 @@ describe Sensor::Summarizer do
           call: aggregation_result,
         ),
       )
+
+      # The same states on each day
+      allow(Sensor::Query::Helpers::Influx::DailyStates).to receive(:new).and_return(
+        instance_double(
+          Sensor::Query::Helpers::Influx::DailyStates,
+          call: Hash.new { { car_battery_soc_1: { min: 40, max: 40, avg: 40 } } },
+        ),
+      )
     end
 
     context 'when no summary exists for the given date' do
@@ -240,9 +245,9 @@ describe Sensor::Summarizer do
           %w[battery_soc avg],
           %w[battery_soc max],
           %w[battery_soc min],
-          %w[car_battery_soc avg],
-          %w[car_battery_soc max],
-          %w[car_battery_soc min],
+          %w[car_battery_soc_1 avg],
+          %w[car_battery_soc_1 max],
+          %w[car_battery_soc_1 min],
           %w[case_temp avg],
           %w[case_temp max],
           %w[case_temp min],
@@ -354,6 +359,28 @@ describe Sensor::Summarizer do
       end
     end
 
+    context 'when the day is outside the period of the car' do
+      let(:date) { Date.yesterday }
+
+      before { Car.create!(id: 1, active_until: date - 1) }
+
+      it 'stores no value of the car' do
+        call
+
+        expect(SummaryValue.where(date:, field: 'car_battery_soc_1')).to be_empty
+        expect(SummaryValue.where(date:, field: 'battery_soc')).to be_present
+      end
+
+      it 'removes an existing value of the car' do
+        Summary.create!(date:, updated_at: date.middle_of_day)
+        SummaryValue.create!(date:, field: 'car_battery_soc_1', aggregation: 'avg', value: 40)
+
+        call
+
+        expect(SummaryValue.where(date:, field: 'car_battery_soc_1')).to be_empty
+      end
+    end
+
     context 'when fresh summary from today exists' do
       let(:date) { Date.current }
 
@@ -380,6 +407,14 @@ describe Sensor::Summarizer do
       it 'does not update Summary' do
         expect { call }.not_to(change { summary.reload.updated_at })
       end
+
+      it 'runs no step' do
+        allow(ChargingSession::Detection).to receive(:new).and_call_original
+
+        call
+
+        expect(ChargingSession::Detection).not_to have_received(:new)
+      end
     end
 
     context 'when stale summary already exists' do
@@ -393,6 +428,71 @@ describe Sensor::Summarizer do
 
       it 'updates Summary' do
         expect { call }.to(change { summary.reload.updated_at })
+      end
+
+      it 'runs each step with something to do on the day' do
+        allow(ChargingSession::Detection).to receive(:new).and_call_original
+        allow(Place::VisitDetection).to receive(:new).and_call_original
+
+        call
+
+        expect(ChargingSession::Detection).to have_received(:new).with([date], hash_including(:curves))
+        expect(Place::VisitDetection).not_to have_received(:new)
+      end
+    end
+
+    # The car reports on Monday at 18:00 and then not until Thursday at
+    # 10:00. Monday to Wednesday were built during the gap, so their distance
+    # ends at the reading of Monday.
+    context 'when the days before were built during a gap of the odometer' do
+      let(:monday) { Date.new(2024, 3, 4) }
+      let(:date) { monday + 3 }
+
+      def gap_days = (monday..(date - 1)).to_a
+
+      before do
+        stub_const('ENV', ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:mileage'))
+        Sensor::Config.setup(ENV)
+
+        # The days of the gap build in one batch, which reads InfluxDB itself
+        allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_call_original
+        allow(Sensor::Query::Helpers::Influx::Aggregation).to receive(:new).and_call_original
+
+        influx_batch do
+          {
+            monday.beginning_of_day - 4.hours => 980,
+            monday.beginning_of_day + 8.hours => 990,
+            monday.beginning_of_day + 18.hours => 1000,
+            date.beginning_of_day + 10.hours => 1300,
+            date.beginning_of_day + 36.hours => 1310,
+          }.each { |time, value| add_influx_point(name: 'Trabant', fields: { 'mileage' => value.to_f }, time:) }
+        end
+
+        gap_days.each do |day|
+          Summary.create!(date: day, updated_at: date.beginning_of_day + 2.hours)
+          SummaryValue.create!(date: day, field: 'car_odometer_1', aggregation: 'sum', value: day == monday ? 16.667 : 0)
+        end
+      end
+
+      def distance = SummaryValue.where(field: 'car_odometer_1', date: monday..date).sum(:value)
+
+      it 'builds these days again' do
+        expect(call).to eq(4)
+      end
+
+      # From the reading at Monday midnight (between 980 and 990) to the
+      # reading at Friday midnight (between 1300 and 1310)
+      it 'gives them their share of the distance' do
+        call
+
+        expect(distance).to be_within(0.01).of(((10 * 14 / 26.0) + 1300) - ((10 * 4 / 12.0) + 980))
+      end
+
+      it 'builds them only once' do
+        call
+        Summary.find(date).update!(updated_at: date.middle_of_day)
+
+        expect(described_class.new([date]).call).to eq(1)
       end
     end
 
@@ -411,6 +511,8 @@ describe Sensor::Summarizer do
           instance_double(
             Sensor::Query::Helpers::Influx::DailyBatch,
             call: prefetched,
+            meter_diffs: Sensor::Query::Helpers::Influx::DailyDiffs.new(dates, []),
+            states: Sensor::Query::Helpers::Influx::DailyStates.new(dates, []),
           ),
         )
       end
@@ -425,6 +527,8 @@ describe Sensor::Summarizer do
           sum_sensor_names: Sensor::SummaryBuilder.sum_sensor_names,
           aggregation_sensor_names:
             Sensor::SummaryBuilder.aggregation_sensor_names,
+          meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
+          state_sensor_names: Sensor::SummaryBuilder.state_sensor_names,
         )
       end
 

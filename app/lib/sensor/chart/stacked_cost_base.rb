@@ -76,9 +76,9 @@ class Sensor::Chart::StackedCostBase < Sensor::Chart::FinanceBase
     @stack_id ||= self.class.name.demodulize.freeze
   end
 
-  # Sensor::Chart::Base emits one dataset per chart sensor, in order. Items
-  # that are not chart sensors are left to subclasses (see CarChargingCosts, which
-  # appends a segment that has no sensor of its own).
+  # Sensor::Chart::Base emits one dataset per chart sensor, in order. Only
+  # the items of the chart sensors become a segment, and the tooltip adds up
+  # the grid and the PV share.
   def datasets(chart_data_items)
     cost_items =
       chart_data_items.select do |item|
@@ -89,32 +89,9 @@ class Sensor::Chart::StackedCostBase < Sensor::Chart::FinanceBase
       dataset.merge(
         label: I18n.t(label_keys[cost_items[index][:sensor_name]]),
         stack: stack_id,
+        summed: true,
         noGradient: true,
       )
     end
-  end
-
-  def find_chart_data(chart_data_items, sensor_name)
-    chart_data_items.find { |item| item[:sensor_name] == sensor_name } ||
-      empty_dataset(sensor_name)
-  end
-
-  # A segment that has no sensor of its own, so it cannot go through
-  # Sensor::Chart::Base#build_dataset. Styled like its siblings, which get
-  # their look from #style_for_sensor.
-  def build_cost_dataset(id, label, data, color_class)
-    {
-      id: id.to_s,
-      label:,
-      data:,
-      stack: stack_id,
-      noGradient: true,
-      fill: true,
-      borderWidth: 1,
-      pointRadius: 0,
-      pointHoverRadius: 5,
-      borderRadius: (3 if type == 'bar'),
-      colorClass: color_class,
-    }.compact
   end
 end

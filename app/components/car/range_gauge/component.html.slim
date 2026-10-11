@@ -1,0 +1,61 @@
+div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6 @container-size" style=reserve_style
+  / The block above the arc. The arc keeps its height free.
+  = content
+  / The view box crops the sides to the arc and its labels (x from 30 to
+    370), so the arc fills the width
+  div class="relative aspect-34/30 w-[min(100cqi,calc((100cqb-var(--gauge-reserve))*34/30),34rem)] @container text-slate-700 dark:text-slate-300"
+    / The arc stays gray without a state of charge
+    svg.absolute.inset-0.size-full viewBox='30 0 340 300' aria-hidden='true'
+      path.fill-none.stroke-slate-200.dark:stroke-slate-800 d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round'
+      - if soc&.positive?
+        path.fill-none class=Car::RangeGauge::Component::ARC_CLASS d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round' pathLength='100' stroke-dasharray="#{fill_percent} 100"
+
+    / The center: the range, below it the state of charge or the note that the
+    / values are not current, and below that the plug and the charging power
+    / of the car at the wallbox
+    div class="absolute inset-x-0 top-[22%] bottom-[16%] flex flex-col items-center justify-center"
+      - if range?
+        .text-center
+          span class="block font-medium tabular-nums leading-none text-[clamp(1.75rem,15cqi,3.75rem)]"
+            = render SensorValue::Component.new(range, sensor_name(:car_range))
+          span class="block mt-1 uppercase tracking-wide text-slate-500 dark:text-slate-400 text-[clamp(0.625rem,3cqi,0.875rem)]"
+            = t('sensors.car_range_short')
+
+      - if soc
+        div class=class_names('rounded-full px-4 py-1 font-semibold tabular-nums', badge_class, range? ? 'mt-[clamp(1rem,7cqi,2.25rem)] text-[clamp(0.875rem,5cqi,1.5rem)]' : 'text-[clamp(1.5rem,12cqi,3.5rem)]') title=t('sensors.car_battery_soc_short') aria-label=t('sensors.car_battery_soc_short') data-controller='tooltip'
+          = "#{soc.round} %"
+      - if stale?
+        div class=class_names('rounded-full px-4 py-1 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)]', 'mt-[clamp(0.75rem,5cqi,1.5rem)]' => range? || soc)
+          = t('.stale')
+
+      - if wallbox?
+        div class=class_names('flex items-center gap-2 text-[clamp(0.875rem,4.5cqi,1.25rem)]', 'mt-[clamp(0.75rem,5cqi,1.5rem)]' => soc || range? || stale?)
+          - unless state.connected.nil?
+            span class=small_badge_classes('w-[clamp(2rem,9cqi,2.75rem)] justify-center')
+              = render Car::Plug::Component.new(connected: state.connected, compact: true)
+          - if charging_power?
+            span class=small_badge_classes('gap-1.5 px-[clamp(1rem,5cqi,1.5rem)] tabular-nums', charging? ? 'font-semibold text-slate-700 dark:text-slate-200' : 'text-slate-600/40 dark:text-slate-400/40') title=t('sensors.car_charging_power_short') aria-label=t('sensors.car_charging_power_short') data-controller='tooltip'
+              - if state.connected.nil?
+                = helpers.icon 'bolt', class: ('text-sensor-pv' if charging?)
+              = render SensorValue::Component.new(charging_power, :wallbox_power, context: :rate)
+
+    / The slot below the plug, for example the place of the car. It sits
+      between the two ends of the arc, its bottom flush with their labels: at
+      93% plus their line height of 1.5 times their font size. Its width is
+      the room between the ends (26/34 of the gauge) less the labels: half a
+      label of up to 4em on each side, and a gap of 0.5em.
+    - if location?
+      div class="absolute left-1/2 bottom-[calc(7%-1.5*clamp(0.75rem,4cqi,1.125rem))] -translate-x-1/2 flex max-w-[calc(100cqi*26/34-5*clamp(0.75rem,4cqi,1.125rem))] text-[clamp(0.75rem,3.5cqi,1rem)]"
+        = location
+
+    / The two ends of the arc, at x 70 and 330: the scale from 0 to the
+      maximum range. Without a maximum range there is no scale.
+    - if scale?
+      div class="absolute top-[93%] left-[calc(100%*4/34)] -translate-x-1/2 whitespace-nowrap text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)]"
+        = render SensorValue::Component.new(0, sensor_name(:car_range))
+      - if max_range
+        div class="absolute top-[93%] left-[calc(100%*30/34)] -translate-x-1/2 whitespace-nowrap text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)]" title=t('sensors.car_max_range_short') aria-label=t('sensors.car_max_range_short') data-controller='tooltip'
+          = render SensorValue::Component.new(max_range, sensor_name(:car_max_range))
+
+  / The block below the arc. The arc keeps its height free.
+  = footer

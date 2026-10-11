@@ -1,0 +1,67 @@
+= render Car::Card::Component.new(title: t('car_breakdown.driving')) do
+  - tag_name, options = distance_wrapper
+  = content_tag tag_name, **options do
+    .text-3xl.md:text-4xl.font-semibold.leading-none.text-slate-700.dark:text-slate-200.whitespace-nowrap
+      = render SensorValue::Component.new(distance, distance_sensor_name)
+    - if report.km_per_day
+      .mt-2.md:mt-3.text-sm.md:text-base.text-slate-500.dark:text-slate-400.whitespace-nowrap
+        = km_per_day
+
+  / The driving cost and its rate, then the consumption and the maximum
+    range, each two side by side, close below the distance. Their tooltips
+    open to the left, like the usage column of the power balance. A phone
+    shows the card in the full width, so there the rows stand as tiles.
+  div class="@container flex-1 flex flex-col max-sm:grid max-sm:grid-cols-2 max-sm:gap-3"
+
+    / The driving cost and its rate side by side under one title. Each loads
+      its own chart and has its own tooltip.
+    div class=cost_row_classes
+      span.truncate.text-sm.md:text-base.text-slate-500.dark:text-slate-400
+        = t('car_breakdown.costs')
+      / Two cells of the same width, divided by a line
+      div class=['mt-1 grid w-full divide-x divide-slate-200 dark:divide-slate-700', (cost_per_100km ? 'grid-cols-2' : 'grid-cols-1')]
+        - tag_name, options = cost_cell('car_driving_costs')
+        = content_tag tag_name, **options do
+          span class=Car::Card::Component::COST_VALUE
+            - if driving_cost
+              = render SensorValue::Component.new(driving_cost, :total_costs)
+            - else
+              = '–'
+          span class=Car::Card::Component::ROW_CAPTION = t('car_breakdown.in_total')
+          .hidden data-tooltip-target='html'
+            = render driving_cost_tooltip
+        - if cost_per_100km
+          - tag_name, options = cost_cell('car_cost_rate')
+          = content_tag tag_name, **options do
+            span class=Car::Card::Component::COST_VALUE
+              = render SensorValue::Component.new(cost_per_100km, :total_costs)
+            span class=Car::Card::Component::ROW_CAPTION = t('car_breakdown.avg_per_100km')
+            .hidden data-tooltip-target='html'
+              = render cost_rate_tooltip
+
+    / One line above both, and a short line between them
+    .flex.sm:border-t.border-slate-200.dark:border-slate-700.max-sm:contents
+      = render Car::StatRow::Component.new(title: t('car_breakdown.consumption'), sensor_name: chart_sensor_name('car_consumption_rate'), timeframe:, tooltip: consumption_rate_tooltip, css_class: class_names('flex-1 sm:border-t-0', 'max-sm:col-span-2' => !max_range?)) do |row|
+        = render consumption_value(consumption_per_100km)
+        - row.with_subline { t('car_breakdown.per_100km') } if consumption_per_100km
+
+      - if max_range?
+        .max-sm:hidden.self-center.h-12.border-l.border-slate-200.dark:border-slate-700
+        = render Car::StatRow::Component.new(title: t('car_breakdown.range'), sensor_name: max_range_chart, timeframe:, tooltip: max_range_tooltip, css_class: 'flex-1 sm:border-t-0') do
+          - if report.car
+            = render SensorValue::Component.new(report.max_range, :car_max_range)
+          - else
+            = '–'
+
+  / The visits and their places, like the sessions of the charging card, so
+  / the two cards end alike
+  - if visits?
+    div
+      = render Car::SectionTitle::Component.new(title: t('car_breakdown.on_the_road'))
+      div class="grid grid-cols-2 gap-3 sm:gap-1.5 md:gap-2"
+        - visit_badges.each do |label, count, href, data|
+          = link_to href, class: badge_classes, data: do
+            span.truncate.text-sm.sm:text-xs.md:text-sm.text-slate-500.dark:text-slate-400
+              = label
+            span.text-lg.sm:text-sm.md:text-base.font-semibold.tabular-nums.text-slate-700.dark:text-slate-300
+              = count
