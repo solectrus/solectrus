@@ -35,9 +35,6 @@ class Car < ApplicationRecord
   SHORT_NAME_MAX = 5
   public_constant :SHORT_NAME_MAX
 
-  NAMES_CACHE_KEY = 'cars/name_pairs'.freeze
-  private_constant :NAMES_CACHE_KEY
-
   # The first day of use, the installation date unless the user knows better
   attribute :active_from, default: -> { Rails.configuration.x.installation_date }
 
@@ -100,7 +97,7 @@ class Car < ApplicationRecord
   def self.names
     Current.car_names ||=
       if table_exists? && !Current.car_names_hidden
-        Rails.cache.fetch(NAMES_CACHE_KEY) { pluck(:id, :name, :short_name).to_h { |id, *names| [id, names] } }
+        pluck(:id, :name, :short_name).to_h { |id, *names| [id, names] }
       else
         {}
       end
@@ -171,7 +168,6 @@ class Car < ApplicationRecord
   end
 
   def clear_current
-    Rails.cache.delete(NAMES_CACHE_KEY)
     Current.car_names = nil
     Current.cars = nil
   end
