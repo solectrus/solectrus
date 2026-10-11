@@ -420,9 +420,6 @@ en:
       name: Electric vehicles
       vehicles: Vehicles
       edit: Edit car %{number}
-      description: Each car has a number, which names its variables, for example INFLUX_SENSOR_CAR_ODOMETER_2. A number with a variable gets its car by itself. Here you give each car a name, a period of use and a color.
-      never_removed: SOLECTRUS never removes a car. A car that you sell keeps its number and its history. Give it a last day of use, and give the next car a new number.
-      variable_change: If you change a variable of a number, SOLECTRUS rebuilds the daily summaries, and the history of the number changes.
       empty: No car is configured. Add the variables of a car to your configuration, for example <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Up to %{max} cars are possible.
       period: Period of use
       today: today

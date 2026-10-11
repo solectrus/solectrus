@@ -7,7 +7,7 @@ describe 'Settings cars' do
         get settings_cars_path
 
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include('Car 1', I18n.t('settings.cars.never_removed'))
+        expect(response.body).to include('Car 1')
         expect(response.body).not_to include('Trabant:soc')
       end
 
