@@ -51,6 +51,7 @@ solid:
   - house-crack
   - id-card
   - language
+  - layer-group
   - leaf
   - location-dot
   - lock

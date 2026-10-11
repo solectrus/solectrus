@@ -24,12 +24,13 @@ class Car::Select::Component < ViewComponent::Base
   STATS_BUTTON_CLASS = 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'.freeze
   public_constant :STATS_BUTTON_CLASS
 
-  # Each choice, "all" first and the guest last
+  # Each choice: "all" first, then the cars, then the guest. A line divides
+  # the cars from the choices around them.
   def items
     @items ||= [
-      (item(t('.all'), nil) if @all),
-      *cars.map { item(it.display_name, it.id, it) },
-      (item(t('.guest'), CarSelection::GUEST) if @guest),
+      (item(t('.all'), nil, leading: other_icon('layer-group')) if @all),
+      *cars.each_with_index.map { |car, index| item(car.display_name, car.id, car, separator_before: @all && index.zero?) },
+      (item(t('.guest'), CarSelection::GUEST, leading: other_icon('user'), separator_before: true) if @guest),
     ].compact
   end
 
@@ -41,16 +42,24 @@ class Car::Select::Component < ViewComponent::Base
 
   # The button shows the short name, the menu the full name. A car shows in
   # its color.
-  def item(name, param, choice = nil)
+  def item(name, param, choice = nil, leading: nil, separator_before: false)
     MenuItem::Component.new(
       name:,
       short_name: choice&.short_name,
       href: path(param),
       id: param.to_s,
       current: param.to_s == selected,
-      leading: (helpers.car_icon(choice.display_color) if choice),
+      leading: choice ? helpers.car_icon(choice.display_color) : leading,
+      separator_before:,
       data: { turbo_action: 'replace' },
     )
+  end
+
+  # The icon of a choice without a car, in the width of the car icon, so the
+  # names stand in one column. It takes the color of the text, on the button
+  # and in the menu.
+  def other_icon(name)
+    helpers.icon(name, class: 'shrink-0 w-[1.25em] opacity-60')
   end
 
   def path(param)

@@ -17,6 +17,14 @@ describe Car::Select::Component, type: :component do
       expect(html.css('[role=menu] a').pluck('href').last).to eq('/cars/guest')
       expect(html.at_css('button#options-menu').text.squish).to eq('Guest')
     end
+
+    # A line divides the cars from "all" and from the guest
+    it 'divides the cars from the choices around them, each with an icon' do
+      links = html.css('[role=menu] a')
+
+      expect(links.map { it['class'].include?('border-t') }).to eq([false, true, false, true])
+      expect(links.map { it.at_css('svg')['data-icon'] }).to eq(%w[layer-group car car user])
+    end
   end
 
   # "all" adds the guest sessions to the one car
