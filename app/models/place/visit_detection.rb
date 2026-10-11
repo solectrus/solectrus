@@ -23,13 +23,17 @@
 # readings at the stop, so a visit needs two readings at the place. The
 # interval comes from the readings themselves, so it can change from one day
 # to the next, for example when the user asks the car more often.
+#
+# A car that reports only a change sends one reading at a stop. The gap
+# before it is the time at the place before, so it gives no interval, and
+# the stop needs Place::MIN_DURATION alone (see #arrival_limit).
 class Place::VisitDetection
   # The step of the daily build (see Summary::Steps)
   KEY = :place_visits
   public_constant :KEY
 
   # Bump to build each day again (see Summary::Steps)
-  VERSION = 1
+  VERSION = 2
   public_constant :VERSION
 
   # The visits come from the build alone (see Summary::Steps). The places
@@ -138,9 +142,19 @@ class Place::VisitDetection
         stops[-1] = stops.last.add(segment)
       else
         stops[-1] = stops.last.with(limit: [stops.last.limit, limit(segment)].min) if stops.any?
-        stops << Stop.of(segment, limit: limit(segment))
+        stops << Stop.of(segment, limit: arrival_limit(segment, stops.last))
       end
     end
+  end
+
+  # The limit of a stop at its arrival. A car that sent nothing during the
+  # whole stop before reports only a change, so the gap before the arrival is
+  # the time of that stop and no interval of the readings. Its stop needs
+  # Place::MIN_DURATION, also with one reading.
+  def arrival_limit(segment, before)
+    return Place::MIN_DURATION if before&.long? && segment.gap && segment.gap >= before.duration
+
+    limit(segment)
   end
 
   # The limit from the gap before a reading. A stop takes the shorter gap of

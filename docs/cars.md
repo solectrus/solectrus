@@ -714,6 +714,13 @@ has two readings and lasts two intervals. The limit is therefore 1.5 intervals, 
 minutes and at most 3 hours. The interval comes from the readings at the stop, so it
 follows the user when the car reports more often.
 
+Some cars report only a change, and some of them report only at the arrival, not on the
+road. Such a car sends one reading at a stop, and the time before this reading is the time
+at the place before. If the car sent nothing during the whole stop before, this time gives
+no interval. The limit of the new stop is then 30 minutes, also with one reading. A car that
+reports on the road keeps its limit, because a position of the drive comes before each
+arrival.
+
 The step cuts the visits at midnight, like a daily summary. The list of the visits
 (`/cars/visits`) joins these rows again and shows a visit that is still going on without
 an end.

@@ -179,6 +179,59 @@ describe Place::VisitDetection do
       end
     end
 
+    # Each reading is a new place, and its gap is the time at the place before
+    context 'with a car that reports only a change' do
+      let(:dates) { [Date.new(2026, 9, 22)] }
+      let(:segments) do
+        [
+          segment('2026-09-21 12:00', '2026-09-22 12:20', 50.92263, 6.40706, gap: nil),
+          # The gym, for less than the 3 hours of the longest limit
+          segment('2026-09-22 12:20', '2026-09-22 14:15', 50.92459, 6.36614, gap: (24.hours + 20.minutes)),
+          segment('2026-09-22 14:15', '2026-09-22 15:00', 50.92263, 6.40706, gap: (1.hour + 55.minutes)),
+        ]
+      end
+
+      # A car that also reports while it drives, like a Tesla
+      context 'with readings on the road' do
+        let(:segments) do
+          [
+            segment('2026-09-21 12:00', '2026-09-22 12:00', 50.92263, 6.40706, gap: nil),
+            # The drive, a reading every 2 minutes, past the work
+            segment('2026-09-22 12:00', '2026-09-22 12:02', 50.91500, 6.40000, gap: 24.hours),
+            segment('2026-09-22 12:02', '2026-09-22 12:04', 50.90600, 6.40700, gap: 2.minutes),
+            segment('2026-09-22 12:04', '2026-09-22 12:06', 50.89000, 6.39000, gap: 2.minutes),
+            # The gym
+            segment('2026-09-22 12:06', '2026-09-22 14:00', 50.92459, 6.36614, gap: 2.minutes),
+          ]
+        end
+
+        before { Place.create!(latitude: 50.906, longitude: 6.407) }
+
+        it 'leaves out each position of the drive' do
+          detection.persist(detection.call)
+
+          expect(visits).to eq(
+            [
+              [50.92263, '22. 00:00', '22. 12:00'],
+              [50.92459, '22. 12:06', '22. 14:00'],
+            ],
+          )
+        end
+      end
+
+      it 'makes a visit of a stop with one reading' do
+        detection.persist(detection.call)
+
+        expect(visits).to eq(
+          [
+            [50.92263, '22. 00:00', '22. 12:20'],
+            [50.92459, '22. 12:20', '22. 14:15'],
+            [50.92263, '22. 14:15', '22. 15:00'],
+          ],
+        )
+      end
+    end
+
     context 'when the car reports less often from noon on' do
       let(:dates) { [Date.new(2026, 9, 22)] }
       let(:gap) { 15.minutes }
