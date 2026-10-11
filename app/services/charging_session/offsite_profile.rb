@@ -34,7 +34,13 @@ class ChargingSession::OffsiteProfile
 
   # [[from, to, Wh], ...] of all sessions, in buckets of up to 5 minutes
   def call
-    sessions.flat_map do |session|
+    by_session.values.flatten(1)
+  end
+
+  # { session => [[from, to, Wh], ...] }, for a value of each session, like
+  # its cost (see Sensor::Chart::CarChargingCosts)
+  def by_session
+    sessions.index_with do |session|
       buckets = buckets_of(span(session))
       weights = weights_of(session, buckets)
       wh_per_weight = session.kwh.to_f * 1000 / weights.sum

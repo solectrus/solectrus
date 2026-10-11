@@ -2,10 +2,8 @@
 # wallbox. A charging session belongs to a full day, so a shorter timeframe
 # has no columns of sessions (see Sensor::Chart::CarSessions).
 #
-# A day leaves out the wallbox sessions that count for no selected car: a
-# session that is not assigned, a session of another car, and a guest
-# session, which counts only for the guest and for "all" (see
-# CarSelection#with_guest?).
+# A day leaves out the wallbox sessions that count for no selection (see
+# Sensor::Chart::Concerns::WithoutOtherSessions).
 #
 # A day with the power splitter stacks the PV and the grid part of the
 # wallbox, from the bottom up like the columns. The live view has no split,
@@ -15,11 +13,8 @@
 # offsite session has no power curve, so the curves of its car tell when it
 # charged (see ChargingSession::OffsiteProfile).
 class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
-  include Sensor::Chart::Concerns::SelectedCars
-
-  # The buckets of InfluxDB and of the offsite sessions
-  BUCKET = Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
-  private_constant :BUCKET
+  include Sensor::Chart::Concerns::WithoutOtherSessions
+  include Sensor::Chart::Concerns::OffsiteSessions
 
   # Without a wallbox there is no curve. The offsite sessions need a day at
   # least (see Sensor::Chart::CarSessions).
@@ -51,13 +46,6 @@ class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
     @splitting_allowed = timeframe.day? && ApplicationPolicy.power_splitter? && Sensor::Config.exists?(:wallbox_power_grid)
   end
 
-  # Without wallbox data in InfluxDB, the offsite sessions get a grid of
-  # their own, and the wallbox stays at 0 W (see #fill_gaps_with_zero?)
-  def master_labels(items)
-    labels = super
-    labels.blank? && offsite_sessions.any? ? day_grid : labels
-  end
-
   # PV and grid instead of the wallbox, when the power splitter wrote them.
   # Without them, the power splitter does not run, and the wallbox stays.
   def datasets(chart_data_items)
@@ -66,46 +54,6 @@ class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
     parts = split ? [split_dataset(pv, :pv), split_dataset(grid, :grid).merge(fill: '-1')] : super([wallbox])
 
     offsite_sessions.any? ? [*parts, offsite_dataset(wallbox[:labels])] : parts
-  end
-
-  # The curve without the wallbox sessions of others, so a day shows what the
-  # selected cars charged, like the charged energy beside it (see
-  # Car::Report). A charge that the detection has not found yet stays.
-  def without_other_sessions(chart_data_item)
-    return chart_data_item if other_windows.empty?
-
-    labels = chart_data_item[:labels]
-    data = chart_data_item[:data].each_with_index.map { |watt, index| watt && other_window?(labels[index]) ? 0 : watt }
-    chart_data_item.merge(data:)
-  end
-
-  # Whether the bucket of a label lies in a session of others. A label is the
-  # end of its bucket, and a session starts and ends at the edges of its
-  # buckets (see ChargingSession::Detection::Periods).
-  def other_window?(label)
-    other_windows.any? { |from, to| label > from && label <= to }
-  end
-
-  # [[from, to], ...] in milliseconds: the wallbox sessions of the day that
-  # count for no selection (see #selected_session?). The live view has none.
-  def other_windows
-    @other_windows ||=
-      if timeframe.day?
-        ChargingSession
-          .wallbox
-          .where(started_at: timeframe.beginning..timeframe.ending)
-          .pluck(:car_id, :guest, :started_at, :ended_at)
-          .reject { |car_id, guest, _, _| selected_session?(car_id, guest) }
-          .map { |_, _, from, to| [timestamp_to_ms(from), timestamp_to_ms(to)] }
-      else
-        []
-      end
-  end
-
-  # Whether a wallbox session counts for the selection: a session of a
-  # selected car, and a guest session for the guest and for "all"
-  def selected_session?(car_id, guest)
-    cars.any? { it.id == car_id } || (guest? && car_id.nil? && guest)
   end
 
   def split_dataset(chart_data_item, source)
@@ -137,7 +85,7 @@ class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
 
   # Straight edges, so the area of a session is a rectangle
   def offsite_dataset(labels)
-    build_dataset(:wallbox_power, data: offsite_power(labels)).merge(
+    build_dataset(:wallbox_power, data: per_hour(offsite_sums(labels) { |_, energy| energy }).map(&:round)).merge(
       id: 'offsite',
       label: ChargingSession.human_enum_name(:kind, :offsite),
       colorClass: Car::ChargingSource[:offsite].color_class,
@@ -145,57 +93,5 @@ class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
       tension: 0,
       cubicInterpolationMode: 'default',
     )
-  end
-
-  # The mean power (W) of the offsite sessions in each bucket. A label is the
-  # end of its bucket, like the buckets of InfluxDB. A part of the profile
-  # falls into one or two buckets and gives each its share, so a session
-  # shorter than a bucket keeps its energy.
-  def offsite_power(labels)
-    return [] if labels.empty?
-
-    start = (labels.first / 1000) - BUCKET.to_i
-    energies = Array.new(labels.size, 0.0)
-    ChargingSession::OffsiteProfile.new(offsite_sessions).call.each { |part| spread_wh(energies, start, *part) }
-
-    energies.map { (it * 3600 / BUCKET).round }
-  end
-
-  # Adds the energy of a part of the profile to the buckets it falls into.
-  # The first bucket starts at the epoch second `start`.
-  def spread_wh(energies, start, from, to, energy)
-    step = BUCKET.to_i
-
-    (((from.to_i - start) / step)..((to.to_i - 1 - start) / step)).each do |index|
-      next unless index.between?(0, energies.size - 1)
-
-      bucket_from = start + (index * step)
-      energies[index] += energy * ([to.to_f, bucket_from + step].min - [from.to_f, bucket_from].max) / (to - from)
-    end
-  end
-
-  # The buckets of the day up to now. Like in InfluxDB, the last bucket ends
-  # with the day.
-  def day_grid
-    count = ((timeframe.ending - timeframe.beginning) / BUCKET).ceil
-    (1..count).map { [timeframe.beginning + (it * BUCKET), timeframe.ending].min }.select { it <= Time.current }.map { timestamp_to_ms(it) }
-  end
-
-  # The offsite sessions of the selected cars that reach into the day. The
-  # live view shows none. A session without an end belongs to its day alone.
-  def offsite_sessions
-    @offsite_sessions ||=
-      if timeframe.day?
-        ChargingSession
-          .offsite
-          .effective
-          .includes(:car)
-          .where(car_id: cars.map(&:id))
-          .where(started_at: ..timeframe.ending)
-          .where('COALESCE(ended_at, started_at) >= ?', timeframe.beginning)
-          .to_a
-      else
-        []
-      end
   end
 end
