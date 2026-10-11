@@ -194,17 +194,16 @@ before today resets the daily summaries at the next start, like any added sensor
 ### Distance
 
 `car_odometer_<n>` is a meter (`meter: true`) and stores the distance of each day as the
-aggregation `sum`. A car writes its odometer only while it is online, so a day can have one
-reading or none. The build therefore interpolates the odometer at each midnight between the
-readings around it (`Influx::DailyDiffs`). The daily values then add up exactly: the sum of
-a range is the odometer at its end minus the odometer at its start. A day before the first
-reading has no value, so an odometer that comes after the installation gives no distance of
-0 for the time before it.
+aggregation `sum`. The odometer is also a state: a collector writes it when it changes, so
+a reading holds until the next one. A day can therefore have one reading or none. The odometer
+at a midnight is the last reading before it (`Influx::DailyDiffs`). A day without a reading
+has a distance of 0. The daily values add up exactly: the sum of a range is the odometer at
+its end minus the odometer at its start. A day before the first reading has no value, so an
+odometer that comes after the installation gives no distance of 0 for the time before it.
 
-A day that the build makes during a gap in the readings ends at the last reading and gets
-none of the distance of the gap. When the next reading comes, a later build finds the gap
-(`Sensor::Summarizer::MeterGaps`) and builds the days of the gap again. A gap without a
-change of the odometer builds no day again.
+If the collector was down while the car drove, the next reading shows the distance of the
+gap. This distance goes to the day of that reading. A later reading never changes the
+distance of an earlier day.
 
 A wrong reading of the odometer adds its jump to the distance of a day. Some collectors send
 0 while the car is offline, so the jump back is the full odometer. `Sensor::MeterReadings`
@@ -554,8 +553,9 @@ the cost of the wallbox. An offsite session has no power curve, so the state of 
 the plug of its car tell when it charged (`ChargingSession::OffsiteProfile`). Its price,
 the cost per kWh, gives the cost of each part.
 
-A day draws the distance since midnight as a line, interpolated like the daily summary
-(see [Distance](#distance)). The line therefore ends at the distance on the driving card.
+A day draws the distance since midnight as a line. The line holds each reading until the next
+one and steps at a change, like the daily summary (see [Distance](#distance)). The line
+therefore ends at the distance on the driving card.
 
 A rate column without a day with a rate has a gap. A column that the installation date,
 today or the edge of a range cuts is hatched.

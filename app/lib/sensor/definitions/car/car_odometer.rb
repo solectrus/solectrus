@@ -11,13 +11,11 @@ class Sensor::Definitions::CarOdometer < Sensor::Definitions::Base
   # so the value holds until the next reading
   state
 
-  # Store the distance driven per day. When the InfluxDB series is sparse
-  # (fewer than two readings per day or none at all), the daily diff is
-  # derived by linearly interpolating the odometer value at the beginning
-  # and end of the day between the surrounding known points. This keeps
-  # monthly/weekly/daily breakdowns plausible even across large data gaps,
-  # and SUM(daily_diff) equals the total distance between the first and
-  # last known odometer reading in any queried range.
+  # Store the distance driven per day: the last reading before the end of
+  # the day minus the last reading before its start. The reading holds, so
+  # a day without a reading has no distance. SUM(daily_diff) equals the
+  # total distance between the first and last known odometer reading in
+  # any queried range.
   aggregations stored: %i[sum], meta: %i[sum], top10: true, meter: true
 
   # Distance is the SUM of the daily distances across the period.

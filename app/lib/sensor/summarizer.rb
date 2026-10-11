@@ -44,14 +44,7 @@ module Sensor
 
     # Returns the number of days that were (re)built
     def call
-      count = dates.each_slice(CHUNK_SIZE).sum { |chunk| process(chunk) }
-
-      # The days that lost the increase of a meter to a gap go, so they are
-      # missing now. One more round builds them at once, and no page has to
-      # wait for them. A gap that this round finds waits for the next build.
-      repaired = gap_dates.uniq.sort
-      @gap_dates = []
-      count + repaired.each_slice(CHUNK_SIZE).sum { |chunk| process(chunk) }
+      dates.each_slice(CHUNK_SIZE).sum { |chunk| process(chunk) }
     end
 
     private
@@ -69,29 +62,15 @@ module Sensor
       dates = pending.map(&:first)
       steps = start_steps(dates)
       batch = batch_for(dates)
-      diffs = meter_diffs(dates, batch)
-      gaps = MeterGaps.new(dates, diffs, built: built_dates)
 
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(pending, batch ? batch.call : {}, diffs, batch&.states)
+      built = build(pending, batch ? batch.call : {}, batch&.meter_diffs, batch&.states)
       steps.each(&:result)
-      gaps.result
-      persist(built, steps, gaps)
-      built_dates.merge(dates)
+      persist(built, steps)
 
       built.size
-    end
-
-    # The days that this run built, so each of them saw every reading up to
-    # now (see MeterGaps)
-    def built_dates
-      @built_dates ||= Set.new
-    end
-
-    def gap_dates
-      @gap_dates ||= []
     end
 
     # Days whose summary is missing or stale, paired with the record to write.
@@ -120,8 +99,7 @@ module Sensor
       steps.map { StepRun.new(it, dates, shared) }
     end
 
-    # Each day reads the meters from the diffs that the chunk shares with its
-    # gaps (see #meter_diffs), and the states from the batch
+    # Each day reads the meters and the states from the batch
     def build(pending, prefetched, meter_diffs, states)
       pending.map do |date, summary|
         data =
@@ -143,12 +121,6 @@ module Sensor
           valid_records: records.reject { |record| record[:value].nil? },
         }
       end
-    end
-
-    # The gaps of the meters read the points of the daily increase, so the
-    # build and the gaps share one query (see MeterGaps)
-    def meter_diffs(dates, batch)
-      batch&.meter_diffs || Sensor::Query::Helpers::Influx::DailyDiffs.new(dates, Sensor::SummaryBuilder.meter_sensor_names)
     end
 
     # A single day is left to the per-day queries: batching one day would only
@@ -175,11 +147,10 @@ module Sensor
     # committed on its own.
     #
     # The steps write in the same transaction (see StepRun#persist)
-    def persist(built, steps, gaps)
+    def persist(built, steps)
       ActiveRecord::Base.transaction do
         Writer.new(built).call
         steps.each(&:persist)
-        gap_dates.concat(gaps.remove!(built.pluck(:date)))
       end
     end
 

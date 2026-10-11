@@ -32,12 +32,13 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
   # With a gap: March 10 is not asked for, but its boundary counts
   let(:dates) { [Date.new(2024, 3, 8), Date.new(2024, 3, 9), Date.new(2024, 3, 11)] }
 
-  # 40 km in the 37 hours from March 7, 18:00, to March 9, 07:00, and 180 km
-  # in the 59 hours from March 9, 19:00, to March 12, 06:00
-  it 'interpolates the reading at each midnight' do
-    expect(diffs[Date.new(2024, 3, 8)]).to be_within(0.001).of(40 * 24 / 37.0)
-    expect(diffs[Date.new(2024, 3, 9)]).to be_within(0.001).of(((180 * 5 / 59.0) + 1100) - ((40 * 30 / 37.0) + 1000))
-    expect(diffs[Date.new(2024, 3, 11)]).to be_within(0.001).of(180 * 24 / 59.0)
+  # A reading holds until the next one, so the 40 km and the 100 km of the
+  # readings on March 9 go to March 9, and the 180 km after the gap to
+  # March 12
+  it 'takes the last reading before each midnight' do
+    expect(diffs[Date.new(2024, 3, 8)]).to eq(0)
+    expect(diffs[Date.new(2024, 3, 9)]).to eq(100)
+    expect(diffs[Date.new(2024, 3, 11)]).to eq(0)
   end
 
   it 'needs one query for all days' do
@@ -54,8 +55,8 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
     let(:readings) { super() + [[Time.zone.local(2024, 3, 9, 23), 0], [Time.zone.local(2024, 3, 12, 0, 30), 0]] }
 
     it 'leaves it out' do
-      expect(diffs[Date.new(2024, 3, 9)]).to be_within(0.001).of(((180 * 5 / 59.0) + 1100) - ((40 * 30 / 37.0) + 1000))
-      expect(diffs[Date.new(2024, 3, 11)]).to be_within(0.001).of(180 * 24 / 59.0)
+      expect(diffs[Date.new(2024, 3, 9)]).to eq(100)
+      expect(diffs[Date.new(2024, 3, 11)]).to eq(0)
     end
 
     # The 0 hides the readings beside it, which only a filter on the value finds
@@ -89,7 +90,7 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
     end
 
     it 'gives the same diffs as the consecutive days' do
-      expect(diffs[Date.new(2024, 3, 11)]).to be_within(0.001).of(180 * 24 / 59.0)
+      expect(diffs.values_at(Date.new(2024, 3, 8), Date.new(2024, 3, 11))).to eq([0, 0])
     end
 
     it 'gives no increase after the last reading' do
@@ -108,8 +109,8 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
     end
     let(:dates) { [Date.new(2024, 3, 10)] }
 
-    it 'takes this reading without interpolating' do
-      expect(diffs[Date.new(2024, 3, 10)]).to be_within(0.001).of(1350 - 1234)
+    it 'counts this reading to the day it starts' do
+      expect(diffs[Date.new(2024, 3, 10)]).to eq(1300 - 1234)
     end
   end
 
@@ -127,11 +128,12 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
   # The odometer came after the installation, so the days before its first
   # reading have no value and not a distance of 0
   context 'with days before the first reading' do
+    let(:readings) { super() + [[Time.zone.local(2024, 3, 7, 21), 1010]] }
     let(:dates) { [Date.new(2024, 3, 5), Date.new(2024, 3, 6), Date.new(2024, 3, 7)] }
 
     it 'gives them no value and the day of the first reading its increase' do
       expect(diffs.values_at(Date.new(2024, 3, 5), Date.new(2024, 3, 6))).to eq([nil, nil])
-      expect(diffs[Date.new(2024, 3, 7)]).to be_within(0.001).of(40 * 6 / 37.0)
+      expect(diffs[Date.new(2024, 3, 7)]).to eq(10)
     end
   end
 
@@ -183,7 +185,7 @@ describe Sensor::Query::Helpers::Influx::DailyDiffs do
     context 'without a reading after the last date' do
       let(:dates) { [Date.new(2024, 3, 12)] }
 
-      it 'reads the points again, because a later reading changes the end' do
+      it 'reads the points again, because they are not final yet' do
         call_twice
 
         expect(Influx).to have_received(:query).twice

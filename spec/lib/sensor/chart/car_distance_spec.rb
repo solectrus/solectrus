@@ -80,21 +80,21 @@ describe Sensor::Chart::CarDistance do
       data[:datasets].sole[:data][data[:labels].index(Time.zone.local(2026, 9, 22, hour, minute).to_i * 1000)]
     end
 
-    # 12 km in the 12 hours from 18:00 to 06:00 of the next day, so 6 km
-    # before midnight, as in the daily summary
+    # The 12 km after 18:00 go to the next day, as in the daily summary
     it 'draws the distance since midnight as a line that ends at the distance of the day' do
       dataset = chart.data[:datasets].sole
 
       expect(chart.type).to eq('line')
       expect(dataset[:data].first).to eq(0)
       expect(value_at(9, 5)).to eq(30)
-      expect(dataset[:data].last).to eq(66)
+      expect(dataset[:data].last).to eq(60)
     end
 
-    # The 30 km between the buckets of 08:05 and 09:05 spread over 12 buckets
-    it 'ramps between two readings, like the daily summary' do
-      expect(value_at(8, 30)).to eq(12.5)
-      expect(chart.data[:datasets].sole).not_to have_key(:stepped)
+    # The odometer is a state, so the 30 km of 09:00 do not ramp from 08:00
+    it 'holds each reading until the next one, like the daily summary' do
+      expect(value_at(8, 30)).to eq(0)
+      expect(value_at(17, 30)).to eq(30)
+      expect(chart.data[:datasets].sole[:stepped]).to be(true)
     end
 
     context 'with a 0 of an offline car' do
@@ -102,10 +102,10 @@ describe Sensor::Chart::CarDistance do
         influx_batch { add_influx_point(name: 'Trabant', fields: { odometer: 0.0 }, time: Time.zone.local(2026, 9, 22, 12)) }
       end
 
-      # The line ramps from 30 km at 09:05 to 60 km at 18:05 instead
+      # The line holds 30 km from 09:05 to 18:05 instead
       it 'skips it' do
-        expect(value_at(12, 5)).to eq(40)
-        expect(chart.data[:datasets].sole[:data].last).to eq(66)
+        expect(value_at(12, 5)).to eq(30)
+        expect(chart.data[:datasets].sole[:data].last).to eq(60)
       end
     end
 

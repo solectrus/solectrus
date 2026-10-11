@@ -46,9 +46,10 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
     super.merge(label: Car.display_name_of(car_number), stack: 'CarDistance', summed: true, tintColor: tint_color).compact
   end
 
-  # A day shows the odometer minus its reading at midnight. The line runs from
-  # 0 to the reading at the end of the day, both readings interpolated like
-  # the daily summary (see DailyDiffs), so it ends at the distance of the day.
+  # A day shows the odometer minus its reading at midnight, the last reading
+  # before it like the daily summary (see DailyDiffs). The odometer is a
+  # state, so the line starts at 0 and holds each reading until the next one
+  # (see #holds_value?). It ends at the distance of the day.
   #
   # Without a reading at a midnight, for example on the installation date,
   # the day has no distance, like its summary. The line then stays empty and
@@ -68,7 +69,6 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
 
     data.map { it && (it - start_value).then { |distance| distance if distance.between?(0, total) } }.tap do |result|
       result[0] ||= 0
-      result[-1] ||= total
     end
   end
 
@@ -82,11 +82,4 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
         .bounds
         .fetch(timeframe.date, {})
   end
-
-  # The line ramps between the readings over the whole day, like the daily
-  # summary, instead of the steps of a state. It needs no start before
-  # midnight.
-  def holds_value? = false
-
-  def gap_bridge_limit = 1.day.in_milliseconds
 end

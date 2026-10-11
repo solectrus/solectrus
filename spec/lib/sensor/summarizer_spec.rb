@@ -442,8 +442,8 @@ describe Sensor::Summarizer do
     end
 
     # The car reports on Monday at 18:00 and then not until Thursday at
-    # 10:00. Monday to Wednesday were built during the gap, so their distance
-    # ends at the reading of Monday.
+    # 10:00. Monday to Wednesday were built during the gap. The reading of
+    # Monday holds until Thursday, so the gap changes none of these days.
     context 'when the days before were built during a gap of the odometer' do
       let(:monday) { Date.new(2024, 3, 4) }
       let(:date) { monday + 3 }
@@ -454,7 +454,7 @@ describe Sensor::Summarizer do
         stub_const('ENV', ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:mileage'))
         Sensor::Config.setup(ENV)
 
-        # The days of the gap build in one batch, which reads InfluxDB itself
+        # The day after the gap reads InfluxDB itself
         allow(Sensor::Query::Helpers::Influx::Integral).to receive(:new).and_call_original
         allow(Sensor::Query::Helpers::Influx::Aggregation).to receive(:new).and_call_original
 
@@ -470,29 +470,21 @@ describe Sensor::Summarizer do
 
         gap_days.each do |day|
           Summary.create!(date: day, updated_at: date.beginning_of_day + 2.hours)
-          SummaryValue.create!(date: day, field: 'car_odometer_1', aggregation: 'sum', value: day == monday ? 16.667 : 0)
+          SummaryValue.create!(date: day, field: 'car_odometer_1', aggregation: 'sum', value: day == monday ? 20 : 0)
         end
       end
 
-      def distance = SummaryValue.where(field: 'car_odometer_1', date: monday..date).sum(:value)
+      def distance(day) = SummaryValue.find_by(field: 'car_odometer_1', date: day).value
 
-      it 'builds these days again' do
-        expect(call).to eq(4)
+      it 'does not build these days again' do
+        expect(call).to eq(1)
       end
 
-      # From the reading at Monday midnight (between 980 and 990) to the
-      # reading at Friday midnight (between 1300 and 1310)
-      it 'gives them their share of the distance' do
+      # From the reading of Monday, 18:00, to the reading of Thursday, 10:00
+      it 'gives the distance of the gap to the day of the next reading' do
         call
 
-        expect(distance).to be_within(0.01).of(((10 * 14 / 26.0) + 1300) - ((10 * 4 / 12.0) + 980))
-      end
-
-      it 'builds them only once' do
-        call
-        Summary.find(date).update!(updated_at: date.middle_of_day)
-
-        expect(described_class.new([date]).call).to eq(1)
+        expect(distance(date)).to eq(300)
       end
     end
 

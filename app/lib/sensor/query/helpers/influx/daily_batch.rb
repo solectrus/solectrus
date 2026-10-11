@@ -35,8 +35,7 @@ module Sensor
 
           attr_reader :dates, :sum_sensor_names, :aggregation_sensor_names, :meter_sensor_names
 
-          # The daily increase of the meters. Sensor::SummaryBuilder and
-          # Sensor::Summarizer::MeterGaps read it.
+          # The daily increase of the meters. Sensor::SummaryBuilder reads it.
           attr_reader :meter_diffs
 
           # The daily min, max and avg of the states. Sensor::SummaryBuilder

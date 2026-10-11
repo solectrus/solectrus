@@ -83,8 +83,7 @@ module Sensor
     # `prefetched` carries the query results Influx::DailyBatch has already
     # fetched for this day, as `{ sum:, aggregation: }`. Without it the two
     # queries are run here, one day at a time. `meter_diffs` is the
-    # Influx::DailyDiffs of the chunk that the build of the summaries shares
-    # with its meter gaps (see Sensor::Summarizer::MeterGaps). `states` is the
+    # Influx::DailyDiffs of the batch. `states` is the
     # Influx::DailyStates of the batch.
     def initialize(timeframe, prefetched: nil, meter_diffs: nil, states: nil)
       raise ArgumentError unless timeframe.day?

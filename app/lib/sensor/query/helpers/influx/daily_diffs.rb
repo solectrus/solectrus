@@ -6,12 +6,13 @@ module Sensor
         # less often than once a day, for many days in one Flux program.
         #
         # The increase of a day is the reading at the start of the next day
-        # minus the reading at the start of the day. Each reading at such a
-        # boundary is interpolated linearly between the last reading at or
-        # before it and the first reading after it. A day without a reading
-        # thus gets its share of the distance between the readings around it.
-        # The boundary of the next day makes the diffs of consecutive days
-        # telescope: their sum is the increase over the whole range.
+        # minus the reading at the start of the day. The reading at such a
+        # boundary is the last reading at or before it: a collector writes a
+        # meter when it changes, so a reading holds until the next one. A day
+        # without a reading thus has no increase, and the increase of a gap
+        # goes to the day of the reading after it. The boundary of the next
+        # day makes the diffs of consecutive days telescope: their sum is the
+        # increase over the whole range.
         #
         # For a run of consecutive days, the points around each boundary are
         # among the first and the last reading of each day, plus the last
@@ -38,7 +39,7 @@ module Sensor
             @sensor_names = sensor_names.select { Sensor::Config.configured?(it) }
             @cache = cache
             # The points read once, also when two threads ask for them (see
-            # DailyBatch and Summarizer::MeterGaps)
+            # DailyBatch)
             @points = Concurrent::Delay.new { @sensor_names.empty? || @dates.empty? ? {} : fetch_points }
           end
 
@@ -75,40 +76,25 @@ module Sensor
 
           private
 
-          # The reading at the time, interpolated between the readings around
-          # it. A reading exactly at the time counts as the one before it.
+          # The last reading at or before the time.
           #
           # Before the first reading, the first reading stands in at the start
-          # of a day, so the day of the first reading keeps its increase. At
-          # the end of a day before the first reading, the meter had not read
-          # yet, so the day has no value and not an increase of 0.
+          # of a day. A meter cannot have read more before, so the day of the
+          # first reading keeps its increase. At the end of a day before the
+          # first reading, the meter had not read yet, so the day has no value
+          # and not an increase of 0.
           def value_at(points, time, first_stands_in: true)
             return if time <= installation_time
 
             before = reading_before(points, time)
-            return unless before || first_stands_in
+            return before.last if before
 
-            interpolate(before, reading_after(points, time), time)
+            reading_after(points, time)&.last if first_stands_in
           end
 
           def reading_before(points, time) = points.select { |t, _| t <= time }.max_by(&:first)
 
           def reading_after(points, time) = points.select { |t, _| t > time }.min_by(&:first)
-
-          def interpolate(before, after, time)
-            # Without an earlier reading, the first reading stands in. A
-            # meter cannot have read more before, so the first day keeps its
-            # increase.
-            return after&.last unless before
-
-            # Without a later reading, the last reading stands in. For a
-            # meter this only underestimates.
-            before_time, before_value = before
-            return before_value if after.nil? || before_time == time
-
-            after_time, after_value = after
-            before_value + ((after_value - before_value) * (time - before_time).fdiv(after_time - before_time))
-          end
 
           # { sensor_name => [[Time, value], ...] }
           def fetch_points
