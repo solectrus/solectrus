@@ -33,6 +33,17 @@ export type DatasetWithId = ChartDataset & {
   tooltipAbs?: boolean;
   // Lines of plain text below the value, one entry for each data point
   tooltipNotes?: (string[] | null)[];
+  // A note below the row of the dataset, one entry for each data point.
+  // Unlike tooltipNotes, each dataset shows its own.
+  tooltipRowNotes?: (TooltipRowNote | null)[];
+  // The markup of each icon that tooltipRowNotes name, rendered by the server
+  tooltipIcons?: Record<string, string>;
+};
+
+// A line of plain text, with the key of an icon in tooltipIcons
+export type TooltipRowNote = {
+  text: string;
+  icon?: string;
 };
 
 // A chart may state whether its fills cover each other instead of leaving that

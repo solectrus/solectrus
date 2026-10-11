@@ -56,6 +56,18 @@
   @apply dark:text-slate-400;
 }
 
+/* The note of one row, like the place of a car, with an icon in a column of
+ * its own */
+.chartjs-tooltip .chart-tooltip-row-note {
+  @apply flex items-center gap-1.5 text-xs whitespace-nowrap text-gray-600;
+  @apply dark:text-slate-400;
+}
+
+/* The icon in the height of the capital letters, on the baseline of the text */
+.chartjs-tooltip .chart-tooltip-row-note svg {
+  @apply h-2.5 w-3 shrink-0 -translate-y-[0.5px];
+}
+
 .chartjs-tooltip .chart-tooltip-footer {
   @apply text-right text-base font-bold tabular-nums;
 }

@@ -12,7 +12,8 @@ class Sensor::Definitions::CarDistanceChart < Sensor::Definitions::Base
 
   color background: 'bg-sensor-wallbox', text: 'text-white dark:text-slate-400'
 
-  chart { |timeframe, cars: nil, **| Sensor::Chart::CarDistance.new(timeframe:, cars:) }
+  # Only the admin gets the places in the tooltip
+  chart { |timeframe, cars: nil, admin: false, **| Sensor::Chart::CarDistance.new(timeframe:, cars:, admin:) }
 
   # The top 10 ranks the distance of all cars together, from the daily
   # distances of their odometers (see Sensor::Query::Ranking)

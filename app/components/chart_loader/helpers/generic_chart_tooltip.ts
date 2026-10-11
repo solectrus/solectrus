@@ -8,6 +8,7 @@ import {
   hideTooltip,
   positionTooltipElement,
 } from './tooltip_utils';
+import type { DatasetWithId } from './types';
 
 type TooltipBody = {
   before: string[];
@@ -18,6 +19,8 @@ type TooltipBody = {
 type TooltipDataPoint = {
   parsed: { x: number | null; y: number | null };
   raw?: unknown;
+  dataset?: unknown;
+  dataIndex?: number;
 };
 
 type TooltipModel = {
@@ -111,23 +114,27 @@ export default class GenericChartTooltip {
 
     const allLines = body.flatMap((b) => b.lines).filter(Boolean);
 
-    // Single value without label: render as plain text
+    // Single value without label: render as plain text, with its note
     if (allLines.length === 1 && !allLines[0].includes(': ')) {
-      return `<div class="chart-tooltip-single">${escapeHtml(allLines[0])}</div>`;
+      const note = this.renderRowNote(tooltip.dataPoints?.[0]);
+      return `<div class="chart-tooltip-single">${escapeHtml(allLines[0])}</div>${note}`;
     }
 
     const rows = body
       .flatMap((bodyItem, index) => {
         const color = labelColors[index];
         const dataPoint = tooltip.dataPoints?.[index];
-        return bodyItem.lines.map((line, lineIndex) =>
-          this.renderRow(
-            line,
-            showColors ? color : undefined,
-            lineIndex,
-            dataPoint,
+        return [
+          ...bodyItem.lines.map((line, lineIndex) =>
+            this.renderRow(
+              line,
+              showColors ? color : undefined,
+              lineIndex,
+              dataPoint,
+            ),
           ),
-        );
+          this.renderRowNote(dataPoint),
+        ];
       })
       .join('');
 
@@ -174,6 +181,20 @@ export default class GenericChartTooltip {
         <div class="chart-tooltip-value"${valueStyle}>${escapeHtml(value)}</div>
       </div>
     `;
+  }
+
+  // The note of the dataset below its row, like the place of a car. The icon
+  // is markup of the server (see Sensor::Chart::CarDistance), the text is not.
+  private renderRowNote(dataPoint?: TooltipDataPoint): string {
+    const dataset = dataPoint?.dataset as DatasetWithId | undefined;
+    const note =
+      dataPoint?.dataIndex === undefined
+        ? undefined
+        : dataset?.tooltipRowNotes?.[dataPoint.dataIndex];
+    if (!note) return '';
+
+    const icon = (note.icon && dataset?.tooltipIcons?.[note.icon]) ?? '';
+    return `<div class="chart-tooltip-row-note">${icon}<span>${escapeHtml(note.text)}</span></div>`;
   }
 
   private renderNotes(notes: string[] | undefined): string {

@@ -234,6 +234,7 @@ en:
     sessions: Charging sessions
     no_charging: No charging
     on_the_road: On the road
+    unknown_place: Unknown place
     costs: Costs
     consumption: Ø Consumption
     per_100km: per 100 km

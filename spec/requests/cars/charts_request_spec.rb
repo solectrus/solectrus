@@ -19,6 +19,36 @@ describe 'Car Charts' do
       end
     end
 
+    context 'with the distance of a day' do
+      let(:headers) { { 'Turbo-Frame' => 'random-turbo-frame' } }
+      let(:path) { cars_charts_path(sensor_name: 'car_distance', timeframe: Date.yesterday.iso8601) }
+
+      before do
+        Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer'))
+        influx_batch do
+          [[Date.yesterday.in_time_zone.change(hour: 8), 1000], [Date.yesterday.in_time_zone.change(hour: 10), 1010]].each do |time, value|
+            add_influx_point(name: 'Trabant', fields: { odometer: value.to_f }, time:)
+          end
+        end
+        place = Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Garage')
+        PlaceVisit.create!(date: Date.yesterday, car: Car.configured.first, place:, started_at: Date.yesterday.beginning_of_day, ended_at: Date.yesterday.beginning_of_day + 9.hours)
+      end
+
+      after { Sensor::Config.setup(ENV) }
+
+      it 'shows the places in the tooltip to the admin only' do
+        get(path, headers:)
+        expect(response).to have_http_status(:ok)
+        # The guest gets the line of the car, without its places
+        expect(response.body).to include('car_odometer_1')
+        expect(response.body).not_to include('Garage')
+
+        login_as_admin
+        get(path, headers:)
+        expect(response.body).to include('Garage')
+      end
+    end
+
     context 'with the map of the places' do
       let(:headers) { { 'Turbo-Frame' => 'random-turbo-frame' } }
 

@@ -97,6 +97,100 @@ describe Sensor::Chart::CarDistance do
       expect(chart.data[:datasets].sole[:stepped]).to be(true)
     end
 
+    it 'has no notes without a visit' do
+      expect(chart.data[:datasets].sole).not_to have_key(:tooltipRowNotes)
+    end
+
+    context 'with visits' do
+      subject(:chart) { described_class.new(timeframe: Timeframe.new('2026-09-22'), cars:, admin: true) }
+
+      let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Garage', labels: ['home']) }
+      let(:work) { Place.create!(latitude: 50.906, longitude: 6.407) }
+
+      before do
+        car = Car.configured.find { it.id == 1 }
+        [[home, 0, 8], [work, 9, 18]].each do |place, from, to|
+          place.visits.create!(car:, date: Date.new(2026, 9, 22), started_at: Time.zone.local(2026, 9, 22, from), ended_at: Time.zone.local(2026, 9, 22, to))
+        end
+      end
+
+      def note_at(hour, minute)
+        data = chart.data
+        data[:datasets].sole[:tooltipRowNotes][data[:labels].index(Time.zone.local(2026, 9, 22, hour, minute).to_i * 1000)]
+      end
+
+      it 'notes the place of the car at each time, and nothing between the visits' do
+        expect([note_at(7, 55), note_at(8, 30), note_at(12, 0), note_at(20, 0)]).to eq(
+          [{ text: 'Garage', icon: 'house' }, nil, { text: 'Unknown place', icon: 'location-dot' }, nil],
+        )
+      end
+
+      it 'gives the markup of each icon once' do
+        expect(chart.data[:datasets].sole[:tooltipIcons].transform_values { it[/data-icon="([^"]+)"/, 1] }).to eq(
+          'house' => 'house', 'location-dot' => 'location-dot',
+        )
+      end
+
+      # Only the admin sees the places
+      context 'with a guest' do
+        subject(:chart) { described_class.new(timeframe: Timeframe.new('2026-09-22'), cars:) }
+
+        it 'has no notes' do
+          expect(chart.data[:datasets].sole).not_to include(:tooltipRowNotes, :tooltipIcons)
+        end
+      end
+
+      it 'draws a line of each car on its own' do
+        expect(chart.data[:datasets].sole).not_to include(:stack, :summed)
+      end
+    end
+
+    context 'with two cars on the same day' do
+      subject(:chart) { described_class.new(timeframe: Timeframe.new('2026-09-22'), cars: Car.configured, admin: true) }
+
+      let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Garage', labels: ['home']) }
+      let(:work) { Place.create!(latitude: 50.906, longitude: 6.407) }
+
+      before do
+        Car.create!(id: 2, name: 'Wartburg', color: '#ff0000')
+
+        influx_batch do
+          [
+            [Time.zone.local(2026, 9, 21, 23), 500],
+            [Time.zone.local(2026, 9, 22, 10), 520],
+            [Time.zone.local(2026, 9, 23, 6), 520],
+          ].each do |time, value|
+            add_influx_point(name: 'Wartburg', fields: { odometer: value.to_f }, time:)
+          end
+        end
+
+        trabant, wartburg = Car.configured
+        [[trabant, home, 0, 8], [wartburg, work, 0, 9]].each do |car, place, from, to|
+          place.visits.create!(car:, date: Date.new(2026, 9, 22), started_at: Time.zone.local(2026, 9, 22, from), ended_at: Time.zone.local(2026, 9, 22, to))
+        end
+      end
+
+      # The index of 07:55 in the labels, which both lines share
+      def index_at_7_55
+        chart.data[:labels].index(Time.zone.local(2026, 9, 22, 7, 55).to_i * 1000)
+      end
+
+      it 'draws a line of each car, with its name, tinted with its color' do
+        datasets = chart.data[:datasets]
+
+        expect(datasets.pluck(:label)).to eq(['Car 1', 'Wartburg'])
+        expect(datasets.pluck(:tintColor)).to eq([Car::DEFAULT_COLOR, '#ff0000'])
+        expect(datasets.map { it[:data].last }).to eq([60, 20])
+        expect(datasets.flat_map(&:keys)).not_to include(:stack, :summed)
+      end
+
+      it 'notes the place of each car at the same time' do
+        expect(chart.data[:datasets].map { it[:tooltipRowNotes][index_at_7_55] }).to eq(
+          [{ text: 'Garage', icon: 'house' }, { text: 'Unknown place', icon: 'location-dot' }],
+        )
+      end
+    end
+
     context 'with a 0 of an offline car' do
       before do
         influx_batch { add_influx_point(name: 'Trabant', fields: { odometer: 0.0 }, time: Time.zone.local(2026, 9, 22, 12)) }

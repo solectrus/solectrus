@@ -41,7 +41,8 @@ module CarSelectable
     def live_selection_params = car_selection.guest? ? { car: nil } : selection_params
 
     # Each chart of the car page shows the selected cars, and the guest
-    # sessions for the guest and for "all"
-    def chart_options = { cars:, guest: car_selection.with_guest? }
+    # sessions for the guest and for "all". Only the admin sees the places of
+    # a car.
+    def chart_options = { cars:, guest: car_selection.with_guest?, admin: admin? }
   end
 end

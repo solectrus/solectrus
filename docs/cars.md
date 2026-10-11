@@ -555,7 +555,9 @@ the cost per kWh, gives the cost of each part.
 
 A day draws the distance since midnight as a line. The line holds each reading until the next
 one and steps at a change, like the daily summary (see [Distance](#distance)). The line
-therefore ends at the distance on the driving card.
+therefore ends at the distance on the driving card. Each car has a line of its own, and the
+tooltip shows the place of each car at that time from its visits. Between two visits it shows
+no place. Only the admin sees these places.
 
 A rate column without a day with a rate has a gap. A column that the installation date,
 today or the edge of a range cuts is hatched.
