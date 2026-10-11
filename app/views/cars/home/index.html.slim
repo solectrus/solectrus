@@ -12,10 +12,10 @@
   / The driving cost is the main number of the page, so its dependencies
   / (odometer and wallbox) decide whether the page has anything to show.
   - if Sensor::Config.exists?(:car_driving_costs)
-    / With more than one car, the select stays also for a timeframe with one
-    / car, so it does not come and go with the timeframe. The live view shows
-    / each car in use, with its name, so it needs no select.
-    - if car_selection.installed.many? && !timeframe.now?
+    / With more than one car or with guest sessions, the select stays also for
+    / a timeframe with one car, so it does not come and go with the timeframe.
+    / The live view shows each car in use, with its name, so it needs no select.
+    - if car_select? && !timeframe.now?
       - content_for :sub_nav_select do
         div id=frame_id('car-select')
           = render car_select_component

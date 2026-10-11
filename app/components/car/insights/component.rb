@@ -7,7 +7,7 @@ class Car::Insights::Component < ViewComponent::Base
     super()
     @sensor = sensor
     @timeframe = timeframe
-    @selection = CarSelection.new(car, timeframe:)
+    @selection = CarSelection.new(car, timeframe:, guest: true)
   end
 
   attr_reader :sensor, :timeframe, :selection
@@ -48,16 +48,21 @@ class Car::Insights::Component < ViewComponent::Base
   private
 
   def report
-    @report ||= Car::Report.new(timeframe, cars)
+    @report ||= Car::Report.new(timeframe, cars, guest: selection.with_guest?)
   end
 
   # "All" compares the cars of the installation, each in its period of use, so
-  # a car that replaced another one continues its trend
-  def cars = selection.car ? [selection.car] : selection.installed
+  # a car that replaced another one continues its trend. The guest sessions
+  # have no car.
+  def cars
+    return [] if selection.guest?
+
+    selection.car ? [selection.car] : selection.installed
+  end
 
   def trend(base)
     return unless value && Trend.available_for?(sensor:, timeframe:)
 
-    Car::Trend.new(sensor:, timeframe:, current_value: value, base:, cars:).then { it if it.base_value }
+    Car::Trend.new(sensor:, timeframe:, current_value: value, base:, cars:, guest: selection.with_guest?).then { it if it.base_value }
   end
 end

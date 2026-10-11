@@ -70,6 +70,10 @@ class ApplicationController < ActionController::Base
   # another page does not get them (see ApplicationHelper#selection_params).
   def selection_params = {}
 
+  # The selection that the link to the live view keeps. The live view can
+  # have less to select, like the car page without the guests.
+  def live_selection_params = selection_params
+
   # The options of the charts of a selection, for example the cars of the
   # car page (see Sensor::Definitions::Base#chart). Each chart of the page
   # gets them (see ApplicationHelper#chart_options).

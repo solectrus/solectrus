@@ -123,8 +123,24 @@ describe Sensor::Chart::CarChargingPower do
     context 'with all cars' do
       let(:cars) { [car, other_car] }
 
-      it 'leaves out the guest alone' do
+      it 'leaves out the guest without it' do
         expect([wallbox_at(at(10, 5)), wallbox_at(at(12, 5)), wallbox_at(at(14, 5))]).to eq([7_000, 0, 7_000])
+      end
+
+      # "all" adds the guest to the cars
+      it 'draws the guest with it' do
+        chart = described_class.new(timeframe:, cars:, guest: true)
+        data = chart.data[:datasets].find { it[:id] == 'wallbox_power' }[:data]
+
+        expect([at(10, 5), at(12, 5), at(14, 5)].map { data[chart.data[:labels].index(it.to_i * 1000)] }).to eq([7_000, 7_000, 7_000])
+      end
+    end
+
+    context 'with the guest' do
+      subject(:chart) { described_class.new(timeframe:, cars: [], guest: true) }
+
+      it 'draws the guest and a charge without a session alone' do
+        expect([wallbox_at(at(10, 5)), wallbox_at(at(12, 5)), wallbox_at(at(14, 5)), wallbox_at(at(16, 5))]).to eq([0, 7_000, 0, 7_000])
       end
     end
   end

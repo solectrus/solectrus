@@ -2,8 +2,8 @@
 # share and the cost of each source of the charged energy: PV and grid of the
 # home wallbox, or the wallbox alone without the power splitter, and the
 # offsite sessions. The card shows their energy below the ring. The costs
-# add up to the charging cost. A guest session belongs to no car, so its cost
-# is a loss of its own and not a part of the total.
+# add up to the charging cost. "all" holds the guest sessions, so the cost
+# of the guest stands below the total as a part of it.
 class Car::ChargingTooltip::Component < ViewComponent::Base
   # The parts by source in the order of the sources (see
   # Car::Report#sources) and their sum, rounded to add up (see RoundedSum),

@@ -1,7 +1,7 @@
 = turbo_stream_update_navigation
 
 / Each choice of the car select keeps the chart
-- if car_selection.installed.many? && !timeframe.now?
+- if car_select? && !timeframe.now?
   = turbo_stream.update frame_id('car-select') do
     = render car_select_component
   = turbo_stream.update frame_id('car-select-stats') do

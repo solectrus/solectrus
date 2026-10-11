@@ -129,10 +129,11 @@ class Cars::ChargingSessionsController < ApplicationController
     ChargingSession.human_enum_name(:kind, kind)
   end
 
-  # The car page in the timeframe of the list. It keeps one car, but not a
-  # guest or "not assigned", which the car page does not select.
+  # The car page in the timeframe of the list. It keeps one car and the
+  # guests, but not "not assigned", which the car page does not select.
   helper_method def back_path
-    cars_home_path(sensor_name: 'car_charging', timeframe: timeframe.to_param, car: car_selection.car&.id)
+    car = car_selection.extra == CarSelection::GUEST ? CarSelection::GUEST : car_selection.car&.id
+    cars_home_path(sensor_name: 'car_charging', timeframe: timeframe.to_param, car:)
   end
 
   helper_method def timeframe_page

@@ -4,7 +4,9 @@
 # gives the share and the cost of each source and the charging cost. Without
 # the power splitter, the wallbox has no PV and grid, so the ring has the
 # wallbox and the offsite sessions. The numbers are the charging sessions of
-# the selected cars (see Car::Report).
+# the selected cars (see Car::Report). A guest session belongs to no car, so
+# only "all" adds the guest sessions, and names them in a badge of their own
+# and in the tooltip of the ring.
 #
 # A badge with sessions that its count leaves out shows an icon, and its
 # tooltip names them (see #omitted).
@@ -17,7 +19,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
 
   # Each badge with its sessions and the list it opens. Without a wallbox
   # there is no wallbox or guest session, and their badges are hidden, not
-  # zero.
+  # zero. A selected car hides the guest badge.
   Badge = Data.define(:kind, :sums, :params)
   private_constant :Badge
 
@@ -66,6 +68,11 @@ class Car::ChargingCard::Component < ViewComponent::Base
 
   def charging_chart = chart_sensor_name(:car_charging)
 
+  def charging_costs_chart = chart_sensor_name(:car_charging_costs)
+
+  # Sessions without a price have no cost, so their sum of 0 is no number
+  def charging_cost = (charged.cost if charged.cost?)
+
   def total_kwh = charged.kwh
 
   # The sources with energy in the order of the ring, PV first. Without
@@ -111,7 +118,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
     Car::ChargingTooltip::Component.new(
       sources: parts.map { Car::ChargingTooltip::Component::Source.new(key: it.source.key, whole_percent: it.whole_percent) },
       costs: (costs if charged.cost?),
-      guest_cost: (report.guest_sessions.cost if report.guest_sessions.any?),
+      guest_cost: (report.guest_sessions.cost if guest_cost?),
       complete: charged.costed?,
     )
   end
@@ -120,13 +127,29 @@ class Car::ChargingCard::Component < ViewComponent::Base
     SensorValue::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, precision:, **)
   end
 
+  # The guest has no badges: its sessions stand beside its cost (see
+  # the template)
   def badges
+    return [] if report.guest_only?
+
     car = report.car&.id
     [
       (Badge.new(:wallbox, wallbox, { kind: 'wallbox', car: }) if wallbox?),
       Badge.new(:offsite, offsite, { kind: 'offsite', car: }),
-      (Badge.new(:guest, report.guest_sessions, { kind: 'wallbox', car: CarSelection::GUEST }) if wallbox?),
+      (guest_badge if wallbox? && @all),
     ].compact
+  end
+
+  # Two badges share the width, one or three take a third each
+  def badge_grid_class = badges.size == 2 ? 'grid-cols-2' : 'grid-cols-3'
+
+  # A cell of the guest below the ring: its charging cost or its sessions
+  def guest_cell_classes
+    'flex flex-col items-center gap-1 min-w-0 px-2 text-center focus:outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-gray-700 dark:focus-visible:ring-gray-400'
+  end
+
+  def guest_value_classes
+    'text-3xl md:text-4xl font-semibold leading-none tabular-nums whitespace-nowrap text-slate-700 dark:text-slate-200'
   end
 
   # The sessions that the count of the badge leaves out, or nil: the
@@ -156,13 +179,19 @@ class Car::ChargingCard::Component < ViewComponent::Base
 
   def charged = report.sessions
 
-  def wallbox = report.sessions(:wallbox)
+  # The wallbox sessions of the cars, without the guest, which has a badge of
+  # its own
+  def wallbox = report.sessions(:wallbox, guest: false)
 
   def offsite = report.sessions(:offsite)
+
+  def guest_badge = Badge.new(:guest, report.guest_sessions, { kind: 'wallbox', car: CarSelection::GUEST })
 
   def wallbox?
     Sensor::Config.exists?(:wallbox_power)
   end
+
+  def guest_cost? = @all && report.guest_sessions.any?
 
   def build_parts
     sources = report.sources.select { it.kwh.positive? }

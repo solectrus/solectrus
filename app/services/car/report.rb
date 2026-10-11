@@ -4,9 +4,10 @@
 # for each column.
 #
 # The charged energy and the charging cost are the sums of the charging
-# sessions of the selected cars. A guest session and a session that is not
-# assigned count for no car. The selection "all" is therefore the sum of the
-# cars, and not the sum of the wallbox.
+# sessions of the selected cars. A session that is not assigned counts for
+# no car, so the selection "all" is not the sum of the wallbox. A guest
+# session counts with `guest: true`: "all" adds the guest to the cars, and
+# the selection of the guest has no cars, so it has no driving.
 #
 # The driving cost and the two rates come from the window around each day
 # (see Car::Driving), so they read the days around the timeframe too. These
@@ -33,14 +34,21 @@ class Car::Report
     ]
   end
 
-  def initialize(timeframe, cars)
+  def initialize(timeframe, cars, guest: false)
     @timeframe = timeframe
     @cars = cars
+    @guest = guest
     @dates = timeframe.effective_dates
-    @ledger = Car::Ledger.new(cars, Car::Driving.reach(dates, min_date: timeframe.min_date))
+    @ledger = Car::Ledger.new(cars, Car::Driving.reach(dates, min_date: timeframe.min_date), guest:)
   end
 
   attr_reader :timeframe, :cars, :dates
+
+  # Whether the guest sessions count
+  def guest? = @guest
+
+  # Whether the report is the guest alone, without a car
+  def guest_only? = guest? && cars.empty?
 
   # The one car of the report, or nil for several. "all" of a single car is
   # that car, too.
@@ -48,14 +56,14 @@ class Car::Report
     cars.sole if cars.one?
   end
 
-  # The Sums of the sessions of the cars, of a kind (:wallbox, :offsite) or of
-  # each kind
-  def sessions(kind = nil, dates: self.dates)
-    memo(:sessions, kind, dates) { ledger.sessions(dates, kind:) }
+  # The Sums of the sessions of the cars and, with `guest`, of the guest, of
+  # a kind (:wallbox, :offsite) or of each kind
+  def sessions(kind = nil, dates: self.dates, guest: guest?)
+    memo(:sessions, kind, dates, guest) { ledger.sessions(dates, kind:, guest:) }
   end
 
   # The guest sessions belong to no car, so they are the same for each
-  # selection, and their cost is a loss for the owner
+  # selection, and their cost is a loss for the owner. "all" names them.
   def guest_sessions
     memo(:guest_sessions) { ledger.guest_sessions(dates) }
   end
@@ -189,9 +197,11 @@ class Car::Report
       .pick(:date, Arel.sql('SUM(value)'))
   end
 
-  # The energy of the sessions of the cars, without the guest sessions
+  # The energy of the sessions of the cars and, with `guest`, of the guest
   def max_charging_day
-    date, kwh = ChargingSession.effective.where(car: cars).on_dates(dates).max_daily_kwh
+    scope = ChargingSession.where(car: cars)
+    scope = scope.or(ChargingSession.wallbox.where(car_id: nil, guest: true)) if guest?
+    date, kwh = scope.effective.on_dates(dates).max_daily_kwh
     [date, kwh.to_f * 1000] if kwh
   end
 

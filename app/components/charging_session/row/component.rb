@@ -15,12 +15,13 @@ class ChargingSession::Row::Component < ViewComponent::Base
     charging_session.address.presence || place&.display_name || charging_session.provider.presence || charging_session.note
   end
 
-  # The day of the session: on the car page for the session of a car, and on
-  # the power balance for the wallbox otherwise
+  # The day of the session: on the car page for the session of a car or of
+  # the guest, and on the power balance for a session that is not assigned,
+  # which the car page does not select
   def day_path
     day = charging_session.date.iso8601
-    if charging_session.car
-      helpers.cars_home_path(sensor_name: 'car_charging', timeframe: day, car: charging_session.car_id)
+    if charging_session.car || charging_session.guest?
+      helpers.cars_home_path(sensor_name: 'car_charging', timeframe: day, car: charging_session.car_id || CarSelection::GUEST)
     else
       helpers.balance_home_path(sensor_name: 'wallbox_power', timeframe: day)
     end

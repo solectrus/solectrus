@@ -6,7 +6,7 @@ describe ChargingSession::Filter::Component, type: :component do
 
     expect(page).to have_css('a[aria-current="page"][href="/cars/1/charging_sessions/wallbox"]', text: 'Car 1')
     expect(page).to have_link 'Not assigned', href: '/cars/unassigned/charging_sessions/wallbox'
-    expect(page).to have_link 'Guests', href: '/cars/guest/charging_sessions/wallbox'
+    expect(page).to have_link 'Guest', href: '/cars/guest/charging_sessions/wallbox'
     expect(page).to have_css('a.border-t[href="/cars/unassigned/charging_sessions/wallbox"] svg[data-icon="circle-question"]')
     expect(page).to have_css('a[href="/cars/guest/charging_sessions/wallbox"] svg[data-icon="user"]')
     expect(page).to have_css('option[selected][value="/cars/1/charging_sessions/wallbox"]')

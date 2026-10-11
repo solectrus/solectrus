@@ -192,8 +192,8 @@ Rails.application.routes.draw do
           to: 'balance/charts#index',
           as: :balance_charts
 
-      # The other home pages. The car page has the selected car in front
-      # (see CarSelection).
+      # The other home pages. The car page has the selected car or the guests
+      # in front (see CarSelection).
       #
       # A page whose live view has no chart has no sensor in the address of
       # its live view and its stats: /cars/now. A sensor name is never a
@@ -207,7 +207,7 @@ Rails.application.routes.draw do
         car = with_car ? '(/:car)' : ''
         stats_sensor = with_sensor ? '/:sensor_name' : '(/:sensor_name)'
         constraints = {
-          car: (CarSelection::CAR if with_car),
+          car: (CarSelection::CAR_OR_GUEST if with_car),
           sensor_name: (sensor_name_not_timeframe unless with_sensor),
         }.compact
 

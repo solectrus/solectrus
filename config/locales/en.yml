@@ -214,7 +214,7 @@ en:
       minutes: '%{count} min'
   car_breakdown:
     home: Wallbox
-    guest_additional: Paid for guests
+    guest_included: Of which for guests
     cost_incomplete: A charging session has no cost, because its day has no price. The charging cost is therefore too small.
     cost_missing: The charging sessions have no cost, because their days have no price.
     home_pv: Photovoltaics

@@ -37,5 +37,5 @@ class Cars::StatsController < ApplicationController
   # Sensor::HomePage.hours?).
   def data_now = Car::Live.new(car_selection.offered)
 
-  def data_range = Car::Report.new(timeframe, cars)
+  def data_range = Car::Report.new(timeframe, cars, guest: car_selection.with_guest?)
 end

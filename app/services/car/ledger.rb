@@ -2,6 +2,8 @@
 # distance and the maximum range from the daily summaries, and the sums of
 # its charging sessions. The wallbox sessions without a car, the guest
 # sessions and the sessions that are not assigned, are days without a car.
+# With `guest: true` the sessions also hold the guest sessions: "all" adds
+# them to the cars, and the selection of the guest has no cars.
 #
 # Each number of the car page and of its charts is a sum over these days (see
 # Car::Report), so a column of a chart and the tile of the same period agree.
@@ -11,24 +13,25 @@ class Car::Ledger
   Row = Data.define(:date, :car_id, :guest, :kind, :sums)
   private_constant :Row
 
-  def initialize(cars, dates)
+  def initialize(cars, dates, guest: false)
     @cars = cars
     @dates = dates
+    @guest = guest
   end
 
   attr_reader :cars, :dates
 
-  # The Sums of the sessions of the cars on the given dates, of one kind or
-  # of each kind
-  def sessions(dates, kind: nil)
+  # The Sums of the sessions of the cars and, with `guest`, of the guest on
+  # the given dates, of one kind or of each kind
+  def sessions(dates, kind: nil, guest: @guest)
     ids = cars.map(&:id)
     kind = kind&.to_s
-    sum_rows(dates) { ids.include?(it.car_id) && (kind.nil? || it.kind == kind) }
+    sum_rows(dates) { (ids.include?(it.car_id) || (guest && guest_row?(it))) && (kind.nil? || it.kind == kind) }
   end
 
   # The Sums of the guest sessions on the given dates
   def guest_sessions(dates)
-    sum_rows(dates) { it.car_id.nil? && it.guest }
+    sum_rows(dates) { guest_row?(it) }
   end
 
   # The Sums of the wallbox sessions on the given dates that are not assigned
@@ -59,6 +62,8 @@ class Car::Ledger
   end
 
   private
+
+  def guest_row?(row) = row.car_id.nil? && row.guest
 
   # The sum of the rows on the given dates for which the block is true
   def sum_rows(dates)

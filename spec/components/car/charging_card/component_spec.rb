@@ -1,5 +1,5 @@
 describe Car::ChargingCard::Component, type: :component do
-  subject(:html) { render_inline(described_class.new(report:)) }
+  subject(:html) { render_inline(described_class.new(report:, all: true)) }
 
   def sums(count: 0, **) = ChargingSession::Sums.empty.with(count:, rows: count, **)
 
@@ -30,6 +30,8 @@ describe Car::ChargingCard::Component, type: :component do
       Car::Report,
       timeframe: Timeframe.new('2025'),
       split?: true,
+      guest?: true,
+      guest_only?: false,
       cars: [car],
       car:,
       guest_sessions: guest,
@@ -40,7 +42,7 @@ describe Car::ChargingCard::Component, type: :component do
 
   before do
     stub_feature(:power_splitter)
-    allow(report).to receive(:sessions) { |kind = nil| { wallbox:, offsite:, nil => ChargingSession::Sums.sum([wallbox, offsite]) }[kind] }
+    allow(report).to receive(:sessions) { |kind = nil, **| { wallbox:, offsite:, nil => ChargingSession::Sums.sum([wallbox, offsite]) }[kind] }
     allow(report).to receive(:sources) { Car::Report.sources_of(wallbox, offsite, split: report.split?) }
   end
 
@@ -73,7 +75,7 @@ describe Car::ChargingCard::Component, type: :component do
         a_string_including(I18n.t('car_breakdown.home_grid'), '37 %', '214'),
         a_string_including(I18n.t('car_breakdown.offsite'), '7 %', '60'),
         a_string_including(I18n.t('sensors.car_charging_costs'), '372'),
-        a_string_including(I18n.t('car_breakdown.guest_additional'), '6.5'),
+        a_string_including(I18n.t('car_breakdown.guest_included'), '6.5'),
       ],
     )
   end
@@ -131,6 +133,56 @@ describe Car::ChargingCard::Component, type: :component do
         a_string_including(I18n.t('car_breakdown.guest_sessions'), '21', '6.5'),
       ],
     )
+  end
+
+  # A guest session belongs to no car
+  context 'with a selected car' do
+    subject(:html) { render_inline(described_class.new(report:)) }
+
+    it 'leaves out the guest badge and splits the width between the others' do
+      expect(badge('/cars/guest/charging_sessions/wallbox')).to be_nil
+      expect(badges.size).to eq(2)
+      expect(html.at_css('.grid-cols-2')).to be_present
+    end
+
+    it 'leaves out the guest cost in the tooltip of the ring' do
+      expect(tooltip.text).not_to include(I18n.t('car_breakdown.guest_included'))
+    end
+  end
+
+  # The charging of the guests is all guest sessions
+  context 'with the guest' do
+    subject(:html) { render_inline(described_class.new(report:)) }
+
+    before { allow(report).to receive_messages(guest_only?: true, cars: [], car: nil) }
+
+    it 'shows the charging without the guest cost, which is all of it' do
+      expect(html.text.squish).to include('2,078')
+      expect(tooltip.text).not_to include(I18n.t('car_breakdown.guest_included'))
+    end
+
+    it 'shows its sessions beside the cost, which open their list' do
+      link = html.at_css('a[href="/cars/guest/charging_sessions/wallbox/2025"]')
+
+      expect(badges).to be_empty
+      expect(link.css('div, span').map { it.text.squish }).to eq(['2', 'charging sessions'])
+    end
+
+    it 'shows the charging cost below the ring, which loads its chart' do
+      link = html.at_css('a[data-stats-with-chart--component-sensor-name-param="car_charging_costs"]')
+
+      expect(link.text.squish).to include('372', I18n.t('sensors.car_charging_costs'))
+    end
+
+    it 'stands alone, without a frame and without a title' do
+      expect(html.at_css('section')['class']).not_to include('sm:bg-slate-100')
+      expect(html.css('h2').map(&:text)).not_to include(I18n.t('car_breakdown.charging'))
+    end
+  end
+
+  it 'has a frame and a title' do
+    expect(html.at_css('section')['class']).to include('sm:bg-slate-100')
+    expect(html.css('h2').map { it.text.squish }).to include(I18n.t('car_breakdown.charging'))
   end
 
   it 'points to the unconfirmed offsite sessions, which the count leaves out' do

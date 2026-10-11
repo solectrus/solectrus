@@ -255,8 +255,23 @@ describe 'Charging sessions' do
       expect(response.body).not_to include(guest.started_at.iso8601)
     end
 
-    it 'goes back to the car page without the guest filter, which it does not select' do
+    # The car page selects the guest, but no session that is not assigned
+    it 'links the day of a guest session to the car page of the guest' do
       get "/cars/guest/charging_sessions/wallbox/#{Date.current.year}"
+      expect(response.body).to include(%(href="/cars/guest/car_charging/#{day.iso8601}"))
+
+      get "/cars/unassigned/charging_sessions/wallbox/#{Date.current.year}"
+      expect(response.body).to include(%(href="/wallbox_power/#{day.iso8601}"))
+    end
+
+    it 'goes back to the car page of the guest' do
+      get '/cars/guest/charging_sessions/wallbox/all'
+
+      expect(response.body).to include(%(href="/cars/guest/car_charging/all"))
+    end
+
+    it 'goes back to the car page without the filter "not assigned", which it does not select' do
+      get "/cars/unassigned/charging_sessions/wallbox/#{Date.current.year}"
 
       expect(response.body).to include(%(href="/cars/car_charging/#{Date.current.year}"))
     end

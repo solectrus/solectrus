@@ -243,6 +243,28 @@ describe Car::Report do
     end
   end
 
+  describe 'the charging of the guest' do
+    subject(:report) { described_class.new(timeframe, [], guest: true) }
+
+    it 'is the sum of the guest sessions, without driving' do
+      expect(report.sessions).to have_attributes(count: 1, kwh: 5, cost: 1.5)
+      expect(report.sessions(:offsite).count).to eq(0)
+      expect(report.maximum(:car_charging)).to eq([Date.new(2026, 1, 12), 5000.0])
+      expect(report).not_to be_driving
+      expect(report).to be_guest_only
+    end
+  end
+
+  describe 'the charging of "all" with the guest' do
+    subject(:report) { described_class.new(timeframe, cars, guest: true) }
+
+    it 'adds the guest sessions to the cars, without the open sessions' do
+      expect(report.sessions).to have_attributes(count: 4, kwh: 43)
+      expect(report.sessions(:wallbox, guest: false)).to have_attributes(count: 2, kwh: 30)
+      expect(report).not_to be_guest_only
+    end
+  end
+
   describe 'the charging of "all"' do
     it 'is the sum of the sessions of the cars, without the guest and the open sessions' do
       expect(report.sessions.kwh).to eq(38)

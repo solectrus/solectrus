@@ -37,10 +37,14 @@ class Car::Card::Component < ViewComponent::Base
   ROW_CAPTION = 'text-sm whitespace-nowrap text-slate-500 dark:text-slate-400'.freeze
   public_constant :ROW_CAPTION
 
-  def initialize(title:)
+  # A card alone on the page (`framed: false`) needs no frame and no title
+  def initialize(title:, framed: true)
     super()
     @title = title
+    @framed = framed
   end
 
   attr_reader :title
+
+  def framed? = @framed
 end

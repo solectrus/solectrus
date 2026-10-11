@@ -214,7 +214,7 @@ de:
       minutes: '%{count} Min.'
   car_breakdown:
     home: Wallbox
-    guest_additional: Für Gäste bezahlt
+    guest_included: Davon für Gäste
     cost_incomplete: Ein Ladevorgang hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist. Die Ladekosten sind deshalb zu klein.
     cost_missing: Die Ladevorgänge haben keine Kosten, weil für ihre Tage kein Preis hinterlegt ist.
     home_pv: Photovoltaik

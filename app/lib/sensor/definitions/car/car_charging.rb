@@ -7,11 +7,11 @@ class Sensor::Definitions::CarCharging < Sensor::Definitions::Base
   # curve of the wallbox, and a longer timeframe the charged energy of the
   # sessions. The chart builds it from the wallbox sensors and the charging
   # sessions, so the sensor itself never carries a scalar value.
-  chart do |timeframe, cars: nil, **|
+  chart do |timeframe, cars: nil, guest: false, **|
     if timeframe.short?
-      Sensor::Chart::CarChargingPower.new(timeframe:, cars:)
+      Sensor::Chart::CarChargingPower.new(timeframe:, cars:, guest:)
     else
-      Sensor::Chart::CarSessions.new(timeframe:, cars:, measure: :energy)
+      Sensor::Chart::CarSessions.new(timeframe:, cars:, guest:, measure: :energy)
     end
   end
 

@@ -22,7 +22,7 @@ module Sensor
         private
 
         def report
-          @report ||= Car::Report.new(timeframe, cars)
+          @report ||= Car::Report.new(timeframe, cars, guest: guest?)
         end
 
         # The dates of each column, grouped like the SQL charts group them.

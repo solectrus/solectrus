@@ -286,15 +286,16 @@ describe 'Car Stats' do
           expect(response.body).not_to include('Wartburg', '/cars/2/')
         end
 
-        it 'keeps the select with the one car of the timeframe' do
+        # "all" adds the guest sessions to the one car
+        it 'keeps the select with the one car of the timeframe and "all"' do
           summarize((day - 14)..(day + 14))
           get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
 
-          # One choice is no choice, so the select does not open
-          expect(response.body).to match(/<select[^>]* disabled[ =>]/)
+          expect(response.body).not_to match(/<select[^>]* disabled[ =>]/)
+          expect(response.body).to match(/<option[^>]*selected[^>]*>All cars</)
           # The option of the native select shows the short name
-          expect(response.body).to match(/<option[^>]*selected[^>]*>#{Car.find(1).short_name}</)
-          expect(response.body).not_to include('Wartburg', 'All cars')
+          expect(response.body).to match(/<option[^>]*>#{Car.find(1).short_name}</)
+          expect(response.body).not_to include('Wartburg')
         end
 
         it 'offers both cars in a timeframe that holds both periods' do
@@ -411,6 +412,71 @@ describe 'Car Stats' do
           # The distance of both cars
           expect(response.body).not_to include("/cars/#{param}/")
           expect(response.body).to include('>200</strong>')
+        end
+      end
+
+      context 'with a guest session' do
+        before do
+          wallbox(day, kwh: 7, kwh_grid: 7, cost: 2.1, car_id: nil, hour: 18).update!(guest: true)
+          summarize((day - 14)..(day + 14))
+        end
+
+        it 'offers the guests in the select' do
+          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
+
+          expect(response.body).to include('Guest', '/cars/guest/car_charging')
+        end
+
+        # The guests have no car, so no driving and no sessions of a car
+        it 'shows the charging of the guest alone, with the link to its sessions' do
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 'guest'), headers:)
+
+          expect(response.body).to include('>7</strong>', "/cars/guest/charging_sessions/wallbox/#{day}")
+          expect(response.body).not_to include(I18n.t('car_breakdown.driving'), I18n.t('data.car_none_in_use'))
+        end
+
+        # The live view shows each car in use and no guests
+        it 'goes from the guests to the live view without them' do
+          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 'guest')
+
+          expect(response.body).to include('/cars/now"')
+          expect(response.body).not_to include('/cars/guest/now')
+        end
+
+        it 'redirects the live view of the guests to the live view' do
+          get '/cars/guest/now'
+
+          expect(response).to redirect_to('/cars/now')
+        end
+
+        # A chart loads in place, and each choice of the select keeps it
+        it 'renders the select again with the chart that loads' do
+          get(cars_charts_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers:)
+
+          expect(response.body).to include("target=\"cars-car-select-#{day}\"", "target=\"cars-car-select-stats-#{day}\"")
+          expect(response.body).to include("/cars/guest/car_distance/#{day}")
+        end
+
+        it 'adds the guest to "all", but not to a car' do
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
+          expect(response.body).to include('>37</strong>', I18n.t('car_breakdown.guest_included'))
+
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 1), headers:)
+          expect(response.body).to include('>30</strong>')
+          expect(response.body).not_to include(I18n.t('car_breakdown.guest_included'))
+        end
+
+        it 'offers the select also with one car in the installation' do
+          Car.find(2).destroy!
+          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
+
+          expect(response.body).to include('name="car"', 'All cars', 'Trabant', 'Guest')
+        end
+
+        it 'offers only the charts of the charging' do
+          get cars_home_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 'guest')
+
+          expect(response).to redirect_to(cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 'guest'))
         end
       end
 
