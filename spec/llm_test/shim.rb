@@ -12,7 +12,7 @@ require 'socket'
 # A command line tool, not a spec: stdout is the MCP transport.
 # rubocop:disable RSpec/Output
 
-socket = UNIXSocket.new(ENV.fetch('LLM_TEST_MCP_SOCKET')) # rubocop:disable Style/HashLookupMethod
+socket = UNIXSocket.new(ENV.fetch('LLM_TEST_MCP_SOCKET'))
 
 $stdout.sync = true
 
