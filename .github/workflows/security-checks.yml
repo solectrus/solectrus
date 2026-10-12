@@ -41,5 +41,9 @@ jobs:
       - name: Install JavaScript packages
         run: bun install --frozen-lockfile
 
+      # GHSA-rj75-hqrm-r3gf: postcss-selector-parser below 7.1.6, pinned by
+      # @tailwindcss/typography. It only parses our own CSS at build time.
+      # Remove the ignore when the plugin moves to 7.1.6. The same ignore is
+      # in config/ci.rb.
       - name: Run JavaScript security audit
-        run: bun audit
+        run: bun audit --ignore=GHSA-rj75-hqrm-r3gf

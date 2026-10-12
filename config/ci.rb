@@ -51,7 +51,11 @@ ParallelCI.run do
     check 'Shell', "shellcheck $(git ls-files '*.sh')"
     check 'Markdown, JSON, YAML, CSS', 'bun run format:check'
     check 'Gem audit', 'bin/bundler-audit'
-    check 'JavaScript vulnerability audit', 'bun audit'
+    # GHSA-rj75-hqrm-r3gf: postcss-selector-parser below 7.1.6, pinned by
+    # @tailwindcss/typography. It only parses our own CSS at build time.
+    # Remove the ignore when the plugin moves to 7.1.6. The same ignore is
+    # in .github/workflows/security-checks.yml.
+    check 'JavaScript vulnerability audit', 'bun audit --ignore=GHSA-rj75-hqrm-r3gf'
     check 'Brakeman code analysis', 'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
     # slim-lint runs on one core and keeps no cache, so it is the slowest
