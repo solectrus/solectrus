@@ -22,7 +22,8 @@ module ChargingSession::StateOfCharge
 
   # The share of the energy that did not reach the battery, from the rise of
   # the state of charge and the capacity of the car. A proposal has no
-  # measured energy, so it has no loss.
+  # measured energy, so it has no loss. An ongoing session has no state at
+  # its end yet (see ChargingSession::Ongoing).
   def loss
     1 - (soc_rise * car.battery_kwh / 100 / kwh) if loss?
   end
@@ -30,7 +31,7 @@ module ChargingSession::StateOfCharge
   private
 
   def loss?
-    return false if proposal? || car&.battery_kwh.nil? || !kwh&.positive?
+    return false if proposal? || ongoing? || car&.battery_kwh.nil? || !kwh&.positive?
 
     soc_rise.to_f >= LOSS_MIN_RISE
   end

@@ -10,6 +10,14 @@
           =< time_range
   .col-start-2.p-1.sm:p-2.min-w-0.flex.items-center.gap-2
     = render Car::Badge::Component.new(charging_session:, short: true)
+    - if charging_session.ongoing?
+      = tag.span class: 'relative flex size-2 shrink-0',
+                 role: 'img',
+                 title: t('charging_sessions.ongoing'),
+                 aria: { label: t('charging_sessions.ongoing') },
+                 data: { controller: 'tooltip' } do
+        span.absolute.inline-flex.size-full.rounded-full.bg-signal-positive.opacity-75.animate-ping.motion-reduce:animate-none
+        span.relative.inline-flex.size-2.rounded-full.bg-signal-positive
     - if charging_session.proposal?
       = tag.span class: 'hidden sm:inline shrink-0 text-amber-500 dark:text-amber-400',
                  title: t('charging_sessions.proposal.hint'),

@@ -57,6 +57,7 @@
 # make it again. Only the effective sessions count (see .effective).
 class ChargingSession < ApplicationRecord
   include ChargingSession::Holder
+  include ChargingSession::Ongoing
   include ChargingSession::Proposal
   include ChargingSession::Repricing
   include ChargingSession::StateOfCharge

@@ -356,6 +356,9 @@ de:
     cost_incomplete: Mindestens, weil ein Ladevorgang keine Kosten hat
     loss: '%{percent} Ladeverlust'
     soc: 'Ladestand %{range}'
+    soc_from: ab %{percent}
+    since: seit %{time}
+    ongoing: Lädt gerade
     proposal:
       name: Unbestätigt
       title: Ladung bestätigen

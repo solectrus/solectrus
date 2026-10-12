@@ -51,5 +51,39 @@ describe ChargingSessionHelper do
 
       it { is_expected.to eq('22:00') }
     end
+
+    context 'when the session is ongoing' do
+      let(:charging_session) do
+        ChargingSession.new(kind: :wallbox, started_at:, ended_at: started_at + 15.minutes, ongoing: true)
+      end
+
+      before { travel_to(Time.zone.local(2026, 10, 12, 12, 40)) }
+
+      context 'when it started today' do
+        let(:started_at) { Time.zone.local(2026, 10, 12, 12, 20) }
+
+        it { is_expected.to eq('since 12:20') }
+      end
+
+      context 'when it started yesterday' do
+        let(:started_at) { Time.zone.local(2026, 10, 11, 23, 30) }
+
+        it { is_expected.to eq('since 11 Oct 23:30') }
+      end
+    end
+  end
+
+  describe '#charging_session_soc_range' do
+    subject { helper.charging_session_soc_range(charging_session) }
+
+    let(:charging_session) { ChargingSession.new(kind: :wallbox, soc_from: 64, soc_to: 65) }
+
+    it { is_expected.to eq('64 → 65%') }
+
+    context 'when the session is ongoing' do
+      before { charging_session.ongoing = true }
+
+      it { is_expected.to eq('from 64%') }
+    end
   end
 end

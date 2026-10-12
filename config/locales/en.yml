@@ -356,6 +356,9 @@ en:
     cost_incomplete: At least, because a charging session has no cost
     loss: '%{percent} loss'
     soc: 'Charge level %{range}'
+    soc_from: from %{percent}
+    since: since %{time}
+    ongoing: Charging now
     proposal:
       name: Unconfirmed
       title: Confirm the charging session

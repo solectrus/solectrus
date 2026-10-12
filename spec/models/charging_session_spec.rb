@@ -222,6 +222,61 @@ describe ChargingSession do
     end
   end
 
+  describe '.mark_ongoing' do
+    let(:now) { Time.zone.local(2026, 10, 12, 12, 40) }
+    let!(:earlier) do
+      described_class.create!(kind: :wallbox, origin: :detection, started_at: now - 5.hours, ended_at: now - 4.hours, kwh: 5)
+    end
+    let!(:latest) do
+      described_class.create!(kind: :wallbox, origin: :detection, started_at: ended_at - 15.minutes, ended_at:, kwh: 2)
+    end
+    let(:ended_at) { now - 5.minutes }
+
+    # The latest build of today ran 5 minutes ago
+    def mark(wallbox_power:, built_at: now - 5.minutes)
+      Summary.create!(date: now.to_date, updated_at: built_at) if built_at
+      data = Sensor::Data::Single.new({ wallbox_power: }, timeframe: Timeframe.now, times: { wallbox_power: now })
+      allow(Sensor::Query::Latest).to receive(:new).and_return(instance_double(Sensor::Query::Latest, call: data))
+
+      described_class.wallbox.joined.order(started_at: :desc).to_a.tap { described_class.mark_ongoing(it) }.map(&:ongoing?)
+    end
+
+    before { travel_to(now) }
+
+    it 'marks the latest session while the wallbox charges' do
+      expect(mark(wallbox_power: 5_600)).to eq([true, false])
+    end
+
+    it 'marks no session when the wallbox charges no more' do
+      expect(mark(wallbox_power: 0)).to eq([false, false])
+    end
+
+    it 'marks no session without a build of today' do
+      expect(mark(wallbox_power: 5_600, built_at: nil)).to eq([false, false])
+    end
+
+    # The wallbox charges again, but the build has not seen it yet
+    context 'when the latest session ended long before the build' do
+      let(:ended_at) { now - 40.minutes }
+
+      it { expect(mark(wallbox_power: 5_600)).to eq([false, false]) }
+    end
+
+    it 'asks for no power without the latest session' do
+      allow(Sensor::Query::Latest).to receive(:new)
+      described_class.mark_ongoing([earlier])
+
+      expect(Sensor::Query::Latest).not_to have_received(:new)
+    end
+
+    it 'has no loss while ongoing' do
+      latest.assign_attributes(car:, soc_from: 20, soc_to: 60, ongoing: true)
+      car.update!(battery_kwh: 50)
+
+      expect(latest.loss).to be_nil
+    end
+  end
+
   describe '.list_for' do
     let!(:recent_offsite) { described_class.create!(kind: :offsite, origin: :user, car:, started_at: 2.days.ago, kwh: 10, cost: 5) }
     let!(:old_offsite) { described_class.create!(kind: :offsite, origin: :user, car:, started_at: 2.years.ago, kwh: 20, cost: 10) }

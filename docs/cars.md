@@ -297,6 +297,13 @@ counts it once. The data keeps a session for each day, so the daily sums and the
 stay exact. The list keeps the hours view, because the sessions of the last 24 hours are a
 useful list.
 
+The detection writes the end of the latest bucket with power. So a charge that goes on gets
+an end and a state of charge at the end that change with each build. The list shows such a
+session as ongoing: its start alone ("since 12:20"), the state of charge at its start, a
+mark and no loss. A session is ongoing when it reaches the latest build of today within
+the gap of the detection, and the wallbox reports power now. The table does not store this
+state, like for an ongoing visit (see [Visits](#visits)).
+
 ### The detection
 
 `ChargingSession::Detection` finds the wallbox sessions in the wallbox curve of a day:

@@ -18,6 +18,7 @@ class Cars::ChargingSessionsController < ApplicationController
     return if @missing_or_stale_summary_days.present?
 
     @pagy, @charging_sessions = pagy(:countless, list_scope)
+    mark_ongoing(@charging_sessions)
     return unless next_page
 
     render ChargingSession::Rows::Component.new(sessions: @charging_sessions, pagy: @pagy, frame: true), layout: false
@@ -30,6 +31,7 @@ class Cars::ChargingSessionsController < ApplicationController
   # offers its address
   def edit
     charging_session = @charging_session
+    mark_ongoing([charging_session])
     return unless charging_session.offsite? && charging_session.latitude && charging_session.address.blank?
 
     charging_session.address = Place.address_at(charging_session.latitude, charging_session.longitude)
@@ -79,6 +81,11 @@ class Cars::ChargingSessionsController < ApplicationController
     Summary.missing_or_stale_days_for(timeframe)
   end
 
+  # Only a wallbox list up to now can hold an ongoing session
+  def mark_ongoing(sessions)
+    ChargingSession.mark_ongoing(sessions) if kind == 'wallbox' && !timeframe.past?
+  end
+
   def list_scope
     ChargingSession.list_for(kind, timeframe:, filter: car_selection.filter).includes(:car)
   end
@@ -101,6 +108,7 @@ class Cars::ChargingSessionsController < ApplicationController
           params: {},
         },
       )
+    mark_ongoing(charging_sessions)
 
     render turbo_stream: [
              turbo_stream.update(
