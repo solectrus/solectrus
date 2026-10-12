@@ -151,6 +151,29 @@ describe Sensor::Chart::CarDriving do
       end
     end
 
+    context 'with a month without a drive' do
+      let(:timeframe) { Timeframe.new('2026-03') }
+
+      it 'is blank and shows a road instead of a message' do
+        expect(chart).to be_blank
+        expect(chart.blank_message).to eq(I18n.t('data.car_no_driving'))
+        expect(chart.blank_icon).to eq('road')
+      end
+    end
+
+    # 50 km in June, but no charge in its window
+    context 'with a month with a drive but without a rate' do
+      let(:timeframe) { Timeframe.new('2026-06') }
+
+      before { summary(Date.new(2026, 6, 10), :car_odometer_1, :sum, 50) }
+
+      it 'is blank and keeps the message' do
+        expect(chart).to be_blank
+        expect(chart.blank_message).to eq(I18n.t('data.blank'))
+        expect(chart.blank_icon).to be_nil
+      end
+    end
+
     context 'with several cars' do
       subject(:chart) { described_class.new(timeframe:, cars: Car.ordered.to_a, metric:) }
 

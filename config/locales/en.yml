@@ -272,6 +272,7 @@ en:
     inverter_no_production: No production
     car_none_in_use: No car was in use in the selected period.
     car_no_charging: Not charged in the selected period.
+    car_no_driving: Not driven in the selected period.
     car_no_charging_cost: The charging sessions in the selected period have no price.
     car_no_location: No location in the selected period.
   chart:

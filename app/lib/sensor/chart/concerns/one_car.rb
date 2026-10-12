@@ -18,6 +18,11 @@ module Sensor
           super && car.present? && chart_sensor_names.all? { Sensor::Config.exists?(it) }
         end
 
+        # A parked car often reports nothing
+        def blank_message = I18n.t('data.car_no_driving')
+
+        def blank_icon = 'road'
+
         private
 
         # The sensor of the car with the given role, for #chart_sensor_names

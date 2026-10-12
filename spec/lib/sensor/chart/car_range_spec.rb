@@ -49,6 +49,12 @@ describe Sensor::Chart::CarRange do
       expect(chart.data).to be_nil
       expect(Sensor::Query::Series).not_to have_received(:new)
     end
+
+    it 'is blank and shows a road instead of a message' do
+      expect(chart).to be_blank
+      expect(chart.blank_message).to eq(I18n.t('data.car_no_driving'))
+      expect(chart.blank_icon).to eq('road')
+    end
   end
 
   context 'with the live view' do

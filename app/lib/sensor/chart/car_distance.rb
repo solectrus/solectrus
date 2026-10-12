@@ -4,6 +4,7 @@
 # is a day at least.
 class Sensor::Chart::CarDistance < Sensor::Chart::Base
   include Sensor::Chart::Concerns::SelectedCars
+  include Sensor::Chart::Concerns::BlankWithoutPositive
 
   def self.supports?(timeframe)
     timeframe.day? || !timeframe.short?
@@ -36,6 +37,10 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
   def label
     I18n.t('sensors.car_distance')
   end
+
+  def blank_message = I18n.t('data.car_no_driving')
+
+  def blank_icon = 'road'
 
   private
 

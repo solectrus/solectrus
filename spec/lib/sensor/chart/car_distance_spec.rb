@@ -232,6 +232,19 @@ describe Sensor::Chart::CarDistance do
     end
   end
 
+  context 'with a month without a drive' do
+    subject(:chart) { described_class.new(timeframe: Timeframe.new('2026-02'), cars: [Car.new(id: 1)]) }
+
+    # A parked car has a distance of 0
+    before { summary(Date.new(2026, 2, 10), :car_odometer_1, :sum, 0) }
+
+    it 'is blank and shows a road instead of a message' do
+      expect(chart).to be_blank
+      expect(chart.blank_message).to eq(I18n.t('data.car_no_driving'))
+      expect(chart.blank_icon).to eq('road')
+    end
+  end
+
   it 'does not stack the columns' do
     expect(chart.options.dig(:scales, :y, :stacked)).to be_falsy
   end

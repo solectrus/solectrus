@@ -34,6 +34,11 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
     [metric]
   end
 
+  # A period with a distance but without a rate keeps the message
+  def blank_message = driven? ? super : I18n.t('data.car_no_driving')
+
+  def blank_icon = ('road' unless driven?)
+
   # Each column is a number of its own, and a line would suggest a flow
   def type
     'bar'
@@ -45,6 +50,8 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
   end
 
   private
+
+  def driven? = report.distance&.positive?
 
   def build_data
     return if columns.empty?
