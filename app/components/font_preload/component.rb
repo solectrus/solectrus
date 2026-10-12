@@ -9,15 +9,10 @@
 # stylesheet from a path the manifest does not carry, so there is no round trip
 # to save there and no hashed file to point at.
 class FontPreload::Component < ViewComponent::Base
-  # For `vite_asset_url`, which puts the asset prefix and any asset host in
-  # front of a manifest path. ViewComponent does not carry the Vite helpers by
-  # itself, and reimplementing that prefixing here would duplicate the gem.
-  include RailsVite::TagHelper
-
   # The key of the font in the Vite manifest, which is the import in
   # application.css resolved from the project root. It goes to the manifest
-  # directly, because `vite_asset_path` prefixes the source directory and the
-  # font sits outside it.
+  # directly, because `vite_asset_path` and `vite_asset_url` prefix the source
+  # directory and the font sits outside it.
   FONT =
     'node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2'.freeze
   public_constant :FONT
@@ -44,7 +39,12 @@ class FontPreload::Component < ViewComponent::Base
   def path
     return if RailsVite.config.dev_server_running?
 
-    @path ||= vite_asset_url(RailsVite.manifest.path_for(FONT))
+    # Built like the gem builds its own tags, so the asset prefix and any asset
+    # host apply the same way.
+    @path ||=
+      path_to_asset(
+        "#{RailsVite.config.asset_prefix}/#{RailsVite.manifest.path_for(FONT)}",
+      )
   rescue StandardError
     # A build without the font leaves the page working, only without the hint.
     nil
