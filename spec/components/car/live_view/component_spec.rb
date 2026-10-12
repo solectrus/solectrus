@@ -79,4 +79,39 @@ describe Car::LiveView::Component, type: :component do
       expect(html.text).to include('30 Sep 18:30')
     end
   end
+
+  context 'without an odometer' do
+    let(:state) { state_at(5.minutes.ago) }
+
+    it 'shows the odometer as inactive boxes' do
+      expect(html.css('span.font-mono').map { it.text.strip }).to eq(%w[– – – – – –])
+    end
+  end
+
+  context 'without a car in use' do
+    let(:live) { instance_double(Car::Live, states: [], wallbox_power: nil, wallbox_car_connected: nil, car_at_wallbox?: false) }
+
+    before { allow(vc_test_controller).to receive(:admin?).and_return(admin) }
+
+    context 'when logged in as admin' do
+      let(:admin) { true }
+
+      it 'shows a gray gauge with the note and a link to the settings of the cars' do
+        expect(html.css('svg[viewBox="30 0 340 300"] path').size).to eq(1)
+        expect(html.css('span.font-mono')).to be_empty
+        expect(html.text).not_to include(I18n.t('sensors.car_range_short'))
+        expect(html.text).to include(I18n.t('data.car_none_in_use_now'))
+        expect(html.css('a[href="/settings/cars"]')).to be_present
+      end
+    end
+
+    context 'when not logged in' do
+      let(:admin) { false }
+
+      it 'shows the note without a link' do
+        expect(html.text).to include(I18n.t('data.car_none_in_use_now'))
+        expect(html.css('a[href="/settings/cars"]')).to be_empty
+      end
+    end
+  end
 end

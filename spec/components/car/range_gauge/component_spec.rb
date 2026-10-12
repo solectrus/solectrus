@@ -77,8 +77,9 @@ describe Car::RangeGauge::Component, type: :component do
     let(:range) { nil }
     let(:max_range) { nil }
 
-    it 'shows the arc without a range and without a scale' do
+    it 'shows the arc with an inactive range and without a scale' do
       expect(html.css('path[stroke-dasharray="62 100"]')).to be_present
+      expect(html.css('.text-slate-300').text).to include('–', I18n.t('sensors.car_range_short'))
       expect(html.text).not_to include('km', stale)
     end
   end

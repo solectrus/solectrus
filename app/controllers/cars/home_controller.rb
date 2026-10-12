@@ -16,6 +16,12 @@ class Cars::HomeController < HomePageController
     Sensor::Config.exists?(:car_driving_costs) || Sensor::Cars.numbered(:car_battery_soc).any?
   end
 
+  # The live view has no chart, and neither has a period without a car in
+  # use: its stats say so across the whole width (see Cars::StatsController)
+  helper_method def chart?
+    !timeframe.now? && (cars.any? || car_selection.guest?)
+  end
+
   # The distance, because a car drives on more days than it charges. The
   # charged energy where the timeframe has no chart of the distance, for
   # example for a car without an odometer.

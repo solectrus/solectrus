@@ -30,6 +30,10 @@ class Car::RangeGauge::Component < ViewComponent::Base
   # The block below the arc, for example the odometer
   renders_one :footer
 
+  # A center of its own in place of the range, the state of charge and the
+  # plug, for example the note that no car is in use
+  renders_one :center
+
   # `state` holds the values of one car (see Car::Live::State)
   def initialize(state:)
     super()
@@ -49,7 +53,8 @@ class Car::RangeGauge::Component < ViewComponent::Base
   private_constant :VALUES
 
   # Whether the car has a range at all. A range without a current value
-  # shows as a dash.
+  # shows as a dash. Without the sensor, the range keeps its place in the
+  # center as an inactive dash, so each gauge has the same shape.
   def range? = sensor?(:car_range)
 
   # Whether the ends of the arc show the scale from 0 to the maximum range.
@@ -92,7 +97,9 @@ class Car::RangeGauge::Component < ViewComponent::Base
     state.car.sensor_name(role)
   end
 
-  def sensor?(role) = state.car.sensor?(role)
+  # A state without a car is the frame of the live view while no car is in
+  # use (see Car::LiveView::Component), so it has no sensor
+  def sensor?(role) = state.car&.sensor?(role) || false
 
   # The fill of the arc in percent of its length, without a trailing ".0"
   def fill_percent

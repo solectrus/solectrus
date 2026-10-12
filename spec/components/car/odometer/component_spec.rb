@@ -22,6 +22,9 @@ describe Car::Odometer::Component, type: :component do
   context 'without a value' do
     let(:value) { nil }
 
-    it { expect(component).not_to be_render }
+    it 'shows six inactive boxes' do
+      expect(html.css('span.font-mono').map { it.text.strip }).to eq(%w[– – – – – –])
+      expect(html.css('span.font-mono.bg-slate-100')).to be_present
+    end
   end
 end

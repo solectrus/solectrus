@@ -1,0 +1,10 @@
+.flex.flex-col.items-center.text-center class=(gauge? ? 'gap-[clamp(0.75rem,4cqi,1.25rem)] px-[12%]' : 'gap-4')
+  - if gauge?
+    .flex.items-center.justify-center.rounded-full.bg-slate-100.dark:bg-slate-800 class='size-[clamp(3.5rem,20cqi,6rem)]'
+      = helpers.icon 'car', class: 'text-slate-400 dark:text-slate-500 text-[clamp(1.5rem,9cqi,2.75rem)]'
+  span.text-slate-600.dark:text-slate-300 class=(gauge? ? 'font-medium text-[clamp(1rem,4.5cqi,1.375rem)]' : 'text-lg')
+    = text
+  - if helpers.admin?
+    = link_to helpers.settings_cars_path, class: link_class, data: { turbo_frame: '_top' } do
+      = helpers.icon 'pencil', class: 'text-xs'
+      = t('data.car_edit_periods')

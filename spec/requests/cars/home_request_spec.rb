@@ -80,6 +80,30 @@ describe 'Car Home' do
       end
     end
 
+    # The stats say so across the whole width
+    context 'with a period without a car in use' do
+      before do
+        stub_feature(:car)
+        Car.create!(id: 1, active_from: Date.current)
+        allow(Car::Report).to receive(:pending_days).and_return([])
+        allow(Sensor).to receive(:data?).and_return(true)
+      end
+
+      it 'shows no chart' do
+        get cars_home_path(sensor_name: 'car_charging', timeframe: (Date.current.year - 1).to_s)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include('/cars/stats/')
+        expect(response.body).not_to include('/cars/charts/')
+      end
+
+      it 'shows the chart of a period with the car' do
+        get cars_home_path(sensor_name: 'car_charging', timeframe: Date.current.year.to_s)
+
+        expect(response.body).to include('/cars/charts/')
+      end
+    end
+
     context 'with an hours timeframe' do
       before { Car.create!(id: 1) }
 

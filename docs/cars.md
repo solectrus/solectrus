@@ -652,6 +652,12 @@ badge. Only the car at the wallbox shows the power of the wallbox (`Car::Live`).
 car is at the wallbox, the live view shows the power below the cars, for example for a
 guest. While the car charges, the part of the arc that the charge fills next pulses.
 
+Each gauge has the same shape. A car without a range sensor shows the range as an inactive
+dash, and a car without an odometer shows the counter as inactive boxes. So a car with the
+state of charge alone shows its filled arc in the frame of a full car. Without a car in use
+today, a gray gauge shows a car icon and "No car is in use at the moment." in its center,
+and the admin gets a link to the settings of the cars.
+
 ### A period
 
 A period shows two cards, charging on the left and driving on the right, like the source
@@ -687,7 +693,8 @@ These rules are decisions:
 
 A selected car without an odometer has no driving, so the page shows the charging card
 alone. A car with an odometer and without a value in the period shows the driving card with
-"–". A period without a car in use shows "No car was in use in the selected period."
+"–". A period without a car in use shows "No car was in use in the selected period." across
+the whole width, without a chart, and the admin gets a link to the settings of the cars.
 
 ## Location
 

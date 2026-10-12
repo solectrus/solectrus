@@ -288,6 +288,8 @@ en:
     heatpump_no_heating: No heating operation
     inverter_no_production: No production
     car_none_in_use: No car was in use in the selected period.
+    car_none_in_use_now: No car is in use at the moment.
+    car_edit_periods: Edit cars
     car_no_charging: Not charged in the selected period.
     car_no_driving: Not driven in the selected period.
     car_no_charging_cost: The charging sessions in the selected period have no price.

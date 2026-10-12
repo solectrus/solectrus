@@ -1,4 +1,12 @@
 = tag.div class: class_names('flex-1 min-h-0 grid auto-rows-[minmax(16rem,1fr)] gap-x-4 gap-y-6 overflow-y-auto', grid_classes) do
+  / Without a car in use today, a gray gauge keeps the shape of the page,
+    and the note sits in its center
+  - if states.empty?
+    .min-w-0.min-h-0.flex.flex-col.items-center
+      = render Car::RangeGauge::Component.new(state: placeholder_state) do |gauge|
+        - gauge.with_center do
+          = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use_now'), gauge: true)
+
   - states.each do |state|
     / The name and the odometer belong to the gauge, so they stay close to the
       arc when the arc is narrower than the space
@@ -10,10 +18,9 @@
             - name = place_name(state)
             = render Car::LocationBadge::Component.new(car: state.car, name:, deferred: name.nil?)
 
-        / The odometer as a mechanical counter
-        - if state.odometer
-          - gauge.with_footer do
-            = render Car::Odometer::Component.new(value: state.odometer)
+        / The odometer as a mechanical counter, inactive without a value
+        - gauge.with_footer do
+          = render Car::Odometer::Component.new(value: state.odometer)
 
         / The name of the car, and below it the time of its state
         .flex.flex-col.items-center.gap-2

@@ -10,6 +10,9 @@
 # shows it: a guest charges, or no car has a plug. The plug of the wallbox
 # shows only when no car has a plug, for example with two cars and no plug of
 # a car.
+#
+# Without a car in use today, a gray gauge with a note takes the place
+# of the cars.
 class Car::LiveView::Component < ViewComponent::Base
   PILL_CLASSES =
     'flex items-center gap-2 rounded-full px-4 py-1.5 md:py-2 text-sm md:text-base ' \
@@ -39,6 +42,9 @@ class Car::LiveView::Component < ViewComponent::Base
   def states
     @states ||= live.states
   end
+
+  # The state of the inactive gauge while no car is in use today
+  def placeholder_state = Car::Live::State.new(car: nil, soc: nil, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil)
 
   # The time of the latest reading of the car. A car sensor holds its value
   # at any age, so the live view always tells how old it is: the time of
@@ -71,7 +77,7 @@ class Car::LiveView::Component < ViewComponent::Base
   # cars. The class names stay literal, so Tailwind finds them.
   def grid_classes
     case states.size
-    when 1 then 'grid-cols-1'
+    when 0, 1 then 'grid-cols-1'
     when 3 then 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
     else 'grid-cols-1 sm:grid-cols-2'
     end
