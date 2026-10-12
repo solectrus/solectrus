@@ -36,9 +36,18 @@ module CarSelectable
     # from the current address.
     def selection_params = { car: car_selection.to_param }
 
-    # The live view shows each car in use and no guests (see
-    # CarSelection#guest?)
-    def live_selection_params = car_selection.guest? ? { car: nil } : selection_params
+    # The live view shows each car in use and selects none (see
+    # CarSelection#car). It has no select, so with a select in the
+    # installation, its link to another timeframe takes the one car in use
+    # there, otherwise "all". The guest sessions are rare, so the one car
+    # leaves them out.
+    def timeframe_selection_params(target)
+      return { car: nil } if target == 'now'
+      return selection_params unless timeframe&.now? && car_select?
+
+      offered = CarSelection.new(nil, timeframe: Timeframe.new(target)).offered
+      { car: (offered.first.id.to_s if offered.one?) }
+    end
 
     # Each chart of the car page shows the selected cars, and the guest
     # sessions for the guest and for "all". Only the admin sees the places of

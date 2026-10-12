@@ -57,9 +57,11 @@ class CarSelection
     @offered ||= @timeframe ? installed.select { it.active_during?(@timeframe.effective_dates) } : installed
   end
 
-  # The selected car, or nil for "all"
+  # The selected car, or nil for "all". The live view shows each car in use,
+  # so it selects none, and a car in its address goes to "all".
   def car
     return @car if defined?(@car)
+    return @car = nil if @timeframe&.now?
 
     id = Integer(@param, exception: false)
     @car = offered.find { it.id == id }

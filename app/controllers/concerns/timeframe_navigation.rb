@@ -8,7 +8,7 @@ module TimeframeNavigation
       timeframe.localized
     end
 
-    def path_with_timeframe(timeframe, sensor_name: chart_sensor_name, params: selection_params)
+    def path_with_timeframe(timeframe, sensor_name: chart_sensor_name, params: timeframe_selection_params(timeframe))
       url_for(
         controller: "#{helpers.controller_namespace}/home",
         sensor_name:,
@@ -27,7 +27,7 @@ module TimeframeNavigation
       chart_sensor_name if Sensor::HomePage.live_chart?(helpers.controller_namespace.to_sym)
     end
 
-    def live_path = path_with_timeframe('now', sensor_name: live_sensor_name, params: live_selection_params)
+    def live_path = path_with_timeframe('now', sensor_name: live_sensor_name)
 
     helper_method def nav_items
       [

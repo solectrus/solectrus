@@ -618,8 +618,11 @@ make.
 
 ### The live view
 
-The live view shows each car in use today, also when the page has a selected car, so it has
-no select. Each car has its name as a badge in its color, a gauge of its range, filled to
+The live view shows each car in use today, so it has no select and selects no car. A car in
+its address redirects to `/cars/now`. When another timeframe has one car in use, the link
+from the live view to it selects that car, also when the timeframe has a guest session.
+Otherwise the link goes to "all". An installation without a select keeps "all". Each car
+has its name as a badge in its color, a gauge of its range, filled to
 the state of charge, its odometer and the time of its latest reading. The time is
 necessary, because a car sensor holds its value at any age. For the admin, the gauge also
 shows the place of the car. The badge shows also for the only car.

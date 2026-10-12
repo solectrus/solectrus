@@ -223,10 +223,18 @@ describe 'Car Stats' do
       end
 
       it 'keeps the car out of the links to other pages' do
-        get cars_home_path(timeframe: 'now', car: 2)
+        summarize((day - 14)..(day + 14))
+        get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2)
 
         expect(response.body).to include('/cars/2/')
         expect(response.body).not_to match(%r{href="(?:https?://[^/"]+)?/(?!cars/)[^"]*car=2})
+      end
+
+      # The live view shows each car in use, so it selects none
+      it 'redirects the live view of a car to the live view' do
+        get cars_home_path(timeframe: 'now', car: 2)
+
+        expect(response).to redirect_to('/cars/now')
       end
 
       it 'shows each car in the live view' do
@@ -266,6 +274,26 @@ describe 'Car Stats' do
 
           expect(response.body).to include('aria-label="Wartburg"')
           expect(response.body).not_to include('Trabant', '/cars/1/')
+        end
+
+        # The live view has no select, so each other timeframe takes its one
+        # car in use
+        it 'links a timeframe with one car to that car, otherwise to "all"' do
+          get cars_home_path(timeframe: 'now')
+
+          expect(response.body).to include(
+            cars_home_path(sensor_name: 'car_distance', timeframe: Date.current.to_s, car: 2),
+            "#{cars_home_path(sensor_name: 'car_distance', timeframe: 'all')}\"",
+          )
+        end
+
+        # The way back: the live view selects no car
+        it 'links to the live view without the car' do
+          summarize((day - 14)..(day + 14))
+          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2)
+
+          expect(response.body).to include('/cars/now"')
+          expect(response.body).not_to include('/cars/2/now')
         end
       end
 
@@ -471,6 +499,18 @@ describe 'Car Stats' do
           get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
 
           expect(response.body).to include('name="car"', 'All cars', 'Trabant', 'Guest')
+        end
+
+        # The guest sessions are rare, so the one car leaves them out, also in
+        # a timeframe with a guest session
+        it 'links each other timeframe of the live view to the one car' do
+          Sensor::Config.setup(env.except('INFLUX_SENSOR_CAR_ODOMETER_2'))
+          get cars_home_path(timeframe: 'now')
+
+          expect(response.body).to include(
+            cars_home_path(sensor_name: 'car_distance', timeframe: Date.current.to_s, car: 1),
+            cars_home_path(sensor_name: 'car_distance', timeframe: 'all', car: 1),
+          )
         end
 
         it 'offers only the charts of the charging' do
