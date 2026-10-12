@@ -598,9 +598,11 @@ The navigation shows `/cars` when at least one car is configured and `Setting.en
 is true, which is the default. Without a car, the car page, the list of the charging
 sessions and the settings of the cars stay away, and the detection still writes the
 sessions of a wallbox without a car. Without a sponsorship, the page shows an offer
-(feature `:car`). The page shows its stats when a car has an odometer, because the driving
-cost and the two rates depend on it. A car without an odometer shows a note that names the
-missing variables. A car without a wallbox shows its distance and its
+(feature `:car`). The page shows its stats when a car has an odometer or a state of charge.
+The odometer adds the driving: the distance, the driving cost and the two rates. A car with
+the state of charge alone shows its charging, which takes the full width, and opens the
+chart of the charging. A car with neither shows a note that names the missing variables. A
+car without a wallbox shows its distance and its
 offsite sessions, and the guest badge and the wallbox badge are hidden, not zero.
 
 The car page has no hours view, because its numbers come from full days. An hours

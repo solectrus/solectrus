@@ -238,7 +238,33 @@ describe 'Car Home' do
     context 'with a sponsorship' do
       before { stub_feature(:car) }
 
-      context 'without an odometer' do
+      # The test configuration has the state of charge of the first car, but no
+      # odometer
+      context 'with the state of charge alone' do
+        it 'shows the stats' do
+          allow(Sensor).to receive(:data?).and_return(true)
+          get cars_home_path(timeframe: 'now')
+
+          expect(response.body).to include(cars_stats_path(timeframe: 'now'))
+          expect(response.body).not_to include('INFLUX_SENSOR_CAR_ODOMETER_1')
+        end
+
+        it 'opens the chart of the charging' do
+          get cars_home_path(timeframe: '2026-06')
+
+          expect(response).to redirect_to(cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06'))
+        end
+      end
+
+      context 'without an odometer and a state of charge' do
+        before do
+          Sensor::Config.setup(
+            ENV.to_h.except('INFLUX_SENSOR_CAR_BATTERY_SOC').merge('INFLUX_SENSOR_CAR_CONNECTED_1' => 'Trabant:connected'),
+          )
+        end
+
+        after { Sensor::Config.setup(ENV) }
+
         it 'asks for the missing sensors' do
           get cars_home_path(timeframe: 'now')
 

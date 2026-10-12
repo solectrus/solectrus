@@ -9,6 +9,13 @@ class Cars::HomeController < HomePageController
 
   def page_key = :cars
 
+  # Whether the page has anything to show: the odometer of a car, for the
+  # driving cost and the rates, or its state of charge, for the live view and
+  # the charging
+  helper_method def stats?
+    Sensor::Config.exists?(:car_driving_costs) || Sensor::Cars.numbered(:car_battery_soc).any?
+  end
+
   # The distance, because a car drives on more days than it charges. The
   # charged energy where the timeframe has no chart of the distance, for
   # example for a car without an odometer.
