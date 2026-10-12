@@ -48,10 +48,6 @@
 @import '../../components/splitted_costs/component.css' layer(base);
 @import '../../components/tooltip_row/component.css' layer(base);
 
-/* No layer(): its rules override utilities of the component (`gap-1`,
-   `touch-target`) */
-@import '../../components/soc_badge/component.css';
-
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
 /* No layer() — overrides the styles of MapLibre, which have no layer */

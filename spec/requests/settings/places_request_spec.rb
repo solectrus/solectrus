@@ -94,7 +94,7 @@ describe 'Settings Places' do
       login_as_admin
       get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
 
-      expect(response.body).to include('id="modal-title"').and include('>Jülich</h1>')
+      expect(response.body).to include('id="modal-sheet-title">Jülich</h1>')
       expect(response.body).not_to include('placeholder=')
       expect(response.body).to include('id="place_labels_home"', I18n.t('places.labels.home'))
     end

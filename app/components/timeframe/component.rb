@@ -29,8 +29,8 @@ class Timeframe::Component < ViewComponent::Base
     forecast_mode? ? t('forecast.next_days', count: forecast_days) : timeframe.localized
   end
 
-  # First and last date of a period whose name does not say them. A phone
-  # hides them in the navigation, the sheet has the room.
+  # First and last date of a period whose name does not say them. The
+  # navigation leaves them out, the sheet has the room.
   def period_dates
     return if forecast_mode?
 
@@ -101,25 +101,15 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   # A fixed width keeps the arrows in place while one paginates
-  def link_width_class
-    case timeframe.id
-    when :day then 'md:w-72 text-center'
-    when :week then 'md:w-80 text-center'
-    when :month then 'w-36 text-center'
-    when :year then 'w-16 text-center'
-    else 'text-center'
-    end
-  end
-
-  def timeframe_link_classes(additional_classes = nil)
-    interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
-  end
-
   LABEL_WIDTHS = { day: 'md:w-72', week: 'w-36', month: 'w-36', year: 'w-16' }.freeze
   private_constant :LABEL_WIDTHS
 
   def label_classes
     "text-center #{LABEL_WIDTHS[timeframe.id]}"
+  end
+
+  def timeframe_link_classes(additional_classes = nil)
+    interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
   end
 
   private
