@@ -16,11 +16,11 @@
         = render VersionInfo::Component.new
         = render AuthorLogo::Component.new
     - if extra_menu_items.any?
-      .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
+      .px-2.md:px-5.py-3.text-base.font-medium.tracking-wider
         - extra_menu_items.each do |item|
           = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
     .border-t.border-indigo-300/25
-    .px-2.md:px-5.py-3.space-y-1.text-sm.font-medium.tracking-wider
+    .px-2.md:px-5.py-3.text-base.font-medium.tracking-wider
       - secondary_menu_items.each do |item|
         - if item.component
           = render item.component.new(css_extra: ['py-2 px-3'])

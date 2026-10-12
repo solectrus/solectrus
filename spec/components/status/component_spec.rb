@@ -9,12 +9,12 @@ describe Status::Component, type: :component do
     it { is_expected.not_to be_live }
 
     it 'renders the FAIL text' do
-      expect(render_inline(component).css('time').text).to eq('No data')
+      expect(render_inline(component).css('time > .uppercase').text).to eq('No data')
     end
 
-    it 'renders the FAIL message' do
+    it 'renders the FAIL message in the tooltip' do
       expect(
-        render_inline(component).at_css('time')['title'],
+        render_inline(component).at_css('time [data-tooltip-target=html] .tooltip-detail').text,
       ).to eq "#{I18n.t('data.time')} 5 minutes"
     end
   end

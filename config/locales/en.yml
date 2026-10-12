@@ -177,7 +177,6 @@ en:
     worse_html: '%{value} less than expected'
     expect_html: '%{value} expected'
     expect_remaining_html: '%{value} still expected'
-    expectation_html: Expected %{value}
     unknown: No forecast available
   login:
     title: Log in as admin

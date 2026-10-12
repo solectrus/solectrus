@@ -10,6 +10,7 @@ class ForecastComment::Component < ViewComponent::Base
   delegate :sunrise,
            :sunset,
            :remaining_forecast_wh,
+           :inverter_power,
            :inverter_power_forecast,
            :forecast_deviation,
            to: :chart,

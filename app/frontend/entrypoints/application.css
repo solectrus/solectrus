@@ -17,18 +17,41 @@
 @custom-variant short (@media (max-height: 859px));
 @custom-variant tiny (@media (max-height: 735px));
 
+/* The heatmap of a year on the page of its own in the insights sheet of a
+   phone, where its grid stands upright (heatmap_tile, insights) */
+@custom-variant upright {
+  @media (width < 48rem) {
+    .insights-subpage & {
+      @slot;
+    }
+  }
+}
+
 /* Import styles from external libraries */
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 /* Import app specific styles */
 @import '../stylesheets/floating_tooltip.css' layer(base);
 @import '../stylesheets/label_value.css' layer(base);
+@import '../stylesheets/tooltip_content.css' layer(base);
 @import '../stylesheets/chart_tooltip.css' layer(base);
 @import '../stylesheets/flow.css' layer(base);
 @import '../stylesheets/badge.css' layer(base);
 @import '../stylesheets/animations.css' layer(base);
 @import '../stylesheets/segment.css' layer(base);
 @import '../stylesheets/range.css' layer(base);
+
+/* Stylesheets beside their ViewComponent */
+@import '../../components/bottom_sheet/component.css' layer(base);
+@import '../../components/insights/component.css' layer(base);
+@import '../../components/nav/title_bar/component.css' layer(base);
+@import '../../components/splitted_costs/component.css' layer(base);
+@import '../../components/tooltip_row/component.css' layer(base);
+
+/* No layer(): its rules override utilities of the component (`gap-1`,
+   `touch-target`) */
+@import '../../components/soc_badge/component.css';
+
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
 
@@ -41,6 +64,19 @@
      ThemeConfig holds the same two values for the server-rendered meta tag
      and the web manifest. A spec fails if the two drift apart. */
   --color-chrome: #4f46e5; /* indigo-600 */
+
+  /* Text of lower weight, like the subtitle of an iOS cell. The dark value
+     sits in the .dark block below, as for --color-chrome. */
+  --color-muted: var(--color-gray-500);
+
+  /* The sizes of the iOS type scale that the sheet uses: the title bar
+     (17px) and secondary text (15px) */
+  --text-headline: 1.0625rem;
+  --text-subhead: 0.9375rem;
+
+  /* The curve of iOS for a sheet or a page that moves in: fast start, long
+     soft landing */
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
 
   --font-sans:
     'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif,
@@ -156,37 +192,10 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
       --size: clamp(7rem, 7vw, 9rem);
     }
 
-    & .soc-badge {
-      padding-block: 0;
-      gap: 0.75rem;
-    }
-
-    & .soc-badge .soc-icon {
-      font-size: clamp(1.55rem, 1.35vw, 2.1rem);
-      line-height: 1;
-    }
-
-    & .soc-badge .soc-value {
-      font-size: clamp(1rem, 1.4vw, 1.8rem);
-      line-height: 1;
-    }
-
-    /* Reduce badge/soc sizes on shorter fullscreen viewports (e.g. laptops) */
+    /* Reduce badge sizes on shorter fullscreen viewports (e.g. laptops) */
     @media (max-height: 1200px) {
       & .badge {
         --size: clamp(6.5rem, 6.5vw, 8.5rem);
-      }
-
-      & .soc-badge {
-        gap: 0.6rem;
-      }
-
-      & .soc-badge .soc-icon {
-        font-size: clamp(1.45rem, 1.25vw, 1.9rem);
-      }
-
-      & .soc-badge .soc-value {
-        font-size: clamp(0.95rem, 1.3vw, 1.7rem);
       }
     }
 
@@ -341,6 +350,7 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
     color-scheme: dark;
 
     --color-chrome: #312e81; /* indigo-900 */
+    --color-muted: var(--color-slate-400);
 
     --chart-axis-color: #888888;
     --chart-grid-color: #242a3b;
@@ -393,28 +403,6 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
   }
 }
 
-@utility stripes {
-  @apply relative z-0 overflow-hidden;
-
-  &::before {
-    @apply pointer-events-none absolute inset-0 -z-1 opacity-50;
-    content: '';
-    background: repeating-linear-gradient(
-      135deg,
-      #e5e7eb 0 10px,
-      #f3f4f6 10px 20px
-    );
-  }
-
-  :where(.dark, .dark *) &::before {
-    background: repeating-linear-gradient(
-      135deg,
-      #334155 0 10px,
-      #1e293b 10px 20px
-    );
-  }
-}
-
 /* Keyboard focus indicator. `focus-visible` keeps the ring away from mouse
    clicks, where it only adds noise. */
 @utility focus-ring {
@@ -425,4 +413,28 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
    where an outer ring would cross the neighboring border. */
 @utility focus-ring-inset {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset;
+}
+
+/* A panel of frosted glass, as on macOS and iOS: no border, but large
+   corners, a hairline ring, a soft wide shadow, and the page shining through
+   with a blur. The floating tooltip and the chart tooltip use it. */
+@utility glass-panel {
+  @apply rounded-xl bg-white/95 text-gray-900 ring-1 ring-black/5 backdrop-blur-xl backdrop-saturate-150;
+  @apply shadow-[0_10px_30px_-5px_rgb(0_0_0/0.2)];
+  @apply dark:bg-slate-800/95 dark:text-slate-200 dark:shadow-[0_10px_30px_-5px_rgb(0_0_0/0.6)] dark:ring-white/10;
+}
+
+/* Hit area of at least 44×44px on a touch screen, as Apple asks for, while the
+   visible element keeps its size. A pseudo element centered on the element
+   takes the taps. The element must be positioned (`relative`, `absolute`),
+   because the utility leaves `position` to the caller. */
+@utility touch-target {
+  @media (pointer: coarse) {
+    &::after {
+      @apply absolute top-1/2 left-1/2 -translate-1/2;
+      content: '';
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+    }
+  }
 }

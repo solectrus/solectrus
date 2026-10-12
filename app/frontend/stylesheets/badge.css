@@ -41,7 +41,8 @@
 .badge .title {
   @apply mx-auto max-w-22 text-center font-medium uppercase;
 
-  font-size: calc(var(--size) / 10);
+  /* 11px at least: the small badge of a phone would give 9.6px */
+  font-size: max(0.6875rem, calc(var(--size) / 10));
 }
 
 @media (width >= theme(--breakpoint-lg)) {

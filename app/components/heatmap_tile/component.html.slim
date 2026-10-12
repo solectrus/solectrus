@@ -1,7 +1,12 @@
 - if timeframe.year?
-  .w-full.grid.text-xs.sm:text-sm class= 'grid-cols-[minmax(2rem,1fr)_repeat(31,minmax(0.5rem,1fr))] gap-x-0.5 sm:gap-x-0.5 gap-y-0.5 sm:gap-y-0.5 items-center' data-controller= 'tooltip' data-tooltip-delegate-value= 'true'
+  / The day columns may shrink below any minimum, so the 31 days fit into the
+  / sheet of a 375px phone. The page of the insights on a phone turns the grid
+  / upright (UPRIGHT_GRID): each month and its 31 days are one column of 32
+  / cells.
+  .heatmap-year.w-full.grid.text-xs.sm:text-sm class= ['grid-cols-[minmax(2rem,1fr)_repeat(31,minmax(0,1fr))] gap-px sm:gap-0.5 items-center', UPRIGHT_GRID] data-controller= 'tooltip' data-tooltip-delegate-value= 'true'
     - months.reverse_each do |month|
-      .text-right.pr-1.flex.items-center.justify-end.tabular-nums.sm:pr-2.text-xs.leading-none
+      / Upright, only every other month has room for its name
+      .text-right.pr-1.flex.items-center.justify-end.tabular-nums.sm:pr-2.text-xs.leading-none class= [UPRIGHT_MONTH, ('upright:invisible' if month.even?), month_class(month)]
         = t('date.abbr_month_names')[month]
 
       - (1..31).each do |day|
@@ -15,12 +20,12 @@
 
               span.block.h-full
         - else
-          .aspect-square
+          .aspect-square class= month_class(month)
 
     / Empty cell for month column alignment
     div
     - (1..31).each do |day|
-      .text-center.text-xs.sm:text-sm.sm:mt-1
+      .text-center.text-xs.sm:text-sm.sm:mt-1 class= UPRIGHT_DAY
         = day.odd? ? day : ''
 
 - elsif timeframe.all?

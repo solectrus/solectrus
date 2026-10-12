@@ -22,6 +22,7 @@
               tooltip_placement_value: parent.tooltip_placement,
               tooltip_force_tap_to_close_value: false,
               tooltip_touch_value: 'long',
+              tooltip_sheet_url_value: insights_path,
               turbo_prefetch: 'false',
               action: 'stats-with-chart--component#loadChart',
               stats_with_chart__component_sensor_name_param: sensor.name,
@@ -41,43 +42,29 @@
         = icon 'circle-exclamation'
 
       .hidden id="tooltip-content-#{sensor.name}" data-tooltip-target="html"
-        .flex.flex-col.items-center.justify-center.min-w-32.p-2.gap-2.label-value-stacked
-          - unless inline
-            = render SensorIcon::Component.new(sensor, data:, class: 'fa-2xl')
+        .tooltip-layout.label-value-stacked
+          = render TooltipHeader::Component.new(title:, sensor_name: sensor.name, value: data, total: !now?) do |header|
+            - unless inline
+              - header.with_icon do
+                = render SensorIcon::Component.new(sensor, data:, class: 'tooltip-icon fa-2xl')
 
-          = title
+            - if amount
+              = render SensorValue::Component.new(data, amount.first, sign: amount.last, class: 'tooltip-value-lg')
 
           - if now?
-            = render SensorValue::Component.new(data, sensor.name, precision: 3)
-
             - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?
-              .text-xs.text-center.mt-2
-                = Sensor::Registry[:grid_export_limit].display_name(:short)
-                br
-                = render SensorValue::Component.new(data, :grid_export_limit, precision: 0, class: 'text-xs')
+              .tooltip-group.tooltip-group-sm
+                .label-value-row.label-value-column
+                  span = Sensor::Registry[:grid_export_limit].display_name(:short)
+                  = render SensorValue::Component.new(data, :grid_export_limit, precision: 0)
 
-          - else
-            = render SensorValue::Component.new(data, sensor.name, context: :total, precision: 3, class: 'text-xl')
-
+          - elsif costs || power_grid_ratio
             / The battery has a grid share but no costs of its own -- what it
             / stores is billed to the consumers taking it back out
-            - if costs || power_grid_ratio
-              = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv, note: costs_note)
-
-            - elsif sensor.name == :grid_export_power
-              = render SensorValue::Component.new(data, :grid_revenue, sign: :positive, class: 'text-xl')
-
-            - elsif sensor.name == :grid_import_power
-              = render SensorValue::Component.new(data, :grid_costs, sign: :negative, class: 'text-xl')
-
-            - elsif sensor.name == :heatpump_power_pv
-              = render SensorValue::Component.new(data, :heatpump_costs_pv, sign: :negative, class: 'text-xl')
-
-            - elsif sensor.name == :heatpump_power_grid
-              = render SensorValue::Component.new(data, :heatpump_costs_grid, sign: :negative, class: 'text-xl')
+            = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv, note: costs_note)
 
           - if sensor.name == :inverter_power && Sensor::Config.multi_inverter?
-            .mt-3.space-y-2
+            .tooltip-group
               - Sensor::Config.custom_inverter_sensors.reverse_each do |inverter_sensor|
                 - if data.respond_to?(inverter_sensor.name)
                   .label-value-row
@@ -86,7 +73,7 @@
                       = render SensorValue::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
 
           - if sensor.name == :inverter_power && data.respond_to?(:co2_reduction) && data.co2_reduction&.nonzero?
-            .text-center.mt-2
-              = Sensor::Registry[:co2_reduction].display_name(:short)
-              br
-              = render SensorValue::Component.new(data, :co2_reduction, class: 'text-xl')
+            .tooltip-group
+              .label-value-row.label-value-column
+                span = Sensor::Registry[:co2_reduction].display_name(:short)
+                = render SensorValue::Component.new(data, :co2_reduction, class: 'tooltip-value-lg')

@@ -1,0 +1,19 @@
+= content_tag(*container_tag) do
+  .insights-row-main.min-w-0.flex-1
+    .flex.items-center.gap-2
+      = swatch
+      span
+        = label
+        - if note
+          =< tag.span(note, class: note_class)
+
+    - if detail
+      .tooltip-detail = detail
+
+  .insights-row-value
+    = content
+
+  - if chevron?
+    = icon 'chevron-right', class: 'insights-row-chevron'
+  - else
+    span.insights-row-chevron.insights-row-chevron-spacer

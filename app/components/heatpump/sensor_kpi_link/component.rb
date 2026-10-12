@@ -41,6 +41,17 @@ class Heatpump::SensorKpiLink::Component < ViewComponent::Base
       action: 'stats-with-chart--component#loadChart',
       stats_with_chart__component_sensor_name_param: sensor_name,
       stats_with_chart__component_chart_url_param: chart_url,
+      **insights_data,
     }
+  end
+
+  private
+
+  # On a phone, a long press opens the insights of the sensor, as on a segment
+  def insights_data
+    path = helpers.sensor_insights_path(Sensor::Registry[sensor_name], timeframe:)
+    return {} unless path
+
+    { controller: 'tooltip', tooltip_touch_value: 'long', tooltip_sheet_url_value: path }
   end
 end

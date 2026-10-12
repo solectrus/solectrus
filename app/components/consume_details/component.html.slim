@@ -1,40 +1,19 @@
-h3.font-bold.text-base
-  = t('.grid.header')
+.tooltip-layout.tooltip-layout-table
+  = render TooltipHeader::Component.new(title: t('.title'), sheet_only: true)
 
-dl.mt-2.space-y-2
-  .flex.items-center.justify-between.gap-4
-    dt
-      = t('.grid.import_power')
-    dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :grid_import_power, context: :total, sign: :negative)
+  / One sum: each part of the costs, with the energy it comes from below it
+  dl.tooltip-group
+    div
+      = render CalcRow::Component.new(label: t('.grid.import_costs')) do
+        = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
+      p.tooltip-detail
+        = t('.grid.detail_html', energy: render(SensorValue::Component.new(data, :grid_import_power, context: :total)))
 
-  .flex.items-center.justify-between.gap-4
-    dt
-      => "\u21D2"
-      = t('.grid.import_costs')
-    dd.font-mono.text-right
-      = render SensorValue::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
+    div
+      = render CalcRow::Component.new(label: t('.pv.opportunity_costs'), operator: :plus) do
+        = render SensorValue::Component.new(costs.parts.last, :opportunity_costs, sign: :negative, **costs.options)
+      p.tooltip-detail
+        = t('.pv.detail_html', energy: render(SensorValue::Component.new(data, :self_consumption, context: :total)))
 
-h3.mt-5.font-bold.text-base
-  = t('.pv.header')
-
-dl.mt-2.space-y-2
-  .flex.items-center.justify-between.gap-4
-    dt
-      = Sensor::Registry[:self_consumption].display_name(:short)
-    dd.font-mono.text-right
-      = render SensorValue::Component.new(data, :self_consumption, context: :total, sign: :negative)
-
-  .flex.items-center.justify-between.gap-4
-    dt
-      => "\u21D2"
-      = t('.pv.opportunity_costs')
-    dd.font-mono.text-right
-      = render SensorValue::Component.new(costs.parts.last, :opportunity_costs, sign: :negative, **costs.options)
-
-dl.mt-5
-  .flex.items-center.justify-between.gap-4
-    dt.font-bold.text-base
-      = t('.total_costs')
-    dd.font-mono.text-right
+    = render CalcRow::Component.new(label: t('.total_costs'), operator: :equals, total: true) do
       = render SensorValue::Component.new(costs.sum, :total_costs, sign: :negative, **costs.options)

@@ -1,0 +1,131 @@
+/*
+ * Nav::TitleBar::Component: the slide between the pages of a drill-down
+ * hierarchy, as on iOS. The controller writes the direction to <html> as
+ * data-nav-direction before Turbo renders the next page.
+ *
+ * Only below lg, where the title bar is visible. Two parts move: the content
+ * area (main, which scrolls and so clips its content to the screen) and the
+ * title bar. The rest of the page, the bottom navigation included, stays put.
+ * While the skeleton of the next page covers them, the skeleton moves instead.
+ */
+html:has(.nav-title-bar):not(:has(> .nav-skeleton)) main,
+.nav-skeleton-page {
+  @apply max-lg:[view-transition-name:nav-page];
+}
+
+html:not(:has(> .nav-skeleton)) .nav-title-bar,
+.nav-skeleton-title {
+  @apply max-lg:[view-transition-name:nav-title];
+}
+
+/* The skeleton lies beside <body>, over the title bar and the content area */
+.nav-skeleton {
+  @apply font-sans antialiased;
+
+  & > * {
+    @apply fixed m-0!;
+  }
+}
+
+html:has(> .nav-skeleton) body .nav-title-bar {
+  @apply invisible;
+}
+
+.nav-skeleton-page {
+  @apply bg-white dark:bg-slate-900;
+}
+
+.nav-back {
+  @apply absolute left-0 flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-slate-800 dark:text-gray-300;
+  @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
+}
+
+/* Anything outside the two parts changes at once, on desktop too */
+html:has(.nav-title-bar)::view-transition-old(root),
+html:has(.nav-title-bar)::view-transition-new(root) {
+  @apply animate-none;
+}
+
+::view-transition-group(nav-page) {
+  @apply overflow-clip;
+}
+
+/* Both pages are opaque, so they cover each other instead of blending */
+::view-transition-old(nav-page),
+::view-transition-new(nav-page) {
+  @apply mix-blend-normal;
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: both;
+}
+
+/* Down one level: the child comes in from the right over the parent, which
+   moves a bit to the left. Up one level: the reverse, the child on top. */
+html[data-nav-direction='push'] {
+  &::view-transition-new(nav-page) {
+    animation-name: nav-from-right;
+  }
+
+  &::view-transition-old(nav-page) {
+    animation-name: nav-to-left;
+  }
+}
+
+html[data-nav-direction='pop'] {
+  &::view-transition-new(nav-page) {
+    animation-name: nav-from-left;
+  }
+
+  &::view-transition-old(nav-page) {
+    @apply z-1;
+    animation-name: nav-to-right;
+  }
+}
+
+/* No change of level, as from the skeleton to the content: the title changes
+   at once, and the content fades in over the old page, which stays opaque */
+html[data-nav-direction='none'] {
+  &::view-transition-old(nav-title) {
+    @apply hidden;
+  }
+
+  &::view-transition-new(nav-title),
+  &::view-transition-old(nav-page) {
+    @apply animate-none;
+  }
+
+  &::view-transition-new(nav-page) {
+    animation-name: nav-fade-in;
+    animation-duration: 200ms;
+  }
+}
+
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes nav-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes nav-to-left {
+  to {
+    transform: translateX(-30%);
+  }
+}
+
+@keyframes nav-from-left {
+  from {
+    transform: translateX(-30%);
+  }
+}
+
+@keyframes nav-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}

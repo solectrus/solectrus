@@ -1,0 +1,19 @@
+.nav-title-bar.dark:bg-slate-900.-mx-4.sm:-mx-6.px-4.sm:px-6.py-3[
+  data-controller='nav--title-bar--component'
+  data-action='turbo:click@document->nav--title-bar--component#slide turbo:before-fetch-request@document->nav--title-bar--component#hold turbo:before-render@document->nav--title-bar--component#prepare'
+  data-path=helpers.request.path
+  data-parent=back_href
+]
+  .relative.flex.items-center.justify-center.min-h-10
+    - if back_href
+      = link_to back_href,
+                class: 'nav-back click-animation',
+                data: { nav_title: back_label, turbo_prefetch: false },
+                title: back_label,
+                'aria-label': back_label do
+        = icon 'chevron-left'
+    - else
+      /! Placeholder, which the skeleton of a child page shows as its back button
+      span.nav-back.invisible aria-hidden='true'
+        = icon 'chevron-left'
+    h1.px-12.truncate.font-medium.text-lg.text-white.dark:text-gray-200 = title

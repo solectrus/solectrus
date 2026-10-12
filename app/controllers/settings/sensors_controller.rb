@@ -2,13 +2,23 @@ class Settings::SensorsController < ApplicationController
   include SettingsNavigation
 
   before_action :admin_required!
-  before_action :load_sensors, only: %i[edit]
+  before_action :load_sensors, only: %i[edit section]
 
+  # Desktop: every group in one form, as tabs. Phone: a list of the groups.
   def edit
   end
 
+  # Phone: the form of one group
+  def section
+    @section = sensor_sections.find { |item| item[:id] == params[:section] }
+    redirect_to settings_sensors_path unless @section
+  end
+
   def update
-    Setting.sensor_names = permitted_params[:sensor_names]&.to_h
+    # A form of one group sends the names of its own sensors only
+    if (names = permitted_params[:sensor_names]&.to_h)
+      Setting.sensor_names = Setting.sensor_names.merge(names)
+    end
 
     %i[
       inverter_as_total
@@ -23,7 +33,7 @@ class Settings::SensorsController < ApplicationController
       Setting.public_send("#{key}=", value == '1')
     end
 
-    redirect_to settings_sensors_path, notice: t('crud.success')
+    redirect_back_or_to settings_sensors_path, notice: t('crud.success')
   end
 
   private
@@ -58,14 +68,16 @@ class Settings::SensorsController < ApplicationController
       end
   end
 
-  # The groups of the form, each with a partial of its own
   helper_method def sensor_sections
     @sensor_sections ||= [
-      { id: 'generators' },
-      ({ id: 'consumers' } if @consumer_sensors.any?),
-      ({ id: 'battery' } if @battery_sensors.any?),
+      { id: 'generators', icon: 'solar-panel' },
+      ({ id: 'consumers', icon: 'plug' } if @consumer_sensors.any?),
+      ({ id: 'battery', icon: 'battery-half' } if @battery_sensors.any?),
     ].compact.map do |section|
-      section.merge(name: t("settings.sensors.#{section[:id]}"))
+      section.merge(
+        name: t("settings.sensors.#{section[:id]}"),
+        href: section_settings_sensors_path(section[:id]),
+      )
     end
   end
 

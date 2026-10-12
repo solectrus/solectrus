@@ -18,4 +18,13 @@ class Sensor::Definitions::HeatpumpCosts < Sensor::Definitions::Base
   end
 
   aggregations stored: false, computed: [:sum], meta: %i[sum min max]
+
+  # The parts of the costs, which the insights show
+  def costs_grid_sensor_name
+    :heatpump_costs_grid
+  end
+
+  def costs_pv_sensor_name
+    :heatpump_costs_pv
+  end
 end

@@ -1,14 +1,12 @@
 en:
+  title: Cost of the power consumed
+
   grid:
-    header: Costs of grid consumption
-    import_power: Imported from the grid
     import_costs: Import costs
+    detail_html: '%{energy} from the grid'
 
   pv:
-    header: Opportunity costs of self-consumption
     opportunity_costs: Lost feed-in revenue
+    detail_html: '%{energy} self-consumed'
 
   total_costs: Economic costs
-
-  from: from
-  to: to

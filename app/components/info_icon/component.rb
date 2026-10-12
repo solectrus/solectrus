@@ -29,7 +29,7 @@ class InfoIcon::Component < ViewComponent::Base
   # cursor-help rather than the caller's cursor: this is a hover target, never
   # a click target, whatever shape it is given.
   def wrapper_class
-    "#{position} cursor-help"
+    "#{position} cursor-help touch-target"
   end
 
   def full_icon_class

@@ -3,6 +3,26 @@ describe HeatmapTile::Component, type: :component do
 
   let(:timeframe) { Timeframe.new('2025') }
 
+  describe 'a year with data for some months only' do
+    let(:sensor) { Sensor::Registry[:inverter_power] }
+    let(:data) { { 1 => { 1 => 1000 }, 2 => { 1 => 2000 } } }
+
+    it 'shows all twelve months' do
+      page = render_inline(component)
+
+      # Each month is a row of its name and 31 cells, see the template
+      expect(page.css('.heatmap-year > *').size).to eq((12 * 32) + 32)
+      expect(page.css('.upright\:invisible').size).to eq(6)
+    end
+
+    it 'hides the months without data in the wide grid' do
+      page = render_inline(component)
+
+      # The ten months without data hide from md on, each with its 32 cells
+      expect(page.css('.heatmap-year > .md\:hidden').size).to eq(10 * 32)
+    end
+  end
+
   describe '#use_range_based_opacity?' do
     subject(:use_range_based_opacity?) do
       component.send(:use_range_based_opacity?) # rubocop:disable Style/Send
