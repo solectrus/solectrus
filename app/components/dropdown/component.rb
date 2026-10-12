@@ -1,4 +1,4 @@
-class Dropdown::Component < ViewComponent::Base
+class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   CENTERED = 'left-1/2 -translate-x-1/2 origin-top'.freeze
   private_constant :CENTERED
 
@@ -8,6 +8,10 @@ class Dropdown::Component < ViewComponent::Base
 
   renders_one :button
 
+  # The button on the colored bar of the page header
+  HEADER_BUTTON_CLASS = 'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10'.freeze
+  public_constant :HEADER_BUTTON_CLASS
+
   def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
     items:,
@@ -16,6 +20,7 @@ class Dropdown::Component < ViewComponent::Base
     selected: nil,
     display_name: nil,
     menu_position: :right,
+    disabled: false,
     button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
     super()
@@ -26,6 +31,7 @@ class Dropdown::Component < ViewComponent::Base
     @selected = selected
     @display_name = display_name
     @menu_position = menu_position.to_sym
+    @disabled = disabled
     @button_class = button_class
   end
 
@@ -36,6 +42,7 @@ class Dropdown::Component < ViewComponent::Base
               :selected,
               :display_name,
               :menu_position,
+              :disabled,
               :button_class
 
   # Where the menu hangs from its button. `center` puts it under the button and
@@ -73,8 +80,10 @@ class Dropdown::Component < ViewComponent::Base
       flat_items.find { |item| item.respond_to?(:id) && item.id.to_s == selected.to_s }
   end
 
+  # The button prefers the short name of the selected item, because it stands
+  # in the page header with little space
   def button_text
-    display_name || selected_item&.name
+    display_name || selected_item&.short_name || selected_item&.name
   end
 
   def icons?
@@ -147,10 +156,12 @@ class Dropdown::Component < ViewComponent::Base
     end
   end
 
+  # A native select shows its option as the button, so the option prefers
+  # the short name like the button (see button_text)
   def render_option(item)
     content_tag(
       :option,
-      item.name,
+      item.short_name || item.name,
       value: item.href,
       data: item.data,
       selected: (item == selected_item),

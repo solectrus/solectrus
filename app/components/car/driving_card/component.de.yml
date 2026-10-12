@@ -1,0 +1,8 @@
+de:
+  no_rate: Für die Fahrkosten fehlen Daten. Die Tage rund um eine Fahrt brauchen mindestens 100 km und geladene Energie.
+  no_price: Für die Fahrkosten fehlen Preise. Ein Ladevorgang in den Tagen rund um eine Fahrt hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist.
+  cost_reason: 'Laden und Fahren passieren nicht am selben Tag. Deshalb hat jeder Tag einen eigenen Satz: die Ladekosten der %{days} Tage davor und danach, geteilt durch deren Fahrleistung.'
+  consumption_reason: 'Laden und Fahren passieren nicht am selben Tag. Deshalb hat jeder Tag einen eigenen Satz: die geladene Energie der %{days} Tage davor und danach, geteilt durch deren Fahrleistung.'
+  charge_losses: Die Werte enthalten die Ladeverluste.
+  unrated: Ohne %{distance}, für die Ladedaten fehlen.
+  range_reason: Die Reichweite bei vollem Akku, hochgerechnet aus der gemeldeten Reichweite und dem Ladestand. Der Wert ist der Durchschnitt der Tage.

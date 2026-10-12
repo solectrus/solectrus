@@ -195,7 +195,7 @@ module McpServer
 
         # Resolve client-supplied sensor names to the corresponding Sensor
         # definitions, validated against the sensors actually configured and
-        # permitted on this instance (Sensor::Config.sensors). Names outside
+        # permitted on this instance (McpServer::Sensors). Names outside
         # that set - unknown, unconfigured, or not permitted by policy - never
         # yield data, so a tool cannot leak sensors that list_sensors never
         # advertised.
@@ -215,7 +215,7 @@ module McpServer
         # or `sensor`, and its schema can only mark both optional, so the error
         # is the one place a client learns that one of them is required.
         def resolve_sensors(names, allow_blank: false, max: nil, blank_message: nil)
-          available = Sensor::Config.sensors
+          available = McpServer::Sensors.all
 
           if names.blank?
             return [available, []] if allow_blank
@@ -361,6 +361,7 @@ module McpServer
           money: Facts::MONEY_ACCUMULATED,
           split: "#{Facts::SPLIT_CADENCE} #{Facts::SPLIT_INSTEAD}",
           chart_only: Facts::CHART_ONLY,
+          data_sensors: Facts::DATA_SENSORS,
           non_aggregatable: Facts::NON_AGGREGATABLE,
           no_aggregation: Facts::NO_AGGREGATION,
           forecast: Facts::FORECAST_NOT_MEASURED,
@@ -414,11 +415,23 @@ module McpServer
         def instead_clause(sensor, tool)
           reason = McpServer::SupportedTools.rejection(sensor, tool)
           return '' if SELF_EXPLAINING.include?(reason)
+          return data_sensors_clause(sensor, tool) if reason == :data_sensors
 
           others = McpServer::SupportedTools.alternatives(sensor, except: tool)
           return ' No other tool answers for it.' if others.empty?
 
           " Use #{tool_list(others)} instead."
+        end
+
+        # The sensors that hold the data of a chart-only sensor, each with its
+        # label, which the tool answers for
+        def data_sensors_clause(sensor, tool)
+          available = McpServer::Sensors.all.select { McpServer::SupportedTools.supports?(it, tool) }.to_set(&:name)
+          sensors = sensor.data_sensors.slice(*available)
+          return ' No sensor on this instance holds its data.' if sensors.empty?
+
+          names = sensors.map { |name, label| "#{name} (#{label})" }
+          " Ask #{names.to_sentence(two_words_connector: ' or ', last_word_connector: ' or ')} instead."
         end
 
         def tool_list(flags)

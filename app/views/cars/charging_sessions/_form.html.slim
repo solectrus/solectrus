@@ -1,0 +1,65 @@
+= form_with(model: [:cars, charging_session], id: dom_id(charging_session, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+  / The change renders the list of the page that opened the form
+  - list_params.each do |name, value|
+    = hidden_field_tag name, value
+
+  - if charging_session.wallbox?
+    / The detection writes the energy, the time and the cost of a wallbox
+    / session. The user decides who charged.
+    = f.group do
+      = render ChargingSession::Facts::Component.new(charging_session:)
+
+      = f.select :car_id,
+                 wallbox_holder_options(charging_session),
+                 { selected: charging_session.holder, hint: holder_hint(charging_session) },
+                 autofocus: true
+
+      = f.text_area :note, rows: 3
+
+  - else
+    - if charging_session.proposal?
+      / A save accepts the proposal of the build
+      .mt-2.mb-4.rounded-lg.p-4.text-sm.bg-amber-50.text-amber-900.dark:bg-amber-900/20.dark:text-amber-200.flex.items-center.gap-3
+        = icon 'circle-question', class: 'shrink-0 text-base text-amber-500 dark:text-amber-400'
+        p = t('charging_sessions.proposal.form_hint')
+
+    / Side by side on a wide screen, so the form fits the height of a laptop
+    .grid.grid-cols-1.lg:grid-cols-2.lg:gap-x-10
+      div
+        = f.group do
+          = f.select :car_id, car_options(charging_session)
+          .grid.grid-cols-1.md:grid-cols-2.gap-4
+            = f.datetime_local_field :started_at,
+                                     autofocus: true
+            = f.datetime_local_field :ended_at
+          div
+            .grid.grid-cols-1.md:grid-cols-2.gap-4
+              = f.number_field :kwh,
+                               in: 0..10_000,
+                               step: '0.001',
+                               suffix: 'kWh'
+              = f.number_field :cost,
+                               in: 0..10_000,
+                               step: '0.01',
+                               suffix: Currency.symbol
+            / Below both fields, so the facts of the charge fit on one line
+            - if (soc = charging_session_soc_facts(charging_session))
+              p.mt-3.label-hint = soc
+
+      div
+        = f.group do
+          = f.text_field :provider
+          = f.text_field :address
+          .grid.grid-cols-1.md:grid-cols-2.gap-4
+            = f.text_field :evse_id
+            = f.select :power_type,
+                       ChargingSession.power_types.keys.map { |pt| [ChargingSession.human_enum_name(:power_type, pt), pt] },
+                       include_blank: true
+
+  / The note of an offsite session sits beside the button, which saves height
+  .flex.flex-col.lg:flex-row.lg:items-end.gap-6
+    - unless charging_session.wallbox?
+      .flex-1
+        = f.text_area :note, rows: 2
+    .ml-auto
+      = render 'settings/fab_submit'

@@ -1,4 +1,6 @@
-- insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:)
+/ A chart of the car page has figures of its own, for the selected car
+- unless sensor.is_a?(Sensor::Definitions::CarPageChart)
+  - insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:)
 
 = render TurboModal::Component.new(width: :medium) do |modal|
   - modal.with_title do
@@ -8,11 +10,14 @@
       .min-w-0.flex-1
         .truncate = sensor.display_name
         .insights-heading-period = timeframe.localized
-      - if (total = insights.heading_total)
+      - if (total = insights&.heading_total)
         = render total
 
-  = render insights
+  - if insights
+    = render insights
+  - elsif ApplicationPolicy.insights?
+    = render Car::Insights::Component.new(sensor:, timeframe:, car: params[:car])
 
   / In place of the figures that need the permission
-  - unless insights.permitted?
+  - unless ApplicationPolicy.insights?
     = render DemoLink::Component.new(feature: 'insights', url: { controller: 'balance/home', timeframe: params[:timeframe] })

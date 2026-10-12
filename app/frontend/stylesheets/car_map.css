@@ -1,0 +1,54 @@
+/* The map of the car page (Car::Map::Component). MapLibre loads its own
+   styles without a layer, so these rules have no layer either. */
+
+/* The tooltip covers the chart menu that floats on the map (z-10) */
+.car-map-popup {
+  @apply z-20;
+}
+
+.car-map-popup .maplibregl-popup-content {
+  @apply rounded-md px-3 py-2 text-sm text-slate-700 shadow-md;
+}
+
+.dark .car-map-popup .maplibregl-popup-content {
+  @apply bg-slate-800 text-slate-300;
+}
+
+/* Near the edge of the map, MapLibre anchors the tooltip at a corner */
+.dark .car-map-popup.maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.dark .car-map-popup.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.dark .car-map-popup.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+  border-bottom-color: var(--color-slate-800);
+}
+
+.dark .car-map-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.dark .car-map-popup.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.dark
+  .car-map-popup.maplibregl-popup-anchor-bottom-right
+  .maplibregl-popup-tip {
+  border-top-color: var(--color-slate-800);
+}
+
+.dark .car-map-popup.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: var(--color-slate-800);
+}
+
+.dark .car-map-popup.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: var(--color-slate-800);
+}
+
+/* MapLibre styles the attribution with two classes, so these rules need three */
+.dark .maplibregl-ctrl.maplibregl-ctrl-attrib,
+.dark .maplibregl-ctrl-attrib.maplibregl-compact {
+  @apply bg-slate-800/80 text-slate-400;
+}
+
+.dark .maplibregl-ctrl-attrib.maplibregl-compact a,
+.dark .maplibregl-ctrl.maplibregl-ctrl-attrib a {
+  @apply text-slate-400;
+}
+
+/* The icon is an image, so it turns white with its light background */
+.dark .maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}

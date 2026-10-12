@@ -20,6 +20,10 @@ export type DatasetWithId = ChartDataset & {
   noGradient?: boolean;
   opacity?: number;
   colorClass?: string;
+  // A hex color that tints the color of colorClass, like the color of a car
+  tintColor?: string;
+  // A part of a stack that adds up to a total, so the tooltip shows the sum
+  summed?: boolean;
   colorScale?: ColorScaleStop[];
   opacities?: number[];
   // Hatches the whole dataset, or with one entry for each data point only
@@ -32,6 +36,19 @@ export type DatasetWithId = ChartDataset & {
   tooltipPrefix?: boolean;
   // The key of the dataset's list in `averages`.
   sensorName?: string;
+  // Lines of plain text below the value, one entry for each data point
+  tooltipNotes?: (string[] | null)[];
+  // A note below the row of the dataset, one entry for each data point.
+  // Unlike tooltipNotes, each dataset shows its own.
+  tooltipRowNotes?: (TooltipRowNote | null)[];
+  // The markup of each icon that tooltipRowNotes name, rendered by the server
+  tooltipIcons?: Record<string, string>;
+};
+
+// A line of plain text, with the key of an icon in tooltipIcons
+export type TooltipRowNote = {
+  text: string;
+  icon?: string;
 };
 
 // A chart may state whether its fills cover each other instead of leaving that

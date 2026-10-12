@@ -57,11 +57,18 @@ module Sensor
       pending = pending_summaries(chunk)
       return 0 if pending.empty?
 
+      # Each step waits for InfluxDB, so it overlaps with the queries and the
+      # build of the values. It needs no database once made.
+      dates = pending.map(&:first)
+      steps = start_steps(dates)
+      batch = batch_for(dates)
+
       # Building the values needs no transaction, and holding one open across
       # every InfluxDB query of a chunk would keep it running for as long as
       # the slowest of them.
-      built = build(pending)
-      persist(built)
+      built = build(pending, batch ? batch.call : {}, batch&.meter_diffs, batch&.states)
+      steps.each(&:result)
+      persist(built, steps)
 
       built.size
     end
@@ -80,14 +87,27 @@ module Sensor
       end
     end
 
-    def build(pending)
-      prefetched = prefetch(pending.map(&:first))
+    # A run of each step with something to do, on each day of the build (see
+    # Summary::Steps)
+    def start_steps(dates)
+      steps = Summary::Steps.enabled
+      return [] if steps.empty?
 
+      # The steps share what they read alike, for example the curves of the
+      # cars, so one Flux program reads it (see Summary::Steps.shared)
+      shared = Summary::Steps.shared(dates)
+      steps.map { StepRun.new(it, dates, shared) }
+    end
+
+    # Each day reads the meters and the states from the batch
+    def build(pending, prefetched, meter_diffs, states)
       pending.map do |date, summary|
         data =
           Sensor::SummaryBuilder.new(
             Timeframe.new(date.iso8601),
             prefetched: prefetched[date],
+            meter_diffs:,
+            states:,
           ).call
 
         records = summary_records(date, data)
@@ -105,15 +125,17 @@ module Sensor
 
     # A single day is left to the per-day queries: batching one day would only
     # build the same pipelines under a cache key nothing else shares.
-    def prefetch(dates)
-      return {} if dates.size < 2
+    def batch_for(dates)
+      return if dates.size < 2
 
       Sensor::Query::Helpers::Influx::DailyBatch.new(
         dates,
         sum_sensor_names: Sensor::SummaryBuilder.sum_sensor_names,
         aggregation_sensor_names:
           Sensor::SummaryBuilder.aggregation_sensor_names,
-      ).call
+        meter_sensor_names: Sensor::SummaryBuilder.meter_sensor_names,
+        state_sensor_names: Sensor::SummaryBuilder.state_sensor_names,
+      )
     end
 
     # ============================================
@@ -123,57 +145,12 @@ module Sensor
     # Everything a chunk writes goes into one transaction: on a spinning disk
     # each commit costs an fsync, which dominated the writes when every day
     # committed on its own.
-    def persist(built)
+    #
+    # The steps write in the same transaction (see StepRun#persist)
+    def persist(built, steps)
       ActiveRecord::Base.transaction do
-        upsert_summaries(built)
-        upsert_summary_values(built.flat_map { |entry| entry[:valid_records] })
-        cleanup_empty_values(built)
-      end
-    end
-
-    def upsert_summaries(built)
-      now = Time.current
-
-      Summary.upsert_all(
-        built.map { |entry| { date: entry[:date], created_at: now, updated_at: now } },
-        unique_by: :date,
-        # A day that is already there only gets touched, and Rails must not add
-        # a touch of its own - it would assign updated_at twice in one
-        # statement, which Postgres rejects.
-        update_only: %i[updated_at],
-        record_timestamps: false,
-      )
-    end
-
-    def upsert_summary_values(records)
-      return if records.empty?
-
-      SummaryValue.upsert_all(
-        records,
-        unique_by: %i[date aggregation field],
-        update_only: %i[value],
-      )
-    end
-
-    # Delete values that exist but have no value anymore (rare case). Only a
-    # summary that was there before can have any, so a new one is skipped.
-    def cleanup_empty_values(built)
-      empty_records =
-        built.flat_map do |entry|
-          next [] if entry[:new_record]
-
-          entry[:records] - entry[:valid_records]
-        end
-      return if empty_records.empty?
-
-      build_deletion_query(empty_records)&.delete_all
-    end
-
-    def build_deletion_query(records)
-      records.reduce(nil) do |query, record|
-        condition =
-          SummaryValue.where(record.slice(:date, :aggregation, :field))
-        query&.or(condition) || condition
+        Writer.new(built).call
+        steps.each(&:persist)
       end
     end
 
@@ -194,10 +171,17 @@ module Sensor
           records << {
             field: sensor_name.to_s,
             aggregation: aggregation.to_s,
-            value:,
+            value: (value if recorded?(sensor_name, date)),
             date:,
           }
         end
+    end
+
+    # A day on which the sensor records nothing, like a car outside its period
+    # of use, gets no value, and #cleanup_empty_values removes an existing one
+    def recorded?(sensor_name, date)
+      definition = Sensor::Registry.find(sensor_name)
+      definition.nil? || definition.recorded_on?(date)
     end
   end
 end

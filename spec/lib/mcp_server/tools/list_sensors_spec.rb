@@ -153,6 +153,19 @@ describe McpServer::Tools::ListSensors do
         expect(entry('battery_soc')).not_to have_key(:display_name)
       end
 
+      # A car without a name goes by its short name
+      it 'carries the short name of a car without a name' do
+        Car.create!(id: 1, short_name: 'ZOE')
+
+        expect(entry('car_battery_soc_1')[:display_name]).to eq('ZOE (SOC)')
+      end
+
+      it 'omits the field for a car with the number as short name' do
+        Car.create!(id: 1)
+
+        expect(entry('car_battery_soc_1')).not_to have_key(:display_name)
+      end
+
       # Said in the tool description rather than in `conventions`, because it
       # decides how the client READS the user's question - which it does before
       # the call, not after it.

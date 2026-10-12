@@ -1,0 +1,12 @@
+.flex.flex-col.md:flex-row
+  / On a phone, the bar itself sticks. On a wider screen, the column keeps its
+    border over the full height and the list in it sticks.
+  .sticky.top-0.z-10.-mx-4.sm:-mx-6.mb-4.px-4.sm:px-6.bg-gray-100.dark:bg-gray-800.md:static.md:mx-0.md:mb-0.md:mr-8.md:pl-0.md:pr-5.md:border-r.md:bg-inherit.md:dark:bg-inherit
+    nav.md:sticky.md:top-6
+      ul.flex.-mx-2.md:mx-0.md:flex-col.md:space-y-1.text-sm.md:text-base.font-medium.uppercase.tracking-wider
+        - items.each do |item|
+          li
+            = link_to item[:name], item[:href], class: link_class(item), 'aria-current': ('page' if current?(item))
+
+  .flex-1.min-w-0
+    = content

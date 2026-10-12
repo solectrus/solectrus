@@ -243,6 +243,78 @@ describe Sensor::SummaryInvalidator do
           expect { validation }.to change(Summary, :count).from(2).to(0)
         end
       end
+
+      # wallbox_car_connected has no daily value, but the detection reads it
+      context 'when an added sensor of a step has data for that day' do
+        let(:stored_sensors) { current_sensors.except(:wallbox_car_connected) }
+
+        before do
+          add_influx_point(
+            name: Sensor::Config.measurement(:wallbox_car_connected),
+            fields: { Sensor::Config.field(:wallbox_car_connected) => true },
+            time: Date.yesterday.middle_of_day,
+          )
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+    end
+
+    # The test configuration has a wallbox and the state of charge of the
+    # first car, so the detection and the proposals have something to do
+    context 'with a summary of a past day and the steps' do
+      let(:current_steps) { current_config[:steps] }
+
+      before do
+        create_summary(
+          date: Date.yesterday,
+          values: [['inverter_power', 'sum', 1000]],
+        )
+
+        Setting.summary_config = current_config.merge(steps: stored_steps)
+      end
+
+      context 'when a step has another version' do
+        let(:stored_steps) { current_steps.merge('charging_sessions' => ChargingSession::Detection::VERSION - 1) }
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+
+      context 'when a step has something to do now, with data of its sensors for that day' do
+        let(:stored_steps) { current_steps.except('charging_sessions') }
+
+        before do
+          add_influx_point(
+            name: Sensor::Config.measurement(:wallbox_power),
+            fields: { Sensor::Config.field(:wallbox_power) => 5000 },
+            time: Date.yesterday.middle_of_day,
+          )
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+
+      context 'when a step has something to do now, without data of its sensors' do
+        let(:stored_steps) { current_steps.except('charging_sessions') }
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
+
+      context 'when a step has nothing to do anymore' do
+        let(:stored_steps) { current_steps.merge('place_visits' => Place::VisitDetection::VERSION) }
+
+        it 'does not delete summaries' do
+          expect { validation }.not_to change(Summary, :count)
+        end
+      end
     end
   end
 end

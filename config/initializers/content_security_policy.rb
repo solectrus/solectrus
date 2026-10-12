@@ -5,11 +5,16 @@
 # https://guides.rubyonrails.org/security.html#content-security-policy-header
 
 Rails.application.configure do
+  # The map of the car page loads its style, tiles and fonts from OpenFreeMap
+  # (see Car::Map::Component)
+  map_tiles_host = 'https://tiles.openfreemap.org'
+
   config.content_security_policy do |policy|
     if Rails.env.development?
       policy.connect_src :self,
                          # Allow @vite/client to hot reload CSS changes
-                         'wss://vite.solectrus.localhost'
+                         'wss://vite.solectrus.localhost',
+                         map_tiles_host
 
       policy.style_src :self,
                        # Allow @vite/client to hot reload style changes
@@ -23,7 +28,9 @@ Rails.application.configure do
                         # Allow @vite/client to hot reload JavaScript changes
                         'https://vite.solectrus.localhost'
 
-      policy.worker_src :self, :blob
+      # MapLibre starts its worker from a blob that imports the worker from
+      # Vite. The imports of a worker need worker-src, not script-src.
+      policy.worker_src :self, :blob, 'https://vite.solectrus.localhost'
     else
       policy.default_src :none
       policy.font_src(
@@ -61,6 +68,7 @@ Rails.application.configure do
           :self,
           Rails.configuration.x.plausible_url.presence,
           Rails.configuration.asset_host.presence,
+          map_tiles_host,
           (
             if Rails.configuration.x.honeybadger.api_key
               'https://api.honeybadger.io'
@@ -69,7 +77,12 @@ Rails.application.configure do
         ].compact,
       )
       policy.manifest_src :self
-      policy.worker_src :self
+      # MapLibre starts its worker from a blob when the worker comes from
+      # the asset host. The imports of a worker need worker-src, not
+      # script-src.
+      policy.worker_src(
+        :self, *([:blob, Rails.configuration.asset_host] if Rails.configuration.asset_host.present?)
+      )
       policy.frame_ancestors(*Rails.configuration.x.frame_ancestors || [:none])
     end
     policy.base_uri :self

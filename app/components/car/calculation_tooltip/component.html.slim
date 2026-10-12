@@ -1,0 +1,18 @@
+.max-w-72.space-y-3
+  - if terms.any?
+    table.border-separate.border-spacing-x-2.border-spacing-y-1
+      - [*terms, result].each do |row|
+        - if row.equal?(result)
+          tr
+            td colspan=3
+              hr.my-1.border-gray-400.dark:border-slate-500.opacity-50
+        tr
+          td.text-sm.opacity-75 = row.operator
+          td.text-left.text-sm.opacity-75 = row.label
+          td.text-right.font-semibold.whitespace-nowrap
+            = render row.value
+
+  - if notes.any?
+    div class=class_names('space-y-1 text-sm', 'label-value-separator pt-2' => terms.any?)
+      - notes.each do |note|
+        p = note

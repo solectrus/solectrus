@@ -5,10 +5,10 @@ describe 'Bottom navigation (mobile)' do
     visit '/'
 
     within('nav[aria-label="Main navigation"]') do
-      click_on 'Erzeugung'
+      click_on 'Hausverbrauch'
     end
 
-    expect(page).to have_current_path(%r{/inverter_power/})
+    expect(page).to have_current_path(%r{/house/house_power/})
   end
 
   # optimistic-nav moves the marking to the tapped item before the page it
@@ -18,10 +18,10 @@ describe 'Bottom navigation (mobile)' do
     visit '/'
 
     within('nav[aria-label="Main navigation"]') do
-      click_on 'Erzeugung'
+      click_on 'Hausverbrauch'
 
       expect(page).to have_css('a[aria-current]', count: 1)
-      expect(page).to have_css('a[aria-current][aria-label="Erzeugung"]')
+      expect(page).to have_css('a[aria-current][aria-label="Hausverbrauch"]')
     end
   end
 

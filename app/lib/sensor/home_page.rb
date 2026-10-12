@@ -1,4 +1,4 @@
-# The four home pages: power balance, house, heat pump and inverter. Which
+# The home pages: power balance, house, heat pump, inverter and car. Which
 # page shows a sensor is a property of the sensor (`home_pages` in its
 # definition), so this module only collects the answers.
 #
@@ -9,28 +9,43 @@
 # "which sensors are mine?". A link can therefore not point at a page that
 # sends the user away again.
 #
-# Two more questions are about the page itself. The settings can switch it
+# Three more questions are about the page itself. The settings can switch it
 # off, and `available?` answers for the controller and for a link alike. A
-# sponsorship can be what opens it, and `permitted?` answers that. The
-# insights combine all three: `shown?` tells whether a page that the user may
-# open renders the sensor.
+# sponsorship can be what opens it, and `permitted?` answers that. `hours?`
+# says whether the page offers the hours view. The insights combine all three:
+# `shown?` tells whether a page that the user may open renders the sensor.
 module Sensor::HomePage
   # What holds a page back: the setting that switches it off, and the feature
   # a sponsorship opens it with. The power balance is the start page and has
-  # neither.
+  # neither. The balance sensor stands for the page on the start page. A key
+  # is the prefix of the route helper of the page, so SensorPathHelper can
+  # build a path from it. The car page has no hours view, because its numbers
+  # come from full days, no chart in its live view, because its sensors
+  # report far less often, and no way forward into the PV forecast.
   PAGES = {
     balance: {},
     heatpump: {
       setting: :enable_heatpump,
       feature: :heatpump,
+      balance_sensor: :heatpump_power,
     },
     inverter: {
       setting: :enable_multi_inverter,
       feature: :multi_inverter,
+      balance_sensor: :inverter_power,
     },
     house: {
       setting: :enable_custom_consumer,
       feature: :custom_consumer,
+      balance_sensor: :house_power,
+    },
+    cars: {
+      setting: :enable_car,
+      feature: :car,
+      balance_sensor: :wallbox_power,
+      hours: false,
+      live_chart: false,
+      forecast: false,
     },
   }.freeze
   private_constant :PAGES
@@ -38,12 +53,29 @@ module Sensor::HomePage
   class << self
     def all = PAGES.keys
 
+    # The sensor the start page selects when the user comes from this page,
+    # so the topic stays. Nothing for the start page itself, and nothing for
+    # a page that is no home page: the navigation asks on every page.
+    def balance_sensor(key) = PAGES.dig(key, :balance_sensor)
+
     # Whether the settings switch this page on.
     def available?(key)
       setting = page(key)[:setting]
 
       setting.nil? || Setting.public_send(setting)
     end
+
+    # Whether the page offers the hours view. Without it, the page sends an
+    # hours timeframe to today, and the timeframe select hides it.
+    def hours?(key) = page(key).fetch(:hours, true)
+
+    # Whether the timeframe navigation leads from today into the PV forecast
+    def forecast?(key) = page(key).fetch(:forecast, true)
+
+    # Whether the live view of the page has a chart. Without one, the address
+    # of the live view has no sensor. A page that is no home page has its
+    # chart: the navigation asks on every page.
+    def live_chart?(key) = PAGES.dig(key, :live_chart) != false
 
     # The feature a sponsorship opens this page with, or nothing when the page
     # is free. The upsell of the page names it as well, see
@@ -59,12 +91,14 @@ module Sensor::HomePage
       name.nil? || ApplicationPolicy.instance.feature_enabled?(name)
     end
 
+    # Whether the page shows its data: the settings switch it on and a
+    # sponsorship opens it
+    def open?(key) = available?(key) && permitted?(key)
+
     # Whether a page that the settings switch on and the user may open
     # renders this sensor
     def shown?(sensor_name)
-      all.any? do |key|
-        available?(key) && permitted?(key) && accepts?(key, sensor_name)
-      end
+      all.any? { |key| open?(key) && accepts?(key, sensor_name) }
     end
 
     # The sensors of a page, in the order the installation lists them. The

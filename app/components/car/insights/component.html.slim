@@ -1,0 +1,20 @@
+.grid.grid-cols-2.gap-3.sm:gap-4.w-full
+  = render InsightsTile::Component.new css_class: 'col-span-2' do |tile|
+    - tile.with_body do
+      = render SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo)
+
+  - trends.each_with_index do |(key, trend), index|
+    = render InsightsTile::Component.new css_class: [('text-right' if index.positive?), ('col-span-2' if trends.one?)], url: trend_path(trend) do |tile|
+      - tile.with_title do
+        = t(".#{key}")
+      - tile.with_body do
+        = render TrendIndicator::Component.new(trend:)
+
+  - if maximum
+    = render InsightsTile::Component.new css_class: 'col-span-2', url: day_path(maximum.first) do |tile|
+      - tile.with_title do
+        = l maximum.first
+      - tile.with_body do
+        = render SensorValue::Component.new(maximum.last, sensor.name, context: :total, scaling: :kilo)
+      - tile.with_footer do
+        = t('.maximum')

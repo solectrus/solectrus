@@ -580,7 +580,7 @@ Sensor::Config.multi_inverter?    # => true/false
 Sensor::Config.single_consumer?   # => true/false
 ```
 
-`Sensor::Config.exists?` also takes care of derived sensors. In particular, `:power_splitter` sensors are auto-configured from the corresponding base sensor and still honor permission checks such as `ApplicationPolicy.power_splitter?`.
+`Sensor::Config.exists?` also takes care of derived sensors. In particular, `:power_splitter` sensors are auto-configured from the corresponding base sensor and still honor permission checks such as `ApplicationPolicy.power_splitter?`. The daily build does not ask for the permission: it reads `Sensor::Config.sensors_for_build`.
 
 ## Further Documentation
 

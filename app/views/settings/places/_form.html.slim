@@ -1,0 +1,22 @@
+= form_with(model: place, url: settings_place_path(place), id: dom_id(place, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+  .mb-4
+    = f.text_field :name, autofocus: true
+
+  / Each label is a chip to switch on and off: dashed with a plus when off,
+    filled with a check when on. The hint of a label shows only when it is on,
+    but keeps its space, so the dialog keeps its height.
+  .mb-4 class='group/labels' role='group' aria-label=Place.human_attribute_name(:labels)
+    .flex.flex-wrap.gap-2
+      = f.collection_check_boxes :labels, Place::LABELS.keys, :itself, ->(label) { Place.human_label(label) } do |b|
+        = b.label class: 'group/chip flex items-center gap-2 rounded-full border px-4 py-1.5 cursor-pointer select-none border-dashed border-slate-300 text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200 has-[:checked]:border-solid has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-600 has-[:checked]:text-white dark:has-[:checked]:border-indigo-500 dark:has-[:checked]:bg-indigo-500 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-indigo-500' do
+          = b.check_box class: 'sr-only'
+          = icon 'plus', class: 'text-xs group-has-[:checked]/chip:hidden'
+          = icon Place::LABELS[b.value]
+          = b.text
+          = icon 'check', class: 'hidden text-xs group-has-[:checked]/chip:inline'
+
+    - Place::LABELS.each_key do |label|
+      p.label-hint.mt-2.invisible class=place_label_hint_class(label) = t("places.label_hints.#{label}")
+
+  .flex.justify-end
+    = render 'settings/fab_submit'

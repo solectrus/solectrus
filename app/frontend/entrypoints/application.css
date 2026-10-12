@@ -54,6 +54,8 @@
 
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
+/* No layer() — overrides the styles of MapLibre, which have no layer */
+@import '../stylesheets/car_map.css';
 
 @theme {
   --breakpoint-3xl: 1920px;
@@ -187,7 +189,7 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
       --title-size: clamp(40px, 2vw, 45px);
     }
 
-    /* One global badge scale for radial, finance and SoC badges */
+    /* One global badge scale for radial and finance badges */
     & .badge {
       --size: clamp(7rem, 7vw, 9rem);
     }

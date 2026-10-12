@@ -11,22 +11,38 @@ module TimeframeNavigation
     # `compare` is named even when there is nothing to compare, so that a tab
     # leading away from the year comparison does not carry it along: `url_for`
     # would otherwise take the segment from the path of the current page.
-    def path_with_timeframe(timeframe, compare: nil)
+    def path_with_timeframe(
+      timeframe,
+      compare: nil,
+      sensor_name: chart_sensor_name,
+      params: timeframe_selection_params(timeframe)
+    )
       url_for(
         controller: "#{helpers.controller_namespace}/home",
         sensor_name:,
         timeframe:,
         compare:,
         action: 'index',
-        **selection_params,
+        **params,
       )
     end
+
+    # The chart that the links to the other timeframes keep
+    def chart_sensor_name = sensor_name
+
+    # The live view of a page without a chart has no sensor in its address
+    # (see Sensor::HomePage.live_chart?), so its link needs no redirect
+    def live_sensor_name
+      chart_sensor_name if Sensor::HomePage.live_chart?(helpers.controller_namespace.to_sym)
+    end
+
+    def live_path = path_with_timeframe('now', sensor_name: live_sensor_name)
 
     helper_method def nav_items
       [
         {
           name: t('data.now'),
-          href: path_with_timeframe('now'),
+          href: live_path,
           current: timeframe.now?,
         },
         nav_item(:day),

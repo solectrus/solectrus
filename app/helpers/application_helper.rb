@@ -35,10 +35,23 @@ module ApplicationHelper
     "#{controller_namespace}-#{prefix}-#{timeframe_identifier}"
   end
 
+  # The frame of the stats is permanent. A refresh of the page morphs it, and
+  # a morph keeps each permanent element. A page that shows another selection
+  # in the same timeframe therefore gives the stats and the frame around them
+  # an id of its own, so the morph replaces both.
+  def scoped_frame_id(prefix)
+    [frame_id(prefix), *selection_params.values.compact].join('-')
+  end
+
   # See ApplicationController#selection_params. A preview has no such
   # controller.
   def selection_params
     controller.respond_to?(:selection_params, true) ? controller.__send__(:selection_params) : {}
+  end
+
+  # See ApplicationController#chart_options. A preview has no such controller.
+  def chart_options
+    controller.respond_to?(:chart_options, true) ? controller.__send__(:chart_options) : {}
   end
 
   # The theme the visitor picked, written by the theme selector. A cookie and
@@ -77,5 +90,14 @@ module ApplicationHelper
   # the variable and its fallback are named in one place.
   def chrome_background_style
     "background-color: var(--color-chrome, #{ThemeConfig.x.color(chosen_theme)})"
+  end
+
+  # The start and the end of a session or a visit: both times on the same
+  # day, otherwise the start and the block with the end
+  def time_range(started_at, ended_at)
+    from = started_at.strftime('%H:%M')
+    return "#{from}–#{ended_at.strftime('%H:%M')}" if ended_at.to_date == started_at.to_date
+
+    "#{from} – #{yield ended_at}"
   end
 end

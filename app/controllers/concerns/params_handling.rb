@@ -10,11 +10,24 @@ module ParamsHandling
   private_constant :ALLOWED_INTERVALS
 
   included do
+    before_action :forbid_admin_only_sensor
+
     private
 
+    # Only the admin sees an admin-only sensor (see the `admin_only` DSL)
+    def forbid_admin_only_sensor
+      return unless sensor_name && Sensor::Registry.find(sensor_name)&.admin_only?
+
+      admin? || raise(ForbiddenError)
+    end
+
+    # The car is no parameter of the page itself. The car selection reads it
+    # (see CarSelectable), and each link adds it from there. It is named here,
+    # because selection_params reads the timeframe, which reads these
+    # parameters.
     helper_method def permitted_params
       @permitted_params ||=
-        params.permit(
+        params.except(:car).permit(
           :sensor_name,
           :timeframe,
           :period,

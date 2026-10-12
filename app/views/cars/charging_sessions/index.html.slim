@@ -1,0 +1,12 @@
+= render 'sub_nav'
+
+- if @missing_or_stale_summary_days.present?
+  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+- else
+  / The list keeps the z-index of its sticky rows to itself. Otherwise they
+    cover the lower half of the add button, which reaches down from the header.
+    The top padding keeps the list clear of that half. The minimum height keeps
+    a short list from shrinking the card to a strip.
+  .isolate.flex.flex-col.flex-1.lg:landscape:pt-8.lg:landscape:min-h-96
+    = tag.turbo_frame id: 'list', class: 'flex flex-col flex-1 min-h-0' do
+      = render ChargingSession::List::Component.new(charging_sessions: @charging_sessions, pagy: @pagy, kind:, timeframe:, selection: car_selection)

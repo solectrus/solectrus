@@ -5,6 +5,32 @@ describe Sensor::SummaryBuilder do
 
   before { stub_feature(:heatpump) }
 
+  describe '.state_sensor_names' do
+    # A sponsorship opens pages, so the summaries hold the values before it
+    it 'includes a sensor without the permission' do
+      stub_feature
+
+      expect(Sensor::Config.sensors.map(&:name)).not_to include(:car_battery_soc_1)
+      expect(described_class.state_sensor_names).to include(:car_battery_soc_1)
+    end
+
+    # A state has its own query (see Influx::DailyStates)
+    it 'is not part of the other aggregations' do
+      expect(described_class.aggregation_sensor_names).not_to include(:car_battery_soc_1)
+    end
+  end
+
+  describe '.needed_aggregations' do
+    # The avg of car_max_range is calculated, so it needs :avg even when no
+    # sensor with the permission asks for it
+    it 'includes the aggregations of a sensor without the permission' do
+      stub_feature
+      allow(Sensor::Config).to receive(:sensors).and_return([])
+
+      expect(described_class.needed_aggregations).to include(:sum, :max, :min, :avg)
+    end
+  end
+
   describe '#initialize' do
     context 'with Timeframe for a day' do
       it 'accepts' do

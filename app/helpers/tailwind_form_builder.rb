@@ -22,6 +22,10 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:text_field, method, **, &)
   end
 
+  def text_area(method, **, &)
+    input_field(:text_area, method, **, &)
+  end
+
   def number_field(method, **, &)
     input_field(:number_field, method, **, &)
   end
@@ -33,8 +37,8 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
-  def date_field(method, **, &)
-    input_field(:date_field, method, **, &)
+  %i[date_field datetime_local_field].each do |field_type|
+    define_method(field_type) { |method, **options, &block| input_field(field_type, method, **options, &block) }
   end
 
   def select(method, choices = nil, options = {}, html_options = {}, &)
@@ -96,29 +100,58 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   def input_field(field_type, method, **options)
     hint = options.delete(:hint)
-    options[:class] = [
+    suffix = options.delete(:suffix)
+    show_label = options[:label] != false
+    options.delete(:label) unless show_label
+    options[:class] = input_classes(options, method, suffix)
+
+    input =
+      @template.public_send(
+        field_type,
+        @object_name,
+        method,
+        objectify_options(options),
+      )
+    input = with_suffix(input, suffix) if suffix
+
+    tag.div class: 'form-control' do
+      safe_join(
+        [
+          (input_label(method, options) if show_label),
+          input,
+          (yield if block_given?),
+          (hint_tag(hint) if hint && !block_given?),
+          errors(method),
+        ].compact,
+      )
+    end
+  end
+
+  def input_classes(options, method, suffix)
+    [
       options[:class],
       'form-input',
       ('input-error' if error?(method)),
+      # Keep the text clear of the suffix pinned to the right edge
+      ('pr-12' if suffix),
       (options[:maxlength] ? 'w-20' : 'w-full'),
     ].compact.join(' ')
+  end
 
-    tag.div class: 'form-control' do
-      label(method, class: 'label') do
-        tag.span(label_text(method, options), class: 'label-text')
-      end +
-        safe_join(
-          [
-            @template.public_send(
-              field_type,
-              @object_name,
-              method,
-              objectify_options(options),
-            ),
-            (yield if block_given?),
-            (hint_tag(hint) if hint && !block_given?),
-            errors(method),
-          ].compact,
+  def input_label(method, options)
+    label(method, class: 'label') do
+      tag.span(label_text(method, options), class: 'label-text')
+    end
+  end
+
+  # Pin a unit (e.g. "km") to the right edge of the input
+  def with_suffix(input, suffix)
+    tag.div(class: 'relative') do
+      input +
+        tag.span(
+          suffix,
+          class:
+            'absolute inset-y-0 right-3 flex items-center text-gray-500 pointer-events-none',
         )
     end
   end
@@ -132,13 +165,9 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     options.fetch(:label) { object.class.human_attribute_name(method) }
   end
 
-  def errors_for(method)
-    object&.errors&.[](method)
-  end
+  def errors_for(method) = object&.errors&.[](method)
 
-  def error?(method)
-    errors_for(method).present?
-  end
+  def error?(method) = errors_for(method).present?
 
   def errors(method)
     return unless errors_for(method)

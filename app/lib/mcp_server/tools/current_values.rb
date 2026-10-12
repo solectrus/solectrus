@@ -2,8 +2,9 @@ module McpServer
   module Tools
     # Returns the latest live reading for each requested sensor (current power
     # flows, battery SOC, temperatures, ...), defaulting to all configured raw
-    # sensors. A stale reading (older than a sensor's max_age) or a sensor
-    # without data yields a null value, distinct from a measured 0.
+    # sensors. A stale reading (older than Sensor::Query::Latest::MAX_AGE) or a sensor
+    # without data yields a null value, distinct from a measured 0. A car
+    # sensor is a state, which holds at any age (see the DSL `state`).
     class CurrentValues < Base
       tool_name 'get_current_values'
       title 'Get current sensor values'
@@ -27,9 +28,10 @@ module McpServer
           - A null value WITH a last_seen_at means the source delivered before
             and is not delivering now — offline, or writing only sporadically.
             Only a null last_seen_at means it never delivered at all.
-          - "Live" only means "within the sensor's max_age" (15 min for most,
-            2 h for the sparse ones), so two entries can describe states
-            minutes apart — compare their ages before comparing their values.
+          - "Live" only means "within 15 min", so two
+            entries can describe states minutes apart — compare their ages
+            before comparing their values.
+          - A car sensor keeps its last state at any age; check `age_seconds`.
             The top-level `time` is the newest of them, not an instant they
             share, and the same skew is why two sensors measuring the same
             thing can differ by a watt. Over a timeframe (get_totals) it

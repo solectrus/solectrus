@@ -1,0 +1,18 @@
+/ A session that is not assigned is an open task: an icon like the other
+  hints of the list, with its label as the tooltip
+- if state == :unassigned
+  = tag.span class: 'inline-flex shrink-0 text-amber-500 dark:text-amber-400',
+             title: label,
+             aria: { label: },
+             data: { controller: 'tooltip' } do
+    = helpers.icon 'circle-question'
+- else
+  span class=css_class title=title
+    / A prominent badge shows a car in its color, a small one a dot
+    - if color && prominent?
+      = car_icon(color)
+    - elsif color
+      span class='size-2.5 rounded-full shrink-0 ring-1 ring-inset ring-black/15 dark:ring-white/25' style="background-color: #{color}"
+    - else
+      = helpers.icon 'user', class: 'fa-xs opacity-60'
+    span.truncate = label

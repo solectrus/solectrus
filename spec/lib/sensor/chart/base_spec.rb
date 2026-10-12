@@ -1,29 +1,23 @@
 describe Sensor::Chart::Base do
-  # Use a concrete dense chart (house_power, default 15-min max_age) to prove
-  # the sparse/persistent treatment is driven by the sensor's max_age, not by
-  # any specific chart subclass.
+  # Use a concrete chart (house_power) to prove that the treatment of a state
+  # is driven by the sensor (see the DSL `state`), not by any specific chart
+  # subclass.
   subject(:chart) { Sensor::Chart::HousePower.new(timeframe: Timeframe.now) }
 
-  describe '#sparse?' do
-    it 'is false for a sensor with the default max_age' do
-      expect(chart.__send__(:sparse?)).to be(false)
+  describe '#holds_value?' do
+    it 'is false for a sensor that is no state' do
+      expect(chart.__send__(:holds_value?)).to be(false)
     end
 
-    it 'becomes true once the sensor raises its max_age above the default' do
-      allow(Sensor::Registry[:house_power]).to receive(:max_age).and_return(
-        2.hours,
-      )
+    it 'is true for a state' do
+      allow(Sensor::Registry[:house_power]).to receive(:state?).and_return(true)
 
-      expect(chart.__send__(:sparse?)).to be(true)
+      expect(chart.__send__(:holds_value?)).to be(true)
     end
   end
 
-  context 'with a dense sensor (default max_age)' do
-    it 'does not seed a leading-edge lookback' do
-      expect(chart.__send__(:series_lookback)).to eq(0)
-    end
-
-    it 'keeps the default gap bridge limit instead of max_age' do
+  context 'with a sensor that is no state' do
+    it 'keeps the default gap bridge limit' do
       expect(chart.__send__(:gap_bridge_limit)).to eq(5.minutes.in_milliseconds)
     end
 

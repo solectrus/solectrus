@@ -1,0 +1,25 @@
+.col-span-full.grid.grid-cols-subgrid.items-center.hover:bg-gray-100.dark:hover:bg-gray-700 id=dom_id(place)
+  .p-2.min-w-0
+    .flex.items-center.gap-2.min-w-0
+      .truncate class=('italic text-gray-500' unless place.display_name)
+        = place.display_name || t('settings.places.unnamed')
+      = place_label_icons(place)
+    .text-xs.text-gray-500.truncate.tabular-nums
+      = [(place.locality if place.name), "#{place.latitude.round(5)}, #{place.longitude.round(5)}"].compact.join(' · ')
+  .p-2.text-sm.tabular-nums.whitespace-nowrap
+    / The time links to the visits that make it up
+    - if place.seconds.positive?
+      = link_to DurationText.call(place.seconds),
+                cars_visits_path(place: place.id),
+                class: 'hover:underline underline-offset-4',
+                data: { turbo_frame: '_top' }
+  .p-2
+    = render Button::Component.new path: edit_settings_place_path(place),
+                                   icon: 'pencil',
+                                   type: :button,
+                                   style: :secondary,
+                                   options: { \
+                                     method: :get,
+                                     data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                     'aria-label': t('crud.edit'),
+                                   }

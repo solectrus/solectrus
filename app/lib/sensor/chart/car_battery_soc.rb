@@ -1,9 +1,9 @@
 class Sensor::Chart::CarBatterySoc < Sensor::Chart::MinmaxBase
-  # car_battery_soc declares a max_age of 2h (its readings arrive at long,
-  # irregular intervals and persist between samples), so it is handled as a
-  # sparse/persistent sensor by the base class -- see #sparse?. No chart-level
-  # special-casing needed beyond naming the sensor.
+  include Sensor::Chart::Concerns::OneCar
+
+  # car_battery_soc is a state, so the base class holds its value between
+  # two readings -- see #holds_value?.
   def chart_sensor_names
-    %i[car_battery_soc]
+    sensor_names_of(:car_battery_soc)
   end
 end

@@ -127,7 +127,7 @@ module McpServer
         # regardless of the instance's locale. The filter runs inside it too,
         # so `query` matches the same descriptions the response returns.
         I18n.with_locale(:en) do
-          splits, listed = McpServer::SplitSensors.partition(Sensor::Config.sensors)
+          splits, listed = McpServer::SplitSensors.partition(McpServer::Sensors.all)
           sensors = answerable(listed)
           filtered = filter(sensors, query:, category:)
 

@@ -12,13 +12,15 @@
       = render Top10SortToggle::Component.new
       - if supports_calc_select?
         = render Top10CalcSelect::Component.new(calc:, sensor:)
-      = render Top10SensorSelect::Component.new current_sensor: sensor, permitted_params:
+      = render Top10CarSelect::Component.new(current_sensor: sensor, permitted_params:)
+      = render Top10SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
 
 .flex.lg:landscape:hidden.gap-3.items-center.text-base.h-9.mb-4
   = render Top10SortToggle::Component.new
   - if supports_calc_select?
     = render Top10CalcSelect::Component.new(calc:, sensor:)
-  .flex-1.min-w-0.flex.justify-end
+  .flex-1.min-w-0.flex.justify-end.gap-3
+    = render Top10CarSelect::Component.new(current_sensor: sensor, permitted_params:)
     = render Top10SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
 
 - if @missing_or_stale_summary_days.present?

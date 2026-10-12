@@ -21,8 +21,6 @@ class StatsNowComponentPreview < ViewComponent::Preview
           grid_import_power: 0.0,
           grid_export_power: 200.0,
           battery_soc: 75.0,
-          car_battery_soc: 80.0,
-          wallbox_car_connected: true,
           autarky: 85.0,
           self_consumption_quote: 70.0,
           self_consumption: 2300.0,

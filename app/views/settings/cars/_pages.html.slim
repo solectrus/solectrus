@@ -1,0 +1,9 @@
+/ The pages of the cars share the side navigation (see car_nav_items)
+= render 'settings/sub_nav'
+
+.pt-4
+  - if car_nav_items.many?
+    = render Nav::Side::Component.new(items: car_nav_items) do
+      = yield
+  - else
+    = yield
