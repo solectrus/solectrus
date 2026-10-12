@@ -16,7 +16,7 @@ class Car::Card::Component < ViewComponent::Base
   # card without a frame.
   ROW =
     'flex flex-col items-center min-w-0 text-center sm:py-4 md:py-6 ' \
-    'border-t border-slate-200 dark:border-slate-700 ' \
+    'border-t border-slate-300 dark:border-slate-700 ' \
     'max-sm:border-t-0 max-sm:rounded-lg max-sm:py-2 max-sm:bg-slate-100 max-sm:dark:bg-slate-800/60'.freeze
   public_constant :ROW
 

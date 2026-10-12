@@ -35,7 +35,7 @@
     sessions stand side by side below the ring, divided by a line. The cost
     loads its chart, and the sessions open their list.
   - if report.guest_only?
-    div class='grid grid-cols-2 divide-x divide-slate-200 dark:divide-slate-700'
+    div class='grid grid-cols-2 divide-x divide-slate-300 dark:divide-slate-700'
       - tag_name, options = chart_wrapper(charging_costs_chart, class: guest_cell_classes, link_class: 'click-animation')
       = content_tag tag_name, **options do
         div class=guest_value_classes
