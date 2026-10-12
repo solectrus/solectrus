@@ -61,14 +61,13 @@ describe 'Charging sessions' do
       expect(response.body).not_to include('/cars/charging_sessions/new')
     end
 
-    # An offsite session needs a car
+    # Without a car, there is no car page (see Sensor::HomePage)
     context 'without a car' do
       before { Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_CAR_BATTERY_SOC')) }
 
-      it 'offers no new offsite session' do
+      it 'redirects to the start page' do
         get '/cars/charging_sessions/offsite'
-        expect(response).to have_http_status(:success)
-        expect(response.body).not_to include('/cars/charging_sessions/new')
+        expect(response).to redirect_to(root_path)
       end
     end
 

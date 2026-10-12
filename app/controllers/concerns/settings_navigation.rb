@@ -30,7 +30,7 @@ module SettingsNavigation
           icon: 'piggy-bank',
         },
         # The places are a page of the cars (see car_nav_items)
-        (if Setting.enable_car
+        (if Sensor::HomePage.available?(:cars)
            {
              name: t('settings.cars.name'),
              href: settings_cars_path,

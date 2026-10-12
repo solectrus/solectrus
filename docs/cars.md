@@ -271,7 +271,8 @@ energy of each day stays on its day.
 The page `/cars/charging_sessions` lists the sessions. Only the admin can open it. It
 belongs to the car page: the badges of the charging card and an item of the main
 navigation open it, and a back link opens the car page in the timeframe of the list. When
-the settings switch the car page off, the list goes to the start page. Without a
+the settings switch the car page off, or no car is configured, the list goes to the start
+page. Without a
 sponsorship, it goes to the offer of the car page.
 
 The list has a tab for each kind and a filter of the car in the header: one car, "all", for
@@ -593,11 +594,13 @@ These rules are decisions:
 
 ## The car page
 
-The navigation shows `/cars` when `Setting.enable_car` is true, which is the default.
-Without a sponsorship, the page shows an offer (feature `:car`). The page shows its stats
-when a car has an odometer, because the driving cost and the two rates depend on it. A
-wallbox without a car shows a note that names the missing variables, and the detection
-writes its sessions without a car. A car without a wallbox shows its distance and its
+The navigation shows `/cars` when at least one car is configured and `Setting.enable_car`
+is true, which is the default. Without a car, the car page, the list of the charging
+sessions and the settings of the cars stay away, and the detection still writes the
+sessions of a wallbox without a car. Without a sponsorship, the page shows an offer
+(feature `:car`). The page shows its stats when a car has an odometer, because the driving
+cost and the two rates depend on it. A car without an odometer shows a note that names the
+missing variables. A car without a wallbox shows its distance and its
 offsite sessions, and the guest badge and the wallbox badge are hidden, not zero.
 
 The car page has no hours view, because its numbers come from full days. An hours

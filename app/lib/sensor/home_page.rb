@@ -10,18 +10,20 @@
 # sends the user away again.
 #
 # Three more questions are about the page itself. The settings can switch it
-# off, and `available?` answers for the controller and for a link alike. A
-# sponsorship can be what opens it, and `permitted?` answers that. `hours?`
-# says whether the page offers the hours view. The insights combine all three:
-# `shown?` tells whether a page that the user may open renders the sensor.
+# off, the configuration can have nothing for it, and `available?` answers
+# for the controller and for a link alike. A sponsorship can be what opens
+# it, and `permitted?` answers that. `hours?` says whether the page offers
+# the hours view. The insights combine all three: `shown?` tells whether a
+# page that the user may open renders the sensor.
 module Sensor::HomePage
-  # What holds a page back: the setting that switches it off, and the feature
-  # a sponsorship opens it with. The power balance is the start page and has
-  # neither. The balance sensor stands for the page on the start page. A key
-  # is the prefix of the route helper of the page, so SensorPathHelper can
-  # build a path from it. The car page has no hours view, because its numbers
-  # come from full days, no chart in its live view, because its sensors
-  # report far less often, and no way forward into the PV forecast.
+  # What holds a page back: the setting that switches it off, the condition
+  # of the configuration, and the feature a sponsorship opens it with. The
+  # power balance is the start page and has none of them. The balance sensor
+  # stands for the page on the start page. A key is the prefix of the route
+  # helper of the page, so SensorPathHelper can build a path from it. The car
+  # page has no hours view, because its numbers come from full days, no chart
+  # in its live view, because its sensors report far less often, and no way
+  # forward into the PV forecast.
   PAGES = {
     balance: {},
     heatpump: {
@@ -41,6 +43,8 @@ module Sensor::HomePage
     },
     cars: {
       setting: :enable_car,
+      # Without a car, the page and its menu items stay away
+      configured: -> { Sensor::Cars.configured_numbers.any? },
       feature: :car,
       balance_sensor: :wallbox_power,
       hours: false,
@@ -58,11 +62,12 @@ module Sensor::HomePage
     # a page that is no home page: the navigation asks on every page.
     def balance_sensor(key) = PAGES.dig(key, :balance_sensor)
 
-    # Whether the settings switch this page on.
+    # Whether the settings switch this page on, and the configuration has
+    # something for it.
     def available?(key)
-      setting = page(key)[:setting]
+      setting, configured = page(key).values_at(:setting, :configured)
 
-      setting.nil? || Setting.public_send(setting)
+      (setting.nil? || Setting.public_send(setting)) && (configured.nil? || configured.call)
     end
 
     # Whether the page offers the hours view. Without it, the page sends an

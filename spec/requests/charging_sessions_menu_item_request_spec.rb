@@ -31,6 +31,25 @@ describe 'Charging sessions menu item' do
         expect(links).to be_empty
       end
     end
+
+    context 'without a car' do
+      before { Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_CAR_BATTERY_SOC')) }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'has no link and no car page' do
+        get '/power_balance/now'
+
+        expect(links).to be_empty
+        expect(response.parsed_body.css('a[href^="/cars"]')).to be_empty
+      end
+
+      it 'has no settings of the cars' do
+        get settings_prices_path(name: 'electricity')
+
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.css('a[href="/settings/cars"]')).to be_empty
+      end
+    end
   end
 
   context 'when not logged in' do

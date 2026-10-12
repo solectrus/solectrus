@@ -39,6 +39,21 @@ describe Sensor::HomePage do
     end
   end
 
+  describe '.available?' do
+    it 'offers the car page with a car' do
+      expect(described_class.available?(:cars)).to be(true)
+    end
+
+    context 'without a car' do
+      before { Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_CAR_BATTERY_SOC')) }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'offers no car page' do
+        expect(described_class.available?(:cars)).to be(false)
+      end
+    end
+  end
+
   describe '.hours?' do
     it 'gives the car page no hours view' do
       expect(described_class.hours?(:cars)).to be(false)
