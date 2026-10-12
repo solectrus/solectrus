@@ -20,26 +20,7 @@ Keep every section, an empty one included.
 
 - The chart of the total timeframe can now compare the years month by month, quarter by quarter, or season by season. Pick "Months across the years", "Quarters across the years" or "Seasons across the years" in the OVERALL menu to turn the comparison on, and the chart then fills the whole width. A period that stands on fewer days than it has is drawn hatched: the one that is still running, and the first one, if your records start after its first day. Click a bar to open that period. A dashed line across each group of bars shows the average of the years, so you see at once which bars are above it. It counts complete periods only, and it needs at least two of them. A season runs over three months, winter from December to February, and it counts into the year it begins in. (#2131)
 - The timeframe tabs now name what they can show. The current tab opens a menu with its readings, for example "This month" and "Last 30 days", or "This year", "Last 12 months" and "Last 365 days". You reached these by clicking the tab again before, which nothing told you.
-
-## Improvements
-
-- On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
-- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. A long press on a bar of the balance or on a key figure of the heat pump opens its insights, the same panel as the light bulb next to the chart. For the current values, for a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look
-- The insights of a sensor (the light bulb next to the chart) now show as lists, as on an iPhone: the total at the top, then groups for the comparison with earlier periods and for the daily values. A comparison names the earlier period and its value. A row that leads to another period shows an arrow. On a phone, the heatmap is a page of its own, which a tap on its row opens. There the heatmap of a year stands upright, shows all twelve months and uses the full height
-- The insights now show everything that the tooltip of a bar shows: the share from photovoltaics for the battery charging and for a consumer on the house page, the costs of a consumer, the CO₂ reduction for the generation, the grid import costs for the grid import and the feed-in revenue for the feed-in. The heat pump also shows its energy from photovoltaics and from the grid, and its costs split into grid import costs and lost feed-in revenue
-- Without a sponsorship, the light bulb next to the chart now also shows the total and the values of the tooltip, above the note on the insights
-- On a phone, the settings now open on a list of all sections, as on an iPhone. A tap on a row opens the section, and the round arrow at the top left leads back to the list. The pages slide in and out to the side. The sensors show their groups (generators, consumers, battery) as a list of the same kind. Before, a dropdown at the top switched between the sections
 - Prices: an electricity tariff can carry a base fee for the grid connection now. It is prorated by day, so a day, a week and a month each show the part that falls on it, and the grid costs contain it. The house costs carry the base fee. The costs of the heat pump, the wallbox and the other consumers do not, because they do not make the fee higher (#2560)
-
-## Improvements
-
-- AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
-- Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
-- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
-
-## Fixes
-
-- On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
 - Electric vehicles: a new car page shows the distance, the charged energy and the costs for charging and driving. It also shows the usage, the driving cost per 100 km and the maximum range, for each car or for all cars together. Like the other charts, each chart compares a period with the previous month and the previous year. The distance, the charged energy and the driving cost also show the day with the highest value. Settings > Electric vehicles gives each car a name, a short name, a period of use and a color (#3517, #5836)
 - Electric vehicles: up to five cars are possible. Each car needs the sensors `INFLUX_SENSOR_CAR_ODOMETER_1` and `INFLUX_SENSOR_CAR_RANGE_1` (`_2` to `_5` for more cars). A variable without a number, for example `INFLUX_SENSOR_CAR_BATTERY_SOC`, stays valid for the first car. After you add the sensors, SOLECTRUS builds the daily summaries again at the next start, so the page also shows the past days
 - Electric vehicles: SOLECTRUS finds the charging sessions in the power curve of the wallbox and assigns each one to a car. The menu links to the list of charging sessions, which shows the PV share of each session. An admin can mark a session as a guest charge, assign it to another car, or add a session at a public charging station. A new detection keeps these changes
@@ -53,12 +34,22 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
+- On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. A long press on a bar of the balance or on a key figure of the heat pump opens its insights, the same panel as the light bulb next to the chart. For the current values, for a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look
+- The insights of a sensor (the light bulb next to the chart) now show as lists, as on an iPhone: the total at the top, then groups for the comparison with earlier periods and for the daily values. A comparison names the earlier period and its value. A row that leads to another period shows an arrow. On a phone, the heatmap is a page of its own, which a tap on its row opens. There the heatmap of a year stands upright, shows all twelve months and uses the full height
+- The insights now show everything that the tooltip of a bar shows: the share from photovoltaics for the battery charging and for a consumer on the house page, the costs of a consumer, the CO₂ reduction for the generation, the grid import costs for the grid import and the feed-in revenue for the feed-in. The heat pump also shows its energy from photovoltaics and from the grid, and its costs split into grid import costs and lost feed-in revenue
+- Without a sponsorship, the light bulb next to the chart now also shows the total and the values of the tooltip, above the note on the insights
+- On a phone, the settings now open on a list of all sections, as on an iPhone. A tap on a row opens the section, and the round arrow at the top left leads back to the list. The pages slide in and out to the side. The sensors show their groups (generators, consumers, battery) as a list of the same kind. Before, a dropdown at the top switched between the sections
+- AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
+- Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
+- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 - The power balance shows only the charge level of the home battery again, as a round badge. The charge level of the car is now on the car page
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it
 
 ## Fixes
 
+- On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
 - A sensor that tells whether a car is connected now shows "No" for a text like "False" or "OFF" and for a negative number, which some collectors send for an error. Before, the live view showed such a value as connected
 
 ## Maintenance
