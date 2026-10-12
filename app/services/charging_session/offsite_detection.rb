@@ -87,8 +87,17 @@ class ChargingSession::OffsiteDetection
 
   # The proposals read the state of charge. The build does not ask for the
   # permission of the sensors (see Summary::Steps).
-  def self.enabled?
-    Sensor::Cars.configured_numbers.any? { Sensor::Config.configured?(Sensor::Cars.sensor_name(:car_battery_soc, it)) }
+  def self.enabled? = Sensor::Cars.configured_numbers.any? { detects?(it) }
+
+  # Whether the car of the number gets proposals. Besides the state of
+  # charge, it needs the odometer or the position: the odometer tells a drive
+  # from a charge, and the position tells home. With the state of charge
+  # alone, each rise outside a wallbox session would be a proposal, for
+  # example a charge at a socket at home.
+  def self.detects?(number)
+    soc, odometer = %i[car_battery_soc car_odometer].map { Sensor::Config.configured?(Sensor::Cars.sensor_name(it, number)) }
+
+    soc && (odometer || Sensor::Cars.located?(number, check_policy: false))
   end
 
   # The curves of the cars. The wallbox sessions come from the database.
@@ -99,7 +108,7 @@ class ChargingSession::OffsiteDetection
   def initialize(dates, cars: Car.configured, curves: ChargingSession::Curves.new(dates, cars:))
     @dates = dates.sort
     @curves = curves
-    @cars = cars.select { Sensor::Config.configured?(it.sensor_name(:car_battery_soc)) && it.active_during?(@dates.first..@dates.last) }
+    @cars = cars.select { self.class.detects?(it.id) && it.active_during?(@dates.first..@dates.last) }
     @located = @cars.map(&:id).select { Sensor::Cars.located?(it, check_policy: false) }.to_set
     @home = Place.home
   end

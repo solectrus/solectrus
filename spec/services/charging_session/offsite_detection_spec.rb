@@ -41,8 +41,39 @@ describe ChargingSession::OffsiteDetection do
 
   after { Sensor::Config.setup(ENV) }
 
-  it 'is enabled with the state of charge of a car' do
+  it 'is enabled with the state of charge and the odometer of a car' do
     expect(described_class).to be_enabled
+  end
+
+  context 'with the state of charge alone' do
+    before { Sensor::Config.setup(ENV) }
+
+    it 'is not enabled' do
+      expect(described_class).not_to be_enabled
+    end
+
+    it 'makes no proposal' do
+      write(:car_battery_soc_1, [[at(8), 30], [at(10), 30], [at(11), 70], [at(13), 70]])
+
+      run
+
+      expect(proposals).to be_empty
+    end
+  end
+
+  context 'with the state of charge and the position of a car' do
+    before do
+      Sensor::Config.setup(
+        ENV.to_h.merge(
+          'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+          'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+        ),
+      )
+    end
+
+    it 'is enabled' do
+      expect(described_class).to be_enabled
+    end
   end
 
   context 'with a rise of the state of charge' do

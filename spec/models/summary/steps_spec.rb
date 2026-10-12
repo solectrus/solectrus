@@ -1,20 +1,32 @@
 describe Summary::Steps do
   # The test configuration has a wallbox and the state of charge of the first
-  # car, but no location
+  # car, but no odometer and no location
   describe '.versions' do
     it 'gives the version of each step with something to do' do
-      expect(described_class.versions).to eq(
-        'charging_sessions' => ChargingSession::Detection::VERSION,
-        'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
-      )
+      expect(described_class.versions).to eq('charging_sessions' => ChargingSession::Detection::VERSION)
     end
 
-    # The proposals read the state of charge, which needs the permission :car
-    it 'does not depend on the permission of the sensors' do
-      stub_feature
+    context 'with the odometer of the car' do
+      def setup_odometer = Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer'))
 
-      expect(described_class.enabled).to include(ChargingSession::OffsiteDetection)
-      expect(described_class.versions).to include('offsite_sessions' => ChargingSession::OffsiteDetection::VERSION)
+      before { setup_odometer }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'gives the version of the proposals too' do
+        expect(described_class.versions).to eq(
+          'charging_sessions' => ChargingSession::Detection::VERSION,
+          'offsite_sessions' => ChargingSession::OffsiteDetection::VERSION,
+        )
+      end
+
+      # The proposals read the state of charge, which needs the permission :car
+      it 'does not depend on the permission of the sensors' do
+        stub_feature
+        setup_odometer
+
+        expect(described_class.enabled).to include(ChargingSession::OffsiteDetection)
+        expect(described_class.versions).to include('offsite_sessions' => ChargingSession::OffsiteDetection::VERSION)
+      end
     end
   end
 

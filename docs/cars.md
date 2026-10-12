@@ -397,6 +397,11 @@ as history.
 a step of the daily build after the detection, and it writes each charge as a proposal of an
 offsite session. A proposal does not count in the numbers of the car page.
 
+A car gets proposals only with its odometer or its position besides the state of charge.
+The odometer tells a drive from a charge, and the position tells home. With the state of
+charge alone, each rise outside a wallbox session would be a proposal, for example a charge
+at a socket at home.
+
 The sign is a rise of the state of charge in one charge (`ChargingSession::SocRuns`):
 
 - A rise needs 5 percentage points, or 3 points while the car reports a connection. The
