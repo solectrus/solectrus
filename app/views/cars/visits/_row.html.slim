@@ -27,6 +27,11 @@
         span.max-sm:sr-only = visit.car.display_name
       .contents.max-sm:hidden
         = render 'filter_chevron', path: visits_path_with(car: visit.car_id), label: t('visits.filter_car')
+  - if label_column?
+    = render 'place_labels', place: visit.place
+  / On a phone, the town starts below the name: a gap as wide as the icons
+  - if icon_columns.positive?
+    .sm:hidden.order-4.shrink-0 class=[nil, 'w-5', 'w-13'][icon_columns]
   .p-2.min-w-0.max-sm:contents
     .flex.items-center.gap-1.min-w-0.max-sm:order-1.max-sm:flex-1
       = render 'place_name', place: visit.place

@@ -184,7 +184,6 @@ de:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
   visits:
     name: Besuche
-    description: Ein Besuch dauert von der Ankunft eines Autos an einem Ort bis zur Abfahrt. Ein Besuch unter 30 Minuten fehlt, zum Beispiel eine Vorbeifahrt. Meldet das Auto seltener, liegt diese Grenze höher.
     empty: Noch kein Besuch.
     period: Zeitraum
     duration: Dauer

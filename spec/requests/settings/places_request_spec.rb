@@ -119,7 +119,7 @@ describe 'Settings Places' do
       expect(place.reload.name).to eq('Home')
       expect(response.body).to include(%(target="place_#{place.id}"), 'Home')
       # The places of the list of the visits
-      expect(response.body).to include(%(targets="[data-visit-place-name=&#39;#{place.id}&#39;]"), %(targets="[data-visit-place-locality=&#39;#{place.id}&#39;]"))
+      expect(response.body).to include(%(targets="[data-visit-place-labels=&#39;#{place.id}&#39;]"), %(targets="[data-visit-place-name=&#39;#{place.id}&#39;]"), %(targets="[data-visit-place-locality=&#39;#{place.id}&#39;]"))
     end
 
     it 'moves home to the place, and replaces the row of the old home' do

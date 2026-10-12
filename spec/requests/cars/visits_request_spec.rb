@@ -102,6 +102,18 @@ describe 'Cars Visits' do
         expect(response.body).not_to include(I18n.t('visits.filter_place'))
       end
 
+      it 'has a column for the labels, but not in the list of a place without a label' do
+        get cars_visits_path(timeframe: '2026-09')
+        expect(response.body).to include('data-visit-place-labels')
+
+        get cars_visits_path(timeframe: '2026-09', place: work.id)
+        expect(response.body).not_to include('data-visit-place-labels')
+
+        home.update!(labels: ['home'])
+        get cars_visits_path(timeframe: '2026-09', place: home.id)
+        expect(response.body).to include('data-visit-place-labels')
+      end
+
       it 'lists the visits that overlap a timeframe, each with its full time' do
         get cars_visits_path(timeframe: '2026-09-21')
 

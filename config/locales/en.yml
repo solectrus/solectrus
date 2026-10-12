@@ -184,7 +184,6 @@ en:
       battery_charging_power: Grid electricity is attributed to the consumers.
   visits:
     name: Visits
-    description: A visit lasts from the arrival of a car at a place to its departure. A visit shorter than 30 minutes is left out, for example a drive past. When the car reports less often, this limit is higher.
     empty: No visit yet.
     period: Period
     duration: Duration

@@ -112,6 +112,14 @@ class Cars::VisitsController < ApplicationController
     @car_column = !car && located_cars.many?
   end
 
+  # The labels of the places need a column, but not in the list of a place
+  # without a label
+  helper_method def label_column? = !place || place.labels.any?
+
+  # The columns of icons before the name of the place. A phone has them in
+  # the line of the name, and the town below it starts after them.
+  helper_method def icon_columns = [car_column?, label_column?].count(true)
+
   helper_method def title
     t('visits.name')
   end
