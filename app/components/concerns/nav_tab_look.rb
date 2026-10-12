@@ -64,6 +64,8 @@ module NavTabLook
       lg:landscape:flex-initial
       text-center
       click-animation
+      relative
+      touch-target
     ]
   end
 

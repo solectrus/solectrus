@@ -152,9 +152,18 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
 
   # The tooltip shows it below the energy, as a second value of the header
   def amount
-    return if now? || costs || power_grid_ratio
+    return if now? || costs || power_grid_ratio || grid_costs_breakdown
 
     AMOUNTS[sensor.name]
+  end
+
+  # The grid costs split into base fee and energy costs, where there is a fee.
+  # It ends in the sum, so the header leaves the grid costs out then.
+  def grid_costs_breakdown
+    return if now? || sensor.name != :grid_import_power
+
+    breakdown = GridCostsBreakdown::Component.new(data:)
+    breakdown if breakdown.breakdown?
   end
 
   def costs_grid
