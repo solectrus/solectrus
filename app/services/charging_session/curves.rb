@@ -25,6 +25,10 @@ class ChargingSession::Curves
   MARGIN = 12.hours
   public_constant :MARGIN
 
+  # Whether a value of the state of charge is a reading. Some collectors send
+  # 0 while the car is offline, or a value above 100 for an error.
+  def self.soc_reading?(value) = value.positive? && value <= 100
+
   # The sensors of the cars that the curves read, for each configured number
   def self.car_sensor_names
     Sensor::Cars.configured_numbers.flat_map { |number| CAR_ROLES.map { Sensor::Cars.sensor_name(it, number) } }

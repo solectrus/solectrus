@@ -10,8 +10,8 @@
 #   rise before it. The odometer can report the end of a drive late, in the
 #   first reading of the charge, so only this step goes. Two stops at
 #   chargers on one trip give two rises.
-# - A reading of the state of charge of 0 or less is no reading. Some
-#   collectors send 0 while the car is offline.
+# - A value of the state of charge of 0 or less, or above 100, is no reading
+#   (see ChargingSession::Curves.soc_reading?).
 # - A rise needs MIN_RISE. A smaller rise down to MIN_CONNECTED_RISE counts
 #   only while the car reports a connection, because the connection tells a
 #   short charge from noise, for example a new calibration of the battery.
@@ -134,7 +134,7 @@ class ChargingSession::OffsiteDetection
   def rises_of(car)
     car_curves = CarCurves.new(
       car:,
-      soc: curve(car, :car_battery_soc).select { it.last.positive? },
+      soc: curve(car, :car_battery_soc).select { ChargingSession::Curves.soc_reading?(it.last) },
       odometer: curve(car, :car_odometer),
       connected: curve(car, :car_connected),
       latitude: located.include?(car.id) ? curve(car, :car_latitude) : [],

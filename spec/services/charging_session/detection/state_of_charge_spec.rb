@@ -40,6 +40,12 @@ describe ChargingSession::Detection::StateOfCharge do
     expect(state_of_charge.call(day, at(8), at(10))).to eq(1 => [40, 60])
   end
 
+  it 'ignores a reading above 100' do
+    curves[:car_battery_soc_1] = [[at(6), 40], [at(9), 60], [at(10), 255]]
+
+    expect(state_of_charge.call(day, at(8), at(10))).to eq(1 => [40, 60])
+  end
+
   it 'reads no car outside its period' do
     other_car.active_until = day - 1
     curves[:car_battery_soc_2] = [[at(6), 20], [at(9), 25]]

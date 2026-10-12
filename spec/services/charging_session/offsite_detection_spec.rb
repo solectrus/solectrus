@@ -270,6 +270,14 @@ describe ChargingSession::OffsiteDetection do
     expect(proposals).to be_empty
   end
 
+  it 'ignores a reading above 100' do
+    write(:car_battery_soc_1, [[at(8), 30], [at(10), 101], [at(11), 110], [at(13), 110]])
+
+    run
+
+    expect(proposals).to be_empty
+  end
+
   # The odometer reports the end of the drive late, in the first reading of
   # the charge
   it 'leaves out a step of a drive, but keeps the rest of the rise' do
