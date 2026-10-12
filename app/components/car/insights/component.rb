@@ -19,6 +19,16 @@ class Car::Insights::Component < ViewComponent::Base
     @value = report.value(sensor.name)
   end
 
+  # The value for the heading of the sheet, like Insights::Component
+  def heading_total
+    return unless value
+
+    Insights::HeadingTotal::Component.new(
+      total: SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo),
+      running: (timeframe.year? || timeframe.month?) && timeframe.current?,
+    )
+  end
+
   # [date, value] of the day with the highest value, nil for a day
   def maximum
     return @maximum if defined?(@maximum)

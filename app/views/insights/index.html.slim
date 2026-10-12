@@ -1,5 +1,8 @@
-/ A chart of the car page has figures of its own, for the selected car
-- unless sensor.is_a?(Sensor::Definitions::CarPageChart)
+/ A chart of the car page has figures of its own, for the selected car. They
+/ all need the permission.
+- if sensor.is_a?(Sensor::Definitions::CarPageChart)
+  - insights = Car::Insights::Component.new(sensor:, timeframe:, car: params[:car]) if ApplicationPolicy.insights?
+- else
   - insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:)
 
 = render TurboModal::Component.new(width: :medium) do |modal|
@@ -15,8 +18,6 @@
 
   - if insights
     = render insights
-  - elsif ApplicationPolicy.insights?
-    = render Car::Insights::Component.new(sensor:, timeframe:, car: params[:car])
 
   / In place of the figures that need the permission
   - unless ApplicationPolicy.insights?
