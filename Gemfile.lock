@@ -319,7 +319,7 @@ GEM
     rails-settings-cached (2.10.0)
       activerecord (>= 7.0.0)
       railties (>= 7.0.0)
-    rails_vite (0.2.3)
+    rails_vite (0.3.0)
       railties (>= 7.0)
     railties (8.1.4)
       actionpack (= 8.1.4)

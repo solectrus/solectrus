@@ -39,7 +39,7 @@
         "playwright": "^1.64.0",
         "prettier": "^3.9.9",
         "prettier-plugin-tailwindcss": "^0.8.1",
-        "rails-vite-plugin": "^0.2.5",
+        "rails-vite-plugin": "^0.3.0",
         "sinon": "^22.1.0",
         "size-limit": "^14.2.0",
         "tailwindcss": "^4.3.3",
@@ -461,7 +461,7 @@
 
     "qified": ["qified@0.10.1", "", { "dependencies": { "hookified": "^2.1.1" } }, "sha512-+Owyggi9IxT1ePKGafcI87ubSmxol6smwJ+RAHDQlx9+9cPwFWDiKFFCPuWhr9ignlGpZ9vDQLw67N4dcTVFEA=="],
 
-    "rails-vite-plugin": ["rails-vite-plugin@0.2.5", "", { "dependencies": { "picomatch": "^4.0.0" }, "peerDependencies": { "vite": ">=5.0.0" } }, "sha512-/VLHDAiQLOl/NdH7Q+Bs2UP8eMJepZurDLYqq/EO2elNWdW3OTM7Krv/MdlU4j1LOgti9taZimZSjEwcHUrx5g=="],
+    "rails-vite-plugin": ["rails-vite-plugin@0.3.0", "", { "dependencies": { "picomatch": "^4.0.0" }, "peerDependencies": { "vite": ">=7.0.0" } }, "sha512-nrjisoAj+WhVcUCPh0EZz2KPcfgGlUx4U9CnF0HY535OunMIL5EmPJ+67aIb40jsAcot1bg1uF7JodEBRdG8jw=="],
 
     "rolldown": ["rolldown@1.2.13", "", { "dependencies": { "@oxc-project/types": "=0.153.0", "@rolldown/pluginutils": "^1.0.0" }, "optionalDependencies": { "@rolldown/binding-android-arm-eabi": "1.2.13", "@rolldown/binding-android-arm64": "1.2.13", "@rolldown/binding-darwin-arm64": "1.2.13", "@rolldown/binding-darwin-x64": "1.2.13", "@rolldown/binding-freebsd-x64": "1.2.13", "@rolldown/binding-linux-arm-gnueabihf": "1.2.13", "@rolldown/binding-linux-arm64-gnu": "1.2.13", "@rolldown/binding-linux-arm64-musl": "1.2.13", "@rolldown/binding-linux-ppc64-gnu": "1.2.13", "@rolldown/binding-linux-s390x-gnu": "1.2.13", "@rolldown/binding-linux-x64-gnu": "1.2.13", "@rolldown/binding-linux-x64-musl": "1.2.13", "@rolldown/binding-openharmony-arm64": "1.2.13", "@rolldown/binding-win32-arm64-msvc": "1.2.13", "@rolldown/binding-win32-x64-msvc": "1.2.13" }, "bin": { "rolldown": "./bin/cli.mjs" } }, "sha512-/5apOkwWxtACcQtZ5WlrAsKS4JwXVThQPJZ3RqIruRY9UG9M8e0VlXN068xum/JRKA4aIUoJ13ghe/kGCvidiQ=="],
 

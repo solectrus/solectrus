@@ -42,7 +42,7 @@
     "playwright": "^1.64.0",
     "prettier": "^3.9.9",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "rails-vite-plugin": "^0.2.5",
+    "rails-vite-plugin": "^0.3.0",
     "sinon": "^22.1.0",
     "size-limit": "^14.2.0",
     "tailwindcss": "^4.3.3",
