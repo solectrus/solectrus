@@ -44,6 +44,15 @@ class ChargingSession::Detection
   WALLBOX_POWER = %i[wallbox_power wallbox_power_grid].freeze
   private_constant :WALLBOX_POWER
 
+  # The Power Splitter writes one value per cycle, in the middle of the
+  # cycle. A session starts and ends between two values, so the integral of
+  # its grid share reaches one cycle beyond each end, within its day.
+  # Otherwise the session loses the grid share of its first and its last
+  # cycle, which the daily sum holds. Two sessions are more than two cycles
+  # apart (see Periods::GAP), so no value counts twice.
+  SPLITTER_CYCLE = 5.minutes
+  private_constant :SPLITTER_CYCLE
+
   Session = Data.define(:started_at, :ended_at, :kwh, :kwh_grid, :cost, :cost_grid, :car_id, :socs)
   public_constant :Session
 
@@ -140,22 +149,36 @@ class ChargingSession::Detection
     end
   end
 
+  # One stream for each session and sensor, because the grid share reads a
+  # wider window (see SPLITTER_CYCLE)
   def integral_flux(periods, names)
     program = Sensor::Query::Helpers::Influx::FluxProgram
+    filter = Sensor::Query::Helpers::Influx::SensorFilter
     streams =
-      periods.each_with_index.map do |(from, to), index|
-        <<~FLUX
-          i#{index} = source(#{program.range_args(from, to)})
-            |> integral(unit: 1h)
-            |> set(key: "session", value: "#{index}")
-            |> keep(columns: ["_value", "_field", "_measurement", "session"])
-        FLUX
+      periods.each_with_index.flat_map do |(from, to), index|
+        names.each_with_index.map do |name, part|
+          start, stop = name == :wallbox_power_grid ? splitter_window(from, to) : [from, to]
+          <<~FLUX
+            i#{index}_#{part} = source(#{program.range_args(start, stop)})
+              |> filter(fn: f#{part})
+              |> integral(unit: 1h)
+              |> set(key: "session", value: "#{index}")
+              |> keep(columns: ["_value", "_field", "_measurement", "session"])
+          FLUX
+        end
       end
 
     <<~FLUX
-      #{program.source(Sensor::Query::Helpers::Influx::SensorFilter.predicate(names))}
+      #{program.source(filter.predicate(names))}
+      #{names.each_with_index.map { |name, part| "f#{part} = #{filter.predicate([name])}" }.join("\n")}
       #{streams.join}
-      #{program.union(Array.new(periods.size) { "i#{it}" })}
+      #{program.union(Array.new(periods.size) { |index| names.each_index.map { "i#{index}_#{it}" } }.flatten)}
     FLUX
+  end
+
+  # The window of the grid share of a session (see SPLITTER_CYCLE)
+  def splitter_window(from, to)
+    day = from.in_time_zone.all_day
+    [[from - SPLITTER_CYCLE, day.begin].max, [to + SPLITTER_CYCLE, day.end].min]
   end
 end

@@ -109,6 +109,43 @@ describe ChargingSession::Detection do
     expect(day_wh - sessions_wh).to be < 500
   end
 
+  # The Power Splitter writes one value per cycle of 5 minutes, in the middle
+  # of the cycle
+  context 'with the cycle of the Power Splitter' do
+    subject(:detection) { described_class.new([cycle_day]) }
+
+    let(:cycle_day) { day.next_day }
+
+    before do
+      noon = cycle_day.in_time_zone.change(hour: 12)
+      influx_batch do
+        (0...(24 * 60)).each do |minute|
+          time = cycle_day.in_time_zone + minute.minutes
+          add_influx_point(
+            name: Sensor::Config.measurement(:wallbox_power),
+            fields: { Sensor::Config.field(:wallbox_power) => time >= noon + 2.minutes && time < noon + 13.minutes ? 6_000 : 0 },
+            time:,
+          )
+        end
+        (0...(24 * 12)).each do |cycle|
+          time = cycle_day.in_time_zone + (cycle * 5.minutes) + 150.seconds
+          add_influx_point(
+            name: Sensor::Config.measurement(:wallbox_power_grid),
+            fields: { Sensor::Config.field(:wallbox_power_grid) => time > noon && time < noon + 15.minutes ? 2_000 : 0 },
+            time:,
+          )
+        end
+      end
+    end
+
+    it 'takes the grid share of the first and the last cycle, like the daily sum' do
+      day_wh =
+        Sensor::Query::Helpers::Influx::Integral.new(%i[wallbox_power_grid], Timeframe.new(cycle_day.iso8601)).call.wallbox_power_grid
+
+      expect(detection.call[cycle_day].sole.kwh_grid * 1000).to be_within(1).of(day_wh)
+    end
+  end
+
   context 'without a price' do
     before { Price.delete_all }
 

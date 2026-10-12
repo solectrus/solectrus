@@ -308,7 +308,10 @@ useful list.
   charge before the sensor reports the connection loses its energy.
 - A session needs 0.1 kWh at least, because many wallboxes report a standby power.
 - The energy comes from the integral of the power, like the daily sum. The grid share comes
-  from `wallbox_power_grid` in the same way.
+  from `wallbox_power_grid` in the same way. The power splitter writes one value in the
+  middle of each cycle of 5 minutes. So the integral of the grid share reaches one cycle
+  beyond each end of the session, within its day. Otherwise the session loses the grid
+  share of its first and its last cycle, which the daily sum holds.
 - The grid share costs the electricity price and the PV share the feed-in price of the day.
   Without the power splitter, `kwh_grid` stays NULL, and the full energy gets the
   electricity price. Without a price, `cost` stays NULL, because zero is a wrong number.
