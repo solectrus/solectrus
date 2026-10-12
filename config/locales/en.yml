@@ -122,6 +122,10 @@ en:
     total_costs_short: Costs
     grid_costs: Grid import costs
     grid_costs_short: Grid costs
+    grid_base_fee: Grid connection base fee
+    grid_base_fee_short: Base fee
+    grid_energy_costs: Grid energy costs
+    grid_energy_costs_short: Energy costs
     autarky: Autarky
     inverter_power_total: Total generation
     specific_yield: Specific yield
@@ -282,7 +286,7 @@ en:
       edit: Edit price
       new: Add price
       description:
-        electricity: Price per kWh consumed, paid to the electricity supplier. Changes regularly, usually annually.
+        electricity: Charge paid to the electricity supplier, split into a rate per kWh consumed and a monthly base fee. Changes regularly, usually annually.
         feed_in: Government-set tariff per kWh fed into the grid. Typically remains constant for 20 years.
     cash_flows:
       name: Cash flows
@@ -363,9 +367,14 @@ en:
           electricity: Electricity price
           feed_in: Feed-in
         starts_at: Effective from
-        value: Amount
+        amount_per_kwh: Amount
+        amounts_per_kwh:
+          electricity: Unit rate
+          feed_in: Unit rate
+        amount_per_month: Base fee
         note: Note
         electricity_amount: Rate in %{currency}/kWh
+        electricity_amount_per_month: Base fee in %{currency}/month
         feed_in_amount: Rate in %{currency}/kWh
       cash_flow:
         date: Date
@@ -428,7 +437,9 @@ en:
     self_consumption_quote: 'Self-consumption rate: share of PV generation consumed on-site.'
     grid_quote: 'Grid share: portion of consumption covered by grid import.'
     autarky: 'Autarky: share of consumption not bought from the grid. Grid energy counts when it is imported, even if the home battery hands it out later.'
-    grid_costs: 'Cost of electricity imported from the grid.'
+    grid_costs: 'Cost of electricity imported from the grid, including the monthly base fee.'
+    grid_base_fee: 'Fixed monthly charge for the grid connection, prorated by day. It is part of the grid import costs.'
+    grid_energy_costs: 'Cost of the energy imported from the grid, without the base fee. The two together make up the grid import costs.'
     grid_revenue: 'Revenue from electricity fed into the grid (feed-in tariff).'
     grid_balance: 'Net grid balance: feed-in revenue minus grid import costs.'
     house_costs: 'Electricity cost attributable to household consumption.'

@@ -28,4 +28,10 @@ class Sensor::Definitions::HousePowerWithoutCustom < Sensor::Definitions::Base
   def costs_pv_sensor_name
     :house_without_custom_costs_pv
   end
+
+  # No custom consumer carries a share of the base fee, so the rest of the
+  # house keeps it in full (see Sensor::Definitions::HouseWithoutCustomCosts).
+  def costs_carry_base_fee?
+    Sensor::Registry[:house_costs_grid].carries_base_fee?
+  end
 end

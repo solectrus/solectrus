@@ -34,5 +34,55 @@ describe Sensor::Chart::GridCosts do
 
       expect(values).to all(be_a(Float))
     end
+
+    it 'charts the sum as one bar while the tariff has no base fee' do
+      datasets = chart.data[:datasets]
+
+      expect(datasets.length).to eq(1)
+      expect(datasets.first[:id]).to eq('grid_costs')
+      expect(datasets.first[:stack]).to be_nil
+    end
+
+    context 'with a base fee' do
+      before do
+        Price.delete_all
+        Price.electricity.create!(
+          starts_at: 1.year.ago.to_date,
+          amount_per_kwh: 0.4,
+          amount_per_month: 12,
+        )
+      end
+
+      it 'splits the bar into base fee and energy costs' do
+        base_fee, energy_costs = chart.data[:datasets]
+
+        expect(base_fee[:id]).to eq('grid_base_fee')
+        expect(energy_costs[:id]).to eq('grid_energy_costs')
+      end
+
+      it 'stacks both segments onto one bar' do
+        stacks = chart.data[:datasets].pluck(:stack)
+
+        expect(stacks).to all(eq('GridCosts'))
+      end
+
+      it 'labels the segments with their short names' do
+        labels = chart.data[:datasets].pluck(:label)
+
+        expect(labels).to eq(
+          [
+            Sensor::Registry[:grid_base_fee].display_name(:short),
+            Sensor::Registry[:grid_energy_costs].display_name(:short),
+          ],
+        )
+      end
+
+      it 'charts the energy costs unchanged next to the fee' do
+        energy_costs = chart.data[:datasets].second[:data].compact
+
+        # 500 W * 0.4 / 1000 = 0.20, the fee rides on its own segment
+        expect(energy_costs).to all(be_within(0.0001).of(0.2))
+      end
+    end
   end
 end

@@ -1,4 +1,9 @@
 class Sensor::Definitions::OpportunityCosts < Sensor::Definitions::FinanceBase
+  # The color of the revenue it is the loss of: as a segment of total_costs it
+  # names the feed-in that the self-consumption gave up.
+  color background: 'bg-sensor-revenue',
+        text: 'text-white dark:text-emerald-100'
+
   depends_on :inverter_power, :grid_export_power
 
   def required_prices

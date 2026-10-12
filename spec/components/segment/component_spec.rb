@@ -49,6 +49,45 @@ describe Segment::Component, type: :component do
     expect(result.to_html).to include('data-value="1234.0"')
   end
 
+  # The house carries the base fee in its grid costs, and its tooltip names it.
+  context 'with a base fee' do
+    let(:data) do
+      PowerBalance.new(
+        Sensor::Data::Single.new(
+          {
+            :house_power => 1_234,
+            :wallbox_power => 10,
+            :heatpump_power => 10,
+            :battery_charging_power => 10,
+            :grid_export_power => 10,
+            sensor_name => 1_234,
+            :house_costs => 5.0,
+            :house_costs_grid => 3.0,
+            :house_costs_pv => 2.0,
+            :wallbox_costs => 1.5,
+            :wallbox_costs_grid => 1.0,
+            :wallbox_costs_pv => 0.5,
+            :grid_base_fee => 1.0,
+          },
+          timeframe:,
+          times: { sensor_name => updated_at },
+        ),
+      )
+    end
+
+    it 'names it in the tooltip of the house' do
+      expect(render_inline(component).text).to include('Base fee')
+    end
+
+    context 'with the wallbox' do
+      let(:sensor) { Sensor::Registry[:wallbox_power] }
+
+      it 'does not name it' do
+        expect(render_inline(component).text).not_to include('Base fee')
+      end
+    end
+  end
+
   # The charging segment shows a grid share but no amount of its own, so it
   # carries a note instead. It is rendered from a sidecar translation, which has
   # to exist for every sensor in the noted list.

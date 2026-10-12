@@ -118,6 +118,14 @@
   --color-sensor-heatpump-env: var(--palette-standard-light-heatpump-env);
   --color-sensor-inverter-diff: var(--palette-standard-light-inverter-diff);
   --color-sensor-costs: var(--palette-standard-light-costs);
+  /* The base fee is the fixed part of the grid costs, charted as a segment
+     below the energy costs. Derived from the costs color rather than picked,
+     so it follows every palette and mode override of it. */
+  --color-sensor-base-fee: color-mix(
+    in oklch,
+    var(--color-sensor-costs) 70%,
+    black
+  );
   --color-sensor-savings: var(--palette-standard-light-savings);
   --color-sensor-co2: var(--palette-standard-light-co2);
   --color-sensor-autarky: var(--palette-standard-light-autarky);

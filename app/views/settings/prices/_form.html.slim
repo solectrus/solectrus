@@ -4,11 +4,34 @@
   = f.group do
     = f.date_field :starts_at,
                    autofocus: true
-    = f.number_field :value,
+    = f.number_field :amount_per_kwh,
                      in: 0..2,
                      step: '0.00001',
                      label: t("activerecord.attributes.price.#{price.name}_amount", currency: Currency.symbol)
+    - if price.electricity?
+      = f.number_field :amount_per_month,
+                       in: 0..999,
+                       step: '0.01',
+                       label: t('activerecord.attributes.price.electricity_amount_per_month', currency: Currency.symbol)
     = f.text_field :note
 
-  .flex.justify-end
+  .flex.items-center.justify-end
+    / The delete button submits this form as a DELETE to the record instead.
+    - if price.destroyable?
+      = render Button::Component.new icon: 'trash',
+                                     type: :submit,
+                                     style: :secondary,
+                                     options: { \
+                                       formaction: settings_price_path(price),
+                                       formmethod: :delete,
+                                       formnovalidate: true,
+                                       title: t('crud.delete'),
+                                       'aria-label': t('crud.delete'),
+                                       data: { \
+                                         turbo_confirm: t('crud.confirm_delete'),
+                                         controller: 'tooltip',
+                                         tooltip_placement_value: 'right',
+                                       },
+                                       class: 'mr-auto text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
+                                     }
     = render 'settings/fab_submit'

@@ -61,7 +61,10 @@
           - elsif costs || power_grid_ratio
             / The battery has a grid share but no costs of its own -- what it
             / stores is billed to the consumers taking it back out
-            = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv, note: costs_note)
+            = render SplittedCosts::Component.new(power_grid_ratio:, costs:, grid_costs: costs_grid, pv_costs: costs_pv, base_fee:, note: costs_note)
+
+          - elsif grid_costs_breakdown
+            = render grid_costs_breakdown
 
           - if sensor.name == :inverter_power && Sensor::Config.multi_inverter?
             .tooltip-group

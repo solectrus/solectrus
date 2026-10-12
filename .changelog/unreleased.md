@@ -29,6 +29,13 @@ Keep every section, an empty one included.
 - The insights now show everything that the tooltip of a bar shows: the share from photovoltaics for the battery charging and for a consumer on the house page, the costs of a consumer, the CO₂ reduction for the generation, the grid import costs for the grid import and the feed-in revenue for the feed-in. The heat pump also shows its energy from photovoltaics and from the grid, and its costs split into grid import costs and lost feed-in revenue
 - Without a sponsorship, the light bulb next to the chart now also shows the total and the values of the tooltip, above the note on the insights
 - On a phone, the settings now open on a list of all sections, as on an iPhone. A tap on a row opens the section, and the round arrow at the top left leads back to the list. The pages slide in and out to the side. The sensors show their groups (generators, consumers, battery) as a list of the same kind. Before, a dropdown at the top switched between the sections
+- Prices: an electricity tariff can carry a base fee for the grid connection now. It is prorated by day, so a day, a week and a month each show the part that falls on it, and the grid costs contain it. The house costs carry the base fee. The costs of the heat pump, the wallbox and the other consumers do not, because they do not make the fee higher (#2560)
+
+## Improvements
+
+- AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
+- Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
+- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
 
 ## Fixes
 

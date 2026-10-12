@@ -104,10 +104,12 @@ describe 'Settings' do
         end
       end
 
-      it 'can see buttons for add/edit, but not delete' do
+      it 'offers no delete for the last price' do
         expect(page).to have_button('Neu')
-        expect(page).to have_button('Bearbeiten')
         expect(page).to have_no_button('Löschen')
+
+        click_on 'Bearbeiten'
+        within('dialog') { expect(page).to have_no_button('Löschen') }
       end
 
       it 'can create and delete a price' do
@@ -115,7 +117,7 @@ describe 'Settings' do
 
         # Fill out the form, save and check if the price is listed
         fill_in 'price_starts_at', with: '2023-01-01'
-        fill_in 'price_value', with: '0.1234'
+        fill_in 'price_amount_per_kwh', with: '0.1234'
         fill_in 'price_note', with: 'Das ist ein Test'
         within('dialog') { click_on 'Speichern' }
         within '#list' do
@@ -126,19 +128,23 @@ describe 'Settings' do
 
         # Edit the price and try to save with empty price value
         click_on 'Bearbeiten', match: :first
-        fill_in 'price_value', with: ''
+        fill_in 'price_amount_per_kwh', with: ''
         within('dialog') { click_on 'Speichern' }
         expect(page).to have_text('muss ausgefüllt werden')
 
         # Change the price value and check if the price is updated
-        fill_in 'price_value', with: '0.5678'
+        fill_in 'price_amount_per_kwh', with: '0.5678'
         within('dialog') { click_on 'Speichern' }
         within '#list' do
           expect(page).to have_text('0,5678 €')
         end
 
-        # Delete the price and check if the price is not listed anymore
-        accept_confirm { click_on 'Löschen', match: :first }
+        # Delete the price from the edit form and check it is gone
+        within '#list' do
+          expect(page).to have_no_button('Löschen')
+        end
+        click_on 'Bearbeiten', match: :first
+        within('dialog') { accept_confirm { click_on 'Löschen' } }
         within '#list' do
           expect(page).to have_no_text('01.01.2023')
         end

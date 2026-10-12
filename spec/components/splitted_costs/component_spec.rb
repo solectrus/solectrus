@@ -59,7 +59,6 @@ describe SplittedCosts::Component, type: :component do
 
     it 'names both rows' do
       expect(page).to have_text 'Grid costs'
-      expect(page).to have_text 'Opportunity costs'
       expect(page).to have_text 'Economic costs'
     end
 
@@ -70,6 +69,68 @@ describe SplittedCosts::Component, type: :component do
         expect(page).to have_text 'Netzbezugskosten'
         expect(page).to have_text 'Entg. Einspeisevergütung'
         expect(page).to have_text 'Wirtschaftliche Kosten'
+      end
+    end
+  end
+
+  # The house carries the base fee in its grid costs. The breakdown splits them
+  # into the fee and the energy costs, and the three rows add up to the total.
+  context 'with a base fee in the grid costs' do
+    subject(:component) do
+      described_class.new(costs:, power_grid_ratio:, grid_costs:, pv_costs:, base_fee: 0.59)
+    end
+
+    let(:grid_costs) { 1.45 }
+    let(:pv_costs) { 1.52 }
+    let(:costs) { 2.97 }
+
+    it 'adds up the rows as a calculation' do
+      render_inline(component)
+
+      expect(page.text).to match(/Base fee.*\+\s*Energy costs.*=\s*Grid costs.*1\.45.*\+\s*Opportunity costs.*=\s*Economic costs/m)
+      expect(page).to have_text 'Opportunity costs'
+      expect(page).to have_text '2.97 €'
+    end
+
+    it 'rounds the three parts to add up to the total' do
+      expect(
+        [component.base_fee, component.energy_costs, component.pv_costs],
+      ).to eq([0.59, 0.86, 1.52])
+      expect(component.grid_costs).to eq(1.45)
+      expect(component.costs).to eq(2.97)
+    end
+
+    context 'with a German locale' do
+      around { |example| I18n.with_locale(:de) { example.run } }
+
+      it 'names the rows too' do
+        render_inline(component)
+
+        expect(page).to have_text 'Verbrauchspreis'
+        expect(page).to have_text 'Grundpreis'
+      end
+    end
+
+    context 'without a fee' do
+      subject(:component) do
+        described_class.new(costs:, power_grid_ratio:, grid_costs:, pv_costs:, base_fee: 0)
+      end
+
+      it 'keeps the grid costs in one row' do
+        render_inline(component)
+
+        expect(page).to have_text 'Grid costs'
+        expect(page).to have_no_text 'Base fee'
+      end
+    end
+
+    context 'without grid costs' do
+      let(:grid_costs) { nil }
+
+      it 'renders no row for the fee' do
+        render_inline(component)
+
+        expect(page).to have_no_text 'Base fee'
       end
     end
   end

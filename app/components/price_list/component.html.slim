@@ -1,48 +1,49 @@
-.table.w-full.select-text
-  .table-header-group.text-gray-800.dark:text-gray-400
-    .table-row
-      .table-cell.align-middle.p-2.tabular-nums.text-left.font-bold
-        = Price.human_attribute_name(:starts_at)
-      .md:table-cell.hidden
-      .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold
-        = Price.human_attribute_name(:value)
-      .table-cell
-      .table-cell
+/ Every row is a subgrid of the list, so the columns line up on wider screens.
+/ On a phone a row folds into two blocks of two lines: date and note on the
+/ left, the amounts on the right. There the amounts carry their unit instead of
+/ a header, and the relative change stays hidden for lack of room.
+div class=list_classes
+  .hidden.sm:grid.grid-cols-subgrid.col-span-full.p-2.font-bold
+    div
+      = Price.human_attribute_name(:starts_at)
+    div
+    .text-right
+      = amount_label
+    div
+    - if base_fee_column?
+      .text-right
+        = Price.human_attribute_name(:amount_per_month)
+    div
 
-  .table-row-group.text-gray-800.dark:text-gray-400
-    - prices.each_with_index do |price, index|
-      .table-row.hover:bg-gray-100.dark:hover:bg-gray-700
-        .table-cell.align-middle.p-2.tabular-nums.text-left.w-1.whitespace-nowrap
-          time datetime= price.starts_at.iso8601
-            = l price.starts_at
-        .md:table-cell.align-middle.p-2.text-gray-500.text-sm.pl-5.hidden
+  - prices.each_with_index do |price, index|
+    .grid.grid-cols-subgrid.col-span-full.items-center.gap-y-0.5.p-2.tabular-nums.hover:bg-gray-100.dark:hover:bg-gray-700 class="max-[360px]:text-sm"
+      .flex.flex-col.sm:contents
+        time.whitespace-nowrap.font-medium.sm:font-normal datetime= price.starts_at.iso8601
+          = l price.starts_at
+        .w-0.min-w-full.truncate.text-sm.text-gray-500 class="max-[360px]:text-xs"
           = price.note
-        .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap
-          = number_to_currency(price.value, precision: nil, unit: Currency.symbol)
-        .table-cell.align-middle.p-2.tabular-nums.w-10.text-right.text-sm.whitespace-nowrap
+
+      .flex.flex-col.items-end.sm:contents
+        .whitespace-nowrap.font-medium.sm:font-normal.sm:text-right
+          = number_to_currency(price.amount_per_kwh, precision: nil, unit: Currency.symbol)
+          span.sm:hidden = t('.per_kwh')
+        .hidden.sm:block.whitespace-nowrap.text-sm.min-w-10.text-right
           = relative_change(price, index)
+        - if base_fee_column?
+          .whitespace-nowrap.text-sm.text-gray-500.sm:text-base.sm:text-inherit.sm:text-right
+            - if price.amount_per_month
+              = number_to_currency(price.amount_per_month, precision: 2, unit: Currency.symbol)
+              span.sm:hidden = t('.per_month')
 
-        .table-cell.align-middle.w-1.p-2
-          / Apart enough that the tap targets of the icons do not overlap them
-          .flex.space-x-1.pointer-coarse:space-x-3
-            = render Button::Component.new path: edit_settings_price_path(price),
-                                           icon: 'pencil',
-                                           type: :button,
-                                           style: :secondary,
-                                           options: { \
-                                             method: :get,
-                                             data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                             'aria-label': t('crud.edit'),
-                                           }
-
-            - if prices.size > 1
-              = render Button::Component.new path: settings_price_path(price),
-                                             icon: 'trash',
-                                             type: :button,
-                                             style: :secondary,
-                                             options: { \
-                                               method: :delete,
-                                               'aria-label': t('crud.delete'),
-                                               form: { data: { 'turbo-confirm': t('crud.confirm_delete') } },
-                                               class: 'hover:text-orange-500',
-                                             }
+      / The icon sits centered in a wider button. Pull it right to match the
+      / inset of the date on the left.
+      .-mr-2
+        = render Button::Component.new path: edit_settings_price_path(price),
+                                       icon: 'pencil',
+                                       type: :button,
+                                       style: :secondary,
+                                       options: { \
+                                         method: :get,
+                                         data: { turbo_frame: 'modal', controller: 'modal-launcher' },
+                                         'aria-label': t('crud.edit'),
+                                       }

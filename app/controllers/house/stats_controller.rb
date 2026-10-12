@@ -65,6 +65,7 @@ class House::StatsController < ApplicationController
             q.sum :"#{sensor_base}_costs_pv", :sum
           end
           q.sum :house_without_custom_costs, :sum
+          q.sum :grid_base_fee, :sum
         end
         .call
 

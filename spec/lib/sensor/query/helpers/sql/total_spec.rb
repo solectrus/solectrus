@@ -231,6 +231,138 @@ describe Sensor::Query::Helpers::Sql::Total do
         # savings = 11.4525 - 2.594 = 8.8585
         expect(result.savings).to be_within(0.0001).of(8.8585)
       end
+
+      context 'with a base fee' do
+        subject(:query) do
+          described_class.new(timeframe) do |q|
+            q.sum :grid_energy_costs, :sum
+            q.sum :grid_base_fee, :sum
+            q.sum :grid_costs, :sum
+            q.sum :traditional_costs, :sum
+            q.sum :savings, :sum
+          end
+        end
+
+        before do
+          Price
+            .find_by!(name: :electricity)
+            .update!(amount_per_month: 30, starts_at: start_date)
+        end
+
+        # Only the single day that has a summary carries a share, and that
+        # share is a 30th or 31st of the monthly amount.
+        let(:daily_fee) { 30.0 / test_date.end_of_month.day }
+
+        it 'adds the daily share to the grid costs' do
+          expect(query.call.grid_costs).to be_within(0.0001).of(daily_fee + 5.09)
+        end
+
+        it 'adds the daily share to the traditional costs' do
+          expect(query.call.traditional_costs).to be_within(0.0001).of(
+            daily_fee + 11.4525,
+          )
+        end
+
+        it 'leaves the savings untouched, because both sides carry it' do
+          expect(query.call.savings).to be_within(0.0001).of(8.8585)
+        end
+
+        it 'reports the two halves on their own' do
+          result = query.call
+
+          expect(result.grid_energy_costs).to be_within(0.0001).of(5.09)
+          expect(result.grid_base_fee).to be_within(0.0001).of(daily_fee)
+        end
+
+        # What the tooltip shows. All three come out of this one query, so the
+        # breakdown adds up to the sum above it, to the cent.
+        it 'adds the two halves up to the grid costs' do
+          result = query.call
+
+          expect(result.grid_energy_costs + result.grid_base_fee).to be_within(
+            0.0001,
+          ).of(result.grid_costs)
+        end
+      end
+    end
+
+    # The base fee does not grow with the consumption, so it is not split
+    # across the consumers. The house carries all of it, which keeps the
+    # per-consumer costs adding up to grid_costs.
+    context 'when billing the base fee to the consumers' do
+      subject(:query) do
+        described_class.new(timeframe) do |q|
+          q.sum :grid_costs, :sum
+          q.sum :house_costs_grid, :sum
+          q.sum :wallbox_costs_grid, :sum
+        end
+      end
+
+      let(:start_date) { Rails.configuration.x.installation_date }
+      let(:test_date) { start_date + 1.day }
+      let(:timeframe) { Timeframe.new(test_date.to_s) }
+      let(:daily_fee) { 30.0 / test_date.end_of_month.day }
+
+      before do
+        stub_feature(:power_splitter)
+
+        Price
+          .find_by!(name: :electricity)
+          .update!(amount_per_month: 30, starts_at: start_date)
+
+        create_summary(
+          date: test_date,
+          values: [
+            [:grid_import_power, :sum, 20_000],
+            [:house_power_grid, :sum, 15_000],
+            [:wallbox_power_grid, :sum, 5_000],
+          ],
+        )
+      end
+
+      it 'bills the whole fee to the house, and none to the wallbox' do
+        result = query.call
+
+        expect(result.house_costs_grid).to be_within(0.0001).of(
+          (15 * 0.2545) + daily_fee,
+        )
+        expect(result.wallbox_costs_grid).to be_within(0.0001).of(5 * 0.2545)
+      end
+
+      it 'lets the consumers add up to the grid costs' do
+        result = query.call
+
+        expect(
+          result.house_costs_grid + result.wallbox_costs_grid,
+        ).to be_within(0.0001).of(result.grid_costs)
+      end
+
+      context 'when the house has no grid share on that day' do
+        before do
+          create_summary(
+            date: test_date + 1.day,
+            values: [
+              [:grid_import_power, :sum, 4_000],
+              [:wallbox_power_grid, :sum, 4_000],
+            ],
+          )
+        end
+
+        let(:timeframe) do
+          Timeframe.new("#{test_date}..#{test_date + 1.day}")
+        end
+
+        it 'still bills the fee of that day to the house' do
+          result = query.call
+
+          expect(result.house_costs_grid).to be_within(0.0001).of(
+            (15 * 0.2545) + (daily_fee * 2),
+          )
+          expect(
+            result.house_costs_grid + result.wallbox_costs_grid,
+          ).to be_within(0.0001).of(result.grid_costs)
+        end
+      end
     end
 
     context 'when feed_in price is missing' do
