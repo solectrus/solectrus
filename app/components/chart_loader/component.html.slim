@@ -16,7 +16,10 @@
               chart_zoom_zoom_interval_value: zoom_interval,
             } do
 
-    div class='absolute right-0 top-0 flex gap-3 z-10 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'
+    / z-6, not z-10: above the canvas and the loading overlay (z-5), but below
+      the header, whose own stacking context is z-10. At the same level these
+      buttons would cover a menu opened from the navigation above them.
+    div class='absolute right-0 top-0 flex gap-3 z-6 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'
       - if path_to_insights
         = link_to path_to_insights,
                   class: "#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden",

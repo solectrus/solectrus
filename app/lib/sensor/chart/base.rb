@@ -154,6 +154,8 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   # Override in subclasses to use a fixed chart color instead of the sensor's color
+  # Stays public in every subclass: YearComparison asks the regular chart of
+  # a sensor for the color it picked.
   def color_class(sensor)
     sensor.color_background
   end

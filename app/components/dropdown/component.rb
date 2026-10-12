@@ -1,4 +1,7 @@
 class Dropdown::Component < ViewComponent::Base
+  CENTERED = 'left-1/2 -translate-x-1/2 origin-top'.freeze
+  private_constant :CENTERED
+
   renders_many :items, MenuItem::Component
   renders_one :top_item, MenuItem::Component
   renders_one :bottom_item, MenuItem::Component
@@ -35,12 +38,16 @@ class Dropdown::Component < ViewComponent::Base
               :menu_position,
               :button_class
 
+  # Where the menu hangs from its button. `center` puts it under the button and
+  # tucks it to the right edge where the row grows wide enough to hold it
+  # beside what it belongs to. `center_always` keeps it under the button at
+  # every width, for a button that stands in the middle of a wide area: a menu
+  # pinned right would open away from it and run past the edge of the card.
   def menu_position_classes
     case menu_position
-    when :center
-      'left-1/2 -translate-x-1/2 origin-top lg:landscape:left-auto lg:landscape:right-0 lg:landscape:translate-x-0 lg:landscape:origin-top-right'
-    when :right
-      'right-0 origin-top-right'
+    when :center then "#{CENTERED} lg:landscape:left-auto lg:landscape:right-0 lg:landscape:translate-x-0 lg:landscape:origin-top-right"
+    when :center_always then CENTERED
+    when :right then 'right-0 origin-top-right'
     else
       raise ArgumentError, "Unknown menu_position: #{menu_position.inspect}"
     end

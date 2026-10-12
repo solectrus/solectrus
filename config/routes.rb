@@ -160,28 +160,39 @@ Rails.application.routes.draw do
 
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do
+      # A chart of the total timeframe can compare the years month by month or
+      # quarter by quarter, which the path says as a segment of its own
+      # (".../all/by_month"). The segment is optional and spelled out by the
+      # constraint, so one route answers every way of reading the chart and
+      # `url_for` writes the segment rather than a query parameter.
+      compare = { compare: Sensor::Chart::YearComparison.regex }
+
       # Balance
-      get '/(/:sensor_name)(/:timeframe)',
+      get '/(/:sensor_name)(/:timeframe)(/:compare)',
           to: 'balance/home#index',
-          as: :balance_home
+          as: :balance_home,
+          constraints: compare
       get '/stats/:sensor_name(/:timeframe)',
           to: 'balance/stats#index',
           as: :balance_stats
-      get '/charts/:sensor_name(/:timeframe)',
+      get '/charts/:sensor_name(/:timeframe)(/:compare)',
           to: 'balance/charts#index',
-          as: :balance_charts
+          as: :balance_charts,
+          constraints: compare
 
       # House / Heatpump / Inverter
       %i[house heatpump inverter].each do |item|
-        get "/#{item}(/:sensor_name)(/:timeframe)",
+        get "/#{item}(/:sensor_name)(/:timeframe)(/:compare)",
             to: "#{item}/home#index",
-            as: :"#{item}_home"
+            as: :"#{item}_home",
+            constraints: compare
         get "/#{item}/stats/:sensor_name(/:timeframe)",
             to: "#{item}/stats#index",
             as: :"#{item}_stats"
-        get "/#{item}/charts/:sensor_name(/:timeframe)",
+        get "/#{item}/charts/:sensor_name(/:timeframe)(/:compare)",
             to: "#{item}/charts#index",
-            as: :"#{item}_charts"
+            as: :"#{item}_charts",
+            constraints: compare
       end
 
       # Tiles

@@ -51,4 +51,18 @@ describe Sensor::Chart::HeatpumpCosts do
 
     expect(values).to all(be_a(Float))
   end
+
+  describe '#color_class' do
+    it 'colors a segment like the power sensor behind it' do
+      expect(
+        chart.color_class(Sensor::Registry[:heatpump_costs_grid]),
+      ).to eq(Sensor::Registry[:heatpump_power_grid].color_background)
+    end
+
+    it 'colors a sensor without a segment like itself' do
+      expect(chart.color_class(Sensor::Registry[:heatpump_costs])).to eq(
+        Sensor::Registry[:heatpump_costs].color_background,
+      )
+    end
+  end
 end

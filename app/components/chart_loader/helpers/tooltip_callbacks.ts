@@ -10,7 +10,12 @@ import {
 } from './formatting';
 import { isTemperatureDataset, tooltipRange } from './tooltip_range';
 import { perRender } from './tooltip_utils';
-import type { DatasetWithId, Range } from './types';
+import type {
+  ChartDataWithAverages,
+  ChartPointExtras,
+  DatasetWithId,
+  Range,
+} from './types';
 
 type TooltipFlags = {
   isPowerSplitterStack: boolean;
@@ -103,6 +108,12 @@ export const buildTooltipCallbacks = (
     };
   });
 
+  // The title a point names for itself, if it names one.
+  const pointTitle = (
+    tooltipItem: TooltipItem<ChartType>,
+  ): string | undefined =>
+    (tooltipItem.raw as ChartPointExtras | undefined)?.tooltipTitle;
+
   const tooltipValue = (tooltipItem: TooltipItem<ChartType>): number | null => {
     const parsedY = tooltipItem.parsed?.y;
     if (typeof parsedY === 'number') return parsedY;
@@ -113,6 +124,11 @@ export const buildTooltipCallbacks = (
   return {
     title: (tooltipItems) => {
       if (!tooltipItems.length) return;
+
+      // A chart whose axis label is abbreviated for want of room lets the point
+      // spell itself out for the tooltip, which has room for it.
+      const ownTitle = pointTitle(tooltipItems[0]);
+      if (ownTitle) return ownTitle;
 
       const dataset = tooltipItems[0].dataset as DatasetWithId;
       if (!dataset.tooltipFields?.length) return;
@@ -172,12 +188,15 @@ export const buildTooltipCallbacks = (
       // keep one unit.
       const range = tooltipRange(tooltipItem.chart.tooltip?.dataPoints);
 
-      // Show label prefix when multiple datasets are displayed in tooltip
+      // Show label prefix when multiple datasets are displayed in tooltip, but
+      // not when the dataset says its title names it already.
       const tooltipDatasets = data.datasets.filter(
         (ds) => (ds as DatasetWithId).tooltip !== false,
       );
       const label =
-        tooltipDatasets.length > 1 ? `${tooltipItem.dataset.label}: ` : '';
+        tooltipDatasets.length > 1 && dataset.tooltipPrefix !== false
+          ? `${tooltipItem.dataset.label}: `
+          : '';
 
       // Charts that negate a series for opposite-direction bars (e.g. battery
       // discharge, grid import) carry the direction in the label already, so
@@ -254,6 +273,19 @@ export const buildTooltipCallbacks = (
       const rounded = roundedSumOf(tooltipItems);
       if (rounded)
         return formattedNumber(rounded.sum, tooltipRange(tooltipItems));
+
+      // The average of the group the bar stands in, of the sensor the bar
+      // shows. On a category axis the parsed x is the index of the label.
+      const { averages, averageLabel } = data as ChartDataWithAverages;
+      const dataset = tooltipItems[0].dataset as DatasetWithId;
+      const average =
+        dataset.sensorName &&
+        averages?.[dataset.sensorName]?.[tooltipItems[0].parsed.x ?? -1];
+      if (typeof average === 'number')
+        return `${averageLabel}: ${formattedNumber(
+          dataset.tooltipAbs ? Math.abs(average) : average,
+          tooltipRange(tooltipItems),
+        )}`;
     },
   };
 };

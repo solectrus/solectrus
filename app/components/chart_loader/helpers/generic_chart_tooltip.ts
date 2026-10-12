@@ -8,6 +8,7 @@ import {
   hideTooltip,
   positionTooltipElement,
 } from './tooltip_utils';
+import type { TooltipConfigExtras } from './types';
 
 type TooltipBody = {
   before: string[];
@@ -206,13 +207,25 @@ export default class GenericChartTooltip {
     tooltip: TooltipModel,
   ) {
     const canvasRect = chart.canvas.getBoundingClientRect();
-    const centerY =
-      canvasRect.top +
-      (this.followsCaret(chart, tooltip)
-        ? tooltip.caretY
-        : (chart.chartArea.top + chart.chartArea.bottom) / 2);
 
-    positionTooltipElement(tooltipEl, chart, tooltip.caretX, centerY);
+    positionTooltipElement(
+      tooltipEl,
+      chart,
+      tooltip.caretX,
+      canvasRect.top + this.anchorY(chart, tooltip),
+    );
+  }
+
+  // The middle of the plot, which keeps the tooltip at one height however the
+  // curve runs. A chart of bars of very different heights asks for the height
+  // of the values instead, so the tooltip stands next to the bars it reads.
+  private anchorY(chart: Chart, tooltip: TooltipModel): number {
+    const options = chart.options.plugins?.tooltip as TooltipConfigExtras;
+
+    if (options?.anchorToValues || this.followsCaret(chart, tooltip))
+      return tooltip.caretY;
+
+    return (chart.chartArea.top + chart.chartArea.bottom) / 2;
   }
 
   // By default the tooltip is centered vertically in the chart. A floating

@@ -2,44 +2,43 @@
 import type { ActiveElement, Chart, ChartEvent } from 'chart.js';
 import { BarElement } from 'chart.js';
 
-type TouchIndexState = {
-  get: () => number | null;
-  set: (value: number | null) => void;
+// Remembers what the last tap hit, so the next one can confirm it.
+type TouchTargetState = {
+  get: () => string | null;
+  set: (value: string | null) => void;
 };
-
-// Wraps getter/setter into a touch index state helper.
-export const createTouchIndexState = (
-  getter: () => number | null,
-  setter: (value: number | null) => void,
-): TouchIndexState => ({
-  get: getter,
-  set: setter,
-});
 
 // Resets zoom on double click, if zoom plugin is present.
 export const handleDoubleClickReset = (chart?: Chart): void => {
   chart?.resetZoom();
 };
 
-// Handles tap/click behavior with a two-tap confirm for touch devices.
+// Handles tap/click behavior with a two-tap confirm for touch devices. The
+// first tap opens the tooltip of a target, the second one acts on it.
 export const handleTouchOrClick = (
   isTouchEnabled: () => boolean,
-  state: TouchIndexState,
-  dataIndex: number,
+  state: TouchTargetState,
+  target: string,
   action: () => void,
 ): void => {
   if (isTouchEnabled()) {
-    if (state.get() === dataIndex) {
+    if (state.get() === target) {
       action();
       state.set(null);
     } else {
-      state.set(dataIndex);
+      state.set(target);
     }
     return;
   }
 
   action();
 };
+
+// Names the element a tap hit. A chart with several bars per axis position
+// needs the bar, not the position: without the dataset a tap on one bar would
+// count as the confirmation of the tap on its neighbour.
+export const touchTargetOf = (element: ActiveElement): string =>
+  `${element.datasetIndex}:${element.index}`;
 
 // Resolves drilldown target from chart elements and triggers callbacks.
 export const handleChartClick = (

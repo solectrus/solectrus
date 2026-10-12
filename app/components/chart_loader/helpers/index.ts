@@ -1,6 +1,8 @@
 // Barrel export for chart helper modules.
+export { buildAverageMarksPlugin } from './average_marks';
 export { applyAxisStyles, getAxisColors } from './axis_styles';
 export {
+  applyXAxisEmphasis,
   applyXAxisTemperatureFormatter,
   applyYAxisTickFormatter,
   applyYAxisZeroLine,
@@ -18,11 +20,11 @@ export {
 export { formatInterval, formatNumber, roundingDigits } from './formatting';
 export {
   buildDrilldownUrl,
-  createTouchIndexState,
   handleChartClick,
   handleDoubleClickReset,
   handleHoverCursor,
   handleTouchOrClick,
+  touchTargetOf,
 } from './interactions';
 export {
   applyFixedYAxisWidth,
