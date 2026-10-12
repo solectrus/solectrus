@@ -15,12 +15,17 @@
 class Sensor::Chart::CarChargingPower < Sensor::Chart::Base
   include Sensor::Chart::Concerns::WithoutOtherSessions
   include Sensor::Chart::Concerns::OffsiteSessions
+  include Sensor::Chart::Concerns::BlankWithoutPositive
 
   # Without a wallbox there is no curve. The offsite sessions need a day at
   # least (see Sensor::Chart::CarSessions).
   def supported?
     super && Sensor::Config.exists?(:wallbox_power)
   end
+
+  def blank_message = I18n.t('data.car_no_charging')
+
+  def blank_icon = 'plug'
 
   def chart_sensor_names
     splitting_allowed? ? %i[wallbox_power wallbox_power_pv wallbox_power_grid] : %i[wallbox_power]

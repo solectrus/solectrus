@@ -9,6 +9,11 @@
 class Sensor::Chart::CarChargingCosts < Sensor::Chart::WallboxCosts
   include Sensor::Chart::Concerns::WithoutOtherSessions
   include Sensor::Chart::Concerns::OffsiteSessions
+  include Sensor::Chart::Concerns::BlankWithoutPositive
+
+  def blank_message = I18n.t('data.car_no_charging')
+
+  def blank_icon = 'plug'
 
   private
 

@@ -145,6 +145,30 @@ describe Sensor::Chart::CarChargingPower do
     end
   end
 
+  context 'with a day of 0 W' do
+    before do
+      influx_batch do
+        [at(10), at(14)].each do |time|
+          add_influx_point(name: Sensor::Config.measurement(:wallbox_power), fields: { Sensor::Config.field(:wallbox_power) => 0.0 }, time:)
+        end
+      end
+    end
+
+    it 'is blank and shows a plug instead of a message' do
+      expect(chart).to be_blank
+      expect(chart.blank_message).to eq(I18n.t('data.car_no_charging'))
+      expect(chart.blank_icon).to eq('plug')
+    end
+
+    context 'with an offsite session' do
+      before { offsite(car, at(12), at(13), 11) }
+
+      it 'is not blank' do
+        expect(chart).not_to be_blank
+      end
+    end
+  end
+
   context 'with the power splitter, but without its data' do
     before { stub_feature(:power_splitter) }
 

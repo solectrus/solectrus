@@ -48,6 +48,16 @@ describe Sensor::Chart::CarChargingCosts do
     expect(grid_cost_at(at(12, 5))).to eq(0)
   end
 
+  context 'with a day without a charge' do
+    let(:timeframe) { Timeframe.new('2026-06-16') }
+
+    it 'is blank and shows a plug instead of a message' do
+      expect(chart).to be_blank
+      expect(chart.blank_message).to eq(I18n.t('data.car_no_charging'))
+      expect(chart.blank_icon).to eq('plug')
+    end
+  end
+
   context 'with an offsite session from 15:00 to 16:00' do
     before do
       ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: at(15), ended_at: at(16), kwh: 11, cost: 4.4)
