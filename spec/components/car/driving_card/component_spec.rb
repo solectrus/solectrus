@@ -145,6 +145,10 @@ describe Car::DrivingCard::Component, type: :component do
     it 'says why the driving cost is missing' do
       expect(calculations.sole).to include('100 km at least')
     end
+
+    it 'shows a dash without a caption' do
+      expect(cost_cells.sole.xpath('span').map { it.text.squish }).to eq(['–'])
+    end
   end
 
   # The days have an energy rate, but a session around them has no price

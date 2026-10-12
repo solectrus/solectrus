@@ -22,12 +22,12 @@
       div class=['mt-1 grid w-full divide-x divide-slate-200 dark:divide-slate-700', (cost_per_100km ? 'grid-cols-2' : 'grid-cols-1')]
         - tag_name, options = cost_cell('car_driving_costs')
         = content_tag tag_name, **options do
-          span class=Car::Card::Component::COST_VALUE
-            - if driving_cost
+          - if driving_cost
+            span class=Car::Card::Component::COST_VALUE
               = render SensorValue::Component.new(driving_cost, :total_costs)
-            - else
-              = '–'
-          span class=Car::Card::Component::ROW_CAPTION = t('car_breakdown.in_total')
+            span class=Car::Card::Component::ROW_CAPTION = t('car_breakdown.in_total')
+          - else
+            span class=Car::Card::Component::COST_VALUE = '–'
           .hidden data-tooltip-target='html'
             = render driving_cost_tooltip
         - if cost_per_100km
