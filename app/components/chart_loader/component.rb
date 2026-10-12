@@ -43,9 +43,13 @@ class ChartLoader::Component < ViewComponent::Base
   # The buttons stand at the top right, beside the chart menu. A map reaches
   # the edges of the card, so its buttons keep the padding of the card, and
   # beside the stats they float on the map like the chart menu.
+  #
+  # z-6, not z-10: above the canvas and the loading overlay (z-5), but below
+  # the header, whose own stacking context is z-10. At the same level these
+  # buttons would cover a menu opened from the navigation above them.
   def controls_classes
     class_names(
-      'absolute top-0 flex gap-3 z-10 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4',
+      'absolute top-0 flex gap-3 z-6 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4',
       chart_component ? 'right-4 sm:right-6 lg:landscape:top-3 lg:landscape:right-3' : 'right-0',
     )
   end
