@@ -11,11 +11,13 @@ class BottomSheet::Component < ViewComponent::Base
 
   # Width on a larger screen. Forms need the room, running text does not: a
   # narrow panel keeps a line below ~65 characters. Lists with a chart take
-  # the width between.
+  # the width between. An extra wide panel lets a long form put its fields
+  # side by side, so it fits the height of a laptop screen.
   WIDTHS = {
     narrow: 'md:max-w-xl',
     medium: 'md:max-w-2xl',
     wide: 'md:max-w-3xl',
+    extra_wide: 'md:max-w-3xl lg:max-w-5xl',
   }.freeze
   private_constant :WIDTHS
 
