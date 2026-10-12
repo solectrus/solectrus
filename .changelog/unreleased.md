@@ -18,20 +18,8 @@ Keep every section, an empty one included.
 
 ## New features
 
-- An amber dot at the HELIOS menu item and at the button that opens the menu shows when HELIOS needs your attention: the configuration is incomplete, or the services wait for a restart or fail
-
 ## Improvements
 
-- In dark mode, the warning color for a low battery level or a medium autarky is now a lighter amber, so it is easier to tell apart from red
-- The codeword page now answers with HTTP status 403, so bots and crawlers see that the site is locked (#5974)
-- Each page loads faster, because the server no longer builds an unused text of the navigation, which took up to 100 ms
-
 ## Fixes
-
-- The live chart of the heat pump power now continues with the measured power. Before, it dropped to zero while the heat pump produced no heat
-- The charge level of the car battery now shows the same colors as the home battery and the autarky. Before, its green was too dark in dark mode (#5976)
-- A round badge at 0 %, for example an empty battery, now shows an empty ring. Before, a dot stayed at its top
-- The selection of the timeframe now opens also when the browser sends no referrer. Before, it failed with a server error
-- When you return to the browser tab, the stats and the chart now load again only once, and only for a period that can still change. Before, each return loaded them again, often twice
 
 ## Maintenance
