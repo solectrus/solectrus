@@ -102,3 +102,27 @@
 .transition-stopper * {
   transition: none !important;
 }
+
+/* The part of the arc of a car that the charge fills next. Only its opacity
+   changes, so the browser does not paint the arc again for each frame. */
+.charging-pulse {
+  animation: charging-pulse 2s ease-in-out infinite;
+  will-change: opacity;
+}
+
+@keyframes charging-pulse {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion) {
+  .charging-pulse {
+    animation: none;
+    opacity: 0.4;
+  }
+}

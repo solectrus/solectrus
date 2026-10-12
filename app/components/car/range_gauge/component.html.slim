@@ -9,6 +9,11 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
       path.fill-none.stroke-slate-200.dark:stroke-slate-800 d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round'
       - if soc&.positive?
         path.fill-none class=Car::RangeGauge::Component::ARC_CLASS d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round' pathLength='100' stroke-dasharray="#{fill_percent} 100"
+    / While the car charges, the part that the charge fills next pulses. It
+      has an SVG of its own, so the pulse changes the opacity of one layer.
+    - if charging_segment
+      svg.charging-pulse.absolute.inset-0.size-full viewBox='30 0 340 300' aria-hidden='true'
+        path.fill-none class=Car::RangeGauge::Component::ARC_CLASS d=Car::RangeGauge::Component::ARC stroke-width='26' stroke-linecap='round' pathLength='100' stroke-dasharray="#{charging_segment} 100" stroke-dashoffset="-#{fill_percent}"
 
     / The center: the range, below it the state of charge or the note that the
     / values are not current, and below that the plug and the charging power
@@ -29,12 +34,12 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
           = t('.stale')
 
       - if wallbox?
-        div class=class_names('flex items-center gap-2 text-[clamp(0.875rem,4.5cqi,1.25rem)]', 'mt-[clamp(0.75rem,5cqi,1.5rem)]' => soc || range? || stale?)
-          - unless state.connected.nil?
-            span class=small_badge_classes('w-[clamp(2rem,9cqi,2.75rem)] justify-center')
-              = render Car::Plug::Component.new(connected: state.connected, compact: true)
+        / The plug and the charging power share a badge, each with its own
+          tooltip
+        div class=class_names(wallbox_badge_classes, 'text-[clamp(0.875rem,4.5cqi,1.25rem)]', 'mt-[clamp(0.75rem,5cqi,1.5rem)]' => soc || range? || stale?)
+          = render Car::Plug::Component.new(connected: state.connected, compact: true)
           - if charging_power?
-            span class=small_badge_classes('gap-1.5 px-[clamp(1rem,5cqi,1.5rem)] tabular-nums', charging? ? 'font-semibold text-slate-700 dark:text-slate-200' : 'text-slate-600/40 dark:text-slate-400/40') title=t('sensors.car_charging_power_short') aria-label=t('sensors.car_charging_power_short') data-controller='tooltip'
+            span.flex.items-center.gap-1.5 class=('text-slate-600/40 dark:text-slate-400/40' unless charging?) title=t('sensors.car_charging_power_short') aria-label=t('sensors.car_charging_power_short') data-controller='tooltip'
               - if state.connected.nil?
                 = helpers.icon 'bolt', class: ('text-sensor-pv' if charging?)
               = render SensorValue::Component.new(charging_power, :wallbox_power, context: :rate)

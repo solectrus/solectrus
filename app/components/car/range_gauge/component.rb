@@ -7,12 +7,22 @@ class Car::RangeGauge::Component < ViewComponent::Base
   ARC = 'M 70 250 A 150 150 0 1 1 330 250'.freeze
   public_constant :ARC
 
-  # The plug and the charging power below the state of charge: two badges of
-  # the same height
+  # The plug and the charging power below the state of charge, in one badge
   SMALL_BADGE =
     'flex items-center rounded-full h-[clamp(2rem,9cqi,2.75rem)] ' \
-    'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'.freeze
+    'bg-slate-100 dark:bg-slate-800'.freeze
   private_constant :SMALL_BADGE
+
+  # The badge of the charging power while the wallbox charges, and else,
+  # here and below the cars (see Car::LiveView::Component). Each sets the
+  # color of the text, so a badge gets one of them alone.
+  CHARGING_CLASSES = 'font-semibold text-slate-700 dark:text-slate-200'.freeze
+  private_constant :CHARGING_CLASSES
+
+  IDLE_CLASSES = 'text-slate-600 dark:text-slate-400'.freeze
+  private_constant :IDLE_CLASSES
+
+  def self.charging_classes(charging) = charging ? CHARGING_CLASSES : IDLE_CLASSES
 
   # A badge below the plug and the charging power, for example the place
   renders_one :location
@@ -58,7 +68,15 @@ class Car::RangeGauge::Component < ViewComponent::Base
 
   def charging? = charging_power.to_f.positive?
 
-  def small_badge_classes(*, **) = class_names(SMALL_BADGE, *, **)
+  # The badge of the plug and the charging power. With the plug alone, the
+  # badge is round.
+  def wallbox_badge_classes
+    class_names(
+      SMALL_BADGE,
+      charging_power? ? 'gap-2 px-[clamp(0.75rem,4cqi,1.25rem)] tabular-nums' : 'w-[clamp(2rem,9cqi,2.75rem)] justify-center',
+      self.class.charging_classes(charging?),
+    )
+  end
 
   # The height that the arc leaves free: 1rem of room, and the height of the
   # block above (4rem, two lines like the name and the time) and of the
@@ -79,6 +97,18 @@ class Car::RangeGauge::Component < ViewComponent::Base
   # The fill of the arc in percent of its length, without a trailing ".0"
   def fill_percent
     format('%g', soc.round(1))
+  end
+
+  # The part of the arc that the charge fills next, in percent of its length
+  CHARGING_SEGMENT = 8
+  private_constant :CHARGING_SEGMENT
+
+  # The length of the part that pulses while the car charges, or nil. A full
+  # battery has no part left.
+  def charging_segment
+    return unless charging? && soc && soc < 100
+
+    format('%g', [CHARGING_SEGMENT, 100 - soc].min.round(1))
   end
 
   # The arc is always blue (see --color-car-battery)

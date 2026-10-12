@@ -637,9 +637,10 @@ the state of charge, its odometer and the time of its latest reading. The time i
 necessary, because a car sensor holds its value at any age. For the admin, the gauge also
 shows the place of the car. The badge shows also for the only car.
 
-The gauge shows the plug of the car (`car_connected_<n>`) and the charging power. Only the
-car at the wallbox shows the power of the wallbox (`Car::Live`). When no car is at the
-wallbox, the live view shows the power below the cars, for example for a guest.
+The gauge shows the plug of the car (`car_connected_<n>`) and the charging power in one
+badge. Only the car at the wallbox shows the power of the wallbox (`Car::Live`). When no
+car is at the wallbox, the live view shows the power below the cars, for example for a
+guest. While the car charges, the part of the arc that the charge fills next pulses.
 
 ### A period
 

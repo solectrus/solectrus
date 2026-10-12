@@ -105,6 +105,36 @@ describe Car::RangeGauge::Component, type: :component do
     end
   end
 
+  describe 'the part that the charge fills next' do
+    let(:state) { charging(7_400) }
+
+    def charging(charging_power) = Car::Live::State.new(car: Car.new(id: 2), soc:, range:, max_range:, odometer: nil, connected: true, charging_power:, latitude: nil, longitude: nil)
+
+    it 'pulses after the fill while the car charges' do
+      expect(html.css('svg.charging-pulse path[stroke-dasharray="8 100"][stroke-dashoffset="-62"]')).to be_present
+    end
+
+    context 'when the car does not charge' do
+      let(:state) { charging(0) }
+
+      it { expect(html.css('.charging-pulse')).to be_empty }
+    end
+
+    context 'when the battery is nearly full' do
+      let(:soc) { 97.5 }
+
+      it 'ends at the end of the arc' do
+        expect(html.css('.charging-pulse path[stroke-dasharray="2.5 100"]')).to be_present
+      end
+    end
+
+    context 'when the battery is full' do
+      let(:soc) { 100.0 }
+
+      it { expect(html.css('.charging-pulse')).to be_empty }
+    end
+  end
+
   context 'with the car unplugged' do
     let(:state) { Car::Live::State.new(car: Car.new(id: 2), soc:, range:, max_range:, odometer: nil, connected: false, charging_power: 0, latitude: nil, longitude: nil) }
 

@@ -13,7 +13,7 @@
 class Car::LiveView::Component < ViewComponent::Base
   PILL_CLASSES =
     'flex items-center gap-2 rounded-full px-4 py-1.5 md:py-2 text-sm md:text-base ' \
-    'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'.freeze
+    'bg-slate-100 dark:bg-slate-800'.freeze
   private_constant :PILL_CLASSES
 
   # `live` is a Car::Live
@@ -34,7 +34,7 @@ class Car::LiveView::Component < ViewComponent::Base
 
   def charging? = wallbox_power.to_f.positive?
 
-  def pill_classes(**) = class_names(PILL_CLASSES, **)
+  def pill_classes(charging: false) = class_names(PILL_CLASSES, Car::RangeGauge::Component.charging_classes(charging))
 
   def states
     @states ||= live.states

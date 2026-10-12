@@ -25,7 +25,7 @@
 - if wallbox?
   .flex.flex-wrap.justify-center.gap-2
     - if wallbox_power?
-      = tag.div class: pill_classes('font-semibold text-slate-700 dark:text-slate-200': charging?), title: t('sensors.car_charging_power_short'), aria: { label: t('sensors.car_charging_power_short') }, data: { controller: 'tooltip' } do
+      = tag.div class: pill_classes(charging: charging?), title: t('sensors.car_charging_power_short'), aria: { label: t('sensors.car_charging_power_short') }, data: { controller: 'tooltip' } do
         = helpers.icon 'bolt', class: charging? ? 'text-sensor-pv' : 'opacity-40'
         = render SensorValue::Component.new(live.data, :wallbox_power, context: :rate)
 
