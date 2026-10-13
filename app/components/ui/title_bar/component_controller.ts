@@ -69,6 +69,11 @@ export default class extends Controller<HTMLElement> {
   // replaces it, so it stays until prepare() removes it within the transition
   // to the response. Turbo removes data-turbo-temporary before that, from the
   // live page, and the old page would flash.
+  //
+  // The page of the skeleton covers the content area where it is, so this
+  // page slides out to the side alone. The accessories of this page leave
+  // the bar above it, and the gray of the content area fills the gap (see
+  // component.css).
   #showSkeleton(title: string, direction: string) {
     const bar = this.element.cloneNode(true) as HTMLElement;
     bar.removeAttribute('data-controller');
@@ -78,8 +83,10 @@ export default class extends Controller<HTMLElement> {
     bar
       .querySelector('.ui-title-bar-back')
       ?.classList.toggle('invisible', direction === 'pop');
-    // The action belongs to this page, the next one brings its own
+    // The action belongs to this page, the next one brings its own. The
+    // backdrop stays with the header, a second one would repeat its name.
     bar.querySelector('.ui-title-bar-action')?.remove();
+    bar.querySelector('.ui-title-bar-backdrop')?.remove();
 
     const page = document.createElement('div');
     page.className = 'ui-title-bar-skeleton-page';

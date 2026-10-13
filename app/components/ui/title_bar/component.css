@@ -7,6 +7,13 @@
  * area (main, which scrolls and so clips its content to the screen) and the
  * title bar. The rest of the page, the bottom navigation included, stays put.
  * While the skeleton of the next page covers them, the skeleton moves instead.
+ *
+ * The bar behind the title bar takes the height of the next page while the
+ * pages slide, as the navigation bar of iOS. Its accessories, like a
+ * segmented control below the title bar, belong to one page (see
+ * .ui-title-bar-accessory). The bar is an element of its own, the backdrop:
+ * a name on the header would make it a stacking context, and the ThemeStrip
+ * would then cover the top of the title bar.
  */
 html:has(.ui-title-bar):not(:has(> .ui-title-bar-skeleton)) main,
 .ui-title-bar-skeleton-page {
@@ -16,6 +23,29 @@ html:has(.ui-title-bar):not(:has(> .ui-title-bar-skeleton)) main,
 html:not(:has(> .ui-title-bar-skeleton)) .ui-title-bar,
 .ui-title-bar-skeleton-title {
   @apply max-lg:[view-transition-name:nav-title];
+}
+
+.ui-title-bar-backdrop {
+  @apply max-lg:[view-transition-name:nav-bar];
+}
+
+.ui-title-bar-accessory {
+  @apply max-lg:[view-transition-name:nav-accessory];
+}
+
+/* The skeleton shows the next page, so the accessories of this page leave
+   the bar, and the bar takes the height of the next page. The content area
+   below moves up with it, so its content goes too. The page slides out from
+   its old place, and the gray of the content area fills the gap above. */
+html:has(> .ui-title-bar-skeleton) {
+  /* Important over the flex utility of a container */
+  .ui-title-bar-accessory {
+    @apply max-lg:hidden!;
+  }
+
+  main > * {
+    @apply max-lg:invisible;
+  }
 }
 
 /* The skeleton lies beside <body>, over the title bar and the content area */
@@ -57,8 +87,37 @@ html:has(.ui-title-bar)::view-transition-new(root) {
   @apply animate-none;
 }
 
-::view-transition-group(nav-page) {
+/* The bar changes its height with the slide, and the content area follows
+   its lower edge. The accessories of the bar leave or come with it, cut off
+   at that edge. */
+::view-transition-group(nav-page),
+::view-transition-group(nav-bar) {
   @apply overflow-clip;
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* The bar keeps its color, so it does not fade: the bar of the next page lies
+   over the one of this page, and the moving edge covers or shows the
+   accessories */
+::view-transition-old(nav-bar),
+::view-transition-new(nav-bar) {
+  @apply animate-none mix-blend-normal;
+}
+
+/* The backdrop lies inside the title bar, so its group would cover the title */
+::view-transition-group(nav-title) {
+  @apply z-1;
+}
+
+/* The accessories leave fast, before the edge of the bar reaches them, and
+   come slower, as the page that brings them */
+::view-transition-old(nav-accessory) {
+  animation-duration: 120ms;
+}
+
+::view-transition-new(nav-accessory) {
+  animation-duration: 200ms;
 }
 
 /* Both pages are opaque, so they cover each other instead of blending */
@@ -100,13 +159,20 @@ html[data-nav-direction='none'] {
     @apply hidden;
   }
 
+  /* The skeleton covers the content area of the page before. The content
+     appears where it belongs, the gray of the skeleton does not move. */
   &::view-transition-new(nav-title),
-  &::view-transition-old(nav-page) {
+  &::view-transition-old(nav-page),
+  &::view-transition-group(nav-page) {
     @apply animate-none;
   }
 
   &::view-transition-new(nav-page) {
     animation-name: nav-fade-in;
+    animation-duration: 200ms;
+  }
+
+  &::view-transition-group(nav-bar) {
     animation-duration: 200ms;
   }
 }
