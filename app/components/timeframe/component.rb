@@ -109,8 +109,15 @@ class Timeframe::Component < ViewComponent::Base
     "text-center #{LABEL_WIDTHS[timeframe.id]}"
   end
 
+  # A phone shows no hover, so the chevron marks the label as a menu, as on
+  # iOS. The desktop has the hover, and the chevron would stand next to the
+  # arrows of the pagination.
+  def select_chevron
+    helpers.icon('chevron-down', class: 'lg:hidden ml-1 text-xs')
+  end
+
   def timeframe_link_classes(additional_classes = nil)
-    interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
+    interactive_button_classes(additional_classes: "font-bold lg:font-normal max-lg:tracking-normal text-base leading-5 #{additional_classes}")
   end
 
   private

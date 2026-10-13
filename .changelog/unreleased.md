@@ -52,6 +52,7 @@ Keep every section, an empty one included.
 - On a phone, the forms of the settings look like the settings of an iPhone: white groups on a gray page, the label of each field at the left and its value at the right, and a switch for each option. The button to save is as wide as the page. In the sensors, the pages to show in the navigation stand in a group of their own, each with its name alone
 - The loading bar at the top of the page now shows only when a page takes longer than half a second. Before, it showed on almost every change of page, often only for a moment
 - On a phone, the content goes away as soon as you tap a link, until the next page is there. So you see at once that the tap works. When the page takes longer to load, a spinner appears after half a second
+- On a phone, a small arrow next to the timeframe in the header shows that a tap on it opens the date selection
 
 ## Fixes
 
