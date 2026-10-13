@@ -50,7 +50,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
     main.relative.z-2.flex-1.flex.flex-col.justify-center
       = yield
 
-      = render 'shared/modal_backdrop'
+      = render 'layouts/modal_backdrop'
       = tag.turbo_frame id: 'modal', target: '_top'
 
     footer.hidden.lg:flex.justify-between.items-center.w-full.text-xs.pt-3.pb-6.px-4.sm:px-6.lg:px-8.text-white

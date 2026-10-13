@@ -37,7 +37,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
 
     link rel="manifest" href= manifest_path crossorigin="use-credentials"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"
-    = render 'shared/apple_touch_icons'
+    = render 'layouts/apple_touch_icons'
 
     = csrf_meta_tags
     = csp_meta_tag
@@ -88,7 +88,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
           .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=(content_for?(:fixed_nav) ? 'lg:rounded-lg self-start min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0')
             = yield
 
-        = render 'shared/modal_backdrop'
+        = render 'layouts/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
         = render BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
 
