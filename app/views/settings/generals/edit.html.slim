@@ -38,4 +38,4 @@
     = render 'settings/fab_submit'
 
 .mt-10.px-2
-  = render 'summaries', summary_completion_rate: @summary_completion_rate
+  = render SummaryStatus::Component.new(completion_rate: @summary_completion_rate)
