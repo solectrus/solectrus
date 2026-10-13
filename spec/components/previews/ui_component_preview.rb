@@ -11,4 +11,8 @@ class UiComponentPreview < ViewComponent::Preview
       ],
     )
   end
+
+  def submit_button
+    render Ui::SubmitButton::Component.new(delete_path: '#')
+  end
 end

@@ -1,0 +1,28 @@
+/ One save button for both layouts, as the form-dirty controller knows one.
+  Disabled from the start, as the form-dirty controller sets it on connect.
+  Else it shows enabled until the controller connects.
+
+  The save button comes first in the form, because Enter in a field submits
+  with the first submit button. The delete button moves to the left edge with
+  order-first.
+.flex.items-center.justify-end.gap-3.mt-8.lg:mt-6
+  button class=BUTTON_CLASS type="submit" disabled=true data-form-dirty-target="submit"
+    = icon 'check', class: 'max-lg:hidden'
+    = label
+  - if delete_path
+    = render Button::Component.new icon: removal[:icon],
+                                   type: :submit,
+                                   style: :secondary,
+                                   options: { \
+                                     **delete_options,
+                                     title: removal[:label],
+                                     data: { turbo_confirm: removal[:confirm], controller: 'tooltip' },
+                                     class: 'order-first mr-auto max-lg:hidden text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
+                                   }
+- if delete_path
+  .mt-3.lg:hidden
+    = button_tag removal[:label],
+                 type: :submit,
+                 **delete_options,
+                 data: { turbo_confirm: removal[:confirm] },
+                 class: 'w-full rounded-full py-3.5 text-headline font-semibold click-animation transition-colors bg-red-500/10 text-signal-negative active:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900'
