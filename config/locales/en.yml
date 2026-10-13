@@ -385,6 +385,7 @@ en:
       no_estimate: No estimate without the battery capacity of the car
       accept: Confirm
       dismiss: Dismiss
+      dismissed: Dismissed
       confirm_dismiss: Dismiss this charging session? It does not come back.
       form_hint: Detected from the car readings. Time and energy are estimates, the cost is missing.
     count:

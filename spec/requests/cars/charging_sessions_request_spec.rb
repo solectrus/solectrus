@@ -448,6 +448,7 @@ describe 'Charging sessions' do
 
       expect(proposal.reload).to have_attributes(dismissed: true, assigned_manually: true)
       expect(response.body).not_to include(proposal.started_at.iso8601)
+      expect(response.body).to include('Dismissed')
     end
 
     it 'lists the proposals alone, without the sums' do

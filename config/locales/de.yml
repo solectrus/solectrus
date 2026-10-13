@@ -385,6 +385,7 @@ de:
       no_estimate: Ohne Akkukapazität des Autos keine Schätzung
       accept: Bestätigen
       dismiss: Verwerfen
+      dismissed: Verworfen
       confirm_dismiss: Diese Ladung verwerfen? Sie kommt nicht wieder.
       form_hint: Aus den Messwerten des Autos erkannt. Zeit und Energie sind geschätzt, die Kosten fehlen.
     count:

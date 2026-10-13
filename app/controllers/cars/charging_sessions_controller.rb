@@ -59,7 +59,7 @@ class Cars::ChargingSessionsController < ApplicationController
     return head(:unprocessable_content) unless @charging_session.proposal?
 
     @charging_session.dismiss!
-    render_list
+    render_list(notice: t('charging_sessions.proposal.dismissed'))
   end
 
   # Only an offsite session can go (see ChargingSession)
