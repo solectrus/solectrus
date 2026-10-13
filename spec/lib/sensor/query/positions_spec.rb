@@ -172,6 +172,32 @@ describe Sensor::Query::Positions do
       end
   end
 
+  # The detection of the visits widens the period by some hours, so on the
+  # day of the installation the period starts before it
+  context 'with a period that starts before the installation' do
+    subject(:segments) do
+      described_class.new(latitude: :car_latitude_1, longitude: :car_longitude_1, odometer: :car_odometer_1, period:).call
+    end
+
+    let(:installation_time) { Rails.configuration.x.installation_date.beginning_of_day }
+    let(:period) { (installation_time - 3.hours)..(installation_time + 1.day) }
+    let(:readings) { { installation_time + 6.hours => home } }
+
+    before do
+      Sensor::Config.setup(
+        ENV.to_h.merge(
+          'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+          'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+          'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:mileage',
+        ),
+      )
+    end
+
+    it 'gives the segments from the first reading' do
+      expect(segments.map { [it.from, it.to, it.latitude] }).to eq([[installation_time + 6.hours, period.end, home.first]])
+    end
+  end
+
   context 'without the longitude' do
     before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude')) }
 

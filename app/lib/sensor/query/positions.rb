@@ -156,12 +156,11 @@ module Sensor
       # before it. elapsed() is native, and a map() for the time of each
       # reading was more than twice as slow (a year: 400 -> 1050 ms). The row
       # of the result "first" is the first reading of the period, and the row
-      # of "before" the last reading before it. last() reads only the edge of
-      # its range, so the reading before needs no limit. The odometer gives
-      # its last reading before the period and the readings of the period that
-      # change it. A parked car repeats its odometer, and the first reading of
-      # each value gives the same departure (a week: 491 -> 21 rows, 68 -> 54
-      # ms, a year: 34482 -> 1329 rows, 484 -> 386 ms).
+      # of "before" the last reading before it. The odometer gives its last
+      # reading before the period and the readings of the period that change
+      # it. A parked car repeats its odometer, and the first reading of each
+      # value gives the same departure (a week: 491 -> 21 rows, 68 -> 54 ms, a
+      # year: 34482 -> 1329 rows, 484 -> 386 ms).
       def build_flux_query
         lat = column(latitude)
         lon = column(longitude)
@@ -173,13 +172,7 @@ module Sensor
             |> filter(fn: (r) => exists r["#{lat}"] and exists r["#{lon}"])
             |> keep(columns: ["_time", "#{lat}", "#{lon}"])
 
-          #{from_bucket}
-            |> #{range(start: installation_time, stop: from)}
-            |> #{filter}
-            |> last()
-            |> pair()
-            |> yield(name: "before")
-
+          #{last_before('before', filter, 'pair()')}
           data = #{from_bucket}
             |> #{range(start: from, stop: to)}
             |> #{filter}
@@ -205,13 +198,7 @@ module Sensor
         return '' unless odometer
 
         <<~FLUX
-          #{from_bucket}
-            |> #{range(start: installation_time, stop: from)}
-            |> #{filter(selected_sensors: [odometer])}
-            |> last()
-            |> keep(columns: ["_time", "_value"])
-            |> yield(name: "odometer_before")
-
+          #{last_before('odometer_before', filter(selected_sensors: [odometer]), 'keep(columns: ["_time", "_value"])')}
           #{from_bucket}
             |> #{range(start: from, stop: to)}
             |> #{filter(selected_sensors: [odometer])}
@@ -220,6 +207,23 @@ module Sensor
             |> filter(fn: (r) => not exists r.step or r.step != 0.0)
             |> keep(columns: ["_time", "_value"])
             |> yield(name: "odometer")
+        FLUX
+      end
+
+      # The last reading before the period. last() reads only the edge of its
+      # range, so the range needs no limit. A period that starts before the
+      # installation has no reading before it, and InfluxDB rejects an empty
+      # range.
+      def last_before(name, selection, shape)
+        return '' if from <= installation_time
+
+        <<~FLUX
+          #{from_bucket}
+            |> #{range(start: installation_time, stop: from)}
+            |> #{selection}
+            |> last()
+            |> #{shape}
+            |> yield(name: "#{name}")
         FLUX
       end
 
