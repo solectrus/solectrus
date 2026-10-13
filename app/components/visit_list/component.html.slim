@@ -2,7 +2,7 @@
   have their selects in the header.
 - if place
   .flex.flex-wrap.justify-center.gap-2.mb-4
-    = render layout: 'filter', locals: { remove: visits_path_with(place: nil) } do
+    = render VisitList::FilterChip::Component.new(remove_path: context.list_path(place: nil)) do
       = icon 'location-dot', class: 'text-gray-500'
       span.truncate class=('italic text-gray-500' unless place.display_name)
         = place.display_name || t('settings.places.unnamed')
@@ -12,15 +12,15 @@
   = render EmptyList::Component.new(icon: 'location-dot', text: t('visits.empty'))
 - else
   / A phone has columns only for the header, the rows wrap (see the row)
-  .grid.w-full class=['grid-cols-[minmax(0,1fr)_auto]', %w[sm:grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_auto_1fr_auto] sm:grid-cols-[auto_auto_auto_1fr_auto]][icon_columns]]
+  .grid.w-full class=['grid-cols-[minmax(0,1fr)_auto]', %w[sm:grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_auto_1fr_auto] sm:grid-cols-[auto_auto_auto_1fr_auto]][context.icon_columns]]
     .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
       .max-sm:hidden.p-2 = t('visits.period')
-      - if car_column?
+      - if context.car_column?
         .max-sm:hidden.p-2 = Car.model_name.human
-      - if label_column?
+      - if context.label_column?
         / The column of the icons has no title
         .max-sm:hidden.py-2.pl-2
       / On a phone, the title starts after the icons, like the names
-      .p-2 class=[nil, 'max-sm:pl-10', 'max-sm:pl-18'][icon_columns] = Place.model_name.human
+      .p-2 class=[nil, 'max-sm:pl-10', 'max-sm:pl-18'][context.icon_columns] = Place.model_name.human
       .p-2.text-right = t('visits.duration')
-    = render 'rows', visits:, pagy:
+    = render VisitList::Rows::Component.new(visits:, pagy:, context:)

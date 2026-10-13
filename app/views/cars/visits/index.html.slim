@@ -3,4 +3,4 @@
 - if @pending_days.present?
   = render SummaryBuilder::Component.new(timeframe: build_timeframe, missing_or_stale_days: @pending_days)
 - else
-  = render 'list', visits: @visits, pagy: @pagy
+  = render VisitList::Component.new(visits: @visits, pagy: @pagy, context: list_context)

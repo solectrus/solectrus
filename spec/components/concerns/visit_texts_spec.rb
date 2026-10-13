@@ -1,10 +1,32 @@
-describe PlaceVisitHelper do
+describe VisitTexts, type: :component do
+  # A component translates only once it renders, and it renders only with
+  # a name
+  let(:component_class) do
+    klass = Class.new(ViewComponent::Base) do
+      include VisitTexts
+
+      attr_reader :visit
+
+      def initialize(visit)
+        super()
+        @visit = visit
+      end
+
+      def call = ''
+    end
+    stub_const('VisitTextsComponent', klass)
+  end
+
+  def texts(visit)
+    component_class.new(visit).tap { render_inline(it) }
+  end
+
   def visit_from(from, to, ongoing: false)
     PlaceVisit.new(started_at: Time.zone.parse(from), ended_at: Time.zone.parse(to), ongoing:)
   end
 
-  describe '#visit_time_range' do
-    def range(from, to) = helper.visit_time_range(visit_from(from, to))
+  describe '#time_range' do
+    def range(from, to) = texts(visit_from(from, to)).time_range
 
     it 'names the times of a visit on one day' do
       expect(range('2026-10-06 07:18', '2026-10-06 13:39')).to eq('07:18–13:39')
@@ -19,14 +41,14 @@ describe PlaceVisitHelper do
     end
 
     it 'names no end of an ongoing visit' do
-      expect(helper.visit_time_range(visit_from('2026-10-05 16:57', '2026-10-06 15:13', ongoing: true))).to eq('since 16:57')
+      expect(texts(visit_from('2026-10-05 16:57', '2026-10-06 15:13', ongoing: true)).time_range).to eq('since 16:57')
     end
   end
 
-  describe '#visit_day_times' do
+  describe '#day_times' do
     let(:day) { Date.new(2026, 10, 6) }
 
-    def day_times(from, to, ongoing: false) = helper.visit_day_times(visit_from(from, to, ongoing:), day)
+    def day_times(from, to, ongoing: false) = texts(visit_from(from, to, ongoing:)).day_times(day)
 
     it 'names only the times of a visit on the day' do
       expect(day_times('2026-10-06 07:18', '2026-10-06 13:39')).to eq(['07:18–13:39', nil])

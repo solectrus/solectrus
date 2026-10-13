@@ -57,9 +57,9 @@ class Settings::PlacesController < ApplicationController
   helper_method def replace_place(place)
     [
       turbo_stream.replace(helpers.dom_id(place), partial: 'settings/places/row', locals: { place: Place.with_seconds.find(place.id) }),
-      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", partial: 'cars/visits/place_labels', locals: { place: }),
-      turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", partial: 'cars/visits/place_name', locals: { place: }),
-      turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", partial: 'cars/visits/place_locality', locals: { place: }),
+      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", VisitList::LabelsCell::Component.new(place:)),
+      turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", VisitList::NameCell::Component.new(place:)),
+      turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", VisitList::LocalityCell::Component.new(place:)),
     ]
   end
 
