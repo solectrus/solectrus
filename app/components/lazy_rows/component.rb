@@ -30,7 +30,10 @@ class LazyRows::Component < ViewComponent::Base
   def next_page
     return unless @pagy.next
 
-    helpers.turbo_frame_tag(frame_id(@pagy.next), src: @pagy.page_url(:next), loading: :lazy, class: CLASSES) do
+    # A link in a row leaves the list, as on the first page, which lies in no
+    # frame. Turbo keeps this frame and takes only the content of the
+    # response, so the target goes here.
+    helpers.turbo_frame_tag(frame_id(@pagy.next), src: @pagy.page_url(:next), loading: :lazy, target: '_top', class: CLASSES) do
       tag.div(helpers.icon('spinner', class: 'fa-spin'), class: 'col-span-full text-center py-4 text-gray-400')
     end
   end
