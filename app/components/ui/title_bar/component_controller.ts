@@ -1,8 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 import { isReducedMotion } from '@/utils/device';
+import { isEntryBefore } from '@/utils/historyTrail';
 
 type BeforeFetchRequestEvent = CustomEvent<{ resume: () => void }>;
 type BeforeRenderEvent = CustomEvent<{ newBody: HTMLElement }>;
+type TurboClickEvent = CustomEvent<{ originalEvent: Event }>;
 
 // Slides between the pages of a drill-down hierarchy (see component.css).
 //
@@ -13,6 +15,12 @@ type BeforeRenderEvent = CustomEvent<{ newBody: HTMLElement }>;
 // over the skeleton. These links opt out of the hover prefetch: a tap is faster
 // than its delay, and after the slide the finger rests over a row, which would
 // be prefetched for nothing.
+//
+// The back button goes back in the history when the entry before is the
+// parent, as the back button of iOS does. It slides first, and the browser
+// goes back when the slide has ended. So the page leaves the history, and the
+// back button of Android or a back gesture later does not lead to it again.
+// Without such an entry, like after a reload, the button visits the parent.
 //
 // Any other visit, the back button of the browser included, slides when Turbo
 // renders. Its direction comes from the hierarchy: the next page is a child
@@ -42,13 +50,39 @@ addEventListener('turbo:visit', (event) => {
 export default class extends Controller<HTMLElement> {
   #slide?: Promise<void>;
   #skeleton?: HTMLElement;
+  #leaving = false;
 
-  slide(event: Event) {
-    const link = (event.target as HTMLElement).closest<HTMLAnchorElement>(
-      'a[data-nav-title]',
-    );
+  slide(event: TurboClickEvent) {
+    const target = event.target as HTMLElement;
+    const back = target.closest<HTMLAnchorElement>('a.ui-title-bar-back');
+    if (back && this.element.contains(back) && isEntryBefore(back)) {
+      // Neither Turbo nor the browser follows the link
+      event.preventDefault();
+      event.detail.originalEvent.preventDefault();
+      // The entry before stays the parent until the browser has gone back,
+      // so a second tap would go back a second step
+      if (!this.#leaving) void this.#goBack(back);
+      return;
+    }
+
+    const link = target.closest<HTMLAnchorElement>('a[data-nav-title]');
     if (!link || this.#slide || !this.#canSlide()) return;
 
+    this.#startSlide(link);
+  }
+
+  // The render of the parent would cut the slide short, so the browser goes
+  // back only when the slide has ended
+  async #goBack(link: HTMLAnchorElement) {
+    this.#leaving = true;
+    if (link.dataset.navTitle && !this.#slide && this.#canSlide()) {
+      this.#startSlide(link);
+      await this.#slide;
+    }
+    history.back();
+  }
+
+  #startSlide(link: HTMLAnchorElement) {
     const direction =
       link.pathname === this.element.dataset.parent ? 'pop' : 'push';
     const { dataset } = document.documentElement;
