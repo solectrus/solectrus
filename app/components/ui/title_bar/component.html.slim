@@ -7,13 +7,14 @@
   .relative.flex.items-center.justify-center.min-h-10
     - if back_href
       = link_to back_href,
-                class: 'ui-title-bar-back click-animation',
-                data: { nav_title: back_label, turbo_prefetch: false },
+                class: 'ui-title-bar-back left-0 click-animation',
+                data: self.class.link_data(back_label),
                 title: back_label,
                 'aria-label': back_label do
         = icon 'chevron-left'
     - else
       /! Placeholder, which the skeleton of a child page shows as its back button
-      span.ui-title-bar-back.invisible aria-hidden='true'
+      span.ui-title-bar-back.left-0.invisible aria-hidden='true'
         = icon 'chevron-left'
     h1.px-12.truncate.font-medium.text-lg.text-white.dark:text-gray-200 = title
+    = action

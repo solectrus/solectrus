@@ -1,12 +1,30 @@
 # The title bar of a page in a drill-down hierarchy on a phone, as on iOS: the
 # title in the middle and, below the top level, a round back button to the
 # parent page. The button carries no text, so the title keeps the middle on a
-# narrow screen too.
+# narrow screen too. An action, like adding an entry, stands as a round icon
+# button at the right, the counterpart of the back button.
 #
 # A change between such pages slides (see component.css). The controller finds
 # the direction: a page whose parent is the current page slides in from the
 # right, the way back to the parent slides out to the right.
 class Ui::TitleBar::Component < ViewComponent::Base
+  # The data of a link to a page one level up or down, which slides there at
+  # once and skips the hover prefetch (see the controller)
+  def self.link_data(title)
+    { nav_title: title, turbo_prefetch: false }
+  end
+
+  renders_one :action,
+              lambda { |href:, icon:, label:|
+                link_to href,
+                        class: 'ui-title-bar-action right-0 click-animation',
+                        data: self.class.link_data(label),
+                        title: label,
+                        'aria-label': label do
+                  icon(icon)
+                end
+              }
+
   def initialize(title:, back_href: nil, back_label: nil)
     super()
     @title = title

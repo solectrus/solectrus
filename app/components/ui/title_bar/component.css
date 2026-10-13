@@ -42,8 +42,9 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
   @apply bg-white dark:bg-slate-900;
 }
 
-.ui-title-bar-back {
-  @apply absolute left-0 flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
+.ui-title-bar-back,
+.ui-title-bar-action {
+  @apply absolute flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 

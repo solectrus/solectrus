@@ -78,6 +78,8 @@ export default class extends Controller<HTMLElement> {
     bar
       .querySelector('.ui-title-bar-back')
       ?.classList.toggle('invisible', direction === 'pop');
+    // The action belongs to this page, the next one brings its own
+    bar.querySelector('.ui-title-bar-action')?.remove();
 
     const page = document.createElement('div');
     page.className = 'ui-title-bar-skeleton-page';

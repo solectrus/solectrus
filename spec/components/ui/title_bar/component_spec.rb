@@ -20,4 +20,16 @@ describe Ui::TitleBar::Component, type: :component do
     expect(link['href']).to eq('/settings')
     expect(link['aria-label']).to eq('Settings')
   end
+
+  it 'renders an action as an icon button' do
+    html =
+      render_inline(described_class.new(title: 'Prices')) do |bar|
+        bar.with_action(href: '/new', icon: 'plus', label: 'New price')
+      end
+
+    link = html.css('a.ui-title-bar-action').first
+    expect(link['href']).to eq('/new')
+    expect(link['aria-label']).to eq('New price')
+    expect(link.text.strip).to be_empty
+  end
 end
