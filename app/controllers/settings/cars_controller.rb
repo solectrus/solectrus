@@ -19,7 +19,7 @@ class Settings::CarsController < ApplicationController
     if @car.update(permitted_params)
       flash.now[:notice] = t('crud.success')
       render turbo_stream: [
-               turbo_stream.update('list', partial: 'settings/cars/list', locals: { cars: listed_cars }),
+               turbo_stream.update('list', CarList::Component.new(cars: listed_cars)),
                turbo_stream_update_flash,
              ]
     else

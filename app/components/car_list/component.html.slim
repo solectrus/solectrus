@@ -13,7 +13,7 @@
       .col-span-full.grid.grid-cols-subgrid.items-center.hover:bg-gray-100.dark:hover:bg-gray-700
         .p-2.tabular-nums = car.id
         .p-2.min-w-0.flex.items-center.gap-2
-          = car_icon(car.display_color)
+          = helpers.car_icon(car.display_color)
           span.truncate = car.display_name
         .p-2.whitespace-nowrap = car.short_name
         .hidden.sm:block.p-2.text-right.tabular-nums.whitespace-nowrap
@@ -22,7 +22,7 @@
           - else
             span.text-gray-400 –
         .col-start-6.p-2.tabular-nums.whitespace-nowrap
-          = "#{l(car.active_from)} – #{car.active_until ? l(car.active_until) : t('settings.cars.today')}"
+          = period(car)
         .p-2
           = render Button::Component.new path: edit_settings_car_path(car),
                                          icon: 'pencil',
