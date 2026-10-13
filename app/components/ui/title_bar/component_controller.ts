@@ -58,6 +58,19 @@ export default class extends Controller<HTMLElement> {
       direction = 'across';
 
     document.documentElement.dataset.navDirection = direction;
+    this.#hideProgressBar();
+  }
+
+  // The response is here, so nothing loads any more. Turbo would still show
+  // the progress bar until the view transition has ended, over the new page.
+  // Turbo starts to fade the bar out before turbo:load.
+  #hideProgressBar() {
+    const { dataset } = document.documentElement;
+
+    dataset.navRendering = '';
+    document.addEventListener('turbo:load', () => delete dataset.navRendering, {
+      once: true,
+    });
   }
 
   #canSlide() {

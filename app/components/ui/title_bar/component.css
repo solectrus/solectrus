@@ -81,6 +81,12 @@ html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 
+/* Set by the controller from the render to turbo:load. Important, because the
+   progress bar carries the unlayered styles of Turbo. */
+html[data-nav-rendering] .turbo-progress-bar {
+  @apply hidden!;
+}
+
 /* Anything outside the two parts changes at once, on desktop too */
 html:has(.ui-title-bar)::view-transition-old(root),
 html:has(.ui-title-bar)::view-transition-new(root) {
