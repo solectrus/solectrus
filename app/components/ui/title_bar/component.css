@@ -38,8 +38,11 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
   @apply z-10;
 }
 
-.ui-title-bar-skeleton-page {
-  @apply bg-white dark:bg-slate-900;
+/* The grouped background of iOS: a gray page behind the white cards of the
+   lists and forms. Important, because the layout gives main and its inner box
+   a white background as utilities. */
+html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
+  @apply max-lg:bg-gray-100! dark:max-lg:bg-slate-900!;
 }
 
 .ui-title-bar-back,
