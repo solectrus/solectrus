@@ -196,13 +196,12 @@ describe 'Home' do
         allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
       end
 
+      # The entries of the menu of the current tab, found by their roles and
+      # not by the classes of the layout
       def menu_entries
-        menu = response.body[%r{<div class="relative flex-1.*?</div>\s*</div>}m]
-
-        menu
-          .to_s
-          .scan(%r{<a[^>]*class="([^"]*)"[^>]*role="menuitem"[^>]*>([^<]*)</a>})
-          .map { |classes, name| { name: name.strip, classes: } }
+        response.parsed_body
+          .css('nav[aria-label="Tabs"] [role="menu"] a[role="menuitem"]')
+          .map { { name: it.text.strip, classes: it['class'] } }
       end
 
       def menu_names = menu_entries.pluck(:name)

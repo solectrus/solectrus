@@ -53,6 +53,7 @@ Keep every section, an empty one included.
 - The loading bar at the top of the page now shows only when a page takes longer than half a second. Before, it showed on almost every change of page, often only for a moment
 - On a phone, the content goes away as soon as you tap a link, until the next page is there. So you see at once that the tap works. When the page takes longer to load, a spinner appears after half a second
 - On a phone, a small arrow next to the timeframe in the header shows that a tap on it opens the date selection
+- On a phone, the period tabs now stand above the date and look like a segmented control of an iPhone: the selected period has a white segment that slides to the tab you tap, and a tapped tab dims instead of shrinking. The date is white. On a computer too, the arrows beside the date are now double arrows, so they differ from the back button of a page, and the live status is a light pill whose text is no longer in capitals
 
 ## Fixes
 

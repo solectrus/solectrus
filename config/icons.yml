@@ -9,6 +9,8 @@
 # its name first: some are passed in as a variable, not written in the markup.
 
 solid:
+  - angles-left
+  - angles-right
   - arrow-down-short-wide
   - arrow-down-wide-short
   - arrow-left

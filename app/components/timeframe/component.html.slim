@@ -1,12 +1,12 @@
-.flex-auto.max-w-full.grid.items-center.gap-2.md:gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-sm.md:text-base class=(can_navigate? ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-1') data-timeframe-label=period_name data-timeframe-dates=period_dates
+.flex-auto.max-w-full.grid.items-center.gap-2.md:gap-4.text-gray-300.dark:text-gray-400.max-lg:text-white.max-lg:dark:text-slate-200.tracking-wider.whitespace-nowrap.text-sm.md:text-base class=(can_navigate? ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-1') data-timeframe-label=period_name data-timeframe-dates=period_dates
   - if can_navigate?
     div
       - if can_navigate_backward?
         = link_to prev_path, class: paginate_button_classes, 'aria-label': t('.previous'), data: { nav: 'prev' } do
-          = icon 'chevron-left', class: 'fa-lg'
+          = icon 'angles-left', class: 'fa-lg'
       - else
         .lg:landscape:px-2.py-1
-          = icon 'chevron-left', class: 'fa-lg opacity-50'
+          = icon 'angles-left', class: 'fa-lg opacity-50'
 
   - if forecast_mode?
     div class= timeframe_link_classes('text-center')
@@ -27,7 +27,7 @@
     .justify-self-end
       - if can_navigate_forward?
         = link_to next_path, class: paginate_button_classes, 'aria-label': t('.next'), data: { nav: 'next' } do
-          = icon 'chevron-right', class: 'fa-lg'
+          = icon 'angles-right', class: 'fa-lg'
       - else
         .lg:landscape:px-2.py-1
-          = icon 'chevron-right', class: 'fa-lg opacity-50'
+          = icon 'angles-right', class: 'fa-lg opacity-50'

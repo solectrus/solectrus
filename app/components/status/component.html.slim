@@ -1,13 +1,13 @@
-time.lg:landscape:ml-4.flex.items-center.py-1.px-2.rounded.text-sm.font-bold.tracking-wider.cursor-default.truncate[
+time.lg:landscape:ml-4.flex.items-center.gap-2.text-sm.lg:landscape:text-base.cursor-default.truncate[
   data-controller= (message.present? ? 'tooltip' : nil)
   data-tooltip-touch-value= ('true' if message.present?)
   datetime= time&.iso8601
   class= outer_class
 ]
-  span.whitespace-nowrap.uppercase.truncate
+  span.flex.size-2.shrink-0
+    span.inline-flex.rounded-full.size-2 class= dot_class
+  span.whitespace-nowrap.truncate
     = text
-  span.ml-2.flex.h-3.w-3.relative
-    span.relative.inline-flex.rounded-full.h-3.w-3 class= dot_class
 
   - if message.present?
     span.hidden data-tooltip-target= 'html'

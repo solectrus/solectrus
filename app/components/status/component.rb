@@ -41,19 +41,22 @@ class Status::Component < ViewComponent::Base
     @status_ok
   end
 
+  # A capsule of glass, as iOS shows one on a colored bar
   def outer_class
-    'bg-transparent ring-1 ring-gray-300 dark:ring-gray-400 text-gray-200 dark:text-gray-400'
+    'rounded-full px-3 py-1 font-medium ' \
+      'bg-white/20 ring-1 ring-inset ring-white/30 text-white ' \
+      'dark:bg-white/10 dark:ring-white/15 dark:text-gray-200'
   end
 
   def dot_class
     if live?
       if status_ok?
-        'bg-green-600 dark:bg-green-700'
+        'bg-green-400 dark:bg-green-500'
       else
-        'bg-yellow-600 dark:bg-yellow-700'
+        'bg-yellow-400 dark:bg-yellow-500'
       end
     else
-      'bg-red-600 dark:bg-red-700'
+      'bg-red-400 dark:bg-red-500'
     end
   end
 end

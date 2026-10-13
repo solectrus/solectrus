@@ -24,20 +24,16 @@ module NavTabLook
   # the row: the row has no width to spend on a mark, and a tab that changes
   # width the moment it becomes the current one moves the whole row with it.
   #
-  # It grows with the padding it hangs in: `py-1` up to the width where the
-  # pill is drawn with `lg:landscape:py-2`. A phone shows none of it and has
-  # the native select instead, which brings the chevron of its picker.
+  # It hangs in the padding of `py-2`, which also makes a tab tall enough to
+  # hit with a finger. A phone shows none of it and has the native select
+  # instead, which brings the chevron of its picker.
   #
   # The chevron is drawn on a box of its own size rather than taken from the
   # icon set, whose chevron spends four fifths of its box on air and would be
   # a hairline here.
   def menu_caret
     tag.svg(
-      class: [
-        'absolute left-1/2 -translate-x-1/2',
-        'bottom-0.5 h-1 lg:landscape:bottom-1 lg:landscape:h-1.5',
-        'hidden sm:block',
-      ],
+      class: 'absolute left-1/2 -translate-x-1/2 bottom-1 h-1.5 hidden sm:block',
       viewbox: '0 0 10 5',
       fill: 'none',
       stroke: 'currentColor',
@@ -56,27 +52,35 @@ module NavTabLook
 
   def base_classes
     %w[
-      py-1
+      py-2
       px-2
       lg:landscape:px-3
-      lg:landscape:py-2
       flex-1
       lg:landscape:flex-initial
       text-center
-      click-animation
       relative
       touch-target
+      transition-opacity
+      rounded-md
     ]
   end
 
+  # A phone shows the tabs as a segmented control of iOS: the current one is
+  # the raised segment. A wide screen in landscape shows pills.
   def current_classes
     %w[
-      text-gray-800
-      bg-gray-200
-      dark:bg-gray-400
-      dark:text-gray-800
-      rounded-full
-      lg:landscape:rounded-md
+      bg-white
+      text-indigo-700
+      font-semibold
+      lg:landscape:font-medium
+      shadow-sm
+      dark:bg-white/20
+      dark:text-white
+      lg:landscape:shadow-none
+      lg:landscape:text-gray-800
+      lg:landscape:bg-gray-200
+      dark:lg:landscape:bg-gray-400
+      dark:lg:landscape:text-gray-800
       focus:outline-none
       focus:ring-2
       focus:ring-gray-800
@@ -85,12 +89,20 @@ module NavTabLook
     ]
   end
 
+  # A tapped tab dims while the finger is on it, as a segment of iOS does,
+  # rather than shrink. The current one stays as it is. A mouse gets no such
+  # look: the marking moves on the click, and the tab would light up again.
+  #
+  # The transition sits in the base classes. The tap swaps the class lists of
+  # the tabs while the tapped one is still fading back in, and a fade that
+  # lost its transition there would jump to full opacity.
   def idle_classes
     %w[
-      text-gray-300
-      dark:text-gray-400
-      rounded-full
-      lg:landscape:rounded-md
+      [&.is-pressed]:opacity-50
+      text-white
+      dark:text-slate-300
+      lg:landscape:text-gray-300
+      dark:lg:landscape:text-gray-400
       lg:landscape:hover:text-gray-200
       lg:landscape:hover:bg-indigo-500
       dark:lg:landscape:hover:bg-indigo-950/50

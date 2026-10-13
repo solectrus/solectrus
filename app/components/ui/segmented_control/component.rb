@@ -18,20 +18,12 @@ class Ui::SegmentedControl::Component < ViewComponent::Base
     @label = label
   end
 
-  # The raised segment moves to the tapped one at once and slides there (see
-  # optimistic_nav_controller.ts)
-  ACTIONS = %w[
-    turbo:click->optimistic-nav#markCurrent
-    turbo:before-render@document->optimistic-nav#handoff
-    turbo:fetch-request-error@document->optimistic-nav#restore
-    turbo:load@document->optimistic-nav#settle
-  ].join(' ').freeze
-  private_constant :ACTIONS
-
+  # The raised segment moves to the tapped one at once and slides there, as
+  # the period tabs
   def call
     tag.nav class: 'relative inline-flex rounded-lg bg-slate-500/12 p-1 dark:bg-slate-800',
             'aria-label': @label,
-            data: { controller: 'optimistic-nav', optimistic_nav_slide_value: true, action: ACTIONS } do
+            data: { controller: 'optimistic-nav', optimistic_nav_slide_value: true, action: OptimisticNav::ACTIONS } do
       safe_join(@items.map { segment(it) })
     end
   end
