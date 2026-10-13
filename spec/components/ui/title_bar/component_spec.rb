@@ -6,6 +6,12 @@ describe Ui::TitleBar::Component, type: :component do
     expect(html.css('a')).to be_empty
   end
 
+  it 'hides itself on the desktop' do
+    html = render_inline(described_class.new(title: 'Settings'))
+
+    expect(html.at('.ui-title-bar')['class']).to include('lg:hidden')
+  end
+
   it 'renders a back button to the parent' do
     html =
       render_inline(

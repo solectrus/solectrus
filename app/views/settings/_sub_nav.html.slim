@@ -9,8 +9,7 @@ ruby:
 - content_for :fixed_nav, true
 - content_for :sub_nav do
   .lg:py-5
-    .lg:hidden
-      = render Ui::TitleBar::Component.new(title:, back_href:, back_label:)
+    = render Ui::TitleBar::Component.new(title:, back_href:, back_label:)
 
     /! Desktop: original pill buttons (unchanged)
     .hidden.lg:block

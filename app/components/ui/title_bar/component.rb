@@ -2,7 +2,8 @@
 # title in the middle and, below the top level, a round back button to the
 # parent page. The button carries no text, so the title keeps the middle on a
 # narrow screen too. An action, like adding an entry, stands as a round icon
-# button at the right, the counterpart of the back button.
+# button at the right, the counterpart of the back button. From lg up the bar
+# hides itself, the desktop names the page in its own way.
 #
 # A change between such pages slides (see component.css). The controller finds
 # the direction: a page whose parent is the current page slides in from the
