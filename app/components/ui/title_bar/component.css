@@ -31,6 +31,13 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
   @apply invisible;
 }
 
+/* Over the ThemeStrip, as the sub navigation with the title bar it copies.
+   The strip stays at the top edge of an app installed on an iPhone, and it
+   would cut off the top of the back button. */
+.ui-title-bar-skeleton-title {
+  @apply z-10;
+}
+
 .ui-title-bar-skeleton-page {
   @apply bg-white dark:bg-slate-900;
 }
