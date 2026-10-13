@@ -1,4 +1,4 @@
-describe Nav::List::Component, type: :component do
+describe Ui::NavList::Component, type: :component do
   let(:items) do
     [
       { name: 'General', href: '/general', icon: 'gear' },

@@ -1,4 +1,4 @@
-describe Nav::TitleBar::Component, type: :component do
+describe Ui::TitleBar::Component, type: :component do
   it 'renders the title without a back button on the top level' do
     html = render_inline(described_class.new(title: 'Settings'))
 

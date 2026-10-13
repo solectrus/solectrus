@@ -46,7 +46,7 @@ export default class extends Controller<HTMLElement> {
 
   prepare({ detail: { newBody } }: BeforeRenderEvent) {
     const current = this.element.dataset;
-    const next = newBody.querySelector<HTMLElement>('.nav-title-bar')?.dataset;
+    const next = newBody.querySelector<HTMLElement>('.ui-title-bar')?.dataset;
 
     let direction = 'none';
     if (this.#skeleton) this.#skeleton.remove();
@@ -73,17 +73,17 @@ export default class extends Controller<HTMLElement> {
     const bar = this.element.cloneNode(true) as HTMLElement;
     bar.removeAttribute('data-controller');
     bar.removeAttribute('data-action');
-    bar.classList.add('nav-skeleton-title');
+    bar.classList.add('ui-title-bar-skeleton-title');
     bar.querySelector('h1')!.textContent = title;
     bar
-      .querySelector('.nav-back')
+      .querySelector('.ui-title-bar-back')
       ?.classList.toggle('invisible', direction === 'pop');
 
     const page = document.createElement('div');
-    page.className = 'nav-skeleton-page';
+    page.className = 'ui-title-bar-skeleton-page';
 
     this.#skeleton = document.createElement('div');
-    this.#skeleton.className = 'nav-skeleton';
+    this.#skeleton.className = 'ui-title-bar-skeleton';
     this.#skeleton.inert = true;
     this.#skeleton.append(
       this.#cover(bar, this.element),

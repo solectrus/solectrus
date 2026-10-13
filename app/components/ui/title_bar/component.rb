@@ -6,7 +6,7 @@
 # A change between such pages slides (see component.css). The controller finds
 # the direction: a page whose parent is the current page slides in from the
 # right, the way back to the parent slides out to the right.
-class Nav::TitleBar::Component < ViewComponent::Base
+class Ui::TitleBar::Component < ViewComponent::Base
   def initialize(title:, back_href: nil, back_label: nil)
     super()
     @title = title

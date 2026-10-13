@@ -244,7 +244,7 @@ describe 'Settings' do
         html = response.parsed_body
         expect(html.at_css('input[name="sensor_names[custom_power_01]"]')).to be_present
         expect(html.at_css('input[name="sensor_names[inverter_power_1]"]')).to be_nil
-        expect(html.at_css('.nav-title-bar')['data-parent']).to eq('/settings/sensors')
+        expect(html.at_css('.ui-title-bar')['data-parent']).to eq('/settings/sensors')
       end
 
       it 'redirects for an unknown group' do

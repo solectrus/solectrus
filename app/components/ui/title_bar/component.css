@@ -1,5 +1,5 @@
 /*
- * Nav::TitleBar::Component: the slide between the pages of a drill-down
+ * Ui::TitleBar::Component: the slide between the pages of a drill-down
  * hierarchy, as on iOS. The controller writes the direction to <html> as
  * data-nav-direction before Turbo renders the next page.
  *
@@ -8,18 +8,18 @@
  * title bar. The rest of the page, the bottom navigation included, stays put.
  * While the skeleton of the next page covers them, the skeleton moves instead.
  */
-html:has(.nav-title-bar):not(:has(> .nav-skeleton)) main,
-.nav-skeleton-page {
+html:has(.ui-title-bar):not(:has(> .ui-title-bar-skeleton)) main,
+.ui-title-bar-skeleton-page {
   @apply max-lg:[view-transition-name:nav-page];
 }
 
-html:not(:has(> .nav-skeleton)) .nav-title-bar,
-.nav-skeleton-title {
+html:not(:has(> .ui-title-bar-skeleton)) .ui-title-bar,
+.ui-title-bar-skeleton-title {
   @apply max-lg:[view-transition-name:nav-title];
 }
 
 /* The skeleton lies beside <body>, over the title bar and the content area */
-.nav-skeleton {
+.ui-title-bar-skeleton {
   @apply font-sans antialiased;
 
   & > * {
@@ -27,22 +27,22 @@ html:not(:has(> .nav-skeleton)) .nav-title-bar,
   }
 }
 
-html:has(> .nav-skeleton) body .nav-title-bar {
+html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
   @apply invisible;
 }
 
-.nav-skeleton-page {
+.ui-title-bar-skeleton-page {
   @apply bg-white dark:bg-slate-900;
 }
 
-.nav-back {
+.ui-title-bar-back {
   @apply absolute left-0 flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-slate-800 dark:text-gray-300;
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 
 /* Anything outside the two parts changes at once, on desktop too */
-html:has(.nav-title-bar)::view-transition-old(root),
-html:has(.nav-title-bar)::view-transition-new(root) {
+html:has(.ui-title-bar)::view-transition-old(root),
+html:has(.ui-title-bar)::view-transition-new(root) {
   @apply animate-none;
 }
 
