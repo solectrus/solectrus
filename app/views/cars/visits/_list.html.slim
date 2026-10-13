@@ -6,7 +6,7 @@
       = icon 'location-dot', class: 'text-gray-500'
       span.truncate class=('italic text-gray-500' unless place.display_name)
         = place.display_name || t('settings.places.unnamed')
-      = place_label_icons(place)
+      = render PlaceLabels::Component.new(place:)
 
 - if visits.empty?
   = render EmptyList::Component.new(icon: 'location-dot', text: t('visits.empty'))

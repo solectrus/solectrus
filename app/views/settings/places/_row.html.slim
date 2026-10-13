@@ -3,7 +3,7 @@
     .flex.items-center.gap-2.min-w-0
       .truncate class=('italic text-gray-500' unless place.display_name)
         = place.display_name || t('settings.places.unnamed')
-      = place_label_icons(place)
+      = render PlaceLabels::Component.new(place:)
     .text-xs.text-gray-500.truncate.tabular-nums
       = [(place.locality if place.name), "#{place.latitude.round(5)}, #{place.longitude.round(5)}"].compact.join(' · ')
   .p-2.text-sm.tabular-nums.whitespace-nowrap

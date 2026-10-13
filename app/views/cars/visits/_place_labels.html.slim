@@ -3,4 +3,4 @@
   row). The form replaces the cell after a change (see
   Settings::PlacesController).
 .py-2.pl-2.max-sm:order-1.max-sm:w-5.max-sm:shrink-0 data-visit-place-labels=place.id
-  = place_label_icons(place)
+  = render PlaceLabels::Component.new(place:)
