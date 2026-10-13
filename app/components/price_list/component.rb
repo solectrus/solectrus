@@ -1,3 +1,6 @@
+# The prices of one name: a table on the desktop, whose rows open the form in
+# the modal, and a list in the style of iOS on a phone, whose rows open the
+# form on a page of its own (see Ui::TableRow::Component).
 class PriceList::Component < ViewComponent::Base
   def initialize(prices:, name:)
     super()
@@ -21,59 +24,7 @@ class PriceList::Component < ViewComponent::Base
     t("activerecord.attributes.price.amounts_per_kwh.#{name}")
   end
 
-  def list_classes
-    [
-      'grid grid-cols-[1fr_auto_auto] gap-x-4 select-text text-gray-800 dark:text-gray-400',
-      'divide-y divide-gray-200 dark:divide-gray-700 sm:divide-y-0',
-      if base_fee_column?
-        'sm:grid-cols-[auto_1fr_auto_auto_auto_auto]'
-      else
-        'sm:grid-cols-[auto_1fr_auto_auto_auto]'
-      end,
-    ]
-  end
-
-  def relative_change(price, index)
-    return if index == prices.length - 1
-
-    previous_price = prices[index + 1]
-    return if previous_price.amount_per_kwh.zero?
-
-    value = ((price.amount_per_kwh / previous_price.amount_per_kwh) - 1) * 100
-
-    ChangeComponent.new(name:, value:).call
-  end
-
-  class ChangeComponent < ViewComponent::Base
-    def initialize(name:, value:)
-      super()
-      @name = name
-      @value = value.round
-    end
-
-    attr_reader :name, :value
-
-    def text_color
-      return 'text-gray-500' if value.zero?
-
-      case name
-      when 'electricity'
-        value.positive? ? 'text-signal-negative' : 'text-signal-positive'
-      when 'feed_in'
-        value.positive? ? 'text-signal-positive' : 'text-signal-negative'
-      end
-    end
-
-    def prefix
-      return if value.zero?
-
-      (value.positive? ? '&plus;' : '&minus;').html_safe # rubocop:disable Rails/OutputSafety
-    end
-
-    def call
-      tag.span class: text_color do
-        safe_join([prefix, value.abs, '%'], ' ')
-      end
-    end
+  def grid_columns
+    base_fee_column? ? 'grid-cols-[auto_1fr_auto_auto_auto]' : 'grid-cols-[auto_1fr_auto_auto]'
   end
 end

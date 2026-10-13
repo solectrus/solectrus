@@ -1,4 +1,6 @@
-# The cars as a table: each row opens the form of the car in the modal.
+# The cars: a table on the desktop, whose rows open the form of the car in the
+# modal, and a list in the style of iOS on a phone, whose rows open the form
+# on a page of its own (see Ui::TableRow::Component).
 class CarList::Component < ViewComponent::Base
   def initialize(cars:)
     super()

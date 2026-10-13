@@ -9,6 +9,7 @@ class Settings::PlacesController < ApplicationController
   include SettingsNavigation
   include Pagy::Method
   include PlaceVisitsBuild
+  include FormPageResponse
 
   before_action :admin_required!
   before_action(except: :index) { head(:not_found) unless sponsored? }
@@ -36,15 +37,23 @@ class Settings::PlacesController < ApplicationController
   def update
     previous_home = Place.home
     if @place.update(permitted_params)
-      moved = previous_home if previous_home != @place && @place.home?
-      flash.now[:notice] = moved ? t('settings.places.home_moved', previous: moved.display_name || t('settings.places.unnamed')) : t('crud.success')
-      render turbo_stream: [*[@place, moved].compact.flat_map { replace_place(it) }, turbo_stream_update_flash]
+      @moved = previous_home if previous_home != @place && @place.home?
+      notice = @moved ? t('settings.places.home_moved', previous: @moved.display_name || t('settings.places.unnamed')) : t('crud.success')
+      respond_with_list(notice:)
     else
-      render :edit, status: :unprocessable_content
+      respond_with_errors(@place)
     end
   end
 
   private
+
+  def list_stream
+    [@place, @moved].compact.flat_map { replace_place(it) }
+  end
+
+  helper_method def list_path
+    settings_places_path
+  end
 
   helper_method def sponsored? = Sensor::HomePage.permitted?(:cars)
 

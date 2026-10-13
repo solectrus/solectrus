@@ -1,5 +1,6 @@
-# One place, a row of the table that opens the form of the place. A stream
-# replaces it after a change.
+# One place: a row of the table on the desktop, a cell of a list in the style
+# of iOS on a phone (see Ui::TableRow::Component). Each opens the form of the
+# place.
 class PlaceList::Row::Component < ViewComponent::Base
   def initialize(place:)
     super()
@@ -13,15 +14,10 @@ class PlaceList::Row::Component < ViewComponent::Base
   end
 
   def name
-    place.display_name || t('settings.places.unnamed')
+    place.name || t('settings.places.unnamed')
   end
 
   def duration
     DurationText.call(place.seconds) if place.seconds.positive?
-  end
-
-  # The locality, when the name stands in its place, and the position
-  def details
-    [(place.locality if place.name), "#{place.latitude.round(5)}, #{place.longitude.round(5)}"].compact.join(' · ')
   end
 end

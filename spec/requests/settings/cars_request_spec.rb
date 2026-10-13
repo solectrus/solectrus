@@ -26,6 +26,20 @@ describe 'Settings cars' do
           expect(response.body.index('Model 2')).to be < response.body.index('Model 1')
         end
       end
+
+      context 'with the location of a car' do
+        before do
+          Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude', 'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude'))
+        end
+
+        after { Sensor::Config.setup(ENV) }
+
+        it 'leads to the places below the cars on a phone' do
+          get settings_cars_path
+
+          expect(response.parsed_body.css(".lg\\:hidden a[href='/settings/places'][data-nav-title]")).to be_present
+        end
+      end
     end
 
     describe 'GET /settings/cars/:id/edit' do
@@ -38,13 +52,20 @@ describe 'Settings cars' do
     end
 
     describe 'PATCH /settings/cars/:id' do
-      it 'saves the name, the short name, the period and the color' do
+      it 'saves the name, the short name, the period and the color, and refreshes the list in the modal' do
         patch settings_car_path(1),
               params: { car: { name: 'Model Y', short_name: 'MY', active_from: '2024-03-01', active_until: '', color: '#FF0000' } },
+              headers: { 'Turbo-Frame' => 'modal' },
               as: :turbo_stream
 
         expect(Car.find(1)).to have_attributes(name: 'Model Y', short_name: 'MY', active_from: Date.new(2024, 3, 1), color: '#ff0000')
         expect(response.body).to include('Model Y')
+      end
+
+      it 'goes back to the list from the page of a phone' do
+        patch settings_car_path(1), params: { car: { name: 'Model Y' } }, as: :turbo_stream
+
+        expect(response.body).to include(%(<turbo-stream action="back_to" target="#{settings_cars_path}">))
       end
 
       it 'saves the battery capacity' do

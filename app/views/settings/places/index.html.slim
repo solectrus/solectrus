@@ -1,4 +1,5 @@
-= render 'settings/sub_nav'
+/ One level below the cars on a phone, a tab beside them on the desktop
+= render 'settings/sub_nav', title: t('settings.places.name'), back_href: settings_cars_path, back_label: t('settings.cars.name')
 
 = render Nav::Side::Component.new(items: car_nav_items) do
   - if sponsored?

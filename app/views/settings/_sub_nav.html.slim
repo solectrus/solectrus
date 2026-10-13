@@ -1,15 +1,18 @@
 /! Locals: `title` and `back_href` override the title bar on a phone. By
 /! default a section page names its section and leads back to the overview.
+/! `action` (href, icon and label) adds a button at the right.
 ruby:
   current_item = nav_items.find { |item| item[:current] }
   title = local_assigns[:title] || current_item&.dig(:name) || t('layout.settings')
   back_href = local_assigns[:back_href] || (settings_path if current_item)
   back_label = local_assigns[:back_label] || t('layout.settings')
+  action = local_assigns[:action]
 
 - content_for :fixed_nav, true
 - content_for :sub_nav do
   .lg:py-5
-    = render Ui::TitleBar::Component.new(title:, back_href:, back_label:)
+    = render Ui::TitleBar::Component.new(title:, back_href:, back_label:) do |bar|
+      - bar.with_action(**action) if action
 
     /! Desktop: original pill buttons (unchanged)
     .hidden.lg:block

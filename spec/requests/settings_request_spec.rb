@@ -182,19 +182,89 @@ describe 'Settings' do
       Price.create!(
         name: :electricity,
         starts_at: Date.new(2024, 1, 1),
-        value: 0.3,
+        amount_per_kwh: 0.3,
       )
     end
 
-    it 'responds with the updated list' do
-      patch "/settings/prices/#{price.id}",
-            params: { price: { note: 'New tariff' } },
-            as: :turbo_stream
+    context 'when submitted from the modal' do
+      it 'responds with the updated list' do
+        patch "/settings/prices/#{price.id}",
+              params: { price: { note: 'New tariff' } },
+              headers: { 'Turbo-Frame' => 'modal' },
+              as: :turbo_stream
 
-      expect(response.body).to include(
-        '<turbo-stream action="update" target="list">',
-      )
-      expect(response.body).to include('New tariff')
+        expect(response.body).to include(
+          '<turbo-stream action="update" target="list">',
+        )
+        expect(response.body).to include('New tariff')
+      end
+    end
+
+    context 'when submitted from its page' do
+      it 'goes back to the list in the history' do
+        patch "/settings/prices/#{price.id}",
+              params: { price: { note: 'New tariff' } },
+              as: :turbo_stream
+
+        aggregate_failures do
+          expect(response.body).to include('<turbo-stream action="back_to" target="/settings/prices/electricity">')
+          expect(flash[:notice]).to be_present
+          expect(price.reload.note).to eq('New tariff')
+        end
+      end
+
+      it 'leads back to the list without Turbo Streams' do
+        patch "/settings/prices/#{price.id}",
+              params: { price: { note: 'New tariff' } }
+
+        expect(response).to redirect_to('/settings/prices/electricity')
+        expect(response).to have_http_status(:see_other)
+        expect(price.reload.note).to eq('New tariff')
+      end
+    end
+  end
+
+  describe 'GET /settings/prices/:id/edit' do
+    before { login_as_admin }
+
+    # Without the price the test database is seeded with
+    let!(:price) do
+      Price.feed_in.delete_all
+      Price.create!(name: :feed_in, starts_at: Date.new(2024, 1, 1), amount_per_kwh: 0.08)
+    end
+
+    context 'when requested by the modal' do
+      it 'renders the form in a sheet' do
+        get "/settings/prices/#{price.id}/edit", headers: { 'Turbo-Frame' => 'modal' }
+
+        expect(response.body).to include('<turbo-frame id="modal">', 'data-turbo-frame="modal"')
+      end
+    end
+
+    it 'marks the tab of the price name on its own page' do
+      get "/settings/prices/#{price.id}/edit"
+
+      expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/prices/feed_in'])
+    end
+
+    context 'when it is the only price of its name' do
+      it 'offers no delete' do
+        get "/settings/prices/#{price.id}/edit"
+
+        expect(response.body).not_to include('>Delete</button>')
+      end
+    end
+
+    context 'when there is another price of its name' do
+      before do
+        Price.create!(name: :feed_in, starts_at: Date.new(2025, 1, 1), amount_per_kwh: 0.07)
+      end
+
+      it 'offers to delete it' do
+        get "/settings/prices/#{price.id}/edit"
+
+        expect(response.body).to include('>Delete</button>')
+      end
     end
   end
 

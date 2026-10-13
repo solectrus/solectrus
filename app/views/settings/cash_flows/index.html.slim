@@ -1,4 +1,4 @@
-= render 'settings/sub_nav'
+= render 'settings/sub_nav', action: { href: new_settings_cash_flow_path, icon: 'plus', label: t('settings.cash_flows.new') }
 
 .flex.items-start.justify-between.gap-4.mb-8.px-2.max-lg:px-0
   / On a phone the choice is a cell, and the intro follows as its footer
@@ -22,17 +22,13 @@
                    { label: t('settings.cash_flows.visibility_label'), label_class: 'max-lg:sr-only', hint: (t('premium.sponsors_only') unless AmortizationVisibility.licensed?) },
                    { class: 'max-w-xs', data: { action: 'change->auto-submit#submit' } }
 
-  = button_to new_settings_cash_flow_path,
-              method: :get,
-              data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-              class: 'size-14 shrink-0 rounded-full bg-indigo-600 dark:bg-indigo-800 text-white shadow-lg hover:bg-indigo-700 click-animation focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
-              title: t('crud.new') do
-    = icon 'plus', class: 'fa-lg'
+  = render Ui::AddButton::Component.new(href: new_settings_cash_flow_path, label: t('settings.cash_flows.new'))
 
 /! Interactive filter: narrow the list by category and/or date range (also the
 /! landing spot when drilling down from the amortization table). Kept outside the
 /! 'list' frame so a list refresh does not drop it.
 = render CashFlowFilter::Component.new
 
-= tag.turbo_frame id: 'list' do
+/ A stream refreshes the list. The link of a row on a phone leaves the frame.
+= tag.turbo_frame id: 'list', target: '_top' do
   = render CashFlowList::Component.new(cash_flows: @cash_flows, filter_categories:, filter_from:, filter_to:)

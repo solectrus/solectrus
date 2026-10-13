@@ -1,11 +1,11 @@
-.flex.flex-col.md:flex-row.pt-4
-  / Only with more than one page. On a phone, the bar itself sticks. On a
-    wider screen, the column keeps its border over the full height and the
-    list in it sticks.
+.flex.flex-col.lg:flex-row.lg:pt-4
+  / From lg up only, and only with more than one page. A phone reaches each
+    page by a drill-down instead, see Ui::TitleBar::Component. The column
+    keeps its border over the full height and the list in it sticks.
   - if items.many?
-    .sticky.top-0.z-10.-mx-4.sm:-mx-6.mb-4.px-4.sm:px-6.bg-gray-100.dark:bg-gray-800.md:static.md:mx-0.md:mb-0.md:mr-8.md:pl-0.md:pr-5.md:border-r.md:bg-inherit.md:dark:bg-inherit
-      nav.md:sticky.md:top-6
-        ul.flex.-mx-2.md:mx-0.md:flex-col.md:space-y-1.text-sm.md:text-base.font-medium.uppercase.tracking-wider
+    .hidden.lg:block.mr-8.pr-5.border-r
+      nav.sticky.top-6
+        ul.flex.flex-col.space-y-1.text-base.font-medium.uppercase.tracking-wider
           - items.each do |item|
             li
               = link_to item[:name], item[:href], class: link_class(item), 'aria-current': ('page' if current?(item))

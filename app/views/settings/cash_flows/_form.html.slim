@@ -1,7 +1,6 @@
-= form_with(model: cash_flow, url: cash_flow.persisted? ? settings_cash_flow_path(cash_flow) : settings_cash_flows_path, id: dom_id(cash_flow, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+= form_page_with(model: cash_flow, url: cash_flow.persisted? ? settings_cash_flow_path(cash_flow) : settings_cash_flows_path) do |f|
   = f.group do
-    = f.date_field :date,
-                   autofocus: true
+    = f.date_field :date, autofocus: true
     = f.select :category,
                CashFlow.categories.keys.map { |key| [CashFlow.human_enum_name(:category, key), key] },
                { hint: t('settings.cash_flows.category_hint') }

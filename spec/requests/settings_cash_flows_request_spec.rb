@@ -171,8 +171,11 @@ describe 'Settings::CashFlows' do
         expect(CashFlow.last.amount).to eq(-5000)
       end
 
-      it 'refreshes the list in place' do
-        post '/settings/cash_flows', params: valid_params, as: :turbo_stream
+      it 'refreshes the list in place when submitted from the modal' do
+        post '/settings/cash_flows',
+             params: valid_params,
+             headers: { 'Turbo-Frame' => 'modal' },
+             as: :turbo_stream
 
         aggregate_failures do
           expect(response.body).to include(
@@ -203,12 +206,21 @@ describe 'Settings::CashFlows' do
                  category: 'subsidy',
                },
              },
+             headers: { 'Turbo-Frame' => 'modal' },
              as: :turbo_stream
 
         aggregate_failures do
           expect(response.body).to include('Panels')
           expect(response.body).not_to include('Grant')
         end
+      end
+
+      it 'leads back to the filtered list when submitted from its page' do
+        get '/settings/cash_flows', params: { category: 'investment' }
+        post '/settings/cash_flows', params: valid_params
+
+        expect(response).to redirect_to('/settings/cash_flows?category%5B%5D=investment')
+        expect(response).to have_http_status(:see_other)
       end
 
       it 'rejects a zero amount' do
@@ -244,6 +256,36 @@ describe 'Settings::CashFlows' do
 
         expect(cash_flow.reload.note).to eq('New')
       end
+    end
+  end
+
+  describe 'GET /settings/cash_flows/:id/edit' do
+    let(:cash_flow) do
+      CashFlow.create!(date: Date.current, amount: -100, note: 'Old')
+    end
+
+    before { login_as_admin }
+
+    it 'renders the form in a sheet for the modal' do
+      get "/settings/cash_flows/#{cash_flow.id}/edit",
+          headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).to include('<turbo-frame id="modal">')
+    end
+
+    it 'renders a page of its own with a way back and delete' do
+      get "/settings/cash_flows/#{cash_flow.id}/edit"
+
+      aggregate_failures do
+        expect(response.body).to include('data-parent="/settings/cash_flows"')
+        expect(response.body).to include('>Delete</button>')
+      end
+    end
+
+    it 'marks the tab of the cash flows on its own page' do
+      get "/settings/cash_flows/#{cash_flow.id}/edit"
+
+      expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/cash_flows'])
     end
   end
 
@@ -342,6 +384,12 @@ describe 'Settings::CashFlows' do
         delete "/settings/cash_flows/#{cash_flow.id}", headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
         expect(response.body).to include('Deleted')
+      end
+
+      it 'tells on the list that the cash flow is deleted' do
+        delete "/settings/cash_flows/#{cash_flow.id}", as: :turbo_stream
+
+        expect(flash[:notice]).to eq('Deleted')
       end
     end
   end

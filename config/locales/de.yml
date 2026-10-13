@@ -403,7 +403,6 @@ de:
       assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
       assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.
   crud:
-    new: Neu
     edit: Bearbeiten
     delete: Löschen
     save: Speichern
@@ -434,8 +433,12 @@ de:
           confirmation: Das Neuberechnen der Zusammenfassungen wird einige Zeit dauern. Wirklich fortfahren?
           flash: Zusammenfassungen wurden zurückgesetzt.
     prices:
-      edit: Preis bearbeiten
-      new: Neuer Preis
+      edit:
+        electricity: Strompreis bearbeiten
+        feed_in: Einspeisevergütung bearbeiten
+      new:
+        electricity: Neuer Strompreis
+        feed_in: Neue Einspeisevergütung
       description:
         electricity: An den Stromversorger zu zahlendes Entgelt, aufgeteilt in Arbeitspreis pro bezogene kWh und monatlichen Grundpreis. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
@@ -456,13 +459,13 @@ de:
       home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
       description: SOLECTRUS legt einen Ort an, sobald ein Auto mindestens 30 Minuten dort stand, bei seltenen Meldungen des Autos länger. Gib einem Ort einen eigenen Namen, zum Beispiel „Zuhause“. Die Karten und die Live-Ansicht zeigen dann diesen Namen.
       empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
-      unnamed: Ohne Namen
+      unnamed: Unbenannt
       time: Zeit
     cash_flows:
       name: Zahlungen
       description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
-      new: Neuer Eintrag
-      edit: Eintrag bearbeiten
+      new: Neue Zahlung
+      edit: Zahlung bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
       category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Ersparnis (manuell) ergänzt ihn um Zeiträume ohne Messdaten, Sonstiges bleibt neutral.
       visibility_label: Amortisationsrechnung anzeigen

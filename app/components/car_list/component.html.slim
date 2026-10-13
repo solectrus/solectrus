@@ -1,35 +1,33 @@
 - if cars.empty?
   = render EmptyList::Component.new(icon: 'car', text: raw(t('settings.cars.empty', max: Sensor::Cars::MAX)))
 - else
-  / The free fifth column puts the space before the period
-  .grid.w-full.gap-x-4 class="grid-cols-[auto_auto_auto_auto_1fr_auto_auto]"
-    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
+  / A phone names the group above the list, the desktop has the header row
+  h2.px-4.text-xs.font-medium.uppercase.tracking-wide.text-muted.lg:hidden class='pb-1.5'
+    = t('settings.cars.vehicles')
+
+  / A table from lg up, the free fifth column puts the space before the
+    period. Below, the same cells form a list in the style of iOS: the name
+    over the period, the short name at the right.
+  .grid.w-full.gap-x-4.max-lg:block.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60 class="grid-cols-[auto_auto_auto_auto_1fr_auto]"
+    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold.max-lg:hidden
       .p-2 = Car.human_attribute_name(:id)
       .p-2 = Car.human_attribute_name(:name)
       .p-2 = Car.human_attribute_name(:short_name)
-      .hidden.sm:block.p-2.text-right = Car.human_attribute_name(:battery_kwh)
+      .p-2.text-right = Car.human_attribute_name(:battery_kwh)
       .col-start-6.p-2 = t('settings.cars.period')
     - cars.each do |car|
-      .col-span-full.grid.grid-cols-subgrid.items-center.hover:bg-gray-100.dark:hover:bg-gray-700
-        .p-2.tabular-nums = car.id
-        .p-2.min-w-0.flex.items-center.gap-2
-          = helpers.car_icon(car.display_color)
-          span.truncate = car.display_name
-        .p-2.whitespace-nowrap = car.short_name
-        .hidden.sm:block.p-2.text-right.tabular-nums.whitespace-nowrap
+      = render Ui::TableRow::Component.new(href: edit_settings_car_path(car), nav_title: t('settings.cars.edit', number: car.id), css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
+        .p-2.tabular-nums.max-lg:hidden = car.id
+        .min-w-0.lg:p-2.max-lg:col-start-1.max-lg:row-start-1
+          = row.link css_class: 'flex items-center gap-2 max-lg:text-headline max-lg:text-gray-800 dark:max-lg:text-slate-300' do
+            = helpers.car_icon(car.display_color)
+            span.truncate = car.display_name
+        .whitespace-nowrap.lg:p-2.max-lg:col-start-2.max-lg:row-span-2.max-lg:row-start-1.max-lg:text-muted
+          = car.short_name
+        .hidden.lg:block.p-2.text-right.tabular-nums.whitespace-nowrap
           - if car.battery_kwh
             = "#{number_with_precision(car.battery_kwh, precision: 1, strip_insignificant_zeros: true)} kWh"
           - else
             span.text-gray-400 –
-        .col-start-6.p-2.tabular-nums.whitespace-nowrap
+        .whitespace-nowrap.lg:col-start-6.lg:p-2.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:truncate.max-lg:text-subhead.max-lg:text-muted
           = period(car)
-        .p-2
-          = render Button::Component.new path: edit_settings_car_path(car),
-                                         icon: 'pencil',
-                                         type: :button,
-                                         style: :secondary,
-                                         options: { \
-                                           method: :get,
-                                           data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                           'aria-label': t('crud.edit'),
-                                         }

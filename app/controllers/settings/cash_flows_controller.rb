@@ -1,5 +1,6 @@
 class Settings::CashFlowsController < ApplicationController
   include SettingsNavigation
+  include FormPageResponse
 
   before_action :admin_required!
 
@@ -35,25 +36,13 @@ class Settings::CashFlowsController < ApplicationController
   def edit
   end
 
-  def create
-    if @cash_flow.save
-      render_filtered_list
-    else
-      render :new, status: :unprocessable_content
-    end
-  end
+  def create = respond_to_save(@cash_flow, @cash_flow.save)
 
-  def update
-    if @cash_flow.update(permitted_params)
-      render_filtered_list
-    else
-      render :edit, status: :unprocessable_content
-    end
-  end
+  def update = respond_to_save(@cash_flow, @cash_flow.update(permitted_params))
 
   def destroy
     @cash_flow.destroy!
-    render_filtered_list(notice: t('crud.deleted'))
+    respond_with_list(notice: t('crud.deleted'))
   end
 
   private
@@ -62,12 +51,17 @@ class Settings::CashFlowsController < ApplicationController
   # could not know the viewer's filter). The filter, remembered from the last
   # index render, stays applied so a new entry does not reveal the full list while
   # the filter is still shown.
-  def render_filtered_list(notice: t('crud.success'))
-    flash.now[:notice] = notice
-    render turbo_stream: [
-             turbo_stream.update('list', CashFlowList::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:)),
-             turbo_stream_update_flash,
-           ]
+  def list_stream
+    turbo_stream.update(
+      'list',
+      CashFlowList::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:),
+    )
+  end
+
+  # The list with the filter the index showed last, for the way back from the
+  # page of a form. That page carries no filter params of its own.
+  helper_method def list_path
+    settings_cash_flows_path(session[:cash_flow_filter].to_h.compact_blank)
   end
 
   # Persist the filter the index is currently showing, so a later mutation (which

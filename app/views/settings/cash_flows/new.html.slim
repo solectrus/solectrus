@@ -1,0 +1,5 @@
+- heading = t('settings.cash_flows.new')
+= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: title
+
+= render Ui::FormPage::Component.new(title: heading) do
+  = render 'form', cash_flow: @cash_flow

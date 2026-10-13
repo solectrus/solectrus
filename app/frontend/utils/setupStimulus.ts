@@ -58,6 +58,16 @@ Turbo.StreamActions.redirect = function (this: Element) {
   }
 };
 
+// Drops the snapshots of the pages, after a change that they do not show yet.
+// A page that the stream comes with can still be in the cache only a moment
+// later, so the next load clears it again.
+Turbo.StreamActions.clear_cache = function () {
+  Turbo.cache.clear();
+  document.addEventListener('turbo:load', () => Turbo.cache.clear(), {
+    once: true,
+  });
+};
+
 Turbo.StreamActions.update_all = function (this: Element) {
   const selector = this.getAttribute('targets');
 

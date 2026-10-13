@@ -1,5 +1,6 @@
-# The places where the cars stood, each with the time of the cars there, as a
-# table whose pages load one after the other (see LazyRows)
+# The places where the cars stood, each with the time of the cars there: a
+# table on the desktop, a list in the style of iOS on a phone (see
+# PlaceList::Row::Component).
 class PlaceList::Component < ViewComponent::Base
   def initialize(places:, pagy:)
     super()

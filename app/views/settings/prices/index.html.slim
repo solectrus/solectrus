@@ -1,15 +1,14 @@
-= render 'settings/sub_nav'
+= render 'settings/sub_nav', action: { href: new_settings_price_path(price: { name: }), icon: 'plus', label: t("settings.prices.new.#{name}") }
 
-.flex.items-start.justify-between.mb-4.px-2
-  p.text-gray-500.text-sm.md:text-base.pr-16
-    = t "settings.prices.description.#{name}"
-  = button_to new_settings_price_path,
-              method: :get,
-              params: { price: { name: } },
-              data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-              class: 'size-14 shrink-0 rounded-full bg-indigo-600 dark:bg-indigo-800 text-white shadow-lg hover:bg-indigo-700 click-animation focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
-              title: t('crud.new') do
-    = icon 'plus', class: 'fa-lg'
+/ On the desktop the intro and the button for a new price stand above the
+  table. On a phone the intro follows the list as its footer, and the title
+  bar has the action.
+.flex.flex-col
+  .flex.items-start.justify-between.mb-4.px-2.max-lg:order-last.max-lg:mb-0.max-lg:px-4.max-lg:pt-2
+    p.text-sm.text-muted.lg:pr-16.lg:text-base.lg:text-gray-500
+      = t "settings.prices.description.#{name}"
+    = render Ui::AddButton::Component.new(href: new_settings_price_path(price: { name: }), label: t("settings.prices.new.#{name}"))
 
-= tag.turbo_frame id: 'list' do
-  = render PriceList::Component.new(prices: @prices, name:)
+  / A stream refreshes the list. The link of a row on a phone leaves the frame.
+  = tag.turbo_frame id: 'list', target: '_top' do
+    = render PriceList::Component.new(prices: @prices, name:)

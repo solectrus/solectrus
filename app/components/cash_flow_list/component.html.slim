@@ -1,26 +1,31 @@
+/ A table from lg up. Below, the same cells form two lists in the style of
+  iOS: the entries, each with its note over its date and category and the
+  amount at the right, and the total in a group of its own.
 - if cash_flows.any?
-  .table.w-full.select-text
+  .w-full.select-text.lg:table.max-lg:flex.max-lg:flex-col.max-lg:gap-6
     / Header cells stick to the viewport top while the list scrolls. Each cell
     / carries the page background so rows never show through the sticky row.
-    .table-header-group.text-gray-800.dark:text-gray-400
+    .hidden.lg:table-header-group.text-gray-800.dark:text-gray-400
       .table-row
         .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.tabular-nums.text-left.font-bold
           = CashFlow.human_attribute_name(:date)
-        .hidden.sm:table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.text-left.font-bold
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.text-left.font-bold
           = CashFlow.human_attribute_name(:category)
         .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.w-full.align-middle.p-2.text-left.font-bold
-          span.hidden.md:inline = CashFlow.human_attribute_name(:note)
+          = CashFlow.human_attribute_name(:note)
         .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.tabular-nums.text-right.font-bold
           = CashFlow.human_attribute_name(:amount)
-        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900
 
-    .table-row-group.text-gray-800.dark:text-gray-400
+    .text-gray-800.dark:text-gray-400.lg:table-row-group.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
       - cash_flows.each do |cash_flow|
-        .table-row.group.hover:bg-gray-100.dark:hover:bg-gray-700
-          .table-cell.align-middle.p-2.tabular-nums.text-left.w-1.whitespace-nowrap
-            time datetime= cash_flow.date.iso8601
-              = l cash_flow.date
-          .hidden.sm:table-cell.align-middle.p-2.w-1.whitespace-nowrap
+        = render Ui::TableRow::Component.new(href: edit_settings_cash_flow_path(cash_flow), nav_title: t('settings.cash_flows.edit'), css_class: 'group lg:table-row max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:items-center') do |row|
+          .text-left.whitespace-nowrap.lg:table-cell.lg:w-1.lg:p-2.lg:align-middle.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:truncate.max-lg:text-subhead.max-lg:text-muted
+            = row.link do
+              time datetime= cash_flow.date.iso8601
+                = l cash_flow.date
+            span.lg:hidden
+              = " · #{CashFlow.human_enum_name(:category, cash_flow.category)}"
+          .hidden.lg:table-cell.align-middle.p-2.w-1.whitespace-nowrap
             .inline-flex.items-center.gap-1.5
               = render CashFlowCategoryPill::Component.new(category: cash_flow.category)
               - if filterable?(cash_flow)
@@ -30,33 +35,19 @@
                           title: t('.filter_by_category'),
                           'aria-label': t('.filter_by_category') do
                   = icon 'chevron-right', class: 'text-xs'
-          .table-cell.w-full.align-middle.p-2.text-gray-500.text-sm
-            span.hidden.md:inline = cash_flow.note
-          .table-cell.align-middle.p-2.tabular-nums.text-right.w-1.whitespace-nowrap class=amount_color(cash_flow.amount)
+          .lg:table-cell.lg:w-full.lg:p-2.lg:align-middle.lg:text-sm.lg:text-gray-500.max-lg:col-start-1.max-lg:row-start-1.max-lg:truncate.max-lg:text-headline.max-lg:text-gray-800.dark:max-lg:text-slate-300
+            = cash_flow.note
+          .tabular-nums.text-right.whitespace-nowrap.lg:table-cell.lg:w-1.lg:p-2.lg:align-middle.max-lg:col-start-2.max-lg:row-span-2.max-lg:row-start-1 class=amount_color(cash_flow.amount)
             = formatted_amount(cash_flow.amount)
 
-          / No right padding: the icon sits centered in a wider button, whose own
-          / space already matches the inset of the date on the left.
-          .table-cell.align-middle.w-1.py-2.pl-2
-            = render Button::Component.new path: edit_settings_cash_flow_path(cash_flow),
-                                           icon: 'pencil',
-                                           type: :button,
-                                           style: :secondary,
-                                           options: { \
-                                             method: :get,
-                                             data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                             'aria-label': t('crud.edit'),
-                                           }
-
-    .table-footer-group.text-gray-800.dark:text-gray-200
-      .table-row.border-t.border-gray-300.dark:border-gray-600
-        .table-cell.align-middle.p-2.font-bold
+    .text-gray-800.dark:text-gray-200.lg:table-footer-group.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+      .lg:table-row.lg:border-t.lg:border-gray-300.lg:dark:border-gray-600.max-lg:flex.max-lg:min-h-12.max-lg:items-center.max-lg:justify-between.max-lg:gap-3.max-lg:px-4.max-lg:py-2.5
+        .lg:table-cell.lg:p-2.lg:align-middle.lg:font-bold.max-lg:text-headline.dark:max-lg:text-slate-300
           = t('.total')
-        .hidden.sm:table-cell
-        .table-cell.w-full
-        .table-cell.align-middle.p-2.tabular-nums.text-right.font-bold.whitespace-nowrap class=amount_color(total)
+        .hidden.lg:table-cell
+        .hidden.lg:table-cell.w-full
+        .tabular-nums.text-right.whitespace-nowrap.lg:table-cell.lg:p-2.lg:align-middle.lg:font-bold.max-lg:font-semibold class=amount_color(total)
           = formatted_amount(total)
-        .table-cell
 - else
-  p.text-gray-500.p-2
+  p.px-4.text-muted.lg:p-2.lg:text-gray-500
     = t('.empty')

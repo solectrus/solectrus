@@ -109,12 +109,19 @@ describe 'Settings Places' do
 
       expect(response.body).not_to include('<turbo-stream')
     end
+
+    it 'drops the snapshot of the list on the page of a phone' do
+      login_as_admin
+      get edit_settings_place_path(place)
+
+      expect(response.body).to include('<turbo-stream action="clear_cache">')
+    end
   end
 
   describe 'PATCH /settings/places/:id' do
-    it 'gives the place a name of its own and replaces its row' do
+    it 'gives the place a name of its own and replaces its row in the modal' do
       login_as_admin
-      patch settings_place_path(place), params: { place: { name: 'Home' } }, as: :turbo_stream
+      patch settings_place_path(place), params: { place: { name: 'Home' } }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(place.reload.name).to eq('Home')
       expect(response.body).to include(%(target="place_#{place.id}"), 'Home')
@@ -125,11 +132,19 @@ describe 'Settings Places' do
     it 'moves home to the place, and replaces the row of the old home' do
       old_home = Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
       login_as_admin
-      patch settings_place_path(place), params: { place: { name: 'New', labels: ['', 'home'] } }, as: :turbo_stream
+      patch settings_place_path(place), params: { place: { name: 'New', labels: ['', 'home'] } }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(Place.home).to eq(place)
       expect(response.body).to include(%(target="place_#{place.id}"), %(target="place_#{old_home.id}"))
       expect(response.body).to include(CGI.escapeHTML(I18n.t('settings.places.home_moved', previous: 'Old')))
+    end
+
+    it 'goes back to the list from the page of a phone' do
+      login_as_admin
+      patch settings_place_path(place), params: { place: { name: 'Home' } }, as: :turbo_stream
+
+      expect(place.reload.name).to eq('Home')
+      expect(response.body).to include(%(<turbo-stream action="back_to" target="#{settings_places_path}">))
     end
   end
 end

@@ -1,9 +1,8 @@
-= form_with(model: price, url: [:settings, price], id: dom_id(price, :form), html: { data: { controller: 'form-dirty' } }) do |f|
+= form_page_with(model: price, url: [:settings, price]) do |f|
   = f.hidden_field :name
 
   = f.group do
-    = f.date_field :starts_at,
-                   autofocus: true
+    = f.date_field :starts_at, autofocus: true
     = f.number_field :amount_per_kwh,
                      in: 0..2,
                      step: '0.00001',

@@ -1,24 +1,22 @@
-.col-span-full.grid.grid-cols-subgrid.items-center.hover:bg-gray-100.dark:hover:bg-gray-700 id=dom_id(place)
-  .p-2.min-w-0
-    .flex.items-center.gap-2.min-w-0
-      .truncate class=('italic text-gray-500' unless place.display_name)
-        = name
-      = render PlaceLabels::Component.new(place:)
-    .text-xs.text-gray-500.truncate.tabular-nums = details
-  .p-2.text-sm.tabular-nums.whitespace-nowrap
-    / The time links to the visits that make it up
-    - if duration
-      = link_to duration,
-                helpers.cars_visits_path(place: place.id),
-                class: 'hover:underline underline-offset-4',
-                data: { turbo_frame: '_top' }
-  .p-2
-    = render Button::Component.new path: edit_path,
-                                   icon: 'pencil',
-                                   type: :button,
-                                   style: :secondary,
-                                   options: { \
-                                     method: :get,
-                                     data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-                                     'aria-label': t('crud.edit'),
-                                   }
+/ A row of the table from lg up. Below, the same cells form a cell of a list
+  in the style of iOS: the name over the locality, the time at the right.
+  Each row has both lines, so a place without a name says so in its first
+  line, and the rows keep one height.
+.contents id=dom_id(place)
+  = render Ui::TableRow::Component.new(href: edit_path, nav_title: t('settings.places.edit'), css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto]') do |row|
+    .min-w-0.lg:p-2
+      .flex.items-center.gap-2.min-w-0
+        = row.link css_class: ['truncate max-lg:text-headline', (place.name ? 'max-lg:text-gray-800 dark:max-lg:text-slate-300' : 'italic text-gray-500 max-lg:text-muted')] do
+          = name
+        = render PlaceLabels::Component.new(place:)
+      / Also empty before an answer of Nominatim, with the height of a line
+      .truncate.text-sm.text-gray-500.max-lg:text-subhead.max-lg:leading-normal.max-lg:text-muted class='min-h-[1lh]'
+        = place.locality
+    .whitespace-nowrap.tabular-nums.lg:p-2.lg:text-sm.max-lg:text-muted
+      / The time links to the visits that make it up. On a phone a tap opens
+        the place.
+      - if duration
+        = link_to duration,
+                  helpers.cars_visits_path(place: place.id),
+                  class: 'hover:underline underline-offset-4 max-lg:pointer-events-none',
+                  data: { turbo_frame: '_top' }
