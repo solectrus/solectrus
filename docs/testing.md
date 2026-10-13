@@ -16,6 +16,14 @@ They run against compiled assets. After a change to the frontend, run `bunx vite
 
 For a display problem on iOS, the `ios-simulator` skill runs SOLECTRUS on an iPhone in the simulator. It opens the application as a page in Safari or as the installed PWA.
 
+After an update of Turbo, run the system specs of the phone layout:
+
+```bash
+PLAYWRIGHT_HEADLESS=true bin/rspec $(grep -rl playwright_mobile spec/system)
+```
+
+The back button of the title bar and the way back after a save read `restorationIndex`. Turbo keeps this value in `history.state`, but it is not part of the documented API (see `app/frontend/utils/historyTrail.ts`). If Turbo changes it, the way back adds an entry to the history instead of going back. No error shows it.
+
 ## The full gate
 
 `bin/ci` runs every linter, the security audits, the asset build and both spec runs. It does locally what GitHub CI does, and it adds the gem and package audits, which GitHub CI runs nightly. Use it before a release rather than after each change.
