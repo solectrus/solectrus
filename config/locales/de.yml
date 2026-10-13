@@ -616,6 +616,8 @@ de:
               without_car: ist nur ohne Auto möglich
             car_id:
               inactive: ist zur Zeit des Ladevorgangs nicht in Gebrauch
+            evse_id:
+              invalid: darf nur A–Z, 0–9, *, + und - enthalten (höchstens 48 Zeichen)
       messages:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)

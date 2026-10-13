@@ -66,6 +66,13 @@ class ChargingSession < ApplicationRecord
   enum :origin, { detection: 'detection', user: 'user' }, prefix: true
   enum :power_type, { ac: 'ac', dc: 'dc' }, prefix: true
 
+  # The ID of a charge point as the station shows it. The format of ISO 15118
+  # (DE*ABC*E123456) is too strict: older stations show other IDs, for
+  # example +49*810*000*438, so only the characters and the length of OCPI
+  # count.
+  EVSE_ID_FORMAT = /\A[A-Z0-9*+-]{1,48}\z/
+  private_constant :EVSE_ID_FORMAT
+
   # The sessions of one kind and one holder in the order of time, the window
   # of a charge over midnight (see .with_continued)
   HOLDER_WINDOW = '(PARTITION BY kind, car_id, guest ORDER BY started_at)'.freeze
@@ -113,6 +120,8 @@ class ChargingSession < ApplicationRecord
 
   belongs_to :car, optional: true
 
+  normalizes :evse_id, with: -> { it.strip.upcase.presence }
+
   validates :kind, presence: true
   validates :started_at, presence: true
   # A save through the model is a choice of the user, so it accepts a
@@ -125,6 +134,7 @@ class ChargingSession < ApplicationRecord
             if: -> { offsite? && !dismissed? }
   validates :car, presence: true, if: :offsite?
   validates :ended_at, presence: true, if: :wallbox?
+  validates :evse_id, format: { with: EVSE_ID_FORMAT }, allow_nil: true
   validate :guest_without_car
   validate :car_active, if: -> { car && changed.intersect?(%w[car_id started_at ended_at]) }
 

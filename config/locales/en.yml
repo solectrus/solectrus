@@ -616,6 +616,8 @@ en:
               without_car: is possible only without a car
             car_id:
               inactive: is not in use at the time of the charging session
+            evse_id:
+              invalid: may contain only A–Z, 0–9, *, + and - (48 characters at most)
       messages:
         must_be_negative: must be negative for this category (outflow)
         must_be_positive: must be positive for this category (inflow)

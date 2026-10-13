@@ -59,6 +59,35 @@ describe ChargingSession do
         expect(session.errors[:guest]).to be_present
       end
 
+      describe 'the EVSE ID' do
+        it 'takes the IDs that the stations show' do
+          expect(session).to allow_values(
+            'DE*ABC*E123456',
+            'DEABCE123456',
+            'DE*384*E*154450CS0001*3',
+            '+49*810*000*438',
+            '04003584',
+            nil,
+          ).for(:evse_id)
+        end
+
+        it 'refuses other characters and a long ID' do
+          expect(session).not_to allow_values('DE ABC E1', 'DE*ÖKO*E1', 'DE/ABC/E1', 'A' * 49).for(:evse_id)
+        end
+
+        it 'strips and upcases the ID' do
+          session.evse_id = ' de*abc*e123456 '
+
+          expect(session.evse_id).to eq('DE*ABC*E123456')
+        end
+
+        it 'stores a blank ID as nil' do
+          session.evse_id = ' '
+
+          expect(session.evse_id).to be_nil
+        end
+      end
+
       describe 'the period of the car' do
         let(:last_day) { 3.days.ago.to_date }
 
