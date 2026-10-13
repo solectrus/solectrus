@@ -48,14 +48,7 @@ class Settings::PricesController < ApplicationController
   def render_list(notice: t('crud.success'))
     flash.now[:notice] = notice
     render turbo_stream: [
-             turbo_stream.update(
-               'list',
-               partial: 'settings/prices/list',
-               locals: {
-                 prices: Price.list_for(name),
-                 name:,
-               },
-             ),
+             turbo_stream.update('list', PriceList::Component.new(prices: Price.list_for(name), name:)),
              turbo_stream_update_flash,
            ]
   end

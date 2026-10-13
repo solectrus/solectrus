@@ -65,16 +65,7 @@ class Settings::CashFlowsController < ApplicationController
   def render_filtered_list(notice: t('crud.success'))
     flash.now[:notice] = notice
     render turbo_stream: [
-             turbo_stream.update(
-               'list',
-               partial: 'settings/cash_flows/list',
-               locals: {
-                 cash_flows: filtered_cash_flows,
-                 filter_categories:,
-                 filter_from:,
-                 filter_to:,
-               },
-             ),
+             turbo_stream.update('list', CashFlowList::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:)),
              turbo_stream_update_flash,
            ]
   end

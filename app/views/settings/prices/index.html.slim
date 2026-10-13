@@ -12,4 +12,4 @@
     = icon 'plus', class: 'fa-lg'
 
 = tag.turbo_frame id: 'list' do
-  = render 'list', prices: @prices, name:
+  = render PriceList::Component.new(prices: @prices, name:)
