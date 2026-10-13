@@ -1,4 +1,6 @@
-= render layout: 'settings/cars/pages' do
+= render 'settings/sub_nav'
+
+= render Nav::Side::Component.new(items: car_nav_items) do
   - if sponsored?
     = render VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
       = render PlaceList::Component.new(places: @places, pagy: @pagy)

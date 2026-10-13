@@ -1,3 +1,5 @@
-= render layout: 'settings/cars/pages' do
+= render 'settings/sub_nav'
+
+= render Nav::Side::Component.new(items: car_nav_items) do
   = tag.turbo_frame id: 'list' do
     = render CarList::Component.new(cars: @cars)

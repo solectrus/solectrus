@@ -1,7 +1,8 @@
 # The navigation on the side of a settings page with pages of its own, for
 # example the cars and their places. Unlike VerticalTabs::Component, each
 # item links to a URL of its own. The navigation stays in view while the page
-# scrolls: on a phone at the top, on a wider screen at the side.
+# scrolls: on a phone at the top, on a wider screen at the side. A single
+# page shows no such navigation.
 class Nav::Side::Component < ViewComponent::Base
   # items: [{ name:, href: }]
   def initialize(items:)
