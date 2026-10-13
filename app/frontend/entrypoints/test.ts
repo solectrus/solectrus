@@ -1,5 +1,5 @@
 // Entrypoint for system tests
-// This entrypoint will be deleted from production build (see Dockerfile)
+// A production build leaves it out (see vite.config.mts)
 
 import { Chart } from 'chart.js';
 import sinon from 'sinon';

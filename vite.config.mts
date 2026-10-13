@@ -19,8 +19,16 @@ export default defineConfig(({ mode }) => ({
   ],
   build: {
     rolldownOptions: {
-      // Exclude sinon from production builds
-      external: mode === 'production' ? ['sinon'] : [],
+      // A production build leaves out the test entrypoint. Its entries in the
+      // manifest would make the service worker precache files the Docker image
+      // does not have.
+      input:
+        mode === 'production'
+          ? [
+              'app/frontend/entrypoints/application.ts',
+              'app/frontend/entrypoints/application.css',
+            ]
+          : undefined,
       output: {
         codeSplitting: {
           groups: [
