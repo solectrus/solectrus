@@ -21,6 +21,7 @@ class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassL
     display_name: nil,
     menu_position: :right,
     disabled: false,
+    mobile: true,
     button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
     super()
@@ -32,6 +33,7 @@ class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassL
     @display_name = display_name
     @menu_position = menu_position.to_sym
     @disabled = disabled
+    @mobile = mobile
     @button_class = button_class
   end
 
@@ -43,6 +45,7 @@ class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassL
               :display_name,
               :menu_position,
               :disabled,
+              :mobile,
               :button_class
 
   # Where the menu hangs from its button. `center` puts it under the button and
