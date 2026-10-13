@@ -66,7 +66,7 @@ class Cars::ChargingSessionsController < ApplicationController
   def destroy
     return head(:unprocessable_content) unless @charging_session.destroy
 
-    render_list
+    render_list(notice: t('crud.deleted'))
   end
 
   private
@@ -95,8 +95,8 @@ class Cars::ChargingSessionsController < ApplicationController
   # form carries the timeframe and the car filter of its list (see
   # #list_params). The list starts over at page 1, its follow-up pages load
   # from the index URL.
-  def render_list
-    flash.now[:notice] = t('crud.success')
+  def render_list(notice: t('crud.success'))
+    flash.now[:notice] = notice
 
     pagy, charging_sessions =
       pagy(

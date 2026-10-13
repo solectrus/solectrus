@@ -408,6 +408,7 @@ de:
     save: Speichern
     confirm_delete: Wirklich löschen?
     success: Gespeichert
+    deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
   settings:
     general:

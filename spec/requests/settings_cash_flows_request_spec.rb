@@ -337,6 +337,12 @@ describe 'Settings::CashFlows' do
           delete "/settings/cash_flows/#{cash_flow.id}"
         end.to change(CashFlow, :count).by(-1)
       end
+
+      it 'tells in the modal that the cash flow is deleted' do
+        delete "/settings/cash_flows/#{cash_flow.id}", headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
+
+        expect(response.body).to include('Deleted')
+      end
     end
   end
 end

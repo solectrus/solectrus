@@ -39,14 +39,14 @@ class Settings::PricesController < ApplicationController
 
   def destroy
     @price.destroy!
-    render_list
+    render_list(notice: t('crud.deleted'))
   end
 
   private
 
   # Refresh the list straight from the mutating request.
-  def render_list
-    flash.now[:notice] = t('crud.success')
+  def render_list(notice: t('crud.success'))
+    flash.now[:notice] = notice
     render turbo_stream: [
              turbo_stream.update(
                'list',

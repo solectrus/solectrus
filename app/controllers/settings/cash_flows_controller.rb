@@ -53,7 +53,7 @@ class Settings::CashFlowsController < ApplicationController
 
   def destroy
     @cash_flow.destroy!
-    render_filtered_list
+    render_filtered_list(notice: t('crud.deleted'))
   end
 
   private
@@ -62,8 +62,8 @@ class Settings::CashFlowsController < ApplicationController
   # could not know the viewer's filter). The filter, remembered from the last
   # index render, stays applied so a new entry does not reveal the full list while
   # the filter is still shown.
-  def render_filtered_list
-    flash.now[:notice] = t('crud.success')
+  def render_filtered_list(notice: t('crud.success'))
+    flash.now[:notice] = notice
     render turbo_stream: [
              turbo_stream.update(
                'list',

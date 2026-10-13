@@ -408,6 +408,7 @@ en:
     save: Save
     confirm_delete: Are you sure you want to delete?
     success: Saved
+    deleted: Deleted
     error: An error occurred
   settings:
     general:
