@@ -1,4 +1,6 @@
 class ChargingSession::Row::Component < ViewComponent::Base
+  include ChargingSessionTexts
+
   # `place` is the known place at the position of a session without an
   # address (see ChargingSession::Rows::Component)
   def initialize(charging_session:, place: nil)
@@ -28,14 +30,6 @@ class ChargingSession::Row::Component < ViewComponent::Base
   end
 
   def pv_share?
-    helpers.pv_share_column?(charging_session.kind)
-  end
-
-  def time_range
-    helpers.charging_session_time_range(charging_session)
-  end
-
-  def soc_range
-    helpers.charging_session_soc_range(charging_session)
+    ChargingSession::List::Component.pv_share_column?(charging_session.kind)
   end
 end

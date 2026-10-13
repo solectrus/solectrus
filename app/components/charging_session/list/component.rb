@@ -1,5 +1,11 @@
 class ChargingSession::List::Component < ViewComponent::Base
   # `selection` is the car filter of the list (see CarSelection)
+  # The list of wallbox sessions shows the PV share instead of the address,
+  # when the power splitter gives the grid share
+  def self.pv_share_column?(kind)
+    kind.to_s == 'wallbox' && Sensor::Config.exists?(:wallbox_power_grid)
+  end
+
   def initialize(charging_sessions:, kind:, selection:, pagy: nil, timeframe: nil)
     super()
     @charging_sessions = charging_sessions
@@ -41,6 +47,6 @@ class ChargingSession::List::Component < ViewComponent::Base
   end
 
   def pv_share?
-    helpers.pv_share_column?(kind)
+    self.class.pv_share_column?(kind)
   end
 end

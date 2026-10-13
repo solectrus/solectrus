@@ -43,8 +43,7 @@
                                step: '0.01',
                                suffix: Currency.symbol
             / Below both fields, so the facts of the charge fit on one line
-            - if (soc = charging_session_soc_facts(charging_session))
-              p.mt-3.label-hint = soc
+            = render ChargingSession::SocFacts::Component.new(charging_session:, css_class: 'mt-3 label-hint')
 
       div
         = f.group do

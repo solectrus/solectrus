@@ -1,3 +1,4 @@
+# The choices of the form of a charging session
 module ChargingSessionHelper
   # The cars that can get the session: the cars whose period holds its day.
   # Without a start, a new session offers the cars of the timeframe of the
@@ -10,55 +11,6 @@ module ChargingSessionHelper
     cars = [*cars, current].sort_by(&:id) if current && cars.exclude?(current)
 
     cars.map { [it.display_name, it.id] }
-  end
-
-  # The list of wallbox sessions shows the PV share instead of the address,
-  # when the power splitter gives the grid share
-  def pv_share_column?(kind)
-    kind.to_s == 'wallbox' && Sensor::Config.exists?(:wallbox_power_grid)
-  end
-
-  # The start and the end of the session. A session over midnight names the
-  # day of its end as well: an offsite session, or a charge at the wallbox
-  # (see ChargingSession.joined). An ongoing session has no end yet.
-  def charging_session_time_range(charging_session)
-    started_at = charging_session.started_at.in_time_zone
-    if charging_session.ongoing?
-      return t('charging_sessions.since', time: started_at.today? ? started_at.strftime('%H:%M') : l(started_at, format: :short))
-    end
-
-    ended_at = charging_session.ended_at&.in_time_zone
-    return started_at.strftime('%H:%M') unless ended_at
-
-    time_range(started_at, ended_at) { l(it, format: :short) }
-  end
-
-  # The state of charge at the start and at the end: "23 -> 81 %", or nil. An
-  # ongoing session has only its start: "from 23 %".
-  def charging_session_soc_range(charging_session)
-    if charging_session.ongoing?
-      return unless charging_session.soc_from
-
-      return t('charging_sessions.soc_from', percent: number_to_percentage(charging_session.soc_from.round, precision: 0))
-    end
-    return unless charging_session.soc_from && charging_session.soc_to
-
-    "#{charging_session.soc_from.round} → #{number_to_percentage(charging_session.soc_to.round, precision: 0)}"
-  end
-
-  # The state of charge and the loss of the charge for a form:
-  # "Charge level 23 -> 81 % - 9 % loss", or nil
-  def charging_session_soc_facts(charging_session)
-    range = charging_session_soc_range(charging_session)
-    return unless range
-
-    [t('charging_sessions.soc', range:), charging_session_loss(charging_session)].compact.join(' · ')
-  end
-
-  # The loss of the charge: "9 % loss", or nil (see ChargingSession#loss)
-  def charging_session_loss(charging_session)
-    loss = charging_session.loss
-    t('charging_sessions.loss', percent: number_to_percentage(loss * 100, precision: 0)) if loss
   end
 
   # Who charged at the own wallbox: a car, a guest, or nobody yet
