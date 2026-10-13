@@ -48,10 +48,14 @@ export default class extends Controller<HTMLElement> {
     const current = this.element.dataset;
     const next = newBody.querySelector<HTMLElement>('.ui-title-bar')?.dataset;
 
+    // A page beside this one, with the same parent, like the other kind of a
+    // list or its next timeframe, takes the place of this one at once
     let direction = 'none';
     if (this.#skeleton) this.#skeleton.remove();
     else if (next?.parent === current.path) direction = 'push';
     else if (current.parent && current.parent === next?.path) direction = 'pop';
+    else if (current.parent && current.parent === next?.parent)
+      direction = 'across';
 
     document.documentElement.dataset.navDirection = direction;
   }

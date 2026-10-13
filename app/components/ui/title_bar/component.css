@@ -152,6 +152,17 @@ html[data-nav-direction='pop'] {
   }
 }
 
+/* A page beside this one: everything changes at once, as on a tap in a
+   segmented control. A fade would make the bar and its accessories flicker,
+   which look the same on both pages. */
+html[data-nav-direction='across'] {
+  &::view-transition-group(*),
+  &::view-transition-old(*),
+  &::view-transition-new(*) {
+    @apply animate-none;
+  }
+}
+
 /* No change of level, as from the skeleton to the content: the title changes
    at once, and the content fades in over the old page, which stays opaque */
 html[data-nav-direction='none'] {
