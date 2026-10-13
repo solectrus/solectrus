@@ -52,6 +52,8 @@
 @import '../stylesheets/sensor_colors.css';
 /* No layer() — overrides the styles of MapLibre, which have no layer */
 @import '../stylesheets/car_map.css';
+/* No layer() — overrides the form classes, which have no layer either */
+@import '../stylesheets/ui_form.css';
 
 @theme {
   --breakpoint-3xl: 1920px;
