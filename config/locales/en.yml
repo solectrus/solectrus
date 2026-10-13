@@ -366,6 +366,7 @@ en:
       continue: Register now
       login_required: Please log in as an administrator to complete the registration.
   charging_sessions:
+    title: Charging sessions
     edit: Edit charging session
     new: New charging session
     guest: Guest

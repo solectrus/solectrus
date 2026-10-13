@@ -366,6 +366,7 @@ de:
       continue: Jetzt registrieren
       login_required: Um die Registrierung vorzunehmen, melde dich bitte als Admin an.
   charging_sessions:
+    title: Ladevorgänge
     edit: Ladevorgang bearbeiten
     new: Neuer Ladevorgang
     guest: Gast

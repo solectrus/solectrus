@@ -5,8 +5,8 @@ describe 'Charging sessions' do
     ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at:, kwh: 20, cost: 10, note:)
   end
 
-  def row_button(label, text)
-    find('#list .group', text:).find("button[aria-label='#{label}']")
+  def row(text)
+    find('#list [data-controller="ui--table-row--component"]', text:)
   end
 
   before { login_as_admin }
@@ -25,7 +25,7 @@ describe 'Charging sessions' do
       expect(page).to have_text('June trip')
       expect(page).to have_no_text('March trip')
 
-      row_button('Bearbeiten', 'June trip').click
+      row('June trip').click
       within '#modal' do
         fill_in 'charging_session_note', with: 'June trip, edited'
         click_on 'Speichern'
@@ -36,13 +36,37 @@ describe 'Charging sessions' do
       expect(page).to have_no_text('March trip')
     end
 
-    it 'deletes a session and keeps the timeframe of the list' do
+    it 'deletes a session from its form and keeps the timeframe of the list' do
       visit '/cars/charging_sessions/offsite/2022-06'
 
-      accept_confirm { row_button('Löschen', 'June trip').click }
+      row('June trip').click
+      within('#modal') { accept_confirm { click_on 'Löschen' } }
 
       expect(page).to have_text('Keine Auswärtsladungen')
       expect(page).to have_no_text('March trip')
+    end
+  end
+
+  context 'with a phone' do
+    before do
+      driven_by :playwright_mobile
+      login_as_admin
+      offsite(Time.zone.local(2022, 6, 10, 18), 'June trip')
+    end
+
+    it 'edits a session on a page of its own and returns to the list' do
+      visit '/cars/charging_sessions/offsite/2022-06'
+      row('June trip').click
+
+      expect(page).to have_css('.ui-title-bar h1', text: 'Ladevorgang bearbeiten')
+      expect(page).to have_no_css('#modal form')
+
+      fill_in 'charging_session_note', with: 'June trip, edited'
+      click_on 'Speichern'
+
+      expect(page).to have_current_path('/cars/charging_sessions/offsite/2022-06')
+      expect(page).to have_text('Gespeichert')
+      expect(page).to have_text('June trip, edited')
     end
   end
 
@@ -60,7 +84,7 @@ describe 'Charging sessions' do
     it 'marks it as a guest charge and keeps the car filter of the list' do
       visit '/cars/unassigned/charging_sessions/wallbox/2022-06'
 
-      find_by_id('list').find("button[aria-label='Bearbeiten']").click
+      find('#list [data-controller="ui--table-row--component"]').click
       within '#modal' do
         select 'Gast', from: 'charging_session_car_id'
         click_on 'Speichern'

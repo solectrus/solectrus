@@ -1,5 +1,7 @@
 en:
   all: All sessions
+  all_short: All
   guest: Guest
   unassigned: Not assigned
   proposals: Unconfirmed sessions
+  label: Filter

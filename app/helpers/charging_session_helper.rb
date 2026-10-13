@@ -1,4 +1,4 @@
-# The choices of the form of a charging session
+# The choices and the buttons of the form of a charging session
 module ChargingSessionHelper
   # The cars that can get the session: the cars whose period holds its day.
   # Without a start, a new session offers the cars of the timeframe of the
@@ -11,6 +11,27 @@ module ChargingSessionHelper
     cars = [*cars, current].sort_by(&:id) if current && cars.exclude?(current)
 
     cars.map { [it.display_name, it.id] }
+  end
+
+  # The button of the form that takes a session from the list. A proposal is
+  # dismissed, so the next build does not make it again. An offsite session
+  # of the user is deleted. A wallbox session stays, the detection owns it.
+  def charging_session_removal(charging_session)
+    if charging_session.proposal?
+      {
+        delete_path: dismiss_cars_charging_session_path(charging_session),
+        removal: {
+          method: :patch,
+          label: t('charging_sessions.proposal.dismiss'),
+          confirm: t('charging_sessions.proposal.confirm_dismiss'),
+          icon: 'xmark',
+        },
+      }
+    elsif charging_session.offsite? && charging_session.persisted?
+      { delete_path: cars_charging_session_path(charging_session) }
+    else
+      {}
+    end
   end
 
   # Who charged at the own wallbox: a car, a guest, or nobody yet

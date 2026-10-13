@@ -20,9 +20,9 @@ describe 'Charging sessions' do
   end
 
   describe 'GET /cars/charging_sessions' do
-    it 'redirects to the default kind' do
+    it 'redirects to the default kind and timeframe' do
       get '/cars/charging_sessions'
-      expect(response).to redirect_to('/cars/charging_sessions/wallbox')
+      expect(response).to redirect_to('/cars/charging_sessions/wallbox/all')
     end
   end
 
@@ -147,6 +147,12 @@ describe 'Charging sessions' do
       get "/cars/2/charging_sessions/offsite/#{year}"
 
       expect(response).to redirect_to("/cars/charging_sessions/offsite/#{year}")
+    end
+
+    it 'keeps the whole time in the address of the redirect' do
+      get '/cars/9/charging_sessions/offsite'
+
+      expect(response).to redirect_to('/cars/charging_sessions/offsite/all')
     end
 
     # The add button of the list carries its timeframe and its car
@@ -350,6 +356,12 @@ describe 'Charging sessions' do
       end
     end
 
+    it 'offers no delete in the form of a wallbox session' do
+      get "/cars/charging_sessions/#{guest.id}/edit"
+
+      expect(response.parsed_body.css('button[formaction]')).to be_empty
+    end
+
     it 'cannot delete a wallbox session' do
       delete "/cars/charging_sessions/#{guest.id}", as: :turbo_stream
 
@@ -374,8 +386,14 @@ describe 'Charging sessions' do
     it 'opens from a list with its timeframe' do
       get "/cars/charging_sessions/offsite/#{Date.current.year}"
 
-      button = response.parsed_body.at_css("form[action='/cars/charging_sessions/#{recent.id}/edit']")
-      expect(button.at_css('input[name=timeframe]')['value']).to eq(Date.current.year.to_s)
+      expect(response.parsed_body.at_css("a[href='/cars/charging_sessions/#{recent.id}/edit?timeframe=#{Date.current.year}']")).to be_present
+    end
+
+    it 'offers to delete an offsite session in the form' do
+      get "/cars/charging_sessions/#{recent.id}/edit"
+
+      buttons = response.parsed_body.css("button[formaction='/cars/charging_sessions/#{recent.id}']")
+      expect(buttons.pluck('formmethod')).to eq(%w[delete delete])
     end
 
     it 'carries the timeframe and the car filter of the list into the form' do
@@ -388,9 +406,11 @@ describe 'Charging sessions' do
   end
 
   describe 'PATCH /cars/charging_sessions/:id' do
+    # The modal of the desktop submits within its frame
     def update_recent(**list_params)
       patch "/cars/charging_sessions/#{recent.id}",
             params: { charging_session: { cost: 7.5 }, **list_params },
+            headers: { 'Turbo-Frame' => 'modal' },
             as: :turbo_stream
     end
 
@@ -408,11 +428,19 @@ describe 'Charging sessions' do
       expect(response.body).to include(recent.started_at.iso8601)
       expect(response.body).not_to include(old.started_at.iso8601)
     end
+
+    it 'leads the page of a phone back to the list of the form' do
+      patch "/cars/charging_sessions/#{recent.id}",
+            params: { charging_session: { cost: 7.5 }, timeframe: Date.current.year.to_s, car: car.id }
+
+      expect(response).to redirect_to("/cars/#{car.id}/charging_sessions/offsite/#{Date.current.year}")
+      expect(recent.reload.cost).to eq(7.5)
+    end
   end
 
   describe 'DELETE /cars/charging_sessions/:id' do
     it 'responds with the list without the deleted session' do
-      delete "/cars/charging_sessions/#{old.id}", as: :turbo_stream
+      delete "/cars/charging_sessions/#{old.id}", headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(response.body).to include(recent.started_at.iso8601)
       expect(response.body).not_to include(old.started_at.iso8601)
@@ -431,7 +459,7 @@ describe 'Charging sessions' do
     it 'shows a proposal with its estimate, but leaves it out of the sums' do
       get '/cars/charging_sessions/offsite'
 
-      expect(response.body).to include('Unconfirmed, from readings', '30 → 70%', "/cars/charging_sessions/#{proposal.id}/dismiss")
+      expect(response.body).to include('Unconfirmed, from readings', '30 → 70%')
       expect(response.body).to include('2 <span class="font-light">charging sessions</span>')
     end
 
@@ -444,7 +472,7 @@ describe 'Charging sessions' do
     end
 
     it 'dismisses a proposal' do
-      patch "/cars/charging_sessions/#{proposal.id}/dismiss", as: :turbo_stream
+      patch "/cars/charging_sessions/#{proposal.id}/dismiss", headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(proposal.reload).to have_attributes(dismissed: true, assigned_manually: true)
       expect(response.body).not_to include(proposal.started_at.iso8601)
@@ -460,7 +488,7 @@ describe 'Charging sessions' do
     end
 
     it 'keeps the list of the proposals after a dismiss' do
-      patch "/cars/charging_sessions/#{proposal.id}/dismiss", params: { car: 'proposals' }, as: :turbo_stream
+      patch "/cars/charging_sessions/#{proposal.id}/dismiss", params: { car: 'proposals' }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(response.body).to include('No unconfirmed charging sessions')
     end
@@ -501,6 +529,14 @@ describe 'Charging sessions' do
       get "/cars/charging_sessions/#{proposal.id}/edit"
 
       expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to eq('Main Street 1, 12345 Town')
+    end
+
+    it 'offers to dismiss a proposal in the form' do
+      get "/cars/charging_sessions/#{proposal.id}/edit"
+
+      buttons = response.parsed_body.css("button[formaction='/cars/charging_sessions/#{proposal.id}/dismiss']")
+      expect(buttons.pluck('formmethod')).to eq(%w[patch patch])
+      expect(buttons.last.text).to include('Dismiss')
     end
 
     it 'accepts a proposal with its cost' do

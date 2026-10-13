@@ -1,33 +1,26 @@
 # The button for a new session. A new session is an offsite session, the
 # detection writes the others, so only the offsite list has it. An offsite
-# session needs a car. `css_class` gives the look and the place: desktop
-# shows a round button on the edge of the header, mobile a wide one with a
-# `label` above the list.
+# session needs a car. `css_class` places the Ui::AddButton::Component, and
+# a phone has the action of the title bar instead.
 class ChargingSession::AddButton::Component < ViewComponent::Base
-  def initialize(kind:, selection:, css_class:, label: false)
+  def initialize(kind:, selection:, css_class: nil)
     super()
     @kind = kind
     @selection = selection
     @css_class = css_class
-    @label = label
   end
 
-  def render?
-    @kind == 'offsite' && @selection.installed.any?
-  end
+  # Whether the list of the kind offers a new session
+  def self.offered?(kind:, selection:) = kind == 'offsite' && selection.installed.any?
 
-  # The form takes no place of its own, so it does not count as an item of
-  # a flex row
+  def render? = self.class.offered?(kind: @kind, selection: @selection)
+
+  # The form keeps the timeframe and the car filter of the list
   def call
-    helpers.button_to(
-      helpers.new_cars_charging_session_path,
-      method: :get,
-      params: helpers.list_params,
-      form_class: 'contents',
-      data: { turbo_frame: 'modal', controller: 'modal-launcher' },
-      class: ['items-center justify-center click-animation', @css_class],
-      title: (t('charging_sessions.new') unless @label),
-      'aria-label': (t('charging_sessions.new') unless @label),
-    ) { safe_join([helpers.icon('plus'), (tag.span(t('charging_sessions.new')) if @label)]) }
+    render Ui::AddButton::Component.new(
+      href: helpers.new_cars_charging_session_path(helpers.list_params),
+      label: t('charging_sessions.new'),
+      css_class: @css_class,
+    )
   end
 end

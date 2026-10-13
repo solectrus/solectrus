@@ -5,7 +5,7 @@
       / Mobile: native select shrink-wrapped to its selected label, with the
       / chevron right after it, so the gap stays constant for any selection.
       / The chevron uses currentColor, adapting to the surrounding text color.
-      .inline-flex.items-center.gap-1.rounded.px-2.lg:hidden class= button_class
+      .inline-flex.items-center.gap-1.lg:hidden class=[mobile_shape, button_class]
         / field-sizing-content shrink-wraps the select to its selected option in
         / CSS. Where a browser lacks it, select_controller measures instead.
         / Below 16px, iOS zooms into the page when the select gets the focus.
@@ -17,6 +17,7 @@
           disabled= disabled
           data-action= 'select#onChange'
           name= name
+          aria-label= label
         ]
           - if grouped?
             - items.each do |group|

@@ -5,7 +5,7 @@
       .bg-sensor-pv style="width: #{percent}%"
     - if grid_percent.positive?
       .bg-sensor-grid style="width: #{grid_percent}%"
-  span.w-12.text-right aria-hidden='true'
+  span.w-12.text-right class=percent_class aria-hidden='true'
     = number_to_percentage(percent, precision: 0)
   span.sr-only
     = label

@@ -1,5 +1,7 @@
 de:
   all: Alle Ladevorgänge
+  all_short: Alle
   guest: Gast
   unassigned: Nicht zugeordnet
   proposals: Unbestätigte Ladungen
+  label: Filter

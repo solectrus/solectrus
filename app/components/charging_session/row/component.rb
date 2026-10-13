@@ -29,6 +29,16 @@ class ChargingSession::Row::Component < ViewComponent::Base
     end
   end
 
+  # The form keeps the timeframe and the car filter of the list
+  def edit_path
+    helpers.edit_cars_charging_session_path(charging_session, **helpers.list_params)
+  end
+
+  # The title of the page of the form on a phone, before it loads
+  def nav_title
+    t(charging_session.proposal? ? 'charging_sessions.proposal.title' : 'charging_sessions.edit')
+  end
+
   def pv_share?
     ChargingSession::List::Component.pv_share_column?(charging_session.kind)
   end

@@ -1,0 +1,9 @@
+/ The form in the modal of the desktop, or on a page of its own on a phone,
+  one level below the list (see Ui::FormPage::Component)
+- heading = t(@charging_session.proposal? ? 'charging_sessions.proposal.title' : 'charging_sessions.edit')
+- content_for :fixed_nav, true
+- content_for :sub_nav do
+  = render Ui::TitleBar::Component.new(title: heading, back_href: list_path, back_label: t('charging_sessions.title'))
+
+= render Ui::FormPage::Component.new(title: heading, width: (@charging_session.wallbox? ? :wide : :extra_wide)) do
+  = render 'form', charging_session: @charging_session
