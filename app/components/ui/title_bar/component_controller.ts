@@ -14,10 +14,31 @@ type BeforeRenderEvent = CustomEvent<{ newBody: HTMLElement }>;
 // than its delay, and after the slide the finger rests over a row, which would
 // be prefetched for nothing.
 //
-// Any other visit, the back gesture of the browser included, slides when Turbo
+// Any other visit, the back button of the browser included, slides when Turbo
 // renders. Its direction comes from the hierarchy: the next page is a child
 // when its parent is this page, and it is the parent when this page names it
 // as such.
+//
+// A back gesture can bring its own animation, like the predictive back of
+// Chrome on Android. A browser that animates reports hasUAVisualTransition,
+// and the page then changes at once: a second slide would repeat the one the
+// finger just made. The back button of Android has no such animation and
+// slides as before.
+let browserAnimated = false;
+
+addEventListener('popstate', (event) => {
+  browserAnimated =
+    (event as PopStateEvent & { hasUAVisualTransition?: boolean })
+      .hasUAVisualTransition === true;
+});
+// A popstate that Turbo does not follow, like a change of the hash, must not
+// keep the flag for the next visit
+addEventListener('turbo:load', () => (browserAnimated = false));
+addEventListener('turbo:visit', (event) => {
+  const { action } = (event as CustomEvent<{ action: string }>).detail;
+  if (action !== 'restore') browserAnimated = false;
+});
+
 export default class extends Controller<HTMLElement> {
   #slide?: Promise<void>;
   #skeleton?: HTMLElement;
@@ -57,6 +78,7 @@ export default class extends Controller<HTMLElement> {
     // list or its next timeframe, takes the place of this one at once
     let direction = 'none';
     if (this.#skeleton) this.#skeleton.remove();
+    else if (browserAnimated) direction = 'across';
     else if (next?.parent === current.path) direction = 'push';
     else if (current.parent && current.parent === next?.path) direction = 'pop';
     else if (current.parent && current.parent === next?.parent)

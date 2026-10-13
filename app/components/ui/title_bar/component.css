@@ -160,7 +160,8 @@ html[data-nav-direction='pop'] {
 
 /* A page beside this one: everything changes at once, as on a tap in a
    segmented control. A fade would make the bar and its accessories flicker,
-   which look the same on both pages. */
+   which look the same on both pages. A back gesture that the browser animates
+   itself changes at once as well (see the controller). */
 html[data-nav-direction='across'] {
   &::view-transition-group(*),
   &::view-transition-old(*),
