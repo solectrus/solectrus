@@ -30,7 +30,11 @@ export default class extends Controller<HTMLElement> {
 
     const direction =
       link.pathname === this.element.dataset.parent ? 'pop' : 'push';
-    document.documentElement.dataset.navDirection = direction;
+    const { dataset } = document.documentElement;
+    dataset.navDirection = direction;
+    // The slide is the answer to the tap, so the content does not go away for
+    // the visit (see application.css). The old page goes into the slide as it is.
+    dataset.navSliding = '';
     this.#slide = document.startViewTransition(() =>
       this.#showSkeleton(link.dataset.navTitle ?? '', direction),
     ).finished;
@@ -45,6 +49,7 @@ export default class extends Controller<HTMLElement> {
   }
 
   prepare({ detail: { newBody } }: BeforeRenderEvent) {
+    delete document.documentElement.dataset.navSliding;
     const current = this.element.dataset;
     const next = newBody.querySelector<HTMLElement>('.ui-title-bar')?.dataset;
 
@@ -62,8 +67,9 @@ export default class extends Controller<HTMLElement> {
   }
 
   // The response is here, so nothing loads any more. Turbo would still show
-  // the progress bar until the view transition has ended, over the new page.
-  // Turbo starts to fade the bar out before turbo:load.
+  // the progress bar until the view transition has ended, over the new page,
+  // and still mark the document as busy, which hides the content (see
+  // application.css). Turbo starts to fade the bar out before turbo:load.
   #hideProgressBar() {
     const { dataset } = document.documentElement;
 

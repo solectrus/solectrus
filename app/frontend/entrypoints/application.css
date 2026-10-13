@@ -308,6 +308,32 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
   }
 }
 
+/* On a phone, the content goes away from the tap to the next page, so a tap
+   has an answer at once. A page that fills its content later shows an empty
+   area as well, so the old content does not dim first and then disappear.
+   Turbo marks the document as busy for the whole visit. Not while Turbo shows
+   a page from its cache, which is already there, and not when a title bar
+   slides to the next page, which is an answer of its own (see
+   Ui::TitleBar::Component), and not for a visit to the open page, like a
+   reload (see setupSamePageVisits.ts). The box of the content stays: the
+   header reaches down behind its top. A control that answers the tap itself,
+   like a segmented control, stays with the class ui-keep-lit. A spinner fades
+   in after a moment, for a slow connection. */
+html[aria-busy='true']:not(
+    [data-turbo-preview],
+    [data-nav-sliding],
+    [data-nav-rendering],
+    [data-nav-same-page]
+  ) {
+  #inner > :not(.ui-keep-lit) {
+    @apply max-lg:invisible;
+  }
+
+  .ui-busy-spinner {
+    @apply max-lg:flex;
+  }
+}
+
 @layer base {
   /* inter-latin-wght-normal */
   @font-face {

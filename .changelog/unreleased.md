@@ -49,6 +49,7 @@ Keep every section, an empty one included.
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it
 - The loading bar at the top of the page now shows only when a page takes longer than half a second. Before, it showed on almost every change of page, often only for a moment
+- On a phone, the content goes away as soon as you tap a link, until the next page is there. So you see at once that the tap works. When the page takes longer to load, a spinner appears after half a second
 
 ## Fixes
 

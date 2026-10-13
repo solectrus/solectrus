@@ -4,10 +4,12 @@ import.meta.glob('../images/**', { eager: true });
 import '@/utils/setupHoneyBadger';
 import '@/utils/setupStimulus';
 import { metaContent } from '@/utils/metaContent';
+import { setupSamePageVisits } from '@/utils/setupSamePageVisits';
 import { setupServiceWorker } from '@/utils/setupServiceWorker';
 import { setupTapFeedback } from '@/utils/setupTapFeedback';
 
 setupServiceWorker();
+setupSamePageVisits();
 setupTapFeedback();
 
 if (metaContent('env') != 'development') {
