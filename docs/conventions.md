@@ -41,6 +41,35 @@ app/components/notification/badge/component.rb  # Notification::Badge::Component
 `app/components/concerns/` is the exception. It holds shared modules
 (`BreakdownTable`, `ChartDropdownLogic`), not components.
 
+### Views, components and helpers
+
+A view or a partial belongs to a controller action. The view renders the page
+of the action. A partial is a part of such a page:
+
+- The `_form` partial of the `new` and `edit` views, and its sections.
+  `FormPageResponse` renders it again when a record does not save.
+- The `_sub_nav` partial, which fills the header of the pages of a controller
+  through `content_for`.
+- A partial that several formats of one action share, like `errors/_message`.
+
+The layouts keep their own partials in `app/views/layouts/`.
+
+Everything else is a ViewComponent: a list, a row, a cell, a chip. A Turbo
+Stream renders the component directly, not a partial around it:
+
+```ruby
+turbo_stream.update('list', PriceList::Component.new(prices:, name:))
+```
+
+When two components show the same text, a module in `app/components/concerns/`
+holds it, like `ChargingSessionTexts`. Such a module reads the record from a
+method of the component, like `charging_session`.
+
+A helper in `app/helpers/` is for code that many views and components use: the
+`icon`, the form builder, the paths of the sensors and the theme. A helper also
+gives a form partial its choices, like `car_options`. Code that only components
+call must go into a component or a concern.
+
 ### Tailwind CSS in Slim
 
 For classes with `@` (container queries), use attribute syntax:
