@@ -465,7 +465,7 @@ en:
       edit: Edit entry
       amount_hint: "Negative: outgoing payment (e.g. purchase or repair)\nPositive: incoming payment (e.g. subsidy or compensation)"
       category_hint: Determines how the amount enters the amortization – investment raises the investment base, subsidy/refund lower it, operating cost/repair/compensation affect the operating cash flow, manual savings extend it to periods without measured data, other stays neutral.
-      visibility_label: 'Show amortization calculation to:'
+      visibility_label: Show amortization calculation to
       visibility_all: For all users
       visibility_admins: For admins only
       visibility_none: For nobody (hide page)
@@ -480,11 +480,13 @@ en:
       battery: Battery
       single_inverter: If multiple inverters were configured, they could be named here.
       inverter_as_total: Show only as total in the power balance
-      enable_multi_inverter: Enable "Generation" page in the navigation
-      enable_forecast: Enable "Forecast" page in the navigation
-      enable_custom_consumer: Enable "House consumption" page in the navigation
-      enable_heatpump: Enable "Heat pump" page in the navigation
-      enable_car: Enable "Electric vehicle" page in the navigation
+      # The options below this group title name the page alone
+      navigation: Show in the navigation
+      enable_multi_inverter: Generation
+      enable_forecast: Forecast
+      enable_custom_consumer: House consumption
+      enable_heatpump: Heat pump
+      enable_car: Electric vehicle
   amortization:
     nav:
       chart: Balance

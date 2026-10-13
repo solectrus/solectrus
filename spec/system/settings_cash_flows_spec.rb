@@ -12,7 +12,7 @@ describe 'Cash flow settings' do
 
       expect(page).to have_css("#primary-nav-desktop a[href='/amortization']")
 
-      select 'Für niemanden (Seite ausblenden)', from: 'Amortisationsrechnung anzeigen:'
+      select 'Für niemanden (Seite ausblenden)', from: 'Amortisationsrechnung anzeigen'
 
       expect(page).to have_text('Gespeichert')
       expect(page).to have_no_css("#primary-nav-desktop a[href='/amortization']")
@@ -66,7 +66,7 @@ describe 'Cash flow settings' do
     it 'shows the amortization calculation to all users' do
       visit '/settings/cash_flows'
 
-      select 'Für alle Nutzer', from: 'Amortisationsrechnung anzeigen:'
+      select 'Für alle Nutzer', from: 'Amortisationsrechnung anzeigen'
 
       expect(page).to have_text('Gespeichert')
       expect(Setting.amortization_public).to be(true)

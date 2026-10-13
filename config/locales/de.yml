@@ -465,7 +465,7 @@ de:
       edit: Eintrag bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
       category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Ersparnis (manuell) ergänzt ihn um Zeiträume ohne Messdaten, Sonstiges bleibt neutral.
-      visibility_label: 'Amortisationsrechnung anzeigen:'
+      visibility_label: Amortisationsrechnung anzeigen
       visibility_all: Für alle Nutzer
       visibility_admins: Nur für Admin
       visibility_none: Für niemanden (Seite ausblenden)
@@ -480,11 +480,13 @@ de:
       battery: Akku
       single_inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
       inverter_as_total: In der Strombilanz nur als Summe darstellen
-      enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
-      enable_forecast: Seite "Prognose" in der Navigation anbieten
-      enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
-      enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
-      enable_car: Seite "E-Auto" in der Navigation anbieten
+      # The options below this group title name the page alone
+      navigation: In der Navigation anbieten
+      enable_multi_inverter: Erzeugung
+      enable_forecast: Prognose
+      enable_custom_consumer: Hausverbrauch
+      enable_heatpump: Wärmepumpe
+      enable_car: E-Auto
   amortization:
     nav:
       chart: Saldo

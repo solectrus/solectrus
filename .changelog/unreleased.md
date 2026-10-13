@@ -48,6 +48,7 @@ Keep every section, an empty one included.
 - The power balance shows only the charge level of the home battery again, as a round badge. The charge level of the car is now on the car page
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it
+- On a phone, the forms of the settings look like the settings of an iPhone: white groups on a gray page, the label of each field at the left and its value at the right, and a switch for each option. The button to save is as wide as the page. In the sensors, the pages to show in the navigation stand in a group of their own, each with its name alone
 - The loading bar at the top of the page now shows only when a page takes longer than half a second. Before, it showed on almost every change of page, often only for a moment
 - On a phone, the content goes away as soon as you tap a link, until the next page is there. So you see at once that the tap works. When the page takes longer to load, a spinner appears after half a second
 

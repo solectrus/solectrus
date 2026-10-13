@@ -1,7 +1,10 @@
-.grid.grid-cols-1.sm:grid-cols-2.gap-4
-  - sensors.each do |sensor|
-    .flex.flex-col
-      = f.text_field "sensor_names[#{sensor.name}]",
-                     value: sensor.display_name,
-                     class: 'form-input',
-                     label: "#{sensor.name} (#{Sensor::Config.mapping(sensor.name)})"
+/ On a phone each field is a cell of the group, so the grid steps aside (see
+  ui_form.css)
+= f.group stacked: true do
+  .grid.grid-cols-1.sm:grid-cols-2.gap-4.ui-form-contents
+    - sensors.each do |sensor|
+      .flex.flex-col.ui-form-contents
+        = f.text_field "sensor_names[#{sensor.name}]",
+                       value: sensor.display_name,
+                       class: 'form-input',
+                       label: "#{sensor.name} (#{Sensor::Config.mapping(sensor.name)})"

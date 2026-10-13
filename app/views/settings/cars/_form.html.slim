@@ -34,5 +34,4 @@
           = car.sensor_name(role).upcase
         dd.font-mono.min-w-0.truncate title=mapping = mapping
 
-  .flex.justify-end
-    = render 'settings/fab_submit'
+  = render Ui::SubmitButton::Component.new

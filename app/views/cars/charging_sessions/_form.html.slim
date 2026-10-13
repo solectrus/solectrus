@@ -61,4 +61,4 @@
       .flex-1
         = f.text_area :note, rows: 2
     .ml-auto
-      = render 'settings/fab_submit'
+      = render Ui::SubmitButton::Component.new
