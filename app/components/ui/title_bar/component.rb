@@ -25,14 +25,28 @@ class Ui::TitleBar::Component < ViewComponent::Base
                 end
               }
 
-  def initialize(title:, back_href: nil, back_label: nil)
+  # `back_slide: false` for a parent without a title bar, like the car page:
+  # the skeleton would show a title bar the parent does not have. The way
+  # back is then a plain visit, as the way down from such a page.
+  def initialize(title:, back_href: nil, back_label: nil, back_slide: true)
     super()
     @title = title
     @back_href = back_href
     @back_label = back_label
+    @back_slide = back_slide
   end
 
   attr_reader :title, :back_href, :back_label
+
+  def back_data
+    @back_slide ? self.class.link_data(back_label) : {}
+  end
+
+  # The controller compares paths, and the parent can carry a query, like the
+  # filter of a list
+  def parent_path
+    URI.parse(back_href).path if back_href
+  end
 
   # Turbo runs a page change as a view transition only when both pages ask for
   # it. Every page with a title bar does, so the slide stays between them.

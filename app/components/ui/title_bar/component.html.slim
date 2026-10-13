@@ -2,13 +2,13 @@
   data-controller='ui--title-bar--component'
   data-action='turbo:click@document->ui--title-bar--component#slide turbo:before-fetch-request@document->ui--title-bar--component#hold turbo:before-render@document->ui--title-bar--component#prepare'
   data-path=helpers.request.path
-  data-parent=back_href
+  data-parent=parent_path
 ]
   .relative.flex.items-center.justify-center.min-h-10
     - if back_href
       = link_to back_href,
                 class: 'ui-title-bar-back left-0 click-animation',
-                data: self.class.link_data(back_label),
+                data: back_data,
                 title: back_label,
                 'aria-label': back_label do
         = icon 'chevron-left'
