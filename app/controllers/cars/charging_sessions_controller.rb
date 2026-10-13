@@ -189,10 +189,29 @@ class Cars::ChargingSessionsController < ApplicationController
   def new_charging_session
     @charging_session =
       if action_name == 'new'
-        # The car of the list, or the first car of its timeframe
-        ChargingSession.new(kind: 'offsite', car: car_selection.car || car_selection.offered.first || car_selection.installed.first)
+        prefilled_session
       else
         ChargingSession.new(permitted_params.merge(origin: 'user'))
       end
+  end
+
+  # The car of the list, or the first car of its timeframe. In a list that
+  # reaches today the start is now, as a new event in the calendar of iOS,
+  # and the first car is one in use today. A start in a past list would offer
+  # only the cars of today. A car of the list that is no longer in use keeps
+  # the start empty.
+  def prefilled_session
+    today = Date.current unless timeframe.past? || timeframe.future?
+    car = prefilled_car(today)
+    started_at = Time.current.beginning_of_minute if today && car&.active_on?(today)
+
+    ChargingSession.new(kind: 'offsite', car:, started_at:)
+  end
+
+  def prefilled_car(today)
+    car_selection.car ||
+      (car_selection.offered.find { it.active_on?(today) } if today) ||
+      car_selection.offered.first ||
+      car_selection.installed.first
   end
 end

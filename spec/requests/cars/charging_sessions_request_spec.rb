@@ -180,6 +180,46 @@ describe 'Charging sessions' do
 
         expect(car_choices.find { it['selected'] }&.text).to eq('Lada')
       end
+
+      def date_value(name) = response.parsed_body.at_css("input[name=\"charging_session[#{name}]\"]")['value']
+
+      it 'starts now in a list that reaches today' do
+        travel_to Time.zone.local(2026, 10, 13, 9, 41, 27) do
+          new_session(timeframe: '2026')
+        end
+
+        expect(date_value(:started_at)).to eq('2026-10-13T09:41:00')
+        expect(date_value(:ended_at)).to be_nil
+      end
+
+      it 'starts now in a range that reaches today' do
+        travel_to Time.zone.local(2026, 10, 13, 9, 41, 27) do
+          new_session(timeframe: '2026-10-01..2026-10-13')
+        end
+
+        expect(date_value(:started_at)).to eq('2026-10-13T09:41:00')
+      end
+
+      it 'leaves the start empty in a past list' do
+        new_session(timeframe: (year - 1).to_s)
+
+        expect(date_value(:started_at)).to be_nil
+      end
+
+      it 'selects a car in use today when the session starts now' do
+        car.update_columns(active_until: Date.new(year - 1, 12, 31)) # rubocop:disable Rails/SkipsModelValidations
+        new_session(timeframe: 'all')
+
+        expect(car_choices.find { it['selected'] }&.text).to eq('Lada')
+        expect(date_value(:started_at)).to be_present
+      end
+
+      it 'leaves the start empty for a car of the list no longer in use' do
+        new_session(timeframe: 'all', car: '2')
+
+        expect(car_choices.find { it['selected'] }&.text).to eq('Wartburg')
+        expect(date_value(:started_at)).to be_nil
+      end
     end
   end
 
