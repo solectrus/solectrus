@@ -7,4 +7,4 @@
       .p-2 = t('settings.places.time')
       .p-2.flex.justify-center
         = render InfoIcon::Component.new(text: t('settings.places.description'), position: '')
-    = render 'rows', places:, pagy:
+    = render PlaceList::Rows::Component.new(places:, pagy:)
