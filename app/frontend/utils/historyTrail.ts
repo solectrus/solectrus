@@ -1,8 +1,8 @@
 // The path of each entry of the history, under the index that Turbo gives the
-// entry. The history does not tell the URL of another entry. So the way back
-// with the back button of Ui::TitleBar::Component looks here whether the entry
-// before is the parent. Only then can it go back in the history, else it
-// visits the parent.
+// entry. The history does not tell the URL of another entry. So a way back to
+// a page, like after the save of a form (see setupBackTo.ts) or with the back
+// button of Ui::TitleBar::Component, looks here whether the entry before is
+// that page. Only then can it go back in the history, else it visits the page.
 //
 // The trail lives in the session storage, so it survives a reload of the tab.
 //

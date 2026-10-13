@@ -74,6 +74,14 @@ describe 'Settings cars' do
         expect(response).to have_http_status(:unprocessable_content)
       end
 
+      it 'renders the page of the form again without Turbo Streams' do
+        patch settings_car_path(1), params: { car: { name: 'Model Y', short_name: ' ' } }
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(response.media_type).to eq('text/html')
+        expect(response.body).to include('<form')
+      end
+
       it 'refuses an empty first day' do
         patch settings_car_path(1), params: { car: { active_from: '' } }, as: :turbo_stream
 

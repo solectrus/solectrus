@@ -48,6 +48,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   # label_class adds to the class of the label, for example to hide it on a
   # phone, where the header of the group names the field
   def select(method, choices = nil, options = {}, html_options = {}, &)
+    page_autofocus!(html_options)
     hint = options.delete(:hint)
     label = label_text(method, options)
     label_class = options.delete(:label_class)
@@ -105,7 +106,13 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
+  # The form of a list entry (see FormPageHelper#form_page_with) focuses a
+  # field in the modal only. On its page, iOS would open the keyboard or a
+  # picker right at the slide.
+  def page_autofocus!(html_options) = options[:form_page] && (html_options[:autofocus] &&= @template.form_in_modal?)
+
   def input_field(field_type, method, **options)
+    page_autofocus!(options)
     hint = options.delete(:hint)
     suffix = options.delete(:suffix)
     show_label = options[:label] != false

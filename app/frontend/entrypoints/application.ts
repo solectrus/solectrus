@@ -5,12 +5,14 @@ import '@/utils/setupHoneyBadger';
 import '@/utils/setupStimulus';
 import { setupHistoryTrail } from '@/utils/historyTrail';
 import { metaContent } from '@/utils/metaContent';
+import { setupBackTo } from '@/utils/setupBackTo';
 import { setupSamePageVisits } from '@/utils/setupSamePageVisits';
 import { setupServiceWorker } from '@/utils/setupServiceWorker';
 import { setupTapFeedback } from '@/utils/setupTapFeedback';
 
 setupServiceWorker();
 setupHistoryTrail();
+setupBackTo();
 setupSamePageVisits();
 setupTapFeedback();
 
