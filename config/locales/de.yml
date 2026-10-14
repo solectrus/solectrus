@@ -461,7 +461,6 @@ de:
       name: Standorte
       edit: Ort bearbeiten
       home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
-      description: SOLECTRUS legt einen Ort an, sobald ein Auto mindestens 30 Minuten dort stand, bei seltenen Meldungen des Autos länger. Gib einem Ort einen eigenen Namen, zum Beispiel „Zuhause“. Die Karten und die Live-Ansicht zeigen dann diesen Namen.
       empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
       unnamed: Unbenannt
       no_visits: Ohne Besuche
