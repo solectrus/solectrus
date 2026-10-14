@@ -91,6 +91,18 @@ class Settings::PlacesController < ApplicationController
     Timeframe.new('all')
   end
 
+  # The place that is home, or nil
+  helper_method def current_home
+    return @current_home if defined?(@current_home)
+
+    @current_home = Place.home
+  end
+
+  # The form has the switch for home while no place or this place is home.
+  # Home moves from another place only with an action of its own, which asks
+  # first, because the move builds each day again (see the edit view).
+  helper_method def home_switch? = current_home.nil? || current_home == @place
+
   helper_method def sponsored? = Sensor::HomePage.permitted?(:cars)
 
   # The form opens from the list of the places and from the list of the
@@ -114,7 +126,7 @@ class Settings::PlacesController < ApplicationController
   end
 
   def permitted_params
-    params.expect(place: [:name, { labels: [] }])
+    params.expect(place: %i[name home])
   end
 
   def load_place

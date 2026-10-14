@@ -96,7 +96,27 @@ describe 'Settings Places' do
 
       expect(response.body).to include('id="modal-sheet-title">Jülich</h1>')
       expect(response.body).not_to include('placeholder=')
-      expect(response.body).to include('id="place_labels_home"', I18n.t('places.labels.home'))
+      expect(response.body).to include('id="place_home"', I18n.t('places.labels.home'))
+    end
+
+    it 'offers home with a switch while no other place is home' do
+      Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
+      place.update!(labels: ['home'])
+      login_as_admin
+      get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).to include('id="place_home"')
+      expect(response.body).not_to include(I18n.t('settings.places.make_home'))
+    end
+
+    it 'moves home here only with an action that asks first, while another place is home' do
+      Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
+      login_as_admin
+      get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).not_to include('id="place_home"')
+      expect(response.body).to include(I18n.t('settings.places.make_home'), CGI.escapeHTML(I18n.t('settings.places.make_home_confirm', previous: 'Old')))
+      expect(response.body).to include('name="place[home]" value="1"')
     end
 
     it 'gives the row of the list the town of the new address' do
@@ -185,7 +205,7 @@ describe 'Settings Places' do
     it 'moves home to the place, and replaces the row of the old home' do
       old_home = Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
       login_as_admin
-      patch settings_place_path(place), params: { place: { name: 'New', labels: ['', 'home'] } }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
+      patch settings_place_path(place), params: { place: { home: '1' } }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(Place.home).to eq(place)
       expect(response.body).to include(%(target="place_#{place.id}"), %(target="place_#{old_home.id}"))

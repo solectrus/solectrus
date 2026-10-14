@@ -464,6 +464,8 @@ de:
       description: SOLECTRUS legt einen Ort an, sobald ein Auto mindestens 30 Minuten dort stand, bei seltenen Meldungen des Autos länger. Gib einem Ort einen eigenen Namen, zum Beispiel „Zuhause“. Die Karten und die Live-Ansicht zeigen dann diesen Namen.
       empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
       unnamed: Unbenannt
+      make_home: Als Zuhause festlegen …
+      make_home_confirm: Bisher ist „%{previous}“ das Zuhause. Alle Zusammenfassungen werden neu berechnet.
       time: Zeit
     cash_flows:
       name: Zahlungen
