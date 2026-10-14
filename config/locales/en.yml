@@ -600,9 +600,9 @@ en:
           feed_in: Unit rate
         amount_per_month: Base fee
         note: Note
-        electricity_amount: Rate in %{currency}/kWh
-        electricity_amount_per_month: Base fee in %{currency}/month
-        feed_in_amount: Rate in %{currency}/kWh
+        electricity_amount: Rate per kWh
+        electricity_amount_per_month: Base fee per month
+        feed_in_amount: Rate per kWh
       cash_flow:
         date: Date
         amount: Amount

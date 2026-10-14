@@ -600,9 +600,9 @@ de:
           feed_in: Vergütungssatz
         amount_per_month: Grundpreis
         note: Notiz
-        electricity_amount: Arbeitspreis in %{currency}/kWh
-        electricity_amount_per_month: Grundpreis in %{currency}/Monat
-        feed_in_amount: Vergütungssatz in %{currency}/kWh
+        electricity_amount: Arbeitspreis pro kWh
+        electricity_amount_per_month: Grundpreis im Monat
+        feed_in_amount: Vergütungssatz pro kWh
       cash_flow:
         date: Datum
         amount: Betrag

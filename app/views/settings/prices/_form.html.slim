@@ -3,15 +3,21 @@
 
   = f.group do
     = f.date_field :starts_at, autofocus: true
+
+  = f.group do
     = f.number_field :amount_per_kwh,
                      in: 0..2,
                      step: '0.00001',
-                     label: t("activerecord.attributes.price.#{price.name}_amount", currency: Currency.symbol)
+                     label: t("activerecord.attributes.price.#{price.name}_amount"),
+                     currency: true
     - if price.electricity?
       = f.number_field :amount_per_month,
                        in: 0..999,
                        step: '0.01',
-                       label: t('activerecord.attributes.price.electricity_amount_per_month', currency: Currency.symbol)
+                       label: t('activerecord.attributes.price.electricity_amount_per_month'),
+                       currency: true
+
+  = f.group do
     = f.text_field :note
 
   = render Ui::SubmitButton::Component.new delete_path: (settings_price_path(price) if price.destroyable?)
