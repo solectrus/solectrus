@@ -305,16 +305,30 @@ end
 
 RSpec.configure do |config|
   config.include SystemTestHelpers, type: :system
+  config.add_setting :system_run, default: false
 
   # Seed test data once for all system tests (major performance optimization!)
   # This runs ONCE before any system tests start
   config.before(:suite) do
     # Only seed if we're actually running system tests
     if RSpec.configuration.files_to_run.any? { |f| f.include?('spec/system') }
+      config.system_run = true
       extend SystemTestHelpers
 
       influx_seed
     end
+  end
+
+  # The summaries of the seed and the cars that the pages of a system test
+  # create stay until the suite ends. Every other example runs in a
+  # transaction: it deletes them there, and the rollback brings them back.
+  config.before do |example|
+    next if !config.system_run || example.metadata[:type] == :system
+
+    Summary.delete_all
+    PlaceVisit.delete_all
+    ChargingSession.delete_all
+    Car.delete_all
   end
 
   config.before(:each, type: :system) do
