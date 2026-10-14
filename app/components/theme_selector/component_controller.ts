@@ -179,12 +179,17 @@ export default class extends Controller<HTMLElement> {
   }
 
   get prefersDarkScheme(): MediaQueryList {
-    return window.matchMedia
-      ? window.matchMedia('(prefers-color-scheme: dark)')
-      : ({
-          matches: false,
-          addEventListener: () => {},
-          removeEventListener: () => {},
-        } as unknown as MediaQueryList);
+    return prefersDarkScheme;
   }
 }
+
+// One list for all controllers. matchMedia returns a new list at each call,
+// and removeEventListener must get the list that addEventListener got.
+// Else the listener stays, and it keeps the controller and its page.
+const prefersDarkScheme: MediaQueryList = window.matchMedia
+  ? window.matchMedia('(prefers-color-scheme: dark)')
+  : ({
+      matches: false,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    } as unknown as MediaQueryList);
