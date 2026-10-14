@@ -83,10 +83,10 @@ describe 'Cars Visits' do
         expect(response.body).to include(I18n.t('visits.name'))
       end
 
-      it 'opens a place in the modal, and narrows the list to it with the chevron' do
+      it 'opens a place, which leads back to the list, and narrows the list to it with the chevron' do
         get cars_visits_path(timeframe: '2026-09')
 
-        expect(response.body).to include(%(href="/settings/places/#{work.id}/edit"), 'data-turbo-frame="modal"')
+        expect(response.body).to include(%(href="/settings/places/#{work.id}/edit?return_to=%2Fcars%2Fvisits%2F2026-09"), %(data-nav-title="#{I18n.t('settings.places.edit')}"))
         expect(response.body).to include(%(href="/cars/places/#{work.id}/visits/2026-09"), I18n.t('visits.filter_place'))
       end
 
@@ -100,6 +100,13 @@ describe 'Cars Visits' do
         expect(response.body).to include(%(href="/cars/places/#{work.id}/visits/2026-08"))
         # The list of one place narrows no further
         expect(response.body).not_to include(I18n.t('visits.filter_place'))
+      end
+
+      it 'names a place without a name by its district in gray, with the town beside it' do
+        work.update!(name: nil, geocoding: { 'address' => { 'suburb' => 'Braunsfeld', 'city' => 'Köln' } })
+        get cars_visits_path(timeframe: '2026-09')
+
+        expect(response.body).to include(%(class="text-muted" data-visit-place-name="#{work.id}">Braunsfeld</span>), '>Köln</div>')
       end
 
       it 'has a column for the labels, but not in the list of a place without a label' do
@@ -206,6 +213,13 @@ describe 'Cars Visits' do
         get cars_visits_path(car: 9, timeframe: '2026-09', place: work.id)
 
         expect(response).to redirect_to("/cars/places/#{work.id}/visits/2026-09")
+      end
+
+      it 'drops the whole time from the address, where the form of a place leads back' do
+        car = Car.configured.first
+        get cars_visits_path(car: car.id, timeframe: 'all', place: work.id)
+
+        expect(response).to redirect_to("/cars/#{car.id}/places/#{work.id}/visits")
       end
     end
 

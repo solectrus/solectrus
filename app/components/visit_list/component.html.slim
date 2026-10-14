@@ -1,26 +1,18 @@
-/ The place of the list as a chip that removes it. The timeframe and the car
-  have their selects in the header.
-- if place
-  .flex.flex-wrap.justify-center.gap-2.mb-4
-    = render VisitList::FilterChip::Component.new(remove_path: context.list_path(place: nil)) do
-      = icon 'location-dot', class: 'text-gray-500'
-      span.truncate class=('italic text-gray-500' unless place.display_name)
-        = place.display_name || t('settings.places.unnamed')
-      = render PlaceLabels::Component.new(place:)
-
 - if visits.empty?
   = render EmptyList::Component.new(icon: 'location-dot', text: t('visits.empty'))
 - else
-  / A phone has columns only for the header, the rows wrap (see the row)
-  .grid.w-full class=['grid-cols-[minmax(0,1fr)_auto]', %w[sm:grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_auto_1fr_auto] sm:grid-cols-[auto_auto_auto_1fr_auto]][context.icon_columns]]
-    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold
-      .max-sm:hidden.p-2 = t('visits.period')
+  / The desktop has a table, a phone a card in the style of iOS (see the row).
+    One container for both, so the pages of the list load once.
+  / The place has two columns: its name, and where it is.
+  .grid.w-full.max-lg:flex.max-lg:flex-col class=%w[lg:grid-cols-[auto_auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_auto_auto_auto_minmax(0,1fr)_auto]][context.icon_columns]
+    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold.max-lg:hidden
+      .p-2 = t('visits.period')
       - if context.car_column?
-        .max-sm:hidden.p-2 = Car.model_name.human
+        .p-2 = Car.model_name.human
       - if context.label_column?
         / The column of the icons has no title
-        .max-sm:hidden.py-2.pl-2
-      / On a phone, the title starts after the icons, like the names
-      .p-2 class=[nil, 'max-sm:pl-10', 'max-sm:pl-18'][context.icon_columns] = Place.model_name.human
+        .py-2.pl-2
+      .p-2.col-span-2 = Place.model_name.human
       .p-2.text-right = t('visits.duration')
-    = render VisitList::Rows::Component.new(visits:, pagy:, context:)
+    .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+      = render VisitList::Rows::Component.new(visits:, pagy:, context:)

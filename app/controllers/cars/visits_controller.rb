@@ -14,6 +14,9 @@ class Cars::VisitsController < ApplicationController
   def index
     # A car that the page does not offer goes to "all", like on the car page
     return redirect_to(visits_path_with(car: nil)) unless car_selection.valid?
+    # The whole time has no timeframe in the address (see visits_path_with),
+    # so the form of a place finds the list in the history on its way back
+    return redirect_to(visits_path_with) if params[:timeframe] == 'all'
 
     # While days wait for the build, the page shows the build instead of the list
     @pending_days = page_frame_request? ? [] : pending_visit_days

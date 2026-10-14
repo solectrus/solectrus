@@ -62,8 +62,9 @@ class Car::DrivingCard::Component < ViewComponent::Base
     ]
   end
 
-  # The list of the visits, for the timeframe and the selected car
-  def visits_path = helpers.cars_visits_path(timeframe: timeframe.to_param, car: report.car&.id)
+  # The list of the visits, for the timeframe and the selected car. The whole
+  # time has no timeframe in the address of the list.
+  def visits_path = helpers.cars_visits_path(timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id)
 
   def badge_classes = [Car::Card::Component::BADGE, 'bg-slate-200 dark:bg-slate-700/60']
 

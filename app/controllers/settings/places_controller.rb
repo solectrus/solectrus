@@ -51,8 +51,44 @@ class Settings::PlacesController < ApplicationController
     [@place, @moved].compact.flat_map { replace_place(it) }
   end
 
+  # The form opens from the list of the places and from the list of the
+  # visits, which passes itself as return_to. The form leads back there.
   helper_method def list_path
-    settings_places_path
+    return_to || settings_places_path
+  end
+
+  helper_method def list_title
+    return_to ? t('visits.name') : title
+  end
+
+  helper_method def return_to
+    url_from(params[:return_to])
+  end
+
+  # The visits at the place, with the car and the timeframe of the list of
+  # the visits that opened the form. None when that list shows only this
+  # place already.
+  helper_method def place_visits_path
+    list = visits_list_params
+    cars_visits_path(**list, place: @place.id) unless list[:place] == @place.id.to_s
+  end
+
+  # The number of the visits that place_visits_path lists
+  helper_method def place_visits_count
+    @place_visits_count ||= begin
+      list = visits_list_params
+      visits = PlaceVisit.where(place: @place)
+      visits = visits.where(car_id: list[:car]) if list[:car]
+      visits.counts(visits_list_timeframe)[:visits]
+    end
+  end
+
+  # The timeframe of the list of the visits. Like the list, an invalid one
+  # falls back to the whole time (see CarListPage#timeframe).
+  def visits_list_timeframe
+    Timeframe.new(visits_list_params[:timeframe] || 'all')
+  rescue ArgumentError
+    Timeframe.new('all')
   end
 
   helper_method def sponsored? = Sensor::HomePage.permitted?(:cars)
@@ -83,5 +119,16 @@ class Settings::PlacesController < ApplicationController
 
   def load_place
     @place = Place.find(params.expect(:id))
+  end
+
+  # The car, the timeframe and the place of the list of the visits that
+  # opened the form
+  def visits_list_params
+    @visits_list_params ||= begin
+      route = return_to ? Rails.application.routes.recognize_path(URI(return_to).path) : {}
+      route[:controller] == 'cars/visits' ? route.slice(:car, :timeframe, :place) : {}
+    rescue ActionController::RoutingError
+      {}
+    end
   end
 end

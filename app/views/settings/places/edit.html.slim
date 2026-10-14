@@ -1,14 +1,22 @@
 - heading = t('settings.places.edit')
-= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: title
+= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: list_title
 
 / The address and the map show the user which place this is. The modal
   names the address as its title, the page of a phone above the map.
 = render Ui::FormPage::Component.new(title: @place.address || heading) do
   - if @place.address && !form_in_modal?
-    p.lg:hidden.px-4.text-sm.text-muted class='pb-1.5' = @place.address
+    p.lg:hidden.px-4.text-center.text-muted class='pb-1.5' = @place.address
   div class='flex h-64 my-4 max-lg:mt-0 max-lg:mb-8 max-lg:overflow-hidden max-lg:rounded-xl'
     = render Car::Map::Component.new(cars: map_cars, live: true)
+
   = render 'form', place: @place
+
+  / The desktop narrows the list of the visits with the chevron beside the
+    name. A phone opens the place with a tap on its row, so the way to its
+    visits is here, apart from the form.
+  - if place_visits_path && !form_in_modal? && place_visits_count.positive?
+    .lg:hidden.mt-10
+      = render Ui::NavList::Component.new(items: [{ name: t('visits.at_place', count: place_visits_count), href: place_visits_path, icon: 'location-dot' }], label: t('visits.name'))
 
   / The form asked Nominatim, so the list gets the locality. A stream
     inside the frame runs when the modal opens. The page of a phone leads

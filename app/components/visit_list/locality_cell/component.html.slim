@@ -1,5 +1,6 @@
-/ The district and the town below the name of a place. Also without them,
-  so the form can replace it (see Settings::PlacesController). A phone puts
-  it in the second line of the row, before the times.
-.text-sm.text-gray-500.truncate.max-sm:order-4.max-sm:flex-1 data-visit-place-locality=place.id
-  = place.locality if place.name
+/ Where a place is, in a column beside its name: the locality of a place
+  with a name, the town beside the district of a place without one. Also
+  without them, so the form can replace it (see Settings::PlacesController).
+  A phone has the times there instead.
+.truncate.lg:p-2.text-sm.text-gray-500.max-lg:hidden data-visit-place-locality=place.id
+  = text

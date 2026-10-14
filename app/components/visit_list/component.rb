@@ -9,6 +9,4 @@ class VisitList::Component < ViewComponent::Base
   end
 
   attr_reader :visits, :pagy, :context
-
-  delegate :place, to: :context
 end

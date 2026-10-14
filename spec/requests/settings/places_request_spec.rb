@@ -116,6 +116,59 @@ describe 'Settings Places' do
 
       expect(response.body).to include('<turbo-stream action="clear_cache">')
     end
+
+    context 'with visits' do
+      before do
+        car = Car.create!(id: 1)
+        [Time.zone.parse('2026-08-10 10:00'), Time.zone.parse('2026-09-10 10:00')].each do |started_at|
+          place.visits.create!(car:, date: started_at.to_date, started_at:, ended_at: started_at + 1.hour)
+        end
+        login_as_admin
+      end
+
+      it 'leads to the visits of the place on the page of a phone, and counts them' do
+        get edit_settings_place_path(place)
+
+        expect(response.body).to include(%(href="#{settings_places_path}"), %(href="/cars/places/#{place.id}/visits"))
+        expect(response.body).to include(I18n.t('visits.at_place', count: 2))
+      end
+
+      it 'leads back to the list of the visits that opened it, and keeps its car and timeframe' do
+        get edit_settings_place_path(place, return_to: '/cars/1/visits/2026-09')
+
+        expect(response.body).to include('href="/cars/1/visits/2026-09"', %(href="/cars/1/places/#{place.id}/visits/2026-09"))
+        expect(response.body).to include(%(action="/settings/places/#{place.id}?return_to=%2Fcars%2F1%2Fvisits%2F2026-09"))
+        expect(response.body).to include(I18n.t('visits.at_place', count: 1))
+      end
+
+      it 'counts the visits of the whole time for a list with an invalid timeframe' do
+        get edit_settings_place_path(place, return_to: '/cars/visits/2026-09-30..2026-09-01')
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include(I18n.t('visits.at_place', count: 2))
+      end
+    end
+
+    it 'does not lead to the visits of a place without one' do
+      login_as_admin
+      get edit_settings_place_path(place)
+
+      expect(response.body).not_to include(%(href="/cars/places/#{place.id}/visits"))
+    end
+
+    it 'does not lead to the visits from the list of the visits of the place' do
+      login_as_admin
+      get edit_settings_place_path(place, return_to: "/cars/places/#{place.id}/visits")
+
+      expect(response.body).not_to include(I18n.t('visits.filter_place'))
+    end
+
+    it 'ignores a return_to to another host' do
+      login_as_admin
+      get edit_settings_place_path(place, return_to: 'https://example.com/cars/visits')
+
+      expect(response.body).not_to include('example.com')
+    end
   end
 
   describe 'PATCH /settings/places/:id' do
@@ -145,6 +198,13 @@ describe 'Settings Places' do
 
       expect(place.reload.name).to eq('Home')
       expect(response.body).to include(%(<turbo-stream action="back_to" target="#{settings_places_path}">))
+    end
+
+    it 'goes back to the list of the visits that opened the form' do
+      login_as_admin
+      patch settings_place_path(place, return_to: '/cars/visits/2026-09'), params: { place: { name: 'Home' } }, as: :turbo_stream
+
+      expect(response.body).to include('<turbo-stream action="back_to" target="/cars/visits/2026-09">')
     end
   end
 end

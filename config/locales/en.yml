@@ -192,6 +192,9 @@ en:
     duration: Duration
     remove_filter: Remove filter
     filter_place: Only visits at this place
+    at_place:
+      one: 1 visit at this place
+      other: '%{count} visits at this place'
     filter_car: Only visits of this car
     # The times of a visit in the list of one day
     from: from %{time}
