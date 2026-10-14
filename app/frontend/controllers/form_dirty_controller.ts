@@ -1,10 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 
-export default class extends Controller {
-  static readonly targets = ['submit'];
-
-  declare readonly submitTarget: HTMLButtonElement;
-
+// Enables the save buttons of a form once a field changes. A button can stand
+// outside the form and name it with its form attribute, like the save button
+// of Ui::TitleBar::Component, so the controller finds the buttons among the
+// elements of the form and not as targets.
+export default class extends Controller<HTMLFormElement> {
   private initialData = '';
   private lastCheckedData = '';
   private submitting = false;
@@ -13,7 +13,7 @@ export default class extends Controller {
     this.initialData = this.formData();
     this.lastCheckedData = this.initialData;
     this.submitting = false;
-    this.submitTarget.disabled = true;
+    this.setDisabled(true);
 
     this.element.addEventListener('input', this.handleChange);
     this.element.addEventListener('change', this.handleChange);
@@ -42,7 +42,7 @@ export default class extends Controller {
     if (current === this.lastCheckedData) return;
 
     this.lastCheckedData = current;
-    this.submitTarget.disabled = current === this.initialData;
+    this.setDisabled(current === this.initialData);
   };
 
   private readonly handleSubmitStart = (): void => {
@@ -63,12 +63,21 @@ export default class extends Controller {
   private resetState(): void {
     this.initialData = this.formData();
     this.lastCheckedData = this.initialData;
-    this.submitTarget.disabled = true;
+    this.setDisabled(true);
+  }
+
+  private setDisabled(disabled: boolean): void {
+    for (const element of this.element.elements) {
+      if (
+        element instanceof HTMLButtonElement &&
+        element.hasAttribute('data-form-dirty-submit')
+      )
+        element.disabled = disabled;
+    }
   }
 
   private formData(): string {
-    const form = this.element as HTMLFormElement;
-    const data = new FormData(form);
+    const data = new FormData(this.element);
 
     // Remove authenticity token from comparison
     data.delete('authenticity_token');

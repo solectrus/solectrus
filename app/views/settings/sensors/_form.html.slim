@@ -1,5 +1,5 @@
 / Each section brings its own groups, see ui_form.css for a phone
-= form_with url: settings_sensors_path, method: :patch, html: { class: 'ui-form relative px-2', data: { controller: 'form-dirty' } } do |f|
+= form_with url: settings_sensors_path, method: :patch, id: 'settings_sensors_form', html: { class: 'ui-form relative px-2', data: { controller: 'form-dirty' } } do |f|
   = yield f
 
   .lg:sticky.lg:bottom-4.lg:z-20

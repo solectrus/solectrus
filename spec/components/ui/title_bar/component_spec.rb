@@ -46,4 +46,20 @@ describe Ui::TitleBar::Component, type: :component do
     expect(link['aria-label']).to eq('New price')
     expect(link.text.strip).to be_empty
   end
+
+  it 'renders the save button of a form outside it, disabled until the form changes' do
+    html =
+      render_inline(described_class.new(title: 'Edit price')) do |bar|
+        bar.with_save(form: 'form_price_1')
+      end
+
+    button = html.css('button.ui-title-bar-save').first
+    aggregate_failures do
+      expect(button['type']).to eq('submit')
+      expect(button['form']).to eq('form_price_1')
+      expect(button['disabled']).not_to be_nil
+      expect(button['data-form-dirty-submit']).not_to be_nil
+      expect(button['aria-label']).to eq(I18n.t('crud.save'))
+    end
+  end
 end

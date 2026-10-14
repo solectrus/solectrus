@@ -1,5 +1,5 @@
 - heading = t("settings.prices.new.#{name}")
-= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: title
+= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: title, save: form_page_id(@price)
 
 = render Ui::FormPage::Component.new(title: heading) do
   = render 'form', price: @price

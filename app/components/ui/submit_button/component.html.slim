@@ -1,13 +1,14 @@
-/ One save button for both layouts, as the form-dirty controller knows one.
+/ One save button for the desktop, which the form-dirty controller enables.
   Disabled from the start, as the form-dirty controller sets it on connect.
-  Else it shows enabled until the controller connects.
+  Else it shows enabled until the controller connects. A phone has the save
+  button in the title bar instead (see Ui::TitleBar::Component).
 
   The save button comes first in the form, because Enter in a field submits
   with the first submit button. The delete button moves to the left edge with
   order-first.
-.flex.items-center.justify-end.gap-3.mt-8.lg:mt-6
-  button class=BUTTON_CLASS type="submit" disabled=true data-form-dirty-target="submit"
-    = icon 'check', class: 'max-lg:hidden'
+.flex.items-center.justify-end.gap-3.mt-6.max-lg:hidden
+  button class=BUTTON_CLASS type="submit" disabled=true data-form-dirty-submit=true
+    = icon 'check'
     = label
   - if delete_path
     = render Button::Component.new icon: removal[:icon],
@@ -17,12 +18,13 @@
                                      **delete_options,
                                      title: removal[:label],
                                      data: { turbo_confirm: removal[:confirm], controller: 'tooltip' },
-                                     class: 'order-first mr-auto max-lg:hidden text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
+                                     class: 'order-first mr-auto text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
                                    }
+/ A phone has the delete button as a red line of its own below the fields
 - if delete_path
-  .mt-3.lg:hidden
+  .mt-8.lg:hidden
     = button_tag removal[:label],
                  type: :submit,
                  **delete_options,
                  data: { turbo_confirm: removal[:confirm] },
-                 class: 'w-full rounded-full py-3.5 text-headline font-semibold click-animation transition-colors bg-red-500/10 text-signal-negative active:bg-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900'
+                 class: 'w-full rounded-xl py-3 text-headline bg-white text-signal-negative active:bg-gray-200 dark:bg-slate-800/60 dark:active:bg-slate-700/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500'

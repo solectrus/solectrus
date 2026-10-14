@@ -2,8 +2,9 @@
 # title in the middle and, below the top level, a round back button to the
 # parent page. The button carries no text, so the title keeps the middle on a
 # narrow screen too. An action, like adding an entry, stands as a round icon
-# button at the right, the counterpart of the back button. From lg up the bar
-# hides itself, the desktop names the page in its own way.
+# button at the right, the counterpart of the back button. A form page has
+# its save button there instead. From lg up the bar hides itself, the desktop
+# names the page in its own way.
 #
 # A change between such pages slides (see component.css). The controller finds
 # the direction: a page whose parent is the current page slides in from the
@@ -24,6 +25,22 @@ class Ui::TitleBar::Component < ViewComponent::Base
                         'aria-label': label do
                   icon(icon)
                 end
+              }
+
+  # The save button of a form page, as iOS has it: a check mark at the right.
+  # It stands outside the form and names it by its id, `form`. The form-dirty
+  # controller of the form enables it once a field changes, and it is the
+  # button that Enter in a field takes (see Ui::SubmitButton::Component).
+  renders_one :save,
+              lambda { |form:, label: t('crud.save')|
+                tag.button icon('check'),
+                           type: :submit,
+                           form:,
+                           disabled: true,
+                           class: 'ui-title-bar-action ui-title-bar-save right-0 click-animation',
+                           title: label,
+                           'aria-label': label,
+                           data: { form_dirty_submit: true }
               }
 
   # `back_slide: false` for a parent without a title bar, like the car page:

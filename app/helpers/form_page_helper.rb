@@ -21,7 +21,7 @@ module FormPageHelper
   def form_page_with(model:, **, &)
     form_with(
       model:,
-      id: dom_id(Array(model).last, :form),
+      id: form_page_id(model),
       builder: TailwindFormBuilder,
       form_page: true,
       html: { class: 'ui-form', data: { controller: 'form-dirty', **form_page_target } },
@@ -29,6 +29,10 @@ module FormPageHelper
       &
     )
   end
+
+  # The id of the form of a list entry. The save button in the title bar of a
+  # phone names the form by it (see Ui::TitleBar::Component).
+  def form_page_id(model) = dom_id(Array(model).last, :form)
 
   # In the modal, a form submits within that frame, so the controller can
   # tell the two places apart (see FormPageResponse). On its page, a redirect

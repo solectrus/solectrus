@@ -81,6 +81,12 @@ html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 
+/* The save button stands out once there is something to save, as the tinted
+   button of iOS, and fades while there is nothing */
+.ui-title-bar-save {
+  @apply enabled:bg-white enabled:text-indigo-600 disabled:opacity-40 dark:enabled:bg-indigo-500 dark:enabled:text-white;
+}
+
 /* Set by the controller from the render to turbo:load. Important, because the
    progress bar carries the unlayered styles of Turbo. */
 html[data-nav-rendering] .turbo-progress-bar {

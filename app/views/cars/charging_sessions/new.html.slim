@@ -3,7 +3,8 @@
 - heading = t('charging_sessions.new')
 - content_for :fixed_nav, true
 - content_for :sub_nav do
-  = render Ui::TitleBar::Component.new(title: heading, back_href: list_path, back_label: t('charging_sessions.title'))
+  = render Ui::TitleBar::Component.new(title: heading, back_href: list_path, back_label: t('charging_sessions.title')) do |bar|
+    - bar.with_save(form: form_page_id(@charging_session))
 
 = render Ui::FormPage::Component.new(title: heading, width: :extra_wide) do
   = render 'form', charging_session: @charging_session

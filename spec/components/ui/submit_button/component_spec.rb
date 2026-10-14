@@ -1,11 +1,11 @@
 describe Ui::SubmitButton::Component, type: :component do
-  it 'renders one disabled button with its label, and a check mark on the desktop' do
+  it 'renders one disabled button with its label and a check mark, on the desktop only' do
     render_inline(described_class.new)
 
-    button = page.find('button[type="submit"][data-form-dirty-target="submit"][disabled]')
+    button = page.find('.max-lg\:hidden button[type="submit"][data-form-dirty-submit][disabled]')
     aggregate_failures do
       expect(button).to have_text('Save', exact: true)
-      expect(button).to have_css('.fa-check.max-lg\:hidden')
+      expect(button).to have_css('.fa-check')
       expect(page).to have_no_button('Delete')
     end
   end
@@ -16,7 +16,7 @@ describe Ui::SubmitButton::Component, type: :component do
     expect(page).to have_button('Accept', disabled: true)
   end
 
-  it 'renders a trash icon on the desktop and a wide button on a phone, both submit the form as a DELETE' do
+  it 'renders a trash icon on the desktop and a red line on a phone, both submit the form as a DELETE' do
     render_inline(described_class.new(delete_path: '/prices/1'))
 
     buttons = page.all('button[formaction="/prices/1"]')
@@ -34,7 +34,7 @@ describe Ui::SubmitButton::Component, type: :component do
   it 'puts the save button first, so Enter in a field saves and does not delete' do
     render_inline(described_class.new(delete_path: '/prices/1'))
 
-    expect(page.first('button[type="submit"]')['data-form-dirty-target']).to eq('submit')
+    expect(page.first('button[type="submit"]')['data-form-dirty-submit']).not_to be_nil
   end
 
   it 'submits another way with its own label and question' do
