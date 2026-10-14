@@ -29,7 +29,7 @@ The header below the title bar can hold more controls of the page, like the time
 
 ## Forms
 
-On a phone, a form looks like the iOS settings. Each group of fields is a white card on a gray page. Each field is a cell: the label at the left, the input at the right, without a border. A hint shows below the input, in the same cell. A check box is a switch. The desktop keeps the usual form.
+On a phone, a form looks like the iOS settings. Each group of fields is a white card on a gray page. Each field is a cell: the label at the left, the input at the right, without a border. A text field puts its label above the input, so the text has the full width of the cell. A hint shows below the input, in the same cell. A check box is a switch. The desktop keeps the usual form.
 
 A form gets this look from two things:
 

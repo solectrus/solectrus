@@ -4,8 +4,9 @@
  * on the gray page (see Ui::TitleBar::Component), each child of a group a
  * cell. A field shows its label at the left and its input at the right,
  * without a border. A hint or an error follows below, inside the cell. A
- * check box is a switch. A stacked group puts the label above the input, for
- * labels too long to share a line. A text area shows its name as the
+ * check box is a switch. A text field puts its label above the input, so the
+ * text has the full width of the cell. A stacked group does so for each field,
+ * for labels too long to share a line. A text area shows its name as the
  * placeholder instead of a label, as the notes of an event on iOS.
  *
  * A form in the modal keeps the usual look, as the sheet of a phone is white.
@@ -173,9 +174,11 @@
       }
     }
 
-    /* A text area takes the full width of its cell. Its name is the
-       placeholder, so the label is for a screen reader only. */
+    /* A text field and a text area take the full width of their cell. The name
+       of a text area is its placeholder, so its label is for a screen reader
+       only. */
     .ui-form-stacked .form-control:not(.flex-row),
+    .form-control:has(> .form-input:is([type='text'], [type='password'])),
     .form-control:not(.flex-row):has(textarea) {
       @apply grid-cols-1;
 
@@ -188,6 +191,15 @@
       .form-control:not(.flex-row) {
         @apply gap-y-1;
       }
+
+      .label-text {
+        @apply text-muted text-sm;
+      }
+    }
+
+    /* A text field has its label above the input, as in a stacked group */
+    .form-control:has(> .form-input:is([type='text'], [type='password'])) {
+      @apply gap-y-1;
 
       .label-text {
         @apply text-muted text-sm;
