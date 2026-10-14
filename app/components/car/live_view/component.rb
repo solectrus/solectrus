@@ -73,8 +73,11 @@ class Car::LiveView::Component < ViewComponent::Base
   # Nominatim, so an unknown name comes later (see Car::LocationBadge::Component).
   def place_name(state) = Place.known_name_at(*state.location)
 
-  # A cell keeps a minimum height, so a narrow screen scrolls through the
-  # cars. The class names stay literal, so Tailwind finds them.
+  # A cell keeps a minimum height of 24rem, so a narrow screen scrolls through
+  # the cars. Less the name and the odometer, it leaves the gauge 15rem wide:
+  # below that, the center of the gauge reaches the arc, because its text
+  # stops shrinking (see Car::RangeGauge::Component). The class names stay
+  # literal, so Tailwind finds them.
   def grid_classes
     case states.size
     when 0, 1 then 'grid-cols-1'
