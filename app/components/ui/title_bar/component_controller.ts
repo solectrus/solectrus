@@ -118,6 +118,10 @@ export default class extends Controller<HTMLElement> {
     else if (current.parent && current.parent === next?.parent)
       direction = 'across';
 
+    // A morph keeps this controller, so the next slide starts afresh
+    this.#skeleton = undefined;
+    this.#slide = undefined;
+
     document.documentElement.dataset.navDirection = direction;
     this.#hideProgressBar();
   }
