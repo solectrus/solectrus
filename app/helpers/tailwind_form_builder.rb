@@ -1,11 +1,13 @@
 class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   attr_reader :template, :options, :object_name
 
-  def group(title: nil, &)
+  # The ui-form classes make a group a card of cells on a phone, see
+  # ui_form.css. A stacked group puts each label above its input there.
+  def group(title: nil, stacked: false, &)
     safe_join(
       [
-        (tag.div(title, class: 'text-gray-500 text-sm md:text-base') if title),
-        tag.div(class: 'mb-10 pt-4 grid grid-cols-1 gap-4', &),
+        (tag.div(title, class: 'ui-form-header text-gray-500 text-sm md:text-base') if title),
+        tag.div(class: ['ui-form-group mb-10 pt-4 grid grid-cols-1 gap-4', ('ui-form-stacked' if stacked)], &),
       ].compact,
     )
   end
@@ -22,8 +24,10 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:text_field, method, **, &)
   end
 
-  def text_area(method, **, &)
-    input_field(:text_area, method, **, &)
+  # The name is also the placeholder: a phone shows it in place of the label,
+  # as the notes of an event on iOS (see ui_form.css)
+  def text_area(method, **options, &)
+    input_field(:text_area, method, placeholder: label_text(method, options), **options, &)
   end
 
   def number_field(method, **, &)
@@ -41,9 +45,13 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     define_method(field_type) { |method, **options, &block| input_field(field_type, method, **options, &block) }
   end
 
+  # label_class adds to the class of the label, for example to hide it on a
+  # phone, where the header of the group names the field
   def select(method, choices = nil, options = {}, html_options = {}, &)
+    page_autofocus!(html_options)
     hint = options.delete(:hint)
     label = label_text(method, options)
+    label_class = options.delete(:label_class)
     options.delete(:label)
     html_options[:class] = [
       html_options[:class],
@@ -52,7 +60,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     ].compact.join(' ')
 
     tag.div class: 'form-control' do
-      label(method, class: 'label') do
+      label(method, class: ['label', label_class].compact.join(' ')) do
         tag.span(label, class: 'label-text')
       end +
         safe_join(
@@ -98,7 +106,13 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
+  # The form of a list entry (see FormPageHelper#form_page_with) focuses a
+  # field in the modal only. On its page, iOS would open the keyboard or a
+  # picker right at the slide.
+  def page_autofocus!(html_options) = options[:form_page] && (html_options[:autofocus] &&= @template.form_in_modal?)
+
   def input_field(field_type, method, **options)
+    page_autofocus!(options)
     hint = options.delete(:hint)
     suffix = options.delete(:suffix)
     show_label = options[:label] != false
@@ -146,7 +160,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   # Pin a unit (e.g. "km") to the right edge of the input
   def with_suffix(input, suffix)
-    tag.div(class: 'relative') do
+    tag.div(class: 'ui-form-input relative') do
       input +
         tag.span(
           suffix,

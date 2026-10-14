@@ -1,0 +1,207 @@
+/*
+ * A form on a phone in the inset grouped style of iOS. The form carries the
+ * class ui-form, and TailwindFormBuilder marks its parts. Each group is a card
+ * on the gray page (see Ui::TitleBar::Component), each child of a group a
+ * cell. A field shows its label at the left and its input at the right,
+ * without a border. A hint or an error follows below, inside the cell. A
+ * check box is a switch. A stacked group puts the label above the input, for
+ * labels too long to share a line. A text area shows its name as the
+ * placeholder instead of a label, as the notes of an event on iOS.
+ *
+ * A form in the modal keeps the usual look, as the sheet of a phone is white.
+ *
+ * Unlayered, because the classes of @tailwindcss/forms and their dark
+ * variants in application.css are unlayered too. The desktop keeps the usual
+ * form.
+ */
+@variant max-lg {
+  .ui-form:not(#modal *) {
+    @apply px-0 [--ui-form-separator:var(--color-gray-300)] dark:[--ui-form-separator:var(--color-slate-700)];
+
+    .ui-form-header {
+      @apply text-muted px-4 pb-1.5 text-xs font-medium tracking-wide uppercase;
+    }
+
+    .ui-form-group {
+      @apply mb-8 grid-cols-1 gap-0 overflow-hidden rounded-xl bg-white p-0 dark:bg-slate-800/60;
+
+      &:last-child {
+        @apply mb-0;
+      }
+    }
+
+    /* A wrapper that arranges fields on the desktop steps aside, so its
+       fields are cells of the group */
+    .ui-form-contents {
+      @apply contents;
+    }
+
+    /* Each cell draws the separator below it, which starts where the text
+       starts, as in Ui::NavList. The cell reaches 1px into the next one, so the
+       card cuts off the separator of the last cell. */
+    .ui-form-group > :not(.ui-form-contents),
+    .ui-form-contents > :not(.ui-form-contents) {
+      @apply m-0 -mb-px min-h-12 px-4 py-2.5;
+      background: linear-gradient(var(--ui-form-separator) 0 0) bottom right /
+        calc(100% - 1rem) 1px no-repeat;
+    }
+
+    .form-control:not(.flex-row) {
+      @apply grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4;
+
+      & > :not(.label, .form-input, .form-select, .ui-form-input) {
+        @apply col-span-full;
+      }
+    }
+
+    /* The builder renders the list of errors also without an error */
+    .form-control > ul:empty {
+      @apply hidden;
+    }
+
+    .label {
+      @apply py-0;
+    }
+
+    .label-text {
+      @apply text-headline text-gray-800 dark:text-slate-300;
+    }
+
+    .label-hint {
+      @apply text-muted mt-1 text-sm;
+    }
+
+    .form-input,
+    .form-select {
+      @apply text-headline text-muted w-full max-w-none min-w-0 border-0 bg-transparent p-0 text-right shadow-none ring-0;
+
+      &:focus {
+        @apply ring-0 ring-offset-0 outline-none;
+      }
+    }
+
+    /* Lighter than a value, so an empty field shows as empty */
+    .form-input::placeholder {
+      @apply text-gray-400 dark:text-slate-500;
+    }
+
+    /* A color stays a small square, with a ring that shows also white */
+    .form-input[type='color'] {
+      @apply size-8 justify-self-end rounded-md ring-1 ring-gray-300 dark:ring-slate-600;
+
+      &::-webkit-color-swatch-wrapper {
+        @apply p-0;
+      }
+
+      &::-webkit-color-swatch {
+        @apply rounded-md border-0;
+      }
+    }
+
+    /* A date, with or without a time, is a gray capsule at the right edge, as
+       the date picker of iOS. So an empty date shows where to tap, too. */
+    .form-input:is([type='date'], [type='datetime-local']) {
+      @apply min-h-8 w-auto min-w-28 justify-self-end rounded-lg bg-gray-100 px-2.5 py-1 text-gray-800 dark:bg-slate-700 dark:text-slate-300;
+    }
+
+    /* Dates in one wrapper, like a start and an end, share a column, so an
+       empty date is as wide as a filled one. The cells keep their own rows. */
+    .ui-form-contents:has(
+      > .form-control > .form-input:is([type='date'], [type='datetime-local'])
+    ) {
+      @apply grid grid-cols-[minmax(0,1fr)_max-content] gap-0;
+
+      & > .form-control {
+        @apply col-span-full grid-cols-subgrid;
+      }
+
+      & .form-input {
+        @apply justify-self-stretch;
+      }
+    }
+
+    .form-input::-webkit-date-and-time-value {
+      @apply text-right;
+    }
+
+    /* The arrow of a select stays at the right edge */
+    .form-select {
+      @apply pr-6;
+      background-position: right center;
+    }
+
+    /* A unit follows the input in the flow, instead of lying over it */
+    .ui-form-input {
+      @apply flex items-center justify-end gap-1;
+
+      & > span {
+        @apply text-muted static;
+      }
+    }
+
+    .input-error {
+      @apply text-signal-negative ring-0!;
+    }
+
+    /* A check box is a switch at the right edge, as in the iOS settings */
+    .form-control.flex-row {
+      @apply mt-0 flex-row-reverse items-center justify-between;
+    }
+
+    .form-checkbox {
+      @apply h-[31px] w-[51px] shrink-0 cursor-pointer appearance-none rounded-full border-0 bg-gray-200 transition-[background-color,background-position] duration-200 dark:bg-slate-600;
+      background-image: radial-gradient(circle, white 13px, transparent 13.5px);
+      background-position: left center;
+      background-repeat: no-repeat;
+      background-size: 31px 31px;
+
+      &:checked {
+        @apply bg-green-500;
+        background-position: right center;
+      }
+
+      &:focus {
+        @apply ring-0 ring-offset-0;
+      }
+
+      &:focus-visible {
+        @apply outline-2 outline-offset-2 outline-indigo-500;
+      }
+
+      &:disabled {
+        @apply cursor-not-allowed opacity-50;
+      }
+    }
+
+    /* A text area takes the full width of its cell. Its name is the
+       placeholder, so the label is for a screen reader only. */
+    .ui-form-stacked .form-control:not(.flex-row),
+    .form-control:not(.flex-row):has(textarea) {
+      @apply grid-cols-1;
+
+      & :is(.form-input, .form-select) {
+        @apply text-left text-gray-800 dark:text-slate-300;
+      }
+    }
+
+    .ui-form-stacked {
+      .form-control:not(.flex-row) {
+        @apply gap-y-1;
+      }
+
+      .label-text {
+        @apply text-muted text-sm;
+      }
+    }
+
+    .form-control:not(.flex-row):has(textarea) .label {
+      @apply sr-only;
+    }
+  }
+}
+
+/* Where the label of a text area shows, the placeholder with its name would
+   repeat it */
+.form-control textarea::placeholder {
+  @apply text-transparent;
+}

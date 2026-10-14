@@ -37,7 +37,6 @@ de:
     fullscreen_on: Vollbild
     fullscreen_off: Vollbild beenden
     theme: Farbschema
-    docs: Dokumentation
     helios: Konfiguration mit HELIOS
     settings: Einstellungen
     registration: Registrierung
@@ -193,6 +192,9 @@ de:
     duration: Dauer
     remove_filter: Filter entfernen
     filter_place: Nur Besuche an diesem Ort
+    at_place:
+      one: 1 Besuch an diesem Ort
+      other: '%{count} Besuche an diesem Ort'
     filter_car: Nur Besuche dieses Autos
     # The times of a visit in the list of one day
     from: ab %{time}
@@ -367,6 +369,7 @@ de:
       continue: Jetzt registrieren
       login_required: Um die Registrierung vorzunehmen, melde dich bitte als Admin an.
   charging_sessions:
+    title: Ladevorgänge
     edit: Ladevorgang bearbeiten
     new: Neuer Ladevorgang
     guest: Gast
@@ -386,6 +389,7 @@ de:
       no_estimate: Ohne Akkukapazität des Autos keine Schätzung
       accept: Bestätigen
       dismiss: Verwerfen
+      dismissed: Verworfen
       confirm_dismiss: Diese Ladung verwerfen? Sie kommt nicht wieder.
       form_hint: Aus den Messwerten des Autos erkannt. Zeit und Energie sind geschätzt, die Kosten fehlen.
     count:
@@ -403,12 +407,12 @@ de:
       assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
       assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.
   crud:
-    new: Neu
     edit: Bearbeiten
     delete: Löschen
     save: Speichern
     confirm_delete: Wirklich löschen?
     success: Gespeichert
+    deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
   settings:
     general:
@@ -433,8 +437,12 @@ de:
           confirmation: Das Neuberechnen der Zusammenfassungen wird einige Zeit dauern. Wirklich fortfahren?
           flash: Zusammenfassungen wurden zurückgesetzt.
     prices:
-      edit: Preis bearbeiten
-      new: Neuer Preis
+      edit:
+        electricity: Strompreis bearbeiten
+        feed_in: Einspeisevergütung bearbeiten
+      new:
+        electricity: Neuer Strompreis
+        feed_in: Neue Einspeisevergütung
       description:
         electricity: An den Stromversorger zu zahlendes Entgelt, aufgeteilt in Arbeitspreis pro bezogene kWh und monatlichen Grundpreis. Ändert sich regelmäßig, meist jährlich.
         feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
@@ -455,16 +463,18 @@ de:
       home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
       description: SOLECTRUS legt einen Ort an, sobald ein Auto mindestens 30 Minuten dort stand, bei seltenen Meldungen des Autos länger. Gib einem Ort einen eigenen Namen, zum Beispiel „Zuhause“. Die Karten und die Live-Ansicht zeigen dann diesen Namen.
       empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
-      unnamed: Ohne Namen
+      unnamed: Unbenannt
+      make_home: Als Zuhause festlegen …
+      make_home_confirm: Bisher ist „%{previous}“ das Zuhause. Alle Zusammenfassungen werden neu berechnet.
       time: Zeit
     cash_flows:
       name: Zahlungen
       description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
-      new: Neuer Eintrag
-      edit: Eintrag bearbeiten
+      new: Neue Zahlung
+      edit: Zahlung bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
       category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Ersparnis (manuell) ergänzt ihn um Zeiträume ohne Messdaten, Sonstiges bleibt neutral.
-      visibility_label: 'Amortisationsrechnung anzeigen:'
+      visibility_label: Amortisationsrechnung anzeigen
       visibility_all: Für alle Nutzer
       visibility_admins: Nur für Admin
       visibility_none: Für niemanden (Seite ausblenden)
@@ -479,11 +489,13 @@ de:
       battery: Akku
       single_inverter: Bei Konfiguration mehrerer Erzeuger könnten diese hier benannt werden.
       inverter_as_total: In der Strombilanz nur als Summe darstellen
-      enable_multi_inverter: Seite "Erzeugung" in der Navigation anbieten
-      enable_forecast: Seite "Prognose" in der Navigation anbieten
-      enable_custom_consumer: Seite "Hausverbrauch" in der Navigation anbieten
-      enable_heatpump: Seite "Wärmepumpe" in der Navigation anbieten
-      enable_car: Seite "E-Auto" in der Navigation anbieten
+      # The options below this group title name the page alone
+      navigation: In der Navigation anbieten
+      enable_multi_inverter: Erzeugung
+      enable_forecast: Prognose
+      enable_custom_consumer: Hausverbrauch
+      enable_heatpump: Wärmepumpe
+      enable_car: E-Auto
   amortization:
     nav:
       chart: Saldo

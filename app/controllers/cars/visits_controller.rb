@@ -10,10 +10,7 @@ class Cars::VisitsController < ApplicationController
   include Pagy::Method
   include PlaceVisitsBuild
   include CarListPage
-
-  # Each page of the list loads into a Turbo frame of its own (see LazyRows)
-  PAGE_FRAME_PREFIX = 'visits_page_'.freeze
-  public_constant :PAGE_FRAME_PREFIX
+  include ListAddress
 
   def index
     # A car that the page does not offer goes to "all", like on the car page
@@ -28,7 +25,7 @@ class Cars::VisitsController < ApplicationController
     # Only a list up to now can hold an ongoing visit
     PlaceVisit.mark_ongoing(@visits) unless timeframe.past?
 
-    render partial: 'rows', locals: { visits: @visits, pagy: @pagy, frame: true } if page_frame_request?
+    render VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, frame: true), layout: false if page_frame_request?
   end
 
   private
@@ -102,23 +99,14 @@ class Cars::VisitsController < ApplicationController
     (days | Summary.missing_or_stale_days_for(Timeframe.new('day'))).sort
   end
 
-  def page_frame_request? = LazyRows::Component.request?(request, PAGE_FRAME_PREFIX)
+  def page_frame_request? = LazyRows::Component.request?(request, VisitList::Rows::Component::FRAME_PREFIX)
 
-  # The car of a visit needs a column only with more than one car, and not
-  # in the list of one car
-  helper_method def car_column?
-    return @car_column if defined?(@car_column)
-
-    @car_column = !car && located_cars.many?
+  # What each row of the list needs to know about the list. The car of a
+  # visit needs a column only with more than one car, and not in the list of
+  # one car.
+  helper_method def list_context
+    @list_context ||= VisitList::Context.new(timeframe:, place:, car_column: !car && located_cars.many?, path: method(:visits_path_with))
   end
-
-  # The labels of the places need a column, but not in the list of a place
-  # without a label
-  helper_method def label_column? = !place || place.labels.any?
-
-  # The columns of icons before the name of the place. A phone has them in
-  # the line of the name, and the town below it starts after them.
-  helper_method def icon_columns = [car_column?, label_column?].count(true)
 
   helper_method def title
     t('visits.name')

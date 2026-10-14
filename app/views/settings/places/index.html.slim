@@ -1,6 +1,9 @@
-= render layout: 'settings/cars/pages' do
+/ One level below the cars on a phone, a tab beside them on the desktop
+= render 'settings/sub_nav', title: t('settings.places.name'), back_href: settings_cars_path, back_label: t('settings.cars.name')
+
+= render Nav::Side::Component.new(items: car_nav_items) do
   - if sponsored?
-    = render layout: 'settings/cars/visits_build', locals: { pending_days: @pending_days } do
-      = render 'list', places: @places, pagy: @pagy
+    = render VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
+      = render PlaceList::Component.new(places: @places, pagy: @pagy)
   - else
     = render DemoLink::Component.new(feature: Sensor::HomePage.feature(:cars))

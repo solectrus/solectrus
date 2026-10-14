@@ -83,10 +83,10 @@ describe 'Cars Visits' do
         expect(response.body).to include(I18n.t('visits.name'))
       end
 
-      it 'opens a place in the modal, and narrows the list to it with the chevron' do
+      it 'opens a place, which leads back to the list, and narrows the list to it with the chevron' do
         get cars_visits_path(timeframe: '2026-09')
 
-        expect(response.body).to include(%(href="/settings/places/#{work.id}/edit"), 'data-turbo-frame="modal"')
+        expect(response.body).to include(%(href="/settings/places/#{work.id}/edit?return_to=%2Fcars%2Fvisits%2F2026-09"), %(data-nav-title="#{I18n.t('settings.places.edit')}"))
         expect(response.body).to include(%(href="/cars/places/#{work.id}/visits/2026-09"), I18n.t('visits.filter_place'))
       end
 
@@ -100,6 +100,13 @@ describe 'Cars Visits' do
         expect(response.body).to include(%(href="/cars/places/#{work.id}/visits/2026-08"))
         # The list of one place narrows no further
         expect(response.body).not_to include(I18n.t('visits.filter_place'))
+      end
+
+      it 'names a place without a name by its district in gray, with the town beside it' do
+        work.update!(name: nil, geocoding: { 'address' => { 'suburb' => 'Braunsfeld', 'city' => 'Köln' } })
+        get cars_visits_path(timeframe: '2026-09')
+
+        expect(response.body).to include(%(class="text-muted" data-visit-place-name="#{work.id}">Braunsfeld</span>), '>Köln</div>')
       end
 
       it 'has a column for the labels, but not in the list of a place without a label' do
@@ -207,6 +214,12 @@ describe 'Cars Visits' do
 
         expect(response).to redirect_to("/cars/places/#{work.id}/visits/2026-09")
       end
+
+      it 'passes its address to the form of a place, as the browser shows it' do
+        get '/cars/visits/all'
+
+        expect(response.body).to include('return_to=%2Fcars%2Fvisits%2Fall"')
+      end
     end
 
     it 'loads the next page into its frame' do
@@ -221,6 +234,8 @@ describe 'Cars Visits' do
 
       expect(response.body).to include('<turbo-frame', 'id="visits_page_2"')
       expect(response.body).not_to include('visits_page_3')
+      # The rows lead back to the list, not to its page
+      expect(response.body).to include('return_to=%2Fcars%2Fvisits"')
     end
   end
 

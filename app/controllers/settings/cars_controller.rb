@@ -4,6 +4,7 @@
 # adds no car and removes none.
 class Settings::CarsController < ApplicationController
   include SettingsNavigation
+  include FormPageResponse
 
   before_action :admin_required!
   before_action :load_car, only: %i[edit update]
@@ -15,19 +16,17 @@ class Settings::CarsController < ApplicationController
   def edit
   end
 
-  def update
-    if @car.update(permitted_params)
-      flash.now[:notice] = t('crud.success')
-      render turbo_stream: [
-               turbo_stream.update('list', partial: 'settings/cars/list', locals: { cars: listed_cars }),
-               turbo_stream_update_flash,
-             ]
-    else
-      render :edit, status: :unprocessable_content
-    end
-  end
+  def update = respond_to_save(@car, @car.update(permitted_params))
 
   private
+
+  def list_stream
+    turbo_stream.update('list', CarList::Component.new(cars: listed_cars))
+  end
+
+  def default_list_path
+    settings_cars_path
+  end
 
   helper_method def title
     t('settings.cars.name')

@@ -15,8 +15,11 @@ export default class extends Controller<HTMLElement> {
     });
   }
 
-  // Handle click on the link - show backdrop immediately
+  // Handle click on the link - show backdrop immediately. Only while the link
+  // loads into the modal: a row of Ui::TableRow opens a page on a phone.
   private readonly handleClick = (): void => {
+    if (this.element.dataset.turboFrame !== 'modal') return;
+
     // Hide tooltip if present (tooltip controller is on the same element)
     this.hideTooltip();
 

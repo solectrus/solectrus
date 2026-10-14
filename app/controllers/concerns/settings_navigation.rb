@@ -18,16 +18,19 @@ module SettingsNavigation
           name: Price.human_enum_name(:name, :electricity),
           href: settings_prices_path(name: 'electricity'),
           icon: 'file-invoice',
+          current: price_tab?('electricity'),
         },
         {
           name: Price.human_enum_name(:name, :feed_in),
           href: settings_prices_path(name: 'feed_in'),
           icon: 'hand-holding-dollar',
+          current: price_tab?('feed_in'),
         },
         {
           name: t('settings.cash_flows.name'),
           href: settings_cash_flows_path,
           icon: 'piggy-bank',
+          current: controller_name == 'cash_flows',
         },
         # The places are a page of the cars (see car_nav_items)
         (if Sensor::HomePage.available?(:cars)
@@ -53,5 +56,13 @@ module SettingsNavigation
 
       items + [{ name: t('settings.places.name'), href: settings_places_path }]
     end
+  end
+
+  private
+
+  # The page of a form belongs to the tab of its list, like the page of a
+  # price to the tab of its name (see Settings::PricesController#name)
+  def price_tab?(price_name)
+    controller_name == 'prices' && name == price_name
   end
 end

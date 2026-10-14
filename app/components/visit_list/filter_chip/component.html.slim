@@ -1,0 +1,9 @@
+/ White on the gray page of a phone, gray on the white box of the desktop
+.flex.items-center.gap-2.rounded-full.bg-white.lg:bg-gray-100.dark:bg-slate-800.lg:dark:bg-gray-800.pl-3.pr-1.py-1.min-w-0
+  = content
+  = link_to remove_path,
+            class: 'flex items-center justify-center size-7 shrink-0 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 focus-ring',
+            title: t('visits.remove_filter'),
+            aria: { label: t('visits.remove_filter') },
+            data: { controller: 'tooltip' } do
+    = icon 'xmark'

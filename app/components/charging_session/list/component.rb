@@ -1,5 +1,11 @@
 class ChargingSession::List::Component < ViewComponent::Base
   # `selection` is the car filter of the list (see CarSelection)
+  # The list of wallbox sessions shows the PV share instead of the address,
+  # when the power splitter gives the grid share
+  def self.pv_share_column?(kind)
+    kind.to_s == 'wallbox' && Sensor::Config.exists?(:wallbox_power_grid)
+  end
+
   def initialize(charging_sessions:, kind:, selection:, pagy: nil, timeframe: nil)
     super()
     @charging_sessions = charging_sessions
@@ -30,17 +36,13 @@ class ChargingSession::List::Component < ViewComponent::Base
   # The key of the empty list: its kind, or the proposals
   def empty_key = @selection.filter == :proposals ? 'proposals' : kind
 
-  # The add button of mobile, with a label. Desktop has it in the header.
-  def add_button
-    ChargingSession::AddButton::Component.new(
-      kind:,
-      selection: @selection,
-      label: true,
-      css_class: 'flex lg:landscape:hidden w-full gap-2 mb-3 py-2.5 rounded-md border border-dashed border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 focus-ring',
-    )
+  def pv_share?
+    self.class.pv_share_column?(kind)
   end
 
-  def pv_share?
-    helpers.pv_share_column?(kind)
+  # The columns of the table from lg up: the PV share takes the wide column
+  # after the energy, the address the one before it
+  def grid_columns
+    pv_share? ? 'lg:grid-cols-[auto_auto_auto_auto_1fr_auto]' : 'lg:grid-cols-[auto_auto_auto_1fr_auto_auto]'
   end
 end

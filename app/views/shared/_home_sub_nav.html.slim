@@ -1,5 +1,5 @@
 - content_for :sub_nav do
-  .flex.flex-col-reverse.gap-2.lg:landscape:gap-0.lg:landscape:items-center.justify-between.lg:landscape:flex-row.pt-2.pb-3.lg:landscape:py-5
+  .flex.flex-col.gap-2.lg:landscape:gap-0.lg:landscape:items-center.justify-between.lg:landscape:flex-row.pb-3.lg:landscape:py-5
     = tag.turbo_frame id: frame_id('second-nav'), target: '_top' do
       = render Nav::Sub::Component.new do |c|
         - c.with_items nav_items

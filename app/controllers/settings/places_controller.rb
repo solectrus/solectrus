@@ -9,26 +9,23 @@ class Settings::PlacesController < ApplicationController
   include SettingsNavigation
   include Pagy::Method
   include PlaceVisitsBuild
+  include FormPageResponse
 
   before_action :admin_required!
   before_action(except: :index) { head(:not_found) unless sponsored? }
   before_action :load_place, only: %i[edit update]
 
-  # Each page of the list loads into a Turbo frame of its own (see LazyRows)
-  PAGE_FRAME_PREFIX = 'places_page_'.freeze
-  public_constant :PAGE_FRAME_PREFIX
-
   def index
     return unless sponsored?
 
-    next_page = LazyRows::Component.request?(request, PAGE_FRAME_PREFIX)
+    next_page = LazyRows::Component.request?(request, PlaceList::Rows::Component::FRAME_PREFIX)
 
     # While days wait for the build, the page shows the build instead of the list
     @pending_days = next_page ? [] : pending_visit_days
     return if @pending_days.present?
 
     @pagy, @places = pagy(:countless, Place.with_seconds)
-    render partial: 'rows', locals: { places: @places, pagy: @pagy, frame: true } if next_page
+    render PlaceList::Rows::Component.new(places: @places, pagy: @pagy, frame: true), layout: false if next_page
   end
 
   def edit
@@ -40,15 +37,67 @@ class Settings::PlacesController < ApplicationController
   def update
     previous_home = Place.home
     if @place.update(permitted_params)
-      moved = previous_home if previous_home != @place && @place.home?
-      flash.now[:notice] = moved ? t('settings.places.home_moved', previous: moved.display_name || t('settings.places.unnamed')) : t('crud.success')
-      render turbo_stream: [*[@place, moved].compact.flat_map { replace_place(it) }, turbo_stream_update_flash]
+      @moved = previous_home if previous_home != @place && @place.home?
+      notice = @moved ? t('settings.places.home_moved', previous: @moved.display_name || t('settings.places.unnamed')) : t('crud.success')
+      respond_with_list(notice:)
     else
-      render :edit, status: :unprocessable_content
+      respond_with_errors(@place)
     end
   end
 
   private
+
+  def list_stream
+    [@place, @moved].compact.flat_map { replace_place(it) }
+  end
+
+  # The form opens from the list of the places and from the list of the
+  # visits, which passes itself as return_to (see FormPageResponse)
+  def default_list_path
+    settings_places_path
+  end
+
+  helper_method def list_title
+    return_to ? t('visits.name') : title
+  end
+
+  # The visits at the place, with the car and the timeframe of the list of
+  # the visits that opened the form. None when that list shows only this
+  # place already.
+  helper_method def place_visits_path
+    list = visits_list_params
+    cars_visits_path(**list, place: @place.id) unless list[:place] == @place.id.to_s
+  end
+
+  # The number of the visits that place_visits_path lists
+  helper_method def place_visits_count
+    @place_visits_count ||= begin
+      list = visits_list_params
+      visits = PlaceVisit.where(place: @place)
+      visits = visits.where(car_id: list[:car]) if list[:car]
+      visits.counts(visits_list_timeframe)[:visits]
+    end
+  end
+
+  # The timeframe of the list of the visits. Like the list, an invalid one
+  # falls back to the whole time (see CarListPage#timeframe).
+  def visits_list_timeframe
+    Timeframe.new(visits_list_params[:timeframe] || 'all')
+  rescue ArgumentError
+    Timeframe.new('all')
+  end
+
+  # The place that is home, or nil
+  helper_method def current_home
+    return @current_home if defined?(@current_home)
+
+    @current_home = Place.home
+  end
+
+  # The form has the switch for home while no place or this place is home.
+  # Home moves from another place only with an action of its own, which asks
+  # first, because the move builds each day again (see the edit view).
+  helper_method def home_switch? = current_home.nil? || current_home == @place
 
   helper_method def sponsored? = Sensor::HomePage.permitted?(:cars)
 
@@ -56,10 +105,10 @@ class Settings::PlacesController < ApplicationController
   # visits. Each list replaces what it shows of the place.
   helper_method def replace_place(place)
     [
-      turbo_stream.replace(helpers.dom_id(place), partial: 'settings/places/row', locals: { place: Place.with_seconds.find(place.id) }),
-      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", partial: 'cars/visits/place_labels', locals: { place: }),
-      turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", partial: 'cars/visits/place_name', locals: { place: }),
-      turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", partial: 'cars/visits/place_locality', locals: { place: }),
+      turbo_stream.replace(helpers.dom_id(place), PlaceList::Row::Component.new(place: Place.with_seconds.find(place.id))),
+      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", VisitList::LabelsCell::Component.new(place:)),
+      turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", VisitList::NameCell::Component.new(place:)),
+      turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", VisitList::LocalityCell::Component.new(place:)),
     ]
   end
 
@@ -73,10 +122,16 @@ class Settings::PlacesController < ApplicationController
   end
 
   def permitted_params
-    params.expect(place: [:name, { labels: [] }])
+    params.expect(place: %i[name home])
   end
 
   def load_place
     @place = Place.find(params.expect(:id))
+  end
+
+  # The car, the timeframe and the place of the list of the visits that
+  # opened the form
+  def visits_list_params
+    @visits_list_params ||= return_to_params('cars/visits').slice(:car, :timeframe, :place)
   end
 end

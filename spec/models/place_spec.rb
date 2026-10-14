@@ -93,6 +93,14 @@ describe Place do
       expect(home.reload).not_to be_home
     end
 
+    it 'sets and clears home with the switch of the form' do
+      home.update!(home: '1')
+      expect(home.reload).to be_home
+
+      home.update!(home: '0')
+      expect(home.reload).not_to be_home
+    end
+
     describe 'a change of home' do
       let(:home_change) { instance_double(Place::HomeChange, call: nil) }
 

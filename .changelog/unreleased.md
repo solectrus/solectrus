@@ -34,6 +34,7 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- The menu no longer has an entry "Documentation". "About SOLECTRUS" opens the website, which links to the documentation
 - On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures and the "More" menu use a larger font
 - On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. A long press on a bar of the balance or on a key figure of the heat pump opens its insights, the same panel as the light bulb next to the chart. For the current values, for a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look
 - The insights of a sensor (the light bulb next to the chart) now show as lists, as on an iPhone: the total at the top, then groups for the comparison with earlier periods and for the daily values. A comparison names the earlier period and its value. A row that leads to another period shows an arrow. On a phone, the heatmap is a page of its own, which a tap on its row opens. There the heatmap of a year stands upright, shows all twelve months and uses the full height
@@ -43,15 +44,22 @@ Keep every section, an empty one included.
 - AI access: in the price tool the unit belongs to the rate per kWh alone, so an assistant does not read a monthly base fee in that unit
 - AI access: the charge level of the first car is now `car_battery_soc_1`, and `_2` to `_5` for more cars. A request with the old name `car_battery_soc` gets an error that names the new one
 - Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
-- Settings: the lists of prices and payments show only the edit button. To delete an entry, open it and use the trash button in the form
+- Settings: on a computer, a click anywhere on a row of the prices, the payments, the electric vehicles or the locations opens the entry. The rows have no buttons. To delete an entry, open it and use the trash button in the form
 - The power balance shows only the charge level of the home battery again, as a round badge. The charge level of the car is now on the car page
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it
+- On a phone, the electricity price, the feed-in tariff and the payments in the settings now show as a list, as on an iPhone, with the note of each entry below its date. A tap on an entry opens it on a page of its own, which slides in from the right. The check mark at the top right saves it, and a red line below the fields deletes it. The round "+" at the top right adds an entry. The electric vehicles and their locations follow the same pattern, and the locations open from a row below the vehicles. The computer keeps the table
+- On a phone, the forms of the settings look like the settings of an iPhone: white groups on a gray page, the label of each field at the left and its value at the right, and a switch for each option. The round check mark at the top right saves the form. It lights up once you change a field. In the sensors, the pages to show in the navigation stand in a group of their own, each with its name alone
+- The loading bar at the top of the page now shows only when a page takes longer than half a second. Before, it showed on almost every change of page, often only for a moment
+- On a phone, the content goes away as soon as you tap a link, until the next page is there. So you see at once that the tap works. When the page takes longer to load, a spinner appears after half a second
+- On a phone, a small arrow next to the timeframe in the header shows that a tap on it opens the date selection
+- On a phone, the period tabs now stand above the date and look like a segmented control of an iPhone: the selected period has a white segment that slides to the tab you tap, and a tapped tab dims instead of shrinking. The date is white. On a computer too, the arrows beside the date are now double arrows, so they differ from the back button of a page, and the live status is a light pill whose text is no longer in capitals
 
 ## Fixes
 
 - On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
 - A sensor that tells whether a car is connected now shows "No" for a text like "False" or "OFF" and for a negative number, which some collectors send for an error. Before, the live view showed such a value as connected
 - A browser tab that stays open for a long time now keeps its memory use low. Before, each page you opened stayed in memory, so the app used more memory with each click and could become slow
+- Settings: after you delete a price or a payment, the message now says "Deleted". Before, it said "Saved"
 
 ## Maintenance

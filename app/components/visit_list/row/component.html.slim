@@ -1,0 +1,45 @@
+/ A row of the table from lg up, each cell in one line. Below, the same cells
+  form a cell of a list in the style of iOS in two lines: the icons, the
+  place and the duration, then the times below the place. The cells of a
+  phone count their columns from the end, so they need not know how many
+  columns the icons take.
+= render Ui::TableRow::Component.new(href: edit_path, nav_title: t('settings.places.edit'), css_class: ['group grid items-baseline lg:col-span-full lg:grid-cols-subgrid max-lg:grid-rows-[auto_auto] max-lg:gap-y-0.5', phone_columns]) do |row|
+  .lg:p-2.tabular-nums.whitespace-nowrap.max-lg:row-start-2.max-lg:text-subhead.max-lg:text-muted class='max-lg:col-[-4/-2]'
+    / The list of one day names the times on the day, and after them a start
+      or an end outside it
+    - if context.timeframe.day?
+      - line, note = day_times(context.timeframe.effective_beginning_date)
+      time datetime=visit.started_at.iso8601
+        = line
+      - if note
+        | ,
+        span.ml-1.lg:text-sm.lg:text-gray-500 = note
+    - else
+      time datetime=visit.started_at.iso8601
+        / On a phone, the short year keeps the line short
+        span.lg:hidden = visit.started_at.in_time_zone.strftime('%d.%m.%y')
+        span.hidden.lg:inline = visit.started_at.in_time_zone.strftime('%d.%m.%Y')
+      span.ml-2.lg:text-sm.lg:text-gray-500
+        = time_range
+  - if context.car_column?
+    .lg:p-2.min-w-0.flex.items-center.gap-1.max-lg:col-start-1.max-lg:row-start-1.max-lg:self-center
+      / Inline, so the name keeps the baseline of the row
+      span.truncate
+        = car_icon(visit.car.display_color, class: 'lg:mr-2')
+        span.max-lg:sr-only = visit.car.display_name
+      .contents.max-lg:hidden
+        = render VisitList::FilterChevron::Component.new(path: context.list_path(car: visit.car_id), label: t('visits.filter_car'))
+  - if context.label_column?
+    = render VisitList::LabelsCell::Component.new(place: visit.place)
+  / The name and the locality take a column each on the desktop
+  .flex.items-center.gap-1.min-w-0.lg:p-2.max-lg:row-start-1 class='max-lg:col-[-4/-3]'
+    = row.link css_class: 'truncate max-lg:text-headline max-lg:text-gray-800 dark:max-lg:text-slate-300' do
+      = render VisitList::NameCell::Component.new(place: visit.place)
+    / A phone opens the place with a tap on the row, and the form leads to
+      its visits (see Settings::PlacesController)
+    - unless context.place
+      .contents.max-lg:hidden
+        = render VisitList::FilterChevron::Component.new(path: context.list_path(place: visit.place_id), label: t('visits.filter_place'))
+  = render VisitList::LocalityCell::Component.new(place: visit.place)
+  .lg:p-2.tabular-nums.whitespace-nowrap.text-right.max-lg:row-start-1.max-lg:text-headline.max-lg:text-gray-800.dark:max-lg:text-slate-300 class='max-lg:col-[-3/-2]'
+    = DurationText.call(visit.current_seconds)

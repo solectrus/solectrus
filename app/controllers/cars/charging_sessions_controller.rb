@@ -1,15 +1,17 @@
 class Cars::ChargingSessionsController < ApplicationController
   include Pagy::Method
   include CarListPage
+  include FormPageResponse
 
   before_action :load_charging_session, only: %i[edit update destroy dismiss]
   before_action :new_charging_session, only: %i[new create]
 
   def index
-    return redirect_to(cars_charging_sessions_path(kind: ChargingSession.default_kind)) unless kind.in?(ChargingSession.kinds.keys)
+    # An unknown kind goes to the list of the default kind in the timeframe
+    return redirect_to(cars_charging_sessions_path(kind: ChargingSession.default_kind, timeframe: timeframe.to_param)) unless kind.in?(ChargingSession.kinds.keys)
 
     # A car that the filter does not offer goes to "all", like on the car page
-    return redirect_to(cars_charging_sessions_path(kind:, timeframe: params[:timeframe], car: nil)) unless car_selection.valid?
+    return redirect_to(cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: nil)) unless car_selection.valid?
 
     next_page = LazyRows::Component.request?(request, ChargingSession::Rows::Component::FRAME_PREFIX)
 
@@ -37,21 +39,9 @@ class Cars::ChargingSessionsController < ApplicationController
     charging_session.address = Place.address_at(charging_session.latitude, charging_session.longitude)
   end
 
-  def create
-    if @charging_session.save
-      render_list
-    else
-      render :new, status: :unprocessable_content
-    end
-  end
+  def create = respond_to_save(@charging_session, @charging_session.save)
 
-  def update
-    if save_changes
-      render_list
-    else
-      render :edit, status: :unprocessable_content
-    end
-  end
+  def update = respond_to_save(@charging_session, save_changes)
 
   # A proposal keeps its row, so the next build does not make it again (see
   # ChargingSession::Proposal)
@@ -59,14 +49,14 @@ class Cars::ChargingSessionsController < ApplicationController
     return head(:unprocessable_content) unless @charging_session.proposal?
 
     @charging_session.dismiss!
-    render_list
+    respond_with_list(notice: t('charging_sessions.proposal.dismissed'))
   end
 
   # Only an offsite session can go (see ChargingSession)
   def destroy
     return head(:unprocessable_content) unless @charging_session.destroy
 
-    render_list
+    respond_with_list(notice: t('crud.deleted'))
   end
 
   private
@@ -92,45 +82,49 @@ class Cars::ChargingSessionsController < ApplicationController
 
   # Refresh the list straight from the mutating request, so it does not depend
   # on a Turbo broadcast (which could not know the viewer's timeframe). The
-  # form carries the timeframe and the car filter of its list (see
-  # #list_params). The list starts over at page 1, its follow-up pages load
-  # from the index URL.
-  def render_list
-    flash.now[:notice] = t('crud.success')
-
+  # timeframe and the car filter come from the list that opened the form (see
+  # #list_source). The list starts over at page 1, its follow-up pages load
+  # from the path of the list, without the query of its address.
+  def list_stream
     pagy, charging_sessions =
       pagy(
         :countless,
         list_scope,
         request: {
           base_url: request.base_url,
-          path: cars_charging_sessions_path(kind:, timeframe:, car: car_selection.to_param),
+          path: URI(list_path).path,
           params: {},
         },
       )
     mark_ongoing(charging_sessions)
 
-    render turbo_stream: [
-             turbo_stream.update(
-               'list',
-               ChargingSession::List::Component.new(charging_sessions:, pagy:, kind:, timeframe:, selection: car_selection),
-             ),
-             turbo_stream_update_flash,
-           ]
+    turbo_stream.update(
+      'list',
+      ChargingSession::List::Component.new(charging_sessions:, pagy:, kind:, timeframe:, selection: car_selection),
+    )
   end
 
-  # The timeframe and the car filter of the list. Each link to a form and
-  # each form carries them, so a change renders the list of its own page,
-  # also with a second page in another tab.
-  helper_method def list_params
-    { timeframe: timeframe.to_param, car: car_selection.to_param }.compact
+  # The list of the timeframe and the car filter of the form, for a form that
+  # no list opened (see FormPageResponse)
+  def default_list_path
+    cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: car_selection.to_param)
   end
+
+  # Where the timeframe and the car filter come from: the address of the list
+  # itself, or the list that opened the form (see
+  # FormPageResponse#return_to_params). So a change renders the list of its
+  # own page, also with a second page in another tab.
+  def list_source
+    @list_source ||= action_name == 'index' ? params : return_to_params('cars/charging_sessions')
+  end
+
+  def timeframe_param = list_source[:timeframe]
 
   # The car filter of the list: one car, all, and the extras of the kind (see
   # CarSelection::EXTRAS)
   helper_method def car_selection
     @car_selection ||=
-      CarSelection.new(params[:car], timeframe:, extras: true)
+      CarSelection.new(list_source[:car], timeframe:, extras: true)
   end
 
   helper_method def title
@@ -149,10 +143,12 @@ class Cars::ChargingSessionsController < ApplicationController
     TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param }, hours: true)
   end
 
-  helper_method def nav_items
+  # The segments of a phone take the short name, as the card of the car page
+  # that links here
+  helper_method def nav_items(short: false)
     ChargingSession.listed_kinds.map do |k|
       {
-        name: ChargingSession.human_enum_name(:kind, k),
+        name: short ? t("car_breakdown.#{k}_short") : ChargingSession.human_enum_name(:kind, k),
         href: cars_charging_sessions_path(kind: k, timeframe:, car: car_selection.to_param_for(k)),
         current: kind == k,
       }
@@ -196,10 +192,29 @@ class Cars::ChargingSessionsController < ApplicationController
   def new_charging_session
     @charging_session =
       if action_name == 'new'
-        # The car of the list, or the first car of its timeframe
-        ChargingSession.new(kind: 'offsite', car: car_selection.car || car_selection.offered.first || car_selection.installed.first)
+        prefilled_session
       else
         ChargingSession.new(permitted_params.merge(origin: 'user'))
       end
+  end
+
+  # The car of the list, or the first car of its timeframe. In a list that
+  # reaches today the start is now, as a new event in the calendar of iOS,
+  # and the first car is one in use today. A start in a past list would offer
+  # only the cars of today. A car of the list that is no longer in use keeps
+  # the start empty.
+  def prefilled_session
+    today = Date.current unless timeframe.past? || timeframe.future?
+    car = prefilled_car(today)
+    started_at = Time.current.beginning_of_minute if today && car&.active_on?(today)
+
+    ChargingSession.new(kind: 'offsite', car:, started_at:)
+  end
+
+  def prefilled_car(today)
+    car_selection.car ||
+      (car_selection.offered.find { it.active_on?(today) } if today) ||
+      car_selection.offered.first ||
+      car_selection.installed.first
   end
 end

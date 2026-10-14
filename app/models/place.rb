@@ -73,6 +73,13 @@ class Place < ApplicationRecord
 
   def home? = labels.include?('home')
 
+  # The switch of the form, which sets and clears the label home
+  alias home home?
+
+  def home=(value)
+    self.labels = ActiveModel::Type::Boolean.new.cast(value) ? labels | ['home'] : labels - ['home']
+  end
+
   # Each place with the time of the cars there (`seconds`), from the visits of
   # the daily build, the place with the most time first. A place without a
   # visit has 0, for example a place that a click in the live view made.

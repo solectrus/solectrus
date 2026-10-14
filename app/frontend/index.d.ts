@@ -25,6 +25,10 @@ declare module '@hotwired/turbo' {
 
   export function visit(url: string, options?): void;
 
+  export const cache: {
+    clear(): void;
+  };
+
   export const config: {
     drive: {
       progressBarDelay: number;

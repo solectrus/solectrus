@@ -2,6 +2,8 @@
 # its PV share, the cost, the state of charge and the loss. The form shows
 # them read-only above its fields.
 class ChargingSession::Facts::Component < ViewComponent::Base
+  include ChargingSessionTexts
+
   def initialize(charging_session:)
     super()
     @charging_session = charging_session
@@ -15,9 +17,5 @@ class ChargingSession::Facts::Component < ViewComponent::Base
 
   def date
     l(started_at.to_date, format: :long)
-  end
-
-  def time_range
-    helpers.charging_session_time_range(charging_session)
   end
 end

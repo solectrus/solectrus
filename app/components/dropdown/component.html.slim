@@ -1,39 +1,42 @@
 .text-gray-700.dark:text-gray-400
-  div data-controller= 'select'
-    / Mobile: native select shrink-wrapped to its selected label, with the
-    / chevron right after it, so the gap stays constant for any selection.
-    / The chevron uses currentColor, adapting to the surrounding text color.
-    .inline-flex.items-center.gap-1.rounded.px-2.lg:hidden class= button_class
-      / field-sizing-content shrink-wraps the select to its selected option in
-      / CSS. Where a browser lacks it, select_controller measures instead.
-      / Below 16px, iOS zooms into the page when the select gets the focus.
-      / A select renders no ::after, so it takes the 44px of a tap target itself.
-      / The negative margin keeps the layout at the height of the text.
-      / A disabled select keeps the color of the text around it
-      select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-base.px-0.min-h-11.-my-1.field-sizing-content.disabled:text-current.disabled:opacity-100[
-        data-select-target= 'select'
-        disabled= disabled
-        data-action= 'select#onChange'
-        name= name
+  / A page that shows the select elsewhere on a phone leaves it out here
+  - if mobile
+    div data-controller= 'select'
+      / Mobile: native select shrink-wrapped to its selected label, with the
+      / chevron right after it, so the gap stays constant for any selection.
+      / The chevron uses currentColor, adapting to the surrounding text color.
+      .inline-flex.items-center.gap-1.lg:hidden class=[mobile_shape, button_class]
+        / field-sizing-content shrink-wraps the select to its selected option in
+        / CSS. Where a browser lacks it, select_controller measures instead.
+        / Below 16px, iOS zooms into the page when the select gets the focus.
+        / A select renders no ::after, so it takes the 44px of a tap target itself.
+        / The negative margin keeps the layout at the height of the text.
+        / A disabled select keeps the color of the text around it
+        select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-base.px-0.min-h-11.-my-1.field-sizing-content.disabled:text-current.disabled:opacity-100[
+          data-select-target= 'select'
+          disabled= disabled
+          data-action= 'select#onChange'
+          name= name
+          aria-label= label
+        ]
+          - if grouped?
+            - items.each do |group|
+              optgroup label= group[:name]
+                - flat_items_for_group(group).each do |item|
+                  - unless item.href.nil?
+                    = render_option(item)
+          - else
+            - items.each do |item|
+              - unless item.href.nil?
+                = render_option(item)
+
+        = chevron_icon(class_names('size-5 shrink-0 pointer-events-none', 'opacity-50' => disabled))
+
+      select.absolute.invisible.font-medium.px-0[
+        data-select-target= 'temp'
+        name= "#{name}-temp"
       ]
-        - if grouped?
-          - items.each do |group|
-            optgroup label= group[:name]
-              - flat_items_for_group(group).each do |item|
-                - unless item.href.nil?
-                  = render_option(item)
-        - else
-          - items.each do |item|
-            - unless item.href.nil?
-              = render_option(item)
-
-      = chevron_icon(class_names('size-5 shrink-0 pointer-events-none', 'opacity-50' => disabled))
-
-    select.absolute.invisible.font-medium.px-0[
-      data-select-target= 'temp'
-      name= "#{name}-temp"
-    ]
-      option
+        option
 
   .hidden.relative.lg:inline-block.text-left data-controller="dropdown--component"
     - if button

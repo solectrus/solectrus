@@ -24,10 +24,6 @@ registerControllers(
   import.meta.glob('../../components/**/*_controller.{js,ts}', { eager: true }),
 );
 
-// Hide the progress bar for short navigations (Turbo default: 500ms). Kept
-// short: on a phone the bar is often the first sign that a tap arrived.
-Turbo.config.drive.progressBarDelay = 100;
-
 // A morph refresh (turbo_refreshes_with :morph) to the same URL - e.g. after a
 // logout that redirects back to the current page - rewinds lazily-loaded
 // content frames (charts, tiles) to their server-rendered spinner placeholder.
@@ -60,6 +56,16 @@ Turbo.StreamActions.redirect = function (this: Element) {
   if (target) {
     Turbo.visit(target);
   }
+};
+
+// Drops the snapshots of the pages, after a change that they do not show yet.
+// A page that the stream comes with can still be in the cache only a moment
+// later, so the next load clears it again.
+Turbo.StreamActions.clear_cache = function () {
+  Turbo.cache.clear();
+  document.addEventListener('turbo:load', () => Turbo.cache.clear(), {
+    once: true,
+  });
 };
 
 Turbo.StreamActions.update_all = function (this: Element) {

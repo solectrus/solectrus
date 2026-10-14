@@ -1,4 +1,6 @@
 class ChargingSession::Row::Component < ViewComponent::Base
+  include ChargingSessionTexts
+
   # `place` is the known place at the position of a session without an
   # address (see ChargingSession::Rows::Component)
   def initialize(charging_session:, place: nil)
@@ -27,15 +29,18 @@ class ChargingSession::Row::Component < ViewComponent::Base
     end
   end
 
+  # The form keeps the address of the list, with its timeframe and its car
+  # filter
+  def edit_path
+    helpers.edit_cars_charging_session_path(charging_session, return_to: helpers.list_address)
+  end
+
+  # The title of the page of the form on a phone, before it loads
+  def nav_title
+    t(charging_session.proposal? ? 'charging_sessions.proposal.title' : 'charging_sessions.edit')
+  end
+
   def pv_share?
-    helpers.pv_share_column?(charging_session.kind)
-  end
-
-  def time_range
-    helpers.charging_session_time_range(charging_session)
-  end
-
-  def soc_range
-    helpers.charging_session_soc_range(charging_session)
+    ChargingSession::List::Component.pv_share_column?(charging_session.kind)
   end
 end

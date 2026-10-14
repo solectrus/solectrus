@@ -1,0 +1,37 @@
+- heading = t('settings.places.edit')
+= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: list_title, save: form_page_id(@place)
+
+/ The address and the map show the user which place this is. The modal
+  names the address as its title, the page of a phone above the map.
+= render Ui::FormPage::Component.new(title: @place.address || heading) do
+  - if @place.address && !form_in_modal?
+    p.lg:hidden.px-4.text-center.text-muted class='pb-1.5' = @place.address
+  div class='flex h-64 my-4 max-lg:mt-0 max-lg:mb-8 max-lg:overflow-hidden max-lg:rounded-xl'
+    = render Car::Map::Component.new(cars: map_cars, live: true)
+
+  / The desktop narrows the list of the visits with the chevron beside the
+    name. A phone opens the place with a tap on its row, so the way to its
+    visits is here.
+  - if place_visits_path && !form_in_modal? && place_visits_count.positive?
+    .lg:hidden.mb-8
+      = render Ui::NavList::Component.new(items: [{ name: t('visits.at_place', count: place_visits_count), href: place_visits_path, icon: 'location-dot' }], label: t('visits.name'))
+
+  = render 'form', place: @place
+
+  / Another place is home. A move of home builds each day again, so it is an
+    action of its own, apart from the form, with a question first.
+  - unless home_switch?
+    = button_to settings_place_path(@place, return_to:),
+                method: :patch,
+                params: { place: { home: '1' } },
+                form: { class: 'mt-6 lg:-mt-8 lg:w-fit', data: { **form_page_target, turbo_confirm: t('settings.places.make_home_confirm', previous: current_home.display_name || t('settings.places.unnamed')) } },
+                class: 'flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400 max-lg:w-full max-lg:py-2 max-lg:text-headline max-lg:active:opacity-60 lg:text-sm lg:hover:underline underline-offset-4' do
+      = icon Place::LABELS['home']
+      = t('settings.places.make_home')
+
+  / The form asked Nominatim, so the list gets the locality. A stream
+    inside the frame runs when the modal opens. The page of a phone leads
+    back to a snapshot of the list, so the stream drops the snapshots.
+  - if @place.saved_change_to_geocoding?
+    = safe_join(replace_place(@place))
+    = turbo_stream.action(:clear_cache, nil)

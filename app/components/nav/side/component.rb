@@ -1,7 +1,8 @@
 # The navigation on the side of a settings page with pages of its own, for
 # example the cars and their places. Unlike VerticalTabs::Component, each
-# item links to a URL of its own. The navigation stays in view while the page
-# scrolls: on a phone at the top, on a wider screen at the side.
+# item links to a URL of its own. The navigation stays in view at the side
+# while the page scrolls. A phone shows no such navigation, and neither
+# does a single page.
 class Nav::Side::Component < ViewComponent::Base
   # items: [{ name:, href: }]
   def initialize(items:)
@@ -14,7 +15,7 @@ class Nav::Side::Component < ViewComponent::Base
   def current?(item) = helpers.current_page?(item[:href])
 
   def link_class(item)
-    base = 'flex md:rounded-md py-3 md:py-2 px-3'
+    base = 'flex rounded-md py-2 px-3'
 
     if current?(item)
       "#{base} bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200"

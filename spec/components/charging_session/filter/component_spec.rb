@@ -9,14 +9,14 @@ describe ChargingSession::Filter::Component, type: :component do
     expect(page).to have_link 'Guest', href: '/cars/guest/charging_sessions/wallbox'
     expect(page).to have_css('a.border-t[href="/cars/unassigned/charging_sessions/wallbox"] svg[data-icon="circle-question"]')
     expect(page).to have_css('a[href="/cars/guest/charging_sessions/wallbox"] svg[data-icon="user"]')
-    expect(page).to have_css('option[selected][value="/cars/1/charging_sessions/wallbox"]')
+    # A phone has the select in a cell of its own
+    expect(page).to have_no_select
   end
 
   it 'shows a car in its color' do
     render_inline(described_class.new(kind: 'wallbox', timeframe: nil, cars:, current: nil))
 
     expect(page).to have_css('a[href="/cars/1/charging_sessions/wallbox"] svg[data-icon="car"][style="color: #ff0000"]')
-    expect(page).to have_css('option[selected][value="/cars/charging_sessions/wallbox"]')
   end
 
   it 'renders nothing for offsite with one car and without a state of charge' do
@@ -34,5 +34,25 @@ describe ChargingSession::Filter::Component, type: :component do
 
     expect(page).to have_css('a.border-t[aria-current="page"][href="/cars/proposals/charging_sessions/offsite"]', text: 'Unconfirmed sessions')
     expect(page).to have_css('a[href="/cars/proposals/charging_sessions/offsite"] svg[data-icon="circle-question"]')
+  end
+
+  it 'renders the native select with short names for a phone' do
+    allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(true)
+
+    render_inline(described_class.new(kind: 'offsite', timeframe: nil, cars:, current: '1', layout: :select))
+
+    aggregate_failures do
+      expect(page).to have_css('select[aria-label="Filter"][data-action="select#onChange"]')
+      expect(page).to have_css('option[value="/cars/charging_sessions/offsite"]', text: 'All')
+      expect(page).to have_css('option[selected][value="/cars/1/charging_sessions/offsite"]', text: cars.first.short_name)
+      expect(page).to have_css('option[value="/cars/proposals/charging_sessions/offsite"]', text: 'Unconfirmed')
+    end
+  end
+
+  # The select of a phone follows the links of the menu (see select_controller)
+  it 'keeps the full names in the menu beside the select' do
+    render_inline(described_class.new(kind: 'wallbox', timeframe: nil, cars:, current: nil, layout: :select))
+
+    expect(page).to have_link('All sessions', href: '/cars/charging_sessions/wallbox', visible: :all)
   end
 end

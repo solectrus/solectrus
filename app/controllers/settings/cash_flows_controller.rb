@@ -1,5 +1,6 @@
 class Settings::CashFlowsController < ApplicationController
   include SettingsNavigation
+  include FormPageResponse
 
   before_action :admin_required!
 
@@ -35,52 +36,36 @@ class Settings::CashFlowsController < ApplicationController
   def edit
   end
 
-  def create
-    if @cash_flow.save
-      render_filtered_list
-    else
-      render :new, status: :unprocessable_content
-    end
-  end
+  def create = respond_to_save(@cash_flow, @cash_flow.save)
 
-  def update
-    if @cash_flow.update(permitted_params)
-      render_filtered_list
-    else
-      render :edit, status: :unprocessable_content
-    end
-  end
+  def update = respond_to_save(@cash_flow, @cash_flow.update(permitted_params))
 
   def destroy
     @cash_flow.destroy!
-    render_filtered_list
+    respond_with_list(notice: t('crud.deleted'))
   end
 
   private
 
   # Refresh the list straight from the mutating request (no Turbo broadcast, which
-  # could not know the viewer's filter). The filter, remembered from the last
-  # index render, stays applied so a new entry does not reveal the full list while
-  # the filter is still shown.
-  def render_filtered_list
-    flash.now[:notice] = t('crud.success')
-    render turbo_stream: [
-             turbo_stream.update(
-               'list',
-               partial: 'settings/cash_flows/list',
-               locals: {
-                 cash_flows: filtered_cash_flows,
-                 filter_categories:,
-                 filter_from:,
-                 filter_to:,
-               },
-             ),
-             turbo_stream_update_flash,
-           ]
+  # could not know the viewer's filter). The filter of the list that opened the
+  # form stays applied (see #list_filter), so a new entry does not reveal the full
+  # list while the filter is still shown.
+  def list_stream
+    turbo_stream.update(
+      'list',
+      CashFlowList::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:),
+    )
   end
 
-  # Persist the filter the index is currently showing, so a later mutation (which
-  # carries no filter params of its own) can re-apply the same one.
+  # The list with the filter the index showed last, for a form that no list
+  # opened (see FormPageResponse)
+  def default_list_path
+    settings_cash_flows_path(session[:cash_flow_filter].to_h.compact_blank)
+  end
+
+  # Persist the filter the index is currently showing. A form that no list opened
+  # falls back to it (see #list_filter).
   def remember_filter
     session[:cash_flow_filter] = {
       category: filter_categories,
@@ -90,16 +75,23 @@ class Settings::CashFlowsController < ApplicationController
   end
 
   # Where the filter helpers read from. A mutation carries no filter params, so it
-  # falls back to the filter remembered from the last index render; every other
-  # action reads the live request params. Both sources share the same keys, so the
-  # helpers below stay identical regardless of the source.
+  # reads the filter of the list that opened the form; every other action reads
+  # the live request params. Both sources share the same keys, so the helpers
+  # below stay identical regardless of the source.
   def filter_source
     @filter_source ||=
       if action_name.in?(%w[create update destroy])
-        session[:cash_flow_filter].to_h.with_indifferent_access
+        list_filter
       else
         params
       end
+  end
+
+  # The filter of the list that opened the form, from its address (see
+  # FormPageResponse#return_to). Without one, the filter remembered from the
+  # last index render.
+  def list_filter
+    @list_filter ||= (return_to ? return_to_params('settings/cash_flows') : session[:cash_flow_filter].to_h).with_indifferent_access
   end
 
   def filtered_cash_flows
@@ -161,8 +153,6 @@ class Settings::CashFlowsController < ApplicationController
   # Pre-select the filtered category for a new entry. A group drill-down covers
   # several categories at once; the first one is used as the default.
   def default_category
-    Array(
-      session[:cash_flow_filter].to_h.with_indifferent_access[:category],
-    ).first
+    Array(list_filter[:category]).first
   end
 end

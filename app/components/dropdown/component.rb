@@ -21,6 +21,9 @@ class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassL
     display_name: nil,
     menu_position: :right,
     disabled: false,
+    mobile: true,
+    mobile_shape: 'rounded px-2',
+    label: nil,
     button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
     super()
@@ -32,9 +35,14 @@ class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassL
     @display_name = display_name
     @menu_position = menu_position.to_sym
     @disabled = disabled
+    @mobile = mobile
+    @mobile_shape = mobile_shape
+    @label = label
     @button_class = button_class
   end
 
+  # `mobile_shape` is the corners and the padding of the native select of a
+  # phone, `label` names that select for a screen reader
   attr_reader :name,
               :items,
               :top_item,
@@ -43,6 +51,9 @@ class Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassL
               :display_name,
               :menu_position,
               :disabled,
+              :mobile,
+              :mobile_shape,
+              :label,
               :button_class
 
   # Where the menu hangs from its button. `center` puts it under the button and

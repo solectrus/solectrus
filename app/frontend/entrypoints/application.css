@@ -44,7 +44,7 @@
 /* Stylesheets beside their ViewComponent */
 @import '../../components/bottom_sheet/component.css' layer(base);
 @import '../../components/insights/component.css' layer(base);
-@import '../../components/nav/title_bar/component.css' layer(base);
+@import '../../components/ui/title_bar/component.css' layer(base);
 @import '../../components/splitted_costs/component.css' layer(base);
 @import '../../components/tooltip_row/component.css' layer(base);
 
@@ -52,6 +52,8 @@
 @import '../stylesheets/sensor_colors.css';
 /* No layer() — overrides the styles of MapLibre, which have no layer */
 @import '../stylesheets/car_map.css';
+/* No layer() — overrides the form classes, which have no layer either */
+@import '../stylesheets/ui_form.css';
 
 @theme {
   --breakpoint-3xl: 1920px;
@@ -305,6 +307,32 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
 
   @variant dark {
     @apply bg-indigo-500;
+  }
+}
+
+/* On a phone, the content goes away from the tap to the next page, so a tap
+   has an answer at once. A page that fills its content later shows an empty
+   area as well, so the old content does not dim first and then disappear.
+   Turbo marks the document as busy for the whole visit. Not while Turbo shows
+   a page from its cache, which is already there, and not when a title bar
+   slides to the next page, which is an answer of its own (see
+   Ui::TitleBar::Component), and not for a visit to the open page, like a
+   reload (see setupSamePageVisits.ts). The box of the content stays: the
+   header reaches down behind its top. A control that answers the tap itself,
+   like a segmented control, stays with the class ui-keep-lit. A spinner fades
+   in after a moment, for a slow connection. */
+html[aria-busy='true']:not(
+    [data-turbo-preview],
+    [data-nav-sliding],
+    [data-nav-rendering],
+    [data-nav-same-page]
+  ) {
+  #inner > :not(.ui-keep-lit) {
+    @apply max-lg:invisible;
+  }
+
+  .ui-busy-spinner {
+    @apply max-lg:flex;
   }
 }
 

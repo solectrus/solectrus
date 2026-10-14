@@ -3,9 +3,13 @@
 # the offsite sessions also the proposals. "all" shows each session, also a
 # guest session, a session that is not assigned and a proposal. The extras
 # stand apart below the cars, each with an icon.
+#
+# The desktop shows it as a menu in the page header. A phone shows it as a
+# button above the list, beside the segments of the kinds (layout: :select).
 class ChargingSession::Filter::Component < ViewComponent::Base
-  def initialize(kind:, timeframe:, cars:, current:)
+  def initialize(kind:, timeframe:, cars:, current:, layout: :menu)
     super()
+    @layout = layout
     @kind = kind
     @timeframe = timeframe
     @cars = cars
@@ -14,13 +18,15 @@ class ChargingSession::Filter::Component < ViewComponent::Base
 
   attr_reader :kind, :timeframe, :cars, :current
 
+  def select? = @layout == :select
+
   def render?
     items.size > 2
   end
 
   def items
     @items ||= [
-      item(t('.all'), nil),
+      item(t('.all'), nil, short_name: (t('.all_short') if select?)),
       *cars.map { item(it.display_name, it.id.to_s, it.display_color, short_name: it.short_name) },
       *wallbox_items,
       *offsite_items,
@@ -42,7 +48,8 @@ class ChargingSession::Filter::Component < ViewComponent::Base
   def offsite_items
     return [] unless kind == 'offsite' && ChargingSession::OffsiteDetection.enabled?
 
-    [item(t('.proposals'), CarSelection::PROPOSALS, leading: task_icon, separator_before: true)]
+    short_name = t('charging_sessions.proposal.name') if select?
+    [item(t('.proposals'), CarSelection::PROPOSALS, leading: task_icon, separator_before: true, short_name:)]
   end
 
   # The extras that are an open task have the icon of their hint in the list

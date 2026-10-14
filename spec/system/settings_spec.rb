@@ -105,15 +105,15 @@ describe 'Settings' do
       end
 
       it 'offers no delete for the last price' do
-        expect(page).to have_button('Neu')
+        expect(page).to have_link('Neuer Strompreis')
         expect(page).to have_no_button('Löschen')
 
-        click_on 'Bearbeiten'
+        within('#list') { click_on I18n.l(installation_date, locale: :de) }
         within('dialog') { expect(page).to have_no_button('Löschen') }
       end
 
       it 'can create and delete a price' do
-        click_on 'Neu'
+        click_link 'Neuer Strompreis'
 
         # Fill out the form, save and check if the price is listed
         fill_in 'price_starts_at', with: '2023-01-01'
@@ -126,8 +126,8 @@ describe 'Settings' do
           expect(page).to have_text('Das ist ein Test')
         end
 
-        # Edit the price and try to save with empty price value
-        click_on 'Bearbeiten', match: :first
+        # Edit the price from a click on its row and try to save with empty price value
+        within('#list') { find('div', exact_text: 'Das ist ein Test').click }
         fill_in 'price_amount_per_kwh', with: ''
         within('dialog') { click_on 'Speichern' }
         expect(page).to have_text('muss ausgefüllt werden')
@@ -143,7 +143,7 @@ describe 'Settings' do
         within '#list' do
           expect(page).to have_no_button('Löschen')
         end
-        click_on 'Bearbeiten', match: :first
+        within('#list') { click_on '01.01.2023' }
         within('dialog') { accept_confirm { click_on 'Löschen' } }
         within '#list' do
           expect(page).to have_no_text('01.01.2023')

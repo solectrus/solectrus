@@ -1,5 +1,6 @@
 class Settings::PricesController < ApplicationController
   include SettingsNavigation
+  include FormPageResponse
 
   before_action :admin_required!
 
@@ -21,43 +22,23 @@ class Settings::PricesController < ApplicationController
   def edit
   end
 
-  def create
-    if @price.save
-      render_list
-    else
-      render :new, status: :unprocessable_content
-    end
-  end
+  def create = respond_to_save(@price, @price.save)
 
-  def update
-    if @price.update(permitted_params)
-      render_list
-    else
-      render :edit, status: :unprocessable_content
-    end
-  end
+  def update = respond_to_save(@price, @price.update(permitted_params))
 
   def destroy
     @price.destroy!
-    render_list
+    respond_with_list(notice: t('crud.deleted'))
   end
 
   private
 
-  # Refresh the list straight from the mutating request.
-  def render_list
-    flash.now[:notice] = t('crud.success')
-    render turbo_stream: [
-             turbo_stream.update(
-               'list',
-               partial: 'settings/prices/list',
-               locals: {
-                 prices: Price.list_for(name),
-                 name:,
-               },
-             ),
-             turbo_stream_update_flash,
-           ]
+  def list_stream
+    turbo_stream.update('list', PriceList::Component.new(prices: Price.list_for(name), name:))
+  end
+
+  def default_list_path
+    settings_prices_path(name:)
   end
 
   helper_method def title

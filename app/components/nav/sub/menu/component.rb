@@ -25,9 +25,13 @@ class Nav::Sub::Menu::Component < ViewComponent::Base
   # the nav: the browser resets it on form controls. `cursor-pointer` for the
   # same reason, because a button is not a link. `relative` carries the caret,
   # which hangs in the padding of the pill.
+  #
+  # The button fills its wrapper as a flex item, not with `w-full`: a button
+  # with a width in percent adds no minimum width to its grid column, which
+  # then is too narrow for the label in bold.
   def button_classes
-    (css_classes - %w[flex-1 lg:landscape:flex-initial]) +
-      %w[relative w-full uppercase select-none cursor-pointer]
+    (css_classes - %w[lg:landscape:flex-initial]) +
+      %w[relative lg:landscape:uppercase select-none cursor-pointer]
   end
 
   # An entry that answers a different question than the ones above it is set

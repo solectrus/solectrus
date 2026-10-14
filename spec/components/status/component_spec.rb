@@ -9,7 +9,7 @@ describe Status::Component, type: :component do
     it { is_expected.not_to be_live }
 
     it 'renders the FAIL text' do
-      expect(render_inline(component).css('time > .uppercase').text).to eq('No data')
+      expect(render_inline(component).css('time > .truncate').text).to eq('No data')
     end
 
     it 'renders the FAIL message in the tooltip' do
@@ -28,7 +28,7 @@ describe Status::Component, type: :component do
       rendered = render_inline(component)
 
       expect(rendered.css('time').text).to eq('TEST')
-      expect(rendered.css('time .bg-green-600')).to be_present
+      expect(rendered.css('time .bg-green-400')).to be_present
     end
   end
 
@@ -42,7 +42,7 @@ describe Status::Component, type: :component do
       rendered = render_inline(component)
 
       expect(rendered.css('time').text).to eq('TEST')
-      expect(rendered.css('time .bg-green-600')).to be_present
+      expect(rendered.css('time .bg-green-400')).to be_present
     end
   end
 
@@ -56,7 +56,7 @@ describe Status::Component, type: :component do
       rendered = render_inline(component)
 
       expect(rendered.css('time').text).to eq('TEST')
-      expect(rendered.css('time .bg-yellow-600')).to be_present
+      expect(rendered.css('time .bg-yellow-400')).to be_present
     end
   end
 end

@@ -100,16 +100,24 @@ class Timeframe::Component < ViewComponent::Base
     interactive_button_classes(padding_x: 'lg:landscape:px-2 relative touch-target')
   end
 
-  # A fixed width keeps the arrows in place while one paginates
-  LABEL_WIDTHS = { day: 'md:w-72', week: 'w-36', month: 'w-36', year: 'w-16' }.freeze
+  # A minimum width keeps the arrows in place while one paginates. A longer
+  # label grows, so it stays in the middle, like the bold one of a phone.
+  LABEL_WIDTHS = { day: 'md:min-w-72', week: 'min-w-36', month: 'min-w-42', year: 'min-w-16' }.freeze
   private_constant :LABEL_WIDTHS
 
   def label_classes
     "text-center #{LABEL_WIDTHS[timeframe.id]}"
   end
 
+  # A phone shows no hover, so the chevron marks the label as a menu, as on
+  # iOS. The desktop has the hover, and the chevron would stand next to the
+  # arrows of the pagination.
+  def select_chevron
+    helpers.icon('chevron-down', class: 'lg:hidden ml-1 text-xs')
+  end
+
   def timeframe_link_classes(additional_classes = nil)
-    interactive_button_classes(additional_classes: "font-bold lg:font-normal text-base leading-5 #{additional_classes}")
+    interactive_button_classes(additional_classes: "font-semibold lg:font-normal max-lg:tracking-normal text-base leading-5 #{additional_classes}")
   end
 
   private

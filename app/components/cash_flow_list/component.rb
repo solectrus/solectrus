@@ -1,3 +1,6 @@
+# The cash flows: a table on the desktop, whose rows open the form in the
+# modal, and a list in the style of iOS on a phone, whose rows open the form
+# on a page of its own (see Ui::TableRow::Component).
 class CashFlowList::Component < ViewComponent::Base
   # The active filter is passed in as plain data. The defaults give the full,
   # unfiltered list.
@@ -10,6 +13,11 @@ class CashFlowList::Component < ViewComponent::Base
   end
 
   attr_reader :cash_flows
+
+  # The form leads back to this list (see ListAddress)
+  def edit_path(cash_flow)
+    helpers.edit_settings_cash_flow_path(cash_flow, return_to: helpers.list_address)
+  end
 
   def total
     cash_flows.sum(&:amount)

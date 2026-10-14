@@ -18,8 +18,11 @@ module CarListPage
   end
 
   def timeframe
-    @timeframe ||= Timeframe.new(params[:timeframe].presence || 'all')
+    @timeframe ||= Timeframe.new(timeframe_param.presence || 'all')
   rescue ArgumentError
     @timeframe = Timeframe.new('all')
   end
+
+  # The timeframe in the address of the list
+  def timeframe_param = params[:timeframe]
 end

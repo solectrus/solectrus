@@ -12,7 +12,7 @@ describe 'Cash flow settings' do
 
       expect(page).to have_css("#primary-nav-desktop a[href='/amortization']")
 
-      select 'Für niemanden (Seite ausblenden)', from: 'Amortisationsrechnung anzeigen:'
+      select 'Für niemanden (Seite ausblenden)', from: 'Amortisationsrechnung anzeigen'
 
       expect(page).to have_text('Gespeichert')
       expect(page).to have_no_css("#primary-nav-desktop a[href='/amortization']")
@@ -24,7 +24,7 @@ describe 'Cash flow settings' do
 
       expect(page).to have_text('Noch keine Einträge vorhanden.')
 
-      click_button title: 'Neu'
+      click_link 'Neue Zahlung'
 
       within '#modal' do
         fill_in 'cash_flow_date', with: '2023-08-01'
@@ -47,10 +47,34 @@ describe 'Cash flow settings' do
       expect(page).to have_text('Wechselrichter')
       expect(page).to have_no_button('Löschen')
 
-      click_on 'Bearbeiten'
+      click_on '01.08.2023'
       within('#modal') { accept_confirm { click_on 'Löschen' } }
 
       expect(page).to have_text('Noch keine Einträge vorhanden.')
+    end
+  end
+
+  context 'when admin user is logged in on a phone' do
+    before do
+      driven_by :playwright_mobile
+      login_as_admin
+    end
+
+    # The filter of a row links to one category, and the way back names it as
+    # a list of categories. Both are the same list, so the back button goes
+    # back in the history.
+    it 'goes back to the filtered list in the history' do
+      CashFlow.create!(date: Date.new(2023, 8, 1), amount: -5000, note: 'Wechselrichter', category: 'investment')
+      visit '/settings/cash_flows?category=investment'
+
+      click_on '01.08.2023'
+      expect(page).to have_current_path(%r{/settings/cash_flows/\d+/edit})
+
+      find('.ui-title-bar-back').click
+      expect(page).to have_current_path('/settings/cash_flows?category=investment')
+
+      page.go_forward
+      expect(page).to have_current_path(%r{/settings/cash_flows/\d+/edit})
     end
   end
 
@@ -66,7 +90,7 @@ describe 'Cash flow settings' do
     it 'shows the amortization calculation to all users' do
       visit '/settings/cash_flows'
 
-      select 'Für alle Nutzer', from: 'Amortisationsrechnung anzeigen:'
+      select 'Für alle Nutzer', from: 'Amortisationsrechnung anzeigen'
 
       expect(page).to have_text('Gespeichert')
       expect(Setting.amortization_public).to be(true)

@@ -1,8 +1,12 @@
-nav.w-full.flex.items-stretch.justify-between.lg:landscape:justify-start.gap-1.font-medium.uppercase.sm:landscape:text-sm.md:landscape:text-base.md:landscape:tracking-wider.lg:landscape:gap-0.lg:landscape:space-x-4[
+/ On a phone, each segment is as wide as its label plus an equal share of the
+  free width, so the gaps between the labels are equal. Equal segments either
+  cut a long label like "Overall" short or leave its neighbor off center.
+nav.relative.w-full.grid.grid-flow-col.lg:landscape:flex.items-stretch.lg:landscape:justify-start.rounded-lg.bg-black/15.dark:bg-black/25.lg:landscape:rounded-none.lg:landscape:bg-transparent.dark:lg:landscape:bg-transparent.lg:landscape:p-0.font-medium.lg:landscape:uppercase.sm:landscape:text-sm.md:landscape:text-base.md:landscape:tracking-wider.lg:landscape:gap-0.lg:landscape:space-x-4[
   aria-label="Tabs"
-  class=(abbreviate ? 'text-sm' : 'text-xs sm:text-sm')
+  class=['gap-0.5 p-0.5', (abbreviate ? 'text-sm' : 'text-xs sm:text-sm')]
   data-controller="optimistic-nav"
-  data-action="turbo:click->optimistic-nav#markCurrent turbo:fetch-request-error@document->optimistic-nav#restore turbo:load@document->optimistic-nav#settle"
+  data-optimistic-nav-slide-value="true"
+  data-action=OptimisticNav::ACTIONS
 ]
   - items.each do |item|
     = item

@@ -1,0 +1,34 @@
+= tag.turbo_frame id: 'summaries' do
+  h2.border-b.border-gray-500.pb-1.font-medium.max-lg:border-0.max-lg:px-4.max-lg:text-xs.max-lg:uppercase.max-lg:tracking-wide.max-lg:text-muted class='max-lg:pb-1.5'
+    = t('settings.general.summaries.title')
+
+  .mt-2.flex.justify-between.items-start.gap-5.md:gap-10.max-lg:mt-0.max-lg:flex-col.max-lg:items-stretch.max-lg:gap-0.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+    .text-sm.max-lg:px-4.max-lg:text-subhead.max-lg:text-gray-800.dark:max-lg:text-slate-300 class='max-lg:py-2.5'
+      p.py-1.md:py-2[
+        data-controller="tooltip"
+        data-tooltip-touch-value="true"
+        title= t('settings.general.summaries.description')
+      ]
+        - if completion_rate.nil?
+          = t('settings.general.summaries.zero')
+        - else
+          = t('settings.general.summaries.fresh_percentage', value: completion_rate.floor)
+
+    / On a phone a cell of its own below, as an action in the iOS settings
+    - if completion_rate
+      .max-lg:ml-4.max-lg:flex.max-lg:justify-center.max-lg:border-t.max-lg:border-gray-300.max-lg:py-1.max-lg:pr-4.dark:max-lg:border-slate-700
+        = render Button::Component.new path: summaries_path,
+                                      icon: 'rotate-left',
+                                      title: t('settings.general.summaries.reset.title'),
+                                      type: :button,
+                                      style: :tertiary,
+                                      options: { \
+                                        method: :delete,
+                                        form: { \
+                                          data: { \
+                                            'turbo-method': :delete,
+                                            'turbo-confirm': t('settings.general.summaries.reset.confirmation'),
+                                          },
+                                        },
+                                        class: 'text-signal-negative disabled:opacity-70 hover:scale-105 transition-transform',
+                                      }

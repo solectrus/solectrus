@@ -1,0 +1,232 @@
+/*
+ * Ui::TitleBar::Component: the slide between the pages of a drill-down
+ * hierarchy, as on iOS. The controller writes the direction to <html> as
+ * data-nav-direction before Turbo renders the next page.
+ *
+ * Only below lg, where the title bar is visible. Two parts move: the content
+ * area (main, which scrolls and so clips its content to the screen) and the
+ * title bar. The rest of the page, the bottom navigation included, stays put.
+ * While the skeleton of the next page covers them, the skeleton moves instead.
+ *
+ * The bar behind the title bar takes the height of the next page while the
+ * pages slide, as the navigation bar of iOS. Its accessories, like a
+ * segmented control below the title bar, belong to one page (see
+ * .ui-title-bar-accessory). The bar is an element of its own, the backdrop:
+ * a name on the header would make it a stacking context, and the ThemeStrip
+ * would then cover the top of the title bar.
+ */
+html:has(.ui-title-bar):not(:has(> .ui-title-bar-skeleton)) main,
+.ui-title-bar-skeleton-page {
+  @apply max-lg:[view-transition-name:nav-page];
+}
+
+html:not(:has(> .ui-title-bar-skeleton)) .ui-title-bar,
+.ui-title-bar-skeleton-title {
+  @apply max-lg:[view-transition-name:nav-title];
+}
+
+.ui-title-bar-backdrop {
+  @apply max-lg:[view-transition-name:nav-bar];
+}
+
+.ui-title-bar-accessory {
+  @apply max-lg:[view-transition-name:nav-accessory];
+}
+
+/* The skeleton shows the next page, so the accessories of this page leave
+   the bar, and the bar takes the height of the next page. The content area
+   below moves up with it, so its content goes too. The page slides out from
+   its old place, and the gray of the content area fills the gap above. */
+html:has(> .ui-title-bar-skeleton) {
+  /* Important over the flex utility of a container */
+  .ui-title-bar-accessory {
+    @apply max-lg:hidden!;
+  }
+
+  main > * {
+    @apply max-lg:invisible;
+  }
+}
+
+/* The skeleton lies beside <body>, over the title bar and the content area */
+.ui-title-bar-skeleton {
+  @apply font-sans antialiased;
+
+  & > * {
+    @apply fixed m-0!;
+  }
+}
+
+html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
+  @apply invisible;
+}
+
+/* Over the ThemeStrip, as the sub navigation with the title bar it copies.
+   The strip stays at the top edge of an app installed on an iPhone, and it
+   would cut off the top of the back button. */
+.ui-title-bar-skeleton-title {
+  @apply z-10;
+}
+
+/* The grouped background of iOS: a gray page behind the white cards of the
+   lists and forms. Important, because the layout gives main and its inner box
+   a white background as utilities. */
+html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
+  @apply max-lg:bg-gray-100! dark:max-lg:bg-slate-900!;
+}
+
+.ui-title-bar-back,
+.ui-title-bar-action {
+  @apply absolute flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
+  @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
+}
+
+/* The save button stands out once there is something to save, as the tinted
+   button of iOS, and fades while there is nothing */
+.ui-title-bar-save {
+  @apply enabled:bg-white enabled:text-indigo-600 disabled:opacity-40 dark:enabled:bg-indigo-500 dark:enabled:text-white;
+}
+
+/* Set by the controller from the render to turbo:load. Important, because the
+   progress bar carries the unlayered styles of Turbo. */
+html[data-nav-rendering] .turbo-progress-bar {
+  @apply hidden!;
+}
+
+/* Anything outside the two parts changes at once, on desktop too */
+html:has(.ui-title-bar)::view-transition-old(root),
+html:has(.ui-title-bar)::view-transition-new(root) {
+  @apply animate-none;
+}
+
+/* The bar changes its height with the slide, and the content area follows
+   its lower edge. The accessories of the bar leave or come with it, cut off
+   at that edge. */
+::view-transition-group(nav-page),
+::view-transition-group(nav-bar) {
+  @apply overflow-clip;
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* The bar keeps its color, so it does not fade: the bar of the next page lies
+   over the one of this page, and the moving edge covers or shows the
+   accessories */
+::view-transition-old(nav-bar),
+::view-transition-new(nav-bar) {
+  @apply animate-none mix-blend-normal;
+}
+
+/* The backdrop lies inside the title bar, so its group would cover the title */
+::view-transition-group(nav-title) {
+  @apply z-1;
+}
+
+/* The accessories leave fast, before the edge of the bar reaches them, and
+   come slower, as the page that brings them */
+::view-transition-old(nav-accessory) {
+  animation-duration: 120ms;
+}
+
+::view-transition-new(nav-accessory) {
+  animation-duration: 200ms;
+}
+
+/* Both pages are opaque, so they cover each other instead of blending */
+::view-transition-old(nav-page),
+::view-transition-new(nav-page) {
+  @apply mix-blend-normal;
+  animation-duration: 350ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-fill-mode: both;
+}
+
+/* Down one level: the child comes in from the right over the parent, which
+   moves a bit to the left. Up one level: the reverse, the child on top. */
+html[data-nav-direction='push'] {
+  &::view-transition-new(nav-page) {
+    animation-name: nav-from-right;
+  }
+
+  &::view-transition-old(nav-page) {
+    animation-name: nav-to-left;
+  }
+}
+
+html[data-nav-direction='pop'] {
+  &::view-transition-new(nav-page) {
+    animation-name: nav-from-left;
+  }
+
+  &::view-transition-old(nav-page) {
+    @apply z-1;
+    animation-name: nav-to-right;
+  }
+}
+
+/* A page beside this one: everything changes at once, as on a tap in a
+   segmented control. A fade would make the bar and its accessories flicker,
+   which look the same on both pages. A back gesture that the browser animates
+   itself changes at once as well (see the controller). */
+html[data-nav-direction='across'] {
+  &::view-transition-group(*),
+  &::view-transition-old(*),
+  &::view-transition-new(*) {
+    @apply animate-none;
+  }
+}
+
+/* No change of level, as from the skeleton to the content: the title changes
+   at once, and the content fades in over the old page, which stays opaque */
+html[data-nav-direction='none'] {
+  &::view-transition-old(nav-title) {
+    @apply hidden;
+  }
+
+  /* The skeleton covers the content area of the page before. The content
+     appears where it belongs, the gray of the skeleton does not move. */
+  &::view-transition-new(nav-title),
+  &::view-transition-old(nav-page),
+  &::view-transition-group(nav-page) {
+    @apply animate-none;
+  }
+
+  &::view-transition-new(nav-page) {
+    animation-name: nav-fade-in;
+    animation-duration: 200ms;
+  }
+
+  &::view-transition-group(nav-bar) {
+    animation-duration: 200ms;
+  }
+}
+
+@keyframes nav-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes nav-from-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes nav-to-left {
+  to {
+    transform: translateX(-30%);
+  }
+}
+
+@keyframes nav-from-left {
+  from {
+    transform: translateX(-30%);
+  }
+}
+
+@keyframes nav-to-right {
+  to {
+    transform: translateX(100%);
+  }
+}

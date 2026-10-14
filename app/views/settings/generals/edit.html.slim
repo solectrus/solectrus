@@ -1,11 +1,11 @@
-= render 'settings/sub_nav'
+= render 'settings/sub_nav', save: 'settings_general_form'
 
-= form_with(model: Setting.new, url: settings_general_path, method: :patch, html: { class: 'relative px-2', data: { controller: 'form-dirty' } }) do |f|
+= form_with(model: Setting.new, url: settings_general_path, method: :patch, id: 'settings_general_form', html: { class: 'ui-form relative px-2', data: { controller: 'form-dirty' } }) do |f|
+  / No autofocus: iOS would open the keyboard right at the slide
   = f.group do
     = f.text_field :plant_name,
                    value: Setting.plant_name,
-                   placeholder: t('settings.general.plant.plant_name.placeholder'),
-                   autofocus: true
+                   placeholder: t('settings.general.plant.plant_name.placeholder')
 
     = f.text_field :operator_name,
                    value: Setting.operator_name,
@@ -34,8 +34,8 @@
                     label: t('settings.general.mcp.enable'),
                     hint: t('premium.sponsors_only')
 
-  .sticky.bottom-4.z-20.flex.justify-end
-    = render 'settings/fab_submit'
+  .lg:sticky.lg:bottom-4.lg:z-20
+    = render Ui::SubmitButton::Component.new
 
-.mt-10.px-2
-  = render 'summaries', summary_completion_rate: @summary_completion_rate
+.lg:mt-10.px-2.max-lg:px-0
+  = render SummaryStatus::Component.new(completion_rate: @summary_completion_rate)
