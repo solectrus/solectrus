@@ -46,13 +46,20 @@ class Balance::StatsController < ApplicationController
         system_status
         system_status_ok
         wallbox_power
-      ] + Sensor::Config.custom_inverter_sensors.map(&:name)
+      ] + Sensor::Config.custom_inverter_sensors.map(&:name) + car_sensor_names
 
     unless Setting.inverter_as_total
       sensor_names.push(:inverter_power_total)
     end
 
     PowerBalance.new(Sensor::Query::Latest.new(sensor_names).call)
+  end
+
+  # The one car in use shows its state of charge next to the home battery
+  # (see StatsNow::Component#car_soc)
+  def car_sensor_names
+    car = Car.sole_in_use if Sensor::Config.exists?(:battery_soc)
+    car ? [car.sensor_name(:car_battery_soc), :wallbox_car_connected] : []
   end
 
   def data_range # rubocop:disable Metrics/AbcSize

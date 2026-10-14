@@ -1,0 +1,30 @@
+.soc-badge.badge[
+  class= 'flex flex-col gap-1 rounded-3xl xl:tall:bg-slate-200 dark:xl:tall:bg-slate-800'
+  style= "--value: #{percent};"
+]
+  = link_to balance_home_path(sensor_name: 'battery_soc', timeframe:),
+            data: { \
+              turbo_prefetch: 'false',
+              'stats-with-chart--component-target': 'current',
+              'sensor-name': 'battery_soc',
+              value: battery_soc,
+              time: time.to_i,
+              action: 'stats-with-chart--component#loadChart',
+              stats_with_chart__component_sensor_name_param: 'battery_soc',
+              stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'battery_soc', timeframe:),
+            },
+            class: 'click-animation' do
+    .soc-row class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
+      = icon 'house', class: 'fa-sm soc-icon text-slate-500 dark:text-slate-400'
+      span.soc-value class= ['font-medium', color_class(:battery_soc, battery_soc)]
+        = "#{battery_soc.round}%"
+
+  / The chart of the car is on the car page
+  = link_to cars_home_path(timeframe:), data: { turbo_frame: '_top' }, class: 'click-animation' do
+    .soc-row class= 'w-full flex items-center justify-between gap-1 px-1 xl:px-3'
+      = icon 'car', class: ['fa-sm soc-icon', car_icon_class]
+      span.soc-value class= ['font-medium', color_class(car.sensor_name(:car_battery_soc), car_soc)]
+        = "#{car_soc.round}%"
+
+  .title class= 'mx-auto uppercase tracking-tight text-slate-500 dark:text-slate-400'
+    = t('.soc')

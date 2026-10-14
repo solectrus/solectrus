@@ -47,6 +47,8 @@
 @import '../../components/ui/title_bar/component.css' layer(base);
 @import '../../components/splitted_costs/component.css' layer(base);
 @import '../../components/tooltip_row/component.css' layer(base);
+/* No layer(): its fullscreen sizes must beat the utilities of the badge */
+@import '../../components/soc_badge/component.css';
 
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
@@ -187,7 +189,7 @@ html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
       --title-size: clamp(40px, 2vw, 45px);
     }
 
-    /* One global badge scale for radial and finance badges */
+    /* One global badge scale for radial, finance and SoC badges */
     & .badge {
       --size: clamp(7rem, 7vw, 9rem);
     }

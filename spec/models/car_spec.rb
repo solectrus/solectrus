@@ -255,4 +255,27 @@ describe Car do
       expect(described_class.configured.map(&:id)).to eq([1, 3])
     end
   end
+
+  describe '.sole_in_use' do
+    before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_3' => 'car3:odometer')) }
+
+    after { Sensor::Config.setup(ENV) }
+
+    it 'is nil with more than one car in use' do
+      expect(described_class.sole_in_use).to be_nil
+    end
+
+    it 'is the one car in use today' do
+      described_class.create!(id: 3, active_from: 1.week.from_now.to_date)
+
+      expect(described_class.sole_in_use.id).to eq(1)
+    end
+
+    it 'is nil without a car in use today' do
+      described_class.create!(id: 1, active_until: 1.day.ago.to_date)
+      described_class.create!(id: 3, active_from: 1.week.from_now.to_date)
+
+      expect(described_class.sole_in_use).to be_nil
+    end
+  end
 end

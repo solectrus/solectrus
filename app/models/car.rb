@@ -87,6 +87,13 @@ class Car < ApplicationRecord
       end
   end
 
+  # The one car in use today, or nil with none or more than one. The power
+  # balance shows its state of charge (see StatsNow::Component).
+  def self.sole_in_use
+    in_use = configured.select { it.active_on?(Date.current) }
+    in_use.first if in_use.one?
+  end
+
   # The configured car of an id in the address
   def self.find_configured!(id)
     configured.find { it.id.to_s == id.to_s } || raise(ActiveRecord::RecordNotFound)
