@@ -18,7 +18,7 @@
 
     .text-gray-800.dark:text-gray-400.lg:table-row-group.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
       - cash_flows.each do |cash_flow|
-        = render Ui::TableRow::Component.new(href: edit_settings_cash_flow_path(cash_flow), nav_title: t('settings.cash_flows.edit'), css_class: 'group lg:table-row max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:items-center') do |row|
+        = render Ui::TableRow::Component.new(href: edit_path(cash_flow), nav_title: t('settings.cash_flows.edit'), css_class: 'group lg:table-row max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:items-center') do |row|
           .text-left.whitespace-nowrap.lg:table-cell.lg:w-1.lg:p-2.lg:align-middle.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:truncate.max-lg:text-subhead.max-lg:text-muted
             = row.link do
               time datetime= cash_flow.date.iso8601

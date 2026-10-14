@@ -15,10 +15,11 @@ class ChargingSession::AddButton::Component < ViewComponent::Base
 
   def render? = self.class.offered?(kind: @kind, selection: @selection)
 
-  # The form keeps the timeframe and the car filter of the list
+  # The form keeps the address of the list, with its timeframe and its car
+  # filter
   def call
     render Ui::AddButton::Component.new(
-      href: helpers.new_cars_charging_session_path(helpers.list_params),
+      href: helpers.new_cars_charging_session_path(return_to: helpers.list_address),
       label: t('charging_sessions.new'),
       css_class: @css_class,
     )

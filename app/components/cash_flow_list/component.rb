@@ -14,6 +14,11 @@ class CashFlowList::Component < ViewComponent::Base
 
   attr_reader :cash_flows
 
+  # The form leads back to this list (see ListAddress)
+  def edit_path(cash_flow)
+    helpers.edit_settings_cash_flow_path(cash_flow, return_to: helpers.list_address)
+  end
+
   def total
     cash_flows.sum(&:amount)
   end

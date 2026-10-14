@@ -17,6 +17,10 @@ module FormPageHelper
   # page, iOS would open the keyboard or a picker right at the slide (see
   # TailwindFormBuilder).
   #
+  # The form keeps the list that opened it (see FormPageResponse). A field
+  # carries it, not the address of the form, because a delete button
+  # replaces that address.
+  #
   #   = form_page_with(model: price, url: [:settings, price]) do |f|
   def form_page_with(model:, **, &)
     form_with(
@@ -26,8 +30,9 @@ module FormPageHelper
       form_page: true,
       html: { class: 'ui-form', data: { controller: 'form-dirty', **form_page_target } },
       **,
-      &
-    )
+    ) do |f|
+      safe_join([(hidden_field_tag(:return_to, return_to, id: nil) if return_to), capture(f, &)])
+    end
   end
 
   # The id of the form of a list entry. The save button in the title bar of a

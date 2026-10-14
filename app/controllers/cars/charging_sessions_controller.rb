@@ -7,8 +7,7 @@ class Cars::ChargingSessionsController < ApplicationController
   before_action :new_charging_session, only: %i[new create]
 
   def index
-    # With the timeframe, the path of the list is the one its form pages lead
-    # back to, so their way back finds it in the history (see historyTrail.ts)
+    # An unknown kind goes to the list of the default kind in the timeframe
     return redirect_to(cars_charging_sessions_path(kind: ChargingSession.default_kind, timeframe: timeframe.to_param)) unless kind.in?(ChargingSession.kinds.keys)
 
     # A car that the filter does not offer goes to "all", like on the car page
@@ -83,9 +82,9 @@ class Cars::ChargingSessionsController < ApplicationController
 
   # Refresh the list straight from the mutating request, so it does not depend
   # on a Turbo broadcast (which could not know the viewer's timeframe). The
-  # form carries the timeframe and the car filter of its list (see
-  # #list_params). The list starts over at page 1, its follow-up pages load
-  # from the index URL.
+  # timeframe and the car filter come from the list that opened the form (see
+  # #list_source). The list starts over at page 1, its follow-up pages load
+  # from the path of the list, without the query of its address.
   def list_stream
     pagy, charging_sessions =
       pagy(
@@ -93,7 +92,7 @@ class Cars::ChargingSessionsController < ApplicationController
         list_scope,
         request: {
           base_url: request.base_url,
-          path: list_path,
+          path: URI(list_path).path,
           params: {},
         },
       )
@@ -105,23 +104,27 @@ class Cars::ChargingSessionsController < ApplicationController
     )
   end
 
-  # The list of the form, the way back from its page on a phone
-  helper_method def list_path
-    cars_charging_sessions_path(kind:, **list_params)
+  # The list of the timeframe and the car filter of the form, for a form that
+  # no list opened (see FormPageResponse)
+  def default_list_path
+    cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: car_selection.to_param)
   end
 
-  # The timeframe and the car filter of the list. Each link to a form and
-  # each form carries them, so a change renders the list of its own page,
-  # also with a second page in another tab.
-  helper_method def list_params
-    { timeframe: timeframe.to_param, car: car_selection.to_param }.compact
+  # Where the timeframe and the car filter come from: the address of the list
+  # itself, or the list that opened the form (see
+  # FormPageResponse#return_to_params). So a change renders the list of its
+  # own page, also with a second page in another tab.
+  def list_source
+    @list_source ||= action_name == 'index' ? params : return_to_params('cars/charging_sessions')
   end
+
+  def timeframe_param = list_source[:timeframe]
 
   # The car filter of the list: one car, all, and the extras of the kind (see
   # CarSelection::EXTRAS)
   helper_method def car_selection
     @car_selection ||=
-      CarSelection.new(params[:car], timeframe:, extras: true)
+      CarSelection.new(list_source[:car], timeframe:, extras: true)
   end
 
   helper_method def title

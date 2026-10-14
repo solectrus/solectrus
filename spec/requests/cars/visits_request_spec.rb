@@ -215,11 +215,10 @@ describe 'Cars Visits' do
         expect(response).to redirect_to("/cars/places/#{work.id}/visits/2026-09")
       end
 
-      it 'drops the whole time from the address, where the form of a place leads back' do
-        car = Car.configured.first
-        get cars_visits_path(car: car.id, timeframe: 'all', place: work.id)
+      it 'passes its address to the form of a place, as the browser shows it' do
+        get '/cars/visits/all'
 
-        expect(response).to redirect_to("/cars/#{car.id}/places/#{work.id}/visits")
+        expect(response.body).to include('return_to=%2Fcars%2Fvisits%2Fall"')
       end
     end
 
@@ -235,6 +234,8 @@ describe 'Cars Visits' do
 
       expect(response.body).to include('<turbo-frame', 'id="visits_page_2"')
       expect(response.body).not_to include('visits_page_3')
+      # The rows lead back to the list, not to its page
+      expect(response.body).to include('return_to=%2Fcars%2Fvisits"')
     end
   end
 

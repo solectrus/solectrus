@@ -52,17 +52,13 @@ class Settings::PlacesController < ApplicationController
   end
 
   # The form opens from the list of the places and from the list of the
-  # visits, which passes itself as return_to. The form leads back there.
-  helper_method def list_path
-    return_to || settings_places_path
+  # visits, which passes itself as return_to (see FormPageResponse)
+  def default_list_path
+    settings_places_path
   end
 
   helper_method def list_title
     return_to ? t('visits.name') : title
-  end
-
-  helper_method def return_to
-    url_from(params[:return_to])
   end
 
   # The visits at the place, with the car and the timeframe of the list of
@@ -136,11 +132,6 @@ class Settings::PlacesController < ApplicationController
   # The car, the timeframe and the place of the list of the visits that
   # opened the form
   def visits_list_params
-    @visits_list_params ||= begin
-      route = return_to ? Rails.application.routes.recognize_path(URI(return_to).path) : {}
-      route[:controller] == 'cars/visits' ? route.slice(:car, :timeframe, :place) : {}
-    rescue ActionController::RoutingError
-      {}
-    end
+    @visits_list_params ||= return_to_params('cars/visits').slice(:car, :timeframe, :place)
   end
 end

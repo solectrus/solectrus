@@ -29,9 +29,10 @@ class ChargingSession::Row::Component < ViewComponent::Base
     end
   end
 
-  # The form keeps the timeframe and the car filter of the list
+  # The form keeps the address of the list, with its timeframe and its car
+  # filter
   def edit_path
-    helpers.edit_cars_charging_session_path(charging_session, **helpers.list_params)
+    helpers.edit_cars_charging_session_path(charging_session, return_to: helpers.list_address)
   end
 
   # The title of the page of the form on a phone, before it loads

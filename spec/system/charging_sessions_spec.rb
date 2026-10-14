@@ -68,6 +68,23 @@ describe 'Charging sessions' do
       expect(page).to have_text('Gespeichert')
       expect(page).to have_text('June trip, edited')
     end
+
+    # The list has no timeframe in its address. The save goes back to its
+    # entry in the history, so the next way back leaves the list.
+    it 'returns to the list as its address shows it' do
+      visit '/cars/charging_sessions/offsite/2022'
+      page.execute_script("Turbo.visit('/cars/charging_sessions/offsite')")
+      row('June trip').click
+
+      fill_in 'charging_session_note', with: 'June trip, edited'
+      click_on 'Speichern'
+
+      expect(page).to have_current_path('/cars/charging_sessions/offsite')
+      expect(page).to have_text('June trip, edited')
+
+      page.go_back
+      expect(page).to have_current_path('/cars/charging_sessions/offsite/2022')
+    end
   end
 
   context 'with a wallbox session that is not assigned' do

@@ -11,8 +11,14 @@ describe FormPageHelper do
     end
 
     let(:price) { Price.new(name: :electricity) }
+    let(:list) { nil }
 
-    before { allow(helper).to receive(:form_in_modal?).and_return(modal) }
+    before do
+      allow(helper).to receive(:form_in_modal?).and_return(modal)
+      # A helper method of FormPageResponse
+      address = list
+      helper.define_singleton_method(:return_to) { address }
+    end
 
     context 'when the modal asks for it' do
       let(:modal) { true }
@@ -38,6 +44,18 @@ describe FormPageHelper do
           expect(form['data-turbo-frame']).to be_nil
           expect(form.at('input[type=date]')['autofocus']).to be_nil
         end
+      end
+    end
+
+    context 'when a list opened it' do
+      let(:modal) { false }
+      let(:list) { '/settings/cash_flows?category=investment' }
+
+      it 'keeps the address of the list in a field, which a delete button keeps too' do
+        field = form.at('input[type=hidden][name=return_to]')
+
+        expect(field['value']).to eq(list)
+        expect(field['id']).to be_nil
       end
     end
 

@@ -48,9 +48,9 @@ class Settings::CashFlowsController < ApplicationController
   private
 
   # Refresh the list straight from the mutating request (no Turbo broadcast, which
-  # could not know the viewer's filter). The filter, remembered from the last
-  # index render, stays applied so a new entry does not reveal the full list while
-  # the filter is still shown.
+  # could not know the viewer's filter). The filter of the list that opened the
+  # form stays applied (see #list_filter), so a new entry does not reveal the full
+  # list while the filter is still shown.
   def list_stream
     turbo_stream.update(
       'list',
@@ -58,14 +58,14 @@ class Settings::CashFlowsController < ApplicationController
     )
   end
 
-  # The list with the filter the index showed last, for the way back from the
-  # page of a form. That page carries no filter params of its own.
-  helper_method def list_path
+  # The list with the filter the index showed last, for a form that no list
+  # opened (see FormPageResponse)
+  def default_list_path
     settings_cash_flows_path(session[:cash_flow_filter].to_h.compact_blank)
   end
 
-  # Persist the filter the index is currently showing, so a later mutation (which
-  # carries no filter params of its own) can re-apply the same one.
+  # Persist the filter the index is currently showing. A form that no list opened
+  # falls back to it (see #list_filter).
   def remember_filter
     session[:cash_flow_filter] = {
       category: filter_categories,
@@ -75,16 +75,23 @@ class Settings::CashFlowsController < ApplicationController
   end
 
   # Where the filter helpers read from. A mutation carries no filter params, so it
-  # falls back to the filter remembered from the last index render; every other
-  # action reads the live request params. Both sources share the same keys, so the
-  # helpers below stay identical regardless of the source.
+  # reads the filter of the list that opened the form; every other action reads
+  # the live request params. Both sources share the same keys, so the helpers
+  # below stay identical regardless of the source.
   def filter_source
     @filter_source ||=
       if action_name.in?(%w[create update destroy])
-        session[:cash_flow_filter].to_h.with_indifferent_access
+        list_filter
       else
         params
       end
+  end
+
+  # The filter of the list that opened the form, from its address (see
+  # FormPageResponse#return_to). Without one, the filter remembered from the
+  # last index render.
+  def list_filter
+    @list_filter ||= (return_to ? return_to_params('settings/cash_flows') : session[:cash_flow_filter].to_h).with_indifferent_access
   end
 
   def filtered_cash_flows
@@ -146,8 +153,6 @@ class Settings::CashFlowsController < ApplicationController
   # Pre-select the filtered category for a new entry. A group drill-down covers
   # several categories at once; the first one is used as the default.
   def default_category
-    Array(
-      session[:cash_flow_filter].to_h.with_indifferent_access[:category],
-    ).first
+    Array(list_filter[:category]).first
   end
 end

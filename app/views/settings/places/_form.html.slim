@@ -1,4 +1,4 @@
-= form_page_with(model: place, url: settings_place_path(place, return_to:)) do |f|
+= form_page_with(model: place, url: settings_place_path(place)) do |f|
   / The switch for home only while no other place is home (see
     Settings::PlacesController#home_switch?)
   = f.group do

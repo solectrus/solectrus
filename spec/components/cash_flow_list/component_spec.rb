@@ -1,6 +1,9 @@
 describe CashFlowList::Component, type: :component do
   subject(:component) { described_class.new(cash_flows: CashFlow.ordered) }
 
+  # The rows take the address of the list from its controller (see ListAddress)
+  around { |example| with_controller_class(Settings::CashFlowsController) { example.run } }
+
   context 'without entries' do
     before { render_inline(component) }
 
@@ -21,7 +24,7 @@ describe CashFlowList::Component, type: :component do
     end
 
     it 'renders a row that opens the form of the cash flow' do
-      row = page.find("a[href='/settings/cash_flows/#{cash_flow.id}/edit']").ancestor('[data-controller="ui--table-row--component"]')
+      row = page.find("a[href='/settings/cash_flows/#{cash_flow.id}/edit?return_to=%2Fsettings%2Fcash_flows']").ancestor('[data-controller="ui--table-row--component"]')
 
       aggregate_failures do
         expect(row).to have_css('a[data-nav-title]')

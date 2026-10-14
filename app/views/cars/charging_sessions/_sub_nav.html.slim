@@ -5,7 +5,7 @@
     so the way back to it does not slide.
   = render Ui::TitleBar::Component.new(title: t('charging_sessions.title'), back_href: back_path, back_label: t('layout.car'), back_slide: false) do |bar|
     - if ChargingSession::AddButton::Component.offered?(kind:, selection: car_selection)
-      - bar.with_action(href: new_cars_charging_session_path(list_params), icon: 'plus', label: t('charging_sessions.new'))
+      - bar.with_action(href: new_cars_charging_session_path(return_to: list_address), icon: 'plus', label: t('charging_sessions.new'))
 
   / On a phone the accessory of the title bar. It belongs to the list and
     leaves the bar when a session opens (see Ui::TitleBar::Component).

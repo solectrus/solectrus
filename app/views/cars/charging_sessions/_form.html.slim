@@ -1,8 +1,4 @@
 = form_page_with(model: [:cars, charging_session]) do |f|
-  / The change renders the list of the page that opened the form
-  - list_params.each do |name, value|
-    = hidden_field_tag name, value
-
   - if charging_session.wallbox?
     / The detection writes the energy, the time and the cost of a wallbox
     / session. The user decides who charged.

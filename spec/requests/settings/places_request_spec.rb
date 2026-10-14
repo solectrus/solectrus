@@ -157,7 +157,7 @@ describe 'Settings Places' do
         get edit_settings_place_path(place, return_to: '/cars/1/visits/2026-09')
 
         expect(response.body).to include('href="/cars/1/visits/2026-09"', %(href="/cars/1/places/#{place.id}/visits/2026-09"))
-        expect(response.body).to include(%(action="/settings/places/#{place.id}?return_to=%2Fcars%2F1%2Fvisits%2F2026-09"))
+        expect(response.parsed_body.at_css("#form_place_#{place.id} input[name=return_to]")['value']).to eq('/cars/1/visits/2026-09')
         expect(response.body).to include(I18n.t('visits.at_place', count: 1))
       end
 
@@ -188,6 +188,13 @@ describe 'Settings Places' do
       get edit_settings_place_path(place, return_to: 'https://example.com/cars/visits')
 
       expect(response.body).not_to include('example.com')
+    end
+
+    it 'ignores a return_to with a scheme and a port, also on this host' do
+      login_as_admin
+      get edit_settings_place_path(place, return_to: "http://#{host}:9999/cars/visits")
+
+      expect(response.body).not_to include(':9999')
     end
   end
 

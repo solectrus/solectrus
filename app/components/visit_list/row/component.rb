@@ -27,6 +27,6 @@ class VisitList::Row::Component < ViewComponent::Base
 
   # The form of the place leads back to this list
   def edit_path
-    helpers.edit_settings_place_path(visit.place, return_to: context.list_path)
+    helpers.edit_settings_place_path(visit.place, return_to: helpers.list_address)
   end
 end

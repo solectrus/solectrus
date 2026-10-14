@@ -24,7 +24,7 @@ class Settings::CarsController < ApplicationController
     turbo_stream.update('list', CarList::Component.new(cars: listed_cars))
   end
 
-  helper_method def list_path
+  def default_list_path
     settings_cars_path
   end
 
