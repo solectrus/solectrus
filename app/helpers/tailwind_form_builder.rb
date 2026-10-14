@@ -32,8 +32,10 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:text_area, method, placeholder: label_text(method, options), **options, &)
   end
 
-  def number_field(method, **, &)
-    input_field(:number_field, method, **, &)
+  # An amount of money has the currency as its unit and at least two decimals
+  def number_field(method, currency: false, **options, &)
+    options = { suffix: Currency.symbol, value: Currency.input_value(object.public_send(method)) }.merge(options) if currency
+    input_field(:number_field, method, **options, &)
   end
 
   def password_field(method, **options)

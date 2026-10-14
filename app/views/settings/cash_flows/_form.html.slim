@@ -3,7 +3,7 @@
 = form_page_with(model: cash_flow, url: cash_flow.persisted? ? settings_cash_flow_path(cash_flow) : settings_cash_flows_path) do |f|
   = f.group footer: t('settings.cash_flows.amount_hint') do
     = f.date_field :date, autofocus: true
-    = f.number_field :amount, step: '0.01', suffix: Currency.symbol
+    = f.number_field :amount, step: '0.01', currency: true
 
   = f.group footer: t('settings.cash_flows.category_hint') do
     = f.select :category, categories

@@ -41,7 +41,7 @@
               = f.number_field :cost,
                                in: 0..10_000,
                                step: '0.01',
-                               suffix: Currency.symbol
+                               currency: true
             / Below both fields, so the facts of the charge fit on one line
             = render ChargingSession::SocFacts::Component.new(charging_session:, css_class: 'mt-3 label-hint')
 
