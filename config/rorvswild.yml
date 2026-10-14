@@ -1,2 +1,5 @@
 development:
+  # The panel stays reachable at /rorvswild. As a widget it sits in <body>,
+  # and Turbo shows it unstyled for a frame on each restore from the cache.
+  widget: hidden
   editor_url: <%= ENV.fetch("RORVSWILD_EDITOR_URL", "vscode://file${path}:${line}") %>
