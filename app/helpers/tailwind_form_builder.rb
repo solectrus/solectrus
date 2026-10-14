@@ -2,12 +2,14 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   attr_reader :template, :options, :object_name
 
   # The ui-form classes make a group a card of cells on a phone, see
-  # ui_form.css. A stacked group puts each label above its input there.
-  def group(title: nil, stacked: false, &)
+  # ui_form.css. A stacked group puts each label above its input there. The
+  # footer explains the group below the card, as on iOS.
+  def group(title: nil, stacked: false, footer: nil, &)
     safe_join(
       [
         (tag.div(title, class: 'ui-form-header text-gray-500 text-sm md:text-base') if title),
-        tag.div(class: ['ui-form-group mb-10 pt-4 grid grid-cols-1 gap-4', ('ui-form-stacked' if stacked)], &),
+        tag.div(class: ['ui-form-group pt-4 grid grid-cols-1 gap-4', ('mb-10' unless footer), ('ui-form-stacked' if stacked)], &),
+        (tag.p(multiline(footer), class: 'ui-form-footer mt-3 mb-10 text-xs text-gray-500 dark:text-gray-400') if footer),
       ].compact,
     )
   end
@@ -171,9 +173,9 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   # Render a hint below an input, honoring embedded newlines as line breaks
-  def hint_tag(hint)
-    tag.span(safe_join(hint.split("\n"), tag.br), class: 'mt-3 label-hint')
-  end
+  def hint_tag(hint) = tag.span(multiline(hint), class: 'mt-3 label-hint')
+
+  def multiline(text) = safe_join(text.split("\n"), tag.br)
 
   def label_text(method, options)
     options.fetch(:label) { object.class.human_attribute_name(method) }

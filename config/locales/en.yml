@@ -606,7 +606,6 @@ en:
       cash_flow:
         date: Date
         amount: Amount
-        amount_with_currency: Amount in %{currency}
         note: Purpose
         category: Category
         categories:

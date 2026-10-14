@@ -606,7 +606,6 @@ de:
       cash_flow:
         date: Datum
         amount: Betrag
-        amount_with_currency: Betrag in %{currency}
         note: Zweck
         category: Kategorie
         categories:

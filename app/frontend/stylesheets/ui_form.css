@@ -31,6 +31,19 @@
       }
     }
 
+    /* The footer of a group explains it below the card, as on iOS */
+    .ui-form-group:has(+ .ui-form-footer) {
+      @apply mb-0;
+    }
+
+    .ui-form-footer {
+      @apply text-muted mt-0 mb-8 px-4 pt-1.5 text-sm;
+
+      &:last-child {
+        @apply mb-0;
+      }
+    }
+
     /* A wrapper that arranges fields on the desktop steps aside, so its
        fields are cells of the group */
     .ui-form-contents {
@@ -131,9 +144,14 @@
       background-position: right center;
     }
 
-    /* A unit follows the input in the flow, instead of lying over it */
+    /* A unit follows the value in the flow, instead of lying over the input.
+       The input is as wide as its value, so the unit stands right after it. */
     .ui-form-input {
       @apply flex items-center justify-end gap-1;
+
+      & > .form-input {
+        @apply field-sizing-content w-auto min-w-[2ch] pr-0;
+      }
 
       & > span {
         @apply text-muted static;

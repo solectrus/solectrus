@@ -36,7 +36,7 @@ A form gets this look from two things:
 1. The form has the class `ui-form`. The form of a list entry gets it from `form_page_with`, see below.
 2. The fields lie in a `f.group` of `TailwindFormBuilder`. Each group is one card.
 
-`f.group(stacked: true)` puts each label above its input. Use it when the labels are too long to share a line with the input, like the names of the sensors. A text area shows its name as the placeholder instead of a label, as the notes of an event on iOS. The label stays for a screen reader.
+`f.group(stacked: true)` puts each label above its input. Use it when the labels are too long to share a line with the input, like the names of the sensors. `f.group(footer:)` puts a text below the card, as on iOS. Use it for a long explanation, like the meaning of the categories, which would make the cell too high. A short hint stays in the cell. A text area shows its name as the placeholder instead of a label, as the notes of an event on iOS. The label stays for a screen reader.
 
 A wrapper that arranges fields on the desktop, like a grid, gets the class `ui-form-contents`. On a phone, the wrapper steps aside, and its fields become cells of the group. `app/frontend/stylesheets/ui_form.css` holds the rules.
 
