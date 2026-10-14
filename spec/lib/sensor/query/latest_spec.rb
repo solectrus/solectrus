@@ -169,13 +169,14 @@ describe Sensor::Query::Latest do
 
       # A source like TeslaMate sends only a change, so a parked car is quiet
       it 'keeps a value older than the day that the query reads' do
-        influx_batch { add_influx_point(name: 'Trabant', fields: { range: 210.0 }, time: 3.days.ago) }
+        seen = 3.days.ago
+        influx_batch { add_influx_point(name: 'Trabant', fields: { range: 210.0 }, time: seen) }
         Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_RANGE_1' => 'Trabant:range'))
 
         result = described_class.new(%i[car_battery_soc_1 car_range_1]).call
 
         expect(result.car_range_1).to eq(210.0)
-        expect(result.time_for(:car_range_1)).to be_within(1.second).of(3.days.ago)
+        expect(result.time_for(:car_range_1)).to be_within(1.second).of(seen)
       ensure
         Sensor::Config.setup(ENV)
       end
