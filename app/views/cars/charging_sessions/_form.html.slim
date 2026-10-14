@@ -14,10 +14,14 @@
 
   - else
     - if charging_session.proposal?
-      / A save accepts the proposal of the build
-      .mt-2.mb-4.rounded-lg.p-4.text-sm.bg-amber-50.text-amber-900.dark:bg-amber-900/20.dark:text-amber-200.flex.items-center.gap-3
-        = icon 'circle-question', class: 'shrink-0 text-base text-amber-500 dark:text-amber-400'
-        p = t('charging_sessions.proposal.form_hint')
+      / A save accepts the proposal of the build. Its dismissal stands beside
+        the hint, but submits a form of its own (see the view edit), so Enter
+        in a field still saves. The modal gives the hint its whole width.
+      .mt-2.mb-4.p-4.text-sm.bg-amber-50.text-amber-900.dark:bg-amber-900/20.dark:text-amber-200.flex.items-center.gap-3 class=(form_in_modal? ? '-mx-6 px-6' : 'rounded-lg')
+        p.flex-1 = t('charging_sessions.proposal.form_hint')
+        button.shrink-0.flex.items-center.gap-2.whitespace-nowrap.text-signal-negative.lg:hover:underline.underline-offset-4.max-lg:active:opacity-60 type='submit' form=dom_id(charging_session, :dismiss)
+          = icon 'xmark'
+          = t('charging_sessions.proposal.dismiss')
 
     / Side by side on a wide screen, so the form fits the height of a laptop.
       On a phone each group is a card of cells (see ui_form.css).

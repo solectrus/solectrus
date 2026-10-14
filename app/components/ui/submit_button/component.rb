@@ -9,10 +9,6 @@
 # below the fields. It submits the same form as a DELETE to that path, so on
 # a page it replaces the page in the history as a save does (see
 # FormPageHelper).
-#
-# An entry that leaves the list in another way, like a proposal that is
-# dismissed, gives that button its own method, label, question before the
-# submit and icon: removal: { method:, label:, confirm:, icon: }.
 class Ui::SubmitButton::Component < ViewComponent::Base
   # The primary button of Button::Component
   BUTTON_CLASS =
@@ -25,11 +21,10 @@ class Ui::SubmitButton::Component < ViewComponent::Base
     'dark:disabled:bg-slate-700 dark:disabled:text-slate-400'.freeze
   private_constant :BUTTON_CLASS
 
-  def initialize(label: nil, delete_path: nil, removal: {})
+  def initialize(label: nil, delete_path: nil)
     super()
     @label = label
     @delete_path = delete_path
-    @removal_options = removal
   end
 
   attr_reader :delete_path
@@ -38,11 +33,7 @@ class Ui::SubmitButton::Component < ViewComponent::Base
     @label || t('crud.save')
   end
 
-  def removal
-    @removal ||= { method: :delete, label: t('crud.delete'), confirm: t('crud.confirm_delete'), icon: 'trash' }.merge(@removal_options)
-  end
-
   def delete_options
-    { formaction: delete_path, formmethod: removal[:method], formnovalidate: true, 'aria-label': removal[:label] }
+    { formaction: delete_path, formmethod: :delete, formnovalidate: true, 'aria-label': t('crud.delete') }
   end
 end

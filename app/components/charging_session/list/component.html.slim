@@ -27,3 +27,20 @@
           - if cost_incomplete?
             span.text-gray-400 title=t('charging_sessions.cost_incomplete') ≥
           = number_to_currency(totals.cost, unit: Currency.symbol)
+
+    / The proposals have no sums. Their row above the list dismisses them
+      all at once, for a time without receipts. The time of the list keeps
+      a proposal of a later build, which the user did not see.
+    - elsif proposals?
+      .col-span-full.order-first.flex.items-center.justify-between.gap-3.rounded-xl.bg-white.px-4.py-3.text-gray-800.lg:mb-4.lg:px-2.lg:bg-gray-100.dark:bg-slate-800/60.dark:text-slate-300
+        .font-bold.max-lg:font-semibold
+          = proposal_count
+          span.font-light<
+            = t('charging_sessions.count', count: proposal_count)
+        = button_to helpers.dismiss_cars_charging_sessions_path,
+                    method: :patch,
+                    params: { return_to: helpers.list_address, listed_at: Time.current.iso8601(6) },
+                    form: { data: { turbo_frame: 'list', turbo_confirm: t('charging_sessions.proposal.confirm_dismiss_all', count: proposal_count) } },
+                    class: 'flex items-center gap-2 text-signal-negative lg:hover:underline underline-offset-4 max-lg:active:opacity-60' do
+          = icon 'xmark'
+          = t('charging_sessions.proposal.dismiss_all')

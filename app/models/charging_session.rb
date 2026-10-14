@@ -152,6 +152,7 @@ class ChargingSession < ApplicationRecord
   # The sessions that start on the given local dates, whose end can be open
   scope :on_dates, ->(dates) { where(started_at: dates.begin.beginning_of_day..dates.end&.end_of_day) }
   scope :unassigned, -> { wallbox.where(car_id: nil, guest: false) }
+  scope :in_timeframe, ->(timeframe) { timeframe.all? ? all : where(started_at: timeframe.beginning..timeframe.ending) }
 
   # The list of the charges of a kind (see .joined), newest first. The
   # filter is a car id, :guest, :unassigned or :proposals (see
@@ -160,7 +161,7 @@ class ChargingSession < ApplicationRecord
   scope :list_for,
         lambda { |kind, timeframe: nil, filter: nil|
           scope = where(kind:, dismissed: false)
-          scope = scope.where(started_at: timeframe.beginning..timeframe.ending) if timeframe && !timeframe.all?
+          scope = scope.in_timeframe(timeframe) if timeframe
           scope =
             case filter
             when :unassigned then scope.unassigned

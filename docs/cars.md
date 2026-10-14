@@ -288,6 +288,10 @@ list deletes only an offsite session.
 
 The list shows a proposal with its estimate, but its sums leave it out. A save in the form
 accepts a proposal, so the form needs the cost. The user can also dismiss a proposal.
+The filter of the proposals has no sums. Instead, a row above the list dismisses all
+proposals of the timeframe at once, for a time without receipts
+([#6021](https://github.com/solectrus/solectrus/issues/6021)). It dismisses only the
+proposals that the list showed, so a proposal of a later build stays.
 
 The form shows the loss of a charge: 1 − rise ÷ 100 × `battery_kwh` ÷ `kwh`. A loss in each
 row added no value to the list. The loss needs a rise of 20 points or more, because the

@@ -13,25 +13,13 @@ module ChargingSessionHelper
     cars.map { [it.display_name, it.id] }
   end
 
-  # The button of the form that takes a session from the list. A proposal is
-  # dismissed, so the next build does not make it again. An offsite session
-  # of the user is deleted. A wallbox session stays, the detection owns it.
+  # The button of the form that deletes an offsite session of the user. A
+  # proposal is dismissed beside its hint instead, so the next build does
+  # not make it again. A wallbox session stays, the detection owns it.
   def charging_session_removal(charging_session)
-    if charging_session.proposal?
-      {
-        delete_path: dismiss_cars_charging_session_path(charging_session),
-        removal: {
-          method: :patch,
-          label: t('charging_sessions.proposal.dismiss'),
-          confirm: t('charging_sessions.proposal.confirm_dismiss'),
-          icon: 'xmark',
-        },
-      }
-    elsif charging_session.offsite? && charging_session.persisted?
-      { delete_path: cars_charging_session_path(charging_session) }
-    else
-      {}
-    end
+    return {} unless charging_session.offsite? && charging_session.persisted? && !charging_session.proposal?
+
+    { delete_path: cars_charging_session_path(charging_session) }
   end
 
   # Who charged at the own wallbox: a car, a guest, or nobody yet

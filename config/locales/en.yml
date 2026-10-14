@@ -390,7 +390,14 @@ en:
       accept: Confirm
       dismiss: Dismiss
       dismissed: Dismissed
-      confirm_dismiss: Dismiss this charging session? It does not come back.
+      confirm_dismiss: Dismiss this charging session? It stays saved, but no longer shows and is not proposed again.
+      dismiss_all: Dismiss all
+      confirm_dismiss_all:
+        one: Dismiss 1 unconfirmed charging session? It stays saved, but no longer shows and is not proposed again.
+        other: Dismiss %{count} unconfirmed charging sessions? They stay saved, but no longer show and are not proposed again.
+      dismissed_all:
+        one: 1 charging session dismissed
+        other: '%{count} charging sessions dismissed'
       form_hint: Detected from the car readings. Time and energy are estimates, the cost is missing.
     count:
       one: charging session

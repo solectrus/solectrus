@@ -104,6 +104,7 @@
 #                       cars_visits GET              /cars(/:car)(/places/:place)/visits(/:timeframe)(.:format)         cars/visits#index {car: /\d/, place: /\d+/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format)      cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest|proposals/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #     dismiss_cars_charging_session PATCH            /cars/charging_sessions/:id/dismiss(.:format)                      cars/charging_sessions#dismiss
+#    dismiss_cars_charging_sessions PATCH            /cars/charging_sessions/dismiss(.:format)                          cars/charging_sessions#dismiss_all
 #                                   POST             /cars/charging_sessions(.:format)                                  cars/charging_sessions#create
 #         new_cars_charging_session GET              /cars/charging_sessions/new(.:format)                              cars/charging_sessions#new
 #        edit_cars_charging_session GET              /cars/charging_sessions/:id/edit(.:format)                         cars/charging_sessions#edit
@@ -354,8 +355,9 @@ Rails.application.routes.draw do
         }
 
     resources :charging_sessions, except: %i[index show] do
-      # The user dismisses a proposal of the build
+      # The user dismisses a proposal of the build, or all of the list
       patch :dismiss, on: :member
+      patch :dismiss, on: :collection, action: :dismiss_all
     end
   end
 

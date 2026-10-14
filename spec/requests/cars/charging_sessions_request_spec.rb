@@ -562,6 +562,81 @@ describe 'Charging sessions' do
       expect(response.body).to include('href="/cars/charging_sessions/wallbox/all"')
     end
 
+    describe 'dismiss all' do
+      def list = "/cars/proposals/charging_sessions/offsite/#{started_at.year}"
+
+      def dismiss_all(return_to: list, listed_at: Time.current.iso8601(6), **)
+        patch '/cars/charging_sessions/dismiss', params: { return_to:, listed_at: }.compact, **
+      end
+
+      def proposal_at(started_at, **)
+        ChargingSession.insert!( # rubocop:disable Rails/SkipsModelValidations
+          { kind: 'offsite', origin: 'detection', car_id: car.id, started_at:, kwh: 5, ** },
+        ).first['id']
+      end
+
+      it 'is offered in the list of the proposals, with the time of the list' do
+        freeze_time do
+          get list
+
+          form = response.parsed_body.at_css('form[action="/cars/charging_sessions/dismiss"]')
+          expect(form['data-turbo-confirm']).to eq('Dismiss 1 unconfirmed charging session? It stays saved, but no longer shows and is not proposed again.')
+          expect(form.at_css('input[name="return_to"]')['value']).to eq(list)
+          expect(form.at_css('input[name="listed_at"]')['value']).to eq(Time.current.iso8601(6))
+        end
+      end
+
+      it 'is not offered in the list of all offsite sessions' do
+        get '/cars/charging_sessions/offsite'
+
+        expect(response.parsed_body.at_css('form[action="/cars/charging_sessions/dismiss"]')).to be_nil
+      end
+
+      it 'dismisses the proposals of the timeframe of the list, but no session of the user' do
+        proposal_at(started_at - 2.years)
+
+        dismiss_all(headers: { 'Turbo-Frame' => 'list' }, as: :turbo_stream)
+
+        expect(proposal.reload).to have_attributes(dismissed: true, assigned_manually: true)
+        expect(ChargingSession.proposals.count).to eq(1)
+        expect(recent.reload.dismissed).to be(false)
+        expect(response.body).to include('1 charging session dismissed', 'No unconfirmed charging sessions')
+      end
+
+      it 'dismisses the proposals of the whole time in the list of all' do
+        dismiss_all(return_to: '/cars/proposals/charging_sessions/offsite')
+
+        expect(response).to redirect_to('/cars/proposals/charging_sessions/offsite')
+        expect(ChargingSession.proposals).to be_empty
+      end
+
+      it 'keeps a proposal of a build after the list' do
+        listed_at = Time.current
+        later = proposal_at(started_at + 1.hour, created_at: listed_at + 1.second, updated_at: listed_at + 1.second)
+
+        dismiss_all(listed_at: listed_at.iso8601(6))
+
+        expect(proposal.reload.dismissed).to be(true)
+        expect(ChargingSession.proposals.ids).to eq([later])
+      end
+
+      it 'refuses a list without the filter of the proposals' do
+        dismiss_all(return_to: "/cars/#{car.id}/charging_sessions/offsite/#{started_at.year}")
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(proposal.reload).to be_proposal
+      end
+
+      it 'refuses a request without its list or the time of the list' do
+        dismiss_all(return_to: nil)
+        expect(response).to have_http_status(:unprocessable_content)
+
+        dismiss_all(listed_at: 'yesterday')
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(proposal.reload).to be_proposal
+      end
+    end
+
     it 'dismisses no session of the user' do
       patch "/cars/charging_sessions/#{recent.id}/dismiss", as: :turbo_stream
 
@@ -594,12 +669,15 @@ describe 'Charging sessions' do
       expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to eq('Main Street 1, 12345 Town')
     end
 
-    it 'offers to dismiss a proposal in the form' do
-      get "/cars/charging_sessions/#{proposal.id}/edit"
+    it 'offers to dismiss a proposal beside its hint, not as a button of the form' do
+      get "/cars/charging_sessions/#{proposal.id}/edit", params: { return_to: '/cars/proposals/charging_sessions/offsite' }
 
-      buttons = response.parsed_body.css("button[formaction='/cars/charging_sessions/#{proposal.id}/dismiss']")
-      expect(buttons.pluck('formmethod')).to eq(%w[patch patch])
-      expect(buttons.last.text).to include('Dismiss')
+      body = response.parsed_body
+      form = body.at_css("form[action='/cars/charging_sessions/#{proposal.id}/dismiss']")
+      expect(form.at_css('input[name="_method"]')['value']).to eq('patch')
+      expect(form.at_css('input[name="return_to"]')['value']).to eq('/cars/proposals/charging_sessions/offsite')
+      expect(body.at_css("button[form='#{form['id']}']").text).to include('Dismiss')
+      expect(body.css('button[formaction]')).to be_empty
     end
 
     it 'accepts a proposal with its cost' do

@@ -390,7 +390,14 @@ de:
       accept: Bestätigen
       dismiss: Verwerfen
       dismissed: Verworfen
-      confirm_dismiss: Diese Ladung verwerfen? Sie kommt nicht wieder.
+      confirm_dismiss: Diese Ladung verwerfen? Sie bleibt gespeichert, wird aber nicht mehr angezeigt und nicht erneut vorgeschlagen.
+      dismiss_all: Alle verwerfen
+      confirm_dismiss_all:
+        one: 1 unbestätigte Ladung verwerfen? Sie bleibt gespeichert, wird aber nicht mehr angezeigt und nicht erneut vorgeschlagen.
+        other: '%{count} unbestätigte Ladungen verwerfen? Sie bleiben gespeichert, werden aber nicht mehr angezeigt und nicht erneut vorgeschlagen.'
+      dismissed_all:
+        one: 1 Ladung verworfen
+        other: '%{count} Ladungen verworfen'
       form_hint: Aus den Messwerten des Autos erkannt. Zeit und Energie sind geschätzt, die Kosten fehlen.
     count:
       one: Ladevorgang

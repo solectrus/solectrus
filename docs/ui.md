@@ -83,7 +83,7 @@ On a phone, the save button stands in the title bar, outside the form. The view 
 
 A view that renders its own `Ui::TitleBar` calls `bar.with_save(form: form_page_id(@record))`.
 
-The form deletes its entry, too. With `delete_path:`, `Ui::SubmitButton` adds a button that submits the form as a DELETE to that path. In the modal it is a trash icon at the left edge, far from the save button. On a page it is a red line below the fields. An entry that leaves the list in another way, like a charging session that is dismissed, also sets `removal:`, a hash with the `method`, the `label`, the `confirm` question and the `icon` of the button.
+The form deletes its entry, too. With `delete_path:`, `Ui::SubmitButton` adds a button that submits the form as a DELETE to that path. In the modal it is a trash icon at the left edge, far from the save button. On a page it is a red line below the fields.
 
 The controller includes `FormPageResponse` and defines two methods: `default_list_path`, the list of a form that no list opened, and `list_stream`, the Turbo Stream that refreshes the list. `list_stream` can also return several streams, as the places do.
 

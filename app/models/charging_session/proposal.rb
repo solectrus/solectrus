@@ -48,6 +48,13 @@ module ChargingSession::Proposal
       kwh if kwh.positive?
     end
 
+    # The user dismisses the proposals of the scope at once, for example the
+    # charges of a time without receipts. A dismissed proposal does not come
+    # back (see #dismiss!). Gives the number of the dismissed proposals.
+    def dismiss_all
+      proposals.update_all(dismissed: true, assigned_manually: true, updated_at: Time.current) # rubocop:disable Rails/SkipsModelValidations
+    end
+
     # Gives each proposal of the car a new estimate from its state of charge,
     # after a change of the capacity of the car. It reads no InfluxDB data.
     def reestimate(car)

@@ -33,8 +33,16 @@ class ChargingSession::List::Component < ViewComponent::Base
   # cost is too small
   def cost_incomplete? = !totals.costed?
 
+  def proposals? = @selection.filter == :proposals
+
+  # The proposals of the whole list, not only of its first page. They do not
+  # count, so their row has the number instead of the sums.
+  def proposal_count
+    @proposal_count ||= ChargingSession.proposals.in_timeframe(timeframe).count
+  end
+
   # The key of the empty list: its kind, or the proposals
-  def empty_key = @selection.filter == :proposals ? 'proposals' : kind
+  def empty_key = proposals? ? 'proposals' : kind
 
   def pv_share?
     self.class.pv_share_column?(kind)

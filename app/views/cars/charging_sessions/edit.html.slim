@@ -8,3 +8,14 @@
 
 = render Ui::FormPage::Component.new(title: heading, width: (@charging_session.wallbox? ? :wide : :extra_wide)) do
   = render 'form', charging_session: @charging_session
+
+  / The dismissal of a proposal, whose button stands in the hint of the form.
+    Apart from the form, so it is not the default button of the form, and
+    within the modal, which closes after a submit inside it.
+  - if @charging_session.proposal?
+    = form_with url: dismiss_cars_charging_session_path(@charging_session),
+                method: :patch,
+                id: dom_id(@charging_session, :dismiss),
+                class: 'hidden',
+                data: { turbo_confirm: t('charging_sessions.proposal.confirm_dismiss'), **form_page_target } do
+      = hidden_field_tag :return_to, return_to, id: nil if return_to

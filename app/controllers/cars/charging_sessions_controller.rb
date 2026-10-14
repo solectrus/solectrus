@@ -52,6 +52,16 @@ class Cars::ChargingSessionsController < ApplicationController
     respond_with_list(notice: t('charging_sessions.proposal.dismissed'))
   end
 
+  # The proposals of the timeframe of the list go at once, for a time
+  # without receipts. Only the list of the proposals offers it, and only the
+  # proposals that the list showed go: a proposal of a later build stays.
+  def dismiss_all
+    return head(:unprocessable_content) unless car_selection.filter == :proposals && listed_at
+
+    count = ChargingSession.in_timeframe(timeframe).where(created_at: ..listed_at).dismiss_all
+    respond_with_list(notice: t('charging_sessions.proposal.dismissed_all', count:))
+  end
+
   # Only an offsite session can go (see ChargingSession)
   def destroy
     return head(:unprocessable_content) unless @charging_session.destroy
@@ -120,6 +130,13 @@ class Cars::ChargingSessionsController < ApplicationController
 
   def timeframe_param = list_source[:timeframe]
 
+  # When the list showed the proposals (see ChargingSession::List::Component)
+  def listed_at
+    @listed_at ||= Time.zone.iso8601(params[:listed_at].to_s)
+  rescue ArgumentError
+    nil
+  end
+
   # The car filter of the list: one car, all, and the extras of the kind (see
   # CarSelection::EXTRAS)
   helper_method def car_selection
@@ -171,8 +188,10 @@ class Cars::ChargingSessionsController < ApplicationController
     params.expect(charging_session: %i[car_id started_at ended_at kwh cost power_type evse_id provider address note]).merge(kind: 'offsite')
   end
 
+  # The kind of the list, of the session, or of the list that sent the
+  # request (see #list_source)
   helper_method def kind
-    params[:kind] || @charging_session&.kind
+    params[:kind] || @charging_session&.kind || list_source[:kind]
   end
 
   # A wallbox session changes each session of its charge

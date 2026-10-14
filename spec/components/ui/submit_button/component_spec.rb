@@ -36,17 +36,4 @@ describe Ui::SubmitButton::Component, type: :component do
 
     expect(page.first('button[type="submit"]')['data-form-dirty-submit']).not_to be_nil
   end
-
-  it 'submits another way with its own label and question' do
-    render_inline(described_class.new(delete_path: '/sessions/1/dismiss', removal: { method: :patch, label: 'Dismiss', confirm: 'Sure?', icon: 'xmark' }))
-
-    buttons = page.all('button[formaction="/sessions/1/dismiss"]')
-    aggregate_failures do
-      expect(buttons.pluck('formmethod')).to eq(%w[patch patch])
-      expect(buttons.pluck('data-turbo-confirm')).to eq(%w[Sure? Sure?])
-      expect(buttons.first['aria-label']).to eq('Dismiss')
-      expect(buttons.last).to have_text('Dismiss')
-      expect(buttons.first).to have_css('.fa-xmark')
-    end
-  end
 end
