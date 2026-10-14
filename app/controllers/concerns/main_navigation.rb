@@ -57,7 +57,6 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           expand_item,
           compress_item,
           ___,
-          docs_item,
           about_item,
           ___,
           session_item,
@@ -338,19 +337,6 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
           'fullscreen-btn' => 'off',
           :action => 'click->fullscreen#off',
         },
-      }
-    end
-
-    def docs_item
-      {
-        name: t('layout.docs'),
-        icon: 'circle-question',
-        href:
-          SolectrusLink.url(
-            'https://solectrus.de/docs/',
-            campaign: 'main-nav',
-            content: 'docs',
-          ),
       }
     end
 
