@@ -77,6 +77,25 @@ describe Place do
     end
   end
 
+  describe '#deletable?' do
+    it 'is true for a place without a visit' do
+      expect(home).to be_deletable
+    end
+
+    it 'is false for a place with a visit' do
+      start = Date.yesterday.beginning_of_day
+      home.visits.create!(car: Car.configured.first, date: start.to_date, started_at: start, ended_at: start + 600)
+
+      expect(home).not_to be_deletable
+    end
+
+    it 'is false for home' do
+      home.update!(labels: ['home'])
+
+      expect(home).not_to be_deletable
+    end
+  end
+
   describe '#labels' do
     it 'keeps the known labels, in their order' do
       home.update!(labels: ['', 'unknown', 'home', 'home'])

@@ -80,9 +80,15 @@ class Place < ApplicationRecord
     self.labels = ActiveModel::Type::Boolean.new.cast(value) ? labels | ['home'] : labels - ['home']
   end
 
+  # A place without a visit can go, for example a place of wrong positions
+  # after these positions were corrected and the summaries were built again.
+  # A place with visits stays, because its days would lose their visits. Home
+  # stays too, because a new home builds the days again (see Place::HomeChange).
+  def deletable? = !home? && visits.none?
+
   # Each place with the time of the cars there (`seconds`), from the visits of
   # the daily build, the place with the most time first. A place without a
-  # visit has 0, for example a place that a click in the live view made.
+  # visit has 0, for example a place of wrong positions after a new build.
   def self.with_seconds
     left_joins(:visits)
       .group(:id)

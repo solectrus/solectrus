@@ -34,7 +34,7 @@ describe 'Settings places (mobile)' do
     link.click
 
     expect(page).to have_current_path(path)
-    expect(page).to have_css('form.ui-form')
+    expect(page).to have_css('.ui-title-bar h1', text: 'Ort bearbeiten')
     expect(page.evaluate_script('window.visitMarker')).to be(true)
   end
 end

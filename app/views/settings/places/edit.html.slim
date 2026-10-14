@@ -1,5 +1,6 @@
 - heading = t('settings.places.edit')
-= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: list_title, save: form_page_id(@place)
+/ A place without a visit has nothing to save, only its deletion
+= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: list_title, save: (form_page_id(@place) unless @place.deletable?)
 
 / The address and the map show the user which place this is. The modal
   names the address as its title, the page of a phone above the map.
@@ -9,25 +10,39 @@
   div class='flex h-64 my-4 max-lg:mt-0 max-lg:mb-8 max-lg:overflow-hidden max-lg:rounded-xl'
     = render Car::Map::Component.new(cars: map_cars, live: true)
 
-  / The desktop narrows the list of the visits with the chevron beside the
-    name. A phone opens the place with a tap on its row, so the way to its
-    visits is here.
-  - if place_visits_path && !form_in_modal? && place_visits_count.positive?
-    .lg:hidden.mb-8
-      = render Ui::NavList::Component.new(items: [{ name: t('visits.at_place', count: place_visits_count), href: place_visits_path, icon: 'location-dot' }], label: t('visits.name'))
+  / A place without a visit is left over, for example from wrong positions
+    that the user corrected later. A name or home makes no sense for it, so
+    the page offers its deletion alone (see Place#deletable?).
+  - if @place.deletable?
+    p.text-muted.max-lg:px-4 = t('settings.places.without_visits')
+    = button_to settings_place_path(@place),
+                method: :delete,
+                params: { return_to: }.compact,
+                form: { class: 'mt-6 lg:w-fit', data: { **form_page_target, turbo_confirm: t('crud.confirm_delete') } },
+                class: 'flex items-center justify-center gap-2 text-signal-negative max-lg:w-full max-lg:rounded-xl max-lg:bg-white max-lg:py-3 max-lg:text-headline max-lg:active:bg-gray-200 dark:max-lg:bg-slate-800/60 dark:max-lg:active:bg-slate-700/60 lg:hover:underline underline-offset-4' do
+      = icon 'trash'
+      = t('settings.places.delete')
 
-  = render 'form', place: @place
+  - else
+    / The desktop narrows the list of the visits with the chevron beside the
+      name. A phone opens the place with a tap on its row, so the way to its
+      visits is here.
+    - if place_visits_path && !form_in_modal? && place_visits_count.positive?
+      .lg:hidden.mb-8
+        = render Ui::NavList::Component.new(items: [{ name: t('visits.at_place', count: place_visits_count), href: place_visits_path, icon: 'location-dot' }], label: t('visits.name'))
 
-  / Another place is home. A move of home builds each day again, so it is an
-    action of its own, apart from the form, with a question first.
-  - unless home_switch?
-    = button_to settings_place_path(@place, return_to:),
-                method: :patch,
-                params: { place: { home: '1' } },
-                form: { class: 'mt-6 lg:-mt-8 lg:w-fit', data: { **form_page_target, turbo_confirm: t('settings.places.make_home_confirm', previous: current_home.display_name || t('settings.places.unnamed')) } },
-                class: 'flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400 max-lg:w-full max-lg:py-2 max-lg:text-headline max-lg:active:opacity-60 lg:text-sm lg:hover:underline underline-offset-4' do
-      = icon Place::LABELS['home']
-      = t('settings.places.make_home')
+    = render 'form', place: @place
+
+    / Another place is home. A move of home builds each day again, so it is an
+      action of its own, apart from the form, with a question first.
+    - unless home_switch?
+      = button_to settings_place_path(@place, return_to:),
+                  method: :patch,
+                  params: { place: { home: '1' } },
+                  form: { class: 'mt-6 lg:-mt-8 lg:w-fit', data: { **form_page_target, turbo_confirm: t('settings.places.make_home_confirm', previous: current_home.display_name || t('settings.places.unnamed')) } },
+                  class: 'flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400 max-lg:w-full max-lg:py-2 max-lg:text-headline max-lg:active:opacity-60 lg:text-sm lg:hover:underline underline-offset-4' do
+        = icon Place::LABELS['home']
+        = t('settings.places.make_home')
 
   / The form asked Nominatim, so the list gets the locality. A stream
     inside the frame runs when the modal opens. The page of a phone leads

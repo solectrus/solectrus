@@ -14,9 +14,12 @@
         = place.locality
     .whitespace-nowrap.tabular-nums.lg:p-2.lg:text-sm.max-lg:text-muted
       / The time links to the visits that make it up. On a phone a tap opens
-        the place.
+        the place. A place without a visit says so, so the user finds it to
+        delete it (see Place#deletable?).
       - if duration
         = link_to duration,
                   helpers.cars_visits_path(place: place.id),
                   class: 'hover:underline underline-offset-4 max-lg:pointer-events-none',
                   data: { turbo_frame: '_top' }
+      - else
+        span.italic.text-gray-500.max-lg:text-muted = t('settings.places.no_visits')

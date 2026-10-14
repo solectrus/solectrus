@@ -464,6 +464,9 @@ en:
       description: SOLECTRUS adds a place when a car stood there for 30 minutes or more, longer when the car reports less often. Give a place a name of its own, for example "Home". The maps and the live view then show this name.
       empty: No place yet. A place comes into being when a car stood at one spot for 30 minutes or more, longer when the car reports less often.
       unnamed: Unnamed
+      no_visits: No visits
+      without_visits: This place was never visited.
+      delete: Delete place
       make_home: Make it home …
       make_home_confirm: So far, “%{previous}” is home. All summaries will be built again.
       time: Time

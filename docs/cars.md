@@ -777,6 +777,12 @@ period of use (`Place::HomeChange`). Without such a car, the summaries stay. If 
 cannot give the first position, all summaries go (see
 [When the detection runs](#when-the-detection-runs)).
 
+A place stays when its visits go, also after "Delete the summaries". So a place from wrong
+positions stays after the user corrects the positions in InfluxDB. The list marks a place
+without a visit as never visited. Its page offers its deletion alone (`Place#deletable?`),
+because a name or home makes no sense for it. A place with visits stays, because its days would lose their visits. Home stays too, because a
+new home builds the days again.
+
 ### Address
 
 The address comes from Nominatim, the geocoder of OpenStreetMap (`Place::Nominatim`). Its

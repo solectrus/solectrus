@@ -1,6 +1,12 @@
 describe 'Settings Places' do
   let(:place) { Place.create!(latitude: 50.92263, longitude: 6.40706) }
 
+  # A place without a visit offers its deletion alone (see Place#deletable?)
+  def visit!
+    start = Date.yesterday.beginning_of_day
+    place.visits.create!(date: start.to_date, car: Car.configured.first, started_at: start, ended_at: start + 2.hours)
+  end
+
   before do
     stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Jülich' } }.to_json)
   end
@@ -48,6 +54,14 @@ describe 'Settings Places' do
       expect(a_request(:get, /nominatim/)).not_to have_been_made
     end
 
+    it 'says that a place was never visited' do
+      place
+      login_as_admin
+      get settings_places_path
+
+      expect(response.body).to include(I18n.t('settings.places.no_visits'))
+    end
+
     it 'loads the next page into its frame' do
       26.times { Place.create!(latitude: (it / 100.0) + 50, longitude: 6.4) }
       login_as_admin
@@ -91,6 +105,7 @@ describe 'Settings Places' do
     end
 
     it 'shows the address as the title' do
+      visit!
       login_as_admin
       get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
 
@@ -111,6 +126,7 @@ describe 'Settings Places' do
 
     it 'moves home here only with an action that asks first, while another place is home' do
       Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
+      visit!
       login_as_admin
       get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
 
@@ -232,6 +248,67 @@ describe 'Settings Places' do
       patch settings_place_path(place, return_to: '/cars/visits/2026-09'), params: { place: { name: 'Home' } }, as: :turbo_stream
 
       expect(response.body).to include('<turbo-stream action="back_to" target="/cars/visits/2026-09">')
+    end
+  end
+
+  describe 'DELETE /settings/places/:id' do
+    it 'forbids the deletion to a guest' do
+      delete settings_place_path(place), as: :turbo_stream
+
+      expect(response).to have_http_status(:forbidden)
+      expect(Place).to exist(place.id)
+    end
+
+    it 'offers the deletion alone for a place without a visit' do
+      login_as_admin
+      get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).to include(%(action="#{settings_place_path(place)}"), 'name="_method" value="delete"', I18n.t('settings.places.without_visits'))
+      expect(response.body).not_to include('name="place[name]"', I18n.t('settings.places.make_home'))
+    end
+
+    it 'has nothing to save on the page of a phone for a place without a visit' do
+      login_as_admin
+      get edit_settings_place_path(place)
+
+      expect(response.body).not_to include(%(form="form_place_#{place.id}"))
+    end
+
+    it 'deletes a place without a visit and removes its row in the modal' do
+      login_as_admin
+      delete settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
+
+      expect(Place).not_to exist(place.id)
+      expect(response.body).to include(%(<turbo-stream action="remove" target="place_#{place.id}">), I18n.t('crud.deleted'))
+    end
+
+    it 'goes back to the list from the page of a phone' do
+      login_as_admin
+      delete settings_place_path(place), as: :turbo_stream
+
+      expect(response.body).to include(%(<turbo-stream action="back_to" target="#{settings_places_path}">))
+    end
+
+    it 'keeps a place with a visit, whose form offers no deletion' do
+      visit!
+      login_as_admin
+      get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).not_to include('name="_method" value="delete"')
+
+      delete settings_place_path(place), as: :turbo_stream
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(place.visits).to exist
+    end
+
+    it 'keeps home' do
+      place.update!(labels: ['home'])
+      login_as_admin
+      delete settings_place_path(place), as: :turbo_stream
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(Place.home).to eq(place)
     end
   end
 end

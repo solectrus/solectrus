@@ -88,6 +88,7 @@
 #               edit_settings_place GET              /settings/places/:id/edit(.:format)                                settings/places#edit
 #                    settings_place PATCH            /settings/places/:id(.:format)                                     settings/places#update
 #                                   PUT              /settings/places/:id(.:format)                                     settings/places#update
+#                                   DELETE           /settings/places/:id(.:format)                                     settings/places#destroy
 #    visibility_settings_cash_flows PATCH            /settings/cash_flows/visibility(.:format)                          settings/cash_flows#visibility
 #               settings_cash_flows GET              /settings/cash_flows(.:format)                                     settings/cash_flows#index
 #                                   POST             /settings/cash_flows(.:format)                                     settings/cash_flows#create
@@ -303,7 +304,7 @@ Rails.application.routes.draw do
     end
 
     resources :cars, only: %i[index edit update]
-    resources :places, only: %i[index edit update]
+    resources :places, only: %i[index edit update destroy]
 
     resources :cash_flows, except: :show do
       patch :visibility, on: :collection

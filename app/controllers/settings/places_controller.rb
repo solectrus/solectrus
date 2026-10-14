@@ -13,7 +13,7 @@ class Settings::PlacesController < ApplicationController
 
   before_action :admin_required!
   before_action(except: :index) { head(:not_found) unless sponsored? }
-  before_action :load_place, only: %i[edit update]
+  before_action :load_place, only: %i[edit update destroy]
 
   def index
     return unless sponsored?
@@ -45,9 +45,20 @@ class Settings::PlacesController < ApplicationController
     end
   end
 
+  # Only a place without a visit can go (see Place#deletable?)
+  def destroy
+    return head(:unprocessable_content) unless @place.deletable?
+
+    @place.destroy!
+    respond_with_list(notice: t('crud.deleted'))
+  end
+
   private
 
+  # A place without a visit shows in the list of the places alone
   def list_stream
+    return turbo_stream.remove(helpers.dom_id(@place)) if @place.destroyed?
+
     [@place, @moved].compact.flat_map { replace_place(it) }
   end
 
