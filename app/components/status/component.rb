@@ -41,7 +41,7 @@ class Status::Component < ViewComponent::Base
     @status_ok
   end
 
-  # A capsule of glass, as iOS shows one on a colored bar
+  # A capsule of glass on a colored bar
   def outer_class
     'rounded-full px-3 py-1 font-medium ' \
       'bg-white/20 ring-1 ring-inset ring-white/30 text-white ' \

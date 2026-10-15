@@ -1,5 +1,5 @@
 /*
- * A form on a phone in the inset grouped style of iOS. The form carries the
+ * A form on a phone as a grouped list. The form carries the
  * class ui-form, and TailwindFormBuilder marks its parts. Each group is a card
  * on the gray page (see Ui::TitleBar::Component), each child of a group a
  * cell. A field shows its label at the left and its input at the right,
@@ -7,7 +7,7 @@
  * check box is a switch. A text field puts its label above the input, so the
  * text has the full width of the cell. A stacked group does so for each field,
  * for labels too long to share a line. A text area shows its name as the
- * placeholder instead of a label, as the notes of an event on iOS.
+ * placeholder instead of a label.
  *
  * A form in the modal keeps the usual look, as the sheet of a phone is white.
  *
@@ -31,7 +31,7 @@
       }
     }
 
-    /* The footer of a group explains it below the card, as on iOS */
+    /* The footer of a group explains it below the card */
     .ui-form-group:has(+ .ui-form-footer) {
       @apply mb-0;
     }
@@ -112,8 +112,8 @@
       }
     }
 
-    /* A date, with or without a time, is a gray capsule at the right edge, as
-       the date picker of iOS. So an empty date shows where to tap, too. */
+    /* A date, with or without a time, is a gray capsule at the right edge.
+       So an empty date shows where to tap, too. */
     .form-input:is([type='date'], [type='datetime-local']) {
       @apply min-h-8 w-auto min-w-28 justify-self-end rounded-lg bg-gray-100 px-2.5 py-1 text-gray-800 dark:bg-slate-700 dark:text-slate-300;
     }
@@ -162,7 +162,7 @@
       @apply text-signal-negative ring-0!;
     }
 
-    /* A check box is a switch at the right edge, as in the iOS settings */
+    /* A check box is a switch at the right edge */
     .form-control.flex-row {
       @apply mt-0 flex-row-reverse items-center justify-between;
     }

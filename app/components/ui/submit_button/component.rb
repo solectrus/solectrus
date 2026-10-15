@@ -1,7 +1,7 @@
 # The save button of a form on the desktop, which the form-dirty controller
 # enables once a field changes: a button with a check mark and its label, in
 # a row of its own at the right edge. A phone has the save button in the
-# title bar instead, as iOS has it (see Ui::TitleBar::Component). The label
+# title bar instead (see Ui::TitleBar::Component). The label
 # is "Save" unless the form saves in another way.
 #
 # With a delete_path a delete button joins it: on the desktop a trash icon at

@@ -1,13 +1,22 @@
 # UI building blocks
 
-The `Ui::` components give the phone a look and a behavior like iOS. The desktop keeps the usual web layout: tables, modals and buttons with icons. A page that uses these components shows the phone layout below the `lg` breakpoint and the desktop layout from `lg` up.
+The `Ui::` components give the phone the layout of an app. The desktop keeps the usual web layout: tables, modals and buttons with icons. A page that uses these components shows the phone layout below the `lg` breakpoint and the desktop layout from `lg` up.
+
+The phone layout takes its patterns from iOS. This document and the code use the names of the patterns, not the name of the platform:
+
+- Grouped list: cells on a white card with round corners, on a gray page.
+- Cell: one row of a grouped list, with an optional chevron at the right.
+- Segmented control: a row of a few options, with the current one raised.
+- Sheet: a panel that slides up from the lower edge of the screen.
+
+A note about iOS in the code describes the browser on iOS, like the zoom into a small text field.
 
 ## Components
 
 - `Ui::TitleBar`: The title bar of a page on a phone: the title, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself.
-- `Ui::TableRow`: A row of a desktop table and a cell of an iOS list on a phone. A click anywhere in the row opens its entry.
-- `Ui::SegmentedControl`: A segmented control of iOS above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. It has the look of the toggle on the car page.
-- `Ui::NavList`: A list of pages one level down in the inset grouped style of iOS: rows on a card with round corners, made from hashes with `:name`, `:href` and `:icon`.
+- `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry.
+- `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. It has the look of the toggle on the car page.
+- `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone.
 - `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`.
 - `Ui::AddButton`: The round button for a new entry of a list on the desktop. It opens the form in the modal. A phone has the action of the `Ui::TitleBar` instead.
@@ -25,22 +34,22 @@ The slide needs two things:
 
 The desktop has no slide. There the hover of a row shows that it is a link, so the chevron of a row shows only on a phone.
 
-The header below the title bar can hold more controls of the page, like the timeframe of the charging sessions. Give their container the class `ui-title-bar-accessory`. These controls belong to their page, as on iOS. When a tap slides to the next page, they leave the header, and the header takes the height of the next page during the slide. On the way back, the header grows again when the page arrives.
+The header below the title bar can hold more controls of the page, like the timeframe of the charging sessions. Give their container the class `ui-title-bar-accessory`. These controls belong to their page. When a tap slides to the next page, they leave the header, and the header takes the height of the next page during the slide. On the way back, the header grows again when the page arrives.
 
 ## Forms
 
-On a phone, a form looks like the iOS settings. Each group of fields is a white card on a gray page. Each field is a cell: the label at the left, the input at the right, without a border. A text field puts its label above the input, so the text has the full width of the cell. A hint shows below the input, in the same cell. A check box is a switch. The desktop keeps the usual form.
+On a phone, a form is a grouped list. Each group of fields is a card. Each field is a cell: the label at the left, the input at the right, without a border. A text field puts its label above the input, so the text has the full width of the cell. A hint shows below the input, in the same cell. A check box is a switch. The desktop keeps the usual form.
 
 A form gets this look from two things:
 
 1. The form has the class `ui-form`. The form of a list entry gets it from `form_page_with`, see below.
 2. The fields lie in a `f.group` of `TailwindFormBuilder`. Each group is one card.
 
-`f.group(stacked: true)` puts each label above its input. Use it when the labels are too long to share a line with the input, like the names of the sensors. `f.group(footer:)` puts a text below the card, as on iOS. Use it for a long explanation, like the meaning of the categories, which would make the cell too high. A short hint stays in the cell. A text area shows its name as the placeholder instead of a label, as the notes of an event on iOS. The label stays for a screen reader.
+`f.group(stacked: true)` puts each label above its input. Use it when the labels are too long to share a line with the input, like the names of the sensors. `f.group(footer:)` puts a text below the card. Use it for a long explanation, like the meaning of the categories, which would make the cell too high. A short hint stays in the cell. A text area shows its name as the placeholder instead of a label. The label stays for a screen reader.
 
 A wrapper that arranges fields on the desktop, like a grid, gets the class `ui-form-contents`. On a phone, the wrapper steps aside, and its fields become cells of the group. `app/frontend/stylesheets/ui_form.css` holds the rules.
 
-`Ui::SubmitButton` follows the layout. On the desktop the buttons stand in a row of their own at the right edge. There the save button has a check mark, a label and the look of the primary `Button::Component`, and the delete button is an icon alone at the left edge. On a phone, the save button is a round check mark at the right of the title bar, as on iOS. The delete button is a red line below the fields.
+`Ui::SubmitButton` follows the layout. On the desktop the buttons stand in a row of their own at the right edge. There the save button has a check mark, a label and the look of the primary `Button::Component`, and the delete button is an icon alone at the left edge. On a phone, the save button is a round check mark at the right of the title bar. The delete button is a red line below the fields.
 
 ## Lists with entries
 
@@ -53,7 +62,7 @@ The index page renders the list once, in a Turbo frame that a stream refreshes:
   = render PriceList::Component.new(prices: @prices, name:)
 ```
 
-The list is a table on the desktop and a list in the style of iOS on a phone, see "One row for both layouts". Each row opens the form, in the modal frame on the desktop and on a page of its own on a phone. The `+` button for a new entry is the action of the `Ui::TitleBar` on a phone and a `Ui::AddButton` on the desktop.
+The list is a table on the desktop and a grouped list on a phone, see "One row for both layouts". Each row opens the form, in the modal frame on the desktop and on a page of its own on a phone. The `+` button for a new entry is the action of the `Ui::TitleBar` on a phone and a `Ui::AddButton` on the desktop.
 
 Each row is a `Ui::TableRow`. A click anywhere in the row opens the form, so the row has no edit button. One cell puts `row.link` around the main value of the row, like the date or the name. The keyboard and screen readers reach the form through this link. A click on another link of the row, or a click that ends a text selection, does not open the form. Such a link is a target of its own. While the pointer is on it, the row does not light up. A row has no buttons, because each action on the entry is in its form.
 
@@ -98,11 +107,11 @@ If the record does not save, `respond_with_errors(record)` answers. A Turbo Stre
 
 ## One row for both layouts
 
-Each list renders each row once. The same cells are a row of the table from `lg` up and a cell of an iOS list below. You can see it in `PriceList::Component` and `ChargingSession::Row::Component`.
+Each list renders each row once. The same cells are a row of the table from `lg` up and a cell of a grouped list below. You can see it in `PriceList::Component` and `ChargingSession::Row::Component`.
 
 The row is a `Ui::TableRow`, and its `nav_title:` is the title of the slide. Below `lg`, its link opens the entry on a page of its own, with the slide. From `lg` up, the controller of the row points the link to the modal. It also does so after the screen turns. The row adds a chevron for a phone.
 
-The classes of each cell do the rest. Without a prefix or with `lg:`, they give the column of the table. With `max-lg:`, they place the cell in the grid of the iOS cell. That grid names its columns and its rows, because the chevron takes the last column over all rows. A wrapper with `max-lg:contents` lets its children take places of their own. A link in a cell that is a target of its own on the desktop gets `max-lg:pointer-events-none`, so a tap on a phone opens the entry.
+The classes of each cell do the rest. Without a prefix or with `lg:`, they give the column of the table. With `max-lg:`, they place the cell in the grid of the cell. That grid names its columns and its rows, because the chevron takes the last column over all rows. A wrapper with `max-lg:contents` lets its children take places of their own. A link in a cell that is a target of its own on the desktop gets `max-lg:pointer-events-none`, so a tap on a phone opens the entry.
 
 The container of the list is the table from `lg` up and a card below. A list with a part of its own, like the totals of the charging sessions, is a column of cards below `lg`. A part that stands elsewhere on a phone, like these totals above the list, moves there with `max-lg:order-first`.
 

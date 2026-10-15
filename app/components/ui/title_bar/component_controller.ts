@@ -17,7 +17,7 @@ type TurboClickEvent = CustomEvent<{ originalEvent: Event }>;
 // be prefetched for nothing.
 //
 // The back button goes back in the history when the entry before is the
-// parent, as the back button of iOS does. It slides first, and the browser
+// parent. It slides first, and the browser
 // goes back when the slide has ended. So the page leaves the history, and the
 // back button of Android or a back gesture later does not lead to it again.
 // Without such an entry, like after a reload, the button visits the parent.

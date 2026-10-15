@@ -19,8 +19,7 @@ describe 'Tooltip' do
     expect(arrow_distance_from('right')).to be < 2
   end
 
-  # iOS turns a popover into a sheet on a compact screen, and so does a
-  # tooltip that a touch opens on a phone
+  # On a phone, a tooltip that a touch opens is a sheet
   context 'with a touch screen' do
     before { driven_by :playwright_touch }
 

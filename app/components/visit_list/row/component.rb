@@ -1,5 +1,5 @@
-# One visit of the list: a row of the table on the desktop, a cell of a list
-# in the style of iOS on a phone (see Ui::TableRow::Component). Each opens the
+# One visit of the list: a row of the table on the desktop, a cell of a
+# grouped list on a phone (see Ui::TableRow::Component). Each opens the
 # form of the place.
 class VisitList::Row::Component < ViewComponent::Base
   include VisitTexts

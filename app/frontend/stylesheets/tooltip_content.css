@@ -3,7 +3,7 @@
  * floating tooltip beside its target, and on a phone in the bottom sheet.
  * The floating tooltip is narrow, so its content stands centered in one
  * column. The sheet has the full width of the screen, so there the content
- * reads as a list of iOS: a header on the left, then groups of rows with the
+ * reads as a grouped list: a header on the left, then groups of rows with the
  * label on the left and the value on the right.
  *
  * The markup carries these classes and no utilities for layout, because a
@@ -98,7 +98,7 @@
 }
 
 /* A second line below a row that tells where its value comes from, like the
-   subtitle of an iOS cell. Gray, but as large as the text of the tooltip:
+   subtitle of a cell. Gray, but as large as the text of the tooltip:
    its decimals and unit keep that size, smaller would not read. */
 .tooltip-detail {
   @apply text-muted mt-0.5 text-sm;
@@ -184,12 +184,12 @@
     @apply border-t-0 font-semibold;
   }
 
-  /* Secondary text in the sheet is 15px, the size of an iOS subtitle */
+  /* Secondary text in the sheet is 15px */
   .tooltip-detail {
     @apply text-subhead;
   }
 
-  /* Below a group, as on iOS: small, gray, in line with the rows */
+  /* Below a group: small, gray, in line with the rows */
   .tooltip-footnote {
     @apply text-subhead text-muted px-4;
   }

@@ -1,4 +1,4 @@
-# A sheet in the manner of iOS: on a phone it slides up from the lower edge,
+# A sheet: on a phone it slides up from the lower edge,
 # on a larger screen it stands in the middle as a dialog. utils/bottomSheet.ts
 # opens and closes it, and closes it on a swipe down, on a tap beside it and
 # on Escape. The look lives beside this file, in component.css.

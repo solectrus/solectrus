@@ -5,7 +5,7 @@ import { isEntryBefore } from '@/utils/historyTrail';
 // (see FormPageResponse). The stream action back_to names the list.
 //
 // When the entry before the form in the history is that list, the browser
-// goes back to it, as the back button of iOS does. So the form leaves the
+// goes back to it. So the form leaves the
 // history, and a later way back does not lead to the list a second time. The
 // list slides in from the left (see Ui::TitleBar::Component). Turbo loads it
 // again instead of showing its snapshot, which is old now. Without such an

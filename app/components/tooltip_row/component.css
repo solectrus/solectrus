@@ -20,7 +20,7 @@
   }
 }
 
-/* In the sheet, the swatch is a dot, as in a list of iOS. A row of a
+/* In the sheet, the swatch is a dot, as in a grouped list. A row of a
    calculation drops it: its label names the source, and on a phone the
    operator, the dot, the label and the value do not fit on one line. */
 .bottom-sheet .tooltip-layout {

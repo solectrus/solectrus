@@ -1,7 +1,7 @@
 /*
  * BottomSheet::Component, see utils/bottomSheet.ts. On a phone it sits on
- * the lower edge of the screen over its full width, with large upper corners, as a
- * sheet of iOS does. From md on it stands in the middle as a dialog.
+ * the lower edge of the screen over its full width, with large upper corners.
+ * From md on it stands in the middle as a dialog.
  *
  * The dialog covers the whole viewport and dims it. Its own background serves
  * as the dim area and not ::backdrop, because the color of ::backdrop does not
@@ -39,7 +39,7 @@
      content above the home indicator */
   padding-bottom: env(safe-area-inset-bottom);
   transform: translateY(100%);
-  transition: transform 450ms var(--ease-ios);
+  transition: transform 450ms var(--ease-glide);
 
   .bottom-sheet.is-open & {
     transform: translateY(0);
@@ -52,7 +52,7 @@
     transform: scale(0.96);
     transition:
       opacity 200ms ease-out,
-      transform 300ms var(--ease-ios);
+      transform 300ms var(--ease-glide);
 
     .bottom-sheet.is-open & {
       opacity: 1;
@@ -88,8 +88,8 @@
   @apply min-w-0 flex-1;
 }
 
-/* The context of the content, like the period of a figure, in the manner of
-   the title bar of an iOS sheet: centered, 17px semibold, with an optional
+/* The context of the content, like the period of a figure, as the title of
+   the sheet: centered, 17px semibold, with an optional
    detail below. Utils/bottomSheet.ts sets it, and without a text it takes no
    room. */
 .bottom-sheet-caption {
@@ -114,7 +114,7 @@
   @apply text-xl leading-tight font-bold sm:text-2xl;
 }
 
-/* On a phone, a swipe down closes the sheet, as on iOS, and the button only
+/* On a phone, a swipe down closes the sheet, and the button only
    serves a screen reader. Tab passes it by (utils/bottomSheet.ts). A dialog
    in the middle has no swipe, so there it shows. */
 .bottom-sheet-close {

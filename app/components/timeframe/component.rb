@@ -109,9 +109,9 @@ class Timeframe::Component < ViewComponent::Base
     "text-center #{LABEL_WIDTHS[timeframe.id]}"
   end
 
-  # A phone shows no hover, so the chevron marks the label as a menu, as on
-  # iOS. The desktop has the hover, and the chevron would stand next to the
-  # arrows of the pagination.
+  # A phone shows no hover, so the chevron marks the label as a menu. The
+  # desktop has the hover, and the chevron would stand next to the arrows of
+  # the pagination.
   def select_chevron
     helpers.icon('chevron-down', class: 'lg:hidden ml-1 text-xs')
   end

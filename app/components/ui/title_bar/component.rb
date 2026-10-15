@@ -1,4 +1,4 @@
-# The title bar of a page in a drill-down hierarchy on a phone, as on iOS: the
+# The title bar of a page in a drill-down hierarchy on a phone: the
 # title in the middle and, below the top level, a round back button to the
 # parent page. The button carries no text, so the title keeps the middle on a
 # narrow screen too. An action, like adding an entry, stands as a round icon
@@ -27,7 +27,7 @@ class Ui::TitleBar::Component < ViewComponent::Base
                 end
               }
 
-  # The save button of a form page, as iOS has it: a check mark at the right.
+  # The save button of a form page: a check mark at the right.
   # It stands outside the form and names it by its id, `form`. The form-dirty
   # controller of the form enables it once a field changes, and it is the
   # button that Enter in a field takes (see Ui::SubmitButton::Component).

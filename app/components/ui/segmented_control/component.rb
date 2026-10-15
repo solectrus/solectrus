@@ -1,4 +1,4 @@
-# A segmented control of iOS on the page: a few pages of the same level side
+# A segmented control on the page: a few pages of the same level side
 # by side, the current one raised. Items are hashes with :name, :href and
 # :current, as the items of Nav::Sub::Component. The look follows the toggle
 # of the cards on the car page (Car::CardToggle::Component), on white and on

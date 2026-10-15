@@ -3,7 +3,7 @@ import { hasUnsavedChanges } from '@/utils/unsavedChanges';
 // Behavior of a sheet (BottomSheet::Component): open and close with an
 // animation, and close on a swipe down, on a tap beside the panel, on the
 // close button and on Escape. A swipe leaves a form with unsaved changes
-// open, as iOS does. The stylesheet beside the component decides how it
+// open. The stylesheet beside the component decides how it
 // looks and moves.
 
 // Below this width the sheet sits on the lower edge and a swipe moves it.
@@ -25,7 +25,7 @@ const OPEN_CLASS = 'is-open';
 const INSTANT_CLASS = 'is-instant';
 
 // A drag that starts on one of these is an input, not a swipe. A link or a
-// button may start a swipe, as on iOS, where a whole page can be links.
+// button may start a swipe, because a whole page can be links.
 const FORM_FIELD = 'input, select, textarea';
 // A drag further than this (px) is no tap: a click this soon (ms) after it
 // must not follow a link

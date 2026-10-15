@@ -21,7 +21,7 @@ import { isReducedMotion } from '@/utils/device';
 // that carries the server's own marking, so nothing here has to be undone.
 //
 // With `slide`, the marking moves from the tab it leaves to the one it lands
-// on, as the segmented control of iOS. It starts with the tap. Turbo can
+// on. It starts with the tap. Turbo can
 // render twice, a preview and then the page, and each render replaces the
 // bar. A slide under way then goes on in the new bar from where it is. The
 // pills of a wide screen in landscape do not slide. `looks` are the looks of

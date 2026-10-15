@@ -1,5 +1,5 @@
 # The cash flows: a table on the desktop, whose rows open the form in the
-# modal, and a list in the style of iOS on a phone, whose rows open the form
+# modal, and a grouped list on a phone, whose rows open the form
 # on a page of its own (see Ui::TableRow::Component).
 class CashFlowList::Component < ViewComponent::Base
   # The active filter is passed in as plain data. The defaults give the full,

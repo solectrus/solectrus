@@ -1,6 +1,6 @@
 /*
  * Ui::TitleBar::Component: the slide between the pages of a drill-down
- * hierarchy, as on iOS. The controller writes the direction to <html> as
+ * hierarchy. The controller writes the direction to <html> as
  * data-nav-direction before Turbo renders the next page.
  *
  * Only below lg, where the title bar is visible. Two parts move: the content
@@ -9,7 +9,7 @@
  * While the skeleton of the next page covers them, the skeleton moves instead.
  *
  * The bar behind the title bar takes the height of the next page while the
- * pages slide, as the navigation bar of iOS. Its accessories, like a
+ * pages slide. Its accessories, like a
  * segmented control below the title bar, belong to one page (see
  * .ui-title-bar-accessory). The bar is an element of its own, the backdrop:
  * a name on the header would make it a stacking context, and the ThemeStrip
@@ -68,7 +68,7 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
   @apply z-10;
 }
 
-/* The grouped background of iOS: a gray page behind the white cards of the
+/* The background of a grouped list: a gray page behind the white cards of the
    lists and forms. Important, because the layout gives main and its inner box
    a white background as utilities. */
 html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
@@ -81,8 +81,8 @@ html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 
-/* The save button stands out once there is something to save, as the tinted
-   button of iOS, and fades while there is nothing */
+/* The save button stands out once there is something to save, and fades
+   while there is nothing */
 .ui-title-bar-save {
   @apply enabled:bg-white enabled:text-indigo-600 disabled:opacity-40 dark:enabled:bg-indigo-500 dark:enabled:text-white;
 }

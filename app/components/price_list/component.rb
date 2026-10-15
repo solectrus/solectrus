@@ -1,5 +1,5 @@
 # The prices of one name: a table on the desktop, whose rows open the form in
-# the modal, and a list in the style of iOS on a phone, whose rows open the
+# the modal, and a grouped list on a phone, whose rows open the
 # form on a page of its own (see Ui::TableRow::Component).
 class PriceList::Component < ViewComponent::Base
   def initialize(prices:, name:)

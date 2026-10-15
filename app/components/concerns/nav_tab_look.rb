@@ -65,7 +65,7 @@ module NavTabLook
     ]
   end
 
-  # A phone shows the tabs as a segmented control of iOS: the current one is
+  # A phone shows the tabs as a segmented control: the current one is
   # the raised segment. A wide screen in landscape shows pills.
   def current_classes
     %w[
@@ -89,8 +89,8 @@ module NavTabLook
     ]
   end
 
-  # A tapped tab dims while the finger is on it, as a segment of iOS does,
-  # rather than shrink. The current one stays as it is. A mouse gets no such
+  # A tapped tab dims while the finger is on it, rather than
+  # shrink. The current one stays as it is. A mouse gets no such
   # look: the marking moves on the click, and the tab would light up again.
   #
   # The transition sits in the base classes. The tap swaps the class lists of

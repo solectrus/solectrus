@@ -41,7 +41,7 @@
     transform: scale(1);
     transition:
       opacity 150ms ease-out,
-      transform 250ms var(--ease-ios);
+      transform 250ms var(--ease-glide);
   }
 }
 

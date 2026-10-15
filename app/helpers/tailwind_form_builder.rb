@@ -3,7 +3,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   # The ui-form classes make a group a card of cells on a phone, see
   # ui_form.css. A stacked group puts each label above its input there. The
-  # footer explains the group below the card, as on iOS.
+  # footer explains the group below the card.
   def group(title: nil, stacked: false, footer: nil, &)
     safe_join(
       [
@@ -26,8 +26,8 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:text_field, method, **, &)
   end
 
-  # The name is also the placeholder: a phone shows it in place of the label,
-  # as the notes of an event on iOS (see ui_form.css)
+  # The name is also the placeholder: a phone shows it in place of the label
+  # (see ui_form.css)
   def text_area(method, **options, &)
     input_field(:text_area, method, placeholder: label_text(method, options), **options, &)
   end

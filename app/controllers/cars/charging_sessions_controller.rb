@@ -218,7 +218,7 @@ class Cars::ChargingSessionsController < ApplicationController
   end
 
   # The car of the list, or the first car of its timeframe. In a list that
-  # reaches today the start is now, as a new event in the calendar of iOS,
+  # reaches today the start is now,
   # and the first car is one in use today. A start in a past list would offer
   # only the cars of today. A car of the list that is no longer in use keeps
   # the start empty.

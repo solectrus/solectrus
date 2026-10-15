@@ -5,8 +5,8 @@ import { Controller } from '@hotwired/stimulus';
 const SWIPE_BACK_DISTANCE = 60;
 
 /**
- * The heatmap of the insights as a second page in the sheet, in the manner of
- * a navigation push on iOS. On a phone, a row pushes it in from the right,
+ * The heatmap of the insights as a second page in the sheet, one level down.
+ * On a phone, a row pushes it in from the right,
  * and the back button or a swipe to the right takes it out again. A larger
  * screen shows the heatmap in the list (component.css), so nothing calls
  * this controller there.

@@ -67,18 +67,18 @@
      and the web manifest. A spec fails if the two drift apart. */
   --color-chrome: #4f46e5; /* indigo-600 */
 
-  /* Text of lower weight, like the subtitle of an iOS cell. The dark value
+  /* Text of lower weight, like the subtitle of a cell. The dark value
      sits in the .dark block below, as for --color-chrome. */
   --color-muted: var(--color-gray-500);
 
-  /* The sizes of the iOS type scale that the sheet uses: the title bar
-     (17px) and secondary text (15px) */
+  /* The type sizes of the sheet: the title bar (17px) and secondary text
+     (15px) */
   --text-headline: 1.0625rem;
   --text-subhead: 0.9375rem;
 
-  /* The curve of iOS for a sheet or a page that moves in: fast start, long
+  /* The curve for a sheet or a page that moves in: fast start, long
      soft landing */
-  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-glide: cubic-bezier(0.32, 0.72, 0, 1);
 
   --font-sans:
     'Inter Variable', Inter, ui-sans-serif, system-ui, sans-serif,
@@ -443,7 +443,7 @@ html[aria-busy='true']:not(
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset;
 }
 
-/* A panel of frosted glass, as on macOS and iOS: no border, but large
+/* A panel of frosted glass: no border, but large
    corners, a hairline ring, a soft wide shadow, and the page shining through
    with a blur. The floating tooltip and the chart tooltip use it. */
 @utility glass-panel {

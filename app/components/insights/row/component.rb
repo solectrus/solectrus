@@ -1,4 +1,4 @@
-# A row of a list in the manner of iOS: the label on the left, the value from
+# A row of a grouped list: the label on the left, the value from
 # the block on the right, and an optional gray detail below the label. A note
 # stands in parentheses beside the label, like a period or a share. A row
 # with a URL leads to that page, a row with an action (Stimulus) is a button.

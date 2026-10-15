@@ -7,7 +7,7 @@ module FormPageHelper
     turbo_frame_request?
   end
 
-  # The form of a list entry, with the look of the iOS settings on a phone
+  # The form of a list entry, as a grouped list on a phone
   # (see ui_form.css), whose groups TailwindFormBuilder builds. The id lets a
   # stream replace the form when it comes back with errors (see
   # FormPageResponse), and the form-dirty controller enables

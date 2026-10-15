@@ -38,8 +38,7 @@ interface SharedTooltip {
  * - Smart positioning that flips/shifts to stay in viewport
  * - Hybrid device support (mouse hover + optional touch modes)
  * - A bottom sheet instead of the floating box on a phone, when a touch
- *   opens the tooltip, as iOS turns a popover into a sheet there. With a
- *   sheet URL, the modal opens that page instead.
+ *   opens the tooltip. With a sheet URL, the modal opens that page instead.
  *
  * Operating modes:
  * 1. Standard mode (default):

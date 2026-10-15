@@ -14,7 +14,7 @@
         - else
           = t('settings.general.summaries.fresh_percentage', value: completion_rate.floor)
 
-    / On a phone a cell of its own below, as an action in the iOS settings
+    / On a phone a cell of its own below
     - if completion_rate
       .max-lg:ml-4.max-lg:flex.max-lg:justify-center.max-lg:border-t.max-lg:border-gray-300.max-lg:py-1.max-lg:pr-4.dark:max-lg:border-slate-700
         = render Button::Component.new path: summaries_path,

@@ -13,7 +13,7 @@
     /! otherwise.
     = form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'ui-form mt-3 max-lg:mt-0' }, data: { controller: 'auto-submit' } do |f|
       - visibility_choices = AmortizationVisibility::LEVELS.map { |level| [t("settings.cash_flows.visibility_#{level}"), level] }
-      / On a phone the label is the header of the group, as in iOS. The label
+      / On a phone the label is the header of the group. The label
         of the field stays for a screen reader.
       .ui-form-header.lg:hidden aria-hidden='true' = t('settings.cash_flows.visibility_label')
       .ui-form-group.ui-form-stacked

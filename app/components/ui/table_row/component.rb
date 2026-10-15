@@ -1,5 +1,5 @@
-# A row of a table on the desktop and a cell of a list in the style of iOS on
-# a phone. A click anywhere in the row opens its entry, so the row needs no
+# A row of a table on the desktop and a cell of a grouped list on a phone. A
+# click anywhere in the row opens its entry, so the row needs no
 # edit button. The content is the cells of the row.
 #
 # One cell renders `row.link`, the link to the entry, around its main value,
@@ -25,7 +25,7 @@ class Ui::TableRow::Component < ViewComponent::Base
     'dark:hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-700'.freeze
   private_constant :BASE_CLASS
 
-  # The cell of an iOS list: the separator below it starts where the text
+  # The cell of a grouped list: the separator below it starts where the text
   # starts, and reaches 1px into the next cell, so the card of the list cuts
   # off the separator of the last cell (see Ui::NavList::Component)
   CELL_CLASS =
