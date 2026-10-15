@@ -40,7 +40,7 @@ describe 'Charging sessions' do
       visit '/cars/charging_sessions/offsite/2022-06'
 
       row('June trip').click
-      within('#modal') { accept_confirm { click_on 'Löschen' } }
+      within('#modal') { accept_confirm_dialog { click_on 'Löschen' } }
 
       expect(page).to have_text('Keine Auswärtsladungen')
       expect(page).to have_no_text('March trip')

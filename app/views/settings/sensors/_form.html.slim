@@ -1,3 +1,3 @@
 / Each section brings its own groups, see ui_form.css for a phone
-= form_with url: settings_sensors_path, method: :patch, id: 'settings_sensors_form', html: { class: 'ui-form relative px-2', data: { controller: 'form-dirty', form_dirty_leave_message_value: t('crud.confirm_discard') } } do |f|
+= form_with url: settings_sensors_path, method: :patch, id: 'settings_sensors_form', html: { class: 'ui-form relative px-2', data: page_form_data } do |f|
   = yield f

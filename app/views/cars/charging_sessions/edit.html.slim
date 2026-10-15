@@ -17,5 +17,5 @@
                 method: :patch,
                 id: dom_id(@charging_session, :dismiss),
                 class: 'hidden',
-                data: { turbo_confirm: t('charging_sessions.proposal.confirm_dismiss'), **form_page_target } do
+                data: { **Ui::ConfirmDialog::Component.data(t('charging_sessions.proposal.confirm_dismiss'), button: t('confirm.dismiss'), destructive: true), **form_page_target } do
       = hidden_field_tag :return_to, return_to, id: nil if return_to

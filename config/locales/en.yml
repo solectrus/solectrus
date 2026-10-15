@@ -413,13 +413,17 @@ en:
     form:
       assigned_manually: You chose this. A new detection keeps your choice.
       assigned_by_detection: Detected automatically. You can correct it.
+  confirm:
+    delete: Yes, delete
+    dismiss: Yes, dismiss
+    dismiss_all: Yes, dismiss all
+    make_home: Yes, make it home
   crud:
     edit: Edit
     delete: Delete
     save: Save
     discard: Discard changes
-    confirm_delete: Are you sure you want to delete?
-    confirm_discard: Discard unsaved changes?
+    confirm_delete: Delete this entry? This cannot be undone.
     success: Saved
     deleted: Deleted
     error: An error occurred
@@ -473,7 +477,7 @@ en:
       without_visits: This place was never visited.
       delete: Delete place
       make_home: Make it home …
-      make_home_confirm: So far, “%{previous}” is home. All summaries will be built again.
+      make_home_confirm: Make this place home? So far, “%{previous}” is home. Afterwards, all summaries are built again.
       time: Time
     cash_flows:
       name: Cash flows

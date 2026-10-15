@@ -1,0 +1,32 @@
+/*
+ * Ui::ConfirmDialog::Component, see component_controller.ts. It stands in the
+ * middle of the screen on a phone too, as a question does on iOS. Like
+ * BottomSheet::Component, its own background dims the page and not
+ * ::backdrop, because the color of ::backdrop does not transition in every
+ * browser.
+ */
+.confirm-dialog {
+  @apply fixed inset-0 m-0 h-full max-h-none w-full max-w-none border-0 bg-transparent p-4 backdrop:bg-transparent;
+  @apply flex items-center justify-center not-open:hidden;
+  @apply transition-colors duration-200 ease-out;
+
+  &.is-open {
+    @apply bg-black/40 dark:bg-black/60;
+  }
+}
+
+/* The panel fades in and grows a little, as the sheet does on a larger screen */
+.confirm-dialog-panel {
+  @apply w-full max-w-md rounded-3xl bg-white p-6 text-gray-800 shadow-2xl;
+  @apply dark:bg-slate-800 dark:text-gray-300;
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 200ms ease-out,
+    transform 300ms var(--ease-glide);
+
+  .confirm-dialog.is-open & {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

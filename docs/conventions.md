@@ -105,6 +105,24 @@ builder wraps label, hint and error message around each field, so a template
 writes none of them. It offers `text_field`, `number_field`, `password_field`,
 `date_field`, `select`, `check_box`, `group`, `actions` and `submit`.
 
+### Questions before an action
+
+`data-turbo-confirm` asks in the dialog of `Ui::ConfirmDialog::Component`, not in
+the confirm of the browser. Start the text with a short question that names the
+action. Put the result after it. The dialog shows the question in bold and the
+rest below it. The text does not address the user. The cancel button says
+"Abbrechen". Give
+the confirm button "Yes" and the verb of the action with
+`button:`, from the `confirm` namespace, like "Ja, löschen". If the
+action removes something, add `destructive: true` to show the button in red.
+`Ui::ConfirmDialog::Component.data` builds the attributes, and `delete_data` holds
+the question before a delete:
+
+```slim
+= button_to path, method: :patch,
+            form: { data: Ui::ConfirmDialog::Component.data(t('...'), button: t('confirm.dismiss'), destructive: true) }
+```
+
 ## Testing
 
 ### RSpec Conventions
@@ -145,6 +163,10 @@ From `spec/support/system.rb`:
 - `influx_seed(base_time:)` - writes PV, heat pump, car SOC and forecast data plus the matching summaries, in one batch
 - `influx_purge` - drops that data and the summaries again
 - `create_summary(date:, updated_at:, values:)` - one summary row without touching InfluxDB
+
+From `spec/support/system_helpers.rb`:
+
+- `accept_confirm_dialog { ... }` and `dismiss_confirm_dialog { ... }` - answer the question of `Ui::ConfirmDialog::Component` that the block raises, and return it
 
 ### Test Guidelines
 

@@ -50,6 +50,7 @@ Keep every section, an empty one included.
 - Settings: on a computer, the page now fills the window, so the footer keeps its place when you switch between the tabs
 - Settings: on a computer, the save button now shows only once you change something, and an "×" next to it discards your changes. In the general settings and the sensors, the two buttons stand at the right of the tabs, and the other tabs dim until you save or discard
 - Settings: on a computer, the general settings and the sensors ask before a link or a reload leaves unsaved changes behind
+- A question before an action, like before a delete, now shows in a dialog of the app instead of the box of the browser. It states the question and its result, and the button names the action, for example "Yes, delete"
 - With more than one car in use, the power balance shows only the charge level of the home battery, as a round badge. The charge levels of the cars are on the car page. With one car in use, the balance shows the charge level of the car and whether it is connected, as before (#6020)
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it

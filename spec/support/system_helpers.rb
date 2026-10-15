@@ -39,7 +39,24 @@ module SystemHelpers
     end
   end
 
+  # Answers the question of Ui::ConfirmDialog::Component that the block raises,
+  # like Capybara's accept_confirm does for the confirm of the browser.
+  # Returns the question, without its explanation. The dialog stands outside
+  # any `within`.
+  def accept_confirm_dialog(&) = answer_confirm_dialog('button[value="confirm"]', &)
+  def dismiss_confirm_dialog(&) = answer_confirm_dialog('button[value="cancel"]', &)
+
   private
+
+  def answer_confirm_dialog(button)
+    yield
+    selector = Ui::ConfirmDialog::Component::SELECTOR
+    dialog = page.document.find("#{selector}[open]")
+    message = dialog.find("#{selector}-question").text
+    dialog.find(button).click
+    expect(page.document).to have_no_css("#{selector}[open]")
+    message
+  end
 
   def cached_admin_cookie
     return unless RSpec.configuration.respond_to?(:admin_cookie_value)

@@ -1,0 +1,37 @@
+/ A form of method dialog closes the dialog with the value of its button as
+  the answer. Escape and a click beside the panel close it without one. The
+  cancel button takes the focus, so Enter does not confirm by mistake.
+  The question stands in bold, the explanation after it below.
+= tag.dialog id: ID,
+             class: 'confirm-dialog group',
+             role: 'alertdialog',
+             'aria-labelledby': "#{ID}-question",
+             'aria-describedby': "#{ID}-detail",
+             data: { \
+               controller: 'ui--confirm-dialog--component',
+               action: 'click->ui--confirm-dialog--component#cancelBeside',
+               ui__confirm_dialog__component_confirm_label_value: t('.confirm'),
+               ui__confirm_dialog__component_discard_question_value: t('.discard_question'),
+               ui__confirm_dialog__component_discard_label_value: t('.discard'),
+               turbo_permanent: true,
+             }
+  .confirm-dialog-panel
+    p.text-lg.font-semibold.text-balance[
+      id="#{ID}-question"
+      data-ui--confirm-dialog--component-target='question'
+    ]
+    p.mt-2.text-gray-600.dark:text-gray-400.text-balance.empty:hidden[
+      id="#{ID}-detail"
+      data-ui--confirm-dialog--component-target='detail'
+    ]
+    form.mt-6.flex.justify-end.gap-3 method='dialog'
+      button.whitespace-nowrap.rounded-lg.px-4.py-2.font-medium.text-gray-700.hover:bg-gray-100.dark:text-gray-300.dark:hover:bg-slate-700.focus:outline-none.focus-visible:ring-2.focus-visible:ring-indigo-500[
+        value='cancel'
+        autofocus=true
+      ]
+        = t('.cancel')
+      button.whitespace-nowrap.rounded-lg.px-4.py-2.font-semibold.text-white.bg-indigo-600.hover:bg-indigo-700.dark:bg-indigo-700.dark:hover:bg-indigo-600.group-data-destructive:bg-red-600.group-data-destructive:hover:bg-red-700.dark:group-data-destructive:bg-red-700.dark:group-data-destructive:hover:bg-red-600.click-animation.focus:outline-none.focus-visible:ring-2.focus-visible:ring-indigo-500.focus-visible:ring-offset-2.dark:focus-visible:ring-offset-slate-800[
+        value='confirm'
+        data-ui--confirm-dialog--component-target='accept'
+      ]
+        = t('.confirm')

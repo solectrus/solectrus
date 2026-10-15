@@ -20,6 +20,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone.
 - `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. It shows only while the form has changes, next to a button that discards them. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`.
 - `Ui::SaveBar`: The save buttons of a form that the desktop shows on the page, like the general settings. They show at the right of the tabs only while the form has changes, with a button that discards the changes. The other tabs then dim and take no clicks, and a link or a reload asks before it leaves the changes behind. The partial `settings/sub_nav` takes the id of the form as `save_bar:`. A phone has the save button in the `Ui::TitleBar` instead.
+- `Ui::ConfirmDialog`: The question before an action, in the middle of the screen instead of the confirm of the browser. The layout renders it once. It answers each `data-turbo-confirm`, see `docs/conventions.md`. A controller asks it through an outlet, like `form-dirty` before unsaved changes are lost.
 - `Ui::AddButton`: The `+` button for a new entry of a list on the desktop. It stands at the right of the header, where a phone has the action of the `Ui::TitleBar`. It opens the form in the modal.
 
 Each component file starts with a comment that describes its parameters and slots.

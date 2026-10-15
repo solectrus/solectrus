@@ -18,7 +18,7 @@
     = button_to settings_place_path(@place),
                 method: :delete,
                 params: { return_to: }.compact,
-                form: { class: 'mt-6 lg:w-fit', data: { **form_page_target, turbo_confirm: t('crud.confirm_delete') } },
+                form: { class: 'mt-6 lg:w-fit', data: { **form_page_target, **Ui::ConfirmDialog::Component.delete_data } },
                 class: 'flex items-center justify-center gap-2 text-signal-negative max-lg:w-full max-lg:rounded-xl max-lg:bg-white max-lg:py-3 max-lg:text-headline max-lg:active:bg-gray-200 dark:max-lg:bg-slate-800/60 dark:max-lg:active:bg-slate-700/60 lg:hover:underline underline-offset-4' do
       = icon 'trash'
       = t('settings.places.delete')
@@ -39,7 +39,7 @@
       = button_to settings_place_path(@place, return_to:),
                   method: :patch,
                   params: { place: { home: '1' } },
-                  form: { class: 'mt-6 lg:-mt-8 lg:w-fit', data: { **form_page_target, turbo_confirm: t('settings.places.make_home_confirm', previous: current_home.display_name || t('settings.places.unnamed')) } },
+                  form: { class: 'mt-6 lg:-mt-8 lg:w-fit', data: { **form_page_target, **Ui::ConfirmDialog::Component.data(t('settings.places.make_home_confirm', previous: current_home.display_name || t('settings.places.unnamed')), button: t('confirm.make_home')) } },
                   class: 'flex items-center justify-center gap-2 text-indigo-600 dark:text-indigo-400 max-lg:w-full max-lg:py-2 max-lg:text-headline max-lg:active:opacity-60 lg:text-sm lg:hover:underline underline-offset-4' do
         = icon Place::LABELS['home']
         = t('settings.places.make_home')

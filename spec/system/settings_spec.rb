@@ -47,11 +47,11 @@ describe 'Settings' do
       it 'asks before a link leaves the changes behind' do
         find_field('setting_plant_name').send_keys('x')
 
-        message = dismiss_confirm { first('#primary-nav-desktop a').click }
-        expect(message).to eq('Ungespeicherte Änderungen verwerfen?')
+        message = dismiss_confirm_dialog { first('#primary-nav-desktop a').click }
+        expect(message).to eq('Änderungen verwerfen?')
         expect(page).to have_field('setting_plant_name', with: 'x')
 
-        accept_confirm { first('#primary-nav-desktop a').click }
+        accept_confirm_dialog { first('#primary-nav-desktop a').click }
         expect(page).to have_no_field('setting_plant_name')
       end
 
@@ -175,7 +175,7 @@ describe 'Settings' do
           expect(page).to have_no_button('Löschen')
         end
         within('#list') { click_on '01.01.2023' }
-        within('dialog') { accept_confirm { click_on 'Löschen' } }
+        within('dialog') { accept_confirm_dialog { click_on 'Löschen' } }
         within '#list' do
           expect(page).to have_no_text('01.01.2023')
         end

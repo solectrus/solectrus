@@ -48,7 +48,7 @@ describe 'Cash flow settings' do
       expect(page).to have_no_button('Löschen')
 
       click_on '01.08.2023'
-      within('#modal') { accept_confirm { click_on 'Löschen' } }
+      within('#modal') { accept_confirm_dialog { click_on 'Löschen' } }
 
       expect(page).to have_text('Noch keine Zahlungen.')
     end

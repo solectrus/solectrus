@@ -413,13 +413,17 @@ de:
     form:
       assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
       assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.
+  confirm:
+    delete: Ja, löschen
+    dismiss: Ja, verwerfen
+    dismiss_all: Ja, alle verwerfen
+    make_home: Ja, festlegen
   crud:
     edit: Bearbeiten
     delete: Löschen
     save: Speichern
     discard: Änderungen verwerfen
-    confirm_delete: Wirklich löschen?
-    confirm_discard: Ungespeicherte Änderungen verwerfen?
+    confirm_delete: Diesen Eintrag löschen? Das lässt sich nicht rückgängig machen.
     success: Gespeichert
     deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
@@ -473,7 +477,7 @@ de:
       without_visits: Dieser Ort wurde nie besucht.
       delete: Ort löschen
       make_home: Als Zuhause festlegen …
-      make_home_confirm: Bisher ist „%{previous}“ das Zuhause. Alle Zusammenfassungen werden neu berechnet.
+      make_home_confirm: Diesen Ort als Zuhause festlegen? Bisher ist „%{previous}“ das Zuhause. Danach werden alle Zusammenfassungen neu berechnet.
       time: Zeit
     cash_flows:
       name: Zahlungen

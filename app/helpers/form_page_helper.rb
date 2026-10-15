@@ -1,5 +1,6 @@
 # What differs for the form of a list entry between its two places, see
-# Ui::FormPage::Component.
+# Ui::FormPage::Component, and the data of a form that the desktop shows on
+# the page.
 module FormPageHelper
   # The desktop asks for the form from the modal frame, and the form submits
   # within it. The page of a phone asks without a frame.
@@ -33,6 +34,18 @@ module FormPageHelper
     ) do |f|
       safe_join([(hidden_field_tag(:return_to, return_to, id: nil) if return_to), capture(f, &)])
     end
+  end
+
+  # The data of a form that the desktop shows on the page and not in the
+  # modal, like the general settings. The form-dirty controller asks in
+  # Ui::ConfirmDialog::Component before a visit leaves the changes behind.
+  #
+  #   = form_with(url: settings_general_path, html: { data: page_form_data }) do |f|
+  def page_form_data
+    {
+      controller: 'form-dirty',
+      form_dirty_ui__confirm_dialog__component_outlet: Ui::ConfirmDialog::Component::SELECTOR,
+    }
   end
 
   # The id of the form of a list entry. The save button in the title bar of a

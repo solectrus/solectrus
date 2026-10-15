@@ -26,7 +26,7 @@
                                    options: { \
                                      **delete_options,
                                      title: t('crud.delete'),
-                                     data: { turbo_confirm: t('crud.confirm_delete'), controller: 'tooltip' },
+                                     data: { **Ui::ConfirmDialog::Component.delete_data, controller: 'tooltip' },
                                      class: 'order-first mr-auto text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
                                    }
 / A phone has the delete button as a red line of its own below the fields
@@ -35,5 +35,5 @@
     = button_tag t('crud.delete'),
                  type: :submit,
                  **delete_options,
-                 data: { turbo_confirm: t('crud.confirm_delete') },
+                 data: Ui::ConfirmDialog::Component.delete_data,
                  class: 'w-full rounded-xl py-3 text-headline bg-white text-signal-negative active:bg-gray-200 dark:bg-slate-800/60 dark:active:bg-slate-700/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500'

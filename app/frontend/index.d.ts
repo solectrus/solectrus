@@ -18,6 +18,16 @@ declare module '@hotwired/turbo' {
 
   export function visit(url: string, options?): void;
 
+  export const config: {
+    forms: {
+      confirm?: (
+        message: string,
+        form: HTMLFormElement,
+        submitter?: HTMLElement | null,
+      ) => Promise<boolean>;
+    };
+  };
+
   export const cache: {
     clear(): void;
   };

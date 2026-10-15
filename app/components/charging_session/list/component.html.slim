@@ -40,7 +40,7 @@
         = button_to helpers.dismiss_cars_charging_sessions_path,
                     method: :patch,
                     params: { return_to: helpers.list_address, listed_at: Time.current.iso8601(6) },
-                    form: { data: { turbo_frame: 'list', turbo_confirm: t('charging_sessions.proposal.confirm_dismiss_all', count: proposal_count) } },
+                    form: { data: { turbo_frame: 'list', **Ui::ConfirmDialog::Component.data(t('charging_sessions.proposal.confirm_dismiss_all', count: proposal_count), button: t('confirm.dismiss_all'), destructive: true) } },
                     class: 'flex items-center gap-2 text-signal-negative lg:hover:underline underline-offset-4 max-lg:active:opacity-60' do
           = icon 'xmark'
           = t('charging_sessions.proposal.dismiss_all')
