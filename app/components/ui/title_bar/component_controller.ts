@@ -123,14 +123,15 @@ export default class extends Controller<HTMLElement> {
     this.#slide = undefined;
 
     document.documentElement.dataset.navDirection = direction;
-    this.#hideProgressBar();
+    this.#markRendering();
   }
 
   // The response is here, so nothing loads any more. Turbo would still show
   // the progress bar until the view transition has ended, over the new page,
   // and still mark the document as busy, which hides the content (see
-  // application.css). Turbo starts to fade the bar out before turbo:load.
-  #hideProgressBar() {
+  // application.css). The mark hides the bar and keeps the content in view
+  // until turbo:load. Turbo starts to fade the bar out before turbo:load.
+  #markRendering() {
     const { dataset } = document.documentElement;
 
     dataset.navRendering = '';
