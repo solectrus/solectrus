@@ -310,7 +310,6 @@ de:
   forecast:
     title: Prognose
     today: Heute
-    tomorrow: Morgen
     next_days:
       one: Morgen
       other: Die nächsten %{count} Tage

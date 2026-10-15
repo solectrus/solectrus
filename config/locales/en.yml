@@ -310,7 +310,6 @@ en:
   forecast:
     title: Forecast
     today: Today
-    tomorrow: Tomorrow
     next_days:
       one: Tomorrow
       other: The next %{count} days

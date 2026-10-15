@@ -8,11 +8,14 @@ const DEFAULT_COLOR = '#6b7280';
 
 interface LineConfig {
   text?: string;
+  // Drawn right after the text, which alone is centered (e.g. a degree sign)
+  suffix?: string;
   font?: string;
   color?: string;
   offsetY?: number;
   md?: {
     text: string;
+    suffix?: string;
     font?: string;
     color?: string;
     offsetY?: number;
@@ -98,11 +101,18 @@ export function buildCustomXAxisPlugin(
             const defaultFont = `${fontSize}px ${Chart.defaults.font.family}`;
             ctx.font = config.font || defaultFont;
             ctx.fillStyle = config.color || DEFAULT_COLOR;
-            ctx.fillText(
-              config.text,
-              xPos,
-              yStart + (config.offsetY ?? DEFAULT_LINE_OFFSET_Y),
-            );
+            const yPos = yStart + (config.offsetY ?? DEFAULT_LINE_OFFSET_Y);
+            ctx.fillText(config.text, xPos, yPos);
+
+            if (config.suffix) {
+              ctx.textAlign = 'left';
+              ctx.fillText(
+                config.suffix,
+                xPos + ctx.measureText(config.text).width / 2,
+                yPos,
+              );
+              ctx.textAlign = 'center';
+            }
           }
         }
 

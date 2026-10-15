@@ -6,11 +6,15 @@ module Sensor
       LABEL_FONT_LARGE = 'bold 20px Inter Variable, sans-serif'.freeze
       LABEL_COLOR = '#475569'.freeze
       LABEL_FONT_UNIT = '12px Inter Variable, sans-serif'.freeze
+      LABEL_FONT_MIN = '14px Inter Variable, sans-serif'.freeze
+      LABEL_FONT_MIN_LARGE = '16px Inter Variable, sans-serif'.freeze
 
       private_constant :LABEL_FONT,
                        :LABEL_FONT_LARGE,
                        :LABEL_COLOR,
-                       :LABEL_FONT_UNIT
+                       :LABEL_FONT_UNIT,
+                       :LABEL_FONT_MIN,
+                       :LABEL_FONT_MIN_LARGE
 
       def initialize(forecast_data, today_analyzer, value_key:)
         @forecast_data = forecast_data
@@ -22,11 +26,9 @@ module Sensor
 
       def build_labels
         forecast_data.map do |date, data|
-          value = data.key?(value_key) ? data[value_key] : nil
-
           {
             x: data[:noon_timestamp],
-            lines: [day_label(date), *value_labels(date, value)],
+            lines: [day_label(date), *labels_for(date, data)],
           }
         end
       end
@@ -53,29 +55,53 @@ module Sensor
       end
 
       def long_label_text(date)
-        case date
-        when Date.current
-          I18n.t('forecast.today')
-        when Date.tomorrow
-          I18n.t('forecast.tomorrow')
-        else
-          I18n.l(date, format: '%A')
-        end
+        date == Date.current ? I18n.t('forecast.today') : I18n.l(date, format: '%A')
       end
 
       def use_responsive_labels?
         forecast_data.size > 3
       end
 
+      def labels_for(date, data)
+        if value_key == :temp_range
+          temp_range_labels(data[:min_temp], data[:max_temp])
+        else
+          value_labels(date, data[value_key])
+        end
+      end
+
+      # Max above min, like a weather app. The degree sign replaces the
+      # unit line, so both values fit into the narrow columns on a phone.
+      def temp_range_labels(min_temp, max_temp)
+        return [] unless min_temp && max_temp
+
+        [
+          temp_label(max_temp, font: LABEL_FONT, md_font: LABEL_FONT_LARGE, offsets: [38, 40]),
+          temp_label(min_temp, font: LABEL_FONT_MIN, md_font: LABEL_FONT_MIN_LARGE, offsets: [58, 66]),
+        ]
+      end
+
+      # The number alone is centered, the degree sign follows it as suffix.
+      # Otherwise the number would sit left of the day name.
+      def temp_label(value, font:, md_font:, offsets:)
+        line = { text: value.round.to_s, suffix: '°', color: LABEL_COLOR }
+
+        line.merge(
+          font:,
+          offsetY: offsets.first,
+          md: line.merge(font: md_font, offsetY: offsets.last),
+        )
+      end
+
       def value_labels(date, value)
         return [] unless value
 
-        display_value = calculate_display_value(date, value)
+        text = format_value(calculate_display_value(date, value))
 
         if use_responsive_labels?
-          [value_label(display_value), unit_label_responsive]
+          [value_label(text), unit_label_responsive]
         else
-          [value_label(display_value), unit_label]
+          [value_label(text), unit_label]
         end
       end
 
@@ -93,16 +119,14 @@ module Sensor
           today_analyzer.past_production? && today_analyzer.show_today?
       end
 
-      def value_label(value)
-        formatted_value = format_value(value)
-
+      def value_label(text)
         {
-          text: formatted_value,
+          text:,
           font: LABEL_FONT,
           color: LABEL_COLOR,
           offsetY: 38,
           md: {
-            text: formatted_value,
+            text:,
             font: LABEL_FONT_LARGE,
             color: LABEL_COLOR,
             offsetY: 40,
@@ -111,21 +135,11 @@ module Sensor
       end
 
       def format_value(value)
-        case value_key
-        when :total_wh
-          ActiveSupport::NumberHelper.number_to_rounded(value.to_f / 1000, precision: 0)
-        when :avg_temp
-          ActiveSupport::NumberHelper.number_to_rounded(value, precision: 1)
-        end
+        ActiveSupport::NumberHelper.number_to_rounded(value.to_f / 1000, precision: 0)
       end
 
       def unit
-        case value_key
-        when :total_wh
-          'kWh'
-        when :avg_temp
-          '°C'
-        end
+        'kWh'
       end
 
       def unit_label

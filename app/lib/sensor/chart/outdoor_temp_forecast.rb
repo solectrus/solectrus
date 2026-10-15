@@ -297,7 +297,7 @@ module Sensor
           Sensor::Forecast::LabelBuilder.new(
             forecast_data,
             today_analyzer,
-            value_key: :avg_temp,
+            value_key: :temp_range,
           )
       end
     end

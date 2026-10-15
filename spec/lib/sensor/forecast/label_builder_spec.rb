@@ -91,15 +91,25 @@ describe Sensor::Forecast::LabelBuilder do
         today_label = labels.first[:lines].find { |l| l[:text]&.include?('15') }
         expect(today_label).to be_present
       end
+
+      it 'names tomorrow by its weekday' do
+        expect(labels.second[:lines].first[:text]).to eq(
+          I18n.l(Date.tomorrow, format: '%A'),
+        )
+      end
     end
   end
 
-  describe 'with avg_temp value_key' do
+  describe 'with temp_range value_key' do
+    subject(:texts) do
+      label_builder.build_labels.first[:lines].map { "#{_1[:text]}#{_1[:suffix]}" }
+    end
+
     let(:label_builder) do
       described_class.new(
         temp_forecast_data,
         today_analyzer,
-        value_key: :avg_temp,
+        value_key: :temp_range,
       )
     end
 
@@ -107,67 +117,35 @@ describe Sensor::Forecast::LabelBuilder do
       {
         Date.parse('2024-01-15') => {
           noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
-          avg_temp: 18.5,
+          **temps,
         },
       }
     end
 
-    it 'formats temperature with decimal precision' do
-      labels = label_builder.build_labels
-      temp_label = labels.first[:lines].find { |l| l[:text]&.include?('18.5') }
-      expect(temp_label).to be_present
+    let(:temps) { { min_temp: 8.4, max_temp: 18.5 } }
+
+    it 'shows max above min, rounded, without a unit line' do
+      expect(texts.drop(1)).to eq(%w[19° 8°])
     end
 
-    it 'includes correct unit' do
-      labels = label_builder.build_labels
-      unit_label = labels.first[:lines].find { |l| l[:text] == '°C' }
-      expect(unit_label).to be_present
+    it 'keeps the degree sign out of the centered text' do
+      lines = label_builder.build_labels.first[:lines].drop(1)
+      expect(lines.pluck(:text, :suffix)).to eq([%w[19 °], %w[8 °]])
     end
 
     context 'with negative temperatures' do
-      let(:temp_forecast_data) do
-        {
-          Date.parse('2024-01-15') => {
-            noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
-            avg_temp: -5.2,
-          },
-        }
-      end
+      let(:temps) { { min_temp: -5.6, max_temp: -0.3 } }
 
-      it 'formats negative temperature correctly' do
-        labels = label_builder.build_labels
-        temp_label =
-          labels.first[:lines].find { |l| l[:text]&.include?('-5.2') }
-        expect(temp_label).to be_present
-      end
-
-      it 'includes unit for negative temperature' do
-        labels = label_builder.build_labels
-        unit_label = labels.first[:lines].find { |l| l[:text] == '°C' }
-        expect(unit_label).to be_present
+      it 'keeps the sign, but not for zero' do
+        expect(texts.drop(1)).to eq(%w[0° -6°])
       end
     end
 
-    context 'with zero temperature' do
-      let(:temp_forecast_data) do
-        {
-          Date.parse('2024-01-15') => {
-            noon_timestamp: Time.zone.parse('2024-01-15 12:00').to_i * 1000,
-            avg_temp: 0.0,
-          },
-        }
-      end
+    context 'without temperatures' do
+      let(:temps) { {} }
 
-      it 'formats zero temperature correctly' do
-        labels = label_builder.build_labels
-        temp_label = labels.first[:lines].find { |l| l[:text]&.include?('0') }
-        expect(temp_label).to be_present
-      end
-
-      it 'includes unit for zero temperature' do
-        labels = label_builder.build_labels
-        unit_label = labels.first[:lines].find { |l| l[:text] == '°C' }
-        expect(unit_label).to be_present
+      it 'shows the day only' do
+        expect(texts.size).to eq(1)
       end
     end
   end
