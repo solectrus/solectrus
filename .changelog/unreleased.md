@@ -45,6 +45,7 @@ Keep every section, an empty one included.
 - AI access: the charge level of the first car is now `car_battery_soc_1`, and `_2` to `_5` for more cars. A request with the old name `car_battery_soc` gets an error that names the new one
 - Grid costs: the tooltip names the energy costs and the base fee separately, and the cost chart stacks the two, so you see which part of the bill is fixed. The tooltip of the house splits its grid costs the same way (#2560)
 - Settings: on a computer, a click anywhere on a row of the prices, the payments, the electric vehicles or the locations opens the entry. The rows have no buttons. To delete an entry, open it and use the trash button in the form
+- Settings: on a computer, the "+" for a new price or payment now stands at the right of the tabs, where a phone has it too. Before, a large round button stood above the list
 - With more than one car in use, the power balance shows only the charge level of the home battery, as a round badge. The charge levels of the cars are on the car page. With one car in use, the balance shows the charge level of the car and whether it is connected, as before (#6020)
 - The timeframe in the header takes less space: "Since commissioning" no longer shows how many years ago that was, and a week or a timeframe like "Last 7 days" no longer shows its first and last date
 - A tooltip of a live value stays open while you read it. Before, the next refresh of the values closed it

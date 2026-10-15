@@ -160,6 +160,10 @@ class Cars::ChargingSessionsController < ApplicationController
     TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param }, hours: true)
   end
 
+  # A new session is an offsite session, the detection writes the others. An
+  # offsite session needs a car.
+  helper_method def new_session_offered? = kind == 'offsite' && car_selection.installed.any?
+
   # The segments of a phone take the short name, as the card of the car page
   # that links here
   helper_method def nav_items(short: false)

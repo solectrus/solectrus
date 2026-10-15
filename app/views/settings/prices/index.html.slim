@@ -1,13 +1,11 @@
 = render 'settings/sub_nav', action: { href: new_settings_price_path(price: { name: }), icon: 'plus', label: t("settings.prices.new.#{name}") }
 
-/ On the desktop the intro and the button for a new price stand above the
-  table. On a phone the intro follows the list as its footer, and the title
-  bar has the action.
+/ On the desktop the intro stands above the table. On a phone it follows the
+  list as its footer.
 .flex.flex-col
-  .flex.items-start.justify-between.mb-4.px-2.max-lg:order-last.max-lg:mb-0.max-lg:px-4.max-lg:pt-2
-    p.text-sm.text-muted.lg:pr-16.lg:text-base.lg:text-gray-500
+  .mb-4.px-2.max-lg:order-last.max-lg:mb-0.max-lg:px-4.max-lg:pt-2
+    p.text-sm.text-muted.lg:text-base.lg:text-gray-500
       = t "settings.prices.description.#{name}"
-    = render Ui::AddButton::Component.new(href: new_settings_price_path(price: { name: }), label: t("settings.prices.new.#{name}"))
 
   / A stream refreshes the list. The link of a row on a phone leaves the frame.
   = tag.turbo_frame id: 'list', target: '_top' do

@@ -19,7 +19,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone.
 - `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`.
-- `Ui::AddButton`: The round button for a new entry of a list on the desktop. It opens the form in the modal. A phone has the action of the `Ui::TitleBar` instead.
+- `Ui::AddButton`: The `+` button for a new entry of a list on the desktop. It stands at the right of the header, where a phone has the action of the `Ui::TitleBar`. It opens the form in the modal.
 
 Each component file starts with a comment that describes its parameters and slots.
 

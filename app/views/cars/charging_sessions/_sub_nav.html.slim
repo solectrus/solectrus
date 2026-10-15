@@ -1,11 +1,13 @@
+/ The form keeps the address of the list, with its timeframe and its car filter
+- action = { href: new_cars_charging_session_path(return_to: list_address), label: t('charging_sessions.new') }
+
 - content_for :fixed_nav, true
 - content_for :sub_nav do
   / Phone: the title bar of a page below the car page, as in the settings. The
     plus adds a session on a page of its own. The car page has no title bar,
     so the way back to it does not slide.
   = render Ui::TitleBar::Component.new(title: t('charging_sessions.title'), back_href: back_path, back_label: t('layout.car'), back_slide: false) do |bar|
-    - if ChargingSession::AddButton::Component.offered?(kind:, selection: car_selection)
-      - bar.with_action(href: new_cars_charging_session_path(return_to: list_address), icon: 'plus', label: t('charging_sessions.new'))
+    - bar.with_action(**action, icon: 'plus') if new_session_offered?
 
   / On a phone the accessory of the title bar. It belongs to the list and
     leaves the bar when a session opens (see Ui::TitleBar::Component).
@@ -18,14 +20,16 @@
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
         - c.with_items nav_items
 
-    / On the lower edge of the header, the ring parts it from the header
-    = render ChargingSession::AddButton::Component.new(kind:, selection: car_selection, css_class: 'absolute top-full left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 ring-2 ring-white dark:ring-slate-900')
-
-    / The desktop has the filter before the timeframe. A phone has it above
-      the list (see the index).
+    / The desktop has the button for a new session and the filter before the
+      timeframe. The group stands at the right edge, so a list without the
+      button keeps the place of the rest. A phone has the filter above the
+      list (see the index) and the button in the title bar.
     .flex.items-center.lg:gap-4
       .w-full.min-w-0.flex.items-center.lg:h-8.lg:w-auto
         = render Timeframe::Component.new(timeframe:, page: timeframe_page)
+      - if new_session_offered?
+        .hidden.lg:block.lg:order-first
+          = render Ui::AddButton::Component.new(**action)
       - if @missing_or_stale_summary_days.blank?
         .hidden.lg:block.empty:hidden.lg:order-first
           = render ChargingSession::Filter::Component.new(kind:, timeframe:, cars: car_selection.offered, current: car_selection.to_param)

@@ -17,7 +17,10 @@ ruby:
       - bar.with_action(**action) if action
       - bar.with_save(form: save) if save
 
-    /! Desktop: original pill buttons (unchanged)
-    .hidden.lg:block
-      = render Nav::Sub::Component.new(abbreviate: false) do |c|
-        - c.with_items(nav_items.map { |item| item.slice(:name, :href, :current) })
+    / Desktop: the pill buttons, and the action at the right as on a phone
+    .hidden.lg:flex.items-center.justify-between.gap-4
+      .flex-1.min-w-0
+        = render Nav::Sub::Component.new(abbreviate: false) do |c|
+          - c.with_items(nav_items.map { |item| item.slice(:name, :href, :current) })
+      - if action
+        = render Ui::AddButton::Component.new(href: action[:href], label: action[:label])
