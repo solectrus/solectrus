@@ -22,7 +22,7 @@ describe 'Cash flow settings' do
     it 'creates an entry via modal' do
       visit '/settings/cash_flows'
 
-      expect(page).to have_text('Noch keine Einträge vorhanden.')
+      expect(page).to have_text('Noch keine Zahlungen.')
 
       click_link 'Neue Zahlung'
 
@@ -50,7 +50,7 @@ describe 'Cash flow settings' do
       click_on '01.08.2023'
       within('#modal') { accept_confirm { click_on 'Löschen' } }
 
-      expect(page).to have_text('Noch keine Einträge vorhanden.')
+      expect(page).to have_text('Noch keine Zahlungen.')
     end
   end
 

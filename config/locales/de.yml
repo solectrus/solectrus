@@ -450,9 +450,6 @@ de:
       new:
         electricity: Neuer Strompreis
         feed_in: Neue Einspeisevergütung
-      description:
-        electricity: An den Stromversorger zu zahlendes Entgelt, aufgeteilt in Arbeitspreis pro bezogene kWh und monatlichen Grundpreis. Ändert sich regelmäßig, meist jährlich.
-        feed_in: Staatlich festgelegte Vergütung pro eingespeiste kWh. Ist üblicherweise für 20 Jahre konstant.
     cars:
       name: E-Autos
       vehicles: Fahrzeuge
@@ -478,7 +475,6 @@ de:
       time: Zeit
     cash_flows:
       name: Zahlungen
-      description: Investitionen, Kosten und Förderungen rund um die PV-Anlage – die Grundlage der Amortisationsrechnung.
       new: Neue Zahlung
       edit: Zahlung bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"

@@ -7,8 +7,16 @@ describe CashFlowList::Component, type: :component do
   context 'without entries' do
     before { render_inline(component) }
 
-    it 'says so' do
-      expect(page).to have_text('No entries yet.')
+    it 'introduces the cash flows' do
+      expect(page).to have_text('No cash flows yet. Add investments')
+    end
+  end
+
+  context 'without entries for the filter' do
+    before { render_inline(described_class.new(cash_flows: CashFlow.ordered, filter_categories: %w[repair])) }
+
+    it 'says that nothing matches' do
+      expect(page).to have_text('No cash flows match this filter.')
     end
   end
 

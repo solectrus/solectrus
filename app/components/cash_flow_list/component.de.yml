@@ -1,4 +1,5 @@
 de:
   total: Summe
-  empty: Noch keine Einträge vorhanden.
+  empty: Noch keine Zahlungen. Erfasse Investitionen, Kosten und Förderungen, damit die Amortisation berechnet wird.
+  empty_filtered: Keine Zahlungen für diesen Filter.
   filter_by_category: Nach dieser Kategorie filtern

@@ -1,12 +1,5 @@
 = render 'settings/sub_nav', action: { href: new_settings_price_path(price: { name: }), icon: 'plus', label: t("settings.prices.new.#{name}") }
 
-/ On the desktop the intro stands above the table. On a phone it follows the
-  list as its footer.
-.flex.flex-col
-  .mb-4.px-2.max-lg:order-last.max-lg:mb-0.max-lg:px-4.max-lg:pt-2
-    p.text-sm.text-muted.lg:text-base.lg:text-gray-500
-      = t "settings.prices.description.#{name}"
-
-  / A stream refreshes the list. The link of a row on a phone leaves the frame.
-  = tag.turbo_frame id: 'list', target: '_top' do
-    = render PriceList::Component.new(prices: @prices, name:)
+/ A stream refreshes the list. The link of a row on a phone leaves the frame.
+= tag.turbo_frame id: 'list', target: '_top' do
+  = render PriceList::Component.new(prices: @prices, name:)

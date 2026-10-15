@@ -23,6 +23,13 @@ class CashFlowList::Component < ViewComponent::Base
     cash_flows.sum(&:amount)
   end
 
+  # An empty list without a filter introduces the payments. With a filter, it
+  # only says that nothing matches.
+  def empty_text
+    filtered = @filter_categories.any? || @filter_from || @filter_to
+    t(filtered ? '.empty_filtered' : '.empty')
+  end
+
   def formatted_amount(amount)
     number_to_currency(amount, precision: 2, unit: Currency.symbol)
   end

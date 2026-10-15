@@ -1,26 +1,20 @@
 = render 'settings/sub_nav', action: { href: new_settings_cash_flow_path(return_to: list_address), icon: 'plus', label: t('settings.cash_flows.new') }
 
+/! Who may see the amortization calculation: everyone, admins only, or nobody
+/! (the page disappears from the navigation entirely). The "all" option
+/! exposes the calculation to non-admins and is a sponsor feature, so it is
+/! disabled otherwise. On a phone the choice is a cell.
 .mb-8.px-2.max-lg:px-0
-  / On a phone the choice is a cell, and the intro follows as its footer
-  .max-lg:flex.max-lg:flex-col-reverse
-    p.text-gray-500.text-sm.md:text-base.max-lg:px-4.max-lg:pt-2.max-lg:text-muted
-      = t 'settings.cash_flows.description'
-
-    /! Who may see the amortization calculation: everyone, admins only, or nobody
-    /! (the page disappears from the navigation entirely). Sits right under the
-    /! intro so it reads as part of the explanation. The "all" option exposes the
-    /! calculation to non-admins and is a sponsor feature, so it is disabled
-    /! otherwise.
-    = form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'ui-form mt-3 max-lg:mt-0' }, data: { controller: 'auto-submit' } do |f|
-      - visibility_choices = AmortizationVisibility::LEVELS.map { |level| [t("settings.cash_flows.visibility_#{level}"), level] }
-      / On a phone the label is the header of the group. The label
-        of the field stays for a screen reader.
-      .ui-form-header.lg:hidden aria-hidden='true' = t('settings.cash_flows.visibility_label')
-      .ui-form-group.ui-form-stacked
-        = f.select :amortization_visibility,
-                   options_for_select(visibility_choices, selected: AmortizationVisibility.level, disabled: ('all' unless AmortizationVisibility.licensed?)),
-                   { label: t('settings.cash_flows.visibility_label'), label_class: 'max-lg:sr-only', hint: (t('premium.sponsors_only') unless AmortizationVisibility.licensed?) },
-                   { class: 'max-w-xs', data: { action: 'change->auto-submit#submit' } }
+  = form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'ui-form' }, data: { controller: 'auto-submit' } do |f|
+    - visibility_choices = AmortizationVisibility::LEVELS.map { |level| [t("settings.cash_flows.visibility_#{level}"), level] }
+    / On a phone the label is the header of the group. The label
+      of the field stays for a screen reader.
+    .ui-form-header.lg:hidden aria-hidden='true' = t('settings.cash_flows.visibility_label')
+    .ui-form-group.ui-form-stacked
+      = f.select :amortization_visibility,
+                 options_for_select(visibility_choices, selected: AmortizationVisibility.level, disabled: ('all' unless AmortizationVisibility.licensed?)),
+                 { label: t('settings.cash_flows.visibility_label'), label_class: 'max-lg:sr-only', hint: (t('premium.sponsors_only') unless AmortizationVisibility.licensed?) },
+                 { class: 'max-w-xs', data: { action: 'change->auto-submit#submit' } }
 
 /! Interactive filter: narrow the list by category and/or date range (also the
 /! landing spot when drilling down from the amortization table). Kept outside the

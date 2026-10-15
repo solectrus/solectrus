@@ -1,4 +1,5 @@
 en:
   total: Total
-  empty: No entries yet.
+  empty: No cash flows yet. Add investments, costs and subsidies to calculate the amortization.
+  empty_filtered: No cash flows match this filter.
   filter_by_category: Filter by this category
