@@ -82,6 +82,7 @@ export class BottomSheet {
     this.content = content;
 
     dialog.addEventListener('click', this.handleClick);
+    dialog.addEventListener('keydown', this.handleKeydown);
     dialog.addEventListener('cancel', this.handleCancel);
     panel.addEventListener('pointerdown', this.startDrag);
     panel.addEventListener('pointermove', this.moveDrag);
@@ -198,6 +199,7 @@ export class BottomSheet {
   destroy(): void {
     this.resizeObserver.disconnect();
     this.dialog.removeEventListener('click', this.handleClick);
+    this.dialog.removeEventListener('keydown', this.handleKeydown);
     this.dialog.removeEventListener('cancel', this.handleCancel);
     this.panel.removeEventListener('pointerdown', this.startDrag);
     this.panel.removeEventListener('pointermove', this.moveDrag);
@@ -220,6 +222,15 @@ export class BottomSheet {
     if (performance.now() - this.openedAt < TAP_GUARD_MS) return;
 
     this.requestClose();
+  };
+
+  // Escape sends its own cancel. In a date field, Chrome sends a second one
+  // that the page cannot prevent, and the dialog closes without animation.
+  private readonly handleKeydown = (event: KeyboardEvent): void => {
+    if (event.key !== 'Escape' || event.defaultPrevented) return;
+
+    event.preventDefault();
+    this.dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
   };
 
   // Escape: animate instead of the instant close of the browser
