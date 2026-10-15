@@ -155,6 +155,14 @@ describe ChargingSession::Detection::CarAssignment do
       expect(assignment.car_for(day, from, to)).to eq(other_car)
     end
 
+    # The coordinates of one position fell into neighboring buckets
+    it 'excludes a car away from home with the coordinates at different times' do
+      curves[:car_latitude_1] = [[at(9), 50.906]]
+      curves[:car_longitude_1] = [[at(9) + 5.minutes, 6.407]]
+
+      expect(assignment.car_for(day, from, to)).to eq(other_car)
+    end
+
     it 'excludes a car away from home also with a connection' do
       position(1, at(9), 50.906, 6.407)
       curves[:car_connected_1] = [[at(9), 1]]

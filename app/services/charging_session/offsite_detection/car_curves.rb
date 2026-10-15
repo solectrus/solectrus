@@ -40,15 +40,15 @@ class ChargingSession::OffsiteDetection::CarCurves
   public_constant :Position
 
   # The position at a time, or nil. It is the last reading before the time,
-  # at any age, with the latitude and the longitude of the same time. Like in
+  # at any age, of each coordinate. Like in
   # Sensor::Query::Positions, it ends when the odometer rises by more than
   # Sensor::Query::Positions::MOVE after it, because the car drove away. A
   # parked car can send nothing for days, while a source can stop to send
   # the position on the road.
   def position_at(time)
     since, lat = latitude.rfind { |reading_time, _| reading_time <= time }
-    lon = since && longitude.to_h[since]
-    Position.new(latitude: lat, longitude: lon) if lon && !moved?(since, time)
+    lon = state_at(longitude, time)
+    Position.new(latitude: lat, longitude: lon) if lat && lon && !moved?(since, time)
   end
 
   # The state of charge of the reading at a time

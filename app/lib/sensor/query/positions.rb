@@ -64,6 +64,10 @@ module Sensor
       GAP = 'gap'.freeze
       private_constant :GAP
 
+      # The longest time between the two coordinates of a position
+      PAIR = 10.seconds
+      private_constant :PAIR
+
       # A reading: its time, its position and the seconds since the reading
       # before it
       Reading = ::Data.define(:time, :latitude, :longitude, :gap)
@@ -82,7 +86,16 @@ module Sensor
         first = rows['first']&.first&.then { reading(it, before:) }
         changes = rows.fetch('changes', []).sort_by { it['_time'] }.map { reading(it) }
 
-        [before, first, *changes].compact.chunk_while { |a, b| position(a) == position(b) }.map(&:first)
+        complete([before, first, *changes].compact).chunk_while { |a, b| position(a) == position(b) }.map(&:first)
+      end
+
+      # A source can write the two coordinates at slightly different times.
+      # The first then gives a reading with the other coordinate of the
+      # position before, and the second one completes it within PAIR. The
+      # completed reading keeps the gap of the first one.
+      def complete(readings)
+        readings.slice_when { |a, b| b.time - a.time > PAIR || (a.latitude != b.latitude && a.longitude != b.longitude) }
+                .map { |run| run.last.with(gap: run.first.gap&.+(run.last.time - run.first.time)) }
       end
 
       def reading(row, before: nil)
@@ -161,6 +174,8 @@ module Sensor
       # it. A parked car repeats its odometer, and the first reading of each
       # value gives the same departure (a week: 491 -> 21 rows, 68 -> 54 ms, a
       # year: 34482 -> 1329 rows, 484 -> 386 ms).
+      # fill() gives a row without the other coordinate its latest value (see
+      # #complete).
       def build_flux_query
         lat = column(latitude)
         lon = column(longitude)
@@ -169,6 +184,9 @@ module Sensor
           pair = (tables=<-) => tables
             |> group()
             |> pivot(rowKey: ["_time"], columnKey: ["_measurement", "_field"], valueColumn: "_value")
+            |> sort(columns: ["_time"])
+            |> fill(column: "#{lat}", usePrevious: true)
+            |> fill(column: "#{lon}", usePrevious: true)
             |> filter(fn: (r) => exists r["#{lat}"] and exists r["#{lon}"])
             |> keep(columns: ["_time", "#{lat}", "#{lon}"])
 

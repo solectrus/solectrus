@@ -233,6 +233,20 @@ describe ChargingSession::OffsiteDetection do
           expect(proposals.size).to eq(1)
         end
       end
+
+      # The coordinates fall into neighboring buckets of the curves
+      context 'when the car is away with the coordinates at different times' do
+        before do
+          write(:car_latitude_1, [[at(7) - 1.second, 50.0]])
+          write(:car_longitude_1, [[at(7) + 1.second, 8.0]])
+        end
+
+        it 'keeps the position' do
+          run
+
+          expect(ChargingSession.proposals.first).to have_attributes(latitude: 50.0, longitude: 8.0)
+        end
+      end
     end
   end
 

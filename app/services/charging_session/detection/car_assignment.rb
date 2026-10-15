@@ -157,13 +157,14 @@ class ChargingSession::Detection::CarAssignment
   # because the reading before can be from the drive home, and a bucket up to
   # REPORT_LAG after the end counts too. A mean of a
   # bucket on a drive is no real position, but a car on a drive does not
-  # charge at the wallbox either.
+  # charge at the wallbox either. The latitude is a state like the
+  # longitude, so the two need not share a bucket.
   def away?(date, car, from, to)
     return false unless home
 
-    latitudes = readings(date, :car_latitude, car, from + BUCKET, to + REPORT_LAG).to_h
     positions = readings(date, :car_longitude, car, from + BUCKET, to + REPORT_LAG).filter_map do |time, longitude|
-      [latitudes[time], longitude] if latitudes[time]
+      latitude = state_at(date, :car_latitude, car, time)&.last
+      [latitude, longitude] if latitude
     end
 
     positions.any? && positions.none? { home.covers?(*it) }

@@ -711,9 +711,9 @@ personal data, so only the admin sees it. The definitions declare `admin_only`:
   in. The driving card still shows a guest the number of visits and places.
 - The MCP server does not offer the sensors.
 
-A position needs the latitude and the longitude with the same time. InfluxDB has no type
-for a point, so the collector must write the two fields in one point, for example from one
-JSON message. A reading with one of the two fields alone is no position.
+A position needs the latitude and the longitude. InfluxDB has no type for a point, so a
+collector writes two fields, at best in one point. Each coordinate is a state that holds
+until its next reading, so the two can also come from separate messages at different times.
 
 The live view shows the place of each car. A click on the place opens the latest location
 on a map that fills the window. A map in the live view took too much space beside the

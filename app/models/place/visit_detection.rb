@@ -33,7 +33,7 @@ class Place::VisitDetection
   public_constant :KEY
 
   # Bump to build each day again (see Summary::Steps)
-  VERSION = 2
+  VERSION = 3
   public_constant :VERSION
 
   # The visits come from the build alone (see Summary::Steps). The places

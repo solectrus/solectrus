@@ -198,6 +198,32 @@ describe Sensor::Query::Positions do
     end
   end
 
+  # A collector that writes each coordinate from a message of its own
+  context 'with the coordinates at different times' do
+    let(:readings) { {} }
+
+    before do
+      influx_batch do
+        {
+          '2026-09-21 23:00:00' => { 'latitude' => home.first },
+          '2026-09-21 23:00:01' => { 'longitude' => home.last },
+          '2026-09-22 06:00:00' => { 'latitude' => home.first },
+          '2026-09-22 06:00:01' => { 'longitude' => home.last },
+          '2026-09-22 08:00:00' => { 'longitude' => work.last },
+          '2026-09-22 08:00:01' => { 'latitude' => work.first },
+        }.each { |time, fields| add_influx_point(name: 'Trabant', fields:, time: Time.zone.parse(time)) }
+      end
+    end
+
+    # The reading at 08:00:00 has the longitude of work and the latitude of
+    # home, which is no position
+    it 'pairs the latitude and the longitude' do
+      expect(segments.map { [it.from.strftime('%H:%M:%S'), it.latitude, it.longitude, it.gap] }).to eq(
+        [['00:00:00', *home, nil], ['08:00:01', *work, 2.hours.to_f]],
+      )
+    end
+  end
+
   context 'without the longitude' do
     before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude')) }
 
