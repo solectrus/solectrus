@@ -29,6 +29,7 @@ describe FormPageHelper do
           expect(form['class']).to eq('ui-form')
           expect(form['data-controller']).to eq('form-dirty')
           expect(form['data-turbo-frame']).to eq('modal')
+          expect(form['data-form-dirty-ui--confirm-dialog--component-outlet']).to be_nil
           expect(form.at('input[type=date]')['autofocus']).to eq('autofocus')
           expect(form.at('input[type=text]')['autofocus']).to be_nil
         end
@@ -38,9 +39,10 @@ describe FormPageHelper do
     context 'when a page asks for it' do
       let(:modal) { false }
 
-      it 'replaces the page in the history and focuses no field' do
+      it 'replaces the page in the history, asks before it leaves changes and focuses no field' do
         aggregate_failures do
           expect(form['data-turbo-action']).to eq('replace')
+          expect(form['data-form-dirty-ui--confirm-dialog--component-outlet']).to eq('#confirm-dialog')
           expect(form['data-turbo-frame']).to be_nil
           expect(form.at('input[type=date]')['autofocus']).to be_nil
         end

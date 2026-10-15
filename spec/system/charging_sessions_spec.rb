@@ -80,6 +80,36 @@ describe 'Charging sessions' do
       expect(page).to have_text('June trip, edited')
     end
 
+    it 'asks before the back button leaves unsaved changes' do
+      visit '/cars/charging_sessions/offsite/2022-06'
+      row('June trip').click
+      fill_in 'charging_session_note', with: 'June trip, edited'
+
+      message = dismiss_confirm_dialog { find('.ui-title-bar-back').click }
+      expect(message).to eq('Änderungen verwerfen?')
+      expect(page).to have_field('charging_session_note', with: 'June trip, edited')
+
+      accept_confirm_dialog { find('.ui-title-bar-back').click }
+      expect(page).to have_current_path('/cars/charging_sessions/offsite/2022-06')
+      expect(page).to have_text('June trip')
+      expect(ChargingSession.sole.note).to eq('June trip')
+    end
+
+    it 'dismisses a proposal with unsaved changes without a second question' do
+      # The detection writes with an upsert, which skips the mark of a save
+      ChargingSession.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: Time.zone.local(2022, 6, 12, 9), kwh: 15 }) # rubocop:disable Rails/SkipsModelValidations
+      proposal = ChargingSession.proposals.sole
+      visit "/cars/charging_sessions/#{proposal.id}/edit"
+      fill_in 'charging_session_note', with: 'Unsaved'
+
+      message = accept_confirm_dialog { click_on 'Verwerfen' }
+      expect(message).to eq('Diese Ladung verwerfen?')
+
+      expect(page).to have_no_current_path(%r{/edit})
+      expect(page.document).to have_no_css('#confirm-dialog[open]')
+      expect(proposal.reload).to be_dismissed
+    end
+
     # The list has no timeframe in its address. The save goes back to its
     # entry in the history, so the next way back leaves the list.
     it 'returns to the list as its address shows it' do

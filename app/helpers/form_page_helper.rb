@@ -12,7 +12,8 @@ module FormPageHelper
   # (see ui_form.css), whose groups TailwindFormBuilder builds. The id lets a
   # stream replace the form when it comes back with errors (see
   # FormPageResponse), and the form-dirty controller enables
-  # Ui::SubmitButton::Component.
+  # Ui::SubmitButton::Component. On its page, the form asks before a visit
+  # leaves its changes behind. In the modal, the modal asks.
   #
   # A field with `autofocus: true` takes the focus in the modal only. On a
   # page, iOS would open the keyboard or a picker right at the slide (see
@@ -29,15 +30,15 @@ module FormPageHelper
       id: form_page_id(model),
       builder: TailwindFormBuilder,
       form_page: true,
-      html: { class: 'ui-form', data: { controller: 'form-dirty', **form_page_target } },
+      html: { class: 'ui-form', data: { **(form_in_modal? ? { controller: 'form-dirty' } : page_form_data), **form_page_target } },
       **,
     ) do |f|
       safe_join([(hidden_field_tag(:return_to, return_to, id: nil) if return_to), capture(f, &)])
     end
   end
 
-  # The data of a form that the desktop shows on the page and not in the
-  # modal, like the general settings. The form-dirty controller asks in
+  # The data of a form on a page and not in the modal, like the general
+  # settings. The form-dirty controller asks in
   # Ui::ConfirmDialog::Component before a visit leaves the changes behind.
   #
   #   = form_with(url: settings_general_path, html: { data: page_form_data }) do |f|

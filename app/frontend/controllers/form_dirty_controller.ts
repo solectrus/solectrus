@@ -7,13 +7,13 @@ import type ConfirmDialogController from '../../components/ui/confirm_dialog/com
 // of Ui::TitleBar::Component, so the controller finds the buttons among the
 // elements of the form and not as targets.
 //
-// With Ui::ConfirmDialog::Component as its outlet, the controller asks on the
-// desktop before a visit or a reload leaves the changes behind. A page form
-// has the outlet, like the general settings (see
-// FormPageHelper#page_form_data). A form in the modal does not. A phone does
-// not ask, because the title bar starts its slide before the visit (see
-// Ui::TitleBar::Component), and a canceled visit would stop the page halfway.
-const DESKTOP_QUERY = '(min-width: 64rem)';
+// With Ui::ConfirmDialog::Component as its outlet, the controller asks before
+// a visit or a reload leaves the changes behind. A form on a page has the
+// outlet (see FormPageHelper). A form in the modal does not, there the modal
+// asks. The title bar of a phone starts its slide at the click on a link,
+// before the visit (see Ui::TitleBar::Component). So the controller asks at
+// the click already, and clicks the link again once the user leaves.
+type TurboClickEvent = CustomEvent<{ originalEvent: Event }>;
 
 export default class extends Controller<HTMLFormElement> {
   static readonly outlets = ['ui--confirm-dialog--component'];
@@ -52,11 +52,16 @@ export default class extends Controller<HTMLFormElement> {
   }
 
   uiConfirmDialogComponentOutletConnected(): void {
+    // In the capture phase, before the title bar
+    document.addEventListener('turbo:click', this.handleClick, true);
+    document.addEventListener('turbo:submit-end', this.handleOtherSubmitEnd);
     document.addEventListener('turbo:before-visit', this.handleBeforeVisit);
     window.addEventListener('beforeunload', this.handleBeforeUnload);
   }
 
   uiConfirmDialogComponentOutletDisconnected(): void {
+    document.removeEventListener('turbo:click', this.handleClick, true);
+    document.removeEventListener('turbo:submit-end', this.handleOtherSubmitEnd);
     document.removeEventListener('turbo:before-visit', this.handleBeforeVisit);
     window.removeEventListener('beforeunload', this.handleBeforeUnload);
   }
@@ -80,7 +85,23 @@ export default class extends Controller<HTMLFormElement> {
     setTimeout(this.handleChange);
   };
 
-  // A link inside the app, like the main navigation. The visit after a save
+  // A click on a link. Neither Turbo, the browser nor the title bar follows it.
+  private readonly handleClick = (event: Event): void => {
+    const link = event.target as HTMLAnchorElement;
+    if (this.leaving || !leavesPage(link) || !this.dirty()) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    (event as TurboClickEvent).detail.originalEvent.preventDefault();
+    void this.uiConfirmDialogComponentOutlet.confirmDiscard().then((leave) => {
+      if (!leave) return;
+
+      this.leaving = true;
+      link.click();
+    });
+  };
+
+  // A visit without a click, like a visit from a script. The visit after a save
   // goes on, because the form is either still submitting or clean again.
   //
   // The dialog answers later, but the visit must stop now. So it stops each
@@ -113,17 +134,22 @@ export default class extends Controller<HTMLFormElement> {
     this.submitting = false;
   };
 
+  // Another form of the page, like a delete button, leaves on purpose. It
+  // asked on its own, if at all.
+  private readonly handleOtherSubmitEnd = (event: Event): void => {
+    const form = event.target as HTMLFormElement;
+    const { success } = (event as CustomEvent<{ success: boolean }>).detail;
+    if (form !== this.element && success && leavesPage(form))
+      this.leaving = true;
+  };
+
   private readonly handleMorph = (): void => {
     this.resetState();
     this.submitting = false;
   };
 
   private dirty(): boolean {
-    return (
-      window.matchMedia(DESKTOP_QUERY).matches &&
-      !this.submitting &&
-      this.formData() !== this.initialData
-    );
+    return !this.submitting && this.formData() !== this.initialData;
   }
 
   private resetState(): void {
@@ -152,4 +178,15 @@ export default class extends Controller<HTMLFormElement> {
       data as unknown as Record<string, string>,
     ).toString();
   }
+}
+
+// A link or a form into a frame, like the modal, keeps the page
+function leavesPage(element: Element): boolean {
+  const frame = element
+    .closest('[data-turbo-frame]')
+    ?.getAttribute('data-turbo-frame');
+  if (frame) return frame === '_top';
+
+  const container = element.closest('turbo-frame');
+  return !container || container.getAttribute('target') === '_top';
 }

@@ -49,7 +49,7 @@ Keep every section, an empty one included.
 - Settings: the electricity price, the feed-in tariff and the payments no longer show an explanation above the list. A list of payments without entries tells you what to add
 - Settings: on a computer, the page now fills the window, so the footer keeps its place when you switch between the tabs
 - Settings: on a computer, the save button now shows only once you change something, and an "×" next to it discards your changes. In the general settings and the sensors, the two buttons stand at the right of the tabs, and the other tabs dim until you save or discard
-- Settings: on a computer, the general settings and the sensors ask before a link or a reload leaves unsaved changes behind
+- A form on a page of its own, like the general settings, the sensors or an entry on a phone, now asks before a link or a reload leaves unsaved changes behind
 - A question before an action, like before a delete, now shows in a dialog of the app instead of the box of the browser. It states the question and its result, and the button names the action, for example "Yes, delete"
 - A form in a dialog, like a price or a payment, now asks before it closes with unsaved changes. Before, a click beside it or on the close button lost the changes
 - With more than one car in use, the power balance shows only the charge level of the home battery, as a round badge. The charge levels of the cars are on the car page. With one car in use, the balance shows the charge level of the car and whether it is connected, as before (#6020)
