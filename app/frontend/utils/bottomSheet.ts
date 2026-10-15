@@ -2,9 +2,9 @@ import { hasUnsavedChanges } from '@/utils/unsavedChanges';
 
 // Behavior of a sheet (BottomSheet::Component): open and close with an
 // animation, and close on a swipe down, on a tap beside the panel, on the
-// close button and on Escape. A swipe leaves a form with unsaved changes
-// open. The stylesheet beside the component decides how it
-// looks and moves.
+// close button and on Escape. Before a form with unsaved changes closes,
+// the sheet can ask first (see `confirmDiscard`). The stylesheet beside the
+// component decides how it looks and moves.
 
 // Below this width the sheet sits on the lower edge and a swipe moves it.
 // From md on it stands in the middle as a dialog, without a swipe. A tooltip
@@ -45,6 +45,10 @@ interface BottomSheetOptions {
   // Escape asks this first. `false` keeps the sheet open, so an element
   // inside can take the key.
   canCancel?: () => boolean;
+  // Asks before the user closes a form with unsaved changes. `false` keeps
+  // the sheet open. Without it, such a sheet closes on a tap or a key, and
+  // a swipe does not close it.
+  confirmDiscard?: () => Promise<boolean>;
 }
 
 export class BottomSheet {
@@ -57,7 +61,8 @@ export class BottomSheet {
   private readonly resizeObserver: ResizeObserver;
 
   private dragStartY: number | null = null;
-  // A form with unsaved changes: the panel only gives, it does not close
+  // A form with unsaved changes: the panel only gives, and a swipe asks
+  // before it closes (see requestClose)
   private dragLocked = false;
   private dragLastY = 0;
   private dragLastTime = 0;
@@ -205,7 +210,7 @@ export class BottomSheet {
     if (!(event.target instanceof Element)) return;
 
     if (event.target.closest('.bottom-sheet-close')) {
-      this.close();
+      this.requestClose();
       return;
     }
 
@@ -214,7 +219,7 @@ export class BottomSheet {
     if (event.target !== this.dialog) return;
     if (performance.now() - this.openedAt < TAP_GUARD_MS) return;
 
-    this.close();
+    this.requestClose();
   };
 
   // Escape: animate instead of the instant close of the browser
@@ -222,8 +227,22 @@ export class BottomSheet {
     event.preventDefault();
     if (this.options.canCancel?.() === false) return;
 
-    this.close();
+    this.requestClose();
   };
+
+  // A close by the user. Before a form with unsaved changes closes, the
+  // options can ask.
+  private requestClose(): void {
+    const ask = this.options.confirmDiscard;
+    if (!ask || !hasUnsavedChanges(this.content)) {
+      this.close();
+      return;
+    }
+
+    void ask().then((discard) => {
+      if (discard) this.close();
+    });
+  }
 
   private readonly startDrag = (event: PointerEvent): void => {
     if (event.pointerType === 'mouse') return;
@@ -277,18 +296,19 @@ export class BottomSheet {
     this.dragStartY = null;
     if (this.dragMoved) this.dragEndedAt = event.timeStamp;
 
-    if (
+    const closes =
       event.type === 'pointerup' &&
-      !this.dragLocked &&
-      (delta > CLOSE_DISTANCE || this.dragVelocity > CLOSE_VELOCITY)
-    ) {
+      (delta > CLOSE_DISTANCE || this.dragVelocity > CLOSE_VELOCITY);
+
+    if (closes && !this.dragLocked) {
       this.close();
       return;
     }
 
-    // Back to the resting position
+    // Back to the resting position. A locked panel asks while it returns.
     this.panel.style.transition = '';
     this.panel.style.transform = '';
+    if (closes && this.options.confirmDiscard) this.requestClose();
   };
 
   // A drag that started on a link and moved the panel is no tap. Should the

@@ -1,6 +1,6 @@
 - if helpers.turbo_frame_request?
   = tag.turbo_frame id: 'modal' do
-    div data-controller='turbo-modal--component'
+    = tag.div data: modal_data do
       = render sheet do |sheet_component|
         - if (text = heading)
           - sheet_component.with_title do

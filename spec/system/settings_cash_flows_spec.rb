@@ -52,6 +52,33 @@ describe 'Cash flow settings' do
 
       expect(page).to have_text('Noch keine Zahlungen.')
     end
+
+    it 'asks before the modal closes with unsaved changes' do
+      CashFlow.create!(date: Date.new(2023, 8, 1), amount: -5000, note: 'Wechselrichter')
+      visit '/settings/cash_flows'
+
+      click_on '01.08.2023'
+      within('#modal') { fill_in 'cash_flow_note', with: 'Speicher' }
+
+      message = dismiss_confirm_dialog { within('#modal') { click_on 'Schließen' } }
+      expect(message).to eq('Änderungen verwerfen?')
+      expect(page).to have_field('cash_flow_note', with: 'Speicher')
+
+      accept_confirm_dialog { within('#modal') { click_on 'Schließen' } }
+      expect(page).to have_no_css('#modal dialog')
+      expect(CashFlow.last.note).to eq('Wechselrichter')
+    end
+
+    it 'closes the modal without unsaved changes at once' do
+      CashFlow.create!(date: Date.new(2023, 8, 1), amount: -5000, note: 'Wechselrichter')
+      visit '/settings/cash_flows'
+
+      click_on '01.08.2023'
+      within('#modal') { click_on 'Schließen' }
+
+      expect(page).to have_no_css('#modal dialog')
+      expect(page.document).to have_no_css('#confirm-dialog[open]')
+    end
   end
 
   context 'when admin user is logged in on a phone' do
