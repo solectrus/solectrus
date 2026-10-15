@@ -29,6 +29,10 @@ declare module '@hotwired/turbo' {
     clear(): void;
   };
 
+  export const session: {
+    adapter: unknown;
+  };
+
   export const config: {
     drive: {
       progressBarDelay: number;
