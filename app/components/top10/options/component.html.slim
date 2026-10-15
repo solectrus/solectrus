@@ -1,0 +1,9 @@
+= render Ui::Dropdown::Component.new( \
+    name: 'top10-options',
+    items: groups,
+    display_name: display,
+    choices: true,
+    stacked: true,
+    label: t('.label'),
+    **dropdown_options,
+  )

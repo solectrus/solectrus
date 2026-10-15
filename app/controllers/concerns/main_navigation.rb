@@ -25,7 +25,8 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     # First the views of the energy, in the order of their importance. All but
     # the forecast share the timeframe, which looks ahead instead. Then the
     # other pages. A phone shows the first of them in its tab bar, the primary
-    # items, and lists the rest, the secondary items, in the page More.
+    # items, and lists the rest, the secondary items, in the page More. The
+    # Top 10 stands on the gray of a grouped list on a phone (see its view).
     def build_mobile_items
       views = [
         root_item,
@@ -38,7 +39,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
 
       views + [
         essentials_item,
-        top10_item,
+        top10_item.merge(grouped: true),
         amortization_item,
       ].compact
     end

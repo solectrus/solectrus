@@ -1,4 +1,5 @@
 - turbo_exempts_page_from_cache
+- content_for :grouped, true
 
 - content_for :sub_nav do
   .pt-2.pb-3.lg:landscape:flex.lg:landscape:items-center.lg:landscape:justify-between.lg:landscape:py-5
@@ -10,20 +11,21 @@
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
         - c.with_items nav_items
 
+    / The same two buttons as on a phone: the sensor and the options
     .hidden.lg:landscape:flex.gap-3.items-center.justify-end.text-base.h-9
-      = render Top10::SortToggle::Component.new
-      - if supports_calc_select?
-        = render Top10::CalcSelect::Component.new(calc:, sensor:)
-      = render Top10::CarSelect::Component.new(current_sensor: sensor, permitted_params:)
       = render Top10::SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
+      = render Top10::Options::Component.new(sensor:, calc: (calc if supports_calc_select?), permitted_params:)
 
-.flex.lg:landscape:hidden.gap-3.items-center.text-base.h-9.mb-4
-  = render Top10::SortToggle::Component.new
-  - if supports_calc_select?
-    = render Top10::CalcSelect::Component.new(calc:, sensor:)
-  .flex-1.min-w-0.flex.justify-end.gap-3
-    = render Top10::CarSelect::Component.new(current_sensor: sensor, permitted_params:)
-    = render Top10::SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
+/ A phone has the choices above the list, as the charging sessions have
+  theirs: white buttons on the gray page, in one line. The sensor stands at
+  the left and gives way where the line is narrow. The options stand at the
+  right. They answer a tap themselves, so they stay lit while the next page
+  loads (see application.css).
+.ui-keep-lit.flex.items-center.gap-3.mb-4.lg:landscape:hidden
+  .min-w-0 class='*:min-w-0'
+    = render Top10::SensorSelect::Component.new(current_sensor: sensor, permitted_params:, phone: true)
+  .ml-auto.shrink-0
+    = render Top10::Options::Component.new(sensor:, calc: (calc if supports_calc_select?), permitted_params:, phone: true)
 
 - if @missing_or_stale_summary_days.present?
   = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)

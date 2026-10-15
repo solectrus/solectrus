@@ -44,9 +44,10 @@ class MoreController < ApplicationController
   end
 
   # A page below this one slides in, as it shows a title bar. It keeps its
-  # own background. A view opens as it is.
+  # own background, unless it stands on the gray of a grouped list. A view
+  # opens as it is.
   helper_method def secondary_links
-    secondary_items.map { it[:view] ? it : it.merge(slide: true, plain: true) }
+    secondary_items.map { it[:view] ? it : it.merge(slide: true, plain: !it[:grouped]) }
   end
 
   # A guest sees the settings too, and their page asks to log in. Only the

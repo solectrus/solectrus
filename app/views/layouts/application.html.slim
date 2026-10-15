@@ -82,7 +82,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
             phone. Its own navigation follows as the accessory of the bar.
           - item = more_child_item
           - if item
-            = render Ui::TitleBar::Component.new(title: item[:name], back_href: more_path, back_label: t('layout.more'), back_logo: more_logo, plain: true)
+            = render Ui::TitleBar::Component.new(title: item[:name], back_href: more_path, back_label: t('layout.more'), back_logo: more_logo, plain: !content_for?(:grouped))
           = item ? tag.div(yield(:sub_nav), class: 'ui-title-bar-accessory') : yield(:sub_nav)
 
       = tag.turbo_frame id: 'flash' do
@@ -93,7 +93,9 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         the card and the footer keep their place between its tabs
       main.relative.flex.flex-auto.min-h-0 class= [content_for?(:fixed_nav) ? 'overflow-y-auto bg-white dark:bg-slate-900 lg:-mt-32 lg:bg-transparent lg:dark:bg-transparent' : '-mt-32', content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : ('lg:landscape:flex-initial' unless content_for?(:fixed_nav))]
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0.min-w-0
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=(content_for?(:fixed_nav) ? 'lg:rounded-lg self-start min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0')
+          / On a phone, a page with `content_for :grouped` puts white cards on
+            the gray of a grouped list, like the Top 10
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=[(content_for?(:fixed_nav) ? 'lg:rounded-lg self-start min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0'), ('max-lg:bg-gray-100 dark:max-lg:bg-slate-900' if content_for?(:grouped))]
             = yield
 
         / Shown while a page loads on a phone (see application.css)

@@ -10,7 +10,20 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
 
   # The button on the colored bar of the page header
   HEADER_BUTTON_CLASS = 'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10'.freeze
-  public_constant :HEADER_BUTTON_CLASS
+
+  # The button of a phone above a list on the gray page of a grouped list,
+  # like the filter of the charging sessions: white, like the cards below it.
+  # From lg up, where the page is white, it takes the look of the default.
+  PILL_SHAPE = 'max-w-full rounded-lg px-3'.freeze
+  PILL_BUTTON_CLASS =
+    'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300 ' \
+    'lg:bg-gray-200 lg:hover:bg-white lg:text-current lg:dark:bg-gray-400 lg:dark:hover:bg-gray-300 lg:dark:text-gray-800'.freeze
+  public_constant :HEADER_BUTTON_CLASS, :PILL_SHAPE, :PILL_BUTTON_CLASS
+
+  # The options of that button, for a component that passes them on
+  def self.pill_options
+    { mobile_shape: PILL_SHAPE, button_class: PILL_BUTTON_CLASS }
+  end
 
   def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
@@ -23,6 +36,8 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     disabled: false,
     mobile: true,
     mobile_shape: 'rounded px-2',
+    choices: false,
+    stacked: false,
     label: nil,
     button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
   )
@@ -37,12 +52,24 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     @disabled = disabled
     @mobile = mobile
     @mobile_shape = mobile_shape
+    @choices = choices
+    @stacked = stacked
     @label = label
     @button_class = button_class
   end
 
   # `mobile_shape` is the corners and the padding of the native select of a
-  # phone, `label` names that select for a screen reader
+  # phone, `label` names that select for a screen reader.
+  #
+  # `choices: true` holds several choices at once, one group of items for
+  # each, like the order and the calculation of a list. Each group marks its
+  # own current item with a check. A native select selects one option only,
+  # so such a dropdown shows its menu on a phone too, in the look of a menu
+  # of iOS. Its button takes `mobile_shape` there, and `label` names it,
+  # because its `display_name` can be an icon.
+  #
+  # The menu puts the groups side by side in columns. `stacked: true` puts
+  # them one below the other, for a few short groups like these choices.
   attr_reader :name,
               :items,
               :top_item,
@@ -53,6 +80,8 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
               :disabled,
               :mobile,
               :mobile_shape,
+              :choices,
+              :stacked,
               :label,
               :button_class
 
@@ -170,20 +199,44 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
   # A native select shows its option as the button, so the option prefers
   # the short name like the button (see button_text)
   def render_option(item)
-    content_tag(
-      :option,
-      item.short_name || item.name,
-      value: item.href,
-      data: item.data,
-      selected: (item == selected_item),
-    )
+    content_tag(:option, item.short_name || item.name, value: item.href, data: item.data, selected: (item == selected_item))
+  end
+
+  # A phone has the native select, unless the dropdown holds choices
+  def native_select?
+    mobile && !choices
+  end
+
+  def button_shape
+    if choices
+      "#{mobile_shape} h-9 text-base lg:h-auto lg:rounded-md lg:px-4 lg:py-2 lg:text-sm"
+    else
+      'rounded-md px-2 sm:px-4 py-2 text-sm'
+    end
+  end
+
+  # The menu of choices is translucent and blurs the page below it, like a
+  # menu of iOS. Its items therefore have no background of their own.
+  def menu_surface_class
+    if choices
+      'rounded-2xl shadow-xl bg-white/80 backdrop-blur-xl dark:bg-slate-800/80'
+    else
+      'rounded-md shadow-lg bg-white dark:bg-gray-800'
+    end
   end
 
   def menu_item_classes(item)
-    classes = ['py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800']
-    classes << 'font-bold' if item.current
+    classes = [
+      if choices
+        'py-2 px-3 hover:bg-black/5 dark:hover:bg-white/10'
+      else
+        'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800'
+      end,
+    ]
+    classes << 'font-bold' if item.current && !choices
 
-    if item.respond_to?(:separator_before) && item.separator_before
+    # In a stacked menu, the names of the groups divide the items
+    if item.respond_to?(:separator_before) && item.separator_before && !stacked
       classes << 'border-t border-gray-200 dark:border-gray-600'
     end
 

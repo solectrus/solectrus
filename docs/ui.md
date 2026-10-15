@@ -17,7 +17,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 
 ### Layout of the phone and the desktop
 
-- `Ui::TitleBar`: The title bar of a page on a phone: the title or a logo, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself. Its page has the gray background of a grouped list. With `plain: true`, the page keeps its own background, like a page with charts.
+- `Ui::TitleBar`: The title bar of a page on a phone: the title or a logo, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself. Its page has the gray background of a grouped list. With `plain: true`, the page keeps its own background, like a page with charts. A page that is no list can stand on the gray as well, like the Top 10. Its view sets `content_for :grouped`.
 - `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry.
 - `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. It has the look of the toggle on the car page.
 - `Ui::GroupedList`: A grouped list, with an optional header above the card and a footer below it. A cell is a link, a button, or a row that holds a control at the right, like a segmented control. A link inside the app shows a chevron, a link to another site an arrow out of a box. With `detail:`, a cell shows a second, smaller line below its name, like the reason why its control is not available.
@@ -31,7 +31,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 ### General
 
 - `Ui::Button`: A link, a button or a submit button with a label, an icon or both. The styles are `:primary`, `:secondary` and `:tertiary`.
-- `Ui::Dropdown`: A menu that opens below its button. On a phone it can show a native select instead. Each entry is a `Ui::MenuItem`, a link or a button. The `key:` of an entry names it for the code that builds the menu, like the sensor of a chart.
+- `Ui::Dropdown`: A menu that opens below its button. On a phone it can show a native select instead. Each entry is a `Ui::MenuItem`, a link or a button. The `key:` of an entry names it for the code that builds the menu, like the sensor of a chart. Groups of entries stand in columns, or one below the other with `stacked: true`. With `choices: true`, one dropdown holds several choices, one group for each, and marks the current entry of each group with a check. A native select can mark one entry only, so such a dropdown shows its menu on a phone too, in the look of a menu of iOS. The options of the Top 10 work like this. `pill_options` give the button of a phone above a list on the gray page.
 - `Ui::BottomSheet`: A sheet on a phone, a dialog in the middle of the screen from `md` up. `app/frontend/utils/bottomSheet.ts` opens and closes it.
 - `Ui::TurboModal`: The modal of the frame `modal`. A request of this frame shows the page in a `Ui::BottomSheet`, any other request shows it as a plain page. A form with unsaved changes asks in `Ui::ConfirmDialog` before the modal closes.
 - `Ui::Flash`: The message after an action, like "Saved". It slides in at the lower edge of the screen and goes away after two seconds.

@@ -61,7 +61,9 @@ class Ui::MenuItem::Component < ViewComponent::Base
   CSS_CLASSES = %w[block w-full].freeze
   private_constant :CSS_CLASSES
 
-  def call(with_icon: false, css_extra: nil)
+  # `with_check: true` puts a check before a current item and the same space
+  # before any other, so the names stand in one column
+  def call(with_icon: false, with_check: false, css_extra: nil)
     if name == '-'
       separator =
         tag.hr(
@@ -72,42 +74,49 @@ class Ui::MenuItem::Component < ViewComponent::Base
     end
 
     if href
-      render_link(with_icon:, css_extra:)
+      render_link(with_icon:, with_check:, css_extra:)
     else
-      render_button(with_icon:, css_extra:)
+      render_button(with_icon:, with_check:, css_extra:)
     end
   end
 
-  def render_link(with_icon:, css_extra:)
+  def render_link(with_icon:, with_check:, css_extra:)
     link_to href,
             target:,
             class: [CSS_CLASSES, css_extra],
             title: (icon_only ? name : nil),
             data: data.merge(icon_only ? { controller: 'tooltip' } : {}),
             'aria-current' => current ? 'page' : nil do
-      render_inner(with_icon:)
+      render_inner(with_icon:, with_check:)
     end
   end
 
-  def render_button(with_icon:, css_extra:)
+  def render_button(with_icon:, with_check:, css_extra:)
     tag.button class: [CSS_CLASSES, css_extra],
                title: (icon_only ? name : nil),
                data: data.merge(icon_only ? { controller: 'tooltip' } : {}) do
-      render_inner(with_icon:)
+      render_inner(with_icon:, with_check:)
     end
   end
 
-  def render_inner(with_icon:)
+  def render_inner(with_icon:, with_check:)
     tag.span class: 'flex items-center gap-3' do
       safe_join(
         [
+          (render_check if with_check),
           (render_icon if with_icon),
           leading,
-          (render_text(with_icon:) if text),
+          (render_text(with_icon:, with_check:) if text),
           (render_badge if badge_count&.positive?),
           (render_dot if dot),
         ].compact,
       )
+    end
+  end
+
+  def render_check
+    tag.span(class: 'flex w-4 shrink-0 justify-center') do
+      icon('check', class: 'text-sm') if current
     end
   end
 
@@ -119,11 +128,14 @@ class Ui::MenuItem::Component < ViewComponent::Base
     end
   end
 
-  def render_text(with_icon:)
+  # A phone writes the name of a link of the navigation in capitals, but not
+  # a choice, which has a check
+  def render_text(with_icon:, with_check:)
     tag.span(
       name,
       class: [
-        'flex-1 text-left uppercase lg:normal-case',
+        'flex-1 text-left',
+        ('uppercase lg:normal-case' unless with_check),
         ('font-medium' if with_icon),
         ('lg:hidden' if icon_only),
       ],

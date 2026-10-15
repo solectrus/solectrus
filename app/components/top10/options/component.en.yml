@@ -1,0 +1,13 @@
+en:
+  label: Options
+  car: Car
+  calc: Calculation
+  calcs:
+    sum: Sum
+    max: Maximum
+    avg: Average
+    min: Minimum
+  order: Order
+  orders:
+    desc: Descending
+    asc: Ascending

@@ -18,6 +18,12 @@ describe 'Top 10 of the cars' do
 
   def options(name) = html.css("select[name=#{name}] option").to_h { [it.text.squish, it['value']] }
 
+  # The cars are a group of the options, below the name of the group
+  def car_choices
+    header = html.css('[role="menu"] div').find { it.text.squish == 'Car' }
+    header ? header.parent.css('a').to_h { [it.text.squish, it['href']] } : {}
+  end
+
   it 'offers each role once, for the car of the current sensor' do
     get '/top10/day/car_odometer_2/sum/desc'
 
@@ -31,13 +37,13 @@ describe 'Top 10 of the cars' do
     get '/top10/day/inverter_power/sum/desc'
 
     expect(options('sensor-selector')['Distance driven']).to eq('/top10/day/car_distance/sum/desc')
-    expect(options('car')).to be_empty
+    expect(car_choices).to be_empty
   end
 
-  it 'offers the cars and all cars in a select of their own' do
+  it 'offers the cars and all cars in a group of the options' do
     get '/top10/day/car_odometer_2/sum/desc'
 
-    expect(options('car')).to eq(
+    expect(car_choices).to eq(
       'All cars' => '/top10/day/car_distance/sum/desc',
       'Car 1' => '/top10/day/car_odometer_1/sum/desc',
       'Car 2' => '/top10/day/car_odometer_2/sum/desc',
@@ -47,7 +53,7 @@ describe 'Top 10 of the cars' do
   it 'offers no choice of all cars for the maximum range' do
     get '/top10/day/car_max_range_2/avg/desc'
 
-    expect(options('car').keys).to eq(['Car 1', 'Car 2'])
+    expect(car_choices.keys).to eq(['Car 1', 'Car 2'])
   end
 
   describe 'the chart of all cars' do

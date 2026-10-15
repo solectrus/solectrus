@@ -6,8 +6,8 @@
                                        items:,
                                        selected: current.to_s,
                                        label: t('.label'),
-                                       mobile_shape: 'max-w-full rounded-lg px-3',
-                                       button_class: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                                       mobile_shape: Ui::Dropdown::Component::PILL_SHAPE,
+                                       button_class: Ui::Dropdown::Component::PILL_BUTTON_CLASS
 - else
   / The menu of the desktop, on the colored bar of the page header
   = render Ui::Dropdown::Component.new name: 'car',

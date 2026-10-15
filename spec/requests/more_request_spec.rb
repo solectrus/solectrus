@@ -46,7 +46,8 @@ describe 'Page More' do
       aggregate_failures do
         expect(links.values_at('Generation', 'Forecast').pluck('data-nav-title')).to all(be_nil)
         expect(links.values_at('Essentials', 'Top 10', 'Amortization').pluck('data-nav-title')).to eq(['Essentials', 'Top 10', 'Amortization'])
-        expect(links['Top 10']['data-nav-plain']).to eq('true')
+        expect(links['Amortization']['data-nav-plain']).to eq('true')
+        expect(links['Top 10']['data-nav-plain']).to be_nil
       end
     end
 
@@ -169,7 +170,13 @@ describe 'Page More' do
         expect(title_bar.at_css('h1').text.strip).to eq('Top 10')
         expect(back['href']).to eq('/more')
         expect(back['data-nav-logo']).to be_present
-        expect(title_bar['class']).to include('ui-title-bar-plain')
+      end
+    end
+
+    it 'stands on the gray of a grouped list on a phone' do
+      aggregate_failures do
+        expect(title_bar['class']).not_to include('ui-title-bar-plain')
+        expect(html.at_css('#inner')['class']).to include('max-lg:bg-gray-100')
       end
     end
 

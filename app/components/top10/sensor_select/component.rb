@@ -7,13 +7,19 @@ class Top10::SensorSelect::Component < ViewComponent::Base
   }.freeze
   private_constant :CAR_ROLE_NAMES
 
-  def initialize(current_sensor:, permitted_params:)
+  # `phone: true` for the phone, above the list on the gray page
+  def initialize(current_sensor:, permitted_params:, phone: false)
     super()
     @current_sensor = current_sensor
+    @phone = phone
     @permitted_params = permitted_params
   end
 
   attr_reader :current_sensor, :permitted_params
+
+  def dropdown_options
+    @phone ? Ui::Dropdown::Component.pill_options : {}
+  end
 
   def sensor_groups
     @sensor_groups ||= build_grouped_sensor_items

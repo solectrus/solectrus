@@ -1,6 +1,6 @@
 .text-gray-700.dark:text-gray-400
   / A page that shows the select elsewhere on a phone leaves it out here
-  - if mobile
+  - if native_select?
     div data-controller= 'select'
       / Mobile: native select shrink-wrapped to its selected label, with the
       / chevron right after it, so the gap stays constant for any selection.
@@ -12,7 +12,7 @@
         / A select renders no ::after, so it takes the 44px of a tap target itself.
         / The negative margin keeps the layout at the height of the text.
         / A disabled select keeps the color of the text around it
-        select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-base.px-0.min-h-11.-my-1.field-sizing-content.disabled:text-current.disabled:opacity-100[
+        select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-base.px-0.min-h-11.-my-1.field-sizing-content.min-w-0.disabled:text-current.disabled:opacity-100[
           data-select-target= 'select'
           disabled= disabled
           data-action= 'select#onChange'
@@ -38,13 +38,15 @@
       ]
         option
 
-  .hidden.relative.lg:inline-block.text-left data-controller="ui--dropdown--component"
+  .relative.text-left class=(choices ? 'inline-block' : 'hidden lg:inline-block') data-controller="ui--dropdown--component"
     - if button
       = button
     - else
-      button#options-menu.flex.rounded-md.px-2.sm:px-4.py-2.font-medium.focus:outline-none.focus:ring-2.focus:ring-gray-700.dark:focus:ring-gray-400.focus:ring-offset-0.text-sm.gap-2[
+      button#options-menu.flex.items-center.font-medium.focus:outline-none.focus:ring-2.focus:ring-gray-700.dark:focus:ring-gray-400.focus:ring-offset-0.gap-2[
         type= 'button'
+        class= button_shape
         class= button_class
+        aria-label= (label if choices)
         class= ('pointer-events-none' if disabled)
         disabled= disabled
         data-ui--dropdown--component-target="button"
@@ -59,8 +61,9 @@
 
         = chevron_icon(class_names('h-5', 'opacity-50' => disabled))
 
-    .z-10.absolute.w-max.mt-2.rounded-md.shadow-lg.bg-white.dark:bg-gray-800.ring-1.ring-black/5.hidden.overflow-hidden[
+    .z-10.absolute.w-max.mt-2.ring-1.ring-black/5.hidden.overflow-hidden[
       class=menu_position_classes
+      class=menu_surface_class
       data-ui--dropdown--component-target="menu"
       data-transition-enter="transition ease-out duration-100"
       data-transition-enter-start="opacity-0 scale-95"
@@ -74,7 +77,18 @@
           .border-b.border-gray-200.dark:border-gray-600
             = top_item&.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', top_item.current ? 'font-bold' : nil])
 
-        - if grouped?
+        - if grouped? && stacked
+          / The groups one below the other, each with a line below its name and
+            some space above it
+          .pb-1
+            - items.each_with_index do |group, index|
+              div class=('mt-2' if index.positive?)
+                div class= group_header_class(group)
+                  = group[:name]
+                - flat_items_for_group(group).each do |item|
+                  - unless item == top_item || item == bottom_item || item.href.nil?
+                    = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
+        - elsif grouped?
           div class="grid #{grid_classes} gap-x-4"
             - items.each do |group|
               - if group[:subgroups]
@@ -89,19 +103,19 @@
                       .px-3.pt-3.pb-2.text-xs.font-medium.mb-2.opacity-0 &nbsp;
                     - subgroup[:items].each do |item|
                       - unless item == top_item || item == bottom_item || item.href.nil?
-                        = item.call(with_icon: icons?, css_extra: menu_item_classes(item))
+                        = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
               - else
                 .min-w-0
                   div class= group_header_class(group)
                     = group[:name]
                   - group[:items].each do |item|
                     - unless item == top_item || item == bottom_item || item.href.nil?
-                      = item.call(with_icon: icons?, css_extra: menu_item_classes(item))
+                      = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
         - else
           div class= menu_class
             - items.each do |item|
               - unless item == top_item || item == bottom_item || item.href.nil?
-                = item.call(with_icon: icons?, css_extra: menu_item_classes(item))
+                = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
 
         - if bottom_item
           .border-t.border-gray-200.dark:border-gray-600

@@ -27,40 +27,51 @@ class Car::Select::Component < ViewComponent::Base
   # Each choice: "all" first, then the cars, then the guest. A line divides
   # the cars from the choices around them.
   def items
-    @items ||= [
-      (item(t('.all'), nil, leading: other_icon('layer-group')) if @all),
-      *cars.each_with_index.map { |car, index| item(car.display_name, car.id, car, separator_before: @all && index.zero?) },
-      (item(t('.guest'), CarSelection::GUEST, leading: other_icon('user'), separator_before: true) if @guest),
-    ].compact
+    @items ||= self.class.menu_items(helpers, cars:, selected:, path: method(:path), all: @all, guest: @guest)
   end
 
   def selected
     @guest_selected ? CarSelection::GUEST : car&.id.to_s
   end
 
-  private
-
+  # The choices as items of a menu. The options of the top 10 take them too
+  # (see Top10::Options::Component), so they take the helpers of the view and
+  # the address of a choice as `path`.
+  #
   # The button shows the short name, the menu the full name. A car shows in
-  # its color.
-  def item(name, param, choice = nil, leading: nil, separator_before: false)
-    Ui::MenuItem::Component.new(
-      name:,
-      short_name: choice&.short_name,
-      href: path(param),
-      id: param.to_s,
-      current: param.to_s == selected,
-      leading: choice ? helpers.car_icon(choice.display_color) : leading,
-      separator_before:,
-      data: { turbo_action: 'replace' },
-    )
+  # its color. A choice without a car has an icon in the width of the car
+  # icon, so the names stand in one column.
+  def self.menu_items(helpers, cars:, selected:, path:, all: true, guest: false)
+    item = lambda do |name, param, leading:, short_name: nil, separator_before: false|
+      Ui::MenuItem::Component.new(
+        name:,
+        short_name:,
+        leading:,
+        separator_before:,
+        href: path.call(param),
+        id: param.to_s,
+        current: param.to_s == selected,
+        data: { turbo_action: 'replace' },
+      )
+    end
+    other_icon = ->(name) { helpers.icon(name, class: 'shrink-0 w-[1.25em] opacity-60') }
+
+    [
+      (item.call(translate('.all'), nil, leading: other_icon.call('layer-group')) if all),
+      *cars.each_with_index.map do |car, index|
+        item.call(
+          car.display_name,
+          car.id,
+          leading: helpers.car_icon(car.display_color),
+          short_name: car.short_name,
+          separator_before: all && index.zero?,
+        )
+      end,
+      (item.call(translate('.guest'), CarSelection::GUEST, leading: other_icon.call('user'), separator_before: true) if guest),
+    ].compact
   end
 
-  # The icon of a choice without a car, in the width of the car icon, so the
-  # names stand in one column. It takes the color of the text, on the button
-  # and in the menu.
-  def other_icon(name)
-    helpers.icon(name, class: 'shrink-0 w-[1.25em] opacity-60')
-  end
+  private
 
   def path(param)
     return @path.call(param) if @path

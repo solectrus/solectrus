@@ -43,10 +43,12 @@ describe 'Top 10' do
         # Accept various energy units depending on sensor and values
         expect(page).to have_text(/[kMGT]?Wh/)
 
-        find('a[aria-label="Sortierung wechseln"]').click
+        find('button[aria-label="Optionen"]').click
+        click_on 'Aufsteigend'
         expect(page).to have_current_path("/top10/year/#{sensor}/sum/asc")
 
-        find('a[aria-label="Sortierung wechseln"]').click
+        find('button[aria-label="Optionen"]').click
+        click_on 'Absteigend'
         expect(page).to have_current_path("/top10/year/#{sensor}/sum/desc")
       end
 
@@ -70,6 +72,20 @@ describe 'Top 10' do
         expect(page).to have_text(/\d{4}/) # Year pattern
       end
     end
+  end
+
+  # A phone has the order among the options beside the sensor select
+  it 'switches the order on a phone' do
+    driven_by :playwright_mobile
+    visit '/top10/year/inverter_power/sum/desc'
+    expect(page).to have_css('#chart-year')
+
+    find('button[aria-label="Optionen"]').click
+    click_on 'Aufsteigend'
+    expect(page).to have_current_path('/top10/year/inverter_power/sum/asc')
+
+    find('button[aria-label="Optionen"]').click
+    expect(page).to have_css('[role="menu"] a[aria-current="page"]', text: 'Aufsteigend')
   end
 
   # The bar label is rounded, so the exact value lives in a tooltip

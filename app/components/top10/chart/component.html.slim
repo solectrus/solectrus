@@ -15,11 +15,11 @@
   .table.w-full id= "chart-#{period}"
     - top10_for_period.each_with_index do |record, index|
       = link_to timeframe_path(record), class: 'table-row hover:bg-gray-100 dark:hover:bg-gray-900' do
-        .table-cell.align-middle.p-2.lg:portrait:p-3.tabular-nums.w-1.text-right.font-bold.lg:portrait:text-lg class= text_classes(record)
+        .table-cell.align-middle.p-2.max-lg:pl-0.lg:portrait:p-3.tabular-nums.w-1.text-right.font-bold.lg:portrait:text-lg class= text_classes(record)
           = "#{index + 1}."
         .table-cell.align-middle.p-2.lg:portrait:p-3.tabular-nums.w-1.whitespace-nowrap.text-left.lg:portrait:text-lg class= text_classes(record)
           = formatted_date(record[:date])
-        .table-cell.align-middle.p-2.lg:portrait:p-3.lg:portrait:text-lg
+        .table-cell.align-middle.p-2.max-lg:pr-0.lg:portrait:p-3.lg:portrait:text-lg
           .flex.items-center.gap-3
             / Tooltip on the bar itself, so its arrow points at the bar's center
             .h-7.sm:h-8.lg:portrait:h-14.rounded.flex.items-center.justify-end.px-2.truncate style= bar_style(record) class= bar_outer_classes data-controller= 'tooltip'
