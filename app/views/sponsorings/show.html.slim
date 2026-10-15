@@ -47,15 +47,15 @@
         / It stays one step below the list. The list is the offer, the link only
         / points at more of it, so it must not be the larger of the two.
         .mt-5.md:mt-6
-          = render Button::Component.new path: SolectrusLink.url('https://solectrus.de/features/', campaign: 'sponsoring-page'),
-                                         title: t('sponsoring.show.more'),
-                                         type: :link,
-                                         style: :secondary,
-                                         options: { \
-                                          class: 'text-base',
-                                          rel: 'noopener',
-                                          target: '_blank',
-                                        }
+          = render Ui::Button::Component.new path: SolectrusLink.url('https://solectrus.de/features/', campaign: 'sponsoring-page'),
+                                             title: t('sponsoring.show.more'),
+                                             type: :link,
+                                             style: :secondary,
+                                             options: { \
+                                              class: 'text-base',
+                                              rel: 'noopener',
+                                              target: '_blank',
+                                            }
 
       .pt-6.md:pt-8
         - if admin?
@@ -69,21 +69,21 @@
           / Both answers sit in one row, so "maybe later" is read as one of
           / the two choices and not as a way out that must be searched for.
           .flex.flex-wrap.items-center.gap-3
-            = render Button::Component.new path: registration_path,
-                                           title: t('sponsoring.show.continue'),
-                                           type: :link,
-                                           options: { \
-                                            class: 'font-medium text-lg px-5',
-                                            data: { turbo: false },
-                                          }
-            = render Button::Component.new path: registration_path(status: 'skip'),
-                                           title: t('sponsoring.show.skip'),
-                                           type: :link,
-                                           style: :secondary,
-                                           options: { \
-                                            class: 'text-lg px-5',
-                                            data: { turbo: false },
-                                          }
+            = render Ui::Button::Component.new path: registration_path,
+                                               title: t('sponsoring.show.continue'),
+                                               type: :link,
+                                               options: { \
+                                                class: 'font-medium text-lg px-5',
+                                                data: { turbo: false },
+                                              }
+            = render Ui::Button::Component.new path: registration_path(status: 'skip'),
+                                               title: t('sponsoring.show.skip'),
+                                               type: :link,
+                                               style: :secondary,
+                                               options: { \
+                                                class: 'text-lg px-5',
+                                                data: { turbo: false },
+                                              }
 
         - else
           / Only an admin can close this page. The notice names that, so the
@@ -92,6 +92,6 @@
             = t('sponsoring.show.login_required')
 
           .mt-5
-            = render Button::Component.new path: new_session_path(return_to: sponsoring_path),
-                                           title: t('layout.login'),
-                                           options: { class: 'font-medium text-lg px-5' }
+            = render Ui::Button::Component.new path: new_session_path(return_to: sponsoring_path),
+                                               title: t('layout.login'),
+                                               options: { class: 'font-medium text-lg px-5' }

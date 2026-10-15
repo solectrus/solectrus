@@ -1,5 +1,5 @@
 # The navigation on the side of a settings page with pages of its own, for
-# example the cars and their places. Unlike VerticalTabs::Component, each
+# example the cars and their places. Unlike Ui::VerticalTabs::Component, each
 # item links to a URL of its own. The navigation stays in view at the side
 # while the page scrolls. A phone shows no such navigation, and neither
 # does a single page.

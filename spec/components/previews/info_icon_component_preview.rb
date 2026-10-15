@@ -10,7 +10,7 @@ class InfoIconComponentPreview < ViewComponent::Preview
 
   # A blank line in the text starts a new paragraph in the tooltip.
   def with_paragraphs
-    render InfoIcon::Component.new(
+    render Ui::InfoIcon::Component.new(
              text: "The first paragraph.\n\nThe second paragraph, after a blank line.",
              position: 'inline-block',
            )

@@ -1,5 +1,5 @@
 class ChargingSession::Rows::Component < ViewComponent::Base
-  # Each page of the list loads into a Turbo frame of its own (see LazyRows)
+  # Each page of the list loads into a Turbo frame of its own (see Ui::LazyRows)
   FRAME_PREFIX = 'sessions_page_'.freeze
   public_constant :FRAME_PREFIX
 

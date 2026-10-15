@@ -9,7 +9,7 @@ class Top10CalcSelect::Component < ViewComponent::Base
 
   def dropdown_items
     sensor.allowed_aggregations.map do |agg|
-      MenuItem::Component.new(
+      Ui::MenuItem::Component.new(
         name: calc_label_long(agg.to_s),
         id: agg,
         href: helpers.url_for(**helpers.permitted_params, calc: agg.to_s, only_path: true),

@@ -23,31 +23,31 @@
 - when :restricted
   /! Admin decided the calculation is not public - hint that admin login is
   /! needed to see it, rather than hiding the page outright.
-  = render Message::Component.new do |c|
+  = render Ui::Message::Component.new do |c|
     - c.with_watermark do
       = icon 'sack-dollar'
     = c.with_title { t('amortization.index.restricted_title') }
     = c.with_body { t('amortization.index.restricted_body') }
     = c.with_footer do
-      = render Button::Component.new title: t('amortization.index.login'),
-                                     path: new_session_path(return_to: request.fullpath),
-                                     style: :primary
+      = render Ui::Button::Component.new title: t('amortization.index.login'),
+                                         path: new_session_path(return_to: request.fullpath),
+                                         style: :primary
 - when :unavailable
   /! Sponsor feature not available: promote it and link to the demo
   = render DemoLink::Component.new feature: 'amortization',
                                    url: { controller: 'amortization', action: 'show' }
 - when :no_cash_flows
   /! Cash flows missing: ask the admin to create them
-  = render Message::Component.new do |c|
+  = render Ui::Message::Component.new do |c|
     - c.with_watermark do
       = icon 'sack-dollar'
     = c.with_title { t('amortization.index.no_cash_flows_title') }
     = c.with_body { t('amortization.index.no_cash_flows_body') }
     - if admin?
       = c.with_footer do
-        = render Button::Component.new title: t('amortization.index.manage_cash_flows'),
-                                       path: settings_cash_flows_path,
-                                       style: :primary
+        = render Ui::Button::Component.new title: t('amortization.index.manage_cash_flows'),
+                                           path: settings_cash_flows_path,
+                                           style: :primary
 - else
   /! The frame the sliders re-render, so an auto-submit never touches the
   /! sub-nav. Whatever the shell already knows - a cached calculation, or the
@@ -55,8 +55,8 @@
   /! that still has to run is fetched once the shell is on screen, with a
   /! spinner until it arrives.
   - detail_ready = @page.detail_ready?
-  = render LazyFrame::Component.new id: 'amortization_detail',
-                                    src: (content_amortization_path(view: current_view) unless detail_ready),
-                                    class: 'flex-1 min-h-0 flex flex-col gap-3' do
+  = render Ui::LazyFrame::Component.new id: 'amortization_detail',
+                                        src: (content_amortization_path(view: current_view) unless detail_ready),
+                                        class: 'flex-1 min-h-0 flex flex-col gap-3' do
     - if detail_ready
       = render AmortizationDetail::Component.new(page: @page, view: current_view)

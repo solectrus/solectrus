@@ -8,7 +8,7 @@ function backdrop(): HTMLElement | null {
 }
 
 // Shows the backdrop of the modal at once, while its frame loads. The sheet
-// takes it over without a fade (turbo_modal/component_controller.ts).
+// takes it over without a fade (ui/turbo_modal/component_controller.ts).
 export function preloadModalBackdrop(): void {
   const element = backdrop();
   if (!element) return;

@@ -1,5 +1,5 @@
 - if cars.empty?
-  = render EmptyList::Component.new(icon: 'car', text: raw(t('settings.cars.empty', max: Sensor::Cars::MAX)))
+  = render Ui::EmptyList::Component.new(icon: 'car', text: raw(t('settings.cars.empty', max: Sensor::Cars::MAX)))
 - else
   / A phone names the group above the list, the desktop has the header row
   h2.px-4.text-xs.font-medium.uppercase.tracking-wide.text-muted.lg:hidden class='pb-1.5'

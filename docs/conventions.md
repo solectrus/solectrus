@@ -22,8 +22,8 @@ directory is the name, the files inside are always `component.rb` and
 `component.html.slim`:
 
 ```ruby
-# app/components/button/component.rb
-class Button::Component < ViewComponent::Base
+# app/components/ui/button/component.rb
+class Ui::Button::Component < ViewComponent::Base
   def initialize(variant: :primary)
     @variant = variant
   end
@@ -37,6 +37,10 @@ name follows:
 app/components/nav/top/component.rb        # Nav::Top::Component
 app/components/notification/badge/component.rb  # Notification::Badge::Component
 ```
+
+A component that another app could use as it is, like a button or a dialog,
+lives in `app/components/ui/` and in the namespace `Ui::`. A component that
+knows SOLECTRUS stays outside it. `docs/ui.md` lists the `Ui::` components.
 
 `app/components/concerns/` is the exception. It holds shared modules
 (`BreakdownTable`, `ChartDropdownLogic`), not components.

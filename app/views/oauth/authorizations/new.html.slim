@@ -39,4 +39,4 @@
         = password_field_tag :password, nil, autofocus: true, required: true, autocomplete: 'current-password', class: 'form-input w-full'
 
       .mt-6
-        = render Button::Component.new(type: :submit, title: t('oauth.authorize.submit'), options: { class: 'w-full justify-center py-2' })
+        = render Ui::Button::Component.new(type: :submit, title: t('oauth.authorize.submit'), options: { class: 'w-full justify-center py-2' })

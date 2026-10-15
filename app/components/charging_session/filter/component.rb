@@ -56,7 +56,7 @@ class ChargingSession::Filter::Component < ViewComponent::Base
   def task_icon = icon('circle-question', class: 'shrink-0 text-amber-500 dark:text-amber-400')
 
   def item(name, param, color = nil, **)
-    MenuItem::Component.new(
+    Ui::MenuItem::Component.new(
       name:,
       href: helpers.cars_charging_sessions_path(kind:, timeframe:, car: param),
       id: param.to_s,

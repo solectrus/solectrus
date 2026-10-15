@@ -7,7 +7,7 @@
 /! Desktop: every group in one form, as tabs
 .hidden.lg:block
   = render layout: 'settings/sensors/form' do |f|
-    = render VerticalTabs::Component.new do |c|
+    = render Ui::VerticalTabs::Component.new do |c|
       - sensor_sections.each do |section|
         = c.with_tab id: section[:id], label: section[:name] do
           = render "settings/sensors/#{section[:id]}", f:

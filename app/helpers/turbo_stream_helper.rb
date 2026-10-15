@@ -14,7 +14,7 @@ module TurboStreamHelper
   def turbo_stream_update_primary_nav
     # Without the root item, which is the logo (see Nav::Top::Component).
     items =
-      desktop_primary_items.drop(1).map { MenuItem::Component.new(**it) }
+      desktop_primary_items.drop(1).map { Ui::MenuItem::Component.new(**it) }
 
     turbo_stream.update('primary-nav-desktop') do
       render Nav::Top::Component::ItemsComponent.new(items:)

@@ -1,4 +1,4 @@
-= render Message::Component.new do |c|
+= render Ui::Message::Component.new do |c|
   / The same icon the guest just clicked, enlarged and in the flow rather than
   / as a watermark: the count on it is the reason they are here.
   - c.with_icon do
@@ -20,6 +20,6 @@
         =< t('.mark_stays')
 
   = c.with_footer do
-    = render Button::Component.new path: login_path,
-                                   title: t('layout.login'),
-                                   options: { data: { turbo: false } }
+    = render Ui::Button::Component.new path: login_path,
+                                       title: t('layout.login'),
+                                       options: { data: { turbo: false } }

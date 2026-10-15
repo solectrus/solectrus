@@ -12,9 +12,9 @@
                          autofocus: true
 
     = f.actions do
-      = render Button::Component.new path: @return_to,
-                                     title: t('login.cancel'),
-                                     style: :secondary
+      = render Ui::Button::Component.new path: @return_to,
+                                         title: t('login.cancel'),
+                                         style: :secondary
       = f.submit t('login.submit')
 - else
   p.mt-5.text-signal-negative

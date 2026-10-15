@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
 
   def turbo_stream_update_flash
     turbo_stream.update 'flash' do
-      render_to_string AppFlash::Component.new(notice:, alert:), layout: false
+      render_to_string Ui::Flash::Component.new(notice:, alert:), layout: false
     end
   end
 

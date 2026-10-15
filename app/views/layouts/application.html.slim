@@ -81,7 +81,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
 
       = tag.turbo_frame id: 'flash' do
         - if flash.present?
-          = render AppFlash::Component.new(notice:, alert:)
+          = render Ui::Flash::Component.new(notice:, alert:)
 
       / A page with a fixed navigation fills the window on a computer too, so
         the card and the footer keep their place between its tabs
@@ -92,11 +92,11 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
 
         / Shown while a page loads on a phone (see application.css)
         .ui-busy-spinner.hidden.fixed.inset-0.items-center.justify-center.pointer-events-none
-          = render Loading::Component.new
+          = render Ui::Loading::Component.new
 
         = render 'layouts/modal_backdrop'
         = tag.turbo_frame id: 'modal', target: '_top'
-        = render BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
+        = render Ui::BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
         = render Ui::ConfirmDialog::Component.new
 
       = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: mobile_secondary_items, unread_count: unread_notifications_count)

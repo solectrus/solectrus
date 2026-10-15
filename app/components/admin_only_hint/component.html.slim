@@ -8,4 +8,4 @@
     p.mt-1.text-sm.text-slate-500.dark:text-slate-400
       = t('.body')
     .mt-4
-      = render Button::Component.new(title: t('layout.login'), path: helpers.new_session_path, style: :primary)
+      = render Ui::Button::Component.new(title: t('layout.login'), path: helpers.new_session_path, style: :primary)

@@ -1,6 +1,6 @@
 class Nav::Bottom::Component < ViewComponent::Base
-  renders_many :extra_menu_items, MenuItem::Component
-  renders_many :secondary_menu_items, MenuItem::Component
+  renders_many :extra_menu_items, Ui::MenuItem::Component
+  renders_many :secondary_menu_items, Ui::MenuItem::Component
 
   MAX_BAR_ITEMS = 4
   PILL_BASE = 'flex items-center justify-center px-3 py-1 min-h-7'.freeze

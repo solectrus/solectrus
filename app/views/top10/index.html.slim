@@ -27,8 +27,8 @@
   = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - else
-  = render LazyFrame::Component.new id: "top10-#{period}-#{sensor_name}-#{sort}-#{calc}",
-                                    src: top10_chart_path(permitted_params.to_hash.symbolize_keys),
-                                    class: 'min-h-96 flex flex-col',
-                                    target: '_top',
-                                    data: { turbo_permanent: true }
+  = render Ui::LazyFrame::Component.new id: "top10-#{period}-#{sensor_name}-#{sort}-#{calc}",
+                                        src: top10_chart_path(permitted_params.to_hash.symbolize_keys),
+                                        class: 'min-h-96 flex flex-col',
+                                        target: '_top',
+                                        data: { turbo_permanent: true }

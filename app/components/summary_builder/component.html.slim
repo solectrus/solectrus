@@ -9,7 +9,7 @@
 ]
   - if loading_spinner?
     .h-full.flex.items-center.justify-center
-      = render Loading::Component.new
+      = render Ui::Loading::Component.new
 
     .hidden
       - chunks.each do |chunk|

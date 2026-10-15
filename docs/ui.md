@@ -1,6 +1,8 @@
 # UI building blocks
 
-The `Ui::` components give the phone the layout of an app. The desktop keeps the usual web layout: tables, modals and buttons with icons. A page that uses these components shows the phone layout below the `lg` breakpoint and the desktop layout from `lg` up.
+The `Ui::` components are the general building blocks of the interface. They know nothing of SOLECTRUS, so another app could use them as they are.
+
+One group of them gives the phone the layout of an app. The desktop keeps the usual web layout: tables, modals and buttons with icons. A page that uses these components shows the phone layout below the `lg` breakpoint and the desktop layout from `lg` up.
 
 The phone layout takes its patterns from iOS. This document and the code use the names of the patterns, not the name of the platform:
 
@@ -13,6 +15,8 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 
 ## Components
 
+### Layout of the phone and the desktop
+
 - `Ui::TitleBar`: The title bar of a page on a phone: the title, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself.
 - `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry.
 - `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. It has the look of the toggle on the car page.
@@ -22,6 +26,21 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::SaveBar`: The save buttons of a form that the desktop shows on the page, like the general settings. They show at the right of the tabs only while the form has changes, with a button that discards the changes. The other tabs then dim and take no clicks, and a link or a reload asks before it leaves the changes behind. The partial `settings/sub_nav` takes the id of the form as `save_bar:`. A phone has the save button in the `Ui::TitleBar` instead.
 - `Ui::ConfirmDialog`: The question before an action, in the middle of the screen instead of the confirm of the browser. The layout renders it once. It answers each `data-turbo-confirm`, see `docs/conventions.md`. A controller asks it through an outlet, like `form-dirty` and the modal before unsaved changes are lost.
 - `Ui::AddButton`: The `+` button for a new entry of a list on the desktop. It stands at the right of the header, where a phone has the action of the `Ui::TitleBar`. It opens the form in the modal.
+
+### General
+
+- `Ui::Button`: A link, a button or a submit button with a label, an icon or both. The styles are `:primary`, `:secondary` and `:tertiary`.
+- `Ui::Dropdown`: A menu that opens below its button. On a phone it can show a native select instead. Each entry is a `Ui::MenuItem`, a link or a button. The `key:` of an entry names it for the code that builds the menu, like the sensor of a chart.
+- `Ui::BottomSheet`: A sheet on a phone, a dialog in the middle of the screen from `md` up. `app/frontend/utils/bottomSheet.ts` opens and closes it.
+- `Ui::TurboModal`: The modal of the frame `modal`. A request of this frame shows the page in a `Ui::BottomSheet`, any other request shows it as a plain page. A form with unsaved changes asks in `Ui::ConfirmDialog` before the modal closes.
+- `Ui::Flash`: The message after an action, like "Saved". It slides in at the lower edge of the screen and goes away after two seconds.
+- `Ui::Message`: A page for a message, like an error page, with slots for a symbol, a title, a text and a footer.
+- `Ui::EmptyList`: The place of a list without entries: a large icon and a text.
+- `Ui::Loading`: The animated spinner.
+- `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
+- `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view.
+- `Ui::InfoIcon`: An info icon with a tooltip, for a sentence that explains a value.
+- `Ui::VerticalTabs`: Tabs at the left of their panels, from `md` up. On a smaller screen the tabs stand above the panels.
 
 Each component file starts with a comment that describes its parameters and slots.
 
@@ -51,7 +70,7 @@ A form gets this look from two things:
 
 A wrapper that arranges fields on the desktop, like a grid, gets the class `ui-form-contents`. On a phone, the wrapper steps aside, and its fields become cells of the group. `app/frontend/stylesheets/ui_form.css` holds the rules.
 
-`Ui::SubmitButton` follows the layout. On the desktop the buttons stand in a row of their own at the right edge. There the save button has a check mark, a label and the look of the primary `Button::Component`, and the delete button is an icon alone at the left edge. The save button shows only while the form has changes, together with a button that discards them. On a phone, the save button is a round check mark at the right of the title bar. The delete button is a red line below the fields.
+`Ui::SubmitButton` follows the layout. On the desktop the buttons stand in a row of their own at the right edge. There the save button has a check mark, a label and the look of the primary `Ui::Button`, and the delete button is an icon alone at the left edge. The save button shows only while the form has changes, together with a button that discards them. On a phone, the save button is a round check mark at the right of the title bar. The delete button is a red line below the fields.
 
 ## Lists with entries
 
@@ -124,6 +143,6 @@ A list in a Turbo frame that a stream refreshes needs `target: '_top'` on that f
 - Take the structure of iOS, not its physics. Lists, grouped forms, a hierarchy of pages and a title bar work on the web. Gestures, rubber banding, large titles that collapse and swipe actions do not. A web page cannot match them, and each copy shows the gaps that remain.
 - Keep the look general for a phone, not a copy of the current version of iOS. Android shows the same pages, and Apple changes the look of iOS every year.
 - Do not add features to the drill-down navigation, only fix its bugs. It depends on a value inside Turbo, see `docs/testing.md`.
-- Put a component in `Ui::` when it is a general building block of this kind. A component that knows one domain, like prices, stays in its own family and renders `Ui::` components.
+- Put a component in `Ui::` when another app could use it as it is. A component that knows SOLECTRUS, like the list of prices, stays in its own family and renders `Ui::` components.
 - Keep the desktop layout as it is when you add a phone layout. Render the content of a list once, as in "One row for both layouts".
 - Write the title of a row, of a title bar and of a button with the words of the user interface. They appear in the slide before the next page loads.

@@ -20,15 +20,15 @@
   ]
     = icon 'xmark', class: 'fa-fw'
   - if delete_path
-    = render Button::Component.new icon: 'trash',
-                                   type: :submit,
-                                   style: :secondary,
-                                   options: { \
-                                     **delete_options,
-                                     title: t('crud.delete'),
-                                     data: { **Ui::ConfirmDialog::Component.delete_data, controller: 'tooltip' },
-                                     class: 'order-first mr-auto text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
-                                   }
+    = render Ui::Button::Component.new icon: 'trash',
+                                       type: :submit,
+                                       style: :secondary,
+                                       options: { \
+                                         **delete_options,
+                                         title: t('crud.delete'),
+                                         data: { **Ui::ConfirmDialog::Component.delete_data, controller: 'tooltip' },
+                                         class: 'order-first mr-auto text-gray-500 dark:text-gray-400 hover:text-orange-500 dark:hover:text-orange-500',
+                                       }
 / A phone has the delete button as a red line of its own below the fields
 - if delete_path
   .mt-8.lg:hidden

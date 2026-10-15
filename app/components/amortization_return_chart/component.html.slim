@@ -10,7 +10,7 @@
     div class='absolute right-0 top-0 flex items-center gap-3 z-10 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'
       /! The curve is easy to misread (it starts above zero), so the explanation
       /! sits here next to the chart controls rather than costing a headline.
-      = render InfoIcon::Component.new(text: hint, position: info_icon_class, icon_class: '')
+      = render Ui::InfoIcon::Component.new(text: hint, position: info_icon_class, icon_class: '')
 
       button[
         class="#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden max-lg:hidden"
@@ -41,14 +41,14 @@
       == chart_data.to_json
 
     div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
-      = render Loading::Component.new
+      = render Ui::Loading::Component.new
 
     div class='relative mt-2 flex-1 min-h-52'
       canvas.max-w-full data-amortization-return-chart--component-target='canvas'
 - else
   /! Less than a year of measured data: the projection rate is still an all-time
   /! average over a few weeks, so a history of it would show noise, not a trend.
-  = render Message::Component.new do |c|
+  = render Ui::Message::Component.new do |c|
     - c.with_watermark do
       = icon 'chart-line'
     = c.with_title { t('.empty_title') }

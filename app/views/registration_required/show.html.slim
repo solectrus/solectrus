@@ -11,19 +11,19 @@
 
     - if admin?
       .flex.items-center.justify-between.mt-5
-        = render Button::Component.new path: registration_path,
-                                       title: t('registration_required.show.continue'),
-                                       type: :link,
-                                       options: { \
-                                        class: 'font-medium text-xl uppercase',
-                                        data: { turbo: false },
-                                      }
+        = render Ui::Button::Component.new path: registration_path,
+                                           title: t('registration_required.show.continue'),
+                                           type: :link,
+                                           options: { \
+                                            class: 'font-medium text-xl uppercase',
+                                            data: { turbo: false },
+                                          }
 
     - else
       p.mt-10.mb-5
         = t('registration_required.show.login_required')
 
-      = render Button::Component.new( \
+      = render Ui::Button::Component.new( \
           path: new_session_path,
           title: t('layout.login'),
         )

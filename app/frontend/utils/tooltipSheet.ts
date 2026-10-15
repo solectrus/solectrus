@@ -1,7 +1,7 @@
 import { BottomSheet } from '@/utils/bottomSheet';
 
 // The sheet that stands in for a tooltip on a phone. The layout renders it
-// once, empty and permanent (BottomSheet::Component with this id). A
+// once, empty and permanent (Ui::BottomSheet::Component with this id). A
 // tooltip puts its content in and learns when the sheet closes, whatever
 // closed it.
 

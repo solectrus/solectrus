@@ -1,6 +1,6 @@
 import { hasUnsavedChanges } from '@/utils/unsavedChanges';
 
-// Behavior of a sheet (BottomSheet::Component): open and close with an
+// Behavior of a sheet (Ui::BottomSheet::Component): open and close with an
 // animation, and close on a swipe down, on a tap beside the panel, on the
 // close button and on Escape. Before a form with unsaved changes closes,
 // the sheet can ask first (see `confirmDiscard`). The stylesheet beside the

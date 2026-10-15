@@ -1,4 +1,4 @@
-= render Message::Component.new do |c|
+= render Ui::Message::Component.new do |c|
   = c.with_header do
     = t('title', scope: ".#{feature}")
 
@@ -25,12 +25,12 @@
   = c.with_footer do
     .flex.gap-10.justify-center
       - if demo_url
-        = render Button::Component.new title: t('.demo'),
-                                      path: demo_url,
-                                      options: { target: '_blank' },
-                                      style: :primary
+        = render Ui::Button::Component.new title: t('.demo'),
+                                           path: demo_url,
+                                           options: { target: '_blank' },
+                                           style: :primary
 
-      = render Button::Component.new title: t('.about_sponsoring'),
-                                    path: sponsoring_path,
-                                    options: { data: { turbo: false } },
-                                    style: :secondary
+      = render Ui::Button::Component.new title: t('.about_sponsoring'),
+                                         path: sponsoring_path,
+                                         options: { data: { turbo: false } },
+                                         style: :secondary

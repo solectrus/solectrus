@@ -11,7 +11,7 @@
 # a page it replaces the page in the history as a save does (see
 # FormPageHelper).
 class Ui::SubmitButton::Component < ViewComponent::Base
-  # The primary button of Button::Component. While disabled, it keeps its
+  # The primary button of Ui::Button::Component. While disabled, it keeps its
   # place, so the row does not move when it shows.
   BUTTON_CLASS =
     'inline-flex items-center justify-center gap-2 click-animation transition duration-200 text-white bg-indigo-600 ' \

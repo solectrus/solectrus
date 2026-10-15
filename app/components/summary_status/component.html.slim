@@ -17,18 +17,18 @@
     / On a phone a cell of its own below
     - if completion_rate
       .max-lg:ml-4.max-lg:flex.max-lg:justify-center.max-lg:border-t.max-lg:border-gray-300.max-lg:py-1.max-lg:pr-4.dark:max-lg:border-slate-700
-        = render Button::Component.new path: summaries_path,
-                                      icon: 'rotate-left',
-                                      title: t('settings.general.summaries.reset.title'),
-                                      type: :button,
-                                      style: :tertiary,
-                                      options: { \
-                                        method: :delete,
-                                        form: { \
-                                          data: { \
-                                            'turbo-method': :delete,
-                                            'turbo-confirm': t('settings.general.summaries.reset.confirmation'),
-                                          },
-                                        },
-                                        class: 'text-signal-negative disabled:opacity-70 hover:scale-105 transition-transform',
-                                      }
+        = render Ui::Button::Component.new path: summaries_path,
+                                           icon: 'rotate-left',
+                                           title: t('settings.general.summaries.reset.title'),
+                                           type: :button,
+                                           style: :tertiary,
+                                           options: { \
+                                             method: :delete,
+                                             form: { \
+                                               data: { \
+                                                 'turbo-method': :delete,
+                                                 'turbo-confirm': t('settings.general.summaries.reset.confirmation'),
+                                               },
+                                             },
+                                             class: 'text-signal-negative disabled:opacity-70 hover:scale-105 transition-transform',
+                                           }

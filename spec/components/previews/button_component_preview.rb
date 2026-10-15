@@ -5,7 +5,7 @@ class ButtonComponentPreview < ViewComponent::Preview
 
   # @param title
   def primary(title: 'Click me')
-    render Button::Component.new(title:, path: '#')
+    render Ui::Button::Component.new(title:, path: '#')
   end
 
   # Button with icon
@@ -13,7 +13,7 @@ class ButtonComponentPreview < ViewComponent::Preview
   #                    trash, xmark, battery-empty, battery-quarter, battery-half, battery-three-quarters,
   #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, gear]
   def icon(icon: 'bolt')
-    render Button::Component.new(icon:, path: '#')
+    render Ui::Button::Component.new(icon:, path: '#')
   end
 
   # @param title
@@ -21,12 +21,12 @@ class ButtonComponentPreview < ViewComponent::Preview
   #                    trash, xmark, battery-empty, battery-quarter, battery-half, battery-three-quarters,
   #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, gear]
   def icon_and_title(icon: 'bolt', title: 'Click me')
-    render Button::Component.new(title:, icon:, path: '#')
+    render Ui::Button::Component.new(title:, icon:, path: '#')
   end
 
   # @param title
   def secondary(title: 'Edit', icon: 'pencil')
-    render Button::Component.new(style: :secondary, title:, icon:, path: '#')
+    render Ui::Button::Component.new(style: :secondary, title:, icon:, path: '#')
   end
 
   # @!endgroup

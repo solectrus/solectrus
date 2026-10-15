@@ -18,7 +18,7 @@ class Settings::PlacesController < ApplicationController
   def index
     return unless sponsored?
 
-    next_page = LazyRows::Component.request?(request, PlaceList::Rows::Component::FRAME_PREFIX)
+    next_page = Ui::LazyRows::Component.request?(request, PlaceList::Rows::Component::FRAME_PREFIX)
 
     # While days wait for the build, the page shows the build instead of the list
     @pending_days = next_page ? [] : pending_visit_days

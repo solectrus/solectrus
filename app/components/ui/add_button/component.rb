@@ -10,7 +10,7 @@ class Ui::AddButton::Component < ViewComponent::Base
   BASE_CLASS =
     'hidden lg:flex size-9 shrink-0 items-center justify-center rounded-md click-animation ' \
     'focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-400 ' \
-    "#{Dropdown::Component::HEADER_BUTTON_CLASS}".freeze
+    "#{Ui::Dropdown::Component::HEADER_BUTTON_CLASS}".freeze
   private_constant :BASE_CLASS
 
   def initialize(href:, label:)

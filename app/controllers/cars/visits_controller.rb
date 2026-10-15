@@ -99,7 +99,7 @@ class Cars::VisitsController < ApplicationController
     (days | Summary.missing_or_stale_days_for(Timeframe.new('day'))).sort
   end
 
-  def page_frame_request? = LazyRows::Component.request?(request, VisitList::Rows::Component::FRAME_PREFIX)
+  def page_frame_request? = Ui::LazyRows::Component.request?(request, VisitList::Rows::Component::FRAME_PREFIX)
 
   # What each row of the list needs to know about the list. The car of a
   # visit needs a column only with more than one car, and not in the list of

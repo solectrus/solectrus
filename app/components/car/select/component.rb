@@ -7,7 +7,7 @@ class Car::Select::Component < ViewComponent::Base
   # as `path`, which takes the car id, or nil for "all". A page that shows
   # one car at a time leaves out "all". The car page also offers the guest
   # sessions (`guest: true`), and `guest_selected` is whether it shows them.
-  def initialize(cars:, car:, path: nil, all: true, guest: false, guest_selected: false, button_class: Dropdown::Component::HEADER_BUTTON_CLASS) # rubocop:disable Metrics/ParameterLists
+  def initialize(cars:, car:, path: nil, all: true, guest: false, guest_selected: false, button_class: Ui::Dropdown::Component::HEADER_BUTTON_CLASS) # rubocop:disable Metrics/ParameterLists
     super()
     @cars = cars
     @car = car
@@ -43,7 +43,7 @@ class Car::Select::Component < ViewComponent::Base
   # The button shows the short name, the menu the full name. A car shows in
   # its color.
   def item(name, param, choice = nil, leading: nil, separator_before: false)
-    MenuItem::Component.new(
+    Ui::MenuItem::Component.new(
       name:,
       short_name: choice&.short_name,
       href: path(param),

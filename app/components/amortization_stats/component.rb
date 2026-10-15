@@ -80,7 +80,7 @@ class AmortizationStats::Component < ViewComponent::Base
 
   # Info icon in the tile's bottom-right corner, carrying the hint as a tooltip.
   def info_icon(text)
-    render InfoIcon::Component.new(text:)
+    render Ui::InfoIcon::Component.new(text:)
   end
 
   def npv_hint

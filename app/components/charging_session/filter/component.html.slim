@@ -2,16 +2,16 @@
   / The button of a phone beside the segments above the list, as the select
     of the car page: the native select with the short name of a car. The
     menu of the desktop stays hidden, its links serve the select.
-  = render Dropdown::Component.new name: 'car',
-                                   items:,
-                                   selected: current.to_s,
-                                   label: t('.label'),
-                                   mobile_shape: 'max-w-full rounded-lg px-3',
-                                   button_class: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+  = render Ui::Dropdown::Component.new name: 'car',
+                                       items:,
+                                       selected: current.to_s,
+                                       label: t('.label'),
+                                       mobile_shape: 'max-w-full rounded-lg px-3',
+                                       button_class: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300'
 - else
   / The menu of the desktop, on the colored bar of the page header
-  = render Dropdown::Component.new name: 'car',
-                                   items:,
-                                   selected: current.to_s,
-                                   mobile: false,
-                                   button_class: Dropdown::Component::HEADER_BUTTON_CLASS
+  = render Ui::Dropdown::Component.new name: 'car',
+                                       items:,
+                                       selected: current.to_s,
+                                       mobile: false,
+                                       button_class: Ui::Dropdown::Component::HEADER_BUTTON_CLASS

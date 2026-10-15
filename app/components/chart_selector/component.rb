@@ -62,11 +62,11 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def top_sensor
-    all_items.find { |item| item.sensor_name == @top_sensor }
+    all_items.find { |item| item.key == @top_sensor }
   end
 
   def bottom_sensor
-    all_items.find { |item| item.sensor_name == @bottom_sensor }
+    all_items.find { |item| item.key == @bottom_sensor }
   end
 
   private
@@ -109,9 +109,9 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   end
 
   def build_virtual_title_item(sensor_name)
-    MenuItem::Component.new(
+    Ui::MenuItem::Component.new(
       name: Sensor::Registry[sensor_name].display_name,
-      sensor_name:,
+      key: sensor_name,
       href: nil, # No link, just for title display
       current: true,
     )
@@ -163,7 +163,7 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
     sensors
       .map { |sensor_name| build_menu_item(sensor_name) }
       .sort_by do |item|
-        [menu_item_order(item.sensor_name), item_display_name(item.sensor_name).downcase]
+        [menu_item_order(item.key), item_display_name(item.key).downcase]
       end
   end
 
@@ -174,9 +174,9 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   def build_menu_item(sensor_name)
     compare = compare_for(sensor_name)
 
-    MenuItem::Component.new(
+    Ui::MenuItem::Component.new(
       name: item_display_name(sensor_name),
-      sensor_name:,
+      key: sensor_name,
       id: item_id(sensor_name),
       separator_before: menu_item_separator_before?(sensor_name),
       href: path_for('home', sensor_name:, compare:),
@@ -203,12 +203,12 @@ class ChartSelector::Component < ViewComponent::Base # rubocop:disable Metrics/C
   # brings them. Such an item drops the frame swap and navigates.
   def item_data(sensor_name, compare)
     if helpers.year_comparison? && compare.nil?
-      return { action: 'dropdown--component#toggle' }
+      return { action: 'ui--dropdown--component#toggle' }
     end
 
     {
       action:
-        'stats-with-chart--component#loadChart dropdown--component#toggle',
+        'stats-with-chart--component#loadChart ui--dropdown--component#toggle',
       stats_with_chart__component_sensor_name_param: sensor_name,
       stats_with_chart__component_chart_url_param:
         path_for('charts', sensor_name:, compare:),

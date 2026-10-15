@@ -1,4 +1,4 @@
-= render TurboModal::Component.new(title:, width: :narrow) do
+= render Ui::TurboModal::Component.new(title:, width: :narrow) do
   .flex.flex-col.flex-1.min-h-0
     time class='shrink-0 text-sm text-gray-500 dark:text-gray-400'
       = formatted_published_at
@@ -7,13 +7,13 @@
       = safe_body
 
     .mt-6.pt-4.border-t.border-gray-200.dark:border-slate-700.flex.justify-end.shrink-0
-      = render Button::Component.new path: mark_as_read_notification_path(notification),
-                                     title: t('.understood'),
-                                     type: :button,
-                                     options: { \
-                                       method: :patch,
-                                       data: { \
-                                         turbo_frame: '_top',
-                                         action: 'click->turbo-modal--component#closeDialog',
-                                       },
-                                     }
+      = render Ui::Button::Component.new path: mark_as_read_notification_path(notification),
+                                         title: t('.understood'),
+                                         type: :button,
+                                         options: { \
+                                           method: :patch,
+                                           data: { \
+                                             turbo_frame: '_top',
+                                             action: 'click->ui--turbo-modal--component#closeDialog',
+                                           },
+                                         }

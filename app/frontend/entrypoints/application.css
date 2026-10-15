@@ -42,7 +42,7 @@
 @import '../stylesheets/range.css' layer(base);
 
 /* Stylesheets beside their ViewComponent */
-@import '../../components/bottom_sheet/component.css' layer(base);
+@import '../../components/ui/bottom_sheet/component.css' layer(base);
 @import '../../components/ui/confirm_dialog/component.css' layer(base);
 @import '../../components/insights/component.css' layer(base);
 @import '../../components/ui/title_bar/component.css' layer(base);

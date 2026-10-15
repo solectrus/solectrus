@@ -27,7 +27,7 @@
     - if timeframe.now? && admin?
       = turbo_frame_tag Car::Location::Component::FRAME_ID
   - else
-    = render Message::Component.new do |c|
+    = render Ui::Message::Component.new do |c|
       - c.with_watermark do
         = icon 'car'
       = c.with_title { t('layout.incomplete_car') }

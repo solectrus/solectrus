@@ -1,5 +1,5 @@
 - if visits.empty?
-  = render EmptyList::Component.new(icon: 'location-dot', text: t('visits.empty'))
+  = render Ui::EmptyList::Component.new(icon: 'location-dot', text: t('visits.empty'))
 - else
   / The desktop has a table, a phone a grouped list (see the row).
     One container for both, so the pages of the list load once.

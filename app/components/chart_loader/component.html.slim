@@ -50,7 +50,7 @@
           = timeframe.localized
 
     div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
-      = render Loading::Component.new
+      = render Ui::Loading::Component.new
 
   - if chart_component
     / The refresh of the stats keeps a component of its own, like a map with

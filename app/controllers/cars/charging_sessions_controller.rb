@@ -13,7 +13,7 @@ class Cars::ChargingSessionsController < ApplicationController
     # A car that the filter does not offer goes to "all", like on the car page
     return redirect_to(cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: nil)) unless car_selection.valid?
 
-    next_page = LazyRows::Component.request?(request, ChargingSession::Rows::Component::FRAME_PREFIX)
+    next_page = Ui::LazyRows::Component.request?(request, ChargingSession::Rows::Component::FRAME_PREFIX)
 
     # While days wait for the detection, the page shows the build instead of the list
     @missing_or_stale_summary_days = pending_days unless next_page

@@ -10,7 +10,7 @@ problem outside it, name it in one sentence and leave that code alone.
 ## Documentation
 
 - `docs/conventions.md` — frontend and testing conventions (ViewComponent, forms, Tailwind, RSpec, Playwright helpers)
-- `docs/ui.md` — the `Ui::` components for the phone layout: title bar, grouped lists, form pages, buttons
+- `docs/ui.md` — the general `Ui::` components and the phone layout: buttons, menus, modals, title bar, grouped lists, form pages
 - `docs/testing.md` — every test runner: the specs, the full gate, the Docker image, the MCP tools
 - `docs/sensor-overview.md` — sensor architecture and core concepts
 - `docs/sensor-reference.md` — sensor DSL and technical details

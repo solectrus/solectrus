@@ -5,7 +5,7 @@
 - else
   - insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:)
 
-= render TurboModal::Component.new(width: :medium) do |modal|
+= render Ui::TurboModal::Component.new(width: :medium) do |modal|
   - modal.with_title do
     / One row for name, period and total, so the list starts high up
     .insights-heading

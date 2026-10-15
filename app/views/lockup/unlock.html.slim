@@ -24,5 +24,5 @@
         = hidden_field_tag 'lockup[return_to]', @return_to
 
       .mt-6.flex.justify-center
-        = render Button::Component.new type: :submit,
-                                       title: t('lockup.submit')
+        = render Ui::Button::Component.new type: :submit,
+                                           title: t('lockup.submit')

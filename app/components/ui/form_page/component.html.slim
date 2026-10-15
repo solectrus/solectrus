@@ -1,5 +1,5 @@
 - if helpers.form_in_modal?
-  = render TurboModal::Component.new(title:, width:) do
+  = render Ui::TurboModal::Component.new(title:, width:) do
     = content
 - else
   .lg:max-w-2xl

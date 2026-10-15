@@ -13,7 +13,7 @@ module ListAddress
   private
 
   # A next page of the list loads into a frame of its own (see
-  # LazyRows::Component). Its address has the page, which the list does not.
+  # Ui::LazyRows::Component). Its address has the page, which the list does not.
   def list_address
     query = request.query_parameters.except('page')
     query.empty? ? request.path : "#{request.path}?#{query.to_query}"

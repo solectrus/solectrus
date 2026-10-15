@@ -42,7 +42,7 @@
     p.mt-3.text-sm.text-gray-500.dark:text-gray-400
       = t('.not_within_period')
 - else
-  = render Message::Component.new do |c|
+  = render Ui::Message::Component.new do |c|
     - c.with_watermark do
       = icon 'sack-dollar'
     = c.with_title { t('.no_prognosis_title') }

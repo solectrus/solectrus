@@ -5,7 +5,7 @@
     .flex.justify-between.items-center.gap-2
       - if admin
         .flex.items-center
-          = render Button::Component.new( \
+          = render Ui::Button::Component.new( \
               path: registration_path(status: 'snooze'),
               icon: 'xmark',
               style: :tertiary,
@@ -18,7 +18,7 @@
           - elsif unregistered?
             = t('.unregistered')
 
-        = render Button::Component.new( \
+        = render Ui::Button::Component.new( \
             path: registration_path,
             title: t('.button_to_register'),
             icon: 'id-card',
@@ -28,7 +28,7 @@
       - else
         = t('.login_to_register')
 
-        = render Button::Component.new( \
+        = render Ui::Button::Component.new( \
             path: new_session_path,
             title: t('layout.login'),
           )
