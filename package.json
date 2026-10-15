@@ -49,7 +49,7 @@
     "tailwindcss": "^4.3.3",
     "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.71.1",
+    "typescript-eslint": "^8.71.2",
     "vite": "^8.3.4",
     "vite-plugin-compression2": "^2.5.3"
   },
