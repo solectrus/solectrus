@@ -1,5 +1,7 @@
-form.flex.items-center.justify-center.gap-4.w-40.p-2.rounded-xl.bg-indigo-200.lg:bg-gray-200.dark:bg-gray-950.focus:outline-hidden.opacity-80[
-  data-controller= (ApplicationPolicy.themes? ? 'theme--color-palette-selector--component' : 'tooltip')
+form.relative.isolate.flex.items-center.focus:outline-hidden[
+  class=form_class
+  data-controller= (ApplicationPolicy.themes? ? 'theme--color-palette-selector--component segment-slide' : 'tooltip')
+  data-action= 'click->segment-slide#move'
   title= (t('premium.sponsors_only') unless ApplicationPolicy.themes?)
   data-tooltip-placement-value= 'top'
 ]
@@ -16,11 +18,11 @@ form.flex.items-center.justify-center.gap-4.w-40.p-2.rounded-xl.bg-indigo-200.lg
       data-action= 'theme--color-palette-selector--component#standard'
       data-theme--color-palette-selector--component-target= 'inputStandard'
     ]
-    .grid.grid-cols-2.gap-1.rounded-lg.p-2.peer-checked:bg-white.dark:peer-checked:bg-gray-700/60.hover:bg-gray-100.dark:hover:bg-gray-800.transition-colors
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-battery)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-house)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-wallbox)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-standard-preview-heatpump)"
+    .grid.grid-cols-2.peer-checked:bg-white.dark:peer-checked:bg-gray-700/60.hover:bg-gray-100.dark:hover:bg-gray-800.transition-colors class=tile_class data-segment-slide-target='segment'
+      .rounded-sm class=swatch_class style="background-color: var(--palette-standard-preview-battery)"
+      .rounded-sm class=swatch_class style="background-color: var(--palette-standard-preview-house)"
+      .rounded-sm class=swatch_class style="background-color: var(--palette-standard-preview-wallbox)"
+      .rounded-sm class=swatch_class style="background-color: var(--palette-standard-preview-heatpump)"
 
   label.cursor-pointer[
     class= ('pointer-events-none' unless ApplicationPolicy.themes?)
@@ -35,8 +37,8 @@ form.flex.items-center.justify-center.gap-4.w-40.p-2.rounded-xl.bg-indigo-200.lg
       data-action= 'theme--color-palette-selector--component#contrast'
       data-theme--color-palette-selector--component-target= 'inputContrast'
     ]
-    .grid.grid-cols-2.gap-1.rounded-lg.p-2.peer-checked:bg-white.dark:peer-checked:bg-gray-700/60.hover:bg-gray-100.dark:hover:bg-gray-800.transition-colors
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-battery)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-house)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-wallbox)"
-      .w-5.h-3.rounded-sm style="background-color: var(--palette-contrast-preview-heatpump)"
+    .grid.grid-cols-2.peer-checked:bg-white.dark:peer-checked:bg-gray-700/60.hover:bg-gray-100.dark:hover:bg-gray-800.transition-colors class=tile_class data-segment-slide-target='segment'
+      .rounded-sm class=swatch_class style="background-color: var(--palette-contrast-preview-battery)"
+      .rounded-sm class=swatch_class style="background-color: var(--palette-contrast-preview-house)"
+      .rounded-sm class=swatch_class style="background-color: var(--palette-contrast-preview-wallbox)"
+      .rounded-sm class=swatch_class style="background-color: var(--palette-contrast-preview-heatpump)"

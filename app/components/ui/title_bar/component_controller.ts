@@ -91,7 +91,7 @@ export default class extends Controller<HTMLElement> {
     // the visit (see application.css). The old page goes into the slide as it is.
     dataset.navSliding = '';
     this.#slide = document.startViewTransition(() =>
-      this.#showSkeleton(link.dataset.navTitle ?? '', direction),
+      this.#showSkeleton(link.dataset, direction),
     ).finished;
   }
 
@@ -158,12 +158,23 @@ export default class extends Controller<HTMLElement> {
   // page slides out to the side alone. The accessories of this page leave
   // the bar above it, and the gray of the content area fills the gap (see
   // component.css).
-  #showSkeleton(title: string, direction: string) {
+  //
+  // The link names the title of the next page or its logo, and whether that
+  // page keeps its own background instead of the gray of a grouped list.
+  #showSkeleton(next: DOMStringMap, direction: string) {
     const bar = this.element.cloneNode(true) as HTMLElement;
     bar.removeAttribute('data-controller');
     bar.removeAttribute('data-action');
     bar.classList.add('ui-title-bar-skeleton-title');
-    bar.querySelector('h1')!.textContent = title;
+    const title = bar.querySelector('h1')!;
+    title.textContent = next.navTitle ?? '';
+    if (next.navLogo) {
+      const logo = document.createElement('img');
+      logo.src = next.navLogo;
+      logo.alt = next.navTitle ?? '';
+      logo.className = 'ui-title-bar-logo';
+      title.replaceChildren(logo);
+    }
     bar
       .querySelector('.ui-title-bar-back')
       ?.classList.toggle('invisible', direction === 'pop');
@@ -174,6 +185,7 @@ export default class extends Controller<HTMLElement> {
 
     const page = document.createElement('div');
     page.className = 'ui-title-bar-skeleton-page';
+    page.classList.toggle('ui-title-bar-skeleton-plain', 'navPlain' in next);
 
     this.#skeleton = document.createElement('div');
     this.#skeleton.className = 'ui-title-bar-skeleton';

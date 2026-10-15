@@ -1,0 +1,12 @@
+section
+  - if header
+    h2.px-4.pb-1.5.text-xs.font-medium.uppercase.tracking-wide.text-gray-500.dark:text-slate-500 = header
+  / White on the gray page of a phone, gray on the white box of the desktop.
+    Clip, not hidden: a hidden overflow can scroll, and the focus of a radio
+    in a cell would scroll the card and show the cut-off separator. A clip
+    does not hold the margin of the last row, flow-root does.
+  ul.flow-root.overflow-clip.rounded-xl.bg-white.lg:bg-gray-100.dark:bg-slate-800/60
+    - cells.each do |cell|
+      = cell
+  - if footer
+    .px-4.pt-1.5.text-xs.text-gray-500.dark:text-slate-500 = footer

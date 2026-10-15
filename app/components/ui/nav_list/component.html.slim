@@ -1,18 +1,4 @@
-/ White on the gray page of a phone, gray on the white box of the desktop
 nav aria-label=label
-  ul.overflow-hidden.rounded-xl.bg-white.lg:bg-gray-100.dark:bg-slate-800/60
-    / Each row draws the separator below it and reaches 1px into the next one,
-      so the card cuts off the separator of the last row. The separator lies on
-      the body, not on the row, so it starts after the icon.
+  = render Ui::GroupedList::Component.new do |list|
     - items.each do |item|
-      li.-mb-px
-        = link_to item[:href],
-                  data: Ui::TitleBar::Component.link_data(item[:name]),
-                  class: 'flex items-center gap-3 pl-4 active:bg-gray-200 dark:active:bg-slate-700/60 pointer-fine:hover:bg-gray-200/60 dark:pointer-fine:hover:bg-slate-700/40 focus-ring-inset' do
-          span.flex.size-8.shrink-0.items-center.justify-center.rounded-lg.bg-gray-200.text-gray-500.dark:bg-slate-700.dark:text-slate-400
-            = icon(item[:icon], class: 'text-base')
-          .flex.min-h-14.min-w-0.flex-1.items-center.gap-3.border-b.border-gray-300/70.py-2.5.pr-4.dark:border-slate-700
-            .min-w-0.flex-1.truncate.text-headline.text-gray-800.dark:text-slate-300 = item[:name]
-            / The chevron says that the row leads one level down, which only a
-              phone shows as a slide. The desktop has the hover instead.
-            = icon('chevron-right', class: 'text-sm text-gray-400 dark:text-slate-500 lg:hidden')
+      - list.with_cell(name: item[:name], icon: item[:icon], href: item[:href], slide: true)

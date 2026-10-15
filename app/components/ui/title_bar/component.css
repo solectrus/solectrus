@@ -70,9 +70,20 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
 
 /* The background of a grouped list: a gray page behind the white cards of the
    lists and forms. Important, because the layout gives main and its inner box
-   a white background as utilities. */
-html:has(.ui-title-bar) :is(main, #inner, .ui-title-bar-skeleton-page) {
+   a white background as utilities. A plain page keeps its own background,
+   and so does the skeleton on the way to it. */
+html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
+.ui-title-bar-skeleton-page {
   @apply max-lg:bg-gray-100! dark:max-lg:bg-slate-900!;
+}
+
+.ui-title-bar-skeleton-page.ui-title-bar-skeleton-plain {
+  @apply max-lg:bg-white! dark:max-lg:bg-slate-900!;
+}
+
+/* A logo in place of the title, as high as the text it replaces */
+.ui-title-bar-logo {
+  @apply mx-auto h-6;
 }
 
 .ui-title-bar-back,

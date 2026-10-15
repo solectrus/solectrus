@@ -35,6 +35,35 @@ describe Ui::TitleBar::Component, type: :component do
     expect(plain.css('a.ui-title-bar-back').first['data-nav-title']).to be_nil
   end
 
+  it 'shows a logo in place of the title, named by the title' do
+    html = render_inline(described_class.new(title: 'More', logo: '/logo.svg'))
+
+    image = html.at('h1 img.ui-title-bar-logo')
+    expect(image['src']).to eq('/logo.svg')
+    expect(image['alt']).to eq('More')
+  end
+
+  it 'names the logo of the parent for the slide back' do
+    html = render_inline(described_class.new(title: 'Top 10', back_href: '/more', back_label: 'More', back_logo: '/logo.svg'))
+
+    expect(html.at('a.ui-title-bar-back')['data-nav-logo']).to eq('/logo.svg')
+  end
+
+  it 'leaves the background of a plain page alone' do
+    plain = render_inline(described_class.new(title: 'Top 10', plain: true))
+    expect(plain.at('.ui-title-bar')['class']).to include('ui-title-bar-plain')
+
+    grouped = render_inline(described_class.new(title: 'Settings'))
+    expect(grouped.at('.ui-title-bar')['class']).not_to include('ui-title-bar-plain')
+  end
+
+  it 'tells a link the logo and the background of the next page' do
+    expect(described_class.link_data('More', logo: '/logo.svg', plain: true)).to eq(
+      nav_title: 'More', nav_logo: '/logo.svg', nav_plain: true, turbo_prefetch: false,
+    )
+    expect(described_class.link_data('Settings')).to eq(nav_title: 'Settings', turbo_prefetch: false)
+  end
+
   it 'renders an action as an icon button' do
     html =
       render_inline(described_class.new(title: 'Prices')) do |bar|
