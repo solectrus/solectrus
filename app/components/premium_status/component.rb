@@ -16,8 +16,8 @@
 #
 # It has two layouts. The wide one gives the description and the call to
 # action a line of their own. The compact one runs all parts into a single
-# line, separated by a middot. The menu on a phone asks for the compact one,
-# because it shares its height with the page below it.
+# line, separated by a middot. The page More of a phone asks for the compact
+# one, as a line above the version.
 class PremiumStatus::Component < ViewComponent::Base
   # Every grant this app can name. The update server can report one that is not
   # here, because a later release of the server can add a grant. Such a grant
@@ -130,8 +130,11 @@ class PremiumStatus::Component < ViewComponent::Base
     @compact ? 'items-baseline gap-2 px-4 py-2' : 'items-start gap-3 p-4'
   end
 
+  # The compact row aligns the baselines, and an icon sits on the baseline with
+  # its lower edge. The shift is the one Font Awesome gives an inline icon, so
+  # the icon centers on the text.
   def icon_layout
-    @compact ? nil : 'fa-lg mt-0.5'
+    @compact ? 'translate-y-[0.125em]' : 'fa-lg mt-0.5'
   end
 
   # The compact layout is a single row. It sends the two parts to opposite

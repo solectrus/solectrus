@@ -39,6 +39,7 @@ en:
     theme: Theme
     helios: Configuration with HELIOS
     settings: Settings
+    more: More
     registration: Registration
     registration_and_sponsoring: Registration & Sponsorship
     login: Log in as admin
@@ -55,6 +56,13 @@ en:
     incomplete_car: Electric vehicle
     missing_car: Here you could visualize the distance driven, remaining range and charging costs of your electric vehicle. Add the odometer of the car to your configuration (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>), and for charging at home the wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
     insights: Figures & Trends
+  more:
+    show:
+      appearance: Appearance
+      language: Language
+      palette: Colors
+      secondary: Other views
+      system: System
   timeframe:
     now: Now
     hours: Last %{count} hours

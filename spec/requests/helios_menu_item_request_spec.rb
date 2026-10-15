@@ -1,5 +1,6 @@
 # HELIOS asks the user to come over through an amber dot: at its own menu
-# item and at the buttons that open the menu, on desktop and on mobile.
+# item, at the button that opens the menu on desktop, and at the tab More of
+# a phone.
 describe 'HELIOS menu item' do
   before do
     allow(HeliosCheck).to receive_messages(
@@ -19,7 +20,7 @@ describe 'HELIOS menu item' do
   def menu_buttons
     [
       html.at_css('button[data-action="click->slide-over--component#open"]'),
-      html.at_css('button[data-nav--bottom--component-target="button"]'),
+      html.at_css('nav[aria-label="Main navigation"] a[href="/more"]'),
     ]
   end
 

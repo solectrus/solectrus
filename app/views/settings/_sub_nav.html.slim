@@ -1,4 +1,4 @@
-/! Locals: `title` and `back_href` override the title bar on a phone. By
+/! Locals: `title`, `back_href` and `back_logo` override the title bar on a phone. By
 /! default a section page names its section and leads back to the overview.
 /! `action` (href, icon and label) adds a button at the right. `save`, the id
 /! of the form of the page, adds its save button there instead. `save_bar`,
@@ -9,6 +9,7 @@ ruby:
   title = local_assigns[:title] || current_item&.dig(:name) || t('layout.settings')
   back_href = local_assigns[:back_href] || (settings_path if current_item)
   back_label = local_assigns[:back_label] || t('layout.settings')
+  back_logo = local_assigns[:back_logo]
   action = local_assigns[:action]
   save = local_assigns[:save]
   save_bar = local_assigns[:save_bar]
@@ -16,7 +17,7 @@ ruby:
 - content_for :fixed_nav, true
 - content_for :sub_nav do
   .lg:py-5
-    = render Ui::TitleBar::Component.new(title:, back_href:, back_label:) do |bar|
+    = render Ui::TitleBar::Component.new(title:, back_href:, back_label:, back_logo:) do |bar|
       - bar.with_action(**action) if action
       - bar.with_save(form: save) if save
 

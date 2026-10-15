@@ -77,7 +77,13 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
       = render Nav::Top::Component.new(compact: content_for?(:fixed_nav), unread_count: unread_notifications_count) do |c|
         - c.with_primary_items desktop_primary_items
         - c.with_secondary_items desktop_secondary_items
-        = c.with_sub_nav { yield :sub_nav }
+        = c.with_sub_nav do
+          / A page below the page More leads back there with a title bar on a
+            phone. Its own navigation follows as the accessory of the bar.
+          - item = more_child_item
+          - if item
+            = render Ui::TitleBar::Component.new(title: item[:name], back_href: more_path, back_label: t('layout.more'), back_logo: more_logo, plain: true)
+          = item ? tag.div(yield(:sub_nav), class: 'ui-title-bar-accessory') : yield(:sub_nav)
 
       = tag.turbo_frame id: 'flash' do
         - if flash.present?
@@ -99,7 +105,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         = render Ui::BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
         = render Ui::ConfirmDialog::Component.new
 
-      = render Nav::Bottom::Component.new(items: all_mobile_items, secondary_items: mobile_secondary_items, unread_count: unread_notifications_count)
+      = render Nav::Bottom::Component.new(items: all_mobile_items, more_current: more_current?, helios_dot: helios_dot?, unread_count: unread_notifications_count)
 
       footer.hidden.lg:landscape:flex.max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.justify-between.items-center.w-full.text-xs.py-3.px-4.sm:px-6.lg:px-8.dark:text-gray-400
         .flex.items-center.gap-2

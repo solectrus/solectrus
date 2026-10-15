@@ -168,28 +168,7 @@
     }
 
     .form-checkbox {
-      @apply h-[31px] w-[51px] shrink-0 cursor-pointer appearance-none rounded-full border-0 bg-gray-200 transition-[background-color,background-position] duration-200 dark:bg-slate-600;
-      background-image: radial-gradient(circle, white 13px, transparent 13.5px);
-      background-position: left center;
-      background-repeat: no-repeat;
-      background-size: 31px 31px;
-
-      &:checked {
-        @apply bg-green-500;
-        background-position: right center;
-      }
-
-      &:focus {
-        @apply ring-0 ring-offset-0;
-      }
-
-      &:focus-visible {
-        @apply outline-2 outline-offset-2 outline-indigo-500;
-      }
-
-      &:disabled {
-        @apply cursor-not-allowed opacity-50;
-      }
+      @apply ui-switch;
     }
 
     /* A text field and a text area take the full width of their cell. The name

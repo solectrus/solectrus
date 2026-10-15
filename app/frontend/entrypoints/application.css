@@ -146,18 +146,19 @@
     rgba(0, 0, 0, 1) 100%
   );
 }
-/* The two menu items for fullscreen. They start hidden, because the server
-   cannot know whether the browser has the Fullscreen API - Safari on the
-   iPhone has none, and a tap on an item shown there throws. The fullscreen
-   controller marks <html> when the API is there, and `:fullscreen` picks the
-   item that fits the current state. A browser that knows neither marker keeps
-   both items away. */
+/* The two menu items for fullscreen, and the switch on the page More. They
+   start hidden, because the server cannot know whether the browser has the
+   Fullscreen API - Safari on the iPhone has none, and a tap on an item shown
+   there throws. The fullscreen controller marks <html> when the API is there,
+   and `:fullscreen` picks the item that fits the current state. A browser
+   that knows neither marker keeps them all away. */
 [data-fullscreen-btn] {
   display: none;
 }
 
 html[data-fullscreen-api]:not(:fullscreen) [data-fullscreen-btn='on'],
-html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'] {
+html[data-fullscreen-api]:fullscreen [data-fullscreen-btn='off'],
+html[data-fullscreen-api] [data-fullscreen-btn='switch'] {
   display: block;
 }
 
@@ -442,6 +443,35 @@ html[aria-busy='true']:not(
    where an outer ring would cross the neighboring border. */
 @utility focus-ring-inset {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-inset;
+}
+
+/* A check box as a switch, as in the settings of a phone: a knob that moves
+   to the right and a track that turns green when on. The check boxes of a
+   form on a phone take it (see ui_form.css), and so does a switch of its own,
+   like the fullscreen on the page More. */
+@utility ui-switch {
+  @apply h-[31px] w-[51px] shrink-0 cursor-pointer appearance-none rounded-full border-0 bg-gray-200 transition-[background-color,background-position] duration-200 dark:bg-slate-600;
+  background-image: radial-gradient(circle, white 13px, transparent 13.5px);
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 31px 31px;
+
+  &:checked {
+    @apply bg-green-500;
+    background-position: right center;
+  }
+
+  &:focus {
+    @apply ring-0 ring-offset-0;
+  }
+
+  &:focus-visible {
+    @apply outline-2 outline-offset-2 outline-indigo-500;
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
 }
 
 /* A panel of frosted glass: no border, but large

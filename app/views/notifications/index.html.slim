@@ -1,9 +1,11 @@
 - content_for :full_height, true
 - content_for :fixed_nav, true
 
-- content_for :sub_nav do
-  .text-center.pt-3.pb-2.lg:hidden
-    = icon 'message', class: 'text-indigo-200 dark:text-gray-400 text-2xl'
+/ The icon names the page on a phone, unless a title bar does
+- unless more_child_item
+  - content_for :sub_nav do
+    .text-center.pt-3.pb-2.lg:hidden
+      = icon 'message', class: 'text-indigo-200 dark:text-gray-400 text-2xl'
 
 - if admin?
   = render Notification::List::Component.new(notifications:)

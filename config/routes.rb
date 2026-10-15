@@ -313,6 +313,9 @@ Rails.application.routes.draw do
   end
   get '/settings', to: 'settings/overviews#show', as: :settings
 
+  # The tab More of a phone: the pages and items beyond the tab bar
+  get '/more', to: 'more#show', as: :more
+
   # The pages of the car page beside its sensor pages
   scope :cars, module: :cars, as: :cars do
     # The location of a car on a map that fills the window

@@ -17,9 +17,10 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 
 ### Layout of the phone and the desktop
 
-- `Ui::TitleBar`: The title bar of a page on a phone: the title, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself.
+- `Ui::TitleBar`: The title bar of a page on a phone: the title or a logo, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself. Its page has the gray background of a grouped list. With `plain: true`, the page keeps its own background, like a page with charts.
 - `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry.
 - `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. It has the look of the toggle on the car page.
+- `Ui::GroupedList`: A grouped list, with an optional header above the card and a footer below it. A cell is a link, a button, or a row that holds a control at the right, like a segmented control. A link inside the app shows a chevron, a link to another site an arrow out of a box.
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone. A form with unsaved changes asks before the modal closes or a link leaves the page.
 - `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. It shows only while the form has changes, next to a button that discards them. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`.
@@ -51,11 +52,25 @@ A drill-down is a hierarchy of pages, like the settings: a list of sections, and
 The slide needs two things:
 
 1. The page renders a `Ui::TitleBar` with `back_href`, the path of its parent page.
-2. The link to the page carries `data-nav-title`, the title of the next page. A row of `Ui::NavList` or `Ui::TableRow` and the action of a `Ui::TitleBar` set it. For a link of your own, use `Ui::TitleBar::Component.link_data(title)`.
+2. The link to the page carries `data-nav-title`, the title of the next page. A row of `Ui::NavList` or `Ui::TableRow` and the action of a `Ui::TitleBar` set it. For a link of your own, use `Ui::TitleBar::Component.link_data(title)`. If the next page shows a logo or keeps its own background, pass `logo:` or `plain:`, so the slide shows the next page as it comes.
 
 The desktop has no slide. There the hover of a row shows that it is a link, so the chevron of a row shows only on a phone.
 
 The header below the title bar can hold more controls of the page, like the timeframe of the charging sessions. Give their container the class `ui-title-bar-accessory`. These controls belong to their page. When a tap slides to the next page, they leave the header, and the header takes the height of the next page during the slide. On the way back, the header grows again when the page arrives.
+
+## The tab bar and the page More
+
+A phone has a tab bar at its lower edge. Its navigation starts with the views of the energy: the balance, the house, the heat pump, the car, the generation and the forecast. All views but the forecast share the timeframe. The other pages follow, like the Top 10.
+
+The tab bar holds the first four entries, the primary entries. If a system has fewer than four views, other pages take the free places. The last tab opens the page More. It lists the secondary entries, which do not fit into the tab bar, in one group, the views first.
+
+A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. It opens in the timeframe of the last view. The page More has no timeframe of its own, so the server keeps the timeframe of the last view in the session.
+
+The other secondary entries, like the Top 10, and the notifications are one level below the page More. The layout gives each of them a `Ui::TitleBar` that leads back to the page More. A page that the tab bar holds shows no title bar. The charging sessions are a page below the car page, not an entry of the page More.
+
+The switches of the page More, like the language, slide their marking to the new choice, as the tab bar does. The `segment-slide` controller does this for radios and for buttons.
+
+Fullscreen is a mode of the document, and Turbo keeps the document from page to page. The page More turns it on with a switch, and the page that the user opens next shows in fullscreen. The menu of the desktop lies over the page, so it keeps its two items to enter and to leave fullscreen.
 
 ## Forms
 

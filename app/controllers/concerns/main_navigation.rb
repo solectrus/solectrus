@@ -22,18 +22,59 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       @all_mobile_items ||= build_mobile_items
     end
 
+    # First the views of the energy, in the order of their importance. All but
+    # the forecast share the timeframe, which looks ahead instead. Then the
+    # other pages. A phone shows the first of them in its tab bar, the primary
+    # items, and lists the rest, the secondary items, in the page More.
     def build_mobile_items
-      [
+      views = [
         root_item,
         (house_item if Setting.enable_custom_consumer),
         (heatpump_item if Setting.enable_heatpump),
         (car_item if Sensor::HomePage.available?(:cars)),
         (inverter_item if Setting.enable_multi_inverter),
         (forecast_item if forecast_enabled?),
+      ].compact.map { it.merge(view: true) }
+
+      views + [
         essentials_item,
         top10_item,
         amortization_item,
       ].compact
+    end
+
+    # The items that do not fit into the tab bar of a phone. A view among
+    # them stays a view: it shows no title bar, and the tab More marks it.
+    helper_method def secondary_items
+      @secondary_items ||= all_mobile_items.drop(Nav::Bottom::Component::MAX_BAR_ITEMS)
+    end
+
+    # The pages below the page More, which lead back there with a title bar:
+    # the secondary items but the views, and the notifications. The settings
+    # have a title bar of their own.
+    helper_method def more_child_items
+      @more_child_items ||= [
+        *secondary_items.reject { it[:view] },
+        notifications_item,
+      ].compact
+    end
+
+    # The item of the current page, if the page is one of them
+    helper_method def more_child_item
+      more_child_items.find { it[:current] }
+    end
+
+    # The tab More stands for the page More, for the secondary items and for
+    # each page below it
+    helper_method def more_current?
+      helpers.controller.is_a?(MoreController) ||
+        secondary_items.any? { it[:current] } || more_child_item.present? ||
+        helpers.controller_namespace == 'settings'
+    end
+
+    # The logo of the page More, which is the brand of the app
+    helper_method def more_logo
+      helpers.vite_asset_path('images/logo-full.svg')
     end
 
     def forecast_enabled?
@@ -76,17 +117,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       @notification_stats ||= Notification.stats
     end
 
-    # A phone opens the settings on their overview list, desktop on the first
-    # section, whose tabs lead to the others. Derived from the desktop list, so
-    # its items (the notification stats among them) are built only once.
-    helper_method def mobile_secondary_items
-      @mobile_secondary_items ||=
-        begin
-          desktop_href = settings_general_path
-          desktop_secondary_items.map do |item|
-            item[:href] == desktop_href ? item.merge(href: settings_path) : item
-          end
-        end
+    # The tab More of a phone carries a dot while HELIOS needs the user. The
+    # menu of the desktop has asked HELIOS already.
+    helper_method def helios_dot?
+      desktop_secondary_items.any? { it[:dot] }
     end
 
     def ___
@@ -313,6 +347,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.notifications'),
         href: notifications_path,
         icon: 'message',
+        current: helpers.controller.is_a?(NotificationsController),
         badge_count: unread_count,
         badge_data: { notification_badge: true },
       }

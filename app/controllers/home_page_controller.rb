@@ -18,10 +18,19 @@ class HomePageController < ApplicationController
     return redirect_to(future_path) if timeframe.future? && future_path
     return redirect_to(path_for(sensor_name, timeframe)) unless offered_selection?
 
+    remember_view_timeframe
     load_missing_or_stale_summary_days(timeframe)
   end
 
   private
+
+  # The home pages are the views of the energy that share the timeframe.
+  # The tab bar of a phone hands it on in its links. The page More cannot, as
+  # it has no timeframe of its own, so it reads the one of the last view from
+  # here (see MoreController).
+  def remember_view_timeframe
+    session[:view_timeframe] = timeframe.to_param
+  end
 
   # The addresses of the page for its timeframe select. They keep the
   # selection of the page, like the car (see #selection_params).

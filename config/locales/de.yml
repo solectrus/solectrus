@@ -39,6 +39,7 @@ de:
     theme: Farbschema
     helios: Konfiguration mit HELIOS
     settings: Einstellungen
+    more: Mehr
     registration: Registrierung
     registration_and_sponsoring: Registrierung & Sponsoring
     login: Als Admin anmelden
@@ -55,6 +56,13 @@ de:
     incomplete_car: E-Auto
     missing_car: Hier könnten Kilometerstand, Reichweite und Ladekosten deines E-Autos visualisiert werden. Ergänze deine Konfiguration um den Kilometerstand des Autos (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>) und für das Laden zu Hause um die Wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
     insights: Kennzahlen & Trend
+  more:
+    show:
+      appearance: Darstellung
+      language: Sprache
+      palette: Farben
+      secondary: Weitere Ansichten
+      system: System
   timeframe:
     now: Aktuell
     hours: Letzte %{count} Stunden

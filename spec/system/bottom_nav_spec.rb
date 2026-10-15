@@ -1,12 +1,14 @@
 describe 'Bottom navigation (mobile)' do
   before { driven_by :playwright_mobile }
 
+  def tab_bar(&)
+    within('nav[aria-label="Main navigation"]', &)
+  end
+
   it 'navigates to another page via bottom bar' do
     visit '/'
 
-    within('nav[aria-label="Main navigation"]') do
-      click_on 'Hausverbrauch'
-    end
+    tab_bar { click_on 'Hausverbrauch' }
 
     expect(page).to have_current_path(%r{/house/house_power/})
   end
@@ -17,12 +19,62 @@ describe 'Bottom navigation (mobile)' do
   it 'marks exactly one item after a navigation' do
     visit '/'
 
-    within('nav[aria-label="Main navigation"]') do
+    tab_bar do
       click_on 'Hausverbrauch'
 
       expect(page).to have_css('a[aria-current]', count: 1)
       expect(page).to have_css('a[aria-current][aria-label="Hausverbrauch"]')
     end
+  end
+
+  # A tool is a page below the page More. It slides in with a title bar, and
+  # its back button slides back to the list.
+  it 'slides from the page More to a tool and back' do
+    visit '/'
+    tab_bar { click_on 'Mehr' }
+    expect(page).to have_css('.ui-title-bar h1 img[alt="Mehr"]')
+
+    click_on 'Top 10'
+    expect(page).to have_css('.ui-title-bar h1', text: 'Top 10')
+    expect(page).to have_current_path(%r{/top10/})
+
+    find('.ui-title-bar-back').click
+    expect(page).to have_current_path('/more')
+    tab_bar { expect(page).to have_css('a[aria-current][aria-label="Mehr"]') }
+  end
+
+  # A tab that does not fit into the tab bar stays a tab: it takes the
+  # timeframe of the other tabs over and shows no title bar.
+  it 'opens a tab of the page More in the timeframe of the last tab' do
+    visit '/house/house_power/now'
+    click_on 'Woche'
+    expect(page).to have_current_path(%r{/house/house_power/\d{4}-W\d{2}})
+    week = page.current_path.split('/').last
+
+    tab_bar { click_on 'Mehr' }
+    click_on 'Erzeugung'
+
+    expect(page).to have_current_path("/inverter/inverter_power/#{week}")
+    expect(page).to have_no_css('.ui-title-bar')
+    tab_bar { expect(page).to have_css('a[aria-current][aria-label="Mehr"]') }
+  end
+
+  # The answer to the switch morphs the page, so it neither loads anew nor
+  # jumps to the top.
+  it 'switches the language in place, at the scroll position of the page' do
+    visit '/more'
+    page.execute_script(<<~JS)
+      window.notReloaded = true;
+      document.querySelector('main').scrollTop = 200;
+    JS
+    scroll_top = page.evaluate_script("document.querySelector('main').scrollTop")
+
+    click_on 'EN'
+
+    expect(page).to have_css('html[lang="en"]', visible: :all)
+    expect(page).to have_css('.ui-title-bar h1 img[alt="More"]')
+    expect(page.evaluate_script('window.notReloaded')).to be(true)
+    expect(page.evaluate_script("document.querySelector('main').scrollTop")).to eq(scroll_top)
   end
 
   # Safari on the iPhone has no Fullscreen API, so an item that offers
@@ -36,16 +88,31 @@ describe 'Bottom navigation (mobile)' do
     page.execute_script("Turbo.visit('/inverter_power/now')")
     expect(page).to have_current_path('/inverter_power/now')
 
-    within('nav[aria-label="Main navigation"]') { click_on 'Mehr' }
+    tab_bar { click_on 'Mehr' }
     expect(page).to have_link('Einstellungen')
 
     expect(page).to have_no_css('[data-fullscreen-btn]')
   end
 
-  # Which of the two fullscreen items shows comes from CSS, so a morph of the
-  # page cannot bring the other one back.
-  it 'keeps a single fullscreen item after a page refresh' do
-    visit '/'
+  # Fullscreen is a mode of the document, which Turbo keeps from page to page.
+  # So the page that the user opens next shows in fullscreen.
+  it 'keeps fullscreen on the next page' do
+    visit '/more'
+
+    find('input[role="switch"][aria-label="Vollbild"]').click
+    expect(page).to have_css('html:fullscreen', visible: :all)
+
+    click_on 'Erzeugung'
+    expect(page).to have_current_path(%r{/inverter/inverter_power/})
+    expect(page).to have_css('html:fullscreen', visible: :all)
+  end
+
+  # A morph sets the switch back to the state the server rendered, so the
+  # switch has to follow the mode again.
+  it 'keeps the fullscreen switch on after a page refresh' do
+    visit '/more'
+    find('input[role="switch"][aria-label="Vollbild"]').click
+    expect(page).to have_css('html:fullscreen', visible: :all)
 
     page.execute_script(<<~JS)
       addEventListener(
@@ -57,30 +124,6 @@ describe 'Bottom navigation (mobile)' do
     JS
     expect(page).to have_css('body[data-morphed]', visible: :all)
 
-    within('nav[aria-label="Main navigation"]') { click_on 'Mehr' }
-
-    expect(page).to have_css('[data-fullscreen-btn="on"]')
-    expect(page).to have_no_css('[data-fullscreen-btn="off"]')
-  end
-
-  it 'toggles the "More" menu with extra and secondary items' do
-    visit '/'
-
-    # Open "More" menu
-    within('nav[aria-label="Main navigation"]') do
-      click_on 'Mehr'
-    end
-
-    # Extra items and secondary items should be visible
-    expect(page).to have_link('Top 10')
-    expect(page).to have_link('Einstellungen')
-
-    # Close "More" menu
-    within('nav[aria-label="Main navigation"]') do
-      click_on 'Mehr'
-    end
-
-    # Dropdown should collapse
-    expect(page).to have_css('[data-nav--bottom--component-target="dropdown"].h-0')
+    expect(page.evaluate_script("document.querySelector('input[role=\"switch\"]').checked")).to be(true)
   end
 end

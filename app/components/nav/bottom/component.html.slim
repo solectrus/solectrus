@@ -1,58 +1,16 @@
-.lg:landscape:hidden[
-  data-controller="nav--bottom--component"
-  data-nav--bottom--component-height-class-value="h-[calc(100dvh-var(--bottom-nav-offset))]"
-]
-  .h-0.flex.flex-col.transition-height.ease-out.duration-200.overflow-y-auto.z-40.fixed.inset-x-0.w-full.bg-indigo-600.dark:bg-indigo-900.text-gray-300.dark:text-gray-400.lg:hidden[
-    data-nav--bottom--component-target="dropdown"
-    class="bottom-(--bottom-nav-offset)"
-  ]
-    /! Mobile menu
-    .flex.flex-col.items-center.gap-4.pt-4.pb-5.border-b.border-indigo-300/25
-      .flex.flex-col.items-center.gap-1
-        = helpers.vite_image_tag 'images/logo-full.svg', class: 'h-8', alt: 'SOLECTRUS'
-        .text-xs
-          | © 2020–#{Date.current.year} Georg Ledermann · AGPL-3.0
-      .text-xs
-        = render VersionInfo::Component.new
-    - if extra_menu_items.any?
-      .px-2.md:px-5.py-3.text-base.font-medium.tracking-wider
-        - extra_menu_items.each do |item|
-          = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
-    .border-t.border-indigo-300/25
-    .px-2.md:px-5.py-3.text-base.font-medium.tracking-wider
-      - secondary_menu_items.each do |item|
-        - if item.component
-          = render item.component.new(css_extra: ['py-2 px-3'])
-        - else
-          = item.call(with_icon: true, css_extra: ['py-2 px-3', item.current ? 'rounded-md bg-indigo-700' : ''])
-
-    .flex.justify-center.items-stretch.gap-4.pt-5.pb-3.border-t.border-indigo-300/25 data-action="change->nav--bottom--component#hide"
-      = render Theme::ColorPaletteSelector::Component.new
-      - unless ThemeConfig.x.static?
-        = render Theme::Selector::Component.new
-
-    / The box states the sponsoring status. mt-auto holds it at the lower edge
-    / of the menu, so it always meets the navigation bar below. This menu
-    / shares its height with the page, so the box comes in its compact layout.
-    .mt-auto
-      = render PremiumStatus::Component.new(compact: true)
-
+.lg:landscape:hidden
   / The pill of the current item moves to the tapped one right away, so the
     bar answers the touch instead of the page it loads. optimistic-nav swaps
     the two class lists, so the pill keeps its looks here in the template.
   nav.w-full.flex.items-center.justify-evenly.bg-indigo-600.dark:bg-indigo-900.border-t.border-indigo-300/25.dark:border-indigo-950/25[
     aria-label="Main navigation"
-    class="group/nav pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+    class="pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
     data-controller="optimistic-nav"
     data-action="turbo:click->optimistic-nav#markCurrent turbo:fetch-request-error@document->optimistic-nav#restore turbo:load@document->optimistic-nav#settle"
   ]
     - bar_items.each_with_index do |item, index|
       = link_to item[:href],
-                class: \
-                  [ \
-                    'click-animation flex flex-col items-center justify-center py-2 px-1 gap-1 focus:outline-none', \
-                    item[:current] ? 'text-white dark:text-gray-200 group-has-[[aria-expanded=true]]/nav:text-gray-300 dark:group-has-[[aria-expanded=true]]/nav:text-gray-400' : 'text-gray-300 dark:text-gray-400', \
-                  ],
+                class: tab_classes(active: item[:current]),
                 'aria-current': (item[:current] ? 'page' : nil),
                 'aria-label': item[:name] do
         span data-nav-state="" class=pill_classes(active: item[:current])
@@ -64,21 +22,14 @@
         span.leading-tight.truncate class="text-[0.65rem]"
           = item[:name]
 
-    button.flex.flex-col.items-center.justify-center.py-2.px-1.gap-1.text-gray-300.dark:text-gray-400.aria-expanded:text-white.focus:outline-none[
-      class="group/more"
-      type="button"
-      data-nav--bottom--component-target="button"
-      data-action="click->nav--bottom--component#toggle"
-      aria-haspopup="true"
-      aria-expanded="false"
-      aria-label=t('.more')
-    ]
-      span class="#{PILL_BASE} group-aria-expanded/more:bg-white/20 group-aria-expanded/more:rounded-full"
+    = link_to helpers.more_path,
+              class: tab_classes(active: more_current?),
+              'aria-current': (more_current? ? 'page' : nil),
+              'aria-label': t('.more') do
+      span data-nav-state="" class=pill_classes(active: more_current?)
         / The dot hangs on the icon, not on the pill around it, so it sits at
         / the corner of the bars. Its ring carries the navigation background and
-        / cuts it free from the bar it overlaps. The open menu paints the pill
-        / in another color, which the ring cannot follow - and the menu names
-        / the notifications with their own count anyway, so the dot goes away.
+        / cuts it free from the bar it overlaps.
         / The amber dot for HELIOS lies in front of the red one. With both, the
         / red dot moves to the right and peeks out behind the amber one,
         / whose ring cuts it off. The ring is thinner then, so more of the red
@@ -88,12 +39,11 @@
           = icon 'bars', class: 'fa-fw fa-lg'
           span#bottom-nav-notification-dot.absolute.-top-1[
             class=(helios_dot? ? '-right-2.5' : '-right-1')
-            class="group-aria-expanded/more:hidden"
           ]
             = render Notification::Dot::Component.new(unread_count:)
           - if helios_dot?
             span.absolute.-top-1.-right-1.rounded-full.bg-amber-400.dark:bg-amber-500.ring-4.ring-indigo-600.dark:ring-indigo-900[
-              class="size-2.5 group-aria-expanded/more:hidden group-has-[#bottom-nav-notification-dot>*]/dots:ring-1"
+              class="size-2.5 group-has-[#bottom-nav-notification-dot>*]/dots:ring-1"
               aria-hidden="true"
             ]
       span.leading-tight.truncate class="text-[0.65rem]"

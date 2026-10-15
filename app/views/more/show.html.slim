@@ -1,0 +1,64 @@
+- content_for :fixed_nav, true
+- content_for :sub_nav do
+  = render Ui::TitleBar::Component.new(title:, logo: more_logo)
+
+.flex.flex-col.gap-7.pb-4
+  = render Ui::GroupedList::Component.new(header: t('.secondary')) do |list|
+    - secondary_links.each do |item|
+      - list.with_cell(**cell_args(item))
+
+  = render Ui::GroupedList::Component.new(header: t('.system')) do |list|
+    - system_items.each do |item|
+      - list.with_cell(**cell_args(item))
+
+  = render Ui::GroupedList::Component.new(header: t('.appearance')) do |list|
+    - list.with_cell(name: t('.language'), icon: 'language') do |cell|
+      - cell.with_accessory do
+        / Unlike LocaleSelector::Component, the switch goes through Turbo: this
+          page has no lazy frames that a morph could leave behind. The answer
+          morphs the page in place, so it keeps its scroll position.
+        .relative.isolate.flex.gap-0.5.rounded-lg.bg-slate-500/12.p-0.5.dark:bg-slate-900[
+          data-controller='segment-slide'
+          data-action='click->segment-slide#move turbo:before-fetch-request->segment-slide#hold'
+        ]
+          - I18n.available_locales.sort.each do |locale|
+            = button_to locale.to_s.upcase,
+                        locale_path,
+                        method: :patch,
+                        params: { locale: },
+                        disabled: locale == I18n.locale,
+                        data: { segment_slide_target: 'segment' },
+                        class: ['rounded-md px-3 py-1 text-sm font-medium', locale == I18n.locale ? 'bg-white text-slate-800 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 dark:text-slate-400 cursor-pointer']
+    - unless ThemeConfig.x.static?
+      - list.with_cell(name: t('layout.theme'), icon: 'circle-half-stroke') do |cell|
+        - cell.with_accessory do
+          = render Theme::Selector::Component.new(cell: true)
+    - list.with_cell(name: t('.palette'), icon: 'palette') do |cell|
+      - cell.with_accessory do
+        = render Theme::ColorPaletteSelector::Component.new(cell: true)
+    / A mode, which stays on from page to page (see the fullscreen controller)
+    - list.with_cell(name: t('layout.fullscreen_on'), icon: 'expand', row_data: { 'fullscreen-btn' => 'switch' }) do |cell|
+      - cell.with_accessory do
+        input.ui-switch[
+          type='checkbox'
+          role='switch'
+          aria-label=t('layout.fullscreen_on')
+          data-fullscreen-target='switch'
+          data-action='fullscreen#toggle'
+        ]
+
+  = render Ui::GroupedList::Component.new(header: 'SOLECTRUS') do |list|
+    - solectrus_items.each do |item|
+      - list.with_cell(**cell_args(item))
+
+  / Alone at the end, as the action that leaves the session
+  = render Ui::GroupedList::Component.new do |list|
+    - list.with_cell(**cell_args(session_link))
+
+  .flex.flex-col.items-center.gap-3
+    .w-full.overflow-hidden.rounded-xl.empty:hidden
+      = render PremiumStatus::Component.new(compact: true)
+    / The version is no code in a text, so it goes without the frame of one
+    .flex.flex-col.items-center.gap-1.text-xs.text-gray-500.dark:text-slate-500 class='[&_code]:border-0 [&_code]:bg-transparent [&_code]:p-0'
+      = render VersionInfo::Component.new
+      span © 2020–#{Date.current.year} Georg Ledermann · AGPL-3.0
