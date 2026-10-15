@@ -68,6 +68,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- On a phone, the bar at the bottom now stays in view on a page that is longer than the screen, like the Top 10 on a small phone. Before, it scrolled away with the page
 - On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page. Before, Safari enlarged the page and kept it enlarged after the selection
 - A sensor that tells whether a car is connected now shows "No" for a text like "False" or "OFF" and for a negative number, which some collectors send for an error. Before, the live view showed such a value as connected
 - A browser tab that stays open for a long time now keeps its memory use low. Before, each page you opened stayed in memory, so the app used more memory with each click and could become slow

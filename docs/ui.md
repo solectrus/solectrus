@@ -54,7 +54,7 @@ The slide needs two things:
 1. The page renders a `Ui::TitleBar` with `back_href`, the path of its parent page.
 2. The link to the page carries `data-nav-title`, the title of the next page. A row of `Ui::NavList` or `Ui::TableRow` and the action of a `Ui::TitleBar` set it. For a link of your own, use `Ui::TitleBar::Component.link_data(title)`. If the next page shows a logo or keeps its own background, pass `logo:` or `plain:`, so the slide shows the next page as it comes.
 
-The desktop has no slide. There the hover of a row shows that it is a link, so the chevron of a row shows only on a phone.
+The desktop has no slide. There the hover of a row shows that it is a link, so the chevron of a row shows only on a phone. A cell of a grouped list hides its chevron only for a mouse, because a tablet as wide as a desktop has no hover.
 
 The header below the title bar can hold more controls of the page, like the timeframe of the charging sessions. Give their container the class `ui-title-bar-accessory`. These controls belong to their page. When a tap slides to the next page, they leave the header, and the header takes the height of the next page during the slide. On the way back, the header grows again when the page arrives.
 

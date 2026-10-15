@@ -92,9 +92,10 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
   end
 
   # The chevron says that the cell leads one level down, which only a phone
-  # shows as a slide. The desktop has the hover instead.
+  # shows as a slide. A wide screen with a mouse has the hover instead. A
+  # tablet of the same width has no hover, so it keeps the chevron.
   def trailing_icon_class
-    ['text-sm text-gray-400 dark:text-slate-500', ('lg:hidden' unless leaves_app?)]
+    ['text-sm text-gray-400 dark:text-slate-500', ('lg:pointer-fine:hidden' unless leaves_app?)]
   end
 
   private

@@ -25,14 +25,14 @@ describe Ui::GroupedList::Component, type: :component do
       render_list { |list| list.with_cell(name: 'Name', **) }.at('li')
     end
 
-    it 'links one level down with a chevron, which only a phone shows' do
+    it 'links one level down with a chevron, which a mouse on a wide screen hides' do
       li = cell_html(href: '/top10')
       link = li.at('a')
 
       aggregate_failures do
         expect(link['href']).to eq('/top10')
         expect(link['target']).to be_nil
-        expect(li.at('.fa-chevron-right')['class']).to include('lg:hidden')
+        expect(li.at('.fa-chevron-right')['class']).to include('lg:pointer-fine:hidden')
       end
     end
 

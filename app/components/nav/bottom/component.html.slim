@@ -1,4 +1,7 @@
-.lg:landscape:hidden
+/ The bar stays at the lower edge of the screen. A page that is longer than
+  the screen scrolls below it, like the Top 10 on a small phone. The
+  overlays of the page lie above it.
+.sticky.bottom-0.z-30.lg:landscape:hidden
   / The pill of the current item moves to the tapped one right away, so the
     bar answers the touch instead of the page it loads. optimistic-nav swaps
     the two class lists, so the pill keeps its looks here in the template.

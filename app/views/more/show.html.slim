@@ -54,7 +54,8 @@
     / A mode, which stays on from page to page (see the fullscreen controller)
     - list.with_cell(name: t('layout.fullscreen_on'), icon: 'expand', row_data: { 'fullscreen-btn' => 'switch' }) do |cell|
       - cell.with_accessory do
-        input.ui-switch[
+        / From lg up the card is gray, so the track of the switch is darker
+        input.ui-switch.lg:bg-gray-300.lg:dark:bg-slate-600[
           type='checkbox'
           role='switch'
           aria-label=t('layout.fullscreen_on')
