@@ -15,7 +15,7 @@ function isChanged(element: Element): boolean {
     if (element.type === 'checkbox' || element.type === 'radio')
       return element.checked !== element.defaultChecked;
 
-    return element.value !== element.defaultValue;
+    return element.value !== sanitizedDefault(element);
   }
 
   if (element instanceof HTMLTextAreaElement)
@@ -24,6 +24,16 @@ function isChanged(element: Element): boolean {
   if (element instanceof HTMLSelectElement) return isSelectChanged(element);
 
   return false;
+}
+
+// The rendered value as the browser reads it. The browser sanitizes the value
+// by its type, so a datetime-local field rendered as "2026-10-01T12:34:00"
+// reads "2026-10-01T12:34", while the attribute keeps the seconds.
+function sanitizedDefault(input: HTMLInputElement): string {
+  const probe = document.createElement('input');
+  probe.type = input.type;
+  probe.value = input.defaultValue;
+  return probe.value;
 }
 
 function isSelectChanged(select: HTMLSelectElement): boolean {

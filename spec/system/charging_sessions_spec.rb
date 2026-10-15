@@ -36,6 +36,17 @@ describe 'Charging sessions' do
       expect(page).to have_no_text('March trip')
     end
 
+    # The time fields render seconds, which the browser drops from the value
+    it 'closes the modal without changes at once' do
+      visit '/cars/charging_sessions/offsite/2022-06'
+
+      row('June trip').click
+      within('#modal') { click_on 'Schließen' }
+
+      expect(page).to have_no_css('#modal dialog')
+      expect(page.document).to have_no_css('#confirm-dialog[open]')
+    end
+
     it 'deletes a session from its form and keeps the timeframe of the list' do
       visit '/cars/charging_sessions/offsite/2022-06'
 
