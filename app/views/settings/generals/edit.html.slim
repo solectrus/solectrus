@@ -1,6 +1,6 @@
 = render 'settings/sub_nav', save: 'settings_general_form', save_bar: 'settings_general_form'
 
-= form_with(model: Setting.new, url: settings_general_path, method: :patch, id: 'settings_general_form', html: { class: 'ui-form relative px-2', data: { controller: 'form-dirty' } }) do |f|
+= form_with(model: Setting.new, url: settings_general_path, method: :patch, id: 'settings_general_form', html: { class: 'ui-form relative px-2', data: { controller: 'form-dirty', form_dirty_leave_message_value: t('crud.confirm_discard') } }) do |f|
   / No autofocus: iOS would open the keyboard right at the slide
   = f.group do
     = f.text_field :plant_name,

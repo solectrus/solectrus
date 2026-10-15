@@ -4,7 +4,19 @@ import { Controller } from '@hotwired/stimulus';
 // outside the form and name it with its form attribute, like the save button
 // of Ui::TitleBar::Component, so the controller finds the buttons among the
 // elements of the form and not as targets.
+//
+// With a leave message, the controller asks on the desktop before a visit or
+// a reload leaves the changes behind. A page form sets it, like the general
+// settings. A form in the modal does not. A phone does not ask, because the
+// title bar starts its slide before the visit (see Ui::TitleBar::Component),
+// and a canceled visit would stop the page halfway.
+const DESKTOP_QUERY = '(min-width: 64rem)';
+
 export default class extends Controller<HTMLFormElement> {
+  static readonly values = { leaveMessage: String };
+
+  declare readonly leaveMessageValue: string;
+
   private initialData = '';
   private lastCheckedData = '';
   private submitting = false;
@@ -21,6 +33,11 @@ export default class extends Controller<HTMLFormElement> {
     this.element.addEventListener('turbo:submit-start', this.handleSubmitStart);
     this.element.addEventListener('turbo:submit-end', this.handleSubmitEnd);
     document.addEventListener('turbo:morph', this.handleMorph);
+
+    if (this.leaveMessageValue) {
+      document.addEventListener('turbo:before-visit', this.handleBeforeVisit);
+      window.addEventListener('beforeunload', this.handleBeforeUnload);
+    }
   }
 
   disconnect() {
@@ -33,6 +50,8 @@ export default class extends Controller<HTMLFormElement> {
     );
     this.element.removeEventListener('turbo:submit-end', this.handleSubmitEnd);
     document.removeEventListener('turbo:morph', this.handleMorph);
+    document.removeEventListener('turbo:before-visit', this.handleBeforeVisit);
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
   }
 
   private readonly handleChange = (): void => {
@@ -54,6 +73,18 @@ export default class extends Controller<HTMLFormElement> {
     setTimeout(this.handleChange);
   };
 
+  // A link inside the app, like the main navigation. The visit after a save
+  // goes on, because the form is either still submitting or clean again.
+  private readonly handleBeforeVisit = (event: Event): void => {
+    if (this.dirty() && !window.confirm(this.leaveMessageValue))
+      event.preventDefault();
+  };
+
+  // A reload or the closing of the tab. The browser shows its own text.
+  private readonly handleBeforeUnload = (event: BeforeUnloadEvent): void => {
+    if (this.dirty()) event.preventDefault();
+  };
+
   private readonly handleSubmitStart = (): void => {
     this.submitting = true;
   };
@@ -68,6 +99,14 @@ export default class extends Controller<HTMLFormElement> {
     this.resetState();
     this.submitting = false;
   };
+
+  private dirty(): boolean {
+    return (
+      window.matchMedia(DESKTOP_QUERY).matches &&
+      !this.submitting &&
+      this.formData() !== this.initialData
+    );
+  }
 
   private resetState(): void {
     this.initialData = this.formData();

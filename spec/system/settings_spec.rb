@@ -43,6 +43,28 @@ describe 'Settings' do
         expect(page).to have_no_button('Speichern')
         expect(page).to have_field('setting_plant_name', with: '')
       end
+
+      it 'asks before a link leaves the changes behind' do
+        find_field('setting_plant_name').send_keys('x')
+
+        message = dismiss_confirm { first('#primary-nav-desktop a').click }
+        expect(message).to eq('Ungespeicherte Änderungen verwerfen?')
+        expect(page).to have_field('setting_plant_name', with: 'x')
+
+        accept_confirm { first('#primary-nav-desktop a').click }
+        expect(page).to have_no_field('setting_plant_name')
+      end
+
+      it 'does not ask after a save' do
+        find_field('setting_plant_name').send_keys('x')
+        click_on 'Speichern'
+        expect(page).to have_text('Gespeichert')
+
+        first('#primary-nav-desktop a').click
+        expect(page).to have_no_field('setting_plant_name')
+      ensure
+        Setting.plant_name = nil
+      end
     end
 
     context 'when MCP can be toggled (sponsor)' do

@@ -419,6 +419,7 @@ en:
     save: Save
     discard: Discard changes
     confirm_delete: Are you sure you want to delete?
+    confirm_discard: Discard unsaved changes?
     success: Saved
     deleted: Deleted
     error: An error occurred

@@ -419,6 +419,7 @@ de:
     save: Speichern
     discard: Änderungen verwerfen
     confirm_delete: Wirklich löschen?
+    confirm_discard: Ungespeicherte Änderungen verwerfen?
     success: Gespeichert
     deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
