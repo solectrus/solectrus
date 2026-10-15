@@ -5,135 +5,135 @@ class SensorValueComponentPreview < ViewComponent::Preview
 
   def inverter_power_watts
     data = data_example(inverter_power: 750)
-    render SensorValue::Component.new(data, :inverter_power)
+    render Sensor::Value::Component.new(data, :inverter_power)
   end
 
   def inverter_power_kilowatts
     data = data_example(inverter_power: 2500)
-    render SensorValue::Component.new(data, :inverter_power)
+    render Sensor::Value::Component.new(data, :inverter_power)
   end
 
   def inverter_power_megawatts
     data = data_example(inverter_power: 1_500_000)
-    render SensorValue::Component.new(data, :inverter_power)
+    render Sensor::Value::Component.new(data, :inverter_power)
   end
 
   def inverter_power_energy_context
     data = data_example(inverter_power: 15_000)
-    render SensorValue::Component.new(data, :inverter_power, context: :total)
+    render Sensor::Value::Component.new(data, :inverter_power, context: :total)
   end
 
   # @!group Temperature Sensors
 
   def case_temperature
     data = data_example(case_temp: 42.7)
-    render SensorValue::Component.new(data, :case_temp)
+    render Sensor::Value::Component.new(data, :case_temp)
   end
 
   def outdoor_temperature_negative
     data = data_example(outdoor_temp: -5.2)
-    render SensorValue::Component.new(data, :outdoor_temp)
+    render Sensor::Value::Component.new(data, :outdoor_temp)
   end
 
   # @!group Percentage Sensors
 
   def autarky_percentage
     data = data_example(autarky: 85.3)
-    render SensorValue::Component.new(data, :autarky)
+    render Sensor::Value::Component.new(data, :autarky)
   end
 
   def battery_soc
     data = data_example(battery_soc: 67.8)
-    render SensorValue::Component.new(data, :battery_soc)
+    render Sensor::Value::Component.new(data, :battery_soc)
   end
 
   # @!group Currency Sensors
 
   def grid_costs
     data = data_example(grid_costs: 123.45)
-    render SensorValue::Component.new(data, :grid_costs)
+    render Sensor::Value::Component.new(data, :grid_costs)
   end
 
   def solar_price
     data = data_example(solar_price: -12.34)
-    render SensorValue::Component.new(data, :solar_price)
+    render Sensor::Value::Component.new(data, :solar_price)
   end
 
   # @!group Weight Sensors (CO2)
 
   def co2_reduction_grams
     data = data_example(co2_reduction: 500)
-    render SensorValue::Component.new(data, :co2_reduction)
+    render Sensor::Value::Component.new(data, :co2_reduction)
   end
 
   def co2_reduction_kilograms
     data = data_example(co2_reduction: 1500)
-    render SensorValue::Component.new(data, :co2_reduction)
+    render Sensor::Value::Component.new(data, :co2_reduction)
   end
 
   def co2_reduction_tons
     data = data_example(co2_reduction: 2_500_000)
-    render SensorValue::Component.new(data, :co2_reduction)
+    render Sensor::Value::Component.new(data, :co2_reduction)
   end
 
   # @!group Boolean Sensors
 
   def wallbox_car_connected_true
     data = data_example(wallbox_car_connected: true)
-    render SensorValue::Component.new(data, :wallbox_car_connected)
+    render Sensor::Value::Component.new(data, :wallbox_car_connected)
   end
 
   def wallbox_car_connected_false
     data = data_example(wallbox_car_connected: false)
-    render SensorValue::Component.new(data, :wallbox_car_connected)
+    render Sensor::Value::Component.new(data, :wallbox_car_connected)
   end
 
   # @!group String Sensors
 
   def system_status
     data = data_example(system_status: 'CHARGING')
-    render SensorValue::Component.new(data, :system_status)
+    render Sensor::Value::Component.new(data, :system_status)
   end
 
   # @!group Unitless Sensors
 
   def heatpump_cop
     data = data_example(heatpump_cop: 3.2)
-    render SensorValue::Component.new(data, :heatpump_cop)
+    render Sensor::Value::Component.new(data, :heatpump_cop)
   end
 
   # @!group Edge Cases
 
   def zero_value
     data = data_example(inverter_power: 0)
-    render SensorValue::Component.new(data, :inverter_power)
+    render Sensor::Value::Component.new(data, :inverter_power)
   end
 
   def nil_value
     data = data_example(system_status: nil)
-    render SensorValue::Component.new(data, :system_status)
+    render Sensor::Value::Component.new(data, :system_status)
   end
 
   def negative_power
     data = data_example(grid_import_power: -1500)
-    render SensorValue::Component.new(data, :grid_import_power)
+    render Sensor::Value::Component.new(data, :grid_import_power)
   end
 
   def very_small_decimal
     data = data_example(grid_costs: 0.0001234)
-    render SensorValue::Component.new(data, :grid_costs)
+    render Sensor::Value::Component.new(data, :grid_costs)
   end
 
   def floating_point_precision
     data = data_example(inverter_power: 2999.9999)
-    render SensorValue::Component.new(data, :inverter_power)
+    render Sensor::Value::Component.new(data, :inverter_power)
   end
 
   # @!group Styling
 
   def with_positive_signal
     data = data_example(inverter_power: 2500)
-    render SensorValue::Component.new(
+    render Sensor::Value::Component.new(
              data,
              :inverter_power,
              class: 'text-signal-positive',
@@ -142,7 +142,7 @@ class SensorValueComponentPreview < ViewComponent::Preview
 
   def with_negative_signal
     data = data_example(grid_import_power: 1500)
-    render SensorValue::Component.new(
+    render Sensor::Value::Component.new(
              data,
              :grid_import_power,
              class: 'text-signal-negative',
@@ -151,7 +151,7 @@ class SensorValueComponentPreview < ViewComponent::Preview
 
   def with_large_text
     data = data_example(battery_soc: 85.3)
-    render SensorValue::Component.new(
+    render Sensor::Value::Component.new(
              data,
              :battery_soc,
              class: 'text-lg font-bold',
@@ -163,7 +163,7 @@ class SensorValueComponentPreview < ViewComponent::Preview
   def with_negative
     data = data_example(opportunity_costs: 23.45)
 
-    render SensorValue::Component.new(data, :opportunity_costs, sign: :negative)
+    render Sensor::Value::Component.new(data, :opportunity_costs, sign: :negative)
   end
 
   # @!endgroup

@@ -3,7 +3,7 @@
 # @display max_width 10rem
 class ConsumptionBadgeComponentPreview < ViewComponent::Preview
   # The text box needs a heat pump or a wallbox, otherwise the radial badges
-  # render instead (see RadialBadge).
+  # render instead (see Balance::RadialBadge).
   # Autarky: 0-33% negative, 34-66% warning, 67-100% positive
 
   # @!group Autarky
@@ -23,7 +23,7 @@ class ConsumptionBadgeComponentPreview < ViewComponent::Preview
   private
 
   def consumption_badge(autarky:)
-    render ConsumptionBadge::Component.new(
+    render Balance::ConsumptionBadge::Component.new(
              data: data(autarky:),
              timeframe: Timeframe.new(Date.current.strftime('%Y-%m')),
            )

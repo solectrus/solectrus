@@ -12,5 +12,5 @@ time.lg:landscape:ml-4.flex.items-center.gap-2.text-sm.lg:landscape:text-base.cu
   - if message.present?
     span.hidden data-tooltip-target= 'html'
       .tooltip-layout
-        = render TooltipHeader::Component.new(title: text) do
+        = render Tooltip::Header::Component.new(title: text) do
           .tooltip-detail = message

@@ -24,7 +24,7 @@ class Car::Insights::Component < ViewComponent::Base
     return unless value
 
     Insights::HeadingTotal::Component.new(
-      total: SensorValue::Component.new(value, sensor.name, context: :total, scaling: :kilo),
+      total: Sensor::Value::Component.new(value, sensor.name, context: :total, scaling: :kilo),
       running: (timeframe.year? || timeframe.month?) && timeframe.current?,
     )
   end

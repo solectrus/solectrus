@@ -73,7 +73,7 @@ class Cars::ChargingSessionsController < ApplicationController
 
   # The days of the timeframe without a fresh summary, and so without their
   # sessions. The page builds them first, like the car page (see
-  # SummaryBuilder::Component).
+  # Summary::Builder::Component).
   # Without a state of charge, the offsite sessions come from the user alone.
   def pending_days
     return [] if timeframe.now? || (kind == 'offsite' && !ChargingSession::OffsiteDetection.enabled?)

@@ -30,33 +30,33 @@
             } do
     .content class= "#{'click-animation' if url}"
       - unless inline
-        = render SensorIcon::Component.new(sensor, data:, class: 'icon')
+        = render Sensor::Icon::Component.new(sensor, data:, class: 'icon')
 
       .font-light.leading-tight.title
         = title.truncate(25)
 
       .value data= { 'stats-with-chart--component-target': 'current', 'sensor-name': sensor.name, value: masked_value, time: data.time&.to_i }
-        = render SensorValue::Component.new(data, sensor.name, context: now? ? :rate : :total)
+        = render Sensor::Value::Component.new(data, sensor.name, context: now? ? :rate : :total)
 
       - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?
         = icon 'circle-exclamation'
 
       .hidden id="tooltip-content-#{sensor.name}" data-tooltip-target="html"
         .tooltip-layout.label-value-stacked
-          = render TooltipHeader::Component.new(title:, sensor_name: sensor.name, value: data, total: !now?) do |header|
+          = render Tooltip::Header::Component.new(title:, sensor_name: sensor.name, value: data, total: !now?) do |header|
             - unless inline
               - header.with_icon do
-                = render SensorIcon::Component.new(sensor, data:, class: 'tooltip-icon fa-2xl')
+                = render Sensor::Icon::Component.new(sensor, data:, class: 'tooltip-icon fa-2xl')
 
             - if amount
-              = render SensorValue::Component.new(data, amount.first, sign: amount.last, class: 'tooltip-value-lg')
+              = render Sensor::Value::Component.new(data, amount.first, sign: amount.last, class: 'tooltip-value-lg')
 
           - if now?
             - if sensor.name == :grid_export_power && data.respond_to?(:grid_export_limit_active?) && data.grid_export_limit_active?
               .tooltip-group.tooltip-group-sm
                 .label-value-row.label-value-column
                   span = Sensor::Registry[:grid_export_limit].display_name(:short)
-                  = render SensorValue::Component.new(data, :grid_export_limit, precision: 0)
+                  = render Sensor::Value::Component.new(data, :grid_export_limit, precision: 0)
 
           - elsif costs || power_grid_ratio
             / The battery has a grid share but no costs of its own -- what it
@@ -73,10 +73,10 @@
                   .label-value-row
                     span = inverter_sensor.display_name
                     span.tabular-nums
-                      = render SensorValue::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
+                      = render Sensor::Value::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
 
           - if sensor.name == :inverter_power && data.respond_to?(:co2_reduction) && data.co2_reduction&.nonzero?
             .tooltip-group
               .label-value-row.label-value-column
                 span = Sensor::Registry[:co2_reduction].display_name(:short)
-                = render SensorValue::Component.new(data, :co2_reduction, class: 'tooltip-value-lg')
+                = render Sensor::Value::Component.new(data, :co2_reduction, class: 'tooltip-value-lg')

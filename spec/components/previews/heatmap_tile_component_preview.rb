@@ -47,7 +47,7 @@ class HeatmapTileComponentPreview < ViewComponent::Preview # rubocop:disable Met
       },
     }
 
-    render HeatmapTile::Component.new(
+    render Insights::HeatmapTile::Component.new(
              data:,
              sensor: Sensor::Registry[:inverter_power],
              timeframe: Timeframe.all,
@@ -72,7 +72,7 @@ class HeatmapTileComponentPreview < ViewComponent::Preview # rubocop:disable Met
       },
     }
 
-    render HeatmapTile::Component.new(
+    render Insights::HeatmapTile::Component.new(
              data:,
              sensor: Sensor::Registry[:house_power],
              timeframe: Timeframe.all,
@@ -97,7 +97,7 @@ class HeatmapTileComponentPreview < ViewComponent::Preview # rubocop:disable Met
       },
     }
 
-    render HeatmapTile::Component.new(
+    render Insights::HeatmapTile::Component.new(
              data:,
              sensor: Sensor::Registry[:grid_export_power],
              timeframe: Timeframe.all,
@@ -262,7 +262,7 @@ class HeatmapTileComponentPreview < ViewComponent::Preview # rubocop:disable Met
       },
     }
 
-    render HeatmapTile::Component.new(
+    render Insights::HeatmapTile::Component.new(
              data:,
              sensor: Sensor::Registry[:grid_power],
              timeframe: Timeframe.all,

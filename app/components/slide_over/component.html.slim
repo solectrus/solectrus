@@ -61,9 +61,9 @@
               = content
 
             .mx-auto.mb-16.flex.flex-col.items-center.gap-6
-              = render ColorPaletteSelector::Component.new
+              = render Theme::ColorPaletteSelector::Component.new
               - unless ThemeConfig.x.static?
-                = render ThemeSelector::Component.new
+                = render Theme::Selector::Component.new
 
             .flex.justify-between.items-center.text-gray-400.dark:text-gray-500.text-xs.px-4.sm:px-6.py-4.lg:landscape:hidden
               = render VersionInfo::Component.new

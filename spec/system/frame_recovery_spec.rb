@@ -15,7 +15,7 @@ describe 'Frame recovery' do
     unroute('**/charts/**')
   end
 
-  # The full-screen spinner: a day without a summary is built by SummaryBuilder
+  # The full-screen spinner: a day without a summary is built by Summary::Builder
   # first, in a frame of its own. A dead connection answers that request with
   # nothing at all - no response and no error either - so the frame just stays
   # busy and nothing reports it. Returning to the tab is what cuts it loose.
@@ -25,7 +25,7 @@ describe 'Frame recovery' do
 
     visit '/heatpump_power/2022-06-10'
 
-    # The page hangs in the SummaryBuilder branch, which has no chart
+    # The page hangs in the Summary::Builder branch, which has no chart
     expect(page).to have_css('.timeframe-day')
     expect(page).to have_no_css("[data-controller*='stats-with-chart--component']")
 

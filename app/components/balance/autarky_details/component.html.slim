@@ -1,0 +1,14 @@
+.tooltip-layout.tooltip-layout-table
+  = render Tooltip::Header::Component.new(title: Sensor::Registry[:autarky].display_name, sheet_only: true)
+
+  dl.tooltip-group
+    = render Tooltip::CalcRow::Component.new(label: Sensor::Registry[:grid_import_power].display_name(:short)) do
+      = render Sensor::Value::Component.new(data, :grid_import_power, **consistent_options)
+    = render Tooltip::CalcRow::Component.new(label: Sensor::Registry[:total_consumption].display_name(:short), operator: :divide) do
+      = render Sensor::Value::Component.new(data, :total_consumption, **consistent_options)
+    = render Tooltip::CalcRow::Component.new(label: Sensor::Registry[:grid_quote].display_name(:short), operator: :equals) do
+      = render Sensor::Value::Component.new(data, :grid_quote)
+
+  dl.tooltip-group
+    = render Tooltip::CalcRow::Component.new(label: autarky_formula, total: true) do
+      = render Sensor::Value::Component.new(data, :autarky)

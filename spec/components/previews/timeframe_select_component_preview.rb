@@ -6,6 +6,6 @@ class TimeframeSelectComponentPreview < ViewComponent::Preview
     timeframe = Timeframe.new('2024-01')
     page = TimeframePage::Sensor.new(namespace: 'balance', sensor_name:)
 
-    render TimeframeSelect::Component.new(timeframe:, page:)
+    render Timeframe::Select::Component.new(timeframe:, page:)
   end
 end

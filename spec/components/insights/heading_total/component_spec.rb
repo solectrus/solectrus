@@ -1,5 +1,5 @@
 describe Insights::HeadingTotal::Component, type: :component do
-  let(:total) { SensorValue::Component.new(10_106_000, :inverter_power, context: :total, precision: 3) }
+  let(:total) { Sensor::Value::Component.new(10_106_000, :inverter_power, context: :total, precision: 3) }
 
   it 'renders the total' do
     page = render_inline(described_class.new(total:))

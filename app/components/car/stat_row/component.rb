@@ -4,7 +4,7 @@
 # click. Without a sensor, the row has no chart and shows its value and its
 # tooltip only.
 class Car::StatRow::Component < ViewComponent::Base
-  include CarChartLink
+  include Car::ChartLink
 
   # A line below the value, for example the unit of a rate
   renders_one :subline

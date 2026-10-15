@@ -246,7 +246,7 @@ describe 'Charging sessions' do
     it 'selects a timeframe of the list of the kind and keeps the car' do
       get path, headers: { 'Turbo-Frame' => 'modal' }
 
-      expect(response.body).to include('data-timeframe-select--component-base-url-value="/cars/1/charging_sessions/offsite"')
+      expect(response.body).to include('data-timeframe--select--component-base-url-value="/cars/1/charging_sessions/offsite"')
       expect(response.body).not_to include(recent.started_at.iso8601)
     end
 

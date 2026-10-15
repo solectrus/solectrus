@@ -18,5 +18,5 @@
     - unless timeframe.out_of_scope?
       div class=('z-10 flex justify-center pointer-events-none lg:landscape:absolute lg:landscape:inset-x-0 lg:landscape:top-3' if map?)
         div class=('pointer-events-auto lg:landscape:rounded-full lg:landscape:bg-white/85 lg:landscape:shadow-sm lg:landscape:backdrop-blur-sm dark:lg:landscape:bg-slate-900/85 lg:landscape:[&_#options-menu]:rounded-full' if map?)
-          = render CarChartDropdown::Component.new(sensor_name:, timeframe:)
+          = render ChartDropdown::Car::Component.new(sensor_name:, timeframe:)
       = render ChartLoader::Component.new(sensor_name:, timeframe:, interval:)

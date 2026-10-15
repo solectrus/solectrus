@@ -35,4 +35,4 @@
                     hint: t('premium.sponsors_only')
 
 .lg:mt-10.px-2.max-lg:px-0
-  = render SummaryStatus::Component.new(completion_rate: @summary_completion_rate)
+  = render Summary::Status::Component.new(completion_rate: @summary_completion_rate)

@@ -1,0 +1,24 @@
+- if forecast_available?
+  .text-center.text-sm.text-slate-500 class= ('relative touch-target' if tooltip_required?) data-controller= 'tooltip' data-tooltip-touch-value= 'true'
+    - if show_remaining_forecast?
+      = t 'forecast.expect_remaining_html', value: Sensor::ValueFormatter.new(remaining_forecast_wh, unit: :watt, context: :total, precision: 0)
+    - elsif show_full_forecast?
+      = t 'forecast.expect_html', value: Sensor::ValueFormatter.new(inverter_power_forecast, unit: :watt, context: :total, precision: 0)
+    - elsif better_than_expected?
+      = t 'forecast.better_html', value: Sensor::ValueFormatter.new(forecast_deviation.abs, unit: :watt, context: :total, precision: 0, scaling: :kilo)
+    - elsif worse_than_expected?
+      = t 'forecast.worse_html', value: Sensor::ValueFormatter.new(forecast_deviation.abs, unit: :watt, context: :total, precision: 0, scaling: :kilo)
+    - else
+      = t 'forecast.approximately'
+
+    - if tooltip_required?
+      .hidden id="forecast-expectation" data-tooltip-target= 'html'
+        .tooltip-layout
+          = render Tooltip::Header::Component.new(title: Sensor::Registry[:inverter_power_forecast].display_name) do
+            .tooltip-value
+              = Sensor::ValueFormatter.new(inverter_power_forecast, unit: :watt, context: :total, precision: 0, scaling: :kilo)
+
+          .tooltip-group
+            .label-value-row
+              span = Sensor::Registry[:inverter_power].display_name
+              span.tooltip-number = Sensor::ValueFormatter.new(inverter_power, unit: :watt, context: :total, precision: 0, scaling: :kilo)

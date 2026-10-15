@@ -43,6 +43,6 @@ class Car::ChargingTooltip::Component < ViewComponent::Base
   def label(source) = t(Car::ChargingSource[source.key].label_key)
 
   def cost_value(cost, **)
-    SensorValue::Component.new(cost, :total_costs, **costs.options, **)
+    Sensor::Value::Component.new(cost, :total_costs, **costs.options, **)
   end
 end

@@ -56,7 +56,7 @@ class Balance::StatsController < ApplicationController
   end
 
   # The one car in use shows its state of charge next to the home battery
-  # (see StatsNow::Component#car_soc)
+  # (see Balance::StatsNow::Component#car_soc)
   def car_sensor_names
     car = Car.sole_in_use if Sensor::Config.exists?(:battery_soc)
     car ? [car.sensor_name(:car_battery_soc), :wallbox_car_connected] : []

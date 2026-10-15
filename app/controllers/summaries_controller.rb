@@ -16,7 +16,7 @@ class SummariesController < ApplicationController
     flash.now[:notice] = t('settings.general.summaries.reset.flash')
 
     render turbo_stream: [
-             turbo_stream.replace('summaries', SummaryStatus::Component.new(completion_rate: nil)),
+             turbo_stream.replace('summaries', Summary::Status::Component.new(completion_rate: nil)),
              turbo_stream_update_flash,
            ]
   end

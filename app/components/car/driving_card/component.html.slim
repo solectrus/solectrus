@@ -2,7 +2,7 @@
   - tag_name, options = distance_wrapper
   = content_tag tag_name, **options do
     .text-3xl.md:text-4xl.font-semibold.leading-none.text-slate-700.dark:text-slate-200.whitespace-nowrap
-      = render SensorValue::Component.new(distance, distance_sensor_name)
+      = render Sensor::Value::Component.new(distance, distance_sensor_name)
     - if report.km_per_day
       .mt-2.md:mt-3.text-sm.md:text-base.text-slate-500.dark:text-slate-400.whitespace-nowrap
         = km_per_day
@@ -24,7 +24,7 @@
         = content_tag tag_name, **options do
           - if driving_cost
             span class=Car::Card::Component::COST_VALUE
-              = render SensorValue::Component.new(driving_cost, :total_costs)
+              = render Sensor::Value::Component.new(driving_cost, :total_costs)
             span class=Car::Card::Component::ROW_CAPTION = t('car_breakdown.in_total')
           - else
             span class=Car::Card::Component::COST_VALUE = '–'
@@ -34,7 +34,7 @@
           - tag_name, options = cost_cell('car_cost_rate')
           = content_tag tag_name, **options do
             span class=Car::Card::Component::COST_VALUE
-              = render SensorValue::Component.new(cost_per_100km, :total_costs)
+              = render Sensor::Value::Component.new(cost_per_100km, :total_costs)
             span class=Car::Card::Component::ROW_CAPTION = t('car_breakdown.avg_per_100km')
             .hidden data-tooltip-target='html'
               = render cost_rate_tooltip
@@ -49,7 +49,7 @@
         .max-sm:hidden.self-center.h-12.border-l.border-slate-300.dark:border-slate-700
         = render Car::StatRow::Component.new(title: t('car_breakdown.range'), sensor_name: max_range_chart, timeframe:, tooltip: max_range_tooltip, css_class: 'flex-1 sm:border-t-0') do
           - if report.car
-            = render SensorValue::Component.new(report.max_range, :car_max_range)
+            = render Sensor::Value::Component.new(report.max_range, :car_max_range)
           - else
             = '–'
 

@@ -19,8 +19,8 @@
 /! Interactive filter: narrow the list by category and/or date range (also the
 /! landing spot when drilling down from the amortization table). Kept outside the
 /! 'list' frame so a list refresh does not drop it.
-= render CashFlowFilter::Component.new
+= render CashFlow::Filter::Component.new
 
 / A stream refreshes the list. The link of a row on a phone leaves the frame.
 = tag.turbo_frame id: 'list', target: '_top' do
-  = render CashFlowList::Component.new(cash_flows: @cash_flows, filter_categories:, filter_from:, filter_to:)
+  = render CashFlow::List::Component.new(cash_flows: @cash_flows, filter_categories:, filter_from:, filter_to:)

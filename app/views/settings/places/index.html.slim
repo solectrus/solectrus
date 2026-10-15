@@ -3,7 +3,7 @@
 
 = render Nav::Side::Component.new(items: car_nav_items) do
   - if sponsored?
-    = render VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
-      = render PlaceList::Component.new(places: @places, pagy: @pagy)
+    = render Place::VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
+      = render Place::List::Component.new(places: @places, pagy: @pagy)
   - else
     = render DemoLink::Component.new(feature: Sensor::HomePage.feature(:cars))

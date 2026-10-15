@@ -2,7 +2,7 @@
 # @logical_path data_display
 class AutarkyDetailsComponentPreview < ViewComponent::Preview
   def default
-    render AutarkyDetails::Component.new data:, timeframe:
+    render Balance::AutarkyDetails::Component.new data:, timeframe:
   end
 
   private

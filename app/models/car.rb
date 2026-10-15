@@ -88,7 +88,7 @@ class Car < ApplicationRecord
   end
 
   # The one car in use today, or nil with none or more than one. The power
-  # balance shows its state of charge (see StatsNow::Component).
+  # balance shows its state of charge (see Balance::StatsNow::Component).
   def self.sole_in_use
     in_use = configured.select { it.active_on?(Date.current) }
     in_use.first if in_use.one?

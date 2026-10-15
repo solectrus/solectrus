@@ -1,0 +1,35 @@
+.tooltip-layout.tooltip-layout-table
+  = render Tooltip::Header::Component.new(title: t('.title'), sheet_only: true)
+
+  - if base_fee?
+    / A step of its own: the grid costs, split into energy costs and base fee
+    dl.tooltip-group
+      div
+        = render Tooltip::CalcRow::Component.new(label: t('sensors.grid_energy_costs_short')) do
+          = render Sensor::Value::Component.new(import_costs.parts.last, :grid_energy_costs, sign: :negative, **import_costs.options)
+        p.tooltip-detail
+          = t('.grid.detail_html', energy: render(Sensor::Value::Component.new(data, :grid_import_power, context: :total)))
+
+      = render Tooltip::CalcRow::Component.new(label: t('sensors.grid_base_fee_short'), operator: :plus) do
+        = render Sensor::Value::Component.new(import_costs.parts.first, :grid_base_fee, sign: :negative, **import_costs.options)
+
+      = render Tooltip::CalcRow::Component.new(label: t('.grid.import_costs'), operator: :equals) do
+        = render Sensor::Value::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
+
+  / One sum: each part of the costs, with the energy it comes from below it
+  dl.tooltip-group
+    - unless base_fee?
+      div
+        = render Tooltip::CalcRow::Component.new(label: t('.grid.import_costs')) do
+          = render Sensor::Value::Component.new(costs.parts.first, :grid_costs, sign: :negative, **costs.options)
+        p.tooltip-detail
+          = t('.grid.detail_html', energy: render(Sensor::Value::Component.new(data, :grid_import_power, context: :total)))
+
+    div
+      = render Tooltip::CalcRow::Component.new(label: t('.pv.opportunity_costs'), operator: :plus) do
+        = render Sensor::Value::Component.new(costs.parts.last, :opportunity_costs, sign: :negative, **costs.options)
+      p.tooltip-detail
+        = t('.pv.detail_html', energy: render(Sensor::Value::Component.new(data, :self_consumption, context: :total)))
+
+    = render Tooltip::CalcRow::Component.new(label: t('.total_costs'), operator: :equals, total: true) do
+      = render Sensor::Value::Component.new(costs.sum, :total_costs, sign: :negative, **costs.options)

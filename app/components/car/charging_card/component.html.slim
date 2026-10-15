@@ -9,7 +9,7 @@
       .hidden data-tooltip-target='html'
         .space-y-1
           - parts.each do |part|
-            = render TooltipRow::Component.new(label: t(part.style.label_key), color_class: part.style.color_class) do
+            = render Tooltip::Row::Component.new(label: t(part.style.label_key), color_class: part.style.color_class) do
               = render energy_value(part.source.kwh)
 
   / The sources as a ring, with the share of PV in the center. The tooltip
@@ -40,7 +40,7 @@
       = content_tag tag_name, **options do
         div class=guest_value_classes
           - if charging_cost
-            = render SensorValue::Component.new(charging_cost, :total_costs)
+            = render Sensor::Value::Component.new(charging_cost, :total_costs)
           - else
             = '–'
         span class=Car::Card::Component::ROW_CAPTION = t('sensors.car_charging_costs')

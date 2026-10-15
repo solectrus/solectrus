@@ -1,0 +1,14 @@
+div data-controller="timeframe--select--relative-picker--component"
+  / Grouped inline buttons - side by side on desktop, stacked on mobile
+  .flex.flex-col.gap-3 class="sm:flex-row sm:justify-between"
+    - grouped_options.each do |group|
+      div
+        - if group[:heading].present?
+          .text-xs.text-gray-500.dark:text-gray-400.mb-1.uppercase.tracking-wider
+            = group[:heading]
+        - else
+          .text-xs.mb-1.invisible &nbsp;
+        .flex.gap-2
+          - group[:options].each do |option|
+            button type="button" class=option_classes(option[:value]) data-action="timeframe--select--relative-picker--component#selectOption" data-timeframe--select--relative-picker--component-target="optionCell" data-value=option[:value]
+              == option[:label]

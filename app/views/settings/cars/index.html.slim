@@ -3,7 +3,7 @@
 = render Nav::Side::Component.new(items: car_nav_items) do
   / A stream refreshes the list. The link of a row on a phone leaves the frame.
   = tag.turbo_frame id: 'list', target: '_top' do
-    = render CarList::Component.new(cars: @cars)
+    = render Car::List::Component.new(cars: @cars)
 
   / The places are a group below the cars on a phone, a tab on the desktop
   - if car_nav_items.many?

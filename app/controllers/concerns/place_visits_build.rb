@@ -1,5 +1,5 @@
 # The lists of the places and of the visits build the days without a fresh
-# summary first, like the car page (see SummaryBuilder::Component). The visits
+# summary first, like the car page (see Summary::Builder::Component). The visits
 # give the time of each place, and the build makes the new places, so both
 # lists are at most a few minutes old.
 module PlaceVisitsBuild

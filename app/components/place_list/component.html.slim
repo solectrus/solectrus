@@ -1,8 +1,0 @@
-- if places.empty?
-  = render Ui::EmptyList::Component.new(icon: 'location-dot', text: t('settings.places.empty'))
-- else
-  .grid.w-full.max-lg:block.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60 class="grid-cols-[auto_minmax(0,1fr)_auto]"
-    .col-span-full.grid.grid-cols-subgrid.text-gray-800.dark:text-gray-400.font-bold.max-lg:hidden
-      .p-2.col-span-2 = Place.human_attribute_name(:name)
-      .p-2.text-right = t('settings.places.time')
-    = render PlaceList::Rows::Component.new(places:, pagy:)

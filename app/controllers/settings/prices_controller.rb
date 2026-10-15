@@ -34,7 +34,7 @@ class Settings::PricesController < ApplicationController
   private
 
   def list_stream
-    turbo_stream.update('list', PriceList::Component.new(prices: Price.list_for(name), name:))
+    turbo_stream.update('list', Price::List::Component.new(prices: Price.list_for(name), name:))
   end
 
   def default_list_path

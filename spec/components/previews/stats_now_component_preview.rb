@@ -3,7 +3,7 @@
 # @display max_width 48rem
 class StatsNowComponentPreview < ViewComponent::Preview
   def default
-    render StatsNow::Component.new data:, sensor:
+    render Balance::StatsNow::Component.new data:, sensor:
   end
 
   private

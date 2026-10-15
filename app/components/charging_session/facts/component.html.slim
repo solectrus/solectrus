@@ -6,7 +6,7 @@
       | &nbsp;· #{time_range}
 
   .mt-2.flex.items-baseline.justify-between.gap-4
-    = render SensorValue::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, class: 'text-3xl font-medium tabular-nums')
+    = render Sensor::Value::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, class: 'text-3xl font-medium tabular-nums')
     - if charging_session.cost
       span.text-2xl.tabular-nums
         = number_to_currency(charging_session.cost, unit: Currency.symbol)

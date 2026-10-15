@@ -54,7 +54,7 @@ class Settings::CashFlowsController < ApplicationController
   def list_stream
     turbo_stream.update(
       'list',
-      CashFlowList::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:),
+      CashFlow::List::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:),
     )
   end
 

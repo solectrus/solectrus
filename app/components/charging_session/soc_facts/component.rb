@@ -1,7 +1,7 @@
 # The state of charge and the loss of a charge, in the form of a session:
 # "Charge level 23 -> 81 % - 9 % loss". Nothing without a state of charge.
 class ChargingSession::SocFacts::Component < ViewComponent::Base
-  include ChargingSessionTexts
+  include ChargingSession::Texts
 
   def initialize(charging_session:, css_class: nil)
     super()

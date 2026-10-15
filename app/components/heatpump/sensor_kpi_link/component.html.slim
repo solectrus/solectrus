@@ -2,4 +2,4 @@
           class: css_class,
           data: link_data do
   = render RectBadge::Component.new(title:) do
-    = render SensorValue::Component.new(data, sensor_name, context: sensor_value_context)
+    = render Sensor::Value::Component.new(data, sensor_name, context: sensor_value_context)

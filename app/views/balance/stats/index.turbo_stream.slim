@@ -9,6 +9,6 @@
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   - if timeframe.now?
-    = render StatsNow::Component.new data:, sensor:
+    = render Balance::StatsNow::Component.new data:, sensor:
   - else
-    = render StatsRange::Component.new data:, timeframe:, sensor:
+    = render Balance::StatsRange::Component.new data:, timeframe:, sensor:

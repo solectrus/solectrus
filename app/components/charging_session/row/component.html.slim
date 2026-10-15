@@ -39,7 +39,7 @@
     the wide column after the energy, the address the one before it
   - if pv_share?
     .col-start-4.tabular-nums.text-right.whitespace-nowrap.lg:p-2.max-lg:col-start-3.max-lg:row-start-1.max-lg:text-headline.max-lg:text-gray-800.dark:max-lg:text-slate-300
-      = render SensorValue::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+      = render Sensor::Value::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
     .col-start-5.tabular-nums.whitespace-nowrap.lg:p-2.lg:px-8.max-lg:col-span-3.max-lg:col-start-1.max-lg:row-start-3.max-lg:mt-1.max-lg:text-subhead.max-lg:text-muted
       - if charging_session.pv_percent
         / A phone shows the bar alone, the energy and the cost are enough numbers
@@ -53,7 +53,7 @@
       - if charging_session.kwh
         - if charging_session.proposal?
           span.text-gray-400 title=t('charging_sessions.proposal.estimate') ≈&nbsp;
-        = render SensorValue::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+        = render Sensor::Value::Component.new(charging_session.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
       - else
         span.text-gray-400 title=t('charging_sessions.proposal.no_estimate') –
   .col-start-6.tabular-nums.text-right.whitespace-nowrap.lg:p-2.max-lg:col-start-3.max-lg:row-start-2.max-lg:text-subhead.max-lg:text-muted

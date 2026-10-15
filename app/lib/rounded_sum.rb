@@ -15,7 +15,7 @@
 #   costs.sum       # => 5.83
 #   costs.options   # => { precision: 2 }, or {} when a part is missing
 #
-#   SensorValue::Component.new(costs.sum, :total_costs, **costs.options)
+#   Sensor::Value::Component.new(costs.sum, :total_costs, **costs.options)
 #
 # A part that goes the other way comes negated. A sum that its sensor clamps
 # takes the sensor's range, and its parts then round on their own:
@@ -44,7 +44,7 @@ class RoundedSum
     formatter.precision if complete?
   end
 
-  # What SensorValue::Component needs to print every value of the sum alike
+  # What Sensor::Value::Component needs to print every value of the sum alike
   def options
     @options ||= @format.except(:unit).merge({ precision: }.compact)
   end

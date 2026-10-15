@@ -33,10 +33,10 @@ div class="donut-chart flex-1 min-h-0 flex items-center justify-center @containe
         - else
           .tooltip-layout.tooltip-layout-table
             - if title
-              = render TooltipHeader::Component.new(title:, sheet_only: true)
+              = render Tooltip::Header::Component.new(title:, sheet_only: true)
             .tooltip-group
               - segments.zip(rounded_percents).each do |seg, percent|
-                = render TooltipRow::Component.new(label: seg[:label], color_var: seg[:color_var]) do
+                = render Tooltip::Row::Component.new(label: seg[:label], color_var: seg[:color_var]) do
                   = number_to_percentage(percent, precision: 0)
 
       / Center content (COP)

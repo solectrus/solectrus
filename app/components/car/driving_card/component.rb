@@ -3,7 +3,7 @@
 # average maximum range. The tooltips of the cost and the consumption explain
 # how they come about.
 class Car::DrivingCard::Component < ViewComponent::Base
-  include CarChartLink
+  include Car::ChartLink
 
   def initialize(report:)
     super()
@@ -31,7 +31,7 @@ class Car::DrivingCard::Component < ViewComponent::Base
 
   # Rendered in kWh/100 km, like the value of the tile
   def consumption_value(kwh_per_100km)
-    SensorValue::Component.new(kwh_per_100km&.*(1000), :wallbox_power, context: :total, scaling: :kilo, precision: 1)
+    Sensor::Value::Component.new(kwh_per_100km&.*(1000), :wallbox_power, context: :total, scaling: :kilo, precision: 1)
   end
 
   # The average maximum range belongs to one car, so "all" of several cars
@@ -100,7 +100,7 @@ class Car::DrivingCard::Component < ViewComponent::Base
         row(nil, t('sensors.car_distance_short'), distance_value(driving.cost_distance)),
         row('×', t('sensors.car_cost_per_100km_short'), cost_value(cost_per_100km)),
       ],
-      result: row('=', t('sensors.car_driving_costs'), SensorValue::Component.new(driving_cost, :total_costs)),
+      result: row('=', t('sensors.car_driving_costs'), Sensor::Value::Component.new(driving_cost, :total_costs)),
       notes: [unrated_note(driving.cost_distance)],
     )
   end
@@ -150,10 +150,10 @@ class Car::DrivingCard::Component < ViewComponent::Base
   end
 
   def distance_value(distance)
-    SensorValue::Component.new(distance, distance_sensor_name)
+    Sensor::Value::Component.new(distance, distance_sensor_name)
   end
 
   def cost_value(cost)
-    SensorValue::Component.new(cost, :total_costs, precision: 2)
+    Sensor::Value::Component.new(cost, :total_costs, precision: 2)
   end
 end

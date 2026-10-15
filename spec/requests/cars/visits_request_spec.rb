@@ -245,7 +245,7 @@ describe 'Cars Visits' do
       get cars_visits_path(timeframe: '2026-09', place: work.id), headers: { 'Turbo-Frame' => 'modal' }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('<turbo-frame id="modal"', %(data-timeframe-select--component-base-url-value="/cars/places/#{work.id}/visits"))
+      expect(response.body).to include('<turbo-frame id="modal"', %(data-timeframe--select--component-base-url-value="/cars/places/#{work.id}/visits"))
     end
 
     it 'forbids the select to a guest' do

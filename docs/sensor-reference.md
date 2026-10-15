@@ -301,7 +301,7 @@ The block receives the whole `Sensor::Data` object, not a number, and it can be
 `nil`. Read your own sensor off it behind a `respond_to?` guard, the way
 `battery_soc` does, because the container holds only the sensors that query
 loaded. The reader is `sensor.icon(data:)`, a keyword argument:
-`SensorIcon::Component` calls it that way.
+`Sensor::Icon::Component` calls it that way.
 
 ### `chart` - Chart Integration
 
@@ -902,8 +902,8 @@ end
 ### Component Tests
 
 ```ruby
-RSpec.describe SensorValue::Component do
-  subject(:component) { SensorValue::Component.new(2500, :inverter_power) }
+RSpec.describe Sensor::Value::Component do
+  subject(:component) { Sensor::Value::Component.new(2500, :inverter_power) }
 
   it 'formats watt values' do
     expect(component.integer_part).to eq('2')
@@ -1049,8 +1049,8 @@ except `:class` and `:sign` goes straight to `Sensor::ValueFormatter`:
 - `sign:` - print a leading `+` for a positive value
 
 ```slim
-= render SensorValue::Component.new(data, :my_sensor, precision: 3)
-= render SensorValue::Component.new(data, :my_sensor, context: :total)
+= render Sensor::Value::Component.new(data, :my_sensor, precision: 3)
+= render Sensor::Value::Component.new(data, :my_sensor, context: :total)
 ```
 
 ## Troubleshooting

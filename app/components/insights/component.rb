@@ -49,13 +49,13 @@ class Insights::Component < ViewComponent::Base
   def total_value
     case sensor.name
     when :inverter_power
-      SensorValue::Component.new(data, sensor.name, context: :total, precision: 3)
+      Sensor::Value::Component.new(data, sensor.name, context: :total, precision: 3)
     when :house_power, :wallbox_power, :heatpump_power
-      SensorValue::Component.new(data, sensor.name, context: :total, scaling: :kilo)
+      Sensor::Value::Component.new(data, sensor.name, context: :total, scaling: :kilo)
     else
       return unless sensor.allowed_aggregations.first == :sum
 
-      SensorValue::Component.new(insights.value, sensor.name, context: :total, scaling: :kilo)
+      Sensor::Value::Component.new(insights.value, sensor.name, context: :total, scaling: :kilo)
     end
   end
 

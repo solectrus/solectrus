@@ -17,7 +17,7 @@
 /! navigate between; the hint states have nothing to toggle between.
 - if @page.calculation_expected?
   - content_for :sub_nav do
-    = render AmortizationSubNav::Component.new(period_years: @page.period_years, interest_rate: @page.interest_rate, view: current_view, projection_uncertain: @page.projection_uncertain?)
+    = render Amortization::SubNav::Component.new(period_years: @page.period_years, interest_rate: @page.interest_rate, view: current_view, projection_uncertain: @page.projection_uncertain?)
 
 - case @page.state
 - when :restricted
@@ -59,4 +59,4 @@
                                         src: (content_amortization_path(view: current_view) unless detail_ready),
                                         class: 'flex-1 min-h-0 flex flex-col gap-3' do
     - if detail_ready
-      = render AmortizationDetail::Component.new(page: @page, view: current_view)
+      = render Amortization::Detail::Component.new(page: @page, view: current_view)

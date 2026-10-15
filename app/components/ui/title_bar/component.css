@@ -12,7 +12,7 @@
  * pages slide. Its accessories, like a
  * segmented control below the title bar, belong to one page (see
  * .ui-title-bar-accessory). The bar is an element of its own, the backdrop:
- * a name on the header would make it a stacking context, and the ThemeStrip
+ * a name on the header would make it a stacking context, and the Theme::Strip
  * would then cover the top of the title bar.
  */
 html:has(.ui-title-bar):not(:has(> .ui-title-bar-skeleton)) main,
@@ -61,7 +61,7 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
   @apply invisible;
 }
 
-/* Over the ThemeStrip, as the sub navigation with the title bar it copies.
+/* Over the Theme::Strip, as the sub navigation with the title bar it copies.
    The strip stays at the top edge of an app installed on an iPhone, and it
    would cut off the top of the back button. */
 .ui-title-bar-skeleton-title {

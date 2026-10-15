@@ -23,8 +23,8 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
     meta name="apple-mobile-web-app-status-bar-style" content="light-content"
     meta name="mobile-web-app-capable" content="yes"
     meta name="application-name" content="SOLECTRUS"
-    = render ThemeColor::Component.new(chosen: chosen_theme)
-    = render SystemTheme::Component.new(chosen: chosen_theme)
+    = render Theme::Color::Component.new(chosen: chosen_theme)
+    = render Theme::System::Component.new(chosen: chosen_theme)
     meta name="version" content= Rails.configuration.x.git.commit_version
     meta name="date" content= Rails.configuration.x.git.commit_time
     meta name="env" content= Rails.env
@@ -67,7 +67,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
       theme-strip-collapsed on the body, which drops the strip to no height
       there. That class is on the body and not on the strip, because Turbo
       keeps the strip and the styles of the page that rendered it first.
-    = render ThemeStrip::Component.new
+    = render Theme::Strip::Component.new
 
     .flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=(content_for?(:full_height) || content_for?(:fixed_nav) ? 'h-dvh overflow-hidden' : 'min-h-dvh')
       - if banner?

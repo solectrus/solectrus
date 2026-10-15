@@ -106,7 +106,7 @@ describe 'Amortization' do
             expect(response.body).to include('type="range"')
             # Not cached (null store in test), so the frame fetches it
             expect(response.body).to include('src="/amortization/content')
-            expect(response.body).not_to include('amortization-chart--component')
+            expect(response.body).not_to include('amortization--chart--component')
           end
         end
 
@@ -121,7 +121,7 @@ describe 'Amortization' do
 
           aggregate_failures do
             expect(response).to have_http_status(:success)
-            expect(response.body).to include('amortization-chart--component')
+            expect(response.body).to include('amortization--chart--component')
             expect(response.body).not_to include('src="/amortization/content')
           end
         end
@@ -132,7 +132,7 @@ describe 'Amortization' do
           aggregate_failures do
             expect(response).to have_http_status(:success)
             expect(response.body).to include('Undiscounted balance today')
-            expect(response.body).to include('amortization-chart--component')
+            expect(response.body).to include('amortization--chart--component')
           end
         end
 
@@ -213,7 +213,7 @@ describe 'Amortization' do
 
           expect(response).to have_http_status(:success)
           expect(response.body).to include('Undiscounted balance today')
-          expect(response.body).to include('amortization-chart--component')
+          expect(response.body).to include('amortization--chart--component')
         end
 
         it 'renders the parameter sliders next to the detail frame' do
@@ -327,7 +327,7 @@ describe 'Amortization' do
         expect(response.body).to include('Earned back')
         # The discounted twin of the nominal balance is its own column.
         expect(response.body).to include('Discounted balance')
-        expect(response.body).not_to include('amortization-chart--component')
+        expect(response.body).not_to include('amortization--chart--component')
       end
 
       it 'offers the sub-navigation with the table tab current' do
@@ -424,9 +424,9 @@ describe 'Amortization' do
         aggregate_failures do
           expect(response).to have_http_status(:success)
           expect(response.body).to include(
-            'amortization-return-chart--component',
+            'amortization--return-chart--component',
           )
-          expect(response.body).not_to include('amortization-chart--component')
+          expect(response.body).not_to include('amortization--chart--component')
         end
       end
 
@@ -451,7 +451,7 @@ describe 'Amortization' do
           expect(response).to have_http_status(:success)
           expect(response.body).to include('No history available yet')
           expect(response.body).not_to include(
-            'amortization-return-chart--component',
+            'amortization--return-chart--component',
           )
         end
       end
@@ -476,7 +476,7 @@ describe 'Amortization' do
           expect(response).to have_http_status(:success)
           expect(response.body).to include('No history available yet')
           expect(response.body).not_to include(
-            'amortization-return-chart--component',
+            'amortization--return-chart--component',
           )
         end
       end
@@ -506,7 +506,7 @@ describe 'Amortization' do
       aggregate_failures do
         expect(response).to have_http_status(:success)
         expect(response.body).to include('id="amortization_detail"')
-        expect(response.body).to include('amortization-chart--component')
+        expect(response.body).to include('amortization--chart--component')
       end
     end
 
@@ -640,7 +640,7 @@ describe 'Amortization' do
 
         aggregate_failures do
           expect(response).to have_http_status(:success)
-          expect(response.body).to include('amortization-chart--component')
+          expect(response.body).to include('amortization--chart--component')
           expect(AmortizationCalculator).to have_received(:result).with(
             period_years: 25,
             interest_rate: 2.5,
@@ -654,7 +654,7 @@ describe 'Amortization' do
         expect(response).to have_http_status(:success)
         # The details view re-renders the table, not the chart.
         expect(response.body).to include('Earned back')
-        expect(response.body).not_to include('amortization-chart--component')
+        expect(response.body).not_to include('amortization--chart--component')
       end
 
       it 're-renders the return history when the sliders live on that view' do
@@ -662,7 +662,7 @@ describe 'Amortization' do
 
         aggregate_failures do
           expect(response).to have_http_status(:success)
-          expect(response.body).not_to include('amortization-chart--component')
+          expect(response.body).not_to include('amortization--chart--component')
         end
       end
 

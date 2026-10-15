@@ -107,7 +107,7 @@ module Sensor::HomePage
     end
 
     # The sensors of a page, in the order the installation lists them. The
-    # menu of the page arranges them, see ChartDropdownLogic.
+    # menu of the page arranges them, see ChartDropdown::Logic.
     def sensor_names(key)
       page(key) # rejects a page that does not exist
 

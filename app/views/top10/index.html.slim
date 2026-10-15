@@ -9,22 +9,22 @@
         - c.with_items nav_items
 
     .hidden.lg:landscape:flex.gap-3.items-center.justify-end.text-base.h-9
-      = render Top10SortToggle::Component.new
+      = render Top10::SortToggle::Component.new
       - if supports_calc_select?
-        = render Top10CalcSelect::Component.new(calc:, sensor:)
-      = render Top10CarSelect::Component.new(current_sensor: sensor, permitted_params:)
-      = render Top10SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
+        = render Top10::CalcSelect::Component.new(calc:, sensor:)
+      = render Top10::CarSelect::Component.new(current_sensor: sensor, permitted_params:)
+      = render Top10::SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
 
 .flex.lg:landscape:hidden.gap-3.items-center.text-base.h-9.mb-4
-  = render Top10SortToggle::Component.new
+  = render Top10::SortToggle::Component.new
   - if supports_calc_select?
-    = render Top10CalcSelect::Component.new(calc:, sensor:)
+    = render Top10::CalcSelect::Component.new(calc:, sensor:)
   .flex-1.min-w-0.flex.justify-end.gap-3
-    = render Top10CarSelect::Component.new(current_sensor: sensor, permitted_params:)
-    = render Top10SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
+    = render Top10::CarSelect::Component.new(current_sensor: sensor, permitted_params:)
+    = render Top10::SensorSelect::Component.new(current_sensor: sensor, permitted_params:)
 
 - if @missing_or_stale_summary_days.present?
-  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+  = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 
 - else
   = render Ui::LazyFrame::Component.new id: "top10-#{period}-#{sensor_name}-#{sort}-#{calc}",

@@ -25,7 +25,7 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
         .text-center class=('text-slate-300 dark:text-slate-600' unless range?)
           span class="block font-medium tabular-nums leading-none text-[clamp(1.75rem,12cqi,3.75rem)]"
             - if range?
-              = render SensorValue::Component.new(range, sensor_name(:car_range))
+              = render Sensor::Value::Component.new(range, sensor_name(:car_range))
             - else
               | –
           span class=class_names('block mt-1 uppercase tracking-wide text-[clamp(0.625rem,3cqi,0.875rem)]', 'text-slate-500 dark:text-slate-400' => range?)
@@ -47,7 +47,7 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
               span.flex.items-center.gap-1.5 class=('text-slate-600/40 dark:text-slate-400/40' unless charging?) title=t('sensors.car_charging_power_short') aria-label=t('sensors.car_charging_power_short') data-controller='tooltip'
                 - if state.connected.nil?
                   = helpers.icon 'bolt', class: ('text-sensor-pv' if charging?)
-                = render SensorValue::Component.new(charging_power, :wallbox_power, context: :rate)
+                = render Sensor::Value::Component.new(charging_power, :wallbox_power, context: :rate)
 
     / The slot below the plug, for example the place of the car. It sits
       between the two ends of the arc, its bottom flush with their labels: at
@@ -62,10 +62,10 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
       maximum range. Without a maximum range there is no scale.
     - if scale?
       div class="absolute top-[93%] left-[calc(100%*4/34)] -translate-x-1/2 whitespace-nowrap text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)]"
-        = render SensorValue::Component.new(0, sensor_name(:car_range))
+        = render Sensor::Value::Component.new(0, sensor_name(:car_range))
       - if max_range
         div class="absolute top-[93%] left-[calc(100%*30/34)] -translate-x-1/2 whitespace-nowrap text-slate-500 dark:text-slate-400 text-[clamp(0.75rem,4cqi,1.125rem)]" title=t('sensors.car_max_range_short') aria-label=t('sensors.car_max_range_short') data-controller='tooltip'
-          = render SensorValue::Component.new(max_range, sensor_name(:car_max_range))
+          = render Sensor::Value::Component.new(max_range, sensor_name(:car_max_range))
 
   / The block below the arc. The arc keeps its height free.
   = footer

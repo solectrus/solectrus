@@ -54,7 +54,7 @@ class RadialBadgeComponentPreview < ViewComponent::Preview
   private
 
   def radial_badge(sensor_name, value)
-    render RadialBadge::Component.new(
+    render Balance::RadialBadge::Component.new(
              sensor_name,
              data: data_for(sensor_name, value),
            )

@@ -98,7 +98,7 @@ class SplittedCosts::Component < ViewComponent::Base
   end
 
   # With a base fee, the grid costs split into the fee and the energy costs, in
-  # the order of GridCostsBreakdown::Component, so all three rows add up to the
+  # the order of GridCosts::Breakdown::Component, so all three rows add up to the
   # total as shown.
   def raw_parts
     if base_fee?

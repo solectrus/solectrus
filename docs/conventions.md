@@ -38,12 +38,17 @@ app/components/nav/top/component.rb        # Nav::Top::Component
 app/components/notification/badge/component.rb  # Notification::Badge::Component
 ```
 
+A family is a domain, like the cars or the amortization, and often has the
+name of its model. The name of a member leaves out the name of the family:
+`Car::List`, not `CarList` or `Car::CarList`.
+
 A component that another app could use as it is, like a button or a dialog,
 lives in `app/components/ui/` and in the namespace `Ui::`. A component that
 knows SOLECTRUS stays outside it. `docs/ui.md` lists the `Ui::` components.
 
-`app/components/concerns/` is the exception. It holds shared modules
-(`BreakdownTable`, `ChartDropdownLogic`), not components.
+A module that the components of one family share lives in the directory of
+the family, like `ChartDropdown::Logic`. `app/components/concerns/` holds
+the modules that several families share, like `TimeRangeText`.
 
 ### Views, components and helpers
 
@@ -62,11 +67,11 @@ Everything else is a ViewComponent: a list, a row, a cell, a chip. A Turbo
 Stream renders the component directly, not a partial around it:
 
 ```ruby
-turbo_stream.update('list', PriceList::Component.new(prices:, name:))
+turbo_stream.update('list', Price::List::Component.new(prices:, name:))
 ```
 
 When two components show the same text, a module in `app/components/concerns/`
-holds it, like `ChargingSessionTexts`. Such a module reads the record from a
+holds it, like `ChargingSession::Texts`. Such a module reads the record from a
 method of the component, like `charging_session`.
 
 A helper in `app/helpers/` is for code that many views and components use: the

@@ -1,0 +1,60 @@
+.finance-badge.badge class= 'h-auto space-y-2 tall:space-y-3 py-3 rounded-3xl text-center xl:tall:bg-slate-200 xl:tall:dark:bg-slate-800 text-slate-500 dark:text-slate-400'
+  - unless timeframe.future?
+    - if Sensor::Config.exists?(:grid_export_power)
+      = link_to balance_home_path(sensor_name: 'grid_revenue', timeframe:),
+                data: { \
+                  turbo_prefetch: 'false',
+                  controller: (missing_price?(:grid_revenue) ? 'tooltip' : nil),
+                  action: 'stats-with-chart--component#loadChart',
+                  stats_with_chart__component_sensor_name_param: 'grid_revenue',
+                  stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'grid_revenue', timeframe:),
+                },
+                title: (missing_price?(:grid_revenue) ? t('.missing_price') : nil),
+                class: 'click-animation tiny:hidden' do
+        .value
+          = render Sensor::Value::Component.new(data, :grid_revenue, sign: :positive)
+        .title
+          = Sensor::Registry[:grid_revenue].display_name(:short)
+
+    = link_to balance_home_path( \
+                sensor_name: :grid_costs,
+                timeframe:,
+              ),
+              data: { \
+                turbo_prefetch: 'false',
+                controller: 'tooltip',
+                tooltip_touch_value: 'long',
+                action: 'stats-with-chart--component#loadChart',
+                stats_with_chart__component_sensor_name_param: 'grid_costs',
+                stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'grid_costs', timeframe:),
+              },
+              title: (missing_price?(:grid_costs) ? t('.missing_price') : nil),
+              class: 'click-animation' do
+      .value
+        = render Sensor::Value::Component.new(data, :grid_costs, sign: :negative)
+      .title
+        = Sensor::Registry[:grid_costs].display_name(:short)
+
+      - unless missing_price?(:grid_costs)
+        template data-tooltip-target= 'html'
+          = render Balance::ConsumeDetails::Component.new(data:)
+
+    = link_to balance_home_path(sensor_name: 'savings', timeframe:),
+              data: { \
+                turbo_prefetch: 'false',
+                controller: 'tooltip',
+                tooltip_touch_value: 'long',
+                action: 'stats-with-chart--component#loadChart',
+                stats_with_chart__component_sensor_name_param: 'savings',
+                stats_with_chart__component_chart_url_param: balance_charts_path(sensor_name: 'savings', timeframe:),
+              },
+              title: (missing_price?(:savings) ? t('.missing_price') : nil),
+              class: 'click-animation' do
+      .value
+        = render Sensor::Value::Component.new(data, :savings, sign: :value_based)
+      .title
+        = Sensor::Registry[:savings].display_name(:short)
+
+      - unless missing_price?(:savings)
+        template data-tooltip-target= 'html'
+          = render Balance::SavingsDetails::Component.new(data:)

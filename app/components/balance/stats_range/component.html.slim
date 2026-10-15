@@ -1,0 +1,11 @@
+= render Balance::Component.new data:,
+                                timeframe:,
+                                sensor: do |balance|
+
+  = balance.with_center do
+    = render Balance::ConsumptionBadge::Component.new(data:, timeframe:)
+
+    div class="flex-1 flex items-center justify-center"
+      = render Balance::Gap::Component.new(data:)
+
+    = render Balance::FinanceBadge::Component.new(data:, timeframe:)

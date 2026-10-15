@@ -47,9 +47,9 @@
 @import '../../components/insights/component.css' layer(base);
 @import '../../components/ui/title_bar/component.css' layer(base);
 @import '../../components/splitted_costs/component.css' layer(base);
-@import '../../components/tooltip_row/component.css' layer(base);
+@import '../../components/tooltip/row/component.css' layer(base);
 /* No layer(): its fullscreen sizes must beat the utilities of the badge */
-@import '../../components/soc_badge/component.css';
+@import '../../components/balance/soc_badge/component.css';
 
 /* No layer() — file contains its own @theme and @layer base blocks */
 @import '../stylesheets/sensor_colors.css';
@@ -86,12 +86,12 @@
     'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
 }
 
-/* The ThemeStrip covers the top edge of the viewport, and the top navigation
+/* The Theme::Strip covers the top edge of the viewport, and the top navigation
    lies over it. Below lg that navigation is gone, so a page without a sub
    navigation starts its content there and the strip has to give way. The page
    says so on the body, because the strip itself is permanent and keeps the
    inline styles of the page that first rendered it. See
-   components/theme_strip/component.rb. */
+   components/theme/strip/component.rb. */
 @media (width < 64rem) {
   /* The fallback of 4rem is the height of the desktop navigation, which is
      not here. What reaches the top edge below lg is the sub navigation of the

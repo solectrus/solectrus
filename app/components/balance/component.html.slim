@@ -1,7 +1,7 @@
 div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
-  = render SegmentContainer::Component.new tooltip_placement: 'right',
-                                            data:,
-                                            timeframe: do |balance|
+  = render Segment::Container::Component.new tooltip_placement: 'right',
+                                             data:,
+                                             timeframe: do |balance|
     ruby:
       balance.with_title do
         link_to I18n.t('balance_sheet.left'),
@@ -39,9 +39,9 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
   div class= 'flex flex-col min-h-0 overflow-hidden px-2 sm:px-4 gap-2 tall:gap-4 pb-8'
     = center
 
-  = render SegmentContainer::Component.new tooltip_placement: 'left',
-                                            data:,
-                                            timeframe: do |balance|
+  = render Segment::Container::Component.new tooltip_placement: 'left',
+                                             data:,
+                                             timeframe: do |balance|
     ruby:
       balance.with_title do
         link_to I18n.t('balance_sheet.right'),

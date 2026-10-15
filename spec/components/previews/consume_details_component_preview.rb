@@ -2,7 +2,7 @@
 # @logical_path data_display
 class ConsumeDetailsComponentPreview < ViewComponent::Preview
   def default
-    render ConsumeDetails::Component.new data:
+    render Balance::ConsumeDetails::Component.new data:
   end
 
   private

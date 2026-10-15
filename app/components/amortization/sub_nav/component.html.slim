@@ -1,0 +1,68 @@
+/! Sub-navigation in the top bar: switch between the chart and the table, each
+/! its own URL. The parameter sliders sit at the right edge - inline on desktop,
+/! behind a dropdown on mobile.
+/!
+/! py-2 on a phone: the row is 40px high, because the two icon buttons keep a
+/! tap target of that size. An equal padding puts the row in the middle of the
+/! bar. pt-2/pb-3 had made the bar 4px higher than it has to be, and it had
+/! pushed the row up by 4px.
+.flex.items-center.gap-4.py-2.lg:landscape:py-5
+  .flex-1.min-w-0
+    = render Nav::Sub::Component.new(abbreviate: false) do |c|
+      - c.with_items nav_items
+
+  /! Amber warning next to the parameters it qualifies: the projection they feed
+  /! rests on less than a year of measured data. Stays visible on mobile too,
+  /! where the sliders themselves move into the dropdown to its right.
+  - if projection_uncertain
+    span[
+      class='shrink-0 cursor-help text-amber-300 dark:text-amber-400'
+      data-controller='tooltip'
+      data-tooltip-touch-value='true'
+      title=t('.uncertain_prognosis')
+      aria-label=t('.uncertain_prognosis')
+    ]
+      = icon 'triangle-exclamation', class: 'fa-lg block'
+
+  /! Desktop: the sliders live directly in the bar (light text on indigo).
+  /! Outside the detail frame, so they stay put across auto-submits.
+  .hidden.lg:landscape:block.shrink-0
+    = render Amortization::Controls::Component.new(period_years:, interest_rate:, view:, variant: :bar)
+
+  /! Shortcut to the cash-flow settings, where the figures behind the
+  /! calculation are maintained. Shown to everyone who may see the page; the
+  /! settings page itself requires admin, so a non-admin lands on a hint to log
+  /! in. Sits at the far right on desktop (after the inline sliders); on mobile
+  /! the sliders collapse into the dropdown below, so it stays left of it.
+  = link_to helpers.settings_cash_flows_path,
+            class: 'shrink-0 rounded-md p-2 text-gray-300 hover:bg-indigo-500 dark:text-gray-400 dark:hover:bg-indigo-950/50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0',
+            data: { controller: 'tooltip' },
+            title: t('amortization.index.manage_cash_flows'),
+            'aria-label': t('amortization.index.manage_cash_flows') do
+    = icon 'gear', class: 'fa-xl block'
+
+  /! Mobile: the same sliders behind a dropdown button - no room inline.
+  div class='relative shrink-0 lg:landscape:hidden' data-controller='ui--dropdown--component'
+    button[
+      type='button'
+      class='rounded-md p-2 text-gray-300 hover:bg-indigo-500 dark:text-gray-400 dark:hover:bg-indigo-950/50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
+      data-ui--dropdown--component-target='button'
+      data-action='click->ui--dropdown--component#toggle'
+      data-controller='tooltip'
+      title=t('amortization.index.parameters')
+      aria-label=t('amortization.index.parameters')
+      aria-haspopup='true'
+      aria-expanded='false'
+    ]
+      = icon 'sliders', class: 'fa-xl block'
+    div[
+      class='absolute top-full right-0 z-40 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left text-gray-700 dark:text-gray-300 shadow-lg ring-1 ring-black/5'
+      data-ui--dropdown--component-target='menu'
+      data-transition-enter='transition ease-out duration-100'
+      data-transition-enter-start='opacity-0 scale-95'
+      data-transition-enter-end='opacity-100 scale-100'
+      data-transition-leave='transition ease-in duration-75'
+      data-transition-leave-start='opacity-100 scale-100'
+      data-transition-leave-end='opacity-0 scale-95'
+    ]
+      = render Amortization::Controls::Component.new(period_years:, interest_rate:, view:)

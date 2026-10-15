@@ -80,7 +80,7 @@ The index page renders the list once, in a Turbo frame that a stream refreshes:
 
 ```slim
 = tag.turbo_frame id: 'list', target: '_top' do
-  = render PriceList::Component.new(prices: @prices, name:)
+  = render Price::List::Component.new(prices: @prices, name:)
 ```
 
 The list is a table on the desktop and a grouped list on a phone, see "One row for both layouts". Each row opens the form, in the modal frame on the desktop and on a page of its own on a phone. The `+` button for a new entry is the action of the `Ui::TitleBar` on a phone and a `Ui::AddButton` on the desktop.
@@ -128,7 +128,7 @@ If the record does not save, `respond_with_errors(record)` answers. A Turbo Stre
 
 ## One row for both layouts
 
-Each list renders each row once. The same cells are a row of the table from `lg` up and a cell of a grouped list below. You can see it in `PriceList::Component` and `ChargingSession::Row::Component`.
+Each list renders each row once. The same cells are a row of the table from `lg` up and a cell of a grouped list below. You can see it in `Price::List::Component` and `ChargingSession::Row::Component`.
 
 The row is a `Ui::TableRow`, and its `nav_title:` is the title of the slide. Below `lg`, its link opens the entry on a page of its own, with the slide. From `lg` up, the controller of the row points the link to the modal. It also does so after the screen turns. The row adds a chevron for a phone.
 

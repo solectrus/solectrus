@@ -1,5 +1,5 @@
 # The addresses of a page with a timeframe, for the timeframe navigation
-# (Timeframe::Component) and the timeframe select (TimeframeSelect::Component).
+# (Timeframe::Component) and the timeframe select (Timeframe::Select::Component).
 # This is the sensor page of a section. A page that is not a sensor page gives
 # its own class with the same methods, like TimeframePage::List.
 class TimeframePage::Sensor

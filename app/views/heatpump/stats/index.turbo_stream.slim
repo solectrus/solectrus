@@ -50,7 +50,7 @@
                       stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_costs', timeframe:),
                     } do
             = render RectBadge::Component.new(title: t('sensors.heatpump_costs_short'), css_class: 'h-full rounded-l-none justify-center px-3 md:px-4') do
-              = render SensorValue::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
+              = render Sensor::Value::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
             #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
               .tooltip-layout.tooltip-layout-table
                 = render SplittedCosts::Component.new( \

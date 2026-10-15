@@ -1,0 +1,53 @@
+/ A table from lg up. Below, the same cells form two grouped lists: the
+  entries, each with its note over its date and category and the
+  amount at the right, and the total in a group of its own.
+- if cash_flows.any?
+  .w-full.select-text.lg:table.max-lg:flex.max-lg:flex-col.max-lg:gap-6
+    / Header cells stick to the viewport top while the list scrolls. Each cell
+    / carries the page background so rows never show through the sticky row.
+    .hidden.lg:table-header-group.text-gray-800.dark:text-gray-400
+      .table-row
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.tabular-nums.text-left.font-bold
+          = CashFlow.human_attribute_name(:date)
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.text-left.font-bold
+          = CashFlow.human_attribute_name(:category)
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.w-full.align-middle.p-2.text-left.font-bold
+          = CashFlow.human_attribute_name(:note)
+        .table-cell.sticky.top-0.z-10.bg-white.dark:bg-slate-900.align-middle.p-2.tabular-nums.text-right.font-bold
+          = CashFlow.human_attribute_name(:amount)
+
+    .text-gray-800.dark:text-gray-400.lg:table-row-group.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+      - cash_flows.each do |cash_flow|
+        = render Ui::TableRow::Component.new(href: edit_path(cash_flow), nav_title: t('settings.cash_flows.edit'), css_class: 'group lg:table-row max-lg:grid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:items-center') do |row|
+          .text-left.whitespace-nowrap.lg:table-cell.lg:w-1.lg:p-2.lg:align-middle.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:truncate.max-lg:text-subhead.max-lg:text-muted
+            = row.link do
+              time datetime= cash_flow.date.iso8601
+                = l cash_flow.date
+            span.lg:hidden
+              = " · #{CashFlow.human_enum_name(:category, cash_flow.category)}"
+          .hidden.lg:table-cell.align-middle.p-2.w-1.whitespace-nowrap
+            .inline-flex.items-center.gap-1.5
+              = render CashFlow::CategoryPill::Component.new(category: cash_flow.category)
+              - if filterable?(cash_flow)
+                = link_to filter_path(cash_flow),
+                          class: 'text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity',
+                          data: { turbo_frame: '_top', controller: 'tooltip' },
+                          title: t('.filter_by_category'),
+                          'aria-label': t('.filter_by_category') do
+                  = icon 'chevron-right', class: 'text-xs'
+          .lg:table-cell.lg:w-full.lg:p-2.lg:align-middle.lg:text-sm.lg:text-gray-500.max-lg:col-start-1.max-lg:row-start-1.max-lg:truncate.max-lg:text-headline.max-lg:text-gray-800.dark:max-lg:text-slate-300
+            = cash_flow.note
+          .tabular-nums.text-right.whitespace-nowrap.lg:table-cell.lg:w-1.lg:p-2.lg:align-middle.max-lg:col-start-2.max-lg:row-span-2.max-lg:row-start-1 class=amount_color(cash_flow.amount)
+            = formatted_amount(cash_flow.amount)
+
+    .text-gray-800.dark:text-gray-200.lg:table-footer-group.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+      .lg:table-row.lg:border-t.lg:border-gray-300.lg:dark:border-gray-600.max-lg:flex.max-lg:min-h-12.max-lg:items-center.max-lg:justify-between.max-lg:gap-3.max-lg:px-4.max-lg:py-2.5
+        .lg:table-cell.lg:p-2.lg:align-middle.lg:font-bold.max-lg:text-headline.dark:max-lg:text-slate-300
+          = t('.total')
+        .hidden.lg:table-cell
+        .hidden.lg:table-cell.w-full
+        .tabular-nums.text-right.whitespace-nowrap.lg:table-cell.lg:p-2.lg:align-middle.lg:font-bold.max-lg:font-semibold class=amount_color(total)
+          = formatted_amount(total)
+- else
+  p.px-4.text-muted.lg:p-2.lg:text-gray-500
+    = empty_text

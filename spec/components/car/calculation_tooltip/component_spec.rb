@@ -2,7 +2,7 @@ describe Car::CalculationTooltip::Component, type: :component do
   subject(:html) { render_inline(described_class.new(**arguments)) }
 
   def row(operator, label, value)
-    described_class::Row.new(operator:, label:, value: SensorValue::Component.new(value, :total_costs))
+    described_class::Row.new(operator:, label:, value: Sensor::Value::Component.new(value, :total_costs))
   end
 
   let(:arguments) do

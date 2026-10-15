@@ -47,7 +47,7 @@ end.call
 data.inverter_power   # => 15000.0 (daily energy in Wh)
 
 # 4. Formatted output in views
-<%= render SensorValue::Component.new(data, :inverter_power) %>
+<%= render Sensor::Value::Component.new(data, :inverter_power) %>
 # => "2.5 kW"
 ```
 
@@ -56,7 +56,7 @@ data.inverter_power   # => 15000.0 (daily energy in Wh)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    View Layer                               │
-│  SensorValue::Component  •  Chart Components                │
+│  Sensor::Value::Component  •  Chart Components                │
 └────────────────┬────────────────────────────────────────────┘
                  │
 ┌────────────────▼────────────────────────────────────────────┐
@@ -165,7 +165,7 @@ app/lib/sensor/
 ├── summary_builder.rb        # Summary creation
 └── summary_invalidator.rb    # Cache invalidation
 
-app/components/sensor_value/
+app/components/sensor/value/
 ├── component.rb             # ViewComponent for sensor values
 └── component.html.slim      # Template
 ```
@@ -484,11 +484,11 @@ two parts concatenate back to `value`.
 
 #### View Component
 
-`SensorValue::Component` combines sensor definition with formatter:
+`Sensor::Value::Component` combines sensor definition with formatter:
 
 ```ruby
 # Basic usage
-<%= render SensorValue::Component.new(data, :inverter_power) %>
+<%= render Sensor::Value::Component.new(data, :inverter_power) %>
 # => <span class="sensor-value sensor-inverter-power">
 #      <span class="sensor-value-number">
 #        <strong class="font-medium">2</strong>
@@ -499,10 +499,10 @@ two parts concatenate back to `value`.
 # A missing value renders as <strong class="font-medium">–</strong> instead
 
 # With sign option (keeps absolute value for display and colors by sign)
-<%= render SensorValue::Component.new(data, :grid_power, sign: :value_based) %>
+<%= render Sensor::Value::Component.new(data, :grid_power, sign: :value_based) %>
 
 # Direct value (without data object)
-<%= render SensorValue::Component.new(2500, :inverter_power) %>
+<%= render Sensor::Value::Component.new(2500, :inverter_power) %>
 ```
 
 ### 6. Chart Integration

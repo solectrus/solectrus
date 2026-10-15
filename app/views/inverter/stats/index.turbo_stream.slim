@@ -7,4 +7,4 @@
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   .h-full.w-full.flex.flex-col.min-h-0.gap-3 id= "stats-#{timeframe.id}"
-    = render InverterBreakdown::Component.new(data:, timeframe:, sensor_name:)
+    = render Breakdown::Inverter::Component.new(data:, timeframe:, sensor_name:)

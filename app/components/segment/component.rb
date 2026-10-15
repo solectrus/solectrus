@@ -162,7 +162,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   def grid_costs_breakdown
     return if now? || sensor.name != :grid_import_power
 
-    breakdown = GridCostsBreakdown::Component.new(data:)
+    breakdown = GridCosts::Breakdown::Component.new(data:)
     breakdown if breakdown.breakdown?
   end
 
@@ -201,7 +201,7 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   # source alike. The live chart uses this as its data-value: nil renders a gap
   # and skips the flash, rather than a misleading flat-0 line that can't be
   # told apart from a real 0. The displayed tile keeps its own 0 fallback via
-  # SensorValue::Component.
+  # Sensor::Value::Component.
   def raw_value
     options[:value] || data.public_send(sensor.name)
   end

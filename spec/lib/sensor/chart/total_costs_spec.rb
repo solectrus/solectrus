@@ -79,7 +79,7 @@ describe Sensor::Chart::TotalCosts do
       end
 
       # The grid costs contribute their own split, so the bar carries the same
-      # parts ConsumeDetails::Component breaks the sum into.
+      # parts Balance::ConsumeDetails::Component breaks the sum into.
       it 'splits the grid side into base fee and energy costs' do
         base_fee, energy_costs, opportunity_costs = chart.data[:datasets]
 

@@ -2,7 +2,7 @@
 # It looks like every other tab, plus the caret that says so. Only the current
 # tab has a menu to open, so it always wears the look of the current tab.
 class Nav::Sub::Menu::Component < ViewComponent::Base
-  include NavTabLook
+  include Nav::TabLook
 
   def initialize(name:, items:, abbreviate:)
     super()

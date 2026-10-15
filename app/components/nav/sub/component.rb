@@ -20,7 +20,7 @@ class Nav::Sub::Component < ViewComponent::Base
   # more than one way carries that choice as a menu. The menu opens from the
   # current tab alone, because the others lead somewhere first.
   class ItemComponent < ViewComponent::Base
-    include NavTabLook
+    include Nav::TabLook
 
     def initialize(name:, href:, current: false, menu: nil)
       super()

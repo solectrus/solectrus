@@ -11,7 +11,7 @@
 # A badge with sessions that its count leaves out shows an icon, and its
 # tooltip names them (see #omitted).
 class Car::ChargingCard::Component < ViewComponent::Base
-  include CarChartLink
+  include Car::ChartLink
 
   # A part of the ring below this share would be a hairline
   MIN_PERCENT = 0.3
@@ -124,7 +124,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
   end
 
   def energy_value(kwh, precision: self.precision, **)
-    SensorValue::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, precision:, **)
+    Sensor::Value::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, precision:, **)
   end
 
   # The guest has no badges: its sessions stand beside its cost (see
@@ -170,7 +170,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
   def sessions_path(kind, car) = helpers.cars_charging_sessions_path(kind:, timeframe:, car:)
 
   def badge_cost(badge, **)
-    SensorValue::Component.new(badge.sums.cost, :total_costs, **)
+    Sensor::Value::Component.new(badge.sums.cost, :total_costs, **)
   end
 
   def badge_classes = [Car::Card::Component::BADGE, 'bg-slate-200 dark:bg-slate-700/60']

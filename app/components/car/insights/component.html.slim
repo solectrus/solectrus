@@ -9,4 +9,4 @@
   - if maximum
     .tooltip-group
       = render Insights::Row::Component.new(label: t('.maximum'), note: l(maximum.first), url: day_path(maximum.first)) do
-        = render SensorValue::Component.new(maximum.last, sensor.name, context: :total, scaling: :kilo)
+        = render Sensor::Value::Component.new(maximum.last, sensor.name, context: :total, scaling: :kilo)

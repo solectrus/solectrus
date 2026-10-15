@@ -2,4 +2,4 @@
 
 / A stream refreshes the list. The link of a row on a phone leaves the frame.
 = tag.turbo_frame id: 'list', target: '_top' do
-  = render PriceList::Component.new(prices: @prices, name:)
+  = render Price::List::Component.new(prices: @prices, name:)

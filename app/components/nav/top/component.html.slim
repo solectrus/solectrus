@@ -1,5 +1,5 @@
 header.relative.bg-chrome data-controller='slide-over--component' class=(compact ? 'lg:pb-32' : 'pb-32')
-  / No background of its own: the ThemeStrip lies behind it in the same color
+  / No background of its own: the Theme::Strip lies behind it in the same color
     and shows through. That strip is what Safari reads the toolbar color from,
     and it only works while the strip is not covered. The header behind both
     carries the color for everything this navigation does not span.
@@ -53,7 +53,7 @@ header.relative.bg-chrome data-controller='slide-over--component' class=(compact
                       aria-hidden="true"
                     ]
 
-  / Over the ThemeStrip, like the navigation above. Without a desktop
+  / Over the Theme::Strip, like the navigation above. Without a desktop
     navigation there is nothing above this, so it starts at the top edge, where
     the strip lies and would cover it.
   - if sub_nav

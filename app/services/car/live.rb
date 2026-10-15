@@ -37,7 +37,7 @@ class Car::Live
 
   attr_reader :cars
 
-  # The latest values, as Sensor::Data::Single, for SensorValue::Component
+  # The latest values, as Sensor::Data::Single, for Sensor::Value::Component
   def data
     @data ||= Sensor::Query::Latest.new([*WALLBOX_SENSORS, *cars.flat_map { |car| ROLES.values.map { car.sensor_name(it) } }]).call
   end

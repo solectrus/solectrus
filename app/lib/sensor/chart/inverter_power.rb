@@ -35,7 +35,7 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
   end
 
   #
-  # Forecast data for ForecastComment
+  # Forecast data for Forecast::Comment
   #
 
   # Remaining forecast energy in Wh for today

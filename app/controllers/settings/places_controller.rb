@@ -18,14 +18,14 @@ class Settings::PlacesController < ApplicationController
   def index
     return unless sponsored?
 
-    next_page = Ui::LazyRows::Component.request?(request, PlaceList::Rows::Component::FRAME_PREFIX)
+    next_page = Ui::LazyRows::Component.request?(request, Place::List::Rows::Component::FRAME_PREFIX)
 
     # While days wait for the build, the page shows the build instead of the list
     @pending_days = next_page ? [] : pending_visit_days
     return if @pending_days.present?
 
     @pagy, @places = pagy(:countless, Place.with_seconds)
-    render PlaceList::Rows::Component.new(places: @places, pagy: @pagy, frame: true), layout: false if next_page
+    render Place::List::Rows::Component.new(places: @places, pagy: @pagy, frame: true), layout: false if next_page
   end
 
   def edit
@@ -116,10 +116,10 @@ class Settings::PlacesController < ApplicationController
   # visits. Each list replaces what it shows of the place.
   helper_method def replace_place(place)
     [
-      turbo_stream.replace(helpers.dom_id(place), PlaceList::Row::Component.new(place: Place.with_seconds.find(place.id))),
-      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", VisitList::LabelsCell::Component.new(place:)),
-      turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", VisitList::NameCell::Component.new(place:)),
-      turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", VisitList::LocalityCell::Component.new(place:)),
+      turbo_stream.replace(helpers.dom_id(place), Place::List::Row::Component.new(place: Place.with_seconds.find(place.id))),
+      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", Place::VisitList::LabelsCell::Component.new(place:)),
+      turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", Place::VisitList::NameCell::Component.new(place:)),
+      turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", Place::VisitList::LocalityCell::Component.new(place:)),
     ]
   end
 

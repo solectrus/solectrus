@@ -9,7 +9,7 @@
   - modal.with_title do
     / One row for name, period and total, so the list starts high up
     .insights-heading
-      = render SensorIcon::Component.new(sensor)
+      = render Sensor::Icon::Component.new(sensor)
       .min-w-0.flex-1
         .truncate = sensor.display_name
         .insights-heading-period = timeframe.localized

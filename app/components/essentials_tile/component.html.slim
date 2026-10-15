@@ -6,7 +6,7 @@
             essentials_tile__component_interval_value: refresh_interval,
           } do
   .click-animation.flex.flex-col.justify-around.h-full
-    = render SensorIcon::Component.new(sensor, class: 'mx-auto size-[clamp(2rem,20cqw,5.5rem)] text-white/90 dark:text-white/50')
+    = render Sensor::Icon::Component.new(sensor, class: 'mx-auto size-[clamp(2rem,20cqw,5.5rem)] text-white/90 dark:text-white/50')
 
     div class= 'font-medium leading-none whitespace-nowrap text-[clamp(1.5rem,16cqw,6rem)] text-white dark:opacity-75 scale-pop'
       = formatted_value

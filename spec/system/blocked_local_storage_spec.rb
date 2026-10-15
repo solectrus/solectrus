@@ -8,8 +8,8 @@ describe 'Blocked localStorage' do
       with_blocked_local_storage('/') do |blocked|
         blocked.evaluate(<<~JS)
           [
-            "[data-theme-selector--component-target='inputAuto']",
-            "[data-color-palette-selector--component-target='inputStandard']",
+            "[data-theme--selector--component-target='inputAuto']",
+            "[data-theme--color-palette-selector--component-target='inputStandard']",
           ].every((selector) =>
             [...document.querySelectorAll(selector)].every((input) => input.checked),
           )

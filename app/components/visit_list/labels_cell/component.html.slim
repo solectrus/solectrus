@@ -1,6 +1,0 @@
-/ The icons of the labels of a place, as a cell of their own before the name,
-  so the names line up. A phone keeps the width of one icon for it (see the
-  row). The form replaces the cell after a change (see
-  Settings::PlacesController).
-.lg:py-2.lg:pl-2.max-lg:row-start-1.max-lg:w-5 class='max-lg:col-[-5/-4]' data-visit-place-labels=place.id
-  = render PlaceLabels::Component.new(place:)

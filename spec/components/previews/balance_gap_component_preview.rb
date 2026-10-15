@@ -6,17 +6,17 @@ class BalanceGapComponentPreview < ViewComponent::Preview
   # A consumer is missing from the measurement, so the sources deliver more than
   # the sinks account for.
   def missing_consumer
-    render BalanceGap::Component.new data: data(house_power: 9_000_000.0)
+    render Balance::Gap::Component.new data: data(house_power: 9_000_000.0)
   end
 
   # The opposite: the sinks record more than the sources deliver.
   def counted_twice
-    render BalanceGap::Component.new data: data(house_power: 11_000_000.0)
+    render Balance::Gap::Component.new data: data(house_power: 11_000_000.0)
   end
 
   # Sources and sinks match, so the component renders nothing at all.
   def balanced
-    render BalanceGap::Component.new data: data
+    render Balance::Gap::Component.new data: data
   end
 
   # @!endgroup

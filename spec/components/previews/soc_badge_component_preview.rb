@@ -38,7 +38,7 @@ class SocBadgeComponentPreview < ViewComponent::Preview
   private
 
   def soc_badge(battery_soc: 75, car_soc: 80, connected: true)
-    render SocBadge::Component.new(
+    render Balance::SocBadge::Component.new(
              battery_soc: battery_soc.to_f,
              car: Car.new(id: 1, short_name: '1'),
              car_soc: car_soc.to_f,

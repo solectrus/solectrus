@@ -93,7 +93,7 @@ Turbo.StreamActions.update_all = function (this: Element) {
 // before the tab went away is picked up as well, because that one is dead too.
 //
 // A `complete` frame matches nothing here, so a healthy page is untouched. That
-// includes the SummaryBuilder, whose chunks sequential-frames drives one by
+// includes the Summary::Builder, whose chunks sequential-frames drives one by
 // one: a chunk it has not started yet has no `src`, so only the one in flight
 // is ever picked up. Frames marked `loading="lazy"` are left alone - reloading
 // one would defeat the deferred load it was marked for.

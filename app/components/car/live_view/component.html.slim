@@ -34,7 +34,7 @@
     - if wallbox_power?
       = tag.div class: pill_classes(charging: charging?), title: t('sensors.car_charging_power_short'), aria: { label: t('sensors.car_charging_power_short') }, data: { controller: 'tooltip' } do
         = helpers.icon 'bolt', class: charging? ? 'text-sensor-pv' : 'opacity-40'
-        = render SensorValue::Component.new(live.data, :wallbox_power, context: :rate)
+        = render Sensor::Value::Component.new(live.data, :wallbox_power, context: :rate)
 
     - if wallbox_plug?
       div class=pill_classes

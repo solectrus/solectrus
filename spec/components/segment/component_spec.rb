@@ -3,7 +3,7 @@ describe Segment::Component, type: :component do
     described_class.new(
       sensor,
       parent:
-        SegmentContainer::Component.new(
+        Segment::Container::Component.new(
           tooltip_placement: 'right',
           data:,
           timeframe:,

@@ -25,7 +25,7 @@ class Cars::VisitsController < ApplicationController
     # Only a list up to now can hold an ongoing visit
     PlaceVisit.mark_ongoing(@visits) unless timeframe.past?
 
-    render VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, frame: true), layout: false if page_frame_request?
+    render Place::VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, frame: true), layout: false if page_frame_request?
   end
 
   private
@@ -99,13 +99,13 @@ class Cars::VisitsController < ApplicationController
     (days | Summary.missing_or_stale_days_for(Timeframe.new('day'))).sort
   end
 
-  def page_frame_request? = Ui::LazyRows::Component.request?(request, VisitList::Rows::Component::FRAME_PREFIX)
+  def page_frame_request? = Ui::LazyRows::Component.request?(request, Place::VisitList::Rows::Component::FRAME_PREFIX)
 
   # What each row of the list needs to know about the list. The car of a
   # visit needs a column only with more than one car, and not in the list of
   # one car.
   helper_method def list_context
-    @list_context ||= VisitList::Context.new(timeframe:, place:, car_column: !car && located_cars.many?, path: method(:visits_path_with))
+    @list_context ||= Place::VisitList::Context.new(timeframe:, place:, car_column: !car && located_cars.many?, path: method(:visits_path_with))
   end
 
   helper_method def title

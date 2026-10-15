@@ -4,4 +4,4 @@
 /! Only the frame's contents are replaced, so its layout classes stay with the
 /! placeholder in show.html.slim.
 = turbo_frame_tag 'amortization_detail' do
-  = render AmortizationDetail::Component.new(page: @page, view: current_view)
+  = render Amortization::Detail::Component.new(page: @page, view: current_view)

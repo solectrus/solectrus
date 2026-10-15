@@ -11,7 +11,7 @@
       = render ChargingSession::Filter::Component.new(kind:, timeframe:, cars: car_selection.offered, current: car_selection.to_param, layout: :select)
 
 - if @missing_or_stale_summary_days.present?
-  = render SummaryBuilder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+  = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 - else
   / The minimum height keeps a short list from shrinking the card to a strip.
   .flex.flex-col.flex-1.lg:min-h-96

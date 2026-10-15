@@ -19,7 +19,7 @@
           span.font-light<
             = t('charging_sessions.count', count: totals.count)
         .tabular-nums.text-right.whitespace-nowrap.lg:px-2.lg:py-3.max-lg:col-start-2.max-lg:row-start-1 class=(pv_share? ? 'col-start-4' : 'col-start-5')
-          = render SensorValue::Component.new(totals.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
+          = render Sensor::Value::Component.new(totals.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
         - if pv_share? && totals.pv_percent
           .col-start-5.hidden.lg:block.px-8.py-3.tabular-nums.whitespace-nowrap
             = render ChargingSession::PvShareBar::Component.new(percent: totals.pv_percent)

@@ -1,5 +1,5 @@
 class ChargingSession::Row::Component < ViewComponent::Base
-  include ChargingSessionTexts
+  include ChargingSession::Texts
 
   # `place` is the known place at the position of a session without an
   # address (see ChargingSession::Rows::Component)
