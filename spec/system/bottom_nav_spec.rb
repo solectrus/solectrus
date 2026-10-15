@@ -60,21 +60,24 @@ describe 'Bottom navigation (mobile)' do
   end
 
   # The answer to the switch morphs the page, so it neither loads anew nor
-  # jumps to the top.
+  # jumps to the top. The switch stays where it was on the screen. A text
+  # above it can take another number of lines in the other language, so the
+  # browser can move the scroll position to keep the switch in place.
   it 'switches the language in place, at the scroll position of the page' do
     visit '/more'
     page.execute_script(<<~JS)
       window.notReloaded = true;
       document.querySelector('main').scrollTop = 200;
     JS
-    scroll_top = page.evaluate_script("document.querySelector('main').scrollTop")
+    switch_top = "Math.round(document.querySelector('form[action=\"/locale\"]').getBoundingClientRect().top)"
+    top = page.evaluate_script(switch_top)
 
     click_on 'EN'
 
     expect(page).to have_css('html[lang="en"]', visible: :all)
     expect(page).to have_css('.ui-title-bar h1 img[alt="More"]')
     expect(page.evaluate_script('window.notReloaded')).to be(true)
-    expect(page.evaluate_script("document.querySelector('main').scrollTop")).to eq(scroll_top)
+    expect(page.evaluate_script(switch_top)).to eq(top)
   end
 
   # Safari on the iPhone has no Fullscreen API, so an item that offers

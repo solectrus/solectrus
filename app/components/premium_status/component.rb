@@ -17,7 +17,7 @@
 # It has two layouts. The wide one gives the description and the call to
 # action a line of their own. The compact one runs all parts into a single
 # line, separated by a middot. The page More of a phone asks for the compact
-# one, as a line above the version.
+# one, as a line at the top of the page.
 class PremiumStatus::Component < ViewComponent::Base
   # Every grant this app can name. The update server can report one that is not
   # here, because a later release of the server can add a grant. Such a grant
@@ -48,7 +48,7 @@ class PremiumStatus::Component < ViewComponent::Base
     positive:
       'bg-emerald-100 text-emerald-900 dark:bg-emerald-900 dark:text-gray-300',
     attention: 'bg-amber-100 text-amber-900 dark:bg-pink-800 dark:text-pink-100',
-    neutral: 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-gray-300',
+    neutral: 'bg-gray-200 text-gray-600 dark:bg-slate-700 dark:text-gray-300',
   }.freeze
   private_constant :BOXES
 
@@ -144,18 +144,19 @@ class PremiumStatus::Component < ViewComponent::Base
     'flex grow items-baseline justify-between gap-4' if @compact
   end
 
-  # min-w-0 lets a long title wrap. With shrink-0 the row keeps the title on
-  # one line and pushes it out of the box, which iOS Safari really does.
+  # The compact row never wraps, because a second line in one language only
+  # moves the page below it when the language changes. The short texts fit a
+  # screen of 340px. On a narrower one, the title ends with an ellipsis.
   def title_layout
-    @compact ? 'min-w-0' : 'block'
+    @compact ? 'min-w-0 truncate' : 'block'
   end
 
   # The compact layout needs the description and the call to action in one box,
-  # because that box is what the row pushes to the right. min-w-0 lets its text
-  # wrap instead of making the row wider than the whole box. The wide layout
-  # wants no box around them at all, and "contents" removes it.
+  # because that box is what the row pushes to the right. It keeps its whole
+  # text on one line, and the title gives way instead. The wide layout wants no
+  # box around them at all, and "contents" removes it.
   def detail_layout
-    @compact ? 'min-w-0 text-right' : 'contents'
+    @compact ? 'shrink-0 whitespace-nowrap text-right' : 'contents'
   end
 
   def description_layout

@@ -1,8 +1,8 @@
 en:
   sponsoring:
-    title: Sponsorship is active
+    title: Sponsorship
     description: Thank you for your support!
-    compact_description: Thank you!
+    compact_description: Thanks!
     icon: heart
     countdown:
       zero: ends today
@@ -11,16 +11,16 @@ en:
   intro:
     title: Trial period
     description: All features are unlocked. A sponsorship keeps them for you.
-    compact_description: All features unlocked
+    compact_description: All unlocked
     icon: hourglass-half
     countdown:
       zero: ends today
       one: 1 day left
       other: '%{count} days left'
   free_trial:
-    title: Free month is active
+    title: Free month
     description: All features are unlocked. A sponsorship keeps them for you.
-    compact_description: All features unlocked
+    compact_description: All unlocked
     icon: hourglass-half
     countdown:
       zero: ends today
@@ -38,15 +38,16 @@ en:
   development:
     title: Development mode
     description: All features available
+    compact_description: All available
     icon: code
   locked_with_trial:
-    title: No active sponsorship
+    title: No sponsorship
     description: The full feature set is for sponsors only
     icon: lock
-    cta_text: Start the free month
+    cta_text: Start free month
     cta_link: registration
   locked:
-    title: No active sponsorship
+    title: No sponsorship
     description: The full feature set is for sponsors only
     icon: lock
     cta_text: Become a sponsor
@@ -56,5 +57,5 @@ en:
     description: >-
       The update server cannot be reached. The sponsor features stay locked until
       it answers again.
-    compact_description: Server cannot be reached
+    compact_description: Server offline
     icon: circle-exclamation

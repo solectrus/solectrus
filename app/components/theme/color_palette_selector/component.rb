@@ -1,5 +1,6 @@
 # `cell: true` gives the selector the size of a segmented control, for the
-# cell of a grouped list
+# cell of a grouped list. Without a sponsorship, the cell says why the
+# selector is pale.
 class Theme::ColorPaletteSelector::Component < ViewComponent::Base
   def initialize(cell: false)
     super()
@@ -8,7 +9,7 @@ class Theme::ColorPaletteSelector::Component < ViewComponent::Base
 
   def form_class
     if @cell
-      'gap-0.5 p-0.5 rounded-lg bg-slate-500/12 dark:bg-slate-900'
+      ['gap-0.5 p-0.5 rounded-lg bg-slate-500/12 dark:bg-slate-900', ('opacity-40' unless ApplicationPolicy.themes?)]
     else
       'justify-center gap-4 w-40 p-2 rounded-xl bg-indigo-200 lg:bg-gray-200 dark:bg-gray-950 opacity-80'
     end

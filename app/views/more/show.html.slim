@@ -3,6 +3,12 @@
   = render Ui::TitleBar::Component.new(title:, logo: more_logo)
 
 .flex.flex-col.gap-7.pb-4
+  / The state of the sponsorship comes first, because it decides what the
+    page below offers. On a phone it reaches from edge to edge, over the
+    side padding of the page (see #inner in the layout).
+  .overflow-hidden.empty:hidden.-mx-4.sm:-mx-6.lg:mx-0.lg:rounded-xl
+    = render PremiumStatus::Component.new(compact: true)
+
   = render Ui::GroupedList::Component.new(header: t('.secondary')) do |list|
     - secondary_links.each do |item|
       - list.with_cell(**cell_args(item))
@@ -29,11 +35,20 @@
                         disabled: locale == I18n.locale,
                         data: { segment_slide_target: 'segment' },
                         class: ['rounded-md px-3 py-1 text-sm font-medium', locale == I18n.locale ? 'bg-white text-slate-800 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 dark:text-slate-400 cursor-pointer']
+    / The colors are for sponsors. Without a sponsorship, both cells say so
+      and lead to the sponsoring.
+    - unless ApplicationPolicy.themes?
+      - sponsors_only = capture do
+        / A badge in the colors of the state of the sponsorship at the top
+          (see PremiumStatus::Component)
+        = link_to sponsoring_path, class: 'mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-900 dark:bg-pink-800 dark:text-pink-100' do
+          = icon('lock', class: 'text-xs')
+          = t('premium.sponsors_only')
     - unless ThemeConfig.x.static?
-      - list.with_cell(name: t('layout.theme'), icon: 'circle-half-stroke') do |cell|
+      - list.with_cell(name: t('layout.theme'), icon: 'circle-half-stroke', detail: sponsors_only) do |cell|
         - cell.with_accessory do
           = render Theme::Selector::Component.new(cell: true)
-    - list.with_cell(name: t('.palette'), icon: 'palette') do |cell|
+    - list.with_cell(name: t('.palette'), icon: 'palette', detail: sponsors_only) do |cell|
       - cell.with_accessory do
         = render Theme::ColorPaletteSelector::Component.new(cell: true)
     / A mode, which stays on from page to page (see the fullscreen controller)
@@ -56,8 +71,6 @@
     - list.with_cell(**cell_args(session_link))
 
   .flex.flex-col.items-center.gap-3
-    .w-full.overflow-hidden.rounded-xl.empty:hidden
-      = render PremiumStatus::Component.new(compact: true)
     / The version is no code in a text, so it goes without the frame of one
     .flex.flex-col.items-center.gap-1.text-xs.text-gray-500.dark:text-slate-500 class='[&_code]:border-0 [&_code]:bg-transparent [&_code]:p-0'
       = render VersionInfo::Component.new

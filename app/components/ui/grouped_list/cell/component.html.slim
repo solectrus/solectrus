@@ -7,7 +7,12 @@ li.-mb-px data=row_data
       span.flex.size-8.shrink-0.items-center.justify-center.rounded-lg.bg-gray-200.text-gray-500.dark:bg-slate-700.dark:text-slate-400
         = icon(icon_name, class: 'text-base')
     .flex.min-h-14.min-w-0.flex-1.items-center.gap-3.border-b.border-gray-300/70.py-2.5.pr-4.dark:border-slate-700
-      .min-w-0.flex-1.truncate.text-headline class=name_class = name
+      - if detail
+        .min-w-0.flex-1
+          .truncate.text-headline class=name_class = name
+          .text-sm.text-gray-500.dark:text-slate-400 = detail
+      - else
+        .min-w-0.flex-1.truncate.text-headline class=name_class = name
       - if badge_count&.positive?
         span.flex.h-5.min-w-5.items-center.justify-center.rounded-full.bg-red-500.px-1.5.text-xs.font-bold.text-white.dark:bg-red-700.dark:text-gray-300[
           data-notification-badge=true

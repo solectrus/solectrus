@@ -77,6 +77,36 @@ describe 'Page More' do
     end
   end
 
+  context 'without a sponsorship' do
+    before do
+      allow(PremiumStatus).to receive(:reason).and_return(nil)
+      get '/more'
+    end
+
+    it 'shows the state of the sponsorship above the lists' do
+      first = html.at_css('main .flex-col > *')
+
+      expect(first.at_css('a[href="/sponsoring"]')).to be_present
+    end
+
+    it 'says at the theme and the colors that they are for sponsors' do
+      hints = group('Appearance').css('a[href="/sponsoring"]').map { it.text.strip }
+
+      expect(hints).to eq(['Only for sponsors'] * 2)
+    end
+  end
+
+  context 'with a sponsorship' do
+    before do
+      allow(PremiumStatus).to receive(:reason).and_return(:sponsoring)
+      get '/more'
+    end
+
+    it 'offers the theme and the colors without a hint' do
+      expect(group('Appearance').at_css('a[href="/sponsoring"]')).to be_nil
+    end
+  end
+
   context 'when logged in as admin' do
     before do
       login_as_admin

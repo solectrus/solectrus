@@ -60,7 +60,7 @@ en:
     show:
       appearance: Appearance
       language: Language
-      palette: Colors
+      palette: Color palette
       secondary: Other views
       system: System
   timeframe:

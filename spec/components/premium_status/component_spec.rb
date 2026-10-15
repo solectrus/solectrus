@@ -66,7 +66,7 @@ describe PremiumStatus::Component, type: :component do
 
     it 'names the real reason, in gray' do
       expect(html).to include('Development mode')
-      expect(html).to include('bg-gray-100')
+      expect(html).to include('bg-gray-200')
     end
   end
 
@@ -76,7 +76,7 @@ describe PremiumStatus::Component, type: :component do
     # A sponsor knows what the sponsorship gives. Thanks are the better use of
     # the space here.
     it 'thanks the sponsor' do
-      expect(html).to include('Sponsorship is active')
+      expect(html).to include('Sponsorship')
       expect(html).to include('Thank you for your support!')
       expect(html).to include('bg-emerald-100')
     end
@@ -87,7 +87,7 @@ describe PremiumStatus::Component, type: :component do
       before { allow(PremiumStatus).to receive(:ends_at).and_return(18.days.from_now) }
 
       it 'names the days that are left' do
-        expect(html).to include('Sponsorship is active')
+        expect(html).to include('Sponsorship')
         expect(html).to include('18 days left')
       end
     end
@@ -107,7 +107,7 @@ describe PremiumStatus::Component, type: :component do
     it 'says what the user has, and asks for nothing' do
       expect(html).to include('All features')
       expect(html).to include('bg-emerald-100')
-      expect(html).not_to include('No active sponsorship')
+      expect(html).not_to include('No sponsorship')
     end
 
     it 'still counts down, because the answer carries the end' do
@@ -139,8 +139,8 @@ describe PremiumStatus::Component, type: :component do
         end
 
         it 'offers the free trial' do
-          expect(html).to include('No active sponsorship')
-          expect(html).to include('Start the free month')
+          expect(html).to include('No sponsorship')
+          expect(html).to include('Start free month')
           expect(html).not_to include('Become a sponsor')
         end
       end
@@ -149,7 +149,7 @@ describe PremiumStatus::Component, type: :component do
       # action they can follow.
       context 'without an admin session' do
         it 'asks for a sponsorship instead' do
-          expect(html).not_to include('Start the free month')
+          expect(html).not_to include('Start free month')
           expect(html).not_to include('/registration')
           expect(html).to include('Become a sponsor')
         end
@@ -158,9 +158,9 @@ describe PremiumStatus::Component, type: :component do
 
     context 'with the free trial used up' do
       it 'asks for a sponsorship' do
-        expect(html).to include('No active sponsorship')
+        expect(html).to include('No sponsorship')
         expect(html).to include('Become a sponsor')
-        expect(html).not_to include('Start the free month')
+        expect(html).not_to include('Start free month')
       end
     end
   end
@@ -174,11 +174,11 @@ describe PremiumStatus::Component, type: :component do
     it 'names the outage instead of a missing sponsorship' do
       expect(html).to include('Status unknown')
       expect(html).to include('update server cannot be reached')
-      expect(html).not_to include('No active sponsorship')
+      expect(html).not_to include('No sponsorship')
     end
 
     it 'asks for nothing, because nothing can be done about it' do
-      expect(html).to include('bg-gray-100')
+      expect(html).to include('bg-gray-200')
       expect(page).to have_no_link
     end
 
@@ -191,7 +191,7 @@ describe PremiumStatus::Component, type: :component do
 
       it 'still names the outage' do
         expect(html).to include('Status unknown')
-        expect(html).not_to include('Start the free month')
+        expect(html).not_to include('Start free month')
       end
     end
   end
@@ -219,10 +219,17 @@ describe PremiumStatus::Component, type: :component do
 
     before { allow(PremiumStatus).to receive(:reason).and_return(:development) }
 
-    it 'says the same as the wide one' do
+    it 'says the same as the wide one, in short' do
       expect(compact).to include('Development mode')
-      expect(compact).to include('All features available')
-      expect(compact).to include('bg-gray-100')
+      expect(compact).to include('All available')
+      expect(compact).to include('bg-gray-200')
+    end
+
+    # A second line in one language moves the page below when the language
+    # changes
+    it 'keeps the row on one line' do
+      expect(compact).to include('truncate')
+      expect(compact).to include('whitespace-nowrap')
     end
 
     # The row sends the title to the left edge and the rest to the right edge.
@@ -250,7 +257,7 @@ describe PremiumStatus::Component, type: :component do
       end
 
       it 'keeps the link and drops the description' do
-        expect(compact).to include('No active sponsorship')
+        expect(compact).to include('No sponsorship')
         expect(compact).to include('Become a sponsor')
         expect(compact).not_to include('The full feature set')
       end
@@ -274,7 +281,7 @@ describe PremiumStatus::Component, type: :component do
           described_class.new(scenario: :locked, ends_at: nil),
         ).to_html
 
-      expect(given).to include('No active sponsorship')
+      expect(given).to include('No sponsorship')
       expect(given).not_to include('Development mode')
     end
 
@@ -292,7 +299,7 @@ describe PremiumStatus::Component, type: :component do
       allow(PremiumStatus).to receive(:reason).and_return(:eligible_for_free)
 
       expect(render_inline(described_class.new(scenario: :locked)).to_html)
-        .to include('No active sponsorship')
+        .to include('No sponsorship')
     end
   end
 

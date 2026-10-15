@@ -12,6 +12,8 @@
 #
 # `row_data` goes to the row itself, so a rule can hide the whole row,
 # separator included. `destructive: true` paints the name red, like a logout.
+# `detail` is a second, smaller line below the name, like a reason why a
+# control is not available.
 class Ui::GroupedList::Cell::Component < ViewComponent::Base
   renders_one :accessory
 
@@ -32,10 +34,12 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
     external: nil,
     badge_count: nil,
     dot: false,
-    destructive: false
+    destructive: false,
+    detail: nil
   )
     super()
     @name = name
+    @detail = detail
     @icon_name = icon
     @href = href
     @data = data
@@ -48,7 +52,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
     @destructive = destructive
   end
 
-  attr_reader :name, :icon_name, :row_data, :badge_count, :dot
+  attr_reader :name, :icon_name, :row_data, :badge_count, :dot, :detail
 
   def tag_name
     if @href
