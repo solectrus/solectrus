@@ -4,12 +4,21 @@
   button in the title bar instead (see Ui::TitleBar::Component).
 
   The save button comes first in the form, because Enter in a field submits
-  with the first submit button. The delete button moves to the left edge with
-  order-first.
+  with the first submit button. It moves to the right edge with order-last,
+  the delete button to the left edge with order-first. The discard button
+  stands next to the save button and shows with it, as in Ui::SaveBar. It
+  resets the form to the values of the page.
 .flex.items-center.justify-end.gap-3.mt-6.max-lg:hidden
-  button class=BUTTON_CLASS type="submit" disabled=true data-form-dirty-submit=true
+  button.peer.order-last class=BUTTON_CLASS type="submit" disabled=true data-form-dirty-submit=true
     = icon 'check'
     = label
+  button.rounded.p-2.text-gray-500.hover:text-gray-700.hover:bg-gray-100.dark:text-gray-400.dark:hover:text-gray-200.dark:hover:bg-slate-700.transition.duration-200.peer-disabled:invisible.peer-disabled:opacity-0.focus:outline-none.focus-visible:ring-2.focus-visible:ring-indigo-500[
+    type='reset'
+    title=t('crud.discard')
+    aria-label=t('crud.discard')
+    data-controller='tooltip'
+  ]
+    = icon 'xmark', class: 'fa-fw'
   - if delete_path
     = render Button::Component.new icon: 'trash',
                                    type: :submit,

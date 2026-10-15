@@ -417,6 +417,7 @@ en:
     edit: Edit
     delete: Delete
     save: Save
+    discard: Discard changes
     confirm_delete: Are you sure you want to delete?
     success: Saved
     deleted: Deleted

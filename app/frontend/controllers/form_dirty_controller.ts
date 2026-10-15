@@ -17,6 +17,7 @@ export default class extends Controller<HTMLFormElement> {
 
     this.element.addEventListener('input', this.handleChange);
     this.element.addEventListener('change', this.handleChange);
+    this.element.addEventListener('reset', this.handleReset);
     this.element.addEventListener('turbo:submit-start', this.handleSubmitStart);
     this.element.addEventListener('turbo:submit-end', this.handleSubmitEnd);
     document.addEventListener('turbo:morph', this.handleMorph);
@@ -25,6 +26,7 @@ export default class extends Controller<HTMLFormElement> {
   disconnect() {
     this.element.removeEventListener('input', this.handleChange);
     this.element.removeEventListener('change', this.handleChange);
+    this.element.removeEventListener('reset', this.handleReset);
     this.element.removeEventListener(
       'turbo:submit-start',
       this.handleSubmitStart,
@@ -43,6 +45,13 @@ export default class extends Controller<HTMLFormElement> {
 
     this.lastCheckedData = current;
     this.setDisabled(current === this.initialData);
+  };
+
+  // A reset button, like the discard button of Ui::SaveBar::Component and
+  // Ui::SubmitButton::Component, brings back the values of the page. The
+  // event fires before the fields change, so the check waits for them.
+  private readonly handleReset = (): void => {
+    setTimeout(this.handleChange);
   };
 
   private readonly handleSubmitStart = (): void => {

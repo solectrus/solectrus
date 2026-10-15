@@ -1,7 +1,9 @@
 /! Locals: `title` and `back_href` override the title bar on a phone. By
 /! default a section page names its section and leads back to the overview.
 /! `action` (href, icon and label) adds a button at the right. `save`, the id
-/! of the form of the page, adds its save button there instead.
+/! of the form of the page, adds its save button there instead. `save_bar`,
+/! the id of a form that the desktop shows on the page and not in the modal,
+/! adds its save buttons at the right while the form has changes.
 ruby:
   current_item = nav_items.find { |item| item[:current] }
   title = local_assigns[:title] || current_item&.dig(:name) || t('layout.settings')
@@ -9,6 +11,7 @@ ruby:
   back_label = local_assigns[:back_label] || t('layout.settings')
   action = local_assigns[:action]
   save = local_assigns[:save]
+  save_bar = local_assigns[:save_bar]
 
 - content_for :fixed_nav, true
 - content_for :sub_nav do
@@ -17,10 +20,13 @@ ruby:
       - bar.with_action(**action) if action
       - bar.with_save(form: save) if save
 
-    / Desktop: the pill buttons, and the action at the right as on a phone
-    .hidden.lg:flex.items-center.justify-between.gap-4
+    / Desktop: the pill buttons, and the action or the save bar at the right
+      as on a phone
+    .hidden.lg:flex.items-center.justify-between.gap-4 class=(Ui::SaveBar::Component::TABS_CLASS if save_bar)
       .flex-1.min-w-0
         = render Nav::Sub::Component.new(abbreviate: false) do |c|
           - c.with_items(nav_items.map { |item| item.slice(:name, :href, :current) })
       - if action
         = render Ui::AddButton::Component.new(href: action[:href], label: action[:label])
+      - if save_bar
+        = render Ui::SaveBar::Component.new(form: save_bar)

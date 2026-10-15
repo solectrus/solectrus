@@ -1,0 +1,27 @@
+/ The bar keeps its width while it is hidden, so the tabs do not move when it
+  shows. The save button is disabled from the start, as the form-dirty
+  controller sets it on connect, and the bar is hidden while it is.
+
+  The discard button is an icon, with its label as the tooltip. Below xl the
+  tabs leave no room for the label of the save button either, so it shows
+  its icon alone. The label stays for a screen reader.
+.max-lg:hidden.flex.shrink-0.items-center.gap-2.transition.duration-200[
+  class='has-[[data-form-dirty-submit]:disabled]:invisible has-[[data-form-dirty-submit]:disabled]:opacity-0'
+]
+  button.inline-flex.items-center.rounded-md.p-2.text-white/80.dark:text-gray-300.hover:text-white.hover:bg-white/10.focus:outline-none.focus-visible:ring-2.focus-visible:ring-white[
+    type='reset'
+    form=form
+    title=t('crud.discard')
+    aria-label=t('crud.discard')
+    data-controller='tooltip'
+  ]
+    = icon 'xmark', class: 'fa-fw'
+  button.inline-flex.items-center.gap-2.rounded-md.p-2.xl:px-4.text-sm.font-semibold.shadow-sm.bg-white.text-indigo-700.hover:bg-indigo-50.dark:bg-indigo-600.dark:text-white.dark:hover:bg-indigo-700.click-animation.focus:outline-none.focus-visible:ring-2.focus-visible:ring-white[
+    type='submit'
+    form=form
+    disabled=true
+    aria-label=t('crud.save')
+    data-form-dirty-submit=true
+  ]
+    = icon 'check', class: 'fa-fw'
+    span.hidden.xl:inline = t('crud.save')

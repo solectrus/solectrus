@@ -2,7 +2,8 @@
          title: @section[:name],
          back_href: settings_sensors_path,
          back_label: t('settings.sensors.name'),
-         save: 'settings_sensors_form'
+         save: 'settings_sensors_form',
+         save_bar: 'settings_sensors_form'
 
 = render layout: 'settings/sensors/form' do |f|
   = render "settings/sensors/#{@section[:id]}", f:

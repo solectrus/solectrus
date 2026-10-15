@@ -417,6 +417,7 @@ de:
     edit: Bearbeiten
     delete: Löschen
     save: Speichern
+    discard: Änderungen verwerfen
     confirm_delete: Wirklich löschen?
     success: Gespeichert
     deleted: Gelöscht

@@ -18,21 +18,30 @@ describe 'Settings' do
     context 'when visiting general settings' do
       before { visit '/settings/general' }
 
-      it 'has submit button disabled initially' do
-        expect(page).to have_button('Speichern', disabled: true)
+      it 'has no save bar initially' do
+        expect(page).to have_no_button('Speichern')
       end
 
-      it 'enables submit button when form is changed' do
+      it 'shows the save bar when form is changed' do
         find_field('setting_plant_name').send_keys('x')
+        expect(page).to have_button('Änderungen verwerfen')
         expect(page).to have_button('Speichern', disabled: false)
       end
 
-      it 'disables submit button when change is reverted' do
+      it 'hides the save bar when change is reverted' do
         find_field('setting_plant_name').send_keys('x')
         expect(page).to have_button('Speichern', disabled: false)
 
         find_field('setting_plant_name').send_keys(:backspace)
-        expect(page).to have_button('Speichern', disabled: true)
+        expect(page).to have_no_button('Speichern')
+      end
+
+      it 'discards the changes' do
+        find_field('setting_plant_name').send_keys('x')
+        click_on 'Änderungen verwerfen'
+
+        expect(page).to have_no_button('Speichern')
+        expect(page).to have_field('setting_plant_name', with: '')
       end
     end
 

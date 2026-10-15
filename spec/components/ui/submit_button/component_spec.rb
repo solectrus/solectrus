@@ -10,6 +10,12 @@ describe Ui::SubmitButton::Component, type: :component do
     end
   end
 
+  it 'renders a button that discards the changes' do
+    render_inline(described_class.new)
+
+    expect(page.find_button('Discard changes')['type']).to eq('reset')
+  end
+
   it 'renders a label of its own' do
     render_inline(described_class.new(label: 'Accept'))
 
