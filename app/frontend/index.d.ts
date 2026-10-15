@@ -16,13 +16,6 @@ declare module '@hotwired/turbo' {
     fetchResponse: { succeeded: boolean; contentType: string | null };
   }>;
 
-  interface StreamActionContext {
-    hasAttribute(attributeName: string): boolean;
-    templateContent: DocumentFragment;
-    templateElement: HTMLTemplateElement;
-    targetElements: Element[];
-  }
-
   export function visit(url: string, options?): void;
 
   export const cache: {
@@ -31,12 +24,6 @@ declare module '@hotwired/turbo' {
 
   export const session: {
     adapter: unknown;
-  };
-
-  export const config: {
-    drive: {
-      progressBarDelay: number;
-    };
   };
 
   export const StreamActions: {
