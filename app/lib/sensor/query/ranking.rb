@@ -76,10 +76,7 @@ module Sensor
         base_scope =
           SummaryValue.where(date: start..stop, field: fields, aggregation:)
 
-        # Filter out near-zero values for ascending rankings (only for watt/gram units)
-        if !desc && %i[watt gram].include?(sensor.unit)
-          base_scope = base_scope.where(SummaryValue.arel_table[:value].gt(10))
-        end
+        base_scope = base_scope.where(SummaryValue.arel_table[:value].gt(idle_limit)) if idle_limit
 
         # First aggregate by date (handles multiple fields)
         daily_scope = aggregate_by_date(base_scope, fields)
@@ -136,6 +133,20 @@ module Sensor
 
       def order_direction
         desc ? 'DESC' : 'ASC'
+      end
+
+      # An ascending ranking skips the days on which nothing happened, or it
+      # lists nothing else: a near-zero energy or CO2 value, a day without
+      # driving.
+      IDLE_LIMITS = { watt: 10, gram: 10, kilometer: 0 }.freeze
+      private_constant :IDLE_LIMITS
+
+      def idle_limit
+        IDLE_LIMITS[sensor.unit] unless desc
+      end
+
+      def idle_filter(calculation)
+        "WHERE #{calculation} > #{idle_limit}" if idle_limit
       end
 
       def calculate_date_range(start_param, stop_param)
@@ -335,6 +346,7 @@ module Sensor
           #{daily_cte}
           SELECT date, #{calculation} AS value
           FROM daily
+          #{idle_filter(calculation)}
           ORDER BY value #{order_direction}
           LIMIT #{limit}
         SQL
@@ -359,6 +371,7 @@ module Sensor
             #{period_sql} AS period_date,
             #{aggregation_expr} AS value
           FROM daily
+          #{idle_filter(calculation)}
           GROUP BY #{period_sql}
           ORDER BY value #{order_direction}
           LIMIT #{limit}

@@ -70,5 +70,33 @@ describe 'Top 10 of the cars' do
 
       expect(ranking.first(2)).to eq([{ date: Date.new(2026, 1, 1), value: 80.0 }, { date: Date.new(2026, 1, 2), value: 60.0 }])
     end
+
+    context 'with a day without driving' do
+      before do
+        Summary.create!(date: Date.new(2026, 1, 3))
+        SummaryValue.create!(date: Date.new(2026, 1, 3), field: :car_odometer_1, aggregation: :sum, value: 0)
+      end
+
+      it 'skips the day in the ascending ranking of all cars' do
+        ranking = Sensor::Query::Ranking.new(:car_distance, aggregation: :sum, period: :day, desc: false).call
+
+        expect(ranking).to eq([{ date: Date.new(2026, 1, 2), value: 60.0 }, { date: Date.new(2026, 1, 1), value: 80.0 }])
+      end
+
+      it 'skips the day in the ascending ranking of one car' do
+        ranking = Sensor::Query::Ranking.new(:car_odometer_1, aggregation: :sum, period: :day, desc: false).call
+
+        expect(ranking).to eq([{ date: Date.new(2026, 1, 1), value: 30.0 }])
+      end
+
+      it 'skips a week without driving' do
+        Summary.create!(date: Date.new(2026, 1, 12))
+        SummaryValue.create!(date: Date.new(2026, 1, 12), field: :car_odometer_1, aggregation: :sum, value: 0)
+
+        ranking = Sensor::Query::Ranking.new(:car_distance, aggregation: :sum, period: :week, desc: false).call
+
+        expect(ranking).to eq([{ date: Date.new(2025, 12, 29), value: 140.0 }])
+      end
+    end
   end
 end
