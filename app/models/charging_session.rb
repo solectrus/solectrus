@@ -74,8 +74,10 @@ class ChargingSession < ApplicationRecord
   private_constant :EVSE_ID_FORMAT
 
   # The sessions of one kind and one holder in the order of time, the window
-  # of a charge over midnight (see .with_continued)
-  HOLDER_WINDOW = '(PARTITION BY kind, car_id, guest ORDER BY started_at)'.freeze
+  # of a charge over midnight (see .with_continued). The id keeps two
+  # sessions with the same start apart, else the count of .joined gives both
+  # the same charge.
+  HOLDER_WINDOW = '(PARTITION BY kind, car_id, guest ORDER BY started_at, id)'.freeze
   private_constant :HOLDER_WINDOW
 
   # Whether a session continues the session before it (see .with_continued).

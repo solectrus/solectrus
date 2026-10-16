@@ -387,6 +387,14 @@ describe ChargingSession do
 
       expect(described_class.list_for(:offsite, filter: :proposals)).to eq([described_class.proposals.sole])
     end
+
+    it 'lists two sessions with the same start as two rows' do
+      twin_id = described_class.insert!( # rubocop:disable Rails/SkipsModelValidations
+        { kind: 'offsite', origin: 'user', assigned_manually: true, car_id: car.id, started_at: recent_offsite.started_at, kwh: 10, cost: 4 },
+      ).rows.sole.first
+
+      expect(described_class.list_for(:offsite).map(&:id)).to contain_exactly(recent_offsite.id, twin_id, old_offsite.id)
+    end
   end
 
   describe '.sums' do
