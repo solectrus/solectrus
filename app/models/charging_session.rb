@@ -123,6 +123,7 @@ class ChargingSession < ApplicationRecord
   belongs_to :car, optional: true
 
   normalizes :evse_id, with: -> { it.strip.upcase.presence }
+  normalizes :address, with: -> { it.strip.presence }
 
   validates :kind, presence: true
   validates :started_at, presence: true

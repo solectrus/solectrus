@@ -88,6 +88,14 @@ describe ChargingSession do
         end
       end
 
+      it 'strips the address and stores a blank one as nil' do
+        session.address = ' Main Street 1, Springfield '
+        expect(session.address).to eq('Main Street 1, Springfield')
+
+        session.address = ' '
+        expect(session.address).to be_nil
+      end
+
       describe 'the period of the car' do
         let(:last_day) { 3.days.ago.to_date }
 
