@@ -5,4 +5,5 @@ en:
   consumption_reason: 'Charging and driving do not happen on the same day. Each day therefore has a rate of its own: the charged energy of the %{days} days before and after it, divided by their distance.'
   charge_losses: The values include the charging losses.
   unrated: Without %{distance} that lack charging data.
-  range_reason: The range on a full battery, extrapolated from the reported range and the state of charge. The value is the average of the days.
+  range_reason: The range on a full battery, extrapolated from the range that the car reports and the state of charge. The value is the average of the days.
+  range_estimate: The car estimates this range itself, for example from the temperature and the way you drive. It therefore does not follow the consumption.

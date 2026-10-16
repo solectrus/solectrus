@@ -5,4 +5,5 @@ de:
   consumption_reason: 'Laden und Fahren passieren nicht am selben Tag. Deshalb hat jeder Tag einen eigenen Satz: die geladene Energie der %{days} Tage davor und danach, geteilt durch deren Fahrleistung.'
   charge_losses: Die Werte enthalten die Ladeverluste.
   unrated: Ohne %{distance}, für die Ladedaten fehlen.
-  range_reason: Die Reichweite bei vollem Akku, hochgerechnet aus der gemeldeten Reichweite und dem Ladestand. Der Wert ist der Durchschnitt der Tage.
+  range_reason: Die Reichweite bei vollem Akku, hochgerechnet aus der Reichweite, die das Auto meldet, und dem Ladestand. Der Wert ist der Durchschnitt der Tage.
+  range_estimate: Das Auto schätzt diese Reichweite selbst, zum Beispiel aus der Temperatur und der Fahrweise. Sie folgt deshalb nicht dem Verbrauch.

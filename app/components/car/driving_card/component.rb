@@ -115,7 +115,7 @@ class Car::DrivingCard::Component < ViewComponent::Base
   # The maximum range is the range at a full battery. A car of "all" has
   # none (see #max_range?).
   def max_range_tooltip
-    tooltip(notes: [t('.range_reason')]) if report.car
+    tooltip(notes: [t('.range_reason'), t('.range_estimate')]) if report.car
   end
 
   # The consumption comes from the rates of the days, like the cost per
