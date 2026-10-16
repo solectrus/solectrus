@@ -4,7 +4,7 @@ module Sensor
   # to collect raw data and returns a single Sensor::Data::Single object.
   class SummaryBuilder # rubocop:disable Metrics/ClassLength
     # The aggregations of a state (see Influx::DailyStates)
-    STATE_AGGREGATIONS = %i[min max avg].freeze
+    STATE_AGGREGATIONS = %i[min max avg last].freeze
     private_constant :STATE_AGGREGATIONS
 
     # Which sensors a summary is built from does not depend on the day, so
@@ -33,8 +33,8 @@ module Sensor
       end
 
       # A state, like the state of charge of a car, holds its value between
-      # its readings. Its min, max and avg come from the buckets of the day
-      # (see Influx::DailyStates), not from its readings alone.
+      # its readings. Its min, max, avg and last come from the buckets of the
+      # day (see Influx::DailyStates), not from its readings alone.
       def state_sensor_names
         STATE_AGGREGATIONS
           .flat_map { sensors_for_summary_aggregation(it) }

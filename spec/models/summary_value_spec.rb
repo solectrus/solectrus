@@ -34,7 +34,7 @@ describe SummaryValue do
       it 'includes all aggregation types' do
         actual_aggregations = described_class.aggregations.keys
 
-        expect(actual_aggregations).to match_array(%w[sum max min avg])
+        expect(actual_aggregations).to match_array(%w[sum max min avg last])
       end
     end
   end

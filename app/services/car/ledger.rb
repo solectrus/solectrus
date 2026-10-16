@@ -1,7 +1,8 @@
 # The car days of a date range, read at once: for each car and day the
-# distance and the maximum range from the daily summaries, and the sums of
-# its charging sessions. The wallbox sessions without a car, the guest
-# sessions and the sessions that are not assigned, are days without a car.
+# distance, the maximum range and the state of charge at its end from the
+# daily summaries, and the sums of its charging sessions. The wallbox
+# sessions without a car, the guest sessions and the sessions that are not
+# assigned, are days without a car.
 # With `guest: true` the sessions also hold the guest sessions: "all" adds
 # them to the cars, and the selection of the guest has no cars.
 #
@@ -56,9 +57,20 @@ class Car::Ledger
     summaries.dig([car.id, :distance], date) || 0.0
   end
 
+  # The state of charge (%) of a car at the end of a day, nil without a value
+  def daily_soc(car, date)
+    summaries.dig([car.id, :soc], date)
+  end
+
   # The Sums of the sessions of a car on a day
   def daily_sessions(car, date)
     by_car_and_date.fetch([car.id, date], ChargingSession::Sums.empty)
+  end
+
+  # The charged energy (kWh) of a percentage point of a car, nil without
+  # enough sessions (see ChargingSession.kwh_per_percent)
+  def kwh_per_percent(car)
+    (@kwh_per_percent ||= ChargingSession.kwh_per_percent(cars))[car.id]
   end
 
   private
@@ -112,25 +124,26 @@ class Car::Ledger
     @sorted_summaries ||= Hash.new { |hash, key| hash[key] = summaries.fetch(key, {}).sort_by(&:first) }
   end
 
-  SUMMARY_FIELDS = { car_odometer: %i[distance sum], car_max_range: %i[max_range avg] }.freeze
+  SUMMARY_FIELDS = { car_odometer: %i[distance sum], car_max_range: %i[max_range avg], car_battery_soc: %i[soc last] }.freeze
   private_constant :SUMMARY_FIELDS
 
-  # { [car id, :distance or :max_range] => { date => value } }
+  # { [car id, :distance, :max_range or :soc] => { date => value } }
   def summaries
     @summaries ||=
-      begin
-        fields =
-          cars.each_with_object({}) do |car, result|
-            SUMMARY_FIELDS.each { |role, (key, aggregation)| result[[car.sensor_name(role).to_s, aggregation.to_s]] = [car.id, key] }
-          end
+      SummaryValue
+        .where(date: dates, field: summary_fields.keys.map(&:first), aggregation: summary_fields.keys.map(&:last).uniq)
+        .pluck(:field, :aggregation, :date, :value)
+        .each_with_object(Hash.new { |hash, key| hash[key] = {} }) do |(field, aggregation, date, value), result|
+          key = summary_fields[[field, aggregation]]
+          result[key][date] = value if key
+        end
+  end
 
-        SummaryValue
-          .where(date: dates, field: fields.keys.map(&:first), aggregation: %w[sum avg])
-          .pluck(:field, :aggregation, :date, :value)
-          .each_with_object(Hash.new { |hash, key| hash[key] = {} }) do |(field, aggregation, date, value), result|
-            key = fields[[field, aggregation]]
-            result[key][date] = value if key
-          end
+  # { [field, aggregation] => [car id, key] }
+  def summary_fields
+    @summary_fields ||=
+      cars.each_with_object({}) do |car, result|
+        SUMMARY_FIELDS.each { |role, (key, aggregation)| result[[car.sensor_name(role).to_s, aggregation.to_s]] = [car.id, key] }
       end
   end
 end

@@ -10,6 +10,10 @@
 # year. A rate of a period is this sum divided by its distance. Several cars
 # add up, each day of a car at the rates of its own window.
 #
+# The battery holds more at the end of a window than at its start, or less.
+# The charged energy of the window is that much too high, or too low, so the
+# change of the state of charge corrects it (see #driven_share).
+#
 # A window with less than MIN_DISTANCE or without charged energy gives no
 # rate, because a single charge would decide it. Such a day has no driving
 # cost, and its distance does not count for a rate. A window with a session
@@ -52,9 +56,10 @@ class Car::Driving
   public_constant :Totals
 
   # The dates that the windows of the given dates read: MARGIN_DAYS more on
-  # each side, from the first date of the installation to today
+  # each side, from the first date of the installation to today. The day
+  # before the first window gives the state of charge at its start.
   def self.reach(dates, min_date:)
-    [dates.begin - MARGIN_DAYS, min_date].compact.max..[dates.end + MARGIN_DAYS, Date.current].min
+    [dates.begin - MARGIN_DAYS - 1, min_date].compact.max..[dates.end + MARGIN_DAYS, Date.current].min
   end
 
   # The ledger must hold the reach of each date to ask for
@@ -87,16 +92,33 @@ class Car::Driving
 
     window = window(car, date)
     window_distance = sum(car, window, :distance)
-    window_energy_wh = sum(car, window, :energy_wh)
-    return if window_distance < MIN_DISTANCE || !window_energy_wh.positive?
+    charged_wh = sum(car, window, :energy_wh)
+    return if window_distance < MIN_DISTANCE || !charged_wh.positive?
 
+    share = driven_share(car, window, charged_wh)
     cost_distance = sum(car, window, :uncosted).zero? ? distance : 0.0
     Totals.new(
       distance:,
-      energy_wh: distance * (window_energy_wh / window_distance),
+      energy_wh: distance * (charged_wh * share / window_distance),
       cost_distance:,
-      cost: cost_distance * (sum(car, window, :cost) / window_distance),
+      cost: cost_distance * (sum(car, window, :cost) * share / window_distance),
     )
+  end
+
+  # The share of the charged energy of the window that the car drove on: the
+  # charged energy less the energy that the battery holds more at the end of
+  # the window. The cost takes the same share, so the energy in the battery
+  # has the average price of the window. Without the states of charge at the
+  # start and the end of the window, or without the energy of a percent, the
+  # share is 1.
+  def driven_share(car, window, charged_wh)
+    kwh_per_percent = ledger.kwh_per_percent(car)
+    soc_start = ledger.daily_soc(car, window.begin - 1)
+    soc_end = ledger.daily_soc(car, window.end)
+    return 1.0 unless kwh_per_percent && soc_start && soc_end
+
+    driven_wh = charged_wh - ((soc_end - soc_start) * kwh_per_percent * 1000)
+    driven_wh.positive? ? driven_wh / charged_wh : 1.0
   end
 
   # The days that a window of the car can hold: from the first date of the

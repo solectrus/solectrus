@@ -74,7 +74,7 @@ describe Car::Report do
       described_class.pending_days(Timeframe.new('2026-01-01..2026-01-31'))
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Date.new(2025, 12, 18), to: Date.new(2026, 2, 14),
+        from: Date.new(2025, 12, 17), to: Date.new(2026, 2, 14),
       )
     end
   end

@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_27_102209) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_16_062620) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
-  create_enum "aggregation_enum", ["sum", "max", "min", "avg"]
+  create_enum "aggregation_enum", ["sum", "max", "min", "avg", "last"]
   create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "battery_discharging_power_grid", "car_battery_soc_1", "car_battery_soc_2", "car_battery_soc_3", "car_battery_soc_4", "car_battery_soc_5", "car_odometer_1", "car_odometer_2", "car_odometer_3", "car_odometer_4", "car_odometer_5", "car_max_range_1", "car_max_range_2", "car_max_range_3", "car_max_range_4", "car_max_range_5", "car_range_1", "car_range_2", "car_range_3", "car_range_4", "car_range_5"]
 
   create_table "cars", id: :integer, default: nil, force: :cascade do |t|

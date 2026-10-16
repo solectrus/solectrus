@@ -49,7 +49,11 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
     end
   end
 
-  aggregations stored: %i[min max avg], meta: %i[min max avg]
+  # The state at the end of a day (`last`) gives the energy balance of the
+  # battery (see Car::Driving). It means nothing across days, so no query
+  # offers it.
+  aggregations stored: %i[min max avg last], meta: %i[min max avg], computed: %i[min max avg]
+  summary_version '2026-10-16'
 
   requires_permission :car
 end

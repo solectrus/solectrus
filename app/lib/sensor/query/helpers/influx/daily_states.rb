@@ -3,7 +3,8 @@ module Sensor
     module Helpers
       module Influx
         # The daily min, max and avg of the sensors of a state, like the state
-        # of charge of a car, for many days in one Flux program.
+        # of charge of a car, for many days in one Flux program, and the
+        # value at the end of the day (`last`).
         #
         # A state holds until its next reading, at any age (see the DSL
         # `state`). A parked car can send nothing for a day, and a car sends
@@ -29,7 +30,7 @@ module Sensor
 
           attr_reader :dates, :sensor_names
 
-          # { Date => { sensor_name => { min:, max:, avg: } } }, each value nil
+          # { Date => { sensor_name => { min:, max:, avg:, last: } } }, each value nil
           # without a reading
           def call = @values.value!
 
@@ -45,9 +46,9 @@ module Sensor
 
           def aggregate(date, readings)
             values = bucket_values(date, readings)
-            return { min: nil, max: nil, avg: nil } if values.empty?
+            return { min: nil, max: nil, avg: nil, last: nil } if values.empty?
 
-            { min: values.min, max: values.max, avg: values.sum.fdiv(values.size) }
+            { min: values.min, max: values.max, avg: values.sum.fdiv(values.size), last: values.last }
           end
 
           # The value of each bucket of the day up to now, from the first one

@@ -476,18 +476,46 @@ Each day therefore takes its rates from a window: the day plus 14 days before an
 (`Car::Driving`).
 
 ```
-EUR/100 km of a day    =  cost of its window    ÷  distance of its window  × 100
-kWh/100 km of a day    =  energy of its window  ÷  distance of its window  × 100
-driving cost of a day  =  distance of the day   ÷  100  ×  EUR/100 km of the day
+EUR/100 km of a day    =  driven cost of its window    ÷  distance of its window  × 100
+kWh/100 km of a day    =  driven energy of its window  ÷  distance of its window  × 100
+driving cost of a day  =  distance of the day          ÷  100  ×  EUR/100 km of the day
 ```
 
 A period is the sum of its days, and its rate is this sum divided by its distance. A column
 and the tile of the same period therefore show the same number, and the columns add up to
 the tile.
 
-In four weeks, the car charges and drives much more than one battery, so the change of the
-battery content is a small error. A day in the past sits in the center of its window, so a
-winter day keeps winter data. Four rules limit a window:
+The battery can hold more at the end of a window than at its start, or less. The charged
+energy of the window is then too high, or too low. An example: a window charges 300 kWh,
+and a battery of 50 kWh ends 40 points fuller. The car drove on 280 kWh, so the charged
+energy is 7 % too high. The window therefore subtracts the change of the state of charge:
+
+```
+driven energy of a window  =  charged energy  −  k  ×  (state of charge at its end − at its start)
+driven cost of a window    =  cost  ×  driven energy  ÷  charged energy
+```
+
+- The state of charge at the end of a day is a daily summary (`car_battery_soc_N`,
+  aggregation `last`). The start of a window is the end of the day before it. The
+  `summary_version` of the sensor builds the summaries again where a car has the sensor.
+- `k` is the charged energy that raises the state of charge of the car by one percentage
+  point (`ChargingSession.kwh_per_percent`). It is the median of the sessions of the car
+  with a rise of 20 points or more. It holds the capacity of the battery and the loss of a
+  charge in one number, so the correction needs no capacity.
+- An offsite session counts for `k`. If its energy is the estimate of its rise, it has no
+  loss, so it does not count.
+- The cost takes the same share as the energy, so the energy in the battery has the average
+  price of the window.
+- Without the state of charge at both ends, or with fewer than five sessions for `k`, the
+  window keeps its charged energy.
+
+`k` changes with the season. One `k` for each car is sufficient, because its error applies
+only to the change of the state of charge, not to all charged energy of the window. The
+correction makes the rate of a day change less from the day before. The average state of
+charge of a day was not sufficient, because it is wrong on a day with a charge.
+
+A day in the past sits in the center of its window, so a winter day keeps winter data. Four
+rules limit a window:
 
 - It ends today. The rate of a recent day can change for 14 more days.
 - It starts at the installation date.
@@ -501,7 +529,8 @@ A window with a session without a cost has an energy rate, but no cost rate. The
 
 The margin of 14 days is a compromise. A shorter margin fixes a recent rate sooner and
 keeps the season more exactly. A longer margin gives a steadier rate. Measured on 2,100
-days of one car, with the change from the day before:
+days of one car before the correction with the state of charge, with the change from the
+day before:
 
 | Margin | Days without a rate | Median change | Change on 1 day in 10 |
 | ------ | ------------------- | ------------- | --------------------- |
@@ -514,11 +543,10 @@ before it shows the period (`Car::Report.pending_days`).
 
 ### Rejected designs
 
-- An energy balance with the battery content. `car_range` cannot give the content, because
-  kilometers to kWh needs the consumption, which is the result. `car_battery_soc` ×
-  capacity works for a year but not for a day: the rate changed by 24 % from day to day in
-  the median, and some days got a negative rate. It also needs a charge loss factor that
-  the user does not know.
+- An energy balance of each day alone with the battery content. The rate changed by 24 %
+  from day to day in the median, and some days got a negative rate. The window uses the
+  balance instead (see above). `car_range` cannot give the content, because kilometers to
+  kWh needs the consumption, which is the result.
 - One window for a period: the period plus the margin. The day columns of a month then had
   other windows than the tile and did not add up to it.
 - A margin of 30 days. A recent rate changed for 30 days, and a winter month used November

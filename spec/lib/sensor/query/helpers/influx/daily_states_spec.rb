@@ -29,25 +29,25 @@ describe Sensor::Query::Helpers::Influx::DailyStates do
   let(:dates) { [Date.new(2024, 3, 8), Date.new(2024, 3, 9), Date.new(2024, 3, 10)] }
 
   it 'holds the last reading before a day without a reading' do
-    expect(values(Date.new(2024, 3, 8))).to eq(min: 80, max: 80, avg: 80)
-    expect(values(Date.new(2024, 3, 10))).to eq(min: 40, max: 40, avg: 40)
+    expect(values(Date.new(2024, 3, 8))).to eq(min: 80, max: 80, avg: 80, last: 80)
+    expect(values(Date.new(2024, 3, 10))).to eq(min: 40, max: 40, avg: 40, last: 40)
   end
 
   # 6 hours at 80, 12 hours at 60 and 6 hours at 40
   it 'weights each value with its time' do
-    expect(values(Date.new(2024, 3, 9))).to eq(min: 40, max: 80, avg: 60)
+    expect(values(Date.new(2024, 3, 9))).to eq(min: 40, max: 80, avg: 60, last: 40)
   end
 
   context 'with a day before the first reading' do
     let(:dates) { [Date.new(2024, 3, 6), Date.new(2024, 3, 7)] }
 
     it 'gives no values' do
-      expect(values(Date.new(2024, 3, 6))).to eq(min: nil, max: nil, avg: nil)
+      expect(values(Date.new(2024, 3, 6))).to eq(min: nil, max: nil, avg: nil, last: nil)
     end
 
     # From 18:00 on
     it 'starts the day with the first reading' do
-      expect(values(Date.new(2024, 3, 7))).to eq(min: 80, max: 80, avg: 80)
+      expect(values(Date.new(2024, 3, 7))).to eq(min: 80, max: 80, avg: 80, last: 80)
     end
   end
 
@@ -58,7 +58,7 @@ describe Sensor::Query::Helpers::Influx::DailyStates do
 
     # 6 hours at 80 and 6 hours at 60, without the hours after now
     it 'ends now' do
-      expect(values(Date.new(2024, 3, 9))).to eq(min: 60, max: 80, avg: 70)
+      expect(values(Date.new(2024, 3, 9))).to eq(min: 60, max: 80, avg: 70, last: 60)
     end
   end
 end

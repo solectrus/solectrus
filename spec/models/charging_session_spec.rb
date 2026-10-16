@@ -306,6 +306,53 @@ describe ChargingSession do
     end
   end
 
+  describe '.kwh_per_percent' do
+    subject(:kwh_per_percent) { described_class.kwh_per_percent([car])[car.id] }
+
+    let(:start) { 30.days.ago }
+
+    def wallbox(day, kwh, soc_from: 30, soc_to: 50)
+      started_at = start + day.days
+      described_class.create!(kind: :wallbox, origin: :detection, car:, started_at:, ended_at: started_at + 1.hour, kwh:, soc_from:, soc_to:)
+    end
+
+    def offsite(day, kwh) = described_class.create!(kind: :offsite, origin: :user, car:, started_at: start + day.days, kwh:, cost: 5, soc_from: 30, soc_to: 50)
+
+    # A rise of 20 percentage points: 0.55, 0.575, 0.6, 0.625 kWh per percent
+    before { [11, 11.5, 12, 12.5].each_with_index { |kwh, day| wallbox(day, kwh) } }
+
+    it 'has none with fewer than five sessions' do
+      expect(kwh_per_percent).to be_nil
+    end
+
+    it 'takes the median of the sessions' do
+      wallbox(5, 13)
+
+      expect(kwh_per_percent).to eq(0.6)
+    end
+
+    # The state of charge has whole percents
+    it 'leaves out a small rise' do
+      wallbox(5, 2, soc_from: 40, soc_to: 50)
+
+      expect(kwh_per_percent).to be_nil
+    end
+
+    it 'counts an entered offsite session' do
+      offsite(5, 13)
+
+      expect(kwh_per_percent).to eq(0.6)
+    end
+
+    # 20 percentage points of 50 kWh, without a loss
+    it 'leaves out an offsite session with the estimate of its rise as its energy' do
+      car.update!(battery_kwh: 50)
+      offsite(5, 10)
+
+      expect(kwh_per_percent).to be_nil
+    end
+  end
+
   describe '.list_for' do
     let!(:recent_offsite) { described_class.create!(kind: :offsite, origin: :user, car:, started_at: 2.days.ago, kwh: 10, cost: 5) }
     let!(:old_offsite) { described_class.create!(kind: :offsite, origin: :user, car:, started_at: 2.years.ago, kwh: 20, cost: 10) }

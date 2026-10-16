@@ -9,10 +9,45 @@ module ChargingSession::StateOfCharge
   LOSS_MIN_RISE = 20
   private_constant :LOSS_MIN_RISE
 
+  # Fewer sessions give no energy of a percent (see .kwh_per_percent)
+  MIN_SESSIONS = 5
+  private_constant :MIN_SESSIONS
+
   included do
     # The state of charge belongs to the car of the session. A new build
     # reads it for the car of the user again.
     before_save -> { self.soc_from = self.soc_to = nil }, if: -> { persisted? && will_save_change_to_car_id? }
+  end
+
+  class_methods do
+    # { car id => the charged energy (kWh) that raises the state of charge of
+    # the car by one percentage point }: the median of its sessions, nil
+    # with fewer than MIN_SESSIONS. It holds the capacity and the loss of a
+    # charge in one number, so it needs no capacity. An offsite session with
+    # the estimate of its rise as its energy has no loss, so it does not
+    # count (see ChargingSession::Proposal.estimate).
+    def kwh_per_percent(cars)
+      rows =
+        where(car: cars).effective.where.not(soc_from: nil).where.not(soc_to: nil).where(kwh: 0.001..)
+          .pluck(:car_id, :kind, :kwh, :soc_from, :soc_to)
+
+      cars.to_h do |car|
+        ratios = rows.filter_map { |car_id, *row| kwh_per_percent_of(*row, car.battery_kwh) if car_id == car.id }
+        [car.id, (ratios.sort[ratios.size / 2] if ratios.size >= MIN_SESSIONS)]
+      end
+    end
+
+    private
+
+    # The energy of a percent of one session, nil for a small rise and for an
+    # offsite session with an estimated energy
+    def kwh_per_percent_of(kind, kwh, soc_from, soc_to, capacity)
+      rise = soc_to - soc_from
+      return if rise < LOSS_MIN_RISE
+      return if kind == 'offsite' && kwh == estimate(soc_from, soc_to, capacity)
+
+      (kwh / rise).to_f
+    end
   end
 
   # The rise of the state of charge in percentage points, or nil

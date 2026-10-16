@@ -117,6 +117,44 @@ describe Car::Driving do
       expect(january.distance).to eq(0)
     end
 
+    # The window of January 12 runs from December 29 to January 26. Its
+    # battery holds 10 percentage points more at its end, which is 5 kWh at
+    # 0.5 kWh per percent.
+    context 'with the state of charge at the start and the end of the window' do
+      def kwh_per_percent = 0.5
+
+      before do
+        allow(ChargingSession).to receive(:kwh_per_percent).and_return(car.id => kwh_per_percent)
+        summary(Date.new(2025, 12, 28), :car_battery_soc_1, :last, 50)
+        summary(Date.new(2026, 1, 26), :car_battery_soc_1, :last, 60)
+      end
+
+      it 'drives on the charged energy less the energy that stays in the battery' do
+        expect(january.consumption_per_100km).to be_within(0.001).of(25.0 / 150 * 100)
+      end
+
+      # The energy in the battery has the average price of the window
+      it 'gives the cost the same share' do
+        expect(january.cost).to be_within(0.001).of(7.5)
+      end
+
+      context 'without the energy of a percent' do
+        def kwh_per_percent = nil
+
+        it 'drives on the charged energy' do
+          expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
+        end
+      end
+
+      context 'without the state of charge at the start of the window' do
+        before { SummaryValue.where(date: Date.new(2025, 12, 28)).delete_all }
+
+        it 'drives on the charged energy' do
+          expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
+        end
+      end
+    end
+
     context 'with two cars' do
       let(:cars) { [car, Car.create!(id: 2)] }
 
@@ -130,24 +168,24 @@ describe Car::Driving do
         expect(january.cost).to be_within(0.001).of(15.0)
       end
 
-      it 'reads the distances and the sessions of all cars in one query each' do
+      it 'reads the distances, the sessions and the energy of a percent of all cars in one query each' do
         queries = []
         ActiveSupport::Notifications.subscribed(->(*, payload) { queries << payload[:name] }, 'sql.active_record') do
           [1, 2, 3].each { driving.totals(Date.new(2026, it, 1).all_month) }
         end
 
-        expect(queries.tally).to include('SummaryValue Pluck' => 1, 'ChargingSession Pluck' => 1)
+        expect(queries.tally).to include('SummaryValue Pluck' => 1, 'ChargingSession Pluck' => 2)
       end
     end
   end
 
   describe '.reach' do
-    it 'adds the margin on each side' do
-      expect(described_class.reach(quarter, min_date:)).to eq(Date.new(2025, 12, 18)..Date.new(2026, 4, 14))
+    it 'adds the margin on each side, and the day before the first window' do
+      expect(described_class.reach(quarter, min_date:)).to eq(Date.new(2025, 12, 17)..Date.new(2026, 4, 14))
     end
 
     it 'ends today' do
-      expect(described_class.reach(Date.new(2026, 9, 1)..today, min_date:)).to eq(Date.new(2026, 8, 18)..today)
+      expect(described_class.reach(Date.new(2026, 9, 1)..today, min_date:)).to eq(Date.new(2026, 8, 17)..today)
     end
 
     it 'starts at the installation date' do
