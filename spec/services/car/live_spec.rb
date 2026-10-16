@@ -77,6 +77,23 @@ describe Car::Live do
     end
   end
 
+  # The second car has no range sensor
+  context 'with an estimate of the range' do
+    before do
+      allow(cars.first).to receive(:sensor?).and_call_original
+      allow(cars.first).to receive(:sensor?).with(:car_range).and_return(true)
+      allow(Car::RangeEstimate).to receive(:new).and_return(instance_double(Car::RangeEstimate, km_per_percent: 3.0))
+    end
+
+    it 'estimates the range and the range at a full battery of a car without a range sensor' do
+      expect(live.states.last).to have_attributes(range: 120.0, max_range: 300.0)
+    end
+
+    it 'keeps the range of a car with a range sensor' do
+      expect(live.states.first).to have_attributes(range: 300, max_range: 375)
+    end
+  end
+
   it 'gives the location of a car with both coordinates' do
       expect(live.states.map(&:location)).to eq([[50.9, 6.4], nil])
   end

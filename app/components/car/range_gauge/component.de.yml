@@ -1,2 +1,4 @@
 de:
   stale: Keine aktuellen Werte
+  estimated: Geschätzte Reichweite
+  estimated_note: Geschätzt aus dem Ladestand und dem Verbrauch der letzten 14 Tage. Der Verbrauch enthält auch die Energie, die das Auto im Stand braucht.

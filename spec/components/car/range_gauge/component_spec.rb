@@ -63,6 +63,7 @@ describe Car::RangeGauge::Component, type: :component do
   context 'without a sensor of the state of charge' do
     def env = { 'INFLUX_SENSOR_CAR_RANGE_2' => 'Wartburg:range' }
     let(:soc) { nil }
+    let(:max_range) { nil }
 
     it 'shows the range in a gray arc, without a scale and without a note' do
       expect(html.css('svg path').size).to eq(1)
@@ -77,11 +78,28 @@ describe Car::RangeGauge::Component, type: :component do
     let(:range) { nil }
     let(:max_range) { nil }
 
-    it 'shows the arc with an inactive range and without a scale' do
+    it 'shows the arc and the state of charge in place of the range, without a scale' do
       expect(html.css('path[stroke-dasharray="62 100"]')).to be_present
-      expect(html.css('.text-slate-300').text).to include('–', I18n.t('sensors.car_range_short'))
-      expect(html.text).not_to include('km', stale)
+      expect(html.css('div.bg-car-battery[class*="text-[clamp(1.5rem"]').text).to eq('62 %')
+      expect(html.text).not_to include('–', I18n.t('sensors.car_range_short'), 'km', stale)
     end
+
+    # See Car::RangeEstimate
+    context 'with an estimate' do
+      let(:range) { 186.0 }
+      let(:max_range) { 300.0 }
+
+      it 'shows the range as an estimate with its source, and the scale' do
+        expect(html.text.squish).to include('186', 'Estimated range', '62 %', '300')
+        expect(html.at_css('[title^="Estimated from"]')).to be_present
+        expect(html.text).not_to include(stale)
+      end
+    end
+  end
+
+  it 'shows a measured range without a note' do
+    expect(html.text).to include(I18n.t('sensors.car_range_short'))
+    expect(html.text).not_to include('Estimated')
   end
 
   it 'shows that the values are current' do

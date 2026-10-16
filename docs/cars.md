@@ -678,9 +678,20 @@ badge. Only the car at the wallbox shows the power of the wallbox (`Car::Live`).
 car is at the wallbox, the live view shows the power below the cars, for example for a
 guest. While the car charges, the part of the arc that the charge fills next pulses.
 
-Each gauge has the same shape. A car without a range sensor shows the range as an inactive
-dash, and a car without an odometer shows the counter as inactive boxes. So a car with the
-state of charge alone shows its filled arc in the frame of a full car. Without a car in use
+A car without a range sensor gets an estimate of its range (`Car::RangeEstimate`). Its label
+says "Estimated range", and a tooltip names the source. The charged energy of a percentage point (`k`, see above) gives a distance at the energy per km
+of the last 14 days (`Car::Driving#rate`). Both are energy at the charger, so the loss of a
+charge cancels out, and the estimate needs no capacity. The distance of 100 percentage points
+is the range at a full battery, which gives the scale of the arc. The estimate needs `k`, a
+rate, and a car in use for 14 days. The energy per km also holds the energy that the car
+uses while it stands. So the estimate is lower than the range that a car reports, and the
+difference grows when the car drives less per day. The estimate does not correct this,
+because the energy that a car uses while it stands is not known.
+
+Each gauge has the same shape. A car without a range and without an estimate shows its state
+of charge in the center, at the size of the range, and its arc has no scale. A car without an
+odometer shows the counter as inactive boxes. So a car with the state of charge alone shows
+its filled arc in the frame of a full car. Without a car in use
 today, a gray gauge shows a car icon and "No car is in use at the moment." in its center,
 and the admin gets a link to the settings of the cars.
 

@@ -52,14 +52,19 @@ class Car::RangeGauge::Component < ViewComponent::Base
   VALUES = { car_battery_soc: :soc, car_range: :range, car_odometer: :odometer }.freeze
   private_constant :VALUES
 
-  # Whether the car has a range at all. A range without a current value
-  # shows as a dash. Without the sensor, the range keeps its place in the
-  # center as an inactive dash, so each gauge has the same shape.
-  def range? = sensor?(:car_range)
+  # Whether the car has a range at all, from its sensor or estimated. A
+  # range sensor without a current value shows as a dash. Without both, the
+  # center shows the state of charge in place of the range.
+  def range? = sensor?(:car_range) || !range.nil?
+
+  # Whether the range is an estimate (see Car::RangeEstimate), which its
+  # label names
+  def estimated? = !sensor?(:car_range) && !range.nil?
 
   # Whether the ends of the arc show the scale from 0 to the maximum range.
-  # The maximum range needs the range and the state of charge.
-  def scale? = sensor?(:car_max_range)
+  # The maximum range needs the range and the state of charge, or the
+  # estimate.
+  def scale? = sensor?(:car_max_range) || !max_range.nil?
 
   # Whether a sensor of the car has no value, because it never reported. A
   # sensor without a configuration is no gap.

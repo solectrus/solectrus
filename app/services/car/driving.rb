@@ -80,6 +80,21 @@ class Car::Driving
     )
   end
 
+  # The rates of a car per km at the window of a date: the energy (Wh), and
+  # the cost, nil without a cost rate. Nil without an energy rate.
+  Rate = Data.define(:energy_wh, :cost)
+  public_constant :Rate
+
+  def rate(car, date)
+    window = window(car, date)
+    window_distance = sum(car, window, :distance)
+    charged_wh = sum(car, window, :energy_wh)
+    return if window_distance < MIN_DISTANCE || !charged_wh.positive?
+
+    share = driven_share(car, window, charged_wh) / window_distance
+    Rate.new(energy_wh: charged_wh * share, cost: (sum(car, window, :cost) * share if sum(car, window, :uncosted).zero?))
+  end
+
   private
 
   attr_reader :ledger, :min_date
@@ -90,19 +105,11 @@ class Car::Driving
     distance = ledger.daily_distance(car, date)
     return unless distance.positive?
 
-    window = window(car, date)
-    window_distance = sum(car, window, :distance)
-    charged_wh = sum(car, window, :energy_wh)
-    return if window_distance < MIN_DISTANCE || !charged_wh.positive?
+    rate = rate(car, date)
+    return unless rate
 
-    share = driven_share(car, window, charged_wh)
-    cost_distance = sum(car, window, :uncosted).zero? ? distance : 0.0
-    Totals.new(
-      distance:,
-      energy_wh: distance * (charged_wh * share / window_distance),
-      cost_distance:,
-      cost: cost_distance * (sum(car, window, :cost) * share / window_distance),
-    )
+    cost_distance = rate.cost ? distance : 0.0
+    Totals.new(distance:, energy_wh: distance * rate.energy_wh, cost_distance:, cost: cost_distance * rate.cost.to_f)
   end
 
   # The share of the charged energy of the window that the car drove on: the

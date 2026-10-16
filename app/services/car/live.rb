@@ -75,7 +75,23 @@ class Car::Live
     in_use = car.in?(cars_in_use)
     state = State.new(car:, charging_power: nil, time: (time_of(car) if in_use), **ROLES.transform_values { value(car.sensor_name(it)) if in_use })
     state = state.with(latitude: nil, longitude: nil) if left_location?(car, state)
+    state = estimated_range(car, state)
     state.with(connected: connected_of(car, state))
+  end
+
+  # A car without a range sensor gets an estimate of its range, and of the
+  # range at a full battery for the scale (see Car::RangeEstimate)
+  def estimated_range(car, state)
+    return state if state.soc.nil? || car.sensor?(:car_range)
+
+    km_per_percent = range_estimate.km_per_percent(car)
+    return state unless km_per_percent
+
+    state.with(range: state.soc.clamp(0, 100) * km_per_percent, max_range: km_per_percent * 100)
+  end
+
+  def range_estimate
+    @range_estimate ||= Car::RangeEstimate.new(cars_in_use)
   end
 
   # The plug of the car. One car in use without a plug of its own shows the

@@ -1,2 +1,4 @@
 en:
   stale: No current values
+  estimated: Estimated range
+  estimated_note: Estimated from the charge level and the consumption of the last 14 days. The consumption also holds the energy that the car uses while it stands.

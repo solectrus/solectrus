@@ -4,12 +4,21 @@
 class CarLiveViewComponentPreview < ViewComponent::Preview
   # Car::Live with fixed values instead of the latest values of InfluxDB
   class Live < Car::Live
-    def initialize(cars, data)
+    # Fixed distances of a percentage point instead of Car::RangeEstimate
+    Estimate = Data.define(:estimates) { def km_per_percent(car) = estimates[car.id] }
+    private_constant :Estimate
+
+    def initialize(cars, data, estimates: {})
       super(cars, home: nil)
       @data = Sensor::Data::Single.new(data, timeframe: Timeframe.now, times: data.transform_values { Time.current })
+      @estimates = estimates
     end
 
     attr_reader :data
+
+    private
+
+    def range_estimate = Estimate.new(@estimates)
   end
 
   # One car, which charges at the wallbox
@@ -71,17 +80,34 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
     )
   end
 
+  # One car without a range sensor and without an estimate of its range
+  def without_range_sensor
+    live_view([car(1, range: false)], car_battery_soc_1: 62, car_odometer_1: 23_456)
+  end
+
+  # One car without a range sensor, with an estimate of its range (see
+  # Car::RangeEstimate)
+  def estimated_range
+    live_view([car(1, range: false)], estimates: { 1 => 2.7 }, car_battery_soc_1: 62, car_odometer_1: 23_456)
+  end
+
   private
 
   # The live view fills the height of its parent, as on the car page
-  def live_view(cars, data)
+  def live_view(cars, estimates: {}, **data)
     render_with_template(
       template: 'car_live_view_component_preview/frame',
       locals: {
-        live: Live.new(cars, data),
+        live: Live.new(cars, data, estimates:),
       },
     )
   end
 
-  def car(id) = Car.new(id:, active_from: Date.new(2020, 1, 1))
+  # A car without `range` has no range sensor, whatever the configuration,
+  # and so no maximum range
+  def car(id, range: true)
+    Car.new(id:, active_from: Date.new(2020, 1, 1)).tap do |car|
+      car.define_singleton_method(:sensor?) { |role| %i[car_range car_max_range].exclude?(role) && super(role) } unless range
+    end
+  end
 end
