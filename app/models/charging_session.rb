@@ -58,6 +58,7 @@
 class ChargingSession < ApplicationRecord
   include ChargingSession::Holder
   include ChargingSession::Ongoing
+  include ChargingSession::Overlap
   include ChargingSession::Proposal
   include ChargingSession::Repricing
   include ChargingSession::StateOfCharge

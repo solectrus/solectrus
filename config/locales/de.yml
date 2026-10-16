@@ -643,6 +643,8 @@ de:
               without_car: ist nur ohne Auto möglich
             car_id:
               inactive: ist zur Zeit des Ladevorgangs nicht in Gebrauch
+            started_at:
+              overlap: überschneidet sich mit einer anderen Auswärtsladung des Autos
             evse_id:
               invalid: darf nur A–Z, 0–9, *, + und - enthalten (höchstens 48 Zeichen)
       messages:

@@ -120,6 +120,52 @@ describe ChargingSession do
           expect(session.update(ended_at: (last_day + 1).in_time_zone.change(hour: 2))).to be(false)
         end
       end
+
+      describe 'a session entered twice' do
+        let(:start) { 2.days.ago.change(hour: 11) }
+
+        def offsite(started_at, ended_at = nil, **)
+          described_class.offsite.new(origin: :user, car:, started_at:, ended_at:, kwh: 10, cost: 5, **)
+        end
+
+        before { offsite(start, start + 1.hour).save! }
+
+        it 'refuses a session of the car in the same time' do
+          session = offsite(start + 30.minutes, start + 2.hours)
+
+          expect(session).not_to be_valid
+          expect(session.errors[:started_at]).to be_present
+        end
+
+        it 'refuses a session with the same start and without an end' do
+          described_class.offsite.update_all(ended_at: nil) # rubocop:disable Rails/SkipsModelValidations
+
+          expect(offsite(start)).not_to be_valid
+        end
+
+        it 'takes a session right after it' do
+          expect(offsite(start + 1.hour, start + 2.hours)).to be_valid
+        end
+
+        it 'takes a session of another car in the same time' do
+          expect(offsite(start, start + 1.hour, car: Car.create!(id: 2))).to be_valid
+        end
+
+        it 'ignores a proposal and a dismissed session' do
+          described_class.offsite.update_all(origin: 'detection', assigned_manually: false) # rubocop:disable Rails/SkipsModelValidations
+          expect(offsite(start, start + 1.hour)).to be_valid
+
+          described_class.offsite.update_all(assigned_manually: true, dismissed: true) # rubocop:disable Rails/SkipsModelValidations
+          expect(offsite(start, start + 1.hour)).to be_valid
+        end
+
+        it 'takes a change of the note of an existing twin' do
+          twin = offsite(start, start + 1.hour)
+          twin.save!(validate: false)
+
+          expect(twin.update(note: 'Invoice')).to be(true)
+        end
+      end
     end
 
     context 'when wallbox' do
