@@ -249,10 +249,8 @@ de:
     on_the_road: Unterwegs
     unknown_place: Unbekannter Ort
     costs: Kosten
-    consumption: Ø Verbrauch
-    per_100km: pro 100 km
-    in_total: insgesamt
-    avg_per_100km: Ø pro 100 km
+    cost_rate: Kosten/100 km
+    consumption_rate: Verbrauch/100 km
     range: Ø Reichweite
     unconfirmed:
       one: 1 unbestätigte Ladung

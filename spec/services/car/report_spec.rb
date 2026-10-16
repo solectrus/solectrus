@@ -59,10 +59,19 @@ describe Car::Report do
   end
 
   describe '.pending_days' do
-    it 'asks for the days of the timeframe plus the margin' do
-      allow(Summary).to receive(:missing_or_stale_days).and_return([])
+    before { allow(Summary).to receive(:missing_or_stale_days).and_return([]) }
 
+    # The spans of a month read each month (see Car::Spans)
+    it 'asks for the days of the whole time for a calendar period' do
       described_class.pending_days(timeframe)
+
+      expect(Summary).to have_received(:missing_or_stale_days).with(
+        from: Rails.configuration.x.installation_date, to: Date.new(2026, 9, 23),
+      )
+    end
+
+    it 'asks for the days of another timeframe plus the margin' do
+      described_class.pending_days(Timeframe.new('2026-01-01..2026-01-31'))
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
         from: Date.new(2025, 12, 18), to: Date.new(2026, 2, 14),

@@ -1,0 +1,16 @@
+.w-full
+  / The mark above the track. Its center keeps half its width from each end,
+    so it stays inside.
+  .relative class='h-4.5'
+    svg.absolute.top-0.-translate-x-1/2.fill-current class=['w-3.5 h-2.5', mark_classes] style="left: clamp(0.4375rem, #{position}%, 100% - 0.4375rem)" viewBox='0 0 12 8' aria-hidden='true'
+      path d='M0 0h12L6 8z'
+    .absolute.inset-x-0.bottom-0.rounded-full.opacity-80 class=['h-1.5', track_classes]
+  .mt-1.flex.justify-between.gap-2.text-xs.sm:text-sm.tabular-nums.whitespace-nowrap.text-slate-400.dark:text-slate-500
+    - ends.each do |span_end|
+      = content_tag(*end_tag(span_end)) do
+        = label(span_end)
+        .hidden data-tooltip-target='html'
+          .font-semibold = span_end.timeframe.localized
+          div = t(".#{span_end.extreme}")
+          - if shown?(span_end)
+            div = t(".shown.#{span_end.timeframe.id}")

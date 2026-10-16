@@ -249,10 +249,8 @@ en:
     on_the_road: On the road
     unknown_place: Unknown place
     costs: Costs
-    consumption: Ø Consumption
-    per_100km: per 100 km
-    in_total: in total
-    avg_per_100km: Ø per 100 km
+    cost_rate: Cost/100 km
+    consumption_rate: Consumption/100 km
     range: Ø Range
     unconfirmed:
       one: 1 unconfirmed session

@@ -29,9 +29,13 @@ class Car::DrivingCard::Component < ViewComponent::Base
 
   delegate :cost_per_100km, :consumption_per_100km, to: :driving
 
-  # Rendered in kWh/100 km, like the value of the tile
+  # The consumption in kWh/100 km, like the value of the tile. Its unit is
+  # Wh, so the value takes a factor of 1000.
+  CONSUMPTION_FORMAT = { context: :total, scaling: :kilo, precision: 1 }.freeze
+  private_constant :CONSUMPTION_FORMAT
+
   def consumption_value(kwh_per_100km)
-    Sensor::Value::Component.new(kwh_per_100km&.*(1000), :wallbox_power, context: :total, scaling: :kilo, precision: 1)
+    Sensor::Value::Component.new(kwh_per_100km&.*(1000), :wallbox_power, **CONSUMPTION_FORMAT)
   end
 
   # The average maximum range belongs to one car, so "all" of several cars
@@ -68,26 +72,22 @@ class Car::DrivingCard::Component < ViewComponent::Base
 
   def badge_classes = [Car::Card::Component::BADGE, 'bg-slate-200 dark:bg-slate-700/60']
 
-  # The row of the driving cost: the sum and the cost per 100 km side by
-  # side under one title. A phone shows it as a tile in the full width.
-  def cost_row_classes = "#{Car::Card::Component::ROW} max-sm:col-span-2"
+  # The bars of the rates and the maximum range in the span of their periods
+  # (see Car::Spans), nil without a span. The ends are formatted like the
+  # value of the row and open their period with the chart of the row. A low
+  # rate is good, a low range is not.
+  def cost_rate_bar
+    span_bar(cost_per_100km, spans&.cost_per_100km, 'car_cost_rate', better: :lower) { formatted(it, :total_costs, precision: 2) }
+  end
 
-  # The tag and the options of a number in the row of the driving cost. It
-  # loads its own chart and has its own tooltip. A tap on a link opens the
-  # chart, so its tooltip needs a long press (like Car::StatRow::Component).
-  def cost_cell(sensor_name)
-    chart = chart_sensor_name(sensor_name)
-    chart_wrapper(
-      chart,
-      class: 'flex flex-col items-center min-w-0 px-1',
-      link_class: 'click-animation focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-700 dark:focus-visible:ring-gray-400',
-      data: {
-        controller: 'tooltip',
-        tooltip_placement_value: 'left',
-        tooltip_force_tap_to_close_value: false,
-        tooltip_touch_value: chart ? 'long' : 'true',
-      },
-    )
+  def consumption_bar
+    span_bar(consumption_per_100km, spans&.consumption_per_100km, 'car_consumption_rate', better: :lower) do
+      formatted(it * 1000, :wallbox_power, **CONSUMPTION_FORMAT)
+    end
+  end
+
+  def max_range_bar
+    span_bar(report.max_range, spans&.max_range, 'car_max_range', better: :higher) { formatted(it, :car_max_range) }
   end
 
   # The driving cost is the distance times the cost per 100 km. With an
@@ -125,6 +125,23 @@ class Car::DrivingCard::Component < ViewComponent::Base
   end
 
   private
+
+  delegate :spans, to: :report
+
+  # The block formats a value of the span
+  def span_bar(value, span, chart, better:, &format)
+    return unless value && span
+
+    Car::SpanBar::Component.new(value:, span:, better:, shown: timeframe, format:, url: ->(period) { period_url(chart, period) })
+  end
+
+  def formatted(value, sensor_name, **) = Sensor::ValueFormatter.new(value, unit: Sensor::Registry[sensor_name].unit, **).to_s
+
+  # The car page of another period of the same kind. A chart that cannot
+  # draw the period gives way to the distance, like the card does.
+  def period_url(chart, period)
+    helpers.cars_home_path(sensor_name: chart_sensor_name(chart) || distance_sensor_name, timeframe: period, **helpers.selection_params)
+  end
 
   # How a day gets its rate. The distance holds the days with this rate: a
   # day without a cost has an energy rate, but no cost rate.

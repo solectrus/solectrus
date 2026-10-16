@@ -1,11 +1,14 @@
-= content_tag(*wrapper) do
-  span class=label_classes
-    = title
-  span class=value_classes
-    = content
-  - if subline?
-    span class=subline_classes
-      = subline
-  - if tooltip
-    .hidden data-tooltip-target= 'html'
-      = render tooltip
+div class=row_classes
+  / The label and the value load the chart and have the tooltip. The bar
+    stands outside, because its ends link to periods of their own.
+  = content_tag(*wrapper) do
+    span class=label_classes
+      = title
+    span class=value_classes
+      = content
+    - if tooltip
+      .hidden data-tooltip-target= 'html'
+        = render tooltip
+  - if bar
+    .mt-1
+      = render bar

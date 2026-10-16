@@ -18,8 +18,10 @@ class Car::Report
   public_constant :Source
 
   # The days that a report of the timeframe reads and that have no fresh
-  # summary yet
+  # summary yet. The spans of a calendar period read the whole time (see
+  # Car::Spans).
   def self.pending_days(timeframe)
+    timeframe = Timeframe.all if Car::Spans.kind(timeframe)
     reach = Car::Driving.reach(timeframe.effective_dates, min_date: timeframe.min_date)
     Summary.missing_or_stale_days(from: reach.begin, to: reach.end)
   end
@@ -120,8 +122,14 @@ class Car::Report
 
   # The average maximum range of one car. The cars of "all" have batteries of
   # their own, so their average says nothing.
-  def max_range
+  def max_range(dates = self.dates)
     ledger.max_range(car, dates) if car
+  end
+
+  # The spans of the rates and the maximum range over the periods of the
+  # kind of the timeframe (see Car::Spans), nil for another timeframe
+  def spans
+    memo(:spans) { Car::Spans.for(timeframe, cars) }
   end
 
   # The visits of the cars at the places in the timeframe, and the number of

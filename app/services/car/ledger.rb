@@ -97,9 +97,19 @@ class Car::Ledger
       rows.select(&:car_id).group_by { [it.car_id, it.date] }.transform_values { ChargingSession::Sums.sum(it.map(&:sums)) }
   end
 
-  # The daily values of a car on the given dates
+  # The daily values of a car on the given dates. A binary search finds the
+  # first and the last of them, like #rows_on, so a value of each of many
+  # periods costs no pass over all days.
   def values_on(dates, car, key)
-    summaries.fetch([car.id, key], {}).filter_map { |date, value| value if dates.cover?(date) }
+    series = sorted_summaries[[car.id, key]]
+    first = series.bsearch_index { it.first >= dates.begin } || series.size
+    last = series.bsearch_index { it.first > dates.end } || series.size
+    series[first...last].map(&:last)
+  end
+
+  # { [car id, key] => [[date, value], ...] }, sorted by date
+  def sorted_summaries
+    @sorted_summaries ||= Hash.new { |hash, key| hash[key] = summaries.fetch(key, {}).sort_by(&:first) }
   end
 
   SUMMARY_FIELDS = { car_odometer: %i[distance sum], car_max_range: %i[max_range avg] }.freeze

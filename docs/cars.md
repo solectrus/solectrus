@@ -38,6 +38,7 @@ between charging and driving, because the car drives on energy of other days. A 
 | `Car::Ledger`                       | the car days of a date range: distance and session sums          |
 | `Car::Driving`                      | the rates of each day from its window                            |
 | `Car::Report`                       | the numbers of a timeframe, for the page and for its charts      |
+| `Car::Spans`                        | the lowest and the highest rate of the periods of one kind       |
 | `Car::Live`                         | the live values of the wallbox and of each car                   |
 | `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists  |
 | `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there            |
@@ -673,14 +674,22 @@ and a cookie keeps the choice.
   and offsite. Below, the number of wallbox, offsite and guest sessions. The wallbox badge
   counts the cars alone. A guest session belongs to no car, so a selected car shows no guest
   badge.
-- Driving: the distance with the average for each day. Below it, the driving cost and its
-  rate per 100 km side by side, and then the consumption per 100 km and the average maximum
-  range side by side. Below, the number of visits and places.
+- Driving: the distance with the average for each day. Below it, four rows: the driving
+  cost, its rate per 100 km, the consumption per 100 km and the average maximum range.
+  Below, the number of visits and places.
 
 Each value opens its chart, and its tooltip explains it. The tooltip of the ring gives the
 share and the cost of each source, and the charging cost. The driving cost gives its
 calculation. The two rates give the rule of the 14 days and no calculation, because a
 calculation of the rate from the driving cost is circular.
+
+The two rates and the maximum range have a bar below them. The bar places the value between
+the lowest and the highest value of the periods of the same kind. A month stands between
+the months, and a day between the days. The good end is always on the right, so the bar of
+a rate runs from the highest value to the lowest. A mark above the bar points at the value.
+It has the color of the third that holds the value. Each end of the bar names its period in
+a tooltip and opens that period. If the shown period is an end, the tooltip says so, and
+the end has no link.
 
 These rules are decisions:
 
@@ -688,7 +697,17 @@ These rules are decisions:
   ring. Over a long period the two are almost equal, so the card shows only one of them.
 - On "all", the charging cost holds the cost of the guest sessions. The tooltip of the ring
   shows that part on a line of its own below the charging cost.
-- The costs show no red, because red marks a low cost as bad.
+- The values show no red, because red marks a low cost as bad. Only the bars show good and
+  bad, and each bar knows which end is good.
+- Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
+  timeframe and a range of dates show no bars.
+- A period counts for a bar only when the cars were in use on each of its days. A month in
+  which a car started gives a value of a few days. The shown period always counts, so its
+  value lies on the bar.
+- A bar needs three periods with a value. Fewer periods say nothing.
+- A bar reads each day of the whole time. Before it shows the bars, the page therefore
+  builds the missing daily summaries of the whole time.
+- The mark of a bar has no handle, so the bar does not look like a slider.
 - The maximum range comes from the battery, but it tells how far a car can drive, so it
   stands with the driving. Its row stays for "all" with "–", so the layout does not change.
 - The badges show also a count of 0, so the layout stays the same.

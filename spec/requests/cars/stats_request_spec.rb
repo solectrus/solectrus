@@ -1,8 +1,17 @@
 describe 'Car Stats' do
   describe 'GET /cars/stats' do
+    # The car page needs the summaries of the whole time, because the spans
+    # of a calendar period read each day (see Car::Spans). Without them, each
+    # request builds the summaries of years of days.
+    def summarize
+      dates = Rails.configuration.x.installation_date..Date.current
+      Summary.upsert_all(dates.map { { date: it, updated_at: Time.current } }, unique_by: :date)
+    end
+
     %w[now 2026 2026-09-22].each do |timeframe|
       context "with timeframe #{timeframe}" do
         it 'renders' do
+          summarize
           get cars_stats_path(sensor_name: 'car_charging', timeframe:),
               headers: {
                 'Turbo-Frame' => 'random-turbo-frame',
@@ -138,7 +147,7 @@ describe 'Car Stats' do
         # Only the admin sees the names of the cars
         login_as_admin
 
-        Summary.create!(date: day, updated_at: 1.day.ago)
+        summarize
         SummaryValue.create!(date: day, field: :car_odometer_1, aggregation: :sum, value: 150)
         SummaryValue.create!(date: day, field: :car_odometer_2, aggregation: :sum, value: 50)
 
@@ -156,14 +165,8 @@ describe 'Car Stats' do
         )
       end
 
-      # The car page needs the summaries of the rate window around its days
-      def summarize(dates)
-        Summary.upsert_all(dates.map { { date: it, updated_at: 1.day.ago } }, unique_by: :date)
-      end
-
       # The header of a tablet and of a desktop has the select
       it 'offers the select of the car in the header of the page' do
-        summarize((day - 14)..(day + 14))
         get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
 
         expect(response.body).to include('name="car"', 'Trabant', 'Wartburg', '/cars/2/car_charging')
@@ -223,7 +226,6 @@ describe 'Car Stats' do
       end
 
       it 'keeps the car out of the links to other pages' do
-        summarize((day - 14)..(day + 14))
         get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2)
 
         expect(response.body).to include('/cars/2/')
@@ -289,7 +291,6 @@ describe 'Car Stats' do
 
         # The way back: the live view selects no car
         it 'links to the live view without the car' do
-          summarize((day - 14)..(day + 14))
           get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2)
 
           expect(response.body).to include('/cars/now"')
@@ -302,7 +303,7 @@ describe 'Car Stats' do
         # again without the second car
         before do
           Car.find(2).update!(active_from: day + 1)
-          Summary.create!(date: day, updated_at: 1.day.ago)
+          summarize
           SummaryValue.create!(date: day, field: :car_odometer_1, aggregation: :sum, value: 150)
         end
 
@@ -316,7 +317,6 @@ describe 'Car Stats' do
 
         # "all" adds the guest sessions to the one car
         it 'keeps the select with the one car of the timeframe and "all"' do
-          summarize((day - 14)..(day + 14))
           get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
 
           expect(response.body).not_to match(/<select[^>]* disabled[ =>]/)
@@ -327,7 +327,6 @@ describe 'Car Stats' do
         end
 
         it 'offers both cars in a timeframe that holds both periods' do
-          summarize(Date.new(2026, 5, 18)..Date.new(2026, 7, 14))
           get cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06')
 
           expect(response.body).to include('name="car"', 'Trabant', 'Wartburg')
@@ -370,7 +369,10 @@ describe 'Car Stats' do
       end
 
       context 'without a car in the timeframe' do
-        before { Car.find_each { it.update!(active_from: day + 1) } }
+        before do
+          Car.find_each { it.update!(active_from: day + 1) }
+          summarize
+        end
 
         it 'renders' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
@@ -446,7 +448,7 @@ describe 'Car Stats' do
       context 'with a guest session' do
         before do
           wallbox(day, kwh: 7, kwh_grid: 7, cost: 2.1, car_id: nil, hour: 18).update!(guest: true)
-          summarize((day - 14)..(day + 14))
+          summarize
         end
 
         it 'offers the guests in the select' do

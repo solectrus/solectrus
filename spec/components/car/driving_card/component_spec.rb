@@ -17,9 +17,12 @@ describe Car::DrivingCard::Component, type: :component do
       driving:,
       car: (cars.sole if cars.one?),
       cars:,
-      max_range: 304,
+      max_range: (304 if cars.one?),
+      spans:,
     )
   end
+
+  def spans = nil
 
   # The car has an odometer, and its range and state of charge give the
   # maximum range
@@ -45,19 +48,80 @@ describe Car::DrivingCard::Component, type: :component do
     expect(html.text.squish).to include('9,877', 'Ø 27 km/day')
   end
 
-  # The cells of the row of the driving cost: each number with its caption
-  def cost_cells = html.css('.divide-x > [data-controller="tooltip"]')
+  # The rows below the distance: each label with its value
+  def rows = html.css(':has(> .flex > .truncate)')
 
-  it 'shows the driving cost and its rate side by side, each with its own chart' do
-    expect(cost_cells.first.parent.parent.at_css('span').text.squish).to eq(I18n.t('car_breakdown.costs'))
-    expect(cost_cells.map { it.xpath('span').map { it.text.squish } }).to eq(
-      [['373 €', I18n.t('car_breakdown.in_total')], ['3.77 €', I18n.t('car_breakdown.avg_per_100km')]],
+  def row_texts = rows.map { |row| row.css('.truncate, .truncate + span').map { it.text.squish } }
+
+  it 'shows the driving cost, its rate, the consumption and the range one below the other' do
+    expect(row_texts).to eq(
+      [
+        [I18n.t('car_breakdown.costs'), '373 €'],
+        [I18n.t('car_breakdown.cost_rate'), '3.77 €'],
+        [I18n.t('car_breakdown.consumption_rate'), '21.2 kWh'],
+        [I18n.t('car_breakdown.range'), '304 km'],
+      ],
     )
-    expect(cost_cells.pluck('data-stats-with-chart--component-sensor-name-param')).to eq(%w[car_driving_costs car_cost_rate])
   end
 
-  it 'shows the consumption per 100 km' do
-    expect(html.text.squish).to include(I18n.t('car_breakdown.consumption'), '21.2', I18n.t('car_breakdown.per_100km'))
+  it 'loads the chart of each row' do
+    expect(rows.map { it.at_css('> .flex')['data-stats-with-chart--component-sensor-name-param'] }).to eq(
+      %w[car_driving_costs car_cost_rate car_consumption_rate car_max_range],
+    )
+  end
+
+  it 'has no bars without a span' do
+    expect(html.css('svg[style]')).to be_empty
+  end
+
+  context 'with the spans of the periods' do
+    # The lowest value in 2023, the highest in 2024 or in the given year
+    def span(min, max, max_year: '2024') = Car::Spans::Span.new(min:, max:, min_timeframe: Timeframe.new('2023'), max_timeframe: Timeframe.new(max_year))
+
+    def max_range_span = span(280.0, 320.0)
+
+    def spans = instance_double(Car::Spans, cost_per_100km: span(3.7, 4.5), consumption_per_100km: span(18.0, 21.5), max_range: max_range_span)
+
+    def ends(row) = row.css('.justify-between.tabular-nums > *')
+
+    # The ends of each bar, the position of its mark and the color of the
+    # mark
+    def bars
+      rows.filter_map do |row|
+        mark = row.at_css('svg[style]') or next
+        [*ends(row).map { it.children.first.text.strip }, mark['style'][/[\d.]+%/], mark['class'][/text-signal-\w+/]]
+      end
+    end
+
+    # The good end is on the right: a low rate, but a high range
+    it 'places the rates and the range between the lowest and the highest value, in the color of their third' do
+      expect(bars).to eq(
+        [
+          ['4.50 €', '3.70 €', '90.7%', 'text-signal-positive'],
+          ['21.5 kWh', '18.0 kWh', '9.1%', 'text-signal-negative'],
+          ['280 km', '320 km', '60.0%', 'text-signal-warning'],
+        ],
+      )
+    end
+
+    # The range is good on the right, so the lowest value stands on the left
+    it 'names the period of each end and links to it with the chart of the row' do
+      range_ends = ends(rows.last)
+
+      expect(range_ends.map { it.css('[data-tooltip-target="html"] > div').map(&:text) }).to eq([['2023', 'Lowest value'], ['2024', 'Highest value']])
+      expect(range_ends.pluck('href')).to eq(%w[/cars/car_max_range/2023 /cars/car_max_range/2024])
+    end
+
+    context 'when the shown year has the highest range' do
+      def max_range_span = span(280.0, 320.0, max_year: '2025')
+
+      it 'says so, without a link to the same page' do
+        shown = ends(rows.last).last
+
+        expect(shown.css('[data-tooltip-target="html"] > div').map(&:text)).to eq(['2025', 'Highest value', 'That is this year.'])
+        expect(shown.name).to eq('span')
+      end
+    end
   end
 
   # The tooltip says that the range is the one on a full battery
@@ -139,6 +203,7 @@ describe Car::DrivingCard::Component, type: :component do
         car: (cars.sole if cars.one?),
         cars:,
         max_range: 304,
+        spans:,
       )
     end
 
@@ -146,8 +211,8 @@ describe Car::DrivingCard::Component, type: :component do
       expect(calculations.sole).to include('100 km at least')
     end
 
-    it 'shows a dash without a caption' do
-      expect(cost_cells.sole.xpath('span').map { it.text.squish }).to eq(['–'])
+    it 'shows a dash for the driving cost and no cost rate' do
+      expect(row_texts.first(2)).to eq([[I18n.t('car_breakdown.costs'), '–'], [I18n.t('car_breakdown.consumption_rate'), '–']])
     end
   end
 
@@ -165,6 +230,7 @@ describe Car::DrivingCard::Component, type: :component do
         car: (cars.sole if cars.one?),
         cars:,
         max_range: 304,
+        spans:,
       )
     end
 

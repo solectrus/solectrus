@@ -127,10 +127,11 @@ describe 'Car Home' do
 
       before { Summary.create!(date: day, updated_at: day + 2.days) }
 
-      it 'builds the summaries of the window first' do
+      # The spans of a day read each day (see Car::Spans)
+      it 'builds the summaries of the whole time first' do
         get cars_home_path(sensor_name: 'car_charging', timeframe: day.iso8601)
 
-        expect(response.body).to include("d_#{day - 14}_", "_#{day + 14}\"")
+        expect(response.body).to include("d_#{Rails.configuration.x.installation_date}_", "_#{Date.current}\"")
       end
     end
 
