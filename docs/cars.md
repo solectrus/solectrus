@@ -422,9 +422,9 @@ The sign is a rise of the state of charge in one charge (`ChargingSession::SocRu
   does a dismissed proposal.
 
 A dry run against an installation with all offsite sessions entered by hand confirmed the
-thresholds. A threshold of 2 points gave 11 proposals without a session instead of 3, and
-it found no more sessions. With 2 points and a connection, it gave 6 false proposals. With
-3 points, it gave none and found a charge of 1.9 kWh.
+thresholds. A threshold of 2 points gave more proposals without a session, also with a
+connection, and it found no more sessions. A threshold of 3 points gave no false proposal
+and still found small charges.
 
 The build replaces the proposals of its days and keeps each offsite session with the mark.
 A proposal stores the state of charge and the position during the rise. The position does
@@ -528,23 +528,16 @@ A window with a session without a cost has an energy rate, but no cost rate. The
 "all" adds the cars, each with its own windows.
 
 The margin of 14 days is a compromise. A shorter margin fixes a recent rate sooner and
-keeps the season more exactly. A longer margin gives a steadier rate. Measured on 2,100
-days of one car before the correction with the state of charge, with the change from the
-day before:
-
-| Margin | Days without a rate | Median change | Change on 1 day in 10 |
-| ------ | ------------------- | ------------- | --------------------- |
-| ±7     | 3.6 %               | 7.8 %         | 30 % or more          |
-| ±14    | 0.2 %               | 3.8 %         | 15 % or more          |
-| ±30    | 0 %                 | 1.7 %         | 7 % or more           |
+keeps the season more exactly. A longer margin gives a steadier rate. A shorter margin also
+gives more days without a rate, because their window has less than 100 km.
 
 The days around the period need a summary and a detection too, so the car page builds them
 before it shows the period (`Car::Report.pending_days`).
 
 ### Rejected designs
 
-- An energy balance of each day alone with the battery content. The rate changed by 24 %
-  from day to day in the median, and some days got a negative rate. The window uses the
+- An energy balance of each day alone with the battery content. The rate of a short day
+  changed too much from day to day, and some days got a negative rate. The window uses the
   balance instead (see above). `car_range` cannot give the content, because kilometers to
   kWh needs the consumption, which is the result.
 - One window for a period: the period plus the margin. The day columns of a month then had
