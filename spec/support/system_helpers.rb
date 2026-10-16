@@ -26,7 +26,7 @@ module SystemHelpers
   def turbo_safe_click(aria_label)
     retries = 0
     begin
-      find("a[aria-label=\"#{aria_label}\"]", visible: true).click
+      find("a[aria-label=\"#{aria_label}\"]", visible: :visible).click
     rescue Playwright::Error => e
       if e.message.exclude?('Element is not attached to the DOM') ||
            retries >= 3
