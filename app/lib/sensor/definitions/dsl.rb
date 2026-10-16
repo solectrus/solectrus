@@ -201,6 +201,13 @@ module Sensor
           getter_or_setter_array(:summary_aggregations, values, default: [])
         end
 
+        # The version of what the summaries store for the sensor. A new
+        # version rebuilds the summaries of each installation with the
+        # sensor, and only of these (see Sensor::SummaryInvalidator).
+        def summary_version(value = nil)
+          getter_or_setter(:summary_version, value)
+        end
+
         def allowed_aggregations(*values)
           if values.empty?
             return meta_data[:allowed_aggregations] || summary_aggregations

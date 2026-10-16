@@ -7,6 +7,7 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
            :summary_aggregations,
            :allowed_aggregations,
            :summary_meta_aggregations,
+           :summary_version,
            :trend_aggregation,
            :state?,
            to: :class

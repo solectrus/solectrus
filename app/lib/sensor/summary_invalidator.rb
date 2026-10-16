@@ -61,7 +61,9 @@ class Sensor::SummaryInvalidator
 
   private_class_method def self.sensors_in_summary_config
     # Returns a hash of sensors with InfluxDB configuration that affects summary validity:
-    # the sensors in the summaries and the sensors that the steps read (see Summary::Steps)
+    # the sensors in the summaries and the sensors that the steps read (see Summary::Steps).
+    # A sensor with a summary_version adds it to its mapping, so a new version
+    # rebuilds only the summaries of the installations with the sensor.
     # Only includes sensors that have actual InfluxDB configuration (not calculated sensors)
     step_sensor_names = Summary::Steps.sensor_names
     Sensor::Config
@@ -71,7 +73,7 @@ class Sensor::SummaryInvalidator
         mapping = Sensor::Config.mapping(sensor.name)
         next unless mapping # Skip sensors without InfluxDB configuration (calculated sensors)
 
-        [sensor.name, mapping]
+        [sensor.name, [mapping, sensor.summary_version].compact.join('@')]
       end
       .to_h
   end

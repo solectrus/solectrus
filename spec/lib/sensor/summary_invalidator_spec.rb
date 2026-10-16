@@ -232,6 +232,24 @@ describe Sensor::SummaryInvalidator do
         end
       end
 
+      # The stored configuration comes from before the new version
+      context 'when a sensor had another summary_version' do
+        let(:stored_sensors) { current_sensors.merge(car_battery_soc_1: 'Trabant:soc@1') }
+
+        before { allow(Sensor::Definitions::CarBatterySoc).to receive(:summary_version).and_return('2') }
+
+        it 'adds the version to the mapping of that sensor only' do
+          expect(described_class.__send__(:build_config)[:sensors_in_summary]).to include(
+            car_battery_soc_1: 'Trabant:soc@2',
+            inverter_power_2: 'balcony:inverter_power',
+          )
+        end
+
+        it 'deletes all summaries' do
+          expect { validation }.to change(Summary, :count).from(2).to(0)
+        end
+      end
+
       context 'when InfluxDB cannot be queried' do
         let(:stored_sensors) { current_sensors.except(:inverter_power_2) }
 

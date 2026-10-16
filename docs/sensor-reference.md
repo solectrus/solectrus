@@ -371,6 +371,14 @@ summary_meta_aggregations :sum, :avg   # meta
 
 In practice, `allowed_aggregations` is the public capability list used by `Sensor::Query::Total`, `Sensor::Query::Ranking`, and trend handling. `summary_meta_aggregations` describes which meta-aggregations exist for summarized data, but it is not the primary validation hook for the DSL.
 
+If a sensor stores another aggregation, or calculates a stored value in another way, give it a new `summary_version`:
+
+```ruby
+summary_version '2026-10-16'
+```
+
+`Sensor::SummaryInvalidator` adds the version to the mapping of the sensor. At the next start, the installations with the sensor build their summaries again. The other installations keep their summaries. The `version` of the invalidator itself rebuilds the summaries of all installations.
+
 ### `requires_permission` - Permission Check
 
 ```ruby
