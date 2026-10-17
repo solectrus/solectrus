@@ -5,7 +5,8 @@
     svg.absolute.top-0.-translate-x-1/2.fill-current class=['w-3.5 h-2.5', mark_classes] style="left: clamp(0.4375rem, #{position}%, 100% - 0.4375rem)" viewBox='0 0 12 8' aria-hidden='true'
       path d='M0 0h12L6 8z'
     .absolute.inset-x-0.bottom-0.rounded-full.opacity-80 class=['h-1.5', track_classes]
-  .mt-1.flex.justify-between.gap-2.text-xs.sm:text-sm.tabular-nums.whitespace-nowrap.text-slate-400.dark:text-slate-500
+  / A short phone has no room for the ends, so it shows the mark only
+  .mt-1.max-sm:tiny:hidden.flex.justify-between.gap-2.text-xs.sm:text-sm.tabular-nums.whitespace-nowrap.text-slate-400.dark:text-slate-500
     - ends.each do |span_end|
       = content_tag(*end_tag(span_end)) do
         = label(span_end)

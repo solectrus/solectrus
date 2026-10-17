@@ -7,7 +7,7 @@
         - unless year_comparison?
           = render Ui::LazyFrame::Component.new id: helpers.scoped_frame_id('stats'),
                                                 src: stats_path,
-                                                class: chart? ? 'lg:flex-1 h-3/5 min-h-72 lg:h-auto flex' : 'flex-1 min-h-0 flex',
+                                                class: stats_class,
                                                 target: '_top',
                                                 data: { stats_with_chart__component_target: 'stats', turbo_permanent: true }
 

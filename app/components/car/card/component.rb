@@ -13,12 +13,14 @@ class Car::Card::Component < ViewComponent::Base
 
   # A row of the driving card: the rows stand one below the other, divided
   # by a line, but without a line above the first. A phone shows them as
-  # tiles, in a card without a frame.
+  # tiles, in a card without a frame. A short phone has less space above and
+  # below the tiles.
   ROW =
     '@container min-w-0 sm:py-3 md:py-4 ' \
     'border-t first:border-t-0 border-slate-300 dark:border-slate-700 ' \
     'max-sm:flex max-sm:flex-col max-sm:justify-center ' \
-    'max-sm:border-t-0 max-sm:rounded-lg max-sm:px-3 max-sm:py-2 max-sm:bg-slate-100 max-sm:dark:bg-slate-800/60'.freeze
+    'max-sm:border-t-0 max-sm:rounded-lg max-sm:px-3 max-sm:py-2 max-sm:tiny:py-1 ' \
+    'max-sm:bg-slate-100 max-sm:dark:bg-slate-800/60'.freeze
   public_constant :ROW
 
   # A value in a row of the driving card. The size grows with the width of

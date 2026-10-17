@@ -17,9 +17,15 @@ class Car::DrivingCard::Component < ViewComponent::Base
   # The chart of the distance shows each selected car
   def distance_sensor_name = :car_distance
 
-  # The distance loads its chart, where the chart can draw the timeframe
+  # The distance loads its chart, where the chart can draw the timeframe. The
+  # distance per day stands below the distance, but beside it on a phone,
+  # which shows one card and has no room for one more line.
   def distance_wrapper
-    chart_wrapper(chart_sensor_name(distance_sensor_name), class: 'block min-w-0 text-center', link_class: 'click-animation focus:outline-none')
+    chart_wrapper(
+      chart_sensor_name(distance_sensor_name),
+      class: 'block max-sm:flex max-sm:items-baseline max-sm:justify-center max-sm:gap-3 min-w-0 text-center',
+      link_class: 'click-animation focus:outline-none',
+    )
   end
 
   def km_per_day
@@ -70,7 +76,16 @@ class Car::DrivingCard::Component < ViewComponent::Base
   # time has no timeframe in the address of the list.
   def visits_path = helpers.cars_visits_path(timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id)
 
-  def badge_classes = [Car::Card::Component::BADGE, 'bg-slate-200 dark:bg-slate-700/60']
+  # A short phone has no room for the label above the count, so they stand
+  # side by side
+  BADGE_CLASSES = [
+    Car::Card::Component::BADGE,
+    'bg-slate-200 dark:bg-slate-700/60',
+    'max-sm:tiny:flex-row max-sm:tiny:justify-between max-sm:tiny:gap-2 max-sm:tiny:px-3 max-sm:tiny:py-1.5',
+  ].join(' ').freeze
+  private_constant :BADGE_CLASSES
+
+  def badge_classes = BADGE_CLASSES
 
   # The bars of the rates and the maximum range in the span of their periods
   # (see Car::Spans), nil without a span. The ends are formatted like the

@@ -13,4 +13,13 @@ describe StatsWithChart::Component, type: :component do
   it 'refreshes less often with a minimum interval' do
     expect(interval(min_interval: 30.seconds)).to eq(30.seconds)
   end
+
+  # The tiles of the driving card cannot shrink, so the chart must not cover them
+  it 'lets rigid stats grow to their content' do
+    rigid = described_class.new(sensor_name: :car_distance, timeframe: Timeframe.now, rigid_stats: true)
+    regular = described_class.new(sensor_name: :car_distance, timeframe: Timeframe.now)
+
+    expect(rigid.stats_class).to include('min-h-fit')
+    expect(regular.stats_class).not_to include('min-h-fit')
+  end
 end
