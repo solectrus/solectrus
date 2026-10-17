@@ -2,4 +2,4 @@
   - groups.each do |charging_session, group|
     - if group
       = render Ui::GroupHeader::Component.new(group:, href: group_path(group))
-    = render ChargingSession::Row::Component.new(charging_session:, place: place_of(charging_session))
+    = render ChargingSession::Row::Component.new(charging_session:)

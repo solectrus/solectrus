@@ -705,14 +705,6 @@ describe 'Charging sessions' do
       expect(recent.reload.dismissed).to be(false)
     end
 
-    it 'names the known place at the position of a session without an address' do
-      Place.create!(latitude: 50.0, longitude: 8.0, name: 'Supercharger')
-
-      get '/cars/charging_sessions/offsite'
-
-      expect(response.body).to include('Supercharger')
-    end
-
     # The form asks Nominatim once it opened (see the spec of the address check)
     describe 'the form that needs Nominatim' do
       def lookup_pending = response.parsed_body.at_css('[data-controller="address-lookup"]')['data-address-lookup-pending-value']

@@ -1,20 +1,16 @@
 class ChargingSession::Row::Component < ViewComponent::Base
   include ChargingSession::Texts
 
-  # `place` is the known place at the position of a session without an
-  # address (see ChargingSession::Rows::Component)
-  def initialize(charging_session:, place: nil)
+  def initialize(charging_session:)
     super()
     @charging_session = charging_session
-    @place = place
   end
 
-  attr_reader :charging_session, :place
+  attr_reader :charging_session
 
-  # Where the session charged: its address, the known place at its position,
-  # its provider or its note
+  # Where the session charged: its address, its provider or its note
   def location
-    charging_session.address.presence || place&.display_name || charging_session.provider.presence || charging_session.note
+    charging_session.address.presence || charging_session.provider.presence || charging_session.note
   end
 
   # The day of the session: on the car page for the session of a car or of
