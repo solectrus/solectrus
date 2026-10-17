@@ -75,3 +75,17 @@ The script needs Docker. It builds the Docker image itself when you name none, a
 `bin/llm-test` runs the LLM tests of the MCP server against the `claude` CLI. They cost subscription usage and they take minutes. Run them when a tool description or the server instructions change, and never as part of a normal test run.
 
 Before you add prose to a description, `--ablate` measures what the sentence already there is worth. `spec/llm_test/README.md` describes the tests and the cases they run.
+
+## Profiling
+
+The profiler vernier is for a special analysis only, so the `Gemfile` has it as a comment. To use it, remove the comment from the line `gem 'vernier'`, run `bundle install` and start `bin/dev` again. When the analysis is done, put the comment back.
+
+With the gem installed, add `?vernier` to the address of a page in development, for example `https://solectrus.localhost/inverter_power/day?vernier`. The server then returns the profile of the request as a file instead of the page. Open the file in the [Firefox Profiler](https://profiler.firefox.com).
+
+A frame (stats, chart) answers only a request with the header `Turbo-Frame`, so request it with curl:
+
+```bash
+curl -sk -H "Turbo-Frame: x" -o profile.json.gz "https://solectrus.localhost/stats/inverter_power/day?vernier"
+```
+
+The profile shows each thread and the time that it waits for the GVL (the lock that lets only one Ruby thread run at a time). The summary build reads InfluxDB in threads, so a profiler without this view gives the wait to the wrong method. The profile also marks the SQL queries and the rendered views. `vernier_interval` sets the time between two samples in microseconds (200 by default).

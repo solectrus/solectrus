@@ -15,6 +15,15 @@ Rails.application.configure do
   # Enable server timing.
   config.server_timing = true
 
+  # With the gem in the Gemfile, a request with `?vernier` returns its profile
+  # instead of the page, a file for https://profiler.firefox.com. It covers the
+  # threads and the time they wait for the GVL, and marks the SQL queries and
+  # the renderings (see docs/testing.md).
+  if Gem.loaded_specs.key?('vernier')
+    require 'vernier'
+    config.middleware.insert(0, Vernier::Middleware)
+  end
+
   # Enable/disable Action Controller caching. By default Action Controller caching is disabled.
   # Run rails dev:cache to toggle Action Controller caching.
   if Rails.root.join('tmp', 'caching-dev.txt').exist?

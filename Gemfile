@@ -144,6 +144,10 @@ group :development do
 
   # Pretty print Ruby objects with proper indentation and colors (https://github.com/amazing-print/amazing_print)
   gem 'amazing_print'
+
+  # A sampling profiler with threads and GVL, for the Firefox Profiler (https://github.com/jhawthorn/vernier)
+  # Only for a special analysis, see docs/testing.md
+  # gem 'vernier', require: false
 end
 
 group :test do
