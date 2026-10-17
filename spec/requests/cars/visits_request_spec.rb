@@ -220,6 +220,40 @@ describe 'Cars Visits' do
 
         expect(response.body).to include('return_to=%2Fcars%2Fvisits%2Fall"')
       end
+
+      describe 'the groups' do
+        def headers = response.parsed_body.css('h3').map { it.text.strip }
+
+        it 'groups a long list by month' do
+          get cars_visits_path
+
+          expect(headers).to eq([I18n.l(Date.new(2026, 9, 1), format: :month)])
+        end
+
+        it 'opens the list of a group from its header, with the place' do
+          get cars_visits_path(place: home.id)
+
+          expect(response.parsed_body.css('h3 a').pluck('href')).to eq(["/cars/places/#{home.id}/visits/2026-09"])
+        end
+
+        it 'groups the list of a month by week' do
+          get cars_visits_path(timeframe: '2026-09')
+
+          expect(headers).to eq([I18n.l(Date.new(2026, 9, 21), format: :week)])
+        end
+
+        it 'groups the list of a week by day' do
+          get cars_visits_path(timeframe: '2026-W39')
+
+          expect(headers).to eq([I18n.l(Date.new(2026, 9, 22), format: '%A'), I18n.l(Date.new(2026, 9, 21), format: '%A')])
+        end
+
+        it 'puts a visit that starts before the timeframe in its first group' do
+          get cars_visits_path(timeframe: '2026-09-22')
+
+          expect(headers).to eq([I18n.l(Date.new(2026, 9, 22), format: '%A')])
+        end
+      end
     end
 
     it 'loads the next page into its frame' do
@@ -236,6 +270,8 @@ describe 'Cars Visits' do
       expect(response.body).not_to include('visits_page_3')
       # The rows lead back to the list, not to its page
       expect(response.body).to include('return_to=%2Fcars%2Fvisits"')
+      # The month goes on from the page before, so it has no second header
+      expect(response.parsed_body.css('h3')).to be_empty
     end
   end
 

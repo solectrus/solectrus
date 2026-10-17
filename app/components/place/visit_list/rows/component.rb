@@ -3,13 +3,17 @@ class Place::VisitList::Rows::Component < ViewComponent::Base
   FRAME_PREFIX = 'visits_page_'.freeze
   public_constant :FRAME_PREFIX
 
-  def initialize(visits:, pagy:, context:, frame: false)
+  # `previous_started_at`: see Ui::RowGroups
+  def initialize(visits:, pagy:, context:, previous_started_at: nil, frame: false)
     super()
-    @visits = visits
     @pagy = pagy
     @context = context
+    @groups = Ui::RowGroups.new(visits, timeframe: context.timeframe, previous_started_at:)
     @frame = frame
   end
 
-  attr_reader :visits, :pagy, :context, :frame
+  attr_reader :groups, :pagy, :context, :frame
+
+  # The list of the group alone, with the car and the place of the list
+  def group_path(group) = context.list_path(timeframe: group.to_param)
 end

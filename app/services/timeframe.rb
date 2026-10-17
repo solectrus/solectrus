@@ -63,6 +63,9 @@ class Timeframe # rubocop:disable Metrics/ClassLength
       end
     end
 
+  # The day, week, month or year (see FORMAT) that holds the date
+  def self.of(date, id) = new(date.strftime(FORMAT[id]))
+
   def initialize(string, min_date: Rails.application.config.x.installation_date)
     @original_string = string
     @string = normalized_string(string)

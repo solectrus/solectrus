@@ -3,14 +3,15 @@ class ChargingSession::Rows::Component < ViewComponent::Base
   FRAME_PREFIX = 'sessions_page_'.freeze
   public_constant :FRAME_PREFIX
 
-  def initialize(sessions:, pagy:, frame: false)
+  # `previous_started_at`: see Ui::RowGroups
+  def initialize(sessions:, pagy:, timeframe:, previous_started_at: nil, frame: false)
     super()
-    @sessions = sessions
     @pagy = pagy
+    @groups = Ui::RowGroups.new(sessions, timeframe:, previous_started_at:)
     @frame = frame
   end
 
-  attr_reader :sessions, :pagy, :frame
+  attr_reader :groups, :pagy, :frame
 
   # The known place at the position of a session without an address. The
   # places come from one query, and Nominatim gets no request.
@@ -20,9 +21,14 @@ class ChargingSession::Rows::Component < ViewComponent::Base
     Place.near(charging_session.latitude, charging_session.longitude, places)
   end
 
+  # The list of the group alone, with the kind and the car filter of the list
+  def group_path(group) = timeframe_page.path(group.to_param)
+
   private
 
   def places
     @places ||= Place.all.to_a
   end
+
+  def timeframe_page = @timeframe_page ||= helpers.timeframe_page
 end

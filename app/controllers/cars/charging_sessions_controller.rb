@@ -23,7 +23,8 @@ class Cars::ChargingSessionsController < ApplicationController
     mark_ongoing(@charging_sessions)
     return unless next_page
 
-    render ChargingSession::Rows::Component.new(sessions: @charging_sessions, pagy: @pagy, frame: true), layout: false
+    previous_started_at = sessions_scope.offset(@pagy.offset - 1).pick(:started_at)
+    render ChargingSession::Rows::Component.new(sessions: @charging_sessions, pagy: @pagy, timeframe:, previous_started_at:, frame: true), layout: false
   end
 
   def new
@@ -86,9 +87,9 @@ class Cars::ChargingSessionsController < ApplicationController
     ChargingSession.mark_ongoing(sessions) if kind == 'wallbox' && !timeframe.past?
   end
 
-  def list_scope
-    ChargingSession.list_for(kind, timeframe:, filter: car_selection.filter).includes(:car)
-  end
+  def sessions_scope = ChargingSession.list_for(kind, timeframe:, filter: car_selection.filter)
+
+  def list_scope = sessions_scope.includes(:car)
 
   # Refresh the list straight from the mutating request, so it does not depend
   # on a Turbo broadcast (which could not know the viewer's timeframe). The

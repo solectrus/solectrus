@@ -25,7 +25,10 @@ class Cars::VisitsController < ApplicationController
     # Only a list up to now can hold an ongoing visit
     PlaceVisit.mark_ongoing(@visits) unless timeframe.past?
 
-    render Place::VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, frame: true), layout: false if page_frame_request?
+    return unless page_frame_request?
+
+    previous_started_at = visits.offset(@pagy.offset - 1).pick(:started_at)
+    render Place::VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, previous_started_at:, frame: true), layout: false
   end
 
   private

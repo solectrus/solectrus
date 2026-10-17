@@ -240,6 +240,51 @@ describe 'Charging sessions' do
     end
   end
 
+  describe 'the groups' do
+    def headers = response.parsed_body.css('#list h3').map { it.text.strip }
+
+    it 'groups a long list by month' do
+      get '/cars/charging_sessions/offsite/all'
+
+      expect(headers).to eq([I18n.l(recent.date, format: :month), I18n.l(old.date, format: :month)])
+    end
+
+    it 'opens the list of a group from its header, with the car filter' do
+      get '/cars/1/charging_sessions/offsite/all'
+
+      links = response.parsed_body.css('#list h3 a').pluck('href')
+      expect(links).to eq(["/cars/1/charging_sessions/offsite/#{recent.date.strftime('%Y-%m')}", "/cars/1/charging_sessions/offsite/#{old.date.strftime('%Y-%m')}"])
+    end
+
+    it 'groups the list of a month by week' do
+      get "/cars/charging_sessions/offsite/#{recent.date.strftime('%Y-%m')}"
+
+      expect(headers).to eq([I18n.l(recent.date.beginning_of_week, format: :week)])
+    end
+
+    it 'groups the list of a week by day' do
+      get "/cars/charging_sessions/offsite/#{recent.date.strftime('%G-W%V')}"
+
+      expect(headers).to eq([I18n.l(recent.date, format: '%A')])
+    end
+
+    it 'gives the list of a day one group' do
+      get "/cars/charging_sessions/offsite/#{recent.date.iso8601}"
+
+      expect(headers).to eq([I18n.l(recent.date, format: '%A')])
+    end
+
+    it 'gives a group that goes on to the next page no second header' do
+      start = 2.years.ago.beginning_of_month + 10.days
+      25.times { ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: start + it.hours, kwh: 1, cost: 1) }
+
+      get '/cars/charging_sessions/offsite/all', params: { page: 2 }, headers: { 'Turbo-Frame' => 'sessions_page_2' }
+
+      expect(response.body).to include(start.iso8601)
+      expect(headers).to be_empty
+    end
+  end
+
   describe 'GET /cars/charging_sessions/:kind/:timeframe in the modal' do
     let(:path) { '/cars/1/charging_sessions/offsite/2025' }
 

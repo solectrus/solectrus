@@ -9,7 +9,7 @@
     once.
   .grid.w-full.select-text.max-lg:flex.max-lg:flex-col.max-lg:gap-6 class=grid_columns
     .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
-      = render ChargingSession::Rows::Component.new(sessions:, pagy:)
+      = render ChargingSession::Rows::Component.new(sessions:, pagy:, timeframe:)
 
     / One session would only repeat its row
     - if totals?

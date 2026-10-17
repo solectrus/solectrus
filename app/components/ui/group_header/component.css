@@ -1,0 +1,46 @@
+/*
+ * Ui::GroupHeader::Component: the header of a group. On a phone all
+ * rows lie on one card, and each header cuts it into a card per group,
+ * as in a grouped list with a header above each card. The header has the
+ * color of the page, and its two pseudo elements round the corners of the
+ * card above and of the card below it. The pages of the list load into
+ * frames of their own, so the cards cannot be elements of their own.
+ *
+ * The header lies above the cells, so it covers the separator of the cell
+ * before it and the background of a pressed cell at the corners.
+ */
+.ui-group-header {
+  @apply [--page:var(--color-gray-100)] [--radius:var(--radius-xl)] dark:[--page:var(--color-slate-900)];
+
+  @variant max-lg {
+    @apply relative z-1 bg-(--page);
+
+    &::before,
+    &::after {
+      @apply pointer-events-none absolute inset-x-0 h-(--radius) bg-size-[var(--radius)_var(--radius)] bg-position-[left,right] bg-no-repeat content-[''];
+      /* Each corner is the page outside a circle, whose center lies at the
+         inner corner of its square, at the height --y */
+      background-image:
+        radial-gradient(
+          circle at 100% var(--y),
+          transparent calc(var(--radius) - 0.5px),
+          var(--page) var(--radius)
+        ),
+        radial-gradient(
+          circle at 0 var(--y),
+          transparent calc(var(--radius) - 0.5px),
+          var(--page) var(--radius)
+        );
+    }
+
+    /* The lower corners of the card above */
+    &::before {
+      @apply bottom-full [--y:0];
+    }
+
+    /* The upper corners of the card below */
+    &::after {
+      @apply top-full [--y:100%];
+    }
+  }
+}
