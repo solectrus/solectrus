@@ -112,6 +112,13 @@ describe 'Car Home' do
 
         expect(response).to redirect_to(cars_home_path(sensor_name: 'car_battery_soc', timeframe: 'day', car: 1))
       end
+
+      it 'offers no hours in the menu of today' do
+        get cars_home_path(sensor_name: 'car_battery_soc', timeframe: Date.current.iso8601, car: 1)
+
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to include('/P24H')
+      end
     end
 
     context 'with an unknown car' do

@@ -107,9 +107,16 @@ module TimeframeNavigation
       cycle.rotate(cycle.index { |entry| !entry.relative? } || 0)
     end
 
+    # A page without the hours view (see Sensor::HomePage.hours?) skips the
+    # hours reading, so neither its tab nor its menu leads into a redirect
     def corresponding(reading, period)
-      Timeframe.new(reading.public_send(:"corresponding_#{period}"))
+      result = Timeframe.new(reading.public_send(:"corresponding_#{period}"))
+      return result if !result.hours? || hours_offered?
+
+      corresponding(result, period)
     end
+
+    def hours_offered? = Sensor::HomePage.hours?(helpers.controller_namespace.to_sym)
 
     def reading_entry(reading, period)
       {
