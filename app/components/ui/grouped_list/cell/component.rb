@@ -6,7 +6,8 @@
 # `external: true` shows that arrow for a link of the app that leads to
 # another site. `slide: true` slides to a page with a Ui::TitleBar::Component
 # that leads back here (see docs/ui.md), `plain: true` when that page keeps
-# its own background. Without href, the cell is a button, and `data`
+# its own background, `nav_title` when its title is not the name of the
+# cell. Without href, the cell is a button, and `data`
 # names its action. With an accessory, the cell holds that control and does
 # not react to a tap itself.
 #
@@ -31,6 +32,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
     row_data: {},
     slide: false,
     plain: false,
+    nav_title: nil,
     external: nil,
     badge_count: nil,
     dot: false,
@@ -46,6 +48,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
     @row_data = row_data
     @slide = slide
     @plain = plain
+    @nav_title = nav_title
     @external = external
     @badge_count = badge_count
     @dot = dot
@@ -109,6 +112,6 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
   end
 
   def link_data
-    @slide ? @data.merge(Ui::TitleBar::Component.link_data(name, plain: @plain)) : @data
+    @slide ? @data.merge(Ui::TitleBar::Component.link_data(@nav_title || name, plain: @plain)) : @data
   end
 end

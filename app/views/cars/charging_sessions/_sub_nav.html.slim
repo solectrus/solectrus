@@ -3,10 +3,9 @@
 
 - content_for :fixed_nav, true
 - content_for :sub_nav do
-  / Phone: the title bar of a page below the car page, as in the settings. The
-    plus adds a session on a page of its own. The car page has no title bar,
-    so the way back to it does not slide.
-  = render Ui::TitleBar::Component.new(title: t('charging_sessions.title'), back_href: back_path, back_label: t('layout.car'), back_slide: false) do |bar|
+  / Phone: the title bar of a page below the car page or the page More, as in
+    the settings. The plus adds a session on a page of its own.
+  = render Ui::TitleBar::Component.new(title: t('charging_sessions.title'), **title_bar_back) do |bar|
     - bar.with_action(**action, icon: 'plus') if new_session_offered?
 
   / On a phone the accessory of the title bar. It belongs to the list and

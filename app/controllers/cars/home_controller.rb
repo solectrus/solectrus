@@ -5,6 +5,10 @@ class Cars::HomeController < HomePageController
   # ChartLoader::Component)
   skip_before_action :forbid_admin_only_sensor
 
+  # From here, the charging sessions are a page below the car page again (see
+  # ChargingSessionsParent)
+  before_action { ChargingSessionsParent.forget(session) }
+
   private
 
   def page_key = :cars

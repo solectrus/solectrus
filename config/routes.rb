@@ -98,6 +98,7 @@
 #                                   PUT              /settings/cash_flows/:id(.:format)                                 settings/cash_flows#update
 #                                   DELETE           /settings/cash_flows/:id(.:format)                                 settings/cash_flows#destroy
 #                          settings GET              /settings(.:format)                                                settings/overviews#show
+#                              more GET              /more(.:format)                                                    more#show
 #                     cars_location GET              /cars/location/:car(.:format)                                      cars/locations#show {car: /\d+/}
 #                        cars_place GET              /cars/location/:car/place(.:format)                                cars/places#show {car: /\d+/}
 #                cars_place_tooltip GET              /cars(/:car)/places/:place/tooltip/:timeframe(.:format)            cars/place_tooltips#show {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
