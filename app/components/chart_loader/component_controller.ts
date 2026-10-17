@@ -159,10 +159,11 @@ export default class extends Controller<HTMLCanvasElement> {
   declare usageLabelValue: string;
   declare readonly hasUsageLabelValue: boolean;
 
-  private boundHandleResize?: () => void;
+  private boundHandleResize?: debounce<() => void>;
   private boundHandleDblClick?: (event: MouseEvent) => void;
   private boundHandleThemeChange?: () => void;
   private containerObserver?: ResizeObserver;
+  private debouncedChartResize?: debounce<() => void>;
   private chart?: Chart;
   private readonly colorManager = new ColorManager((datasets) =>
     isOverlapping(datasets),
@@ -188,9 +189,8 @@ export default class extends Controller<HTMLCanvasElement> {
     // newer one. This happens when the stats above grow after they load. A
     // late resize, once the container has settled, measures it again.
     if (this.hasContainerTarget) {
-      this.containerObserver = new ResizeObserver(
-        debounce(100, () => this.chart?.resize()),
-      );
+      this.debouncedChartResize = debounce(100, () => this.chart?.resize());
+      this.containerObserver = new ResizeObserver(this.debouncedChartResize);
       this.containerObserver.observe(this.containerTarget);
     }
 
@@ -208,12 +208,16 @@ export default class extends Controller<HTMLCanvasElement> {
       document.body.classList.remove('transition-stopper');
     }
 
+    // A debounced call can still be pending, and it must not reach a chart
+    // that is destroyed below.
     if (this.boundHandleResize) {
       window.removeEventListener('resize', this.boundHandleResize);
       document.removeEventListener('fullscreenchange', this.boundHandleResize);
+      this.boundHandleResize.cancel();
     }
 
     this.containerObserver?.disconnect();
+    this.debouncedChartResize?.cancel();
 
     // During a Turbo morph the canvas may already be removed from the DOM
     // before this controller disconnects, so guard the target access.
@@ -229,7 +233,7 @@ export default class extends Controller<HTMLCanvasElement> {
         this.boundHandleThemeChange,
       );
 
-    if (this.chart) this.chart.destroy();
+    this.destroyChart();
 
     this.powerBalanceTooltip?.destroy();
     this.powerBalanceTooltip = undefined;
@@ -242,7 +246,7 @@ export default class extends Controller<HTMLCanvasElement> {
     // Disable animation when resizing
     document.body.classList.add('transition-stopper');
 
-    if (this.chart) this.chart.destroy();
+    this.destroyChart();
     this.process();
 
     this.animationTimeout = setTimeout(() => {
@@ -253,8 +257,15 @@ export default class extends Controller<HTMLCanvasElement> {
 
   private handleThemeChange() {
     this.colorManager.clearCache();
-    if (this.chart) this.chart.destroy();
+    this.destroyChart();
     this.process();
+  }
+
+  // Chart.js keeps no canvas after destroy, so a later resize() would throw.
+  // Drop the reference, then `this.chart?.` skips a destroyed chart.
+  private destroyChart() {
+    this.chart?.destroy();
+    this.chart = undefined;
   }
 
   private process() {
