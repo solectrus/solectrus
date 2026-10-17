@@ -1,0 +1,3 @@
+= fields(:charging_session, model: @charging_session, builder: TailwindFormBuilder) do |f|
+  = turbo_stream.replace 'charging_session_address_field', partial: 'cars/charging_sessions/address', locals: { f:, charging_session: @charging_session }
+= turbo_stream.replace 'charging_session_map', partial: 'cars/charging_sessions/map', locals: { charging_session: @charging_session }

@@ -225,6 +225,33 @@ describe ChargingSession::OffsiteDetection do
           expect(session.reload).to have_attributes(latitude: 50.0, longitude: 8.0)
         end
 
+        it 'keeps the position of the address of an entered session' do
+          address = 'DE-12345 Town, Main Street 1'
+          session = ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: at(10, 5), ended_at: at(11), kwh: 20, cost: 9, address:, address_of_position: address, latitude: 51.0, longitude: 7.0)
+
+          run
+
+          expect(session.reload).to have_attributes(latitude: 51.0, longitude: 7.0, soc_from: be_present)
+        end
+
+        it 'writes the position of the rise for an address without Nominatim' do
+          allow(Place::Nominatim).to receive(:enabled?).and_return(false)
+          session = ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: at(10, 5), ended_at: at(11), kwh: 20, cost: 9, address: 'DE-12345 Town, Main Street 1', latitude: 51.0, longitude: 7.0)
+
+          run
+
+          expect(session.reload).to have_attributes(latitude: 50.0, longitude: 8.0)
+        end
+
+        it 'gives an address without a position the position of its rise' do
+          allow(Place::Nominatim).to receive(:enabled?).and_return(false)
+          session = ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: at(10, 5), ended_at: at(11), kwh: 20, cost: 9, address: 'DE-12345 Town, Main Street 1')
+
+          run
+
+          expect(session.reload).to have_attributes(latitude: 50.0, longitude: 8.0, soc_from: be_present)
+        end
+
         it 'proposes a session also after a wallbox session' do
           ChargingSession.create!(kind: :wallbox, origin: :detection, started_at: at(8), ended_at: at(9, 30), kwh: 10)
 

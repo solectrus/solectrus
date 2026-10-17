@@ -31,17 +31,21 @@ class Cars::ChargingSessionsController < ApplicationController
   def new
   end
 
-  # An offsite session can have a position from the build, and the form
-  # offers its address
+  # The form of an offsite session opens without Nominatim, and asks it once
+  # it opened, if necessary (see ChargingSession::AddressLookup#prepare)
   def edit
-    charging_session = @charging_session
-    mark_ongoing([charging_session])
-    return unless charging_session.offsite? && charging_session.latitude && charging_session.address.blank?
+    mark_ongoing([@charging_session])
+    return unless @charging_session.offsite?
 
-    charging_session.address = Place.address_at(charging_session.latitude, charging_session.longitude)
+    lookup = ChargingSession::AddressLookup.new(@charging_session)
+    lookup.prepare
+    @address_pending = lookup.pending?
   end
 
-  def create = respond_to_save(@charging_session, @charging_session.save)
+  # The lookup of the address asks Nominatim before the save, so no
+  # transaction of the database waits for it (see
+  # ChargingSession::AddressLookup)
+  def create = respond_to_save(@charging_session, ChargingSession::AddressLookup.new(@charging_session).save)
 
   def update = respond_to_save(@charging_session, save_changes)
 
@@ -191,7 +195,7 @@ class Cars::ChargingSessionsController < ApplicationController
   # A new session is an offsite session. A guest charge that no wallbox
   # measured has no energy and no cost.
   def permitted_params
-    params.expect(charging_session: %i[car_id started_at ended_at kwh cost power_type evse_id provider address note]).merge(kind: 'offsite')
+    params.expect(charging_session: %i[car_id started_at ended_at kwh cost power_type evse_id provider address address_of_position latitude longitude note]).merge(kind: 'offsite')
   end
 
   # The kind of the list, of the session, or of the list that sent the
@@ -200,11 +204,13 @@ class Cars::ChargingSessionsController < ApplicationController
     params[:kind] || @charging_session&.kind || list_source[:kind]
   end
 
-  # A wallbox session changes each session of its charge
+  # A wallbox session changes each session of its charge. An offsite session
+  # looks up its address before the save (see #create).
   def save_changes
     return @charging_session.update_parts(update_params) if @charging_session.wallbox?
 
-    @charging_session.update(update_params)
+    @charging_session.assign_attributes(update_params)
+    ChargingSession::AddressLookup.new(@charging_session).save
   end
 
   # A wallbox session opens with its charge, so a charge over midnight

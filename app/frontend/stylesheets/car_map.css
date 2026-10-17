@@ -37,9 +37,11 @@
   border-left-color: var(--color-slate-800);
 }
 
-/* MapLibre styles the attribution with two classes, so these rules need three */
+/* MapLibre styles the attribution with two classes, so these rules need three.
+   The hint of a movable map looks like it. */
 .dark .maplibregl-ctrl.maplibregl-ctrl-attrib,
-.dark .maplibregl-ctrl-attrib.maplibregl-compact {
+.dark .maplibregl-ctrl-attrib.maplibregl-compact,
+.dark .car-map-hint {
   @apply bg-slate-800/80 text-slate-400;
 }
 
@@ -51,4 +53,23 @@
 /* The icon is an image, so it turns white with its light background */
 .dark .maplibregl-ctrl-attrib .maplibregl-ctrl-attrib-button {
   filter: invert(1);
+}
+
+/* The hint of a movable map (see movable_point.ts), small like the attribution */
+.car-map-hint {
+  @apply rounded bg-white/80 px-1.5 py-0.5 text-xs text-slate-600;
+}
+
+/* The button that takes the charging station near the point. MapLibre makes
+   the buttons of a group square, so this rule needs two classes. */
+.car-map-station.maplibregl-ctrl-group button {
+  @apply w-auto max-w-64 truncate px-2 text-xs font-medium text-indigo-700;
+}
+
+.dark .car-map-station.maplibregl-ctrl-group {
+  @apply bg-slate-800;
+}
+
+.dark .car-map-station.maplibregl-ctrl-group button {
+  @apply text-indigo-300;
 }

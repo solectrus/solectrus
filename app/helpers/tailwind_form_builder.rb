@@ -3,12 +3,13 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
 
   # The ui-form classes make a group a card of cells on a phone, see
   # ui_form.css. A stacked group puts each label above its input there. The
-  # footer explains the group below the card.
-  def group(title: nil, stacked: false, footer: nil, &)
+  # footer explains the group below the card. A flush group has no space of
+  # its own on a wide screen, for a layout that spaces its groups itself.
+  def group(title: nil, stacked: false, footer: nil, flush: false, &)
     safe_join(
       [
         (tag.div(title, class: 'ui-form-header text-gray-500 text-sm md:text-base') if title),
-        tag.div(class: ['ui-form-group pt-4 grid grid-cols-1 gap-4', ('mb-10' unless footer), ('ui-form-stacked' if stacked)], &),
+        tag.div(class: ['ui-form-group grid grid-cols-1 gap-4', ('pt-4' unless flush), ('mb-10' unless footer || flush), ('ui-form-stacked' if stacked)], &),
         (tag.p(multiline(footer), class: 'ui-form-footer mt-3 mb-10 text-xs text-gray-500 dark:text-gray-400') if footer),
       ].compact,
     )
@@ -26,10 +27,10 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:text_field, method, **, &)
   end
 
-  # The name is also the placeholder: a phone shows it in place of the label
-  # (see ui_form.css)
+  # The label is also the placeholder: a phone shows it in place of the label
+  # (see ui_form.css). A text area without a label shows its name.
   def text_area(method, **options, &)
-    input_field(:text_area, method, placeholder: label_text(method, options), **options, &)
+    input_field(:text_area, method, placeholder: options[:label] || label_text(method, options.except(:label)), **options, &)
   end
 
   # An amount of money has the currency as its unit and at least two decimals
@@ -115,9 +116,12 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   # picker right at the slide.
   def page_autofocus!(html_options) = options[:form_page] && (html_options[:autofocus] &&= @template.form_in_modal?)
 
-  def input_field(field_type, method, **options)
+  # `errors: false` keeps the errors of the field for a place of the caller's
+  # own. The field still shows that it has one.
+  def input_field(field_type, method, **options, &)
     page_autofocus!(options)
     hint = options.delete(:hint)
+    show_errors = options.delete(:errors) != false
     suffix = options.delete(:suffix)
     show_label = options[:label] != false
     options.delete(:label) unless show_label
@@ -133,16 +137,13 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input = with_suffix(input, suffix) if suffix
 
     tag.div class: 'form-control' do
-      safe_join(
-        [
-          (input_label(method, options) if show_label),
-          input,
-          (yield if block_given?),
-          (hint_tag(hint) if hint && !block_given?),
-          errors(method),
-        ].compact,
-      )
+      safe_join([(input_label(method, options) if show_label), input, *below_input(method, hint, show_errors, &)].compact)
     end
+  end
+
+  # The content of the block, or else the hint, and the errors
+  def below_input(method, hint, show_errors)
+    [(block_given? ? yield : (hint_tag(hint) if hint)), (errors(method) if show_errors)]
   end
 
   def input_classes(options, method, suffix)

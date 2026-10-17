@@ -5,6 +5,6 @@
 RSpec.configure do |config|
   config.before do
     stub_const('Place::Nominatim::INTERVAL', 0)
-    stub_const('Place::Nominatim::PAUSED_UNTIL', Concurrent::AtomicReference.new(-Float::INFINITY))
+    stub_const('Place::Nominatim::PAUSED_UNTIL', %w[reverse search].index_with { Concurrent::AtomicReference.new(-Float::INFINITY) })
   end
 end

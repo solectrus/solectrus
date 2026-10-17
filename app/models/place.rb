@@ -42,11 +42,23 @@ class Place < ApplicationRecord
   TOWN_TTL = 1.week
   private_constant :TOWN_TTL
 
+  # The answer of Nominatim to an address stays this long in the cache (see
+  # Place.search)
+  SEARCH_TTL = 1.week
+  private_constant :SEARCH_TTL
+
+  SEARCH_LOCK = Mutex.new
+  private_constant :SEARCH_LOCK
+
   # The labels that a place can have, each with its icon. A new label needs
   # no migration. `home` is the place of the wallbox (see
   # ChargingSession::Detection::CarAssignment), so only one place is home.
   LABELS = { 'home' => 'house' }.freeze
   public_constant :LABELS
+
+  # The rank of Nominatim of a street. A building has 30, a town 16.
+  STREET_RANK = 26
+  private_constant :STREET_RANK
 
   has_many :visits, class_name: 'PlaceVisit', dependent: :delete_all
 
@@ -167,6 +179,30 @@ class Place < ApplicationRecord
     new(latitude:, longitude:, geocoding: Place::Nominatim.reverse(latitude, longitude)).postal_address
   end
 
+  # The place of the address of an offsite session, not saved, or nil
+  # without a match. The country code in front of the address (see
+  # #postal_address) limits the search to this country. Only a street or a
+  # building is precise enough, so a town alone gives nil. Raises
+  # Place::Nominatim::Unavailable without an answer.
+  #
+  # The usage policy of Nominatim requires a cache. It keeps a missing match
+  # too, but no failure. Two spellings that differ only in case and spaces
+  # share an answer. Each server of Nominatim has answers of its own.
+  def self.search(address)
+    country_code, query = Place::PostalAddress.split_country(address)
+    # The check of the form and the save can ask for the same address at once.
+    # The lock makes the second one wait for the answer in the cache.
+    answer =
+      SEARCH_LOCK.synchronize do
+        Rails.cache.fetch(['place-search', Rails.configuration.x.nominatim_url, country_code, query.squish.downcase], expires_in: SEARCH_TTL) do
+          Place::Nominatim.search(query, country_code: country_code&.downcase)
+        end
+      end
+    return unless answer && answer['place_rank'].to_i >= STREET_RANK
+
+    new(latitude: answer['lat'].to_f, longitude: answer['lon'].to_f, geocoding: answer)
+  end
+
   # Two decimals are about one kilometer, so a car on the road asks Nominatim
   # far less often than the live view refreshes. A town is larger, so its name
   # stays correct except near its border. Nominatim answers in the locale.
@@ -197,23 +233,21 @@ class Place < ApplicationRecord
   end
 
   # The street and the town: "Main Street 15, 12345 Town"
-  def address
-    parts = address_parts
-    street = parts.values_at('road', 'house_number').compact.join(' ').presence
-    locality = [parts['postcode'], town].compact.join(' ').presence
-
-    [street, locality].compact.join(', ').presence
-  end
+  def address = postal_parts.domestic.presence
 
   # The country, the postcode and the town first, like the address of a
   # charging point: "DE-12345 Town, Main Street 15"
-  def postal_address
-    parts = address_parts
-    code = [parts['country_code']&.upcase, parts['postcode']].compact.join('-').presence
-    locality = [code, town].compact.join(' ').presence
-    street = parts.values_at('road', 'house_number').compact.join(' ').presence
+  def postal_address = postal_parts.to_s.presence
 
-    [locality, street].compact.join(', ').presence
+  def postal_parts
+    parts = address_parts
+    Place::PostalAddress.new(
+      country_code: parts['country_code']&.upcase,
+      postcode: parts['postcode'],
+      town:,
+      street: parts['road'],
+      house_number: parts['house_number'],
+    )
   end
 
   def geocoded? = geocoding.present?

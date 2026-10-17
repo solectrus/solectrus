@@ -161,6 +161,63 @@ describe Place do
     end
   end
 
+  describe '.search' do
+    def answer(place_rank) = { 'lat' => '50.1', 'lon' => '8.2', 'place_rank' => place_rank, 'address' => { 'road' => 'Main Street' } }
+
+    it 'gives the place of a street or a building, not saved' do
+      allow(Place::Nominatim).to receive(:search).and_return(answer(26))
+
+      expect(described_class.search('DE-12345 Town, Main Street')).to have_attributes(latitude: 50.1, longitude: 8.2, new_record?: true)
+    end
+
+    it 'searches the address in the country of its code' do
+      allow(Place::Nominatim).to receive(:search).and_return(answer(30))
+      described_class.search('DE-12345 Town, Main Street 1')
+
+      expect(Place::Nominatim).to have_received(:search).with('12345 Town, Main Street 1', country_code: 'de')
+    end
+
+    it 'searches an address without a code in each country' do
+      allow(Place::Nominatim).to receive(:search).and_return(nil)
+      described_class.search('Main Street 1, 12345 Town')
+
+      expect(Place::Nominatim).to have_received(:search).with('Main Street 1, 12345 Town', country_code: nil)
+    end
+
+    it 'gives no place of a town alone' do
+      allow(Place::Nominatim).to receive(:search).and_return(answer(16))
+
+      expect(described_class.search('Town')).to be_nil
+    end
+
+    describe 'the cache' do
+      before { allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new) }
+
+      it 'keeps an answer and a missing match' do
+        allow(Place::Nominatim).to receive(:search).and_return(nil)
+        2.times { described_class.search('Nowhere') }
+
+        expect(Place::Nominatim).to have_received(:search).once
+      end
+
+      it 'keeps the answers of each server apart' do
+        allow(Place::Nominatim).to receive(:search).and_return(nil)
+        described_class.search('Nowhere')
+        allow(Rails.configuration.x).to receive(:nominatim_url).and_return('https://nominatim.example.com')
+        described_class.search('Nowhere')
+
+        expect(Place::Nominatim).to have_received(:search).twice
+      end
+
+      it 'keeps no failure' do
+        allow(Place::Nominatim).to receive(:search).and_raise(Place::Nominatim::Unavailable)
+        2.times { expect { described_class.search('Main Street 1') }.to raise_error(Place::Nominatim::Unavailable) }
+
+        expect(Place::Nominatim).to have_received(:search).twice
+      end
+    end
+  end
+
   describe '#postal_address' do
     def postal_address(address) = described_class.new(geocoding: { 'address' => address }).postal_address
 

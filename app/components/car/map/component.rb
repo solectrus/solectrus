@@ -11,11 +11,13 @@ class Car::Map::Component < ViewComponent::Base
   # A `live` map shows one location as a marker, without a tooltip. With a
   # `tooltip_timeframe`, the map loads the tooltip of a place in this
   # timeframe when the pointer rests on it (see #tooltip_url). A live map
-  # with a `name` shows it next to its marker.
-  def initialize(cars:, live: false, tooltip_timeframe: nil, name: nil)
+  # with a `name` shows it next to its marker. A `movable` map is a live map
+  # whose marker the user moves (see movable_point.ts).
+  def initialize(cars:, live: false, tooltip_timeframe: nil, name: nil, movable: false)
     super()
     @cars = cars
-    @live = live
+    @live = live || movable
+    @movable = movable
     @tooltip_timeframe = tooltip_timeframe
     @name = name
   end
@@ -33,6 +35,14 @@ class Car::Map::Component < ViewComponent::Base
   end
 
   def live? = @live
+
+  # The texts of a movable map, or nil for a map that does not move. The map
+  # puts the name of a station for "{name}".
+  def movable_texts
+    return unless @movable
+
+    { hint: t('.move_hint'), station: t('.station', name: '{name}'), unnamedStation: t('.unnamed_station') }
+  end
 
   # A map of a period reaches the edges of the card, so only its side toward
   # the stats is round

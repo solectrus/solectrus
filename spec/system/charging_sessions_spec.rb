@@ -56,6 +56,63 @@ describe 'Charging sessions' do
       expect(page).to have_text('Keine Auswärtsladungen')
       expect(page).to have_no_text('March trip')
     end
+
+    # The map sends the event, so the spec needs no tiles
+    it 'discards a moved point' do
+      visit '/cars/charging_sessions/offsite/2022-06'
+
+      row('June trip').click
+      within('#modal') do
+        find_by_id('charging_session_map')
+        page.execute_script(<<~JS)
+          document.querySelector('#charging_session_map').dispatchEvent(
+            new CustomEvent('car--map--component:moved', { detail: { latitude: 50.1, longitude: 8.1 } })
+          )
+        JS
+        expect(page).to have_button('Speichern', disabled: false)
+
+        click_on 'Änderungen verwerfen'
+
+        # The save button hides while it is disabled
+        expect(page).to have_button('Speichern', disabled: true, visible: :hidden)
+        expect(find_field('charging_session_latitude', type: :hidden).value).to eq('')
+      end
+    end
+
+    it 'discards a checked address with its map' do
+      found_place = Place.new(latitude: 51.0, longitude: 7.0, geocoding: { 'address' => { 'country_code' => 'de', 'postcode' => '12345', 'town' => 'Town', 'road' => 'Main Street' } })
+      allow(Place).to receive(:search).and_return(found_place)
+      visit '/cars/charging_sessions/offsite/2022-06'
+
+      row('June trip').click
+      within('#modal') do
+        fill_in 'charging_session_address', with: 'main street 1, town'
+        find_field('charging_session_note').click
+        expect(page).to have_field('charging_session_address', with: 'DE-12345 Town, Main Street 1')
+
+        click_on 'Änderungen verwerfen'
+
+        expect(page).to have_field('charging_session_address', with: '')
+        expect(page).to have_text('Die Karte zeigt den Ort, sobald die Adresse gefunden ist.')
+        expect(page).to have_button('Speichern', disabled: true, visible: :hidden)
+        expect(find_field('charging_session_latitude', type: :hidden).value).to eq('')
+      end
+    end
+
+    # The form opens without Nominatim and asks it once it is shown
+    it 'offers the address at the position of the car once the form opened' do
+      ChargingSession.find_by(note: 'June trip').update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations
+      allow(Place).to receive(:address_at).with(50.0, 8.0).and_return('DE-12345 Town, Main Street 1')
+      visit '/cars/charging_sessions/offsite/2022-06'
+
+      row('June trip').click
+
+      within('#modal') do
+        expect(page).to have_field('charging_session_address', with: 'DE-12345 Town, Main Street 1')
+        # The offered address is a change, so the form saves it
+        expect(page).to have_button('Speichern', disabled: false)
+      end
+    end
   end
 
   context 'with a phone' do

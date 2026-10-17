@@ -1,0 +1,14 @@
+/ The address with the position that the form carries, so a save with this
+  address keeps the position (see ChargingSession::Location). The
+  address-lookup controller replaces it after a change of the address, and
+  the spinner beside the label shows while it asks the server. The map shows
+  the error of the address in its place, so the form keeps its height.
+.ui-form-contents#charging_session_address_field data-address-lookup-target='fields'
+  = f.text_field :address,
+                 label: safe_join([ChargingSession.human_attribute_name(:address), tag.span(icon('spinner', class: 'fa-spin'), class: 'ml-2 hidden', data: { address_lookup_target: 'spinner' })]),
+                 errors: false,
+                 aria: { describedby: ('charging_session_map_message' if charging_session.errors[:address].any?) },
+                 data: { action: 'change->address-lookup#lookUp', address_lookup_target: 'address' }
+  = f.hidden_field :address_of_position
+  = f.hidden_field :latitude, data: { address_lookup_target: 'latitude' }
+  = f.hidden_field :longitude, data: { address_lookup_target: 'longitude' }

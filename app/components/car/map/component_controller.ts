@@ -7,6 +7,8 @@ import type {
   Popup,
 } from 'maplibre-gl';
 
+import MovablePoint, { type MovablePointTexts } from './movable_point';
+
 type MapLibre = typeof import('maplibre-gl');
 
 // [latitude, longitude, share of the time of the cars from 0 to 1, the id of
@@ -88,7 +90,9 @@ function glide(from: DOMRect, to: DOMRect, anchor: string): [number, number] {
   return [from.x + from.width / 2 - startX, from.y + from.height / 2 - startY];
 }
 
-const ZOOM = { live: 14, single: 13, max: 14 };
+// A movable point needs the buildings and the charging stations, which the
+// map shows from zoom 16 (see POI_LAYER)
+const ZOOM = { live: 14, movable: 17, single: 13, max: 14 };
 
 // The view of a map without a place, like the map of a guest: Western Europe
 // from Portugal to Poland, as [west, south] and [east, north]
@@ -100,7 +104,8 @@ const DEFAULT_BOUNDS: [[number, number], [number, number]] = [
 // The points of interest of the tiles, so the user can name a place after
 // what stands there. The styles of OpenFreeMap share the sprite with their
 // icons, but only the colorful style shows them. A point without a name is
-// mostly a waste basket or a bollard, so the map leaves it out.
+// mostly a waste basket or a bollard, so the map leaves it out. A charging
+// station stays, because a movable point offers it (see movable_point.ts).
 const POI_LAYER = 'poi';
 
 // The labels of the points in the muted colors of the style
@@ -147,6 +152,7 @@ export default class extends Controller<HTMLElement> {
     tooltipUrl: String,
     unknownPlace: String,
     name: String,
+    movable: Object,
   };
 
   declare readonly containerTarget: HTMLElement;
@@ -156,10 +162,14 @@ export default class extends Controller<HTMLElement> {
   declare readonly tooltipUrlValue: string;
   declare readonly unknownPlaceValue: string;
   declare readonly nameValue: string;
+  // The texts of a movable map (see movable_point.ts)
+  declare readonly hasMovableValue: boolean;
+  declare readonly movableValue: MovablePointTexts;
 
   private lib?: MapLibre;
   private map?: MapLibreMap;
   private popup?: Popup;
+  private movable?: MovablePoint;
   private dark = isDark();
 
   // The tooltips that the map loaded, as HTML by the id of the place. A
@@ -219,7 +229,9 @@ export default class extends Controller<HTMLElement> {
     map.on('drag', () => this.closeAttribution());
     document.addEventListener('keydown', this.handleKeydown, true);
 
-    if (this.liveValue) {
+    if (this.hasMovableValue) {
+      this.showMovablePoint(lib);
+    } else if (this.liveValue) {
       this.showName(lib);
     } else {
       this.map.on('mousemove', LAYER, (event) => this.showPopup(event));
@@ -236,6 +248,8 @@ export default class extends Controller<HTMLElement> {
     window.clearTimeout(this.hideTimer);
     document.removeEventListener('theme:changed', this.switchTheme);
     this.popup?.remove();
+    this.movable?.remove();
+    this.movable = undefined;
     this.map?.remove();
     this.map = undefined;
   }
@@ -270,6 +284,7 @@ export default class extends Controller<HTMLElement> {
     if (isDark() === this.dark) return;
 
     this.dark = isDark();
+    this.movable?.setStroke(this.stroke);
     // Without a diff, MapLibre loads the full style and fires style.load
     this.map?.setStyle(this.styleUrl, { diff: false });
   };
@@ -296,7 +311,11 @@ export default class extends Controller<HTMLElement> {
       source: 'openmaptiles',
       'source-layer': 'poi',
       minzoom: 16,
-      filter: ['has', 'name'],
+      filter: [
+        'any',
+        ['has', 'name'],
+        ['==', ['get', 'subclass'], 'charging_station'],
+      ],
       layout: {
         // Where the labels overlap, the important points win. The rank of a
         // point is lower the more important it is.
@@ -368,9 +387,10 @@ export default class extends Controller<HTMLElement> {
     ];
   }
 
+  // A movable point is a marker and not a layer (see showMovablePoint)
   private showPlaces() {
     const map = this.map;
-    if (!map) return;
+    if (!map || this.hasMovableValue) return;
 
     const source = map.getSource<GeoJSONSource>(LAYER);
     if (source) {
@@ -417,6 +437,13 @@ export default class extends Controller<HTMLElement> {
     };
   }
 
+  // The zoom of a map with one point
+  private get singleZoom(): number {
+    if (this.hasMovableValue) return ZOOM.movable;
+
+    return this.liveValue ? ZOOM.live : ZOOM.single;
+  }
+
   private fit() {
     const map = this.map;
     const lib = this.lib;
@@ -427,7 +454,7 @@ export default class extends Controller<HTMLElement> {
       const [latitude, longitude] = points[0];
       map.jumpTo({
         center: [longitude, latitude],
-        zoom: this.liveValue ? ZOOM.live : ZOOM.single,
+        zoom: this.singleZoom,
       });
       return;
     }
@@ -437,6 +464,26 @@ export default class extends Controller<HTMLElement> {
       bounds.extend([longitude, latitude]);
     }
     map.fitBounds(bounds, { padding: 40, maxZoom: ZOOM.max, animate: false });
+  }
+
+  // The point of the form of an offsite charging session, which the user
+  // moves to where the car charged. The form takes it from the event
+  // "car--map--component:moved".
+  private showMovablePoint(lib: MapLibre) {
+    const map = this.map;
+    const point = this.points[0];
+    if (!map || !point) return;
+
+    const [latitude, longitude] = point;
+    this.movable = new MovablePoint(lib, map, [longitude, latitude], {
+      color: COLOR,
+      stroke: this.stroke,
+      radius: LIVE_RADIUS,
+      strokeWidth: LIVE_STROKE,
+      texts: this.movableValue,
+      onMove: ([lng, lat]) =>
+        this.dispatch('moved', { detail: { latitude: lat, longitude: lng } }),
+    });
   }
 
   // The name of the live location stays open next to its marker. The popup

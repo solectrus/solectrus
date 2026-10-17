@@ -746,4 +746,113 @@ describe ChargingSession do
       end
     end
   end
+
+  describe 'the position' do
+    let(:session) do
+      described_class.create!(kind: :offsite, origin: :user, car:, started_at: 1.day.ago, kwh: 10, cost: 5).tap do
+        it.update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations
+      end
+    end
+
+    it 'refuses a new address without its position' do
+      expect(session.update(address: 'DE-12345 Town, Main Street 1')).to be(false)
+      expect(session.errors[:address]).to include('was not found')
+    end
+
+    it 'takes a new address with the position that the form carries for it' do
+      expect(session.update(address: 'DE-12345 Town, Main Street 1', address_of_position: 'DE-12345 Town, Main Street 1')).to be(true)
+    end
+
+    it 'names the problem of the lookup' do
+      session.address_problem = :unavailable
+
+      expect(session.update(address: 'DE-12345 Town, Main Street 1')).to be(false)
+      expect(session.errors[:address]).to include('cannot be checked right now. Try again later.')
+    end
+
+    it 'takes a new address without a position when Nominatim is turned off' do
+      allow(Rails.configuration.x).to receive(:nominatim_url).and_return(nil)
+
+      expect(session.update(address: 'main street 1, Town', latitude: nil, longitude: nil)).to be(true)
+    end
+
+    describe 'an address from before without a position' do
+      before { session.update_columns(address: 'DE-12345 Town, Main Street 1', latitude: nil, longitude: nil) } # rubocop:disable Rails/SkipsModelValidations
+
+      it 'lets the user change the rest while Nominatim gives no answer' do
+        session.address_problem = :unavailable
+
+        expect(session.update(cost: 6)).to be(true)
+      end
+
+      it 'refuses the rest when Nominatim does not find the address' do
+        session.address_problem = :not_found
+
+        expect(session.update(cost: 6)).to be(false)
+      end
+    end
+
+    it 'stays with a change of the note' do
+      session.update!(note: 'Trip')
+
+      expect(session.reload.location).to eq([50.0, 8.0])
+    end
+
+    it 'goes with a change of the day, because it belongs to the rise' do
+      session.update!(started_at: session.started_at - 1.day)
+
+      expect(session.reload.location).to be_nil
+    end
+
+    it 'stays with a change of the time on the same day' do
+      session.update!(started_at: session.started_at.change(min: (session.started_at.min + 1) % 60))
+
+      expect(session.reload.location).to eq([50.0, 8.0])
+    end
+
+    describe 'with a change of the car' do
+      let(:other_car) { Car.create!(id: 2) }
+
+      it 'goes without an address, because it belongs to the car' do
+        session.update!(car: other_car)
+
+        expect(session.reload.location).to be_nil
+      end
+
+      it 'stays with an address' do
+        session.update_columns(address: 'DE-12345 Town, Main Street 1') # rubocop:disable Rails/SkipsModelValidations
+        session.update!(car: other_car)
+
+        expect(session.reload.location).to eq([50.0, 8.0])
+      end
+
+      it 'goes with the address that the form offered at it' do
+        session.update!(car: other_car, address: 'DE-12345 Town, Main Street 1', address_of_position: 'DE-12345 Town, Main Street 1')
+
+        expect(session.reload).to have_attributes(address: nil, location: nil)
+      end
+
+      it 'stays with a point that the user moved at the offered address' do
+        session.update!(car: other_car, address: 'DE-12345 Town, Main Street 1', address_of_position: 'DE-12345 Town, Main Street 1', latitude: 50.001)
+
+        expect(session.reload).to have_attributes(address: 'DE-12345 Town, Main Street 1', location: [50.001, 8.0])
+      end
+
+      it 'goes with an address without Nominatim, which keeps the address' do
+        allow(Rails.configuration.x).to receive(:nominatim_url).and_return(nil)
+        session.update_columns(address: 'main street 1, Town') # rubocop:disable Rails/SkipsModelValidations
+        session.update!(car: other_car)
+
+        expect(session.reload).to have_attributes(address: 'main street 1, Town', location: nil)
+      end
+
+      it 'leaves a wallbox session alone' do
+        wallbox = described_class.create!(kind: :wallbox, origin: :detection, started_at: 2.days.ago, ended_at: 2.days.ago + 1.hour, kwh: 10)
+        wallbox.update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations
+        wallbox.update!(car: other_car)
+
+        expect(wallbox.reload.location).to eq([50.0, 8.0])
+      end
+    end
+  end
 end

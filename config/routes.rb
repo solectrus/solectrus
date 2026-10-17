@@ -106,6 +106,8 @@
 #            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format)      cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest|proposals/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #     dismiss_cars_charging_session PATCH            /cars/charging_sessions/:id/dismiss(.:format)                      cars/charging_sessions#dismiss
 #    dismiss_cars_charging_sessions PATCH            /cars/charging_sessions/dismiss(.:format)                          cars/charging_sessions#dismiss_all
+#     address_cars_charging_session POST             /cars/charging_sessions/:id/address(.:format)                      cars/charging_session_addresses#create
+#    address_cars_charging_sessions POST             /cars/charging_sessions/address(.:format)                          cars/charging_session_addresses#create
 #                                   POST             /cars/charging_sessions(.:format)                                  cars/charging_sessions#create
 #         new_cars_charging_session GET              /cars/charging_sessions/new(.:format)                              cars/charging_sessions#new
 #        edit_cars_charging_session GET              /cars/charging_sessions/:id/edit(.:format)                         cars/charging_sessions#edit
@@ -362,6 +364,12 @@ Rails.application.routes.draw do
       # The user dismisses a proposal of the build, or all of the list
       patch :dismiss, on: :member
       patch :dismiss, on: :collection, action: :dismiss_all
+
+      # The form checks an address while the user edits it, the form of a
+      # saved session at the session. A POST keeps the address out of the URL,
+      # so no access log shows it.
+      post :address, on: :member, controller: :charging_session_addresses, action: :create
+      post :address, on: :collection, controller: :charging_session_addresses, action: :create
     end
   end
 

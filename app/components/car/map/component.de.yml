@@ -1,3 +1,6 @@
 de:
   label: Karte der Standorte
   unknown_place: Unbekannter Ort
+  move_hint: Punkt ziehen oder Karte antippen
+  station: Ladesäule „%{name}“ übernehmen
+  unnamed_station: Ladesäule übernehmen

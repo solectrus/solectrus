@@ -383,6 +383,7 @@ de:
     title: Ladevorgänge
     edit: Ladevorgang bearbeiten
     new: Neuer Ladevorgang
+    map_empty: Die Karte zeigt den Ort, sobald die Adresse gefunden ist.
     guest: Gast
     unassigned: Nicht zugeordnet
     no_cost: Keine Kosten, weil für den Tag kein Preis hinterlegt ist
@@ -653,6 +654,9 @@ de:
               overlap: überschneidet sich mit einer anderen Auswärtsladung des Autos
             evse_id:
               invalid: darf nur A–Z, 0–9, *, + und - enthalten (höchstens 48 Zeichen)
+            address:
+              not_found: wurde nicht gefunden
+              unavailable: kann gerade nicht geprüft werden. Versuche es später noch einmal.
       messages:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)

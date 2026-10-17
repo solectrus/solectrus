@@ -15,6 +15,10 @@ describe 'Charging sessions' do
     ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: 2.years.ago, kwh: 20, cost: 10)
   end
 
+  def found_place
+    Place.new(latitude: 51.0, longitude: 7.0, geocoding: { 'address' => { 'country_code' => 'de', 'postcode' => '12345', 'town' => 'Town', 'road' => 'Main Street' } })
+  end
+
   def wallbox(started_at, **)
     ChargingSession.create!(kind: :wallbox, origin: :detection, started_at:, ended_at: started_at + 1.hour, kwh: 7, **)
   end
@@ -709,21 +713,91 @@ describe 'Charging sessions' do
       expect(response.body).to include('Supercharger')
     end
 
-    it 'offers the address of the position for an entered session too' do
-      recent.update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations
-      allow(Place).to receive(:address_at).with(50.0, 8.0).and_return('DE-12345 Town, Main Street 1')
+    # The form asks Nominatim once it opened (see the spec of the address check)
+    describe 'the form that needs Nominatim' do
+      def lookup_pending = response.parsed_body.at_css('[data-controller="address-lookup"]')['data-address-lookup-pending-value']
+
+      it 'opens without Nominatim for a position without an address' do
+        recent.update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations
+        allow(Place).to receive(:address_at)
+
+        get "/cars/charging_sessions/#{recent.id}/edit"
+
+        expect(lookup_pending).to eq('true')
+        expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to be_nil
+        expect(Place).not_to have_received(:address_at)
+      end
+
+      it 'opens without Nominatim for an address from before without a position' do
+        recent.update_columns(address: 'Main Street 1, 12345 Town') # rubocop:disable Rails/SkipsModelValidations
+        allow(Place).to receive(:search)
+
+        get "/cars/charging_sessions/#{recent.id}/edit"
+
+        expect(lookup_pending).to eq('true')
+        expect(Place).not_to have_received(:search)
+      end
+
+      it 'is not pending for an address with a position' do
+        recent.update_columns(address: 'DE-12345 Town, Main Street 1', latitude: 51.0, longitude: 7.0) # rubocop:disable Rails/SkipsModelValidations
+
+        get "/cars/charging_sessions/#{recent.id}/edit"
+
+        expect(lookup_pending).to be_nil
+      end
+    end
+
+    it 'keeps the point that the user moved on the map, without Nominatim' do
+      recent.update_columns(address: 'DE-12345 Town, Main Street 1', latitude: 51.0, longitude: 7.0) # rubocop:disable Rails/SkipsModelValidations
+      allow(Place).to receive(:search)
+
+      get "/cars/charging_sessions/#{recent.id}/edit"
+      map = response.parsed_body.at_css('#charging_session_map')
+      expect(map['data-action']).to eq('car--map--component:moved->address-lookup#move')
+      expect(map.at_css('[data-car--map--component-movable-value]')).to be_present
+
+      patch "/cars/charging_sessions/#{recent.id}",
+            params: { charging_session: { address: 'DE-12345 Town, Main Street 1', address_of_position: 'DE-12345 Town, Main Street 1', latitude: '51.0005', longitude: '7.0004' } },
+            as: :turbo_stream
+
+      expect(recent.reload).to have_attributes(latitude: 51.0005, longitude: 7.0004)
+      expect(Place).not_to have_received(:search)
+    end
+
+    it 'shows a point that does not move without an address' do
+      recent.update_columns(latitude: 51.0, longitude: 7.0) # rubocop:disable Rails/SkipsModelValidations
 
       get "/cars/charging_sessions/#{recent.id}/edit"
 
-      expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to eq('DE-12345 Town, Main Street 1')
+      map = response.parsed_body.at_css('#charging_session_map [data-controller="car--map--component"]')
+      expect(map['data-car--map--component-live-value']).to eq('true')
+      expect(map['data-car--map--component-movable-value']).to be_nil
     end
 
-    it 'offers the address of the position in the form' do
-      allow(Place).to receive(:address_at).with(50.0, 8.0).and_return('Main Street 1, 12345 Town')
+    it 'shows a point that does not move without Nominatim' do
+      recent.update_columns(address: 'DE-12345 Town, Main Street 1', latitude: 51.0, longitude: 7.0) # rubocop:disable Rails/SkipsModelValidations
+      allow(Rails.configuration.x).to receive(:nominatim_url).and_return(nil)
 
-      get "/cars/charging_sessions/#{proposal.id}/edit"
+      get "/cars/charging_sessions/#{recent.id}/edit"
 
-      expect(response.parsed_body.at_css('input[name="charging_session[address]"]')['value']).to eq('Main Street 1, 12345 Town')
+      map = response.parsed_body.at_css('#charging_session_map [data-controller="car--map--component"]')
+      expect(map['data-car--map--component-movable-value']).to be_nil
+    end
+
+    it 'shows no map without a position' do
+      get "/cars/charging_sessions/#{recent.id}/edit"
+
+      expect(response.parsed_body.at_css('[data-controller="car--map--component"]')).to be_nil
+    end
+
+    it 'refuses to save an address that Nominatim does not find' do
+      allow(Place).to receive(:search).and_return(nil)
+
+      patch "/cars/charging_sessions/#{recent.id}", params: { charging_session: { address: 'Nowhere' } }, as: :turbo_stream
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include('was not found')
+      expect(recent.reload.address).to be_nil
     end
 
     it 'offers to dismiss a proposal beside its hint, not as a button of the form' do

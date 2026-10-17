@@ -18,6 +18,8 @@ declare module '@hotwired/turbo' {
 
   export function visit(url: string, options?): void;
 
+  export function renderStreamMessage(message: string): void;
+
   export const config: {
     forms: {
       confirm?: (

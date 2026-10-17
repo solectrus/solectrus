@@ -26,22 +26,23 @@ between charging and driving, because the car drives on energy of other days. A 
 
 ## Code map
 
-| Class                               | Job                                                              |
-| ----------------------------------- | ---------------------------------------------------------------- |
-| `Car`                               | a car: number, name, color, period of use, `Car.configured`      |
-| `Car::PeriodChange`                 | what follows when the period of use of a car changes             |
-| `Sensor::Cars`                      | the numbers and the sensor names of the cars, without a database |
-| `ChargingSession`                   | a charge of a car, at the wallbox or offsite                     |
-| `ChargingSession::Sums`             | the sums of a set of sessions: count, energy, cost, PV share     |
-| `ChargingSession::Detection`        | finds the wallbox sessions in the power curve of a day           |
-| `ChargingSession::OffsiteDetection` | proposes offsite sessions from the state of charge of a day      |
-| `Car::Ledger`                       | the car days of a date range: distance and session sums          |
-| `Car::Driving`                      | the rates of each day from its window                            |
-| `Car::Report`                       | the numbers of a timeframe, for the page and for its charts      |
-| `Car::Spans`                        | the lowest and the highest rate of the periods of one kind       |
-| `Car::Live`                         | the live values of the wallbox and of each car                   |
-| `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists  |
-| `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there            |
+| Class                               | Job                                                               |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| `Car`                               | a car: number, name, color, period of use, `Car.configured`       |
+| `Car::PeriodChange`                 | what follows when the period of use of a car changes              |
+| `Sensor::Cars`                      | the numbers and the sensor names of the cars, without a database  |
+| `ChargingSession`                   | a charge of a car, at the wallbox or offsite                      |
+| `ChargingSession::Sums`             | the sums of a set of sessions: count, energy, cost, PV share      |
+| `ChargingSession::Detection`        | finds the wallbox sessions in the power curve of a day            |
+| `ChargingSession::OffsiteDetection` | proposes offsite sessions from the state of charge of a day       |
+| `ChargingSession::AddressLookup`    | the position of the address of an offsite session, from Nominatim |
+| `Car::Ledger`                       | the car days of a date range: distance and session sums           |
+| `Car::Driving`                      | the rates of each day from its window                             |
+| `Car::Report`                       | the numbers of a timeframe, for the page and for its charts       |
+| `Car::Spans`                        | the lowest and the highest rate of the periods of one kind        |
+| `Car::Live`                         | the live values of the wallbox and of each car                    |
+| `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists   |
+| `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there             |
 
 The car page and its charts read one `Car::Report`. A column of a chart and the tile of the
 same period therefore read the same days and show the same number.
@@ -432,9 +433,54 @@ not come from the visits, because a short stop at a fast charger gives no visit.
 estimate is the rise times `battery_kwh`. It is the energy in the battery, so a receipt
 shows about 5 to 10 % more for the losses.
 
-An entered or accepted offsite session gets the state of charge and the position of its
-rise (`OffsiteDetection::EnteredState`). A wrong value is worse than none, so a session
-gets them only when exactly one rise matches its time and no other session claims it.
+An entered or accepted offsite session gets the state of charge of its rise
+(`OffsiteDetection::EnteredState`). It also gets the position of the rise, unless it has an
+address with a position (see [The position](#the-position)). A wrong value is worse than
+none, so a session gets them only when exactly one rise matches its time and no other
+session claims it.
+
+### The position
+
+An offsite session has one position: where the car charged (`ChargingSession::Location`).
+The position always fits the address:
+
+- A session with an address has the position of its address, from Nominatim (see
+  [Address](#address)). Only a street or a building is precise enough.
+- A session without an address has the position of its car during its rise, or none.
+
+Without Nominatim (an empty `NOMINATIM_URL`), an address keeps the text of the user and has
+no position of its own. Each session then gets the position of its car.
+
+An address that Nominatim does not find is an error, and the form does not save it. If
+Nominatim gives no answer, the form does not save a new address either, but the rest of a
+session from before still saves. A request to Nominatim takes seconds, so the lookup runs
+before the save and outside its transaction (`ChargingSession::AddressLookup`). Each caller
+that saves a new address must run the lookup first.
+
+Each address has one form: "DE-12345 Town, Main Street 15" (`Place::PostalAddress`).
+Nominatim gives the country, the postcode and the spelling of the street. The town and the
+house number come from the user, because Nominatim does not know each house number, and its
+town can be a part of the town or a group of towns. A part that the user left out comes from
+Nominatim.
+
+The form checks a changed address when the field loses the focus. It then shows the address
+in its form and on the map, or the error. The form carries the position, so the save does
+not ask Nominatim again. The edit form opens without a request to Nominatim. For an address
+without a position, or a position without an address, it asks once it is shown. Without
+JavaScript, the save checks the address.
+
+For a session without an address, the form offers the address at the position of the car. A
+save with this address keeps the position of the car, because it is more exact. A change of
+the car or of the day removes a position that belongs to the rise, and the address that the
+form offered at it, unless the user moved the point. The build never changes the position of
+an address.
+
+The position of an address is often on the building and not at the charging station. So the
+user can move the point on the map of the form, with a drag or a tap, at most 300 m. Only the
+position of an address moves, because the build writes the other positions. If exactly one
+charging station of the map tiles stands within 150 m, a button moves the point onto it. The
+form does not do this by itself, because it cannot tell a position of the car from a
+position that the user set.
 
 ### A change of a price
 
@@ -850,7 +896,8 @@ new home builds the days again.
 
 ### Address
 
-The address comes from Nominatim, the geocoder of OpenStreetMap (`Place::Nominatim`). Its
+The address comes from Nominatim, the geocoder of OpenStreetMap (`Place::Nominatim`). The
+position of the address of an offsite session comes from it too. Its
 [usage policy](https://operations.osmfoundation.org/policies/nominatim/) allows one request
 per second and no periodic requests. So SOLECTRUS asks it only when the user asks for a
 place:
@@ -858,11 +905,16 @@ place:
 - A click on the place of a car in the live view, or its badge without a name.
 - The edit form of a place.
 - The tooltip of a place on the map of a period.
-- The edit form of an offsite session with a position and without an address.
+- The edit form of an offsite session with only an address or only a position, once it is
+  shown.
+- A changed address in the form of an offsite session, when the field loses the focus.
+- The save of an offsite session with a new address that the form did not check.
 
 A place asks once and keeps the answer. A location without a place gets no new place. The
 build and the list of the sessions ask nothing, because the backfill asks for each charge
-of the history.
+of the history. The usage policy forbids an autocomplete, so the form asks nothing while the
+user types. The policy also requires a cache, which keeps the answer to an address for a
+week.
 
 `NOMINATIM_URL` selects another server of Nominatim, for example one of your own. The usage
 policy requires this switch without a software update. If `NOMINATIM_URL` is set but empty,

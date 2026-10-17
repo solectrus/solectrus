@@ -211,6 +211,6 @@
 
 /* Where the label of a text area shows, the placeholder with its name would
    repeat it */
-.form-control textarea::placeholder {
+.form-control:has(> .label) textarea::placeholder {
   @apply text-transparent;
 }

@@ -1,8 +1,9 @@
 # Gives each offsite session that the user entered the state of charge and
-# the position of its rise (see ChargingSession::OffsiteDetection). A wrong
-# value is worse than none, so a session gets them only when its rise is
-# clear. The sessions find their rises in three stages, and each stage
-# leaves out the rises that an earlier stage found:
+# the position of its rise (see ChargingSession::OffsiteDetection). A
+# session with an address keeps the position of its address. A wrong value is
+# worse than none, so a session gets them only when its rise is clear. The sessions
+# find their rises in three stages, and each stage leaves out the rises that
+# an earlier stage found:
 #
 # 1. A session with an end takes the rises in its time.
 # 2. A session with an end and no rise in its time takes the rises in its
@@ -18,6 +19,14 @@ class ChargingSession::OffsiteDetection::EnteredState
   # The values of a rise that a session gets
   COLUMNS = %i[soc_from soc_to latitude longitude].freeze
   private_constant :COLUMNS
+
+  # A session with an address and a position has the position of its
+  # address (see ChargingSession::Location), so it gets the state of charge
+  # alone. An address without a position gets the position of the rise.
+  # Without Nominatim, an address has no position of its own, so each build
+  # writes the position of the rise.
+  ADDRESSED_COLUMNS = (COLUMNS - %i[latitude longitude]).freeze
+  private_constant :ADDRESSED_COLUMNS
 
   # `sessions` are the entered sessions of the days of the step, `rises` the
   # rises of these days away from the wallbox
@@ -59,9 +68,11 @@ class ChargingSession::OffsiteDetection::EnteredState
 
   # Writes a session only when a value changes
   def write(session, rise)
-    values = COLUMNS.index_with { rise&.public_send(it) }
+    values = columns(session).index_with { rise&.public_send(it) }
     return if values.all? { |key, value| session[key]&.to_f == value&.to_f }
 
     session.update_columns(values) # rubocop:disable Rails/SkipsModelValidations
   end
+
+  def columns(session) = session.position_of_address? && session.location ? ADDRESSED_COLUMNS : COLUMNS
 end

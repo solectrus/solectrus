@@ -1,3 +1,6 @@
 en:
   label: Map of the locations
   unknown_place: Unknown place
+  move_hint: Drag the point or tap the map
+  station: Use the charging station “%{name}”
+  unnamed_station: Use the charging station

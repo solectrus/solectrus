@@ -383,6 +383,7 @@ en:
     title: Charging sessions
     edit: Edit charging session
     new: New charging session
+    map_empty: The map shows the place once the address is found.
     guest: Guest
     unassigned: Not assigned
     no_cost: No cost, because the day has no price
@@ -653,6 +654,9 @@ en:
               overlap: overlaps another offsite session of the car
             evse_id:
               invalid: may contain only A–Z, 0–9, *, + and - (48 characters at most)
+            address:
+              not_found: was not found
+              unavailable: cannot be checked right now. Try again later.
       messages:
         must_be_negative: must be negative for this category (outflow)
         must_be_positive: must be positive for this category (inflow)
