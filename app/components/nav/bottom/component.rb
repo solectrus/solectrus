@@ -2,8 +2,9 @@
 # for the page More, which lists the other pages and the secondary items.
 class Nav::Bottom::Component < ViewComponent::Base
   MAX_BAR_ITEMS = 4
-  PILL_BASE = 'flex items-center justify-center px-3 py-1 min-h-7'.freeze
-  PILL_ACTIVE = 'bg-white/20 rounded-full'.freeze
+  # The keyboard focus rings the pill, so it stays clear of the label
+  PILL_BASE = 'flex items-center justify-center px-3 py-1 min-h-7 rounded-full group-focus-visible:ring-2 group-focus-visible:ring-white'.freeze
+  PILL_ACTIVE = 'bg-white/20'.freeze
   public_constant :MAX_BAR_ITEMS
   private_constant :PILL_BASE, :PILL_ACTIVE
 
@@ -39,7 +40,7 @@ class Nav::Bottom::Component < ViewComponent::Base
 
   def tab_classes(active:)
     [
-      'click-animation flex flex-col items-center justify-center py-2 px-1 gap-1 focus:outline-none',
+      'group click-animation flex flex-col items-center justify-center py-2 px-1 gap-1 focus:outline-none',
       active ? 'text-white dark:text-gray-200' : 'text-gray-300 dark:text-gray-400',
     ]
   end

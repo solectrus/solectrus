@@ -19,10 +19,17 @@
 class Ui::TableRow::Component < ViewComponent::Base
   # Another link of the row is a target of its own. While the pointer rests on
   # it, the row does not light up, so it shows where a click lands.
+  #
+  # The keyboard focus on the link marks the whole row, as the row is what
+  # the link opens. An outline lies above the cells, a ring would lie below
+  # their backgrounds.
   BASE_CLASS =
     'cursor-pointer ' \
     'hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-100 ' \
-    'dark:hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-700'.freeze
+    'dark:hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-700 ' \
+    'has-[[data-ui--table-row--component-target]:focus-visible]:outline-2 ' \
+    'has-[[data-ui--table-row--component-target]:focus-visible]:-outline-offset-2 ' \
+    'has-[[data-ui--table-row--component-target]:focus-visible]:outline-indigo-500'.freeze
   private_constant :BASE_CLASS
 
   # The cell of a grouped list: the separator below it starts where the text
@@ -35,7 +42,7 @@ class Ui::TableRow::Component < ViewComponent::Base
     'max-lg:after:bg-gray-300/70 dark:max-lg:after:bg-slate-700'.freeze
   private_constant :CELL_CLASS
 
-  LINK_CLASS = 'rounded-sm focus-visible:outline-2 focus-visible:outline-indigo-500'.freeze
+  LINK_CLASS = 'rounded-sm focus:outline-none'.freeze
   private_constant :LINK_CLASS
 
   def initialize(href:, nav_title:, css_class: nil)

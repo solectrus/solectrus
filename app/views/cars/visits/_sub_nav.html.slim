@@ -15,11 +15,12 @@
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
         - c.with_item name: title, href: visits_path_with, current: true
 
-    / The desktop has the select of the car before the timeframe. A phone
-      has it above the list (see the index).
+    / The desktop has the select of the car before the timeframe, in the
+      order of the keyboard too. A phone has it above the list (see the
+      index).
     .flex.items-center.lg:gap-4
+      - if car_select? && @pending_days.blank?
+        .hidden.lg:block
+          = render Car::Select::Component.new(cars: located_cars, car:, path: ->(id) { visits_path_with(car: id) })
       .w-full.min-w-0.flex.items-center.lg:h-8.lg:w-auto
         = render Timeframe::Component.new(timeframe:, page: timeframe_page)
-      - if car_select? && @pending_days.blank?
-        .hidden.lg:block.lg:order-first
-          = render Car::Select::Component.new(cars: located_cars, car:, path: ->(id) { visits_path_with(car: id) })

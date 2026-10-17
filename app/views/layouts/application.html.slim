@@ -90,8 +90,10 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
           = render Ui::Flash::Component.new(notice:, alert:)
 
       / A page with a fixed navigation fills the window on a computer too, so
-        the card and the footer keep their place between its tabs
-      main.relative.flex.flex-auto.min-h-0 class= [content_for?(:fixed_nav) ? 'overflow-y-auto bg-white dark:bg-slate-900 lg:-mt-32 lg:bg-transparent lg:dark:bg-transparent' : '-mt-32', content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : ('lg:landscape:flex-initial' unless content_for?(:fixed_nav))]
+        the card and the footer keep their place between its tabs. The scroll
+        padding keeps a focused element off the edge, so the keyboard shows
+        it with its ring and the rest of its row.
+      main.relative.flex.flex-auto.min-h-0 class= [content_for?(:fixed_nav) ? 'overflow-y-auto scroll-pt-4 scroll-pb-20 bg-white dark:bg-slate-900 lg:-mt-32 lg:bg-transparent lg:dark:bg-transparent' : '-mt-32', content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : ('lg:landscape:flex-initial' unless content_for?(:fixed_nav))]
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0.min-w-0
           / On a phone, a page with `content_for :grouped` puts white cards on
             the gray of a grouped list, like the Top 10
