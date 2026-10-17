@@ -130,6 +130,7 @@ export default class extends Controller<HTMLCanvasElement> {
   static readonly targets = ['container', 'canvas', 'data', 'options'];
 
   declare readonly containerTarget: HTMLDivElement;
+  declare readonly hasContainerTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
   declare readonly dataTarget: HTMLScriptElement;
   declare readonly optionsTarget: HTMLScriptElement;
@@ -161,6 +162,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private boundHandleResize?: () => void;
   private boundHandleDblClick?: (event: MouseEvent) => void;
   private boundHandleThemeChange?: () => void;
+  private containerObserver?: ResizeObserver;
   private chart?: Chart;
   private readonly colorManager = new ColorManager((datasets) =>
     isOverlapping(datasets),
@@ -181,6 +183,17 @@ export default class extends Controller<HTMLCanvasElement> {
     window.addEventListener('resize', this.boundHandleResize);
     document.addEventListener('fullscreenchange', this.boundHandleResize);
 
+    // Chart.js loses a resize that arrives during its first animation: it
+    // keeps an older size for the next draw, and that size wins over the
+    // newer one. This happens when the stats above grow after they load. A
+    // late resize, once the container has settled, measures it again.
+    if (this.hasContainerTarget) {
+      this.containerObserver = new ResizeObserver(
+        debounce(100, () => this.chart?.resize()),
+      );
+      this.containerObserver.observe(this.containerTarget);
+    }
+
     this.boundHandleDblClick = this.handleDblClick.bind(this);
     this.canvasTarget.addEventListener('dblclick', this.boundHandleDblClick);
 
@@ -199,6 +212,8 @@ export default class extends Controller<HTMLCanvasElement> {
       window.removeEventListener('resize', this.boundHandleResize);
       document.removeEventListener('fullscreenchange', this.boundHandleResize);
     }
+
+    this.containerObserver?.disconnect();
 
     // During a Turbo morph the canvas may already be removed from the DOM
     // before this controller disconnects, so guard the target access.
