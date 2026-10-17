@@ -383,6 +383,9 @@ en:
     title: Charging sessions
     edit: Edit charging session
     new: New charging session
+    view:
+      list: List
+      map: Map
     map_empty: The map shows the place once the address is found.
     guest: Guest
     unassigned: Not assigned

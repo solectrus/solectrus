@@ -1,0 +1,9 @@
+- if located?
+  = render Car::Map::Component.new(cars: [{ places: }], tooltip_url:) do
+    / The count of the sessions without a position lies on the map, at the
+      corner opposite to the attribution, so it takes no line of its own
+    - if unlocated_count.positive?
+      p class='pointer-events-none absolute bottom-2 left-2 max-w-[calc(100%-3.5rem)] rounded-md bg-white/85 px-2 py-1 text-xs text-slate-600 backdrop-blur-sm dark:bg-slate-900/80 dark:text-slate-300'
+        = t('.unlocated', count: unlocated_count)
+- else
+  = render Ui::EmptyList::Component.new(icon: 'location-dot', text: t('.none_located'))

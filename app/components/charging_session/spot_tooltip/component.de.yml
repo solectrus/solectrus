@@ -1,0 +1,5 @@
+de:
+  unknown_place: Unbekannter Ort
+  sessions:
+    one: 1 Ladevorgang
+    other: '%{count} Ladevorgänge'

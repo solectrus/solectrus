@@ -159,25 +159,24 @@ class ChargingSession < ApplicationRecord
   scope :unassigned, -> { wallbox.where(car_id: nil, guest: false) }
   scope :in_timeframe, ->(timeframe) { timeframe.all? ? all : where(started_at: timeframe.beginning..timeframe.ending) }
 
-  # The list of the charges of a kind (see .joined), newest first. The
-  # filter is a car id, :guest, :unassigned or :proposals (see
-  # CarSelection#filter). The list shows the proposals, but not the dismissed
-  # ones.
-  scope :list_for,
+  # The sessions of the list of a kind. The filter is a car id, :guest,
+  # :unassigned or :proposals (see CarSelection#filter). The list shows the
+  # proposals, but not the dismissed ones.
+  scope :listed,
         lambda { |kind, timeframe: nil, filter: nil|
           scope = where(kind:, dismissed: false)
           scope = scope.in_timeframe(timeframe) if timeframe
-          scope =
-            case filter
-            when :unassigned then scope.unassigned
-            when :guest then scope.where(guest: true)
-            when :proposals then scope.proposals
-            when Integer then scope.where(car_id: filter)
-            else scope
-            end
-
-          scope.joined.order(started_at: :desc)
+          case filter
+          when :unassigned then scope.unassigned
+          when :guest then scope.where(guest: true)
+          when :proposals then scope.proposals
+          when Integer then scope.where(car_id: filter)
+          else scope
+          end
         }
+
+  # The list of the charges of a kind (see .joined), newest first
+  scope :list_for, ->(kind, timeframe: nil, filter: nil) { listed(kind, timeframe:, filter:).joined.order(started_at: :desc) }
 
   # The list opens with the wallbox sessions, or with the offsite sessions
   # without a wallbox

@@ -1,4 +1,14 @@
-- if select?
+- if views
+  / The button with the view and the car, as the options of the
+    top 10: a menu with a group for each, which marks the current item of each
+  = render Ui::Dropdown::Component.new name: 'options',
+                                       items: groups,
+                                       display_name:,
+                                       choices: true,
+                                       stacked: true,
+                                       label: t('.options'),
+                                       **dropdown_options
+- elsif select?
   / The button of a phone beside the segments above the list, as the select
     of the car page: the native select with the short name of a car. The
     menu of the desktop stays hidden, its links serve the select.

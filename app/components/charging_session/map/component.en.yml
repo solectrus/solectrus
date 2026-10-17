@@ -1,0 +1,5 @@
+en:
+  none_located: None of these sessions has a location
+  unlocated:
+    one: 1 session without a location is missing from the map
+    other: '%{count} sessions without a location are missing from the map'

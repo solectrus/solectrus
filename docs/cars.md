@@ -282,6 +282,14 @@ the wallbox also "not assigned" and the guests, and for offsite the proposals.
 cars in use in the timeframe. Without a wallbox, the tab of the wallbox sessions shows only
 while sessions of an earlier wallbox exist.
 
+The list of the offsite sessions has a second view, a map. The menu of the filter switches
+the view, and the address keeps it as the segment `map` after the timeframe, for example
+`/cars/1/charging_sessions/offsite/2025/map`, so a change of the timeframe or the filter keeps
+it. The wallbox sessions have no map, so their address with `map` leads to their list. The sessions in one cell of about 100 m share a circle, and the area of the circle
+shows the share of the energy. A circle loads its tooltip when the pointer rests on it. A
+note on the map counts the sessions without a position. The wallbox sessions have no map,
+because they all share one place.
+
 The user changes the car, the guest mark and the note of a wallbox session. The detection
 writes its time, energy and cost, so the form shows them read-only. A new session is always
 `offsite`, because a guest charge that no wallbox measured has no energy and no cost. The
@@ -836,8 +844,9 @@ each car and place was the other choice, but then the visits in the tooltip of a
 not match the list of the visits of all cars. The tooltip of a place links the visits of
 that place.
 
-The map of the places is a page of its own and not a view of the list of the visits. A
-visit and a place are different things.
+The map of the places is a page of its own and not a view of the list of the visits, because
+a visit and a place are different things. The map of the offsite sessions is a view of their
+list, because it shows the same sessions.
 
 The map uses MapLibre and the vector tiles of OpenFreeMap. These tiles need no key, have a
 dark style and have the names in each language.

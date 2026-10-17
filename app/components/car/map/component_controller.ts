@@ -7,13 +7,17 @@ import type {
   Popup,
 } from 'maplibre-gl';
 
+import * as Turbo from '@hotwired/turbo';
+
+import { openModal } from '@/utils/modal';
 import MovablePoint, { type MovablePointTexts } from './movable_point';
 
 type MapLibre = typeof import('maplibre-gl');
 
 // [latitude, longitude, share of the time of the cars from 0 to 1, the id of
-// the place]. The live marker has no id.
-type Place = [number, number, number, number?];
+// the place, the address that a click opens]. The live marker has no id, and
+// most places have no address.
+type Place = [number, number, number, number?, string?];
 
 // The places of one car, or the places of all cars of a period
 interface CarPlaces {
@@ -42,8 +46,13 @@ interface PlaceFeature {
   properties: {
     placeId: number;
     share: number;
+    href?: string;
   };
 }
+
+// The breakpoint lg of Tailwind, from which a click opens the address of a
+// place in the modal, like a row of a list (see Ui::TableRow::Component)
+const desktop = window.matchMedia('(min-width: 64rem)');
 
 const STYLES = {
   light: 'https://tiles.openfreemap.org/styles/positron',
@@ -235,7 +244,7 @@ export default class extends Controller<HTMLElement> {
       this.showName(lib);
     } else {
       this.map.on('mousemove', LAYER, (event) => this.showPopup(event));
-      this.map.on('click', LAYER, (event) => this.showPopup(event));
+      this.map.on('click', LAYER, (event) => this.open(event));
       this.map.on('mouseleave', LAYER, () => this.scheduleHide());
     }
 
@@ -373,10 +382,10 @@ export default class extends Controller<HTMLElement> {
   } {
     return {
       type: 'FeatureCollection',
-      features: this.points.map(([latitude, longitude, share, id]) => ({
+      features: this.points.map(([latitude, longitude, share, id, href]) => ({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [longitude, latitude] },
-        properties: { placeId: id ?? 0, share },
+        properties: { placeId: id ?? 0, share, href },
       })),
     };
   }
@@ -529,6 +538,22 @@ export default class extends Controller<HTMLElement> {
     }
 
     this.scheduleLoad(event.type === 'click' ? 0 : LOAD_DELAY);
+  }
+
+  // A click on a place with an address opens it: in the modal from lg up, on
+  // a page of its own on a phone. Another place shows its tooltip, also for a
+  // tap on a phone.
+  private open(event: MapLayerMouseEvent) {
+    const feature = event.features?.[0];
+    const { href } = (feature?.properties ?? {}) as PlaceFeature['properties'];
+    if (!href) {
+      this.showPopup(event);
+      return;
+    }
+
+    this.hidePopup();
+    if (desktop.matches) openModal(href);
+    else Turbo.visit(href);
   }
 
   // The tooltip stays while the pointer is on it, so the pointer can use its

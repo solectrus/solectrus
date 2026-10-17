@@ -40,7 +40,7 @@ module IconHelper
   # light and on dark backgrounds, so a sharp outline draws it in the
   # opposite brightness: a dark car gets a white outline, a light car a gray
   # one. The outline lies under the fill (paint-order), so the shape keeps
-  # its size.
+  # its size. A colored background sets `--car-outline` to take its own.
   def car_icon(color, **options)
     outline = dark_color?(color) ? '#ffffff' : '#64748b'
 
@@ -48,7 +48,12 @@ module IconHelper
       'car',
       class: class_names('shrink-0', options.delete(:class)),
       style: "color: #{color}",
-      path: { stroke: outline, 'stroke-width': CAR_OUTLINE, 'stroke-linejoin': 'round', 'paint-order': 'stroke' },
+      path: {
+        style: "stroke: var(--car-outline, #{outline})",
+        'stroke-width': CAR_OUTLINE,
+        'stroke-linejoin': 'round',
+        'paint-order': 'stroke',
+      },
       **options,
     )
   end

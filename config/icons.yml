@@ -61,7 +61,9 @@ solid:
   - layer-group
   - leaf
   - location-dot
+  - list
   - lock
+  - map
   - map-location-dot
   - message
   - palette

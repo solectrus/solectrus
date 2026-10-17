@@ -1,0 +1,5 @@
+de:
+  none_located: Keine dieser Ladungen hat einen Ort
+  unlocated:
+    one: 1 Ladevorgang ohne Ort fehlt auf der Karte
+    other: '%{count} Ladevorgänge ohne Ort fehlen auf der Karte'

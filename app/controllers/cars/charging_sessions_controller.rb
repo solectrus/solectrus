@@ -3,6 +3,7 @@ class Cars::ChargingSessionsController < ApplicationController
   include CarListPage
   include FormPageResponse
   include ChargingSessionsParent
+  include ChargingSessionsView
 
   before_action :load_charging_session, only: %i[edit update destroy dismiss]
   before_action :new_charging_session, only: %i[new create]
@@ -19,6 +20,9 @@ class Cars::ChargingSessionsController < ApplicationController
     # While days wait for the detection, the page shows the build instead of the list
     @missing_or_stale_summary_days = pending_days unless next_page
     return if @missing_or_stale_summary_days.present?
+
+    # The map loads its spots itself (see ChargingSessionsView)
+    return if map_view?
 
     @pagy, @charging_sessions = pagy(:countless, list_scope)
     mark_ongoing(@charging_sessions)
@@ -102,6 +106,8 @@ class Cars::ChargingSessionsController < ApplicationController
   # #list_source). The list starts over at page 1, its follow-up pages load
   # from the path of the list, without the query of its address.
   def list_stream
+    return turbo_stream.update('list', list_component) if map_view?
+
     pagy, charging_sessions =
       pagy(
         :countless,
@@ -114,10 +120,7 @@ class Cars::ChargingSessionsController < ApplicationController
       )
     mark_ongoing(charging_sessions)
 
-    turbo_stream.update(
-      'list',
-      ChargingSession::List::Component.new(charging_sessions:, pagy:, kind:, timeframe:, selection: car_selection),
-    )
+    turbo_stream.update('list', list_component(charging_sessions, pagy))
   end
 
   # The list of the timeframe and the car filter of the form, for a form that
@@ -163,7 +166,7 @@ class Cars::ChargingSessionsController < ApplicationController
 
   helper_method def timeframe_page
     # The list shows the sessions of the hours, unlike the car page
-    TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param }, hours: true)
+    TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param, view: view_param }, hours: true)
   end
 
   # A new session is an offsite session, the detection writes the others. An

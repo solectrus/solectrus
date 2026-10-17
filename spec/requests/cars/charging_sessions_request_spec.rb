@@ -141,6 +141,12 @@ describe 'Charging sessions' do
       expect(response.body).not_to include("/cars/2/charging_sessions/offsite/#{year}")
     end
 
+    it 'keeps the map' do
+      get "/cars/charging_sessions/offsite/#{year}/map"
+
+      expect(response.body).to include(%(href="/cars/3/charging_sessions/offsite/#{year}/map"))
+    end
+
     it 'offers a sold car in a timeframe of its period' do
       get "/cars/charging_sessions/offsite/#{year - 1}"
 
@@ -298,6 +304,12 @@ describe 'Charging sessions' do
 
       expect(response.body).to include('data-timeframe--select--component-url-template-value="/cars/1/charging_sessions/offsite/:timeframe"')
       expect(response.body).not_to include(recent.started_at.iso8601)
+    end
+
+    it 'keeps the map behind the timeframe' do
+      get "#{path}/map", headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.body).to include('data-timeframe--select--component-url-template-value="/cars/1/charging_sessions/offsite/:timeframe/map"')
     end
 
     it 'offers the hours, unlike the car page' do
@@ -470,6 +482,127 @@ describe 'Charging sessions' do
 
       expect(response).to have_http_status(:unprocessable_content)
       expect(ChargingSession.exists?(guest.id)).to be(true)
+    end
+  end
+
+  describe 'the map' do
+    let(:year) { Date.current.year }
+    let(:map) { response.parsed_body.at_css('[data-controller="car--map--component"]') }
+
+    before { recent.update!(latitude: 50.9, longitude: 14.1) }
+
+    # The address of the tooltip of the only spot, as the map builds it
+    def tooltip_path
+      id = JSON.parse(map['data-car--map--component-cars-value']).sole['places'].sole[3]
+      map['data-car--map--component-tooltip-url-value'].sub(':id', id.to_s)
+    end
+
+    it 'shows each offsite session with a position' do
+      get '/cars/charging_sessions/offsite/map'
+
+      places = JSON.parse(map['data-car--map--component-cars-value']).sole['places']
+      expect(places.sole.first(3)).to eq([50.9, 14.1, 1.0])
+    end
+
+    it 'links a spot with one session to its form, which leads back to the map' do
+      get "/cars/charging_sessions/offsite/#{year}/map"
+
+      href = JSON.parse(map['data-car--map--component-cars-value']).sole['places'].sole[4]
+      expect(href).to eq("/cars/charging_sessions/#{recent.id}/edit?return_to=#{CGI.escape("/cars/charging_sessions/offsite/#{year}/map")}")
+    end
+
+    it 'loads the tooltip of a spot' do
+      get '/cars/charging_sessions/offsite/map'
+      get tooltip_path
+
+      expect(response.body).to include('Trabant', I18n.l(recent.date))
+    end
+
+    it 'puts the street of the address below the town in the tooltip' do
+      recent.update_columns(address: 'DE-12345 Town, Main Street 15') # rubocop:disable Rails/SkipsModelValidations
+      get '/cars/charging_sessions/offsite/map'
+      get tooltip_path
+
+      lines = response.parsed_body.at_css('.font-semibold').parent.css('> div').map(&:text)
+      expect(lines.first(2)).to eq(['DE-12345 Town', 'Main Street 15'])
+    end
+
+    it 'loads the tooltip with the car filter and the timeframe of the list' do
+      get "/cars/1/charging_sessions/offsite/#{year}/map"
+      path = tooltip_path
+
+      expect(path).to start_with('/cars/1/charging_sessions/spots/')
+      expect(path).to end_with("/tooltip/#{year}")
+    end
+
+    it 'answers a spot without a session with 404' do
+      get '/cars/charging_sessions/spots/1/tooltip/all'
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'counts the sessions without a position' do
+      get '/cars/charging_sessions/offsite/map'
+
+      expect(response.body).to include('1 session without a location is missing from the map')
+    end
+
+    it 'keeps the view in the timeframe' do
+      get "/cars/charging_sessions/offsite/#{year}/map"
+
+      expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{year - 1}/map"))
+    end
+
+    it 'leads back to the list' do
+      get "/cars/charging_sessions/offsite/#{year}/map"
+
+      expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{year}"))
+    end
+
+    it 'marks the current view in the options of a phone' do
+      get '/cars/charging_sessions/offsite/map'
+
+      options = response.parsed_body.at_css('[aria-label="Options"]').ancestors('[data-controller="ui--dropdown--component"]').first
+      expect(options.at_css('a[aria-current="page"][href$="/map"]').text).to include('Map')
+    end
+
+    it 'shows the empty list without a session' do
+      get '/cars/charging_sessions/offsite/2010/map'
+
+      expect(map).to be_nil
+      expect(response.body).to include(I18n.t('charging_sessions.empty.offsite'))
+    end
+
+    it 'is not offered for the wallbox sessions, which share one place' do
+      wallbox(1.day.ago, car:)
+      get '/cars/charging_sessions/wallbox'
+
+      expect(map).to be_nil
+      expect(response.body).not_to include('/map')
+    end
+
+    it 'does not keep the map in the link to the wallbox sessions' do
+      wallbox(1.day.ago, car:)
+      get "/cars/charging_sessions/offsite/#{year}/map"
+
+      expect(response.body).to include(%(href="/cars/charging_sessions/wallbox/#{year}"))
+      expect(response.body).not_to include("/wallbox/#{year}/map")
+    end
+
+    it 'leads the map of the wallbox sessions to their list' do
+      get "/cars/1/charging_sessions/wallbox/#{year}/map"
+
+      expect(response).to redirect_to("/cars/1/charging_sessions/wallbox/#{year}")
+    end
+
+    it 'refreshes after a save in the form that it opened' do
+      patch "/cars/charging_sessions/#{recent.id}",
+            params: { charging_session: { cost: 7.5 }, return_to: '/cars/charging_sessions/offsite/map' },
+            headers: { 'Turbo-Frame' => 'modal' },
+            as: :turbo_stream
+
+      expect(response.body).to include('<turbo-stream action="update" target="list">')
+      expect(response.body).to include('data-controller="car--map--component"')
     end
   end
 

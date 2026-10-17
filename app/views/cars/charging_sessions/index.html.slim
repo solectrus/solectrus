@@ -8,7 +8,7 @@
   = render Ui::SegmentedControl::Component.new(items: nav_items(short: true), label: t('charging_sessions.title'))
   - if @missing_or_stale_summary_days.blank?
     .ml-auto.min-w-0.empty:hidden
-      = render ChargingSession::Filter::Component.new(kind:, timeframe:, cars: car_selection.offered, current: car_selection.to_param, layout: :select)
+      = render filter_component(layout: :select)
 
 - if @missing_or_stale_summary_days.present?
   = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
@@ -18,4 +18,4 @@
     / A stream refreshes the list (see FormPageResponse). A link in it leaves
       the list, so it does not load into the frame.
     = tag.turbo_frame id: 'list', target: '_top', class: 'flex flex-col flex-1 min-h-0' do
-      = render ChargingSession::List::Component.new(charging_sessions: @charging_sessions, pagy: @pagy, kind:, timeframe:, selection: car_selection)
+      = render list_component(@charging_sessions, @pagy)

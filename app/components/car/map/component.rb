@@ -7,7 +7,8 @@
 # only.
 class Car::Map::Component < ViewComponent::Base
   # `cars` is [{ places: [[latitude, longitude, share, id], ...] }], and each
-  # place has the same color.
+  # place has the same color. A place can add an address as its fifth item,
+  # and a click on the place opens it, like the form of a charging session.
   # A `live` map shows one location as a marker, without a tooltip. A live
   # map with a `name` shows it next to its marker. A `movable` map is a live
   # map whose marker the user moves (see movable_point.ts). With a

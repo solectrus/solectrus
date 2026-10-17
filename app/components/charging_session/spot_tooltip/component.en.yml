@@ -1,0 +1,5 @@
+en:
+  unknown_place: Unknown place
+  sessions:
+    one: 1 session
+    other: '%{count} sessions'

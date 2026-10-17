@@ -383,6 +383,9 @@ de:
     title: Ladevorgänge
     edit: Ladevorgang bearbeiten
     new: Neuer Ladevorgang
+    view:
+      list: Liste
+      map: Karte
     map_empty: Die Karte zeigt den Ort, sobald die Adresse gefunden ist.
     guest: Gast
     unassigned: Nicht zugeordnet

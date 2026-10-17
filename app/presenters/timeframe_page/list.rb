@@ -1,7 +1,8 @@
 # The addresses of a list with a timeframe, like the charging sessions or the
 # visits. `route` is the route helper of the list, and `params` are the
 # parameters that each link of the list keeps, like the car filter, which the
-# address has in front. See TimeframePage::Sensor for the methods.
+# address has in front, or the map, which it has behind. See
+# TimeframePage::Sensor for the methods.
 class TimeframePage::List
   include Rails.application.routes.url_helpers
 
