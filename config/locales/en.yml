@@ -131,7 +131,6 @@ en:
     car_max_range: Maximum range
     car_max_range_short: Max. range
     car_odometer_short: Odometer
-    car_location: Locations
     car_km_per_day_unit: day
     car_avg_max_range_short: Ø max. range
     car_cost_per_100km_short: Ø driving cost/100 km
@@ -246,6 +245,7 @@ en:
     charging: Charging
     driving: Driving
     visits: Visits
+    places: Locations
     wallbox_short: Wallbox
     wallbox_sessions: Charging sessions at the wallbox
     guest_short: Guest
@@ -697,7 +697,6 @@ en:
     car_connected: 'Whether the electric vehicle is currently connected to a wallbox.'
     car_latitude: 'Latitude of the current location of the electric vehicle.'
     car_longitude: 'Longitude of the current location of the electric vehicle.'
-    car_location: 'Places where the electric vehicle stood in the period.'
     car_distance: 'Distance driven by the electric vehicle in the period.'
     car_charging_costs: 'Charging costs of the electric vehicle (wallbox and offsite charging).'
     car_charging: 'Energy charged into the electric vehicle (wallbox and offsite charging combined).'

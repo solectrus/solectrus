@@ -93,6 +93,9 @@ describe 'Cars Visits' do
       it 'lists the visits of one place, and keeps it for the timeframe' do
         get cars_visits_path(timeframe: '2026-09', place: work.id)
 
+        # The map of the places in the header shows each place
+        expect(response.body).to include('href="/cars/places/2026-09"')
+
         expect(response.body).to include('07:25–16:00', I18n.t('visits.remove_filter'))
         expect(response.body).not_to include('13 h 20 min')
         # The chip of the place removes it
@@ -174,11 +177,11 @@ describe 'Cars Visits' do
         expect(response.body).to include(%(href="/cars/#{car.id}/places/#{work.id}/visits/2026-09"))
       end
 
-      it 'goes back to the map of the car page in the timeframe and with the car' do
+      it 'goes back to the car page in the timeframe and with the car' do
         car = Car.configured.first
         get cars_visits_path(car: car.id, timeframe: '2026-09')
 
-        expect(response.body).to include(%(href="#{CGI.escapeHTML(cars_home_path(sensor_name: 'car_location', timeframe: '2026-09', car: car.id))}"))
+        expect(response.body).to include(%(href="#{CGI.escapeHTML(cars_home_path(sensor_name: 'car_distance', timeframe: '2026-09', car: car.id))}"))
       end
 
       it 'offers "all" in the select of the list of one car' do

@@ -13,7 +13,6 @@ class ChartDropdown::Car::Component < ViewComponent::Base
     car_battery_soc
     car_range
     car_max_range
-    car_location
   ].freeze
   private_constant :ORDER
 
@@ -38,7 +37,7 @@ class ChartDropdown::Car::Component < ViewComponent::Base
   # The menu has the charts that the timeframe and the selected cars support
   # (see ChartDropdown::Logic). A rate needs buckets of a day at least, the
   # range draws a day at most, and a chart of one car needs the selection of
-  # one car. Only the admin gets the map of the places.
+  # one car.
   def menu_items
     @menu_items ||= sensor_names.sort_by { ORDER.index(it) || ORDER.size }
   end

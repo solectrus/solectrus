@@ -56,25 +56,26 @@ class Car::DrivingCard::Component < ViewComponent::Base
   end
 
   # The visits at the places in the timeframe, at the foot of the card like
-  # the sessions of the charging card. Only a car with a location has visits.
-  # A guest sees the counts too, like the sessions, but the list asks for the
-  # login and the map shows no places (see the `admin_only` DSL).
-  def visits? = chart_sensor_name('car_location').present?
+  # the sessions of the charging card. Only a car with a location has visits,
+  # and the visits are whole days. A guest sees the counts too, like the
+  # sessions, but the list asks for the login.
+  def visits?
+    !timeframe.now? && !timeframe.hours? && cars.any?(&:located?)
+  end
 
-  # [[label, count, href, data], ...]: the visits that overlap the timeframe,
-  # and their places. The visits open their list, the places load the map of
-  # the places in place, so they take the name of its chart.
+  # [[label, count, href], ...]: the visits that overlap the timeframe, and
+  # their places. The visits open their list, the places their map.
   def visit_badges
     counts = report.visit_counts
     [
-      [t('car_breakdown.visits'), counts[:visits], visits_path, {}],
-      [t('sensors.car_location'), counts[:places], chart_link_url(:car_location), chart_link_data(:car_location)],
+      [t('car_breakdown.visits'), counts[:visits], helpers.cars_visits_path(**page_params)],
+      [t('car_breakdown.places'), counts[:places], helpers.cars_place_map_path(**page_params)],
     ]
   end
 
-  # The list of the visits, for the timeframe and the selected car. The whole
-  # time has no timeframe in the address of the list.
-  def visits_path = helpers.cars_visits_path(timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id)
+  # The timeframe and the selected car of the list and the map. The whole
+  # time has no timeframe in their address.
+  def page_params = { timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id }
 
   # A short phone has no room for the label above the count, so they stand
   # side by side

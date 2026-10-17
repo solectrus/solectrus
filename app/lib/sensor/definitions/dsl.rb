@@ -145,8 +145,7 @@ module Sensor
 
         # A sensor that only the admin sees, because it holds personal data,
         # like the location of a car: a guest gets no value of it, and the MCP server does
-        # not offer it. Only the car page shows a guest its chart, without the
-        # data and with a hint (see ChartLoader::Component).
+        # not offer it.
         def admin_only
           meta_data[:admin_only] = true
         end

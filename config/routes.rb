@@ -102,6 +102,7 @@
 #                     cars_location GET              /cars/location/:car(.:format)                                      cars/locations#show {car: /\d+/}
 #                        cars_place GET              /cars/location/:car/place(.:format)                                cars/places#show {car: /\d+/}
 #                cars_place_tooltip GET              /cars(/:car)/places/:place/tooltip/:timeframe(.:format)            cars/place_tooltips#show {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                    cars_place_map GET              /cars(/:car)/places(/:timeframe)(.:format)                         cars/place_maps#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                       cars_visits GET              /cars(/:car)(/places/:place)/visits(/:timeframe)(.:format)         cars/visits#index {car: /\d/, place: /\d+/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format)      cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest|proposals/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #     dismiss_cars_charging_session PATCH            /cars/charging_sessions/:id/dismiss(.:format)                      cars/charging_sessions#dismiss
@@ -339,6 +340,12 @@ Rails.application.routes.draw do
     get '(:car)/places/:place/tooltip/:timeframe',
         to: 'place_tooltips#show',
         as: :place_tooltip,
+        constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
+
+    # The places of the cars on a map, with the selected car in front
+    get '(:car)/places(/:timeframe)',
+        to: 'place_maps#index',
+        as: :place_map,
         constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
 
     # The visits of the cars at the places, with the selected car and the

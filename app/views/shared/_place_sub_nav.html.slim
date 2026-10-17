@@ -1,26 +1,26 @@
 - content_for :fixed_nav, true
 - content_for :sub_nav do
-  / Phone: the title bar of a page below the car page, as for the charging
-    sessions. The car page has no title bar, so the way back to it does not
-    slide.
+  / The header of a page of the places (see PlacePage). Phone: the title bar
+    of a page below the car page, as for the charging sessions. The car page
+    has no title bar, so the way back to it does not slide.
   = render Ui::TitleBar::Component.new(title:, back_href: back_path, back_label: t('layout.car'), back_slide: false)
 
-  / On a phone the accessory of the title bar. It belongs to the list and
+  / On a phone the accessory of the title bar. It belongs to the page and
     leaves the bar when a place opens (see Ui::TitleBar::Component).
   .ui-title-bar-accessory.relative.flex.flex-col.pb-3.lg:flex-row.lg:items-center.lg:justify-between.lg:py-5
-    / The desktop starts with the way back to the car page. A phone has the
-      title bar for it.
+    / The desktop starts with the way back to the car page and the pages of
+      the places as pill buttons. A phone has the title bar for the way back.
     .hidden.lg:flex.items-center.gap-2
       = render Car::BackLink::Component.new(path: back_path)
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
-        - c.with_item name: title, href: visits_path_with, current: true
+        - c.with_items nav_items
 
     / The desktop has the select of the car before the timeframe, in the
-      order of the keyboard too. A phone has it above the list (see the
+      order of the keyboard too. A phone has it above the content (see the
       index).
     .flex.items-center.lg:gap-4
       - if car_select? && @pending_days.blank?
         .hidden.lg:block
-          = render Car::Select::Component.new(cars: located_cars, car:, path: ->(id) { visits_path_with(car: id) })
+          = render car_select_component
       .w-full.min-w-0.flex.items-center.lg:h-8.lg:w-auto
         = render Timeframe::Component.new(timeframe:, page: timeframe_page)

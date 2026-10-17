@@ -42,7 +42,7 @@ const HEAT_STACK = {
 } as const;
 
 export default class extends Controller {
-  static readonly targets = ['current', 'stats', 'chart', 'canvas', 'kept'];
+  static readonly targets = ['current', 'stats', 'chart', 'canvas'];
 
   declare readonly hasCurrentTarget: boolean;
   declare readonly currentTargets: HTMLElement[];
@@ -55,8 +55,6 @@ export default class extends Controller {
 
   declare readonly hasCanvasTarget: boolean;
   declare readonly canvasTarget: HTMLCanvasElement;
-
-  declare readonly hasKeptTarget: boolean;
 
   static readonly values = {
     // Field to display in the chart
@@ -537,10 +535,8 @@ export default class extends Controller {
     // The year comparison drops the stats frame to give the chart the whole
     // width, so there may be nothing to reload on that side.
     const reloads = this.hasStatsTarget ? [this.statsTarget.reload()] : [];
-    // A page without a chart (the live view of the cars) has no chart frame.
-    // A chart with a component of its own keeps its frame, so the zoom and
-    // the position of the user on a map stay.
-    if (options.chart && this.hasChartTarget && !this.hasKeptTarget)
+    // A page without a chart (the live view of the cars) has no chart frame
+    if (options.chart && this.hasChartTarget)
       reloads.push(this.chartTarget.reload());
 
     const results = await Promise.allSettled(reloads);

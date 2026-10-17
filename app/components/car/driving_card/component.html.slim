@@ -35,8 +35,8 @@
     div
       = render Car::SectionTitle::Component.new(title: t('car_breakdown.on_the_road'))
       div class="grid grid-cols-2 gap-3 max-sm:tiny:gap-2 sm:gap-1.5 md:gap-2"
-        - visit_badges.each do |label, count, href, data|
-          = link_to href, class: badge_classes, data: do
+        - visit_badges.each do |label, count, href|
+          = link_to href, class: badge_classes do
             span.truncate.text-sm.sm:text-xs.md:text-sm.text-slate-500.dark:text-slate-400
               = label
             span.text-lg.sm:text-sm.md:text-base.font-semibold.tabular-nums.text-slate-700.dark:text-slate-300

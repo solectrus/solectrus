@@ -1,4 +1,4 @@
-= render 'sub_nav'
+= render 'shared/place_sub_nav'
 
 / The place of the list as a chip that removes it. A phone has the select of
   the car beside it, as the charging sessions have it above their list. The
@@ -9,14 +9,14 @@
   .ui-keep-lit.mb-4.flex.items-center.gap-3 class=('lg:hidden' unless place)
     - if place
       .min-w-0.lg:mx-auto
-        = render Place::VisitList::FilterChip::Component.new(remove_path: visits_path_with(place: nil)) do
+        = render Place::VisitList::FilterChip::Component.new(remove_path: page_path_with(place: nil)) do
           = icon 'location-dot', class: 'text-gray-500'
           span.truncate class=('italic text-gray-500' unless place.display_name)
             = place.display_name || t('settings.places.unnamed')
           = render Place::Labels::Component.new(place:)
     - if phone_select
       .ml-auto.lg:hidden
-        = render Car::Select::Component.new(cars: located_cars, car:, path: ->(id) { visits_path_with(car: id) }, button_class: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300')
+        = render car_select_component(button_class: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300')
 
 = render Place::VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
   = render Place::VisitList::Component.new(visits: @visits, pagy: @pagy, context: list_context)

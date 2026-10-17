@@ -131,7 +131,6 @@ de:
     car_max_range: Maximale Reichweite
     car_max_range_short: Max. Reichweite
     car_odometer_short: km-Stand
-    car_location: Standorte
     car_km_per_day_unit: Tag
     car_avg_max_range_short: Ø Max. Reichweite
     car_cost_per_100km_short: Ø Fahrkosten/100 km
@@ -246,6 +245,7 @@ de:
     charging: Laden
     driving: Fahren
     visits: Besuche
+    places: Standorte
     wallbox_short: Wallbox
     wallbox_sessions: Ladevorgänge an der Wallbox
     guest_short: Gast
@@ -697,7 +697,6 @@ de:
     car_connected: 'Ob das E-Auto aktuell an einer Wallbox angeschlossen ist.'
     car_latitude: 'Breitengrad des aktuellen Standorts des E-Autos.'
     car_longitude: 'Längengrad des aktuellen Standorts des E-Autos.'
-    car_location: 'Orte, an denen das E-Auto im Zeitraum stand.'
     car_distance: 'Gefahrene Strecke des E-Autos im Zeitraum.'
     car_charging_costs: 'Ladekosten des E-Autos (Wallbox und auswärtiges Laden).'
     car_charging: 'In das E-Auto geladene Energie (Wallbox und auswärtiges Laden zusammen).'

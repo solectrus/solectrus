@@ -3,18 +3,14 @@
 # page has a timeframe and a car select. A place in the address narrows the
 # list to the visits of this place (/cars/places/2/visits), a link of the
 # list of the places. It shows as a chip that removes it.
-#
-# The page builds the days that wait for the visits first (see
-# PlaceVisitsBuild).
 class Cars::VisitsController < ApplicationController
   include Pagy::Method
-  include PlaceVisitsBuild
-  include CarListPage
+  include PlacePage
   include ListAddress
 
   def index
     # A car that the page does not offer goes to "all", like on the car page
-    return redirect_to(visits_path_with(car: nil)) unless car_selection.valid?
+    return redirect_to(page_path_with(car: nil)) unless car_selection.valid?
 
     # While days wait for the build, the page shows the build instead of the list
     @pending_days = page_frame_request? ? [] : Sensor::Summarizer.build_few(pending_visit_days)
@@ -48,50 +44,10 @@ class Cars::VisitsController < ApplicationController
     @place = (Place.find(params.expect(:place)) if params.key?(:place))
   end
 
-  # Like CarSelectable, but without its selection_params, which would
-  # change the timeframe navigation and the frame ids of the list
-  helper_method def car_selection
-    @car_selection ||= CarSelection.new(params[:car], timeframe:)
-  end
+  def page_route = :cars_visits_path
 
-  # The selected car, or nil for "all"
-  helper_method def car = car_selection.car
-
-  # The cars of the timeframe with a location. Only they have visits.
-  helper_method def located_cars
-    @located_cars ||= car_selection.offered.select(&:located?)
-  end
-
-  # With more than one car with a location, the select stays also for a
-  # timeframe with one car, so it does not come and go with the timeframe
-  helper_method def car_select?
-    Car.configured.many?(&:located?)
-  end
-
-  # The car and the place of the list, which each link of the page keeps. The
-  # car stays also as nil for "all", because Rails takes a missing car from
-  # the current address.
-  def list_params = { car: car_selection.to_param, place: place&.id }
-
-  # The list with the changes, for a link to another list. The whole time
-  # has no timeframe in the address.
-  helper_method def visits_path_with(**changes)
-    cars_visits_path(timeframe: (timeframe.to_param unless timeframe.all?), **list_params, **changes)
-  end
-
-  # The map of the places on the car page, in the timeframe and with the car
-  # of the list
-  helper_method def back_path
-    cars_home_path(sensor_name: 'car_location', timeframe: timeframe.to_param, car: car_selection.to_param)
-  end
-
-  helper_method def timeframe_page
-    # The list reads whole days (see PlaceVisit.overlapping)
-    TimeframePage::List.new(route: :cars_visits_path, params: list_params, hours: false)
-  end
-
-  # Only the days of the list wait for the build
-  def build_timeframe = timeframe
+  # Each link of the page keeps the place too
+  def page_params = { **super, place: place&.id }
 
   # The list of the whole time starts with the latest visits, so the current
   # day keeps the tolerance of a day and not the one of the whole time
@@ -108,7 +64,7 @@ class Cars::VisitsController < ApplicationController
   # visit needs a column only with more than one car, and not in the list of
   # one car.
   helper_method def list_context
-    @list_context ||= Place::VisitList::Context.new(timeframe:, place:, car_column: !car && located_cars.many?, path: method(:visits_path_with))
+    @list_context ||= Place::VisitList::Context.new(timeframe:, place:, car_column: !car && located_cars.many?, path: method(:page_path_with))
   end
 
   helper_method def title

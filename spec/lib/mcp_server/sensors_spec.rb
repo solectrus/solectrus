@@ -13,7 +13,7 @@ describe McpServer::Sensors do
 
     it 'leaves out the admin-only sensors' do
       expect(Sensor::Config.sensors.map(&:name)).to include(:car_latitude_1, :car_longitude_1)
-      expect(described_class.all.map(&:name)).not_to include(:car_latitude_1, :car_longitude_1, :car_location)
+      expect(described_class.all.map(&:name)).not_to include(:car_latitude_1, :car_longitude_1)
     end
 
     it 'keeps the other sensors' do

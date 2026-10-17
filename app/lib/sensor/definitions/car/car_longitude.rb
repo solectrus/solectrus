@@ -1,5 +1,5 @@
 # The longitude of the location of a car, in degrees. It is personal data, so
-# only the admin sees it (see CarLocationChart).
+# only the admin sees it (see the `admin_only` DSL).
 class Sensor::Definitions::CarLongitude < Sensor::Definitions::Base
   include Sensor::Definitions::CarNumber
 

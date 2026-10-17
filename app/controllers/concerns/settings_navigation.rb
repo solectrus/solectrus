@@ -52,7 +52,7 @@ module SettingsNavigation
       items = [{ name: t('settings.cars.vehicles'), href: settings_cars_path }]
       # Without a sponsorship the places show the upsell (see
       # Settings::PlacesController)
-      return items unless Sensor::Config.exists?(:car_location, check_policy: false)
+      return items unless Sensor::Cars.configured_numbers.any? { Sensor::Cars.located?(it, check_policy: false) }
 
       items + [{ name: t('settings.places.name'), href: settings_places_path }]
     end

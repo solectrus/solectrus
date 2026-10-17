@@ -1,38 +1,29 @@
 # A map of the places of cars, drawn by MapLibre with the vector tiles of
 # OpenFreeMap. A period shows a circle for each place of the cars (see
-# Sensor::Chart::CarLocation). The live view shows the latest location of one
-# car (see Car::Location::Component).
+# Place::Map::Component). The live view shows the latest location of one car
+# (see Car::Location::Component).
 #
 # The location is personal data, so the caller gives the places to the admin
 # only.
 class Car::Map::Component < ViewComponent::Base
   # `cars` is [{ places: [[latitude, longitude, share, id], ...] }], and each
   # place has the same color.
-  # A `live` map shows one location as a marker, without a tooltip. With a
-  # `tooltip_timeframe`, the map loads the tooltip of a place in this
-  # timeframe when the pointer rests on it (see #tooltip_url). A live map
-  # with a `name` shows it next to its marker. A `movable` map is a live map
-  # whose marker the user moves (see movable_point.ts).
-  def initialize(cars:, live: false, tooltip_timeframe: nil, name: nil, movable: false)
+  # A `live` map shows one location as a marker, without a tooltip. A live
+  # map with a `name` shows it next to its marker. A `movable` map is a live
+  # map whose marker the user moves (see movable_point.ts). With a
+  # `tooltip_url`, which holds ":id" for the id of a place, the map loads the
+  # tooltip of a place when the pointer rests on it, like
+  # "/cars/places/:id/tooltip/2026" (see Cars::PlaceTooltipsController).
+  def initialize(cars:, live: false, name: nil, movable: false, tooltip_url: nil)
     super()
     @cars = cars
     @live = live || movable
     @movable = movable
-    @tooltip_timeframe = tooltip_timeframe
     @name = name
+    @tooltip_url = tooltip_url
   end
 
-  attr_reader :cars, :name
-
-  # The tooltip of a place, with ":id" for the id of the place, like
-  # "/cars/places/:id/tooltip/2026" (see Cars::PlaceTooltipsController).
-  # Rails takes the selected car from the current address, so the tooltip
-  # has the cars of the map.
-  def tooltip_url
-    return unless @tooltip_timeframe
-
-    @tooltip_url ||= helpers.cars_place_tooltip_path(place: ':id', timeframe: @tooltip_timeframe.to_param)
-  end
+  attr_reader :cars, :name, :tooltip_url
 
   def live? = @live
 
@@ -44,14 +35,13 @@ class Car::Map::Component < ViewComponent::Base
     { hint: t('.move_hint'), station: t('.station', name: '{name}'), unnamedStation: t('.unnamed_station') }
   end
 
-  # A map of a period reaches the edges of the card, so only its side toward
-  # the stats is round
+  # A map of a period fills the card up to its edges, with a minimum for a
+  # short window. Its negative margins match the padding of the card, and its
+  # corners the corners of the card. A live map stands inside its box.
   def root_classes
     class_names(
-      'flex flex-1 flex-col size-full min-h-20 overflow-hidden bg-slate-100 dark:bg-slate-800',
-      live? ? 'rounded-lg' : 'lg:landscape:rounded-l-lg',
-      # A zoomed map reaches the edges of the window (see ChartLoader::Component)
-      'group-data-zoomed/zoom:rounded-none',
+      'flex flex-1 flex-col overflow-hidden bg-slate-100 dark:bg-slate-800',
+      live? ? 'size-full min-h-20 rounded-lg' : 'relative min-h-80 -mx-4 -mb-3 sm:-mx-6 sm:-mb-5 lg:-mt-5 lg:rounded-lg',
     )
   end
 end

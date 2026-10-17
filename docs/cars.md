@@ -162,7 +162,6 @@ its history. The car management page says this.
 | `car_distance`         | none, chart only                    | none                | distance of the cars         |
 | `car_range`            | none, chart only                    | none                | range of one car             |
 | `car_max_range`        | none, chart only                    | none                | max. range of one car        |
-| `car_location`         | none, chart only                    | none                | places of the cars on a map  |
 
 The registry makes the seven sensors of a car for each number up to `MAX`, and
 `Sensor::Config` removes a number without a configuration. These sensors hold the data.
@@ -617,7 +616,6 @@ rate is not. The user interface must never add a rate.
 | `car_battery_soc`                                            | `CarBatterySoc` | min and max of the column, a line on a day, one car          |
 | `car_range`                                                  | `CarRange`      | a day only, one car                                          |
 | `car_max_range`                                              | `CarMaxRange`   | average of the column, one car                               |
-| `car_location`                                               | `CarLocation`   | no columns, a map of the places (see [Location](#location))  |
 
 A week and a month have a column for each day, a year for each month, and all for each
 year. The live view has no chart. The distance is the default chart, and the charged
@@ -684,9 +682,9 @@ timeframe goes to today.
 
 With more than one car, a select in the header of the page chooses one car or "all". The
 select applies to the numbers and to the chart. The address has the car in front of the
-page (`/cars/2/car_charging/2025`). The lists of the charging sessions and of the visits do
-the same. Each link of the car page keeps the car, and a link to another page does not get
-it. Without the car in the address, the page shows "all".
+page (`/cars/2/car_charging/2025`). The list of the charging sessions, the list of the
+visits and the map of the places do the same. Each link of the car page keeps the car, and a
+link to another page does not get it. Without the car in the address, the page shows "all".
 
 A timeframe offers only the cars in use in it. The select offers "all" also with one car in
 the timeframe, because "all" adds the guest sessions to that car. A car that the page
@@ -812,10 +810,10 @@ the whole width, without a chart, and the admin gets a link to the settings of t
 `car_latitude_<n>` and `car_longitude_<n>` give the location of a car. The location is
 personal data, so only the admin sees it. The definitions declare `admin_only`:
 
-- A guest gets no value of the sensors. The map of the car page shows a guest no places and
-  a note that it is for the admin.
-- The lists of the visits and the places and the tooltips of the places ask a guest to log
-  in. The driving card still shows a guest the number of visits and places.
+- A guest gets no value of the sensors.
+- The list of the visits, the map of the places, the list of the places and the tooltips
+  of the places ask a guest to log in. The driving card still shows a guest the number of
+  visits and places.
 - The MCP server does not offer the sensors.
 
 A position needs the latitude and the longitude. InfluxDB has no type for a point, so a
@@ -826,11 +824,20 @@ The live view shows the place of each car. A click on the place opens the latest
 on a map that fills the window. A map in the live view took too much space beside the
 gauge, and a place says enough at a glance.
 
-A period shows the chart `car_location`: a circle for each place of the selected cars. The
-area of a circle shows the share of the time that the cars spent at that place. Each point
-has one color, also for a single car, because the color of a car marks the car and not its
-places. One circle for each car and place was the other choice, but then the visits in the
-tooltip of a car did not match the list of the visits of all cars.
+The map of the places is a page below the car page (`/cars/2/places/2025`), like the list
+of the visits. The badge of the places on the driving card opens it. The page has a
+timeframe and a select of the car, and the map fills the page. A chart beside the numbers
+of the car page was too small for a map.
+
+The map shows a circle for each place of the selected cars. The area of a circle shows the
+share of the time that the cars spent at that place. Each point has one color, also for a
+single car, because the color of a car marks the car and not its places. One circle for
+each car and place was the other choice, but then the visits in the tooltip of a car did
+not match the list of the visits of all cars. The tooltip of a place links the visits of
+that place.
+
+The map of the places is a page of its own and not a view of the list of the visits. A
+visit and a place are different things.
 
 The map uses MapLibre and the vector tiles of OpenFreeMap. These tiles need no key, have a
 dark style and have the names in each language.
@@ -904,7 +911,7 @@ place:
 
 - A click on the place of a car in the live view, or its badge without a name.
 - The edit form of a place.
-- The tooltip of a place on the map of a period.
+- The tooltip of a place on the map of the places.
 - The edit form of an offsite session with only an address or only a position, once it is
   shown.
 - A changed address in the form of an offsite session, when the field loses the focus.

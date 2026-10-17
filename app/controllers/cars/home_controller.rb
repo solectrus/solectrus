@@ -1,10 +1,6 @@
 class Cars::HomeController < HomePageController
   include CarSelectable
 
-  # A guest gets the chart of an admin-only sensor without its data (see
-  # ChartLoader::Component)
-  skip_before_action :forbid_admin_only_sensor
-
   # From here, the charging sessions are a page below the car page again (see
   # ChargingSessionsParent)
   before_action { ChargingSessionsParent.forget(session) }

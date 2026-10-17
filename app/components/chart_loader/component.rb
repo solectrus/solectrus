@@ -40,19 +40,11 @@ class ChartLoader::Component < ViewComponent::Base
     .freeze
   private_constant :ZOOM_CLASSES
 
-  # The buttons stand at the top right, beside the chart menu. A map reaches
-  # the edges of the card, so its buttons keep the padding of the card, and
-  # beside the stats they float on the map like the chart menu.
-  #
   # z-6, not z-10: above the canvas and the loading overlay (z-5), but below
   # the header, whose own stacking context is z-10. At the same level these
   # buttons would cover a menu opened from the navigation above them.
-  def controls_classes
-    class_names(
-      'absolute top-0 flex gap-3 z-6 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4',
-      chart_component ? 'right-4 sm:right-6 lg:landscape:top-3 lg:landscape:right-3' : 'right-0',
-    )
-  end
+  CONTROLS_CLASS = 'absolute right-0 top-0 flex gap-3 z-6 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'.freeze
+  private_constant :CONTROLS_CLASS
 
   def currency
     Currency.symbol
@@ -72,19 +64,6 @@ class ChartLoader::Component < ViewComponent::Base
       sensor_name: sensor.name,
       timeframe:,
     }
-  end
-
-  # A guest gets the chart of an admin-only sensor without its data, and a
-  # hint (see the `admin_only` DSL)
-  def teaser?
-    sensor.admin_only? && !helpers.admin?
-  end
-
-  # The component of a chart that is no canvas, like the map of the places
-  def chart_component
-    return @chart_component if defined?(@chart_component)
-
-    @chart_component = chart.component
   end
 
   def show_forecast_comment?

@@ -272,14 +272,8 @@ describe Car::DrivingCard::Component, type: :component do
         expect(badges.map { |badge| badge.css('span').map { it.text.squish } }).to eq([%w[Visits 2], %w[Locations 1]])
       end
 
-      it 'links the visits to their list' do
-        expect(html.css('a[href^="/cars/1/visits"]').pluck('href')).to eq(['/cars/1/visits/2025'])
-      end
-
-      it 'loads the map of the places' do
-        locations = html.css('a').find { it.text.include?('Locations') }
-
-        expect(locations['data-stats-with-chart--component-sensor-name-param']).to eq('car_location')
+      it 'links the visits to their list, and the places to their map' do
+        expect(html.css('a[href^="/cars/1/"]').pluck('href')).to include('/cars/1/visits/2025', '/cars/1/places/2025')
       end
     end
 
