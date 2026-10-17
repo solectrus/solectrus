@@ -88,6 +88,38 @@ describe Car::LiveView::Component, type: :component do
     end
   end
 
+  # A gauge for each car does not fit on a phone
+  describe 'the battery' do
+    let(:state) { state_at(5.minutes.ago) }
+
+    it 'shows the only car as a gauge on every screen' do
+      expect(html.css('svg[viewBox="30 0 340 300"]').size).to eq(1)
+      expect(html.css('.sm\:hidden, .max-sm\:hidden')).to be_empty
+    end
+
+    context 'with two cars' do
+      let(:other_state) { state_at(5.minutes.ago).with(car: Car.new(id: 2, active_from: Date.new(2020, 1, 1))) }
+      let(:live) { instance_double(Car::Live, states: [state, other_state], wallbox_power: nil, wallbox_car_connected: nil, car_at_wallbox?: false) }
+
+      it 'shows each car as a bar with a compact odometer on a phone' do
+        bars = html.css('.flex-1.sm\:hidden')
+
+        expect(bars.size).to eq(2)
+        expect(bars.css('div.bg-car-battery[style="width: 80%"]').size).to eq(2)
+        expect(bars.css('span.font-mono.w-\[1\\.375rem\]').size).to eq(12)
+        expect(bars.css('svg[viewBox="30 0 340 300"]')).to be_empty
+      end
+
+      it 'parts the bars with a line' do
+        expect(html.css('.sm\:hidden.border-t[aria-hidden="true"]').size).to eq(1)
+      end
+
+      it 'shows each car as a gauge on a wider screen' do
+        expect(html.css('.max-sm\:hidden svg[viewBox="30 0 340 300"]').size).to eq(2)
+      end
+    end
+  end
+
   context 'without a car in use' do
     let(:live) { instance_double(Car::Live, states: [], wallbox_power: nil, wallbox_car_connected: nil, car_at_wallbox?: false) }
 

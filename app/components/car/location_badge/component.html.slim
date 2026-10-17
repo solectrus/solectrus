@@ -1,6 +1,6 @@
-= helpers.turbo_frame_tag frame_id, src:, class: 'flex min-w-0 max-w-full' do
+= helpers.turbo_frame_tag frame_id, src:, loading: :lazy, class: 'flex min-w-0 max-w-full' do
   = link_to helpers.cars_location_path(car: car.id),
-            class: 'flex items-center min-w-0 max-w-full gap-1.5 rounded-full h-[clamp(1.75rem,7.5cqi,2.25rem)] px-[clamp(0.75rem,4cqi,1.25rem)] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-400 focus-ring-inset',
+            class: link_classes,
             data: { turbo_frame: Car::Location::Component::FRAME_ID } do
     = helpers.icon 'location-dot'
     - if src

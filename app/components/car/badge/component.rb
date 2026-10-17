@@ -6,12 +6,15 @@
 # in dark mode it needs more contrast than in a row of the list, whose hover
 # color it must not match.
 class Car::Badge::Component < ViewComponent::Base
-  def initialize(charging_session: nil, car: nil, prominent: false, short: false)
+  # A compact prominent badge has a smaller font at the same height, for the
+  # name above the bar of the battery (see Car::RangeBar::Component)
+  def initialize(charging_session: nil, car: nil, prominent: false, short: false, compact: false)
     super()
     @charging_session = charging_session
     @car = car || charging_session&.car
     @prominent = prominent
     @short = short
+    @compact = compact
   end
 
   def prominent? = @prominent
@@ -49,7 +52,9 @@ class Car::Badge::Component < ViewComponent::Base
   private
 
   def size_class
-    prominent? ? 'gap-2 px-4 py-1.5 text-lg' : 'gap-1.5 px-2 py-0.5 text-xs sm:text-sm'
+    return 'gap-1.5 px-2 py-0.5 text-xs sm:text-sm' unless prominent?
+
+    @compact ? 'gap-2 px-4 py-2 text-base' : 'gap-2 px-4 py-1.5 text-lg'
   end
 
   def color_class

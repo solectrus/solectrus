@@ -1,10 +1,11 @@
 # The live view of the car page: a cell for each car in use today with its
-# name, the gauge of its range and its odometer. The name shows also for the
-# only car, because the live view has no select of the car. The gauge shows the plug of
-# the car, and next to it the charging power: the power of the wallbox for
-# the car at the wallbox, else zero (see Car::Live). Below the odometer, the
-# admin sees the town of the location, which opens the map. The live view has
-# no chart, so the cars take its place.
+# name, the gauge of its range (a bar for several cars on a phone) and its
+# odometer. The name shows also for the only car, because the live view has
+# no select of the car. The gauge shows the plug of the car, and next to it
+# the charging power: the power of the wallbox for the car at the wallbox,
+# else zero (see Car::Live). Below the odometer, the admin sees the town of
+# the location, which opens the map. The live view has no chart, so the cars
+# take its place.
 #
 # Below the cars, the charging power of the wallbox shows only when no car
 # shows it: a guest charges, or no car has a plug. The plug of the wallbox
@@ -37,7 +38,7 @@ class Car::LiveView::Component < ViewComponent::Base
 
   def charging? = wallbox_power.to_f.positive?
 
-  def pill_classes(charging: false) = class_names(PILL_CLASSES, Car::RangeGauge::Component.charging_classes(charging))
+  def pill_classes(charging: false) = class_names(PILL_CLASSES, Car::BatteryDisplay.charging_classes(charging))
 
   def states
     @states ||= live.states
@@ -73,11 +74,47 @@ class Car::LiveView::Component < ViewComponent::Base
   # Nominatim, so an unknown name comes later (see Car::LocationBadge::Component).
   def place_name(state) = Place.known_name_at(*state.location)
 
-  # A cell keeps a minimum height of 24rem, so a narrow screen scrolls through
-  # the cars. Less the name and the odometer, it leaves the gauge 15rem wide:
-  # below that, the center of the gauge reaches the arc, because its text
-  # stops shrinking (see Car::RangeGauge::Component). The class names stay
+  # The only car shows its battery as a gauge. With more cars, a gauge for
+  # each does not fit on a phone, so a phone shows a bar for each car, and a
+  # wider screen the gauges.
+  SEVERAL_VARIANTS = %i[bar gauge].freeze
+  private_constant :SEVERAL_VARIANTS
+
+  ONE_VARIANT = %i[gauge].freeze
+  private_constant :ONE_VARIANT
+
+  def variants = several? ? SEVERAL_VARIANTS : ONE_VARIANT
+
+  def several? = states.size > 1
+
+  def battery_component(variant) = variant == :bar ? Car::RangeBar::Component : Car::RangeGauge::Component
+
+  # The class names stay literal, so Tailwind finds them
+  VARIANT_CLASSES = { bar: 'sm:hidden', gauge: 'max-sm:hidden' }.freeze
+  private_constant :VARIANT_CLASSES
+
+  def variant_classes(variant)
+    class_names('flex flex-1 min-h-0 w-full flex-col items-center', (VARIANT_CLASSES[variant] if several?))
+  end
+
+  # A cell of a gauge keeps a minimum height of 24rem, so a narrow screen
+  # scrolls through the cars. Less the name and the odometer, it leaves the
+  # gauge 15rem wide: below that, the center of the gauge reaches the arc,
+  # because its text stops shrinking (see Car::RangeGauge::Component). On a
+  # phone, a cell of a bar keeps the height of its content. The row of the
+  # line between two bars grows from 2rem to 5rem with the room that the bars
+  # leave free, so a low screen keeps the bars on it and a high one gives
+  # them air. The bars stand together in the middle. The class names stay
   # literal, so Tailwind finds them.
+  def row_classes
+    if several?
+      'max-sm:auto-rows-[min-content_minmax(2rem,5rem)] max-sm:gap-y-0 content-center-safe ' \
+        'sm:auto-rows-[minmax(24rem,1fr)] sm:content-normal'
+    else
+      'auto-rows-[minmax(24rem,1fr)]'
+    end
+  end
+
   def grid_classes
     case states.size
     when 0, 1 then 'grid-cols-1'

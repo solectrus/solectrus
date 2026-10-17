@@ -9,6 +9,7 @@ class Cars::PlacesController < ApplicationController
     return redirect_to(cars_home_path) unless turbo_frame_request?
 
     @car = car
+    @frame = params[:frame]
     location = Car::Live.new([@car]).states.sole.location
     @name = Place.name_at(*location) if location
   end

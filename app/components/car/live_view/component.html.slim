@@ -1,4 +1,7 @@
-= tag.div class: class_names('flex-1 min-h-0 grid auto-rows-[minmax(24rem,1fr)] gap-x-4 gap-y-6 overflow-y-auto', grid_classes) do
+/ The grid reaches over the padding of the card to its edges, so its
+  scrollbar sits at the edge of the screen. Its own padding keeps the cars in
+  place.
+= tag.div class: class_names('flex-1 min-h-0 grid gap-x-4 gap-y-6 overflow-y-auto -mx-4 px-4 sm:-mx-6 sm:px-6', row_classes, grid_classes) do
   / Without a car in use today, a gray gauge keeps the shape of the page,
     and the note sits in its center
   - if states.empty?
@@ -7,27 +10,61 @@
         - gauge.with_center do
           = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use_now'), gauge: true)
 
-  - states.each do |state|
-    / The name and the odometer belong to the gauge, so they stay close to the
-      arc when the arc is narrower than the space
+  - states.each_with_index do |state, index|
+    / Between the bars of a phone, a line in a row of its own, which takes
+      the room that the bars leave free (see #row_classes)
+    - if index.positive?
+      .sm:hidden.self-center.border-t.border-slate-200.dark:border-slate-800 aria-hidden='true'
+
+    ruby:
+      location = location?(state)
+      place = place_name(state) if location
+      time = as_of(state)
     .min-w-0.min-h-0.flex.flex-col.items-center role='group' aria-label=state.car.display_name
-      = render Car::RangeGauge::Component.new(state:) do |gauge|
-        / The place of the car, which opens the map
-        - if location?(state)
-          - gauge.with_location do
-            - name = place_name(state)
-            = render Car::LocationBadge::Component.new(car: state.car, name:, deferred: name.nil?)
+      / With several cars, a phone shows the bar and a wider screen the
+        gauge. Each variant renders, and the screen hides the other.
+      - variants.each do |variant|
+        - bar = variant == :bar
+        / The name and the odometer belong to the gauge, so they stay close
+          to the arc when the arc is narrower than the space
+        div class=variant_classes(variant)
+          = render battery_component(variant).new(state:) do |battery|
+            / The place of the car, which opens the map. Next to the bar, it
+              stands on the right of the time.
+            - if location && !bar
+              - battery.with_location do
+                = render Car::LocationBadge::Component.new(car: state.car, name: place, deferred: place.nil?, frame: variant)
 
-        / The odometer as a mechanical counter, inactive without a value
-        - gauge.with_footer do
-          = render Car::Odometer::Component.new(value: state.odometer)
+            / The name of the car, and below it the time of its state
+            - name_block = capture do
+              div class=(bar ? 'contents' : 'flex flex-col items-center gap-2')
+                = render Car::Badge::Component.new(car: state.car, prominent: true, compact: bar)
+                / Next to the bar, the place stands on the right of the time.
+                  The line spans both columns of the grid, so a long place
+                  reaches below the odometer, and it keeps the room of its label
+                  free. Its own width does not size the columns.
+                - if bar
+                  div class='col-span-2 col-start-1 row-start-2 flex items-center gap-3 min-w-0 w-full contain-inline-size pr-20 text-sm text-slate-500 dark:text-slate-400'
+                    - if time
+                      span.shrink-0.tabular-nums title=t('.as_of') data-controller='tooltip'
+                        = time
+                    - if location
+                      = render Car::LocationBadge::Component.new(car: state.car, name: place, deferred: place.nil?, frame: variant)
+                - elsif time
+                  span.text-sm.text-slate-500.dark:text-slate-400.tabular-nums title=t('.as_of') data-controller='tooltip'
+                    = time
 
-        / The name of the car, and below it the time of its state
-        .flex.flex-col.items-center.gap-2
-          = render Car::Badge::Component.new(car: state.car, prominent: true)
-          - if as_of(state)
-            span.text-sm.text-slate-500.dark:text-slate-400.tabular-nums title=t('.as_of') data-controller='tooltip'
-              = as_of(state)
+            / The odometer as a mechanical counter, inactive without a value.
+              Above the bar, its digits stand on the right of the name, and its
+              label on the right of the time, so the bar ends the cell.
+            - if bar
+              div class='w-full grid grid-cols-[minmax(0,1fr)_auto] items-center justify-items-start gap-x-3 gap-y-1'
+                = name_block
+                = render Car::Odometer::Component.new(value: state.odometer, compact: true)
+            - else
+              - battery.with_footer do
+                = render Car::Odometer::Component.new(value: state.odometer)
+              = name_block
 
 - if wallbox?
   .flex.flex-wrap.justify-center.gap-2

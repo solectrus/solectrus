@@ -19,6 +19,14 @@ describe Car::Odometer::Component, type: :component do
     end
   end
 
+  context 'when compact' do
+    subject(:component) { described_class.new(value: 64_800, compact: true) }
+
+    it 'shows narrower boxes in the same color' do
+      expect(html.css('span.font-mono.w-\[1\.375rem\].bg-slate-500').size).to eq(6)
+    end
+  end
+
   context 'without a value' do
     let(:value) { nil }
 

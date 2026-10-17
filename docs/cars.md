@@ -695,6 +695,16 @@ its filled arc in the frame of a full car. Without a car in use
 today, a gray gauge shows a car icon and "No car is in use at the moment." in its center,
 and the admin gets a link to the settings of the cars.
 
+With more than one car, a phone shows a horizontal bar for each car in place of the gauge
+(`Car::RangeBar::Component`). The bars stand together in the middle of the page, and a line
+parts them. A wider screen keeps the gauges side by side. The bar shows
+the same values: the range and the state of charge above it, the scale below it, and
+between the ends of the scale the plug and the charging power. Above the bar, the odometer
+stands on the right of the name, as high as the name, with the label
+"Odometer" below it. The time and the place stand below the name. A gauge for each car did
+not fit on a phone, one car below the other. The gauge beside the name and the odometer
+did fit, but the row looked crowded.
+
 ### A period
 
 A period shows two cards, charging on the left and driving on the right, like the source

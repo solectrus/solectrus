@@ -30,6 +30,8 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
       car_max_range_1: 329,
       car_odometer_1: 64_840,
       car_connected_1: true,
+      car_latitude_1: 50.9226,
+      car_longitude_1: 6.4071,
       wallbox_power: 7_400,
       wallbox_car_connected: true,
     )
@@ -45,11 +47,15 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
       car_max_range_1: 420,
       car_odometer_1: 23_456,
       car_connected_1: true,
+      car_latitude_1: 50.9226,
+      car_longitude_1: 6.4071,
       car_battery_soc_2: 15,
       car_range_2: 48,
       car_max_range_2: 320,
       car_odometer_2: 98_765,
       car_connected_2: false,
+      car_latitude_2: 50.9375,
+      car_longitude_2: 6.9603,
       wallbox_power: 11_000,
       wallbox_car_connected: true,
     )
@@ -65,16 +71,22 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
       car_max_range_1: 420,
       car_odometer_1: 23_456,
       car_connected_1: true,
+      car_latitude_1: 50.9226,
+      car_longitude_1: 6.4071,
       car_battery_soc_2: 4,
       car_range_2: 13,
       car_max_range_2: 320,
       car_odometer_2: 98_765,
       car_connected_2: false,
+      car_latitude_2: 50.9375,
+      car_longitude_2: 6.9603,
       car_battery_soc_3: 18,
       car_range_3: 88,
       car_max_range_3: 490,
       car_odometer_3: 4_321,
       car_connected_3: false,
+      car_latitude_3: 50.7753,
+      car_longitude_3: 6.0839,
       wallbox_power: 11_000,
       wallbox_car_connected: true,
     )
@@ -93,20 +105,37 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
 
   private
 
-  # The live view fills the height of its parent, as on the car page
+  # The names of the places of the cars, the last one long enough to be cut
+  PLACES = { 1 => 'Zuhause', 2 => 'Büro', 3 => 'Parkhaus am Hauptbahnhof' }.freeze
+  private_constant :PLACES
+
+  # The live view fills the height of its parent, as on the car page. Only
+  # the admin sees the place of a car, but the preview shows it to everyone,
+  # with a fixed name instead of a lookup.
   def live_view(cars, estimates: {}, **data)
-    render_with_template(
-      template: 'car_live_view_component_preview/frame',
-      locals: {
-        live: Live.new(cars, data, estimates:),
-      },
-    )
+    component = Car::LiveView::Component.new(live: Live.new(cars, data, estimates:))
+    component.define_singleton_method(:location?) { |state| !state.location.nil? }
+    component.define_singleton_method(:place_name) { |state| PLACES[state.car.id] }
+
+    render_with_template(template: 'car_live_view_component_preview/frame', locals: { component: })
   end
+
+  # The name and the color of each car. The name comes from the database
+  # otherwise, so the preview gives it to the car itself.
+  CARS = {
+    1 => ['Opel Stromboli', '#0ea5e9'],
+    2 => ['Lotus Wattson', '#f97316'],
+    3 => ['Škoda Voltavia', '#10b981'],
+  }.freeze
+  private_constant :CARS
 
   # A car without `range` has no range sensor, whatever the configuration,
   # and so no maximum range
   def car(id, range: true)
-    Car.new(id:, active_from: Date.new(2020, 1, 1)).tap do |car|
+    name, color = CARS[id]
+
+    Car.new(id:, color:, active_from: Date.new(2020, 1, 1)).tap do |car|
+      car.define_singleton_method(:display_name) { name }
       car.define_singleton_method(:sensor?) { |role| %i[car_range car_max_range].exclude?(role) && super(role) } unless range
     end
   end

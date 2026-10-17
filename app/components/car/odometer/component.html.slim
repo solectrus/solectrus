@@ -1,6 +1,11 @@
-/ The unit hangs outside, so the digits alone stand in the center
-.relative.flex.items-center.gap-1
-  - digits.each do |digit|
-    span.flex.items-center.justify-center.w-7.h-10.md:w-8.md:h-11.rounded-md.font-mono.text-2xl.md:text-3xl class=digit_classes
-      = digit
-  span class=class_names('absolute left-full top-1/2 -translate-y-1/2 ml-1.5 text-lg', active? ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-600') km
+/ A compact counter puts its digits and its label as two items into the
+  grid around it, the label below the digits on the right (see
+  Car::LiveView::Component). Else the unit hangs outside, so the digits alone
+  stand in the center.
+div class=(compact? ? 'contents' : 'relative flex items-center')
+  div class=class_names('flex items-center', compact? ? 'col-start-2 row-start-1 gap-0.5' : 'gap-1')
+    - digits.each do |digit|
+      span class=digit_classes
+        = digit
+  span class=class_names(compact? ? 'col-start-2 row-start-2 justify-self-end text-sm' : 'absolute left-full top-1/2 -translate-y-1/2 ml-1.5 text-lg', active? ? 'text-slate-500 dark:text-slate-400' : 'text-slate-300 dark:text-slate-600')
+    = compact? ? t('sensors.car_odometer_short') : 'km'

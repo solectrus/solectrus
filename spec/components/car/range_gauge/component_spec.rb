@@ -29,7 +29,7 @@ describe Car::RangeGauge::Component, type: :component do
   end
 
   describe 'the color of the level' do
-    [[62.0, 'bg-car-battery'], [20.0, 'bg-signal-warning'], [5.0, 'bg-signal-negative']].each do |value, css_class|
+    [[62.0, 'bg-car-battery'], [20.0, 'bg-amber-400'], [5.0, 'bg-signal-negative']].each do |value, css_class|
       context "with #{value.to_i} %" do
         let(:soc) { value }
 

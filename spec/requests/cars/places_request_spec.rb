@@ -24,6 +24,15 @@ describe 'Car Places' do
       expect(response.body).not_to include(cars_place_path(car: 1))
     end
 
+    # The live view with several cars has a badge in the bar and one in the
+    # gauge (see Car::LiveView::Component)
+    it 'answers in the frame of the badge that asks' do
+      login_as_admin
+      get(cars_place_path(car: 1, frame: 'bar'), headers: { 'Turbo-Frame' => 'car_place_1_bar' })
+
+      expect(response.body).to include('id="car_place_1_bar"', 'Jülich')
+    end
+
     it 'gives a generic label without an answer of Nominatim' do
       stub_request(:get, /nominatim/).to_return(status: 503)
       login_as_admin

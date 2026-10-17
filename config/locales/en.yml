@@ -130,6 +130,7 @@ en:
     car_range_short: Range
     car_max_range: Maximum range
     car_max_range_short: Max. range
+    car_odometer_short: Odometer
     car_location: Locations
     car_km_per_day_unit: day
     car_avg_max_range_short: Ø max. range
@@ -218,6 +219,11 @@ en:
       home: The wallbox is here too. The automatic assignment of charging sessions takes the location of the car into account. A change rebuilds all daily summaries.
   cars:
     default_name: Car %{number}
+    # The battery of a car in the live view, as a gauge or as a bar
+    battery:
+      stale: No current values
+      estimated: Estimated range
+      estimated_note: Estimated from the charge level and the consumption of the last 14 days. The consumption also holds the energy that the car uses while it stands.
     # The time a car spent at a place, on the map of the places
     duration:
       days:
