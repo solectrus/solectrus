@@ -61,15 +61,10 @@ module Sensor
           end
         return if empty_records.empty?
 
-        build_deletion_query(empty_records)&.delete_all
-      end
-
-      def build_deletion_query(records)
-        records.reduce(nil) do |query, record|
-          condition =
-            SummaryValue.where(record.slice(:date, :aggregation, :field))
-          query&.or(condition) || condition
-        end
+        # One condition for all keys: chaining a `where` per key with `or`
+        # takes several times longer to build
+        keys = empty_records.map { |record| record.values_at(:date, :aggregation, :field) }
+        SummaryValue.where(%i[date aggregation field] => keys).delete_all
       end
     end
   end

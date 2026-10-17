@@ -386,6 +386,16 @@ describe Sensor::Summarizer do
 
       let!(:summary) { Summary.create!(date:, updated_at: 1.minute.ago) }
 
+      it 'removes a value that has no data anymore' do
+        SummaryValue.create!(date:, field: 'custom_power_03', aggregation: 'sum', value: 5)
+        SummaryValue.create!(date:, field: 'custom_power_04', aggregation: 'sum', value: 6)
+
+        call
+
+        expect(SummaryValue.where(date:, field: %w[custom_power_03 custom_power_04])).to be_empty
+        expect(SummaryValue.where(date:, field: 'custom_power_01')).to be_present
+      end
+
       it 'does not create Summary' do
         expect { call }.not_to change(Summary, :count)
       end
