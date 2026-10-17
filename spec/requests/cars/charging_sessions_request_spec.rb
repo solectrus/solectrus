@@ -272,6 +272,7 @@ describe 'Charging sessions' do
       get "/cars/charging_sessions/offsite/#{recent.date.iso8601}"
 
       expect(headers).to eq([I18n.l(recent.date, format: '%A')])
+      expect(response.parsed_body.css('#list h3 a')).to be_empty
     end
 
     it 'gives a group that goes on to the next page no second header' do

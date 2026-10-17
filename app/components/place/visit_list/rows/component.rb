@@ -15,5 +15,8 @@ class Place::VisitList::Rows::Component < ViewComponent::Base
   attr_reader :groups, :pagy, :context, :frame
 
   # The list of the group alone, with the car and the place of the list
-  def group_path(group) = context.list_path(timeframe: group.to_param)
+  # A list of a day has its only group already, so its header has no link
+  def group_path(group)
+    context.list_path(timeframe: group.to_param) unless context.timeframe.day?
+  end
 end

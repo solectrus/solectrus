@@ -40,7 +40,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
 - `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view.
-- `Ui::RowGroups` and `Ui::GroupHeader`: The rows of a list in groups of a month, a week or a day, by the length of the timeframe. The header of a group links to the list of this group alone. On a phone it cuts the card into a card per group.
+- `Ui::RowGroups` and `Ui::GroupHeader`: The rows of a list in groups of a month, a week or a day, by the length of the timeframe. The header of a group links to the list of this group alone, except in the list of a day. On a phone it cuts the card into a card per group.
 - `Ui::InfoIcon`: An info icon with a tooltip, for a sentence that explains a value.
 - `Ui::VerticalTabs`: Tabs at the left of their panels, from `md` up. On a smaller screen the tabs stand above the panels.
 

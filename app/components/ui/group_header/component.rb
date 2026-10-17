@@ -1,8 +1,9 @@
 # The header of a group of rows in a list (see Ui::RowGroups). It spans the
 # table on the desktop and cuts the card of a phone into a card per group
-# (see component.css). It links to the list of the group alone.
+# (see component.css). It links to the list of the group alone, unless
+# `href` is nil.
 class Ui::GroupHeader::Component < ViewComponent::Base
-  def initialize(group:, href:)
+  def initialize(group:, href: nil)
     super()
     @group = group
     @href = href

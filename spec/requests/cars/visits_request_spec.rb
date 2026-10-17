@@ -253,6 +253,18 @@ describe 'Cars Visits' do
 
           expect(headers).to eq([I18n.l(Date.new(2026, 9, 22), format: '%A')])
         end
+
+        it 'gives the header of a day no link to the same list' do
+          get cars_visits_path(timeframe: '2026-09-22')
+
+          expect(response.parsed_body.css('h3 a')).to be_empty
+        end
+
+        it 'links the header of a day in the list of a week' do
+          get cars_visits_path(timeframe: '2026-W39')
+
+          expect(response.parsed_body.css('h3 a').size).to eq(2)
+        end
       end
     end
 

@@ -7,6 +7,7 @@ class ChargingSession::Rows::Component < ViewComponent::Base
   def initialize(sessions:, pagy:, timeframe:, previous_started_at: nil, frame: false)
     super()
     @pagy = pagy
+    @timeframe = timeframe
     @groups = Ui::RowGroups.new(sessions, timeframe:, previous_started_at:)
     @frame = frame
   end
@@ -22,7 +23,8 @@ class ChargingSession::Rows::Component < ViewComponent::Base
   end
 
   # The list of the group alone, with the kind and the car filter of the list
-  def group_path(group) = timeframe_page.path(group.to_param)
+  # A list of a day has its only group already, so its header has no link
+  def group_path(group) = (timeframe_page.path(group.to_param) unless @timeframe.day?)
 
   private
 
