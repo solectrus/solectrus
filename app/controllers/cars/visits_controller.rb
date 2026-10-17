@@ -17,7 +17,7 @@ class Cars::VisitsController < ApplicationController
     return redirect_to(visits_path_with(car: nil)) unless car_selection.valid?
 
     # While days wait for the build, the page shows the build instead of the list
-    @pending_days = page_frame_request? ? [] : pending_visit_days
+    @pending_days = page_frame_request? ? [] : Sensor::Summarizer.build_few(pending_visit_days)
     return if @pending_days.present?
 
     @pagy, @visits = pagy(:countless, visits)

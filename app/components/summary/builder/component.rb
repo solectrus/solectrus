@@ -15,11 +15,6 @@ class Summary::Builder::Component < ViewComponent::Base
       missing_or_stale_days.each_slice(Sensor::Summarizer::CHUNK_SIZE).to_a
   end
 
-  # Do we need a full progress bar or just a simple loading spinner?
-  def loading_spinner?
-    missing_or_stale_days.length < 3
-  end
-
   class ChunkComponent < ViewComponent::Base
     def initialize(from:, to:, size: 1, completed: false)
       super()

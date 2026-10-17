@@ -44,16 +44,19 @@ describe AmortizationPage do
       end
     end
 
+    # More days than a page builds itself (see Sensor::Summarizer.build_few)
     context 'when days are missing' do
+      let(:missing_days) { (Date.new(2024, 6, 14)..Date.new(2024, 6, 16)).to_a }
+
       before do
         allow(Summary).to receive(:missing_or_stale_days_for).and_return(
-          [Date.new(2024, 6, 14)],
+          missing_days,
         )
       end
 
       it 'reports them and expects no calculation yet' do
         aggregate_failures do
-          expect(page.missing_or_stale_days).to eq([Date.new(2024, 6, 14)])
+          expect(page.missing_or_stale_days).to eq(missing_days)
           expect(page).not_to be_calculation_expected
         end
       end

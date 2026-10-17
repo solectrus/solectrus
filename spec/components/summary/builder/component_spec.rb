@@ -33,17 +33,4 @@ describe Summary::Builder::Component, type: :component do
       (["flex: #{size}"] * full) + (rest.zero? ? [] : ["flex: #{rest}"]),
     )
   end
-
-  context 'with only a few days' do
-    let(:days) { [Date.new(2024, 1, 1), Date.new(2024, 1, 2)] }
-
-    it 'shows a spinner instead of the progress bar' do
-      html = render_inline(
-        described_class.new(timeframe: Timeframe.new('2024'), missing_or_stale_days: days),
-      )
-
-      expect(html.css('svg.loading')).to be_present
-      expect(html.css('turbo-frame').size).to eq(1)
-    end
-  end
 end

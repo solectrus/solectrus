@@ -21,7 +21,7 @@ class Settings::PlacesController < ApplicationController
     next_page = Ui::LazyRows::Component.request?(request, Place::List::Rows::Component::FRAME_PREFIX)
 
     # While days wait for the build, the page shows the build instead of the list
-    @pending_days = next_page ? [] : pending_visit_days
+    @pending_days = next_page ? [] : Sensor::Summarizer.build_few(pending_visit_days)
     return if @pending_days.present?
 
     @pagy, @places = pagy(:countless, Place.with_seconds)

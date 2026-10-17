@@ -15,18 +15,20 @@ describe 'Frame recovery' do
     unroute('**/charts/**')
   end
 
-  # The full-screen spinner: a day without a summary is built by Summary::Builder
+  # The progress bar: days without a summary are built by Summary::Builder
   # first, in a frame of its own. A dead connection answers that request with
   # nothing at all - no response and no error either - so the frame just stays
   # busy and nothing reports it. Returning to the tab is what cuts it loose.
+  # A page builds up to two days itself (see Sensor::Summarizer.build_few), so
+  # three days are missing.
   it 'reloads a stuck summary frame when the tab comes back' do
-    Summary.where(date: '2022-06-10').delete_all
+    Summary.where(date: Date.new(2022, 6, 8)..Date.new(2022, 6, 10)).delete_all
     never_answer('**/summaries/**')
 
-    visit '/heatpump_power/2022-06-10'
+    visit '/heatpump_power/2022-W23'
 
     # The page hangs in the Summary::Builder branch, which has no chart
-    expect(page).to have_css('.timeframe-day')
+    expect(page).to have_css('.timeframe-week')
     expect(page).to have_no_css("[data-controller*='stats-with-chart--component']")
 
     return_to_tab

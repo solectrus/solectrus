@@ -273,7 +273,7 @@ describe 'Amortization' do
         CashFlow.create!(date: Date.new(2023, 8, 1), amount: -50, note: 'PV')
 
         allow(Summary).to receive(:missing_or_stale_days).and_return(
-          [Date.new(2024, 6, 14)],
+          (Date.new(2024, 6, 14)..Date.new(2024, 6, 16)).to_a,
         )
       end
 

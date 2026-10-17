@@ -7,25 +7,18 @@
   data-sequential-frames-seconds-other-value= t('datetime.distance_in_words.x_seconds.other')
   class= "timeframe-#{timeframe.id}"
 ]
-  - if loading_spinner?
-    .h-full.flex.items-center.justify-center
-      = render Ui::Loading::Component.new
+  / A page builds a day or two itself (see Sensor::Summarizer.build_few), so
+    the days here are always enough for a progress bar
+  .h-full.flex.flex-col.gap-10.items-center.justify-center.text-gray-600.dark:text-gray-300.py-20
+    h1.md:text-xl
+      = t('.title')
 
-    .hidden
+    div class="w-full flex rounded-md overflow-hidden bg-indigo-200 dark:bg-indigo-900"
       - chunks.each do |chunk|
         = render ChunkComponent.new(from: chunk.first, to: chunk.last, size: chunk.size)
 
-  - else
-    .h-full.flex.flex-col.gap-10.items-center.justify-center.text-gray-600.dark:text-gray-300.py-20
-      h1.md:text-xl
-        = t('.title')
-
-      div class="w-full flex rounded-md overflow-hidden bg-indigo-200 dark:bg-indigo-900"
-        - chunks.each do |chunk|
-          = render ChunkComponent.new(from: chunk.first, to: chunk.last, size: chunk.size)
-
-      - unless timeframe.week?
-        .text-center.invisible.text-gray-400.dark:text-gray-600.text-lg.tabular-nums data-sequential-frames-target= 'timeEstimate'
-          span>
-            = t('.remaining')
-          span data-sequential-frames-target= "remaining"
+    - unless timeframe.week?
+      .text-center.invisible.text-gray-400.dark:text-gray-600.text-lg.tabular-nums data-sequential-frames-target= 'timeEstimate'
+        span>
+          = t('.remaining')
+        span data-sequential-frames-target= "remaining"

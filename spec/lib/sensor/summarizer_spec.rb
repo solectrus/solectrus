@@ -92,6 +92,32 @@ describe Sensor::Summarizer do
     end
   end
 
+  describe '.build_few' do
+    subject(:build_few) { described_class.build_few(dates) }
+
+    let(:summarizer_instance) { instance_double(described_class, call: dates.size) }
+
+    before { allow(described_class).to receive(:new).and_return(summarizer_instance) }
+
+    context 'with as many days as a page builds itself' do
+      let(:dates) { [Date.yesterday, Date.current] }
+
+      it 'builds them and leaves none' do
+        expect(build_few).to eq([])
+        expect(summarizer_instance).to have_received(:call)
+      end
+    end
+
+    context 'with more days' do
+      let(:dates) { ((Date.current - 2)..Date.current).to_a }
+
+      it 'leaves all of them to the page of the build' do
+        expect(build_few).to eq(dates)
+        expect(described_class).not_to have_received(:new)
+      end
+    end
+  end
+
   describe '#call' do
     subject(:call) { summarizer.call }
 

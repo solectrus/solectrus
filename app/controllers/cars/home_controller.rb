@@ -59,6 +59,6 @@ class Cars::HomeController < HomePageController
   def load_missing_or_stale_summary_days(timeframe)
     return super if timeframe.now?
 
-    @missing_or_stale_summary_days = Car::Report.pending_days(timeframe)
+    @missing_or_stale_summary_days = Sensor::Summarizer.build_few(Car::Report.pending_days(timeframe))
   end
 end

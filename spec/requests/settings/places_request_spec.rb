@@ -32,7 +32,7 @@ describe 'Settings Places' do
     end
 
     it 'builds the days that wait for the visits first' do
-      allow(Summary).to receive(:missing_or_stale_days_for).and_return([Date.current])
+      allow(Summary).to receive(:missing_or_stale_days_for).and_return(((Date.current - 2)..Date.current).to_a)
       login_as_admin
       get settings_places_path
 

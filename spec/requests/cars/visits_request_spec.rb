@@ -41,9 +41,9 @@ describe 'Cars Visits' do
     end
 
     context 'with a day without a fresh summary' do
-      let(:pending_days) { [Date.current] }
+      let(:pending_days) { ((Date.current - 2)..Date.current).to_a }
 
-      it 'builds the day first' do
+      it 'builds the days first' do
         login_as_admin
         get cars_visits_path
 

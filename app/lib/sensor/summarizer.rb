@@ -17,6 +17,22 @@ module Sensor
     CHUNK_SIZE = 7
     public_constant :CHUNK_SIZE
 
+    # How many days a page builds in its own request. The page of the build
+    # (see Summary::Builder::Component) costs a request of its own and then
+    # loads the page again, which for a day or two takes longer than the build
+    # itself. More days need it for its progress bar.
+    INLINE_DAYS = 2
+    public_constant :INLINE_DAYS
+
+    # Builds a few days at once and returns the days that are left for the
+    # page of the build: none, or all of them
+    def self.build_few(dates)
+      return dates if dates.size > INLINE_DAYS
+
+      new(dates).call
+      []
+    end
+
     # Summarize a single date, a range of dates or a timeframe
     def self.call(date_or_timeframe)
       case date_or_timeframe

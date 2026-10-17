@@ -374,12 +374,23 @@ describe 'Charging sessions' do
       expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{Date.current.year}"))
     end
 
-    it 'builds a missing day first' do
+    it 'builds a missing day itself' do
       Summary.find(day).destroy!
 
       get "/cars/charging_sessions/wallbox/#{Date.current.year}"
 
-      expect(response.body).to include("d_#{day}_#{day}")
+      expect(Summary.exists?(date: day)).to be(true)
+      expect(response.body).not_to include('sequential-frames')
+    end
+
+    # More days than a page builds itself (see Sensor::Summarizer.build_few)
+    it 'shows the build for more missing days' do
+      first = day - 2
+      Summary.where(date: first..day).destroy_all
+
+      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
+
+      expect(response.body).to include("d_#{first}_#{day}")
     end
 
     it 'assigns a session to a car' do

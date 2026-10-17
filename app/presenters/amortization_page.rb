@@ -61,7 +61,7 @@ class AmortizationPage
   # day-long cache entry - runs on complete data instead of a partial set.
   def missing_or_stale_days
     @missing_or_stale_days ||=
-      calculation? ? Summary.missing_or_stale_days_for(timeframe) : []
+      calculation? ? Sensor::Summarizer.build_few(Summary.missing_or_stale_days_for(timeframe)) : []
   end
 
   # The calculation, or nil while there is none to show yet.

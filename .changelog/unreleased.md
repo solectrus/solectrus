@@ -34,6 +34,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- A page that must calculate the daily summary of today or yesterday again now shows its data sooner. Before, it first showed a spinner and then loaded a second time. This applies to the periods of all views, the Essentials, the Top 10, the charging sessions, the visits, the locations and the Amortization. With three days or more to calculate, the page still shows "Calculating daily summaries..." with a progress bar
+
 - The menu no longer has an entry "Documentation". "About SOLECTRUS" opens the website, which links to the documentation
 - On a phone, small controls are easier to tap: the period tabs, the arrows next to the date, the round chart buttons, the info icons, the buttons, the charge levels, "Source" and "Usage" below the balance, and the total of the inverter and house breakdown. The labels of the key figures use a larger font
 - On a phone, a tap or a long press on an info shows it in a panel that slides up from the bottom. The key figures, the date selection and the forms use the same panel. Swipe it down or tap beside it to close it. A long press on a bar of the balance or on a key figure of the heat pump opens its insights, the same panel as the light bulb next to the chart. For the current values, for a key figure of the balance and for the forecast, the panel shows the details as a list, with the label on the left and the value on the right, and it names the selected period. Tooltips on a computer have a new, lighter look

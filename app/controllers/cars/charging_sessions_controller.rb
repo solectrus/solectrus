@@ -79,7 +79,7 @@ class Cars::ChargingSessionsController < ApplicationController
   def pending_days
     return [] if timeframe.now? || (kind == 'offsite' && !ChargingSession::OffsiteDetection.enabled?)
 
-    Summary.missing_or_stale_days_for(timeframe)
+    Sensor::Summarizer.build_few(Summary.missing_or_stale_days_for(timeframe))
   end
 
   # Only a wallbox list up to now can hold an ongoing session
