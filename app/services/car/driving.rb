@@ -15,14 +15,22 @@
 # change of the state of charge corrects it (see #driven_share).
 #
 # A window with less than MIN_DISTANCE or without charged energy gives no
-# rate, because a single charge would decide it. Such a day has no driving
-# cost, and its distance does not count for a rate. A window with a session
-# without a cost gives no cost rate, because its cost is too small.
+# rate, because a single charge would decide it. The window then widens by
+# MARGIN_DAYS on each side, up to MAX_MARGIN_DAYS, so a day between two
+# charges far apart gets the rate of these charges. Without a rate in the
+# widest window, the day has no driving cost, and its distance does not
+# count for a rate. A window with a session without a cost gives no cost
+# rate, because its cost is too small.
 class Car::Driving
   # Long enough that the change of the battery content is a small error,
   # short enough to keep the season and to fix a recent rate soon
   MARGIN_DAYS = 14
   public_constant :MARGIN_DAYS
+
+  # The margin of the widest window, for a car that drives little and
+  # charges seldom
+  MAX_MARGIN_DAYS = 3 * MARGIN_DAYS
+  public_constant :MAX_MARGIN_DAYS
 
   MIN_DISTANCE = 100
   public_constant :MIN_DISTANCE
@@ -55,11 +63,11 @@ class Car::Driving
     end
   public_constant :Totals
 
-  # The dates that the windows of the given dates read: MARGIN_DAYS more on
-  # each side, from the first date of the installation to today. The day
+  # The dates that the windows of the given dates read: MAX_MARGIN_DAYS more
+  # on each side, from the first date of the installation to today. The day
   # before the first window gives the state of charge at its start.
   def self.reach(dates, min_date:)
-    [dates.begin - MARGIN_DAYS - 1, min_date].compact.max..[dates.end + MARGIN_DAYS, Date.current].min
+    [dates.begin - MAX_MARGIN_DAYS - 1, min_date].compact.max..[dates.end + MAX_MARGIN_DAYS, Date.current].min
   end
 
   # The ledger must hold the reach of each date to ask for
@@ -81,12 +89,25 @@ class Car::Driving
   end
 
   # The rates of a car per km at the window of a date: the energy (Wh), and
-  # the cost, nil without a cost rate. Nil without an energy rate.
+  # the cost, nil without a cost rate. Nil without an energy rate, also in
+  # the widest window.
   Rate = Data.define(:energy_wh, :cost)
   public_constant :Rate
 
   def rate(car, date)
-    window = window(car, date)
+    MARGIN_DAYS.step(MAX_MARGIN_DAYS, MARGIN_DAYS) do |margin|
+      rate = rate_of(car, window(car, date, margin))
+      return rate if rate
+    end
+    nil
+  end
+
+  private
+
+  attr_reader :ledger, :min_date
+
+  # The rates of a window, nil without enough distance or charged energy
+  def rate_of(car, window)
     window_distance = sum(car, window, :distance)
     charged_wh = sum(car, window, :energy_wh)
     return if window_distance < MIN_DISTANCE || !charged_wh.positive?
@@ -94,10 +115,6 @@ class Car::Driving
     share = driven_share(car, window, charged_wh) / window_distance
     Rate.new(energy_wh: charged_wh * share, cost: (sum(car, window, :cost) * share if sum(car, window, :uncosted).zero?))
   end
-
-  private
-
-  attr_reader :ledger, :min_date
 
   # The driving of a car on a date at the rates of its window, or nil without
   # a rate
@@ -135,8 +152,8 @@ class Car::Driving
     (@bounds ||= {})[car.id] ||= [min_date, car.active_from].compact.max..[Date.current, car.active_until].compact.min
   end
 
-  def window(car, date)
-    [date - MARGIN_DAYS, bounds(car).begin].max..[date + MARGIN_DAYS, bounds(car).end].min
+  def window(car, date, margin)
+    [date - margin, bounds(car).begin].max..[date + margin, bounds(car).end].min
   end
 
   # The sum of a daily value of a car over a range of the ledger. It is the

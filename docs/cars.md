@@ -574,15 +574,19 @@ rules limit a window:
 - It starts at the installation date.
 - It stays inside the period of use of the car, so the rate of a new car holds no energy of
   the car before it.
-- It needs 100 km and charged energy. Without them, the day has no rate and no driving
-  cost. The tooltips of the driving cost and the rates name the kilometers of such days.
+- It needs 100 km and charged energy. Without them, the window widens by 14 days on each
+  side, up to 42 days. A car that drives little can charge only once a month. A day between
+  two such charges then gets the rate of these charges. Without a rate in the window of 42
+  days, the day has no rate and no driving cost. The tooltips of the driving cost and the
+  rates name the kilometers of such days.
 
 A window with a session without a cost has an energy rate, but no cost rate. The selection
 "all" adds the cars, each with its own windows.
 
 The margin of 14 days is a compromise. A shorter margin fixes a recent rate sooner and
 keeps the season more exactly. A longer margin gives a steadier rate. A shorter margin also
-gives more days without a rate, because their window has less than 100 km.
+gives more days without a rate, because their window has less than 100 km. The wider window
+applies only to such a day, so the other days keep the margin of 14 days.
 
 The days around the period need a summary and a detection too, so the car page builds them
 before it shows the period (`Car::Report.pending_days`).
@@ -732,8 +736,9 @@ guest. While the car charges, the part of the arc that the charge fills next pul
 
 A car without a range sensor gets an estimate of its range (`Car::RangeEstimate`). Its label
 says "Estimated range", and a tooltip names the source. The charged energy of a percentage point (`k`, see above) gives a distance at the energy per km
-of the last 14 days (`Car::Driving#rate`). Both are energy at the charger, so the loss of a
-charge cancels out, and the estimate needs no capacity. The distance of 100 percentage points
+of the last 14 days, or of up to 42 days without a charge in them (`Car::Driving#rate`).
+Both are energy at the charger, so the loss of a charge cancels out, and the estimate needs
+no capacity. The distance of 100 percentage points
 is the range at a full battery, which gives the scale of the arc. The estimate needs `k`, a
 rate, and a car in use for 14 days. The energy per km also holds the energy that the car
 uses while it stands. So the estimate is lower than the range that a car reports, and the

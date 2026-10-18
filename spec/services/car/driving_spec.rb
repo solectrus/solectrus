@@ -40,7 +40,7 @@ describe Car::Driving do
     charge(Date.new(2026, 1, 10), 30_000)
     summary(Date.new(2026, 1, 12), :car_odometer_1, :sum, 150)
 
-    # February: 50 km, but no charge in the 14 days before and after
+    # February: 50 km, but no charge in the 28 days before and after
     summary(Date.new(2026, 2, 20), :car_odometer_1, :sum, 50)
 
     # March: 100 km, and 10 kWh for 3 EUR five days later
@@ -56,20 +56,35 @@ describe Car::Driving do
       expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
     end
 
-    it 'gives no rate to a window with less than 100 km' do
+    # The window of February 20 widens to 42 days before and after, from
+    # January 9 to April 3: 300 km, 40 kWh and 12 EUR
+    it 'widens a window without a charge until it holds one' do
+      totals = driving.totals(Date.new(2026, 2, 1)..Date.new(2026, 2, 28))
+
+      expect(totals.distance).to eq(50)
+      expect(totals.cost_per_100km).to be_within(0.001).of(4.0)
+      expect(totals.consumption_per_100km).to be_within(0.001).of(13.333)
+    end
+
+    # The charges are 43 days before and after February 20
+    it 'gives no rate without a charge in the widest window' do
+      ChargingSession.delete_all
+      charge(Date.new(2026, 1, 8), 30_000)
+      charge(Date.new(2026, 4, 4), 10_000)
+
       totals = driving.totals(Date.new(2026, 2, 1)..Date.new(2026, 2, 28))
 
       expect(totals).not_to be_rated
       expect(totals.cost_per_100km).to be_nil
     end
 
-    # 9 EUR + 3 EUR for 150 km + 100 km. The 50 km of February have no rate.
+    # 9 EUR + 2 EUR + 3 EUR for 150 km + 50 km + 100 km
     it 'sums the days of all dates' do
       totals = driving.totals(quarter)
 
-      expect(totals.distance).to eq(250)
-      expect(totals.cost).to be_within(0.001).of(12.0)
-      expect(totals.cost_per_100km).to be_within(0.001).of(4.8)
+      expect(totals.distance).to eq(300)
+      expect(totals.cost).to be_within(0.001).of(14.0)
+      expect(totals.cost_per_100km).to be_within(0.001).of(4.667)
     end
 
     it 'gives no cost rate to a window with a session without a cost' do
@@ -180,16 +195,16 @@ describe Car::Driving do
   end
 
   describe '.reach' do
-    it 'adds the margin on each side, and the day before the first window' do
-      expect(described_class.reach(quarter, min_date:)).to eq(Date.new(2025, 12, 17)..Date.new(2026, 4, 14))
+    it 'adds the widest margin on each side, and the day before the first window' do
+      expect(described_class.reach(quarter, min_date:)).to eq(Date.new(2025, 11, 19)..Date.new(2026, 5, 12))
     end
 
     it 'ends today' do
-      expect(described_class.reach(Date.new(2026, 9, 1)..today, min_date:)).to eq(Date.new(2026, 8, 17)..today)
+      expect(described_class.reach(Date.new(2026, 9, 1)..today, min_date:)).to eq(Date.new(2026, 7, 20)..today)
     end
 
     it 'starts at the installation date' do
-      expect(described_class.reach(Date.new(2025, 1, 1)..Date.new(2025, 1, 31), min_date:)).to eq(min_date..Date.new(2025, 2, 14))
+      expect(described_class.reach(Date.new(2025, 1, 1)..Date.new(2025, 1, 31), min_date:)).to eq(min_date..Date.new(2025, 3, 14))
     end
   end
 end
