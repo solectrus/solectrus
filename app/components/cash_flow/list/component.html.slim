@@ -49,5 +49,4 @@
         .tabular-nums.text-right.whitespace-nowrap.lg:table-cell.lg:p-2.lg:align-middle.lg:font-bold.max-lg:font-semibold class=amount_color(total)
           = formatted_amount(total)
 - else
-  p.px-4.text-muted.lg:p-2.lg:text-gray-500
-    = empty_text
+  = render empty_state

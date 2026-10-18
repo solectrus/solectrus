@@ -14,5 +14,4 @@
                                             loading: 'lazy'
 - else
   .flex.flex-1.items-center.justify-center
-    .text-center
-      p.text-gray-500 = t('data.blank')
+    = render Ui::EmptyState::Component.new(icon: 'sun', title: t('data.blank'), size: :small)

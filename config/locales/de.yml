@@ -195,7 +195,7 @@ de:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
   visits:
     name: Besuche
-    empty: Noch kein Besuch.
+    empty: Noch kein Besuch
     period: Zeitraum
     duration: Dauer
     remove_filter: Filter entfernen
@@ -301,13 +301,13 @@ de:
     heatpump_cop_below_one: Stromverbrauch übersteigt die erzeugte Wärme
     heatpump_no_heating: Kein Heizbetrieb
     inverter_no_production: Keine Erzeugung
-    car_none_in_use: Im gewählten Zeitraum war kein Auto in Gebrauch.
-    car_none_in_use_now: Derzeit ist kein Auto in Gebrauch.
+    car_none_in_use: Kein Auto in Gebrauch
+    car_none_in_use_now: Derzeit ist kein Auto in Gebrauch
     car_edit_periods: Autos bearbeiten
-    car_no_charging: Im gewählten Zeitraum nicht geladen.
-    car_no_driving: Im gewählten Zeitraum nicht gefahren.
-    car_no_charging_cost: Für die Ladevorgänge im gewählten Zeitraum ist kein Preis hinterlegt.
-    car_no_location: Kein Standort im gewählten Zeitraum.
+    car_no_charging: Keine Ladevorgänge
+    car_no_driving: Keine Fahrten
+    car_no_charging_cost: Kein Preis für die Ladevorgänge hinterlegt
+    car_no_location: Kein Standort
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln
@@ -475,7 +475,8 @@ de:
       name: E-Autos
       vehicles: Fahrzeuge
       edit: Auto %{number} bearbeiten
-      empty: Es ist kein Auto konfiguriert. Ergänze deine Konfiguration um die Variablen eines Autos, zum Beispiel <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Bis zu %{max} Autos sind möglich.
+      empty_title: Kein Auto konfiguriert
+      empty: Ergänze deine Konfiguration um die Variablen eines Autos, zum Beispiel <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Bis zu %{max} Autos sind möglich.
       period: Zeitraum
       active_sensors: Aktive Sensoren
       today: heute
@@ -486,7 +487,8 @@ de:
       name: Standorte
       edit: Ort bearbeiten
       home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
-      empty: Noch kein Ort. Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
+      empty_title: Noch kein Ort
+      empty: Ein Ort entsteht, sobald ein Auto mindestens 30 Minuten an einer Stelle stand, bei seltenen Meldungen des Autos länger.
       unnamed: Unbenannt
       no_visits: Ohne Besuche
       without_visits: Dieser Ort wurde nie besucht.

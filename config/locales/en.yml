@@ -195,7 +195,7 @@ en:
       battery_charging_power: Grid electricity is attributed to the consumers.
   visits:
     name: Visits
-    empty: No visit yet.
+    empty: No visit yet
     period: Period
     duration: Duration
     remove_filter: Remove filter
@@ -301,13 +301,13 @@ en:
     heatpump_cop_below_one: Power consumption exceeds heat generated
     heatpump_no_heating: No heating operation
     inverter_no_production: No production
-    car_none_in_use: No car was in use in the selected period.
-    car_none_in_use_now: No car is in use at the moment.
+    car_none_in_use: No car in use
+    car_none_in_use_now: No car is in use at the moment
     car_edit_periods: Edit cars
-    car_no_charging: Not charged in the selected period.
-    car_no_driving: Not driven in the selected period.
-    car_no_charging_cost: The charging sessions in the selected period have no price.
-    car_no_location: No location in the selected period.
+    car_no_charging: No charging sessions
+    car_no_driving: No drives
+    car_no_charging_cost: No price for the charging sessions
+    car_no_location: No location
   chart:
     inverter_total: Combined
     inverter_split: Individual
@@ -475,7 +475,8 @@ en:
       name: Electric vehicles
       vehicles: Vehicles
       edit: Edit car %{number}
-      empty: No car is configured. Add the variables of a car to your configuration, for example <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Up to %{max} cars are possible.
+      empty_title: No car configured
+      empty: Add the variables of a car to your configuration, for example <code>INFLUX_SENSOR_CAR_ODOMETER_1</code>. Up to %{max} cars are possible.
       period: Period of use
       active_sensors: Active sensors
       today: today
@@ -486,7 +487,8 @@ en:
       name: Locations
       edit: Edit place
       home_moved: 'Saved. Until now, "%{previous}" was home.'
-      empty: No place yet. A place comes into being when a car stood at one spot for 30 minutes or more, longer when the car reports less often.
+      empty_title: No place yet
+      empty: A place comes into being when a car stood at one spot for 30 minutes or more, longer when the car reports less often.
       unnamed: Unnamed
       no_visits: No visits
       without_visits: This place was never visited.

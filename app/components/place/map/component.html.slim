@@ -1,4 +1,4 @@
 - if places.any?
   = render Car::Map::Component.new(cars: [{ places: }], tooltip_url:)
 - else
-  = render Ui::EmptyList::Component.new(icon: 'location-dot', text: t('.none'))
+  = render Ui::EmptyState::Component.new(icon: 'location-dot', title: t('.none'))

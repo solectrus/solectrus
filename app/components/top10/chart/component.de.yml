@@ -1,5 +1,5 @@
 de:
   note_complete_periods: Es werden nur vollständige Perioden berücksichtigt.
   note_max: Maximale Leistung (Mittelwert über fünf Minuten)
-  blank: Nicht genügend Daten vorhanden.
-  house_power_max_not_possible: Sorry, die Berechnung des maximalen Hausverbrauchs ist leider nicht möglich.
+  blank: Nicht genügend Daten vorhanden
+  house_power_max_not_possible: Der maximale Hausverbrauch lässt sich nicht berechnen

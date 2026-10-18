@@ -72,7 +72,7 @@ describe 'Cars Place map' do
         get cars_place_map_path(timeframe: '2025')
 
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include('No location in the selected period')
+        expect(response.body).to include('No locations')
         expect(response.body).not_to include('car--map--component')
       end
 

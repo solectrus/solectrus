@@ -3,13 +3,10 @@
                                    url: { controller: 'top10', sensor_name:, calc:, sort: }
 
 - elsif top10_for_period.blank?
-  .h-64.flex.items-center.justify-center.text-xl
-    = t('.blank')
+  = render Ui::EmptyState::Component.new(icon: 'trophy', title: t('.blank'))
 
 - elsif sensor_name == :house_power && calc.max? && Sensor::Config.house_power_excluded_sensors.present?
-  .h-64.flex.items-center.justify-center.text-lg.text-center
-    p
-      = t('.house_power_max_not_possible')
+  = render Ui::EmptyState::Component.new(icon: 'trophy', title: t('.house_power_max_not_possible'))
 
 - else
   .table.w-full id= "chart-#{period}"

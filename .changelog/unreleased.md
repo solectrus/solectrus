@@ -69,6 +69,7 @@ Keep every section, an empty one included.
 - On a phone, the period tabs now stand above the date and look like a segmented control of an iPhone: the selected period has a white segment that slides to the tab you tap, and a tapped tab dims instead of shrinking. The date is white. On a computer too, the arrows beside the date are now double arrows, so they differ from the back button of a page, and the live status is a light pill whose text is no longer in capitals
 - Forms show an amount of money with at least two decimals, for example 13.90 instead of 13.9, and the currency after the value
 - Forecast: below each day, the temperature chart now shows the highest and the lowest temperature instead of the average. The day after today shows its weekday instead of "Tomorrow"
+- A list, a map or a chart without content now shows the same note everywhere: an icon in a circle, a title and, where it helps, a short text below it, in the middle of the free space. This applies to the charging sessions, the visits, the locations, the payments, the electric vehicles, the Top 10, the forecast and the charts without data
 
 ## Fixes
 

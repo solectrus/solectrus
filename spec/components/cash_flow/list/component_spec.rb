@@ -8,7 +8,8 @@ describe CashFlow::List::Component, type: :component do
     before { render_inline(component) }
 
     it 'introduces the cash flows' do
-      expect(page).to have_text('No cash flows yet. Add investments')
+      expect(page).to have_text('No cash flows yet')
+      expect(page).to have_text('Add investments')
     end
   end
 
@@ -16,7 +17,7 @@ describe CashFlow::List::Component, type: :component do
     before { render_inline(described_class.new(cash_flows: CashFlow.ordered, filter_categories: %w[repair])) }
 
     it 'says that nothing matches' do
-      expect(page).to have_text('No cash flows match this filter.')
+      expect(page).to have_text('No cash flows match this filter')
     end
   end
 

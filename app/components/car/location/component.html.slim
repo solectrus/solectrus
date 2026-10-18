@@ -19,4 +19,4 @@
       .flex-1.min-h-0.flex class='max-sm:*:rounded-none'
         = render Car::Map::Component.new(cars: map_cars, live: true, name: name || t('.unknown'))
     - else
-      p.my-6.text-center = t('data.car_no_location')
+      = render Ui::EmptyState::Component.new(icon: 'location-dot', title: t('data.car_no_location'))

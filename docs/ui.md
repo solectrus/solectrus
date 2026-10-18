@@ -36,7 +36,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::TurboModal`: The modal of the frame `modal`. A request of this frame shows the page in a `Ui::BottomSheet`, any other request shows it as a plain page. A form with unsaved changes asks in `Ui::ConfirmDialog` before the modal closes.
 - `Ui::Flash`: The message after an action, like "Saved". It slides in at the lower edge of the screen and goes away after two seconds.
 - `Ui::Message`: A page for a message, like an error page, with slots for a symbol, a title, a text and a footer.
-- `Ui::EmptyList`: The place of a list without entries: a large icon and a text.
+- `Ui::EmptyState`: The place of a list, a map or a chart without content: an icon in a circle, a title and an optional text. It fills the free height and stands in its center. Every empty state uses it.
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
 - `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view.

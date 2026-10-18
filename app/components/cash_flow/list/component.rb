@@ -25,10 +25,15 @@ class CashFlow::List::Component < ViewComponent::Base
 
   # An empty list without a filter introduces the payments. With a filter, it
   # only says that nothing matches.
-  def empty_text
-    filtered = @filter_categories.any? || @filter_from || @filter_to
-    t(filtered ? '.empty_filtered' : '.empty')
+  def empty_state
+    if filtered?
+      Ui::EmptyState::Component.new(icon: 'filter', title: t('.empty_filtered'))
+    else
+      Ui::EmptyState::Component.new(icon: 'piggy-bank', title: t('.empty_title'), text: t('.empty'))
+    end
   end
+
+  def filtered? = @filter_categories.any? || @filter_from || @filter_to
 
   def formatted_amount(amount)
     number_to_currency(amount, precision: 2, unit: Currency.symbol)

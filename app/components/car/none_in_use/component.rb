@@ -1,7 +1,8 @@
 # The note that no car is in use, in the live view and in a period. The
 # admin gets a link to the settings of the cars, where the period of use of
 # each car lives. In the center of the empty gauge of the live view, the
-# note comes with the icon of a car, and its size follows the gauge.
+# note comes with the icon of a car, and its size follows the gauge. In a
+# period, it is a Ui::EmptyState.
 class Car::NoneInUse::Component < ViewComponent::Base
   def initialize(text:, gauge: false)
     super()
@@ -20,5 +21,11 @@ class Car::NoneInUse::Component < ViewComponent::Base
     'transition-colors click-animation'.freeze
   private_constant :LINK_CLASS
 
-  def link_class = LINK_CLASS
+  def edit_link
+    return unless helpers.admin?
+
+    link_to helpers.settings_cars_path, class: LINK_CLASS, data: { turbo_frame: '_top' } do
+      safe_join([helpers.icon('pencil', class: 'text-xs'), t('data.car_edit_periods')])
+    end
+  end
 end
