@@ -112,7 +112,7 @@ describe 'Cars Place map' do
       get cars_place_map_path(timeframe: '2026-09'), headers: { 'Turbo-Frame' => 'modal' }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('<turbo-frame id="modal"', 'data-timeframe--select--component-base-url-value="/cars/places"')
+      expect(response.body).to include('<turbo-frame id="modal"', 'data-timeframe--select--component-url-template-value="/cars/places/:timeframe"')
     end
   end
 end

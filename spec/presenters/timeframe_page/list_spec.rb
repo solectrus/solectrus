@@ -5,7 +5,7 @@ describe TimeframePage::List do
     page = described_class.new(route: :cars_charging_sessions_path, params: { kind: 'wallbox', car: 'unassigned' }, hours: true)
 
     expect(page.path(timeframe)).to eq('/cars/unassigned/charging_sessions/wallbox/2025')
-    expect(page.base_url).to eq('/cars/unassigned/charging_sessions/wallbox')
+    expect(page.url_template).to eq('/cars/unassigned/charging_sessions/wallbox/:timeframe')
   end
 
   it 'offers the hours as given and no forecast' do

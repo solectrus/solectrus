@@ -19,10 +19,10 @@ class TimeframePage::Sensor
     url_for(controller: "/#{@namespace}/home", action: 'index', sensor_name: @sensor_name, timeframe:, **@params, only_path: true)
   end
 
-  # The timeframe select adds the timeframe to `base_url` in the browser
-  def base_url
-    url_for(controller: "/#{@namespace}/home", action: 'index', sensor_name: @sensor_name, **@params, only_path: true)
-  end
+  # The timeframe select puts the timeframe in place of ":timeframe" in the
+  # browser. The route does not check the placeholder, because the timeframe
+  # is optional there.
+  def url_template = path(':timeframe')
 
   # The name of the timeframe "all", nil for the default
   def label_for_all = nil

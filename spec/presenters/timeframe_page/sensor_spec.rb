@@ -6,7 +6,7 @@ describe TimeframePage::Sensor do
 
     it 'has no prefix in the address' do
       expect(page.path(timeframe)).to eq('/inverter_power/2025-03')
-      expect(page.base_url).to eq('/inverter_power')
+      expect(page.url_template).to eq('/inverter_power/:timeframe')
     end
 
     it 'offers the hours' do
@@ -19,7 +19,7 @@ describe TimeframePage::Sensor do
 
     it 'has the section in front' do
       expect(page.path(timeframe)).to eq('/house/house_power/2025-03')
-      expect(page.base_url).to eq('/house/house_power')
+      expect(page.url_template).to eq('/house/house_power/:timeframe')
     end
   end
 
@@ -28,7 +28,7 @@ describe TimeframePage::Sensor do
 
     it 'keeps the car in each address' do
       expect(page.path(timeframe)).to eq('/cars/2/car_charging/2025-03')
-      expect(page.base_url).to eq('/cars/2/car_charging')
+      expect(page.url_template).to eq('/cars/2/car_charging/:timeframe')
     end
 
     it 'offers no hours' do

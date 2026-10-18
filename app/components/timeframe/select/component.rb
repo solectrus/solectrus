@@ -16,7 +16,7 @@ class Timeframe::Select::Component < ViewComponent::Base
 
   attr_reader :timeframe
 
-  delegate :base_url, :hours?, to: :@page
+  delegate :url_template, :hours?, to: :@page
 
   def min_date
     Rails.application.config.x.installation_date

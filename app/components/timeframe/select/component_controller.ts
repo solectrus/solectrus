@@ -4,11 +4,12 @@ import * as Turbo from '@hotwired/turbo';
 // Connects to data-controller="timeframe--select--component"
 export default class extends Controller<HTMLElement> {
   static readonly values = {
-    baseUrl: String,
+    // The address of the page with ":timeframe" in place of the timeframe
+    urlTemplate: String,
     id: String,
   };
 
-  declare readonly baseUrlValue: string;
+  declare readonly urlTemplateValue: string;
   declare readonly idValue: string;
 
   // Mapping from timeframe ID to picker button for auto-open.
@@ -30,7 +31,7 @@ export default class extends Controller<HTMLElement> {
     const { value } = event.detail;
 
     if (value) {
-      Turbo.visit(`${this.baseUrlValue}/${value}`);
+      Turbo.visit(this.urlTemplateValue.replace(':timeframe', value));
     }
   }
 

@@ -15,9 +15,7 @@ class TimeframePage::List
     public_send(@route, timeframe:, **@params)
   end
 
-  def base_url
-    public_send(@route, **@params)
-  end
+  def url_template = path(':timeframe')
 
   def label_for_all = I18n.t('timeframe.total')
 
