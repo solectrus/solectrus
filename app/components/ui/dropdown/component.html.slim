@@ -7,6 +7,10 @@
       / The chevron uses currentColor, adapting to the surrounding text color.
       / The keyboard focus rings the whole shape, as the select has no frame.
       .inline-flex.items-center.gap-1.lg:hidden class=['has-[select:focus-visible]:ring-2 has-[select:focus-visible]:ring-indigo-500', mobile_shape, button_class]
+        / The leading visual of the selected item, like on the button of the
+          desktop. An option of the select cannot show it.
+        - if selected_item&.leading
+          span.flex.self-center.mr-1 = selected_item.leading
         / field-sizing-content shrink-wraps the select to its selected option in
         / CSS. Where a browser lacks it, select_controller measures instead.
         / Below 16px, iOS zooms into the page when the select gets the focus.

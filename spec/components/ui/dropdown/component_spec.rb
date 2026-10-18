@@ -25,6 +25,25 @@ describe Ui::Dropdown::Component, type: :component do
     end
   end
 
+  context 'with a leading visual of the selected item' do
+    before do
+      render_inline(
+        described_class.new(
+          name: 'car',
+          items: [
+            Ui::MenuItem::Component.new(name: 'Zoe', id: '1', href: '/1', leading: '<i class="lead"></i>'.html_safe),
+            item('Other', '2'),
+          ],
+          selected: '1',
+        ),
+      )
+    end
+
+    it 'shows it in front of the select of a phone too' do
+      expect(page).to have_css('div:has(> select[name="car"]) > span > i.lead', visible: :all)
+    end
+  end
+
   # Several choices at once, one group for each
   context 'with choices' do
     before do
