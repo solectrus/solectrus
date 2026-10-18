@@ -29,5 +29,5 @@ div
     .mt-2.pt-2.flex.flex-col.gap-1.border-t.border-slate-200.text-slate-500.dark:border-slate-700.dark:text-slate-400
       - cars.each do |car|
         span.flex.items-center.gap-2
-          span class='size-2.5 shrink-0 rounded-full ring-1 ring-black/10 dark:ring-white/20' style="background-color: #{car.display_color}"
+          span class='size-2.5 shrink-0 rounded-full car-color bg-current ring-1 ring-black/10 dark:ring-white/20' style="--car-color: #{car.display_color}"
           = car.display_name

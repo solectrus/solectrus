@@ -130,6 +130,22 @@
   }
 }
 
+/* The color of a car, from `--car-color` (a hex code of the user), as the
+   text color and as `--car-color-shown`. In dark mode a light color like
+   white would outshine the text beside it, so its lightness stops below
+   that of the text (slate-300). The hue and the chroma stay, and a darker
+   color is not changed. A browser without relative colors keeps the color. */
+@utility car-color {
+  --car-color-shown: var(--car-color);
+  color: var(--car-color-shown);
+
+  @variant dark {
+    @supports (color: oklch(from red l c h)) {
+      --car-color-shown: oklch(from var(--car-color) min(l, 0.8) c h);
+    }
+  }
+}
+
 @utility bar-gradient {
   @apply relative overflow-hidden;
 }

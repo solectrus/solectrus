@@ -23,8 +23,9 @@
 #  updated_at   :datetime         not null
 #
 class Car < ApplicationRecord
-  # The color of a car without a color of its own
-  DEFAULT_COLOR = '#6366f1'.freeze # indigo-500
+  # The color of a car without a color of its own. It stands out on the
+  # indigo bar of the page header too.
+  DEFAULT_COLOR = '#0ea5e9'.freeze # sky-500
   public_constant :DEFAULT_COLOR
 
   COLOR_FORMAT = /\A#\h{6}\z/

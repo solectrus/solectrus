@@ -88,7 +88,7 @@ The table `cars` holds what the environment cannot:
 | `short_name`   | at most five characters            | – (required, a new car takes its number)       |
 | `active_from`  | the first day of use               | – (required, by default the installation date) |
 | `active_until` | the last day of use                | the car is in use                              |
-| `color`        | a hex code like `#3b82f6`          | the default color (indigo)                     |
+| `color`        | a hex code like `#3b82f6`          | the default color (sky blue)                   |
 | `battery_kwh`  | the usable capacity of the battery | no capacity                                    |
 
 `Car.configured` gives the cars of the configured numbers. It creates a missing car on the

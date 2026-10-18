@@ -36,40 +36,62 @@ module IconHelper
   CAR_OUTLINE = 40
   private_constant :CAR_OUTLINE
 
-  # A car in the color of a car, wherever a car is named. The car stands on
-  # light and on dark backgrounds, so a sharp outline draws it in the
-  # opposite brightness: a dark car gets a white outline, a light car a gray
-  # one. The outline lies under the fill (paint-order), so the shape keeps
-  # its size. A colored background sets `--car-outline` to take its own.
+  # The relative luminance (WCAG) above which a color is light, with less
+  # than 1.6:1 against a white page, and below which it is dark, about a
+  # middle gray or darker, like the indigo bar of the page header
+  LIGHT = 0.6
+  DARK = 0.2
+  private_constant :LIGHT, :DARK
+
+  # A car in the color of a car, wherever a car is named. A light color
+  # would disappear on a white page, a dark one on a dark page or on the
+  # page header, so it gets a sharp outline in the opposite brightness: gray
+  # around a light car, white around a dark one. A color between stands out
+  # everywhere and gets none. The outline depends on the color alone, so a
+  # car looks the same everywhere. It lies under the fill (paint-order), so
+  # the shape keeps its size. In dark mode a light color is dimmed (see the
+  # utility car-color).
   def car_icon(color, **options)
-    outline = dark_color?(color) ? '#ffffff' : '#64748b'
+    outline = car_outline(color)
 
     icon(
       'car',
-      class: class_names('shrink-0', options.delete(:class)),
-      style: "color: #{color}",
-      path: {
-        style: "stroke: var(--car-outline, #{outline})",
-        'stroke-width': CAR_OUTLINE,
-        'stroke-linejoin': 'round',
-        'paint-order': 'stroke',
-      },
+      class: class_names('shrink-0 car-color', options.delete(:class)),
+      style: "--car-color: #{color}",
+      path:
+        if outline
+          { stroke: outline, 'stroke-width': CAR_OUTLINE, 'stroke-linejoin': 'round', 'paint-order': 'stroke' }
+        else
+          {}
+        end,
       **options,
     )
   end
 
-  # Whether a color like "#585656" is darker than a middle gray, by its
-  # relative luminance (WCAG). The gray #767676 has 0.18.
-  def dark_color?(color)
+  # The color of the outline of a car, or nil for none
+  def car_outline(color)
+    luminance = relative_luminance(color)
+    return unless luminance
+
+    if luminance > LIGHT
+      '#64748b' # slate-500
+    elsif luminance < DARK
+      '#ffffff'
+    end
+  end
+
+  # The relative luminance (WCAG) of a color like "#585656", from 0 for
+  # black to 1 for white
+  def relative_luminance(color)
     hex = color.to_s[/\A#(\h{6})\z/, 1]
-    return false unless hex
+    return unless hex
 
     r, g, b =
       hex.scan(/../).map do
         value = it.to_i(16) / 255.0
         value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055)**2.4
       end
-    (r * 0.2126) + (g * 0.7152) + (b * 0.0722) < 0.18
+    (r * 0.2126) + (g * 0.7152) + (b * 0.0722)
   end
 
   # The width of the gap that the slash cuts into the icon, in the units of

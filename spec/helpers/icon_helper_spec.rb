@@ -75,6 +75,26 @@ describe IconHelper do
     end
   end
 
+  describe '#car_icon' do
+    def outline(color) = Nokogiri::HTML.fragment(helper.car_icon(color)).at('path')['stroke']
+
+    it 'takes the color of the car' do
+      expect(helper.car_icon('#ef4444')).to include('style="--car-color: #ef4444"', 'car-color')
+    end
+
+    it 'draws a gray outline around a light color' do
+      expect([outline('#ffffff'), outline('#ffeb3b')]).to all(eq('#64748b'))
+    end
+
+    it 'draws a white outline around a dark color' do
+      expect([outline('#000000'), outline('#1e40af'), outline('#6366f1')]).to all(eq('#ffffff'))
+    end
+
+    it 'draws no outline around a color between' do
+      expect([outline('#ef4444'), outline(Car::DEFAULT_COLOR)]).to all(be_nil)
+    end
+  end
+
   describe '#slashed_icon' do
     subject(:svg) { helper.slashed_icon('plug', class: 'text-8xl') }
 

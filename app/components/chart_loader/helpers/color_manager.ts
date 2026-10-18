@@ -505,7 +505,9 @@ export class ColorManager {
   }
 
   // The color of the class with a share of the tint. The palette color stays
-  // the base, so it fits the other charts in light and dark mode.
+  // the base, so it fits the other charts in light and dark mode. The tint is
+  // the color of a car, dimmed in dark mode like everywhere else (see the
+  // utility car-color).
   private tinted(
     color: string | undefined,
     tint: string | undefined,
@@ -514,7 +516,9 @@ export class ColorManager {
 
     return (
       this.probeBackground(`${color}|${tint}`, (element) => {
-        element.style.backgroundColor = `color-mix(in oklab, ${color}, ${tint} ${TINT_SHARE}%)`;
+        element.className = 'car-color';
+        element.style.setProperty('--car-color', tint);
+        element.style.backgroundColor = `color-mix(in oklab, ${color}, var(--car-color-shown) ${TINT_SHARE}%)`;
       }) ?? color
     );
   }

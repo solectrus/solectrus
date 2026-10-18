@@ -16,7 +16,7 @@ describe ChargingSession::Filter::Component, type: :component do
   it 'shows a car in its color' do
     render_inline(described_class.new(kind: 'wallbox', timeframe: nil, cars:, current: nil))
 
-    expect(page).to have_css('a[href="/cars/1/charging_sessions/wallbox"] svg[data-icon="car"][style="color: #ff0000"]')
+    expect(page).to have_css('a[href="/cars/1/charging_sessions/wallbox"] svg[data-icon="car"][style="--car-color: #ff0000"]')
   end
 
   it 'renders nothing for offsite with one car and without a state of charge' do

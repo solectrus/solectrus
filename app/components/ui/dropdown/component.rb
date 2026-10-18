@@ -9,12 +9,10 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
   renders_one :button
 
   # The button on the colored bar of the page header. Its text takes the
-  # color of the tabs beside it (see Nav::TabLook). A car icon on it takes
-  # a white outline, which stands out from the bar for any color of a car.
+  # color of the tabs beside it (see Nav::TabLook).
   HEADER_BUTTON_CLASS =
     'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10 ' \
-    'dark:lg:landscape:text-gray-400 dark:lg:landscape:hover:text-gray-300 ' \
-    '[--car-outline:white]'.freeze
+    'dark:lg:landscape:text-gray-400 dark:lg:landscape:hover:text-gray-300'.freeze
 
   # The button of a phone above a list on the gray page of a grouped list,
   # like the filter of the charging sessions: white, like the cards below it.
