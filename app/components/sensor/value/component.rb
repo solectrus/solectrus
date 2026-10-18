@@ -37,6 +37,9 @@ class Sensor::Value::Component < ViewComponent::Base
   NO_BREAK_SPACE = "\u00A0".freeze
   private_constant :NO_BREAK_SPACE
 
+  # A table can show the unit in a column of its own (`unit: false`)
+  def show_unit? = unit.present? && options[:unit] != false
+
   def spaced_unit
     "#{NO_BREAK_SPACE}#{unit}"
   end
@@ -142,7 +145,7 @@ class Sensor::Value::Component < ViewComponent::Base
   end
 
   def formatter_options
-    options.except(:class, :sign)
+    options.except(:class, :sign, :unit)
   end
 
   # Extract value from either a Data object or a direct value
