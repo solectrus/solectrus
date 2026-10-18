@@ -8,11 +8,9 @@
     = helpers.icon 'circle-question'
 - else
   span class=css_class title=title
-    / A prominent badge shows a car in its color, a small one a dot
-    - if color && prominent?
+    / A car in its color, a guest an icon in the width of the car icon
+    - if color
       = car_icon(color)
-    - elsif color
-      span class='size-2.5 rounded-full shrink-0 ring-1 ring-inset ring-black/15 dark:ring-white/25' style="background-color: #{color}"
     - else
-      = helpers.icon 'user', class: 'fa-xs opacity-60'
+      = helpers.icon 'user', class: 'shrink-0 w-[1.25em] opacity-60'
     span.truncate = label
