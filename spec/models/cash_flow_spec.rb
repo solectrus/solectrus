@@ -51,6 +51,16 @@ describe CashFlow do
       expect(cash_flow.errors[:amount]).to be_present
     end
 
+    it 'rejects an amount the column cannot hold' do
+      expect(
+        described_class.new(date: Date.current, note: 'Cost', amount: -100_000_000),
+      ).not_to be_valid
+
+      expect(
+        described_class.new(date: Date.current, note: 'Revenue', amount: 100_000_000),
+      ).not_to be_valid
+    end
+
     it 'allows negative and positive amounts' do
       expect(
         described_class.new(date: Date.current, note: 'Cost', amount: -500),

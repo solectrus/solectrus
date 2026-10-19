@@ -78,6 +78,7 @@ Keep every section, an empty one included.
 - A sensor that tells whether a car is connected now shows "No" for a text like "False" or "OFF" and for a negative number, which some collectors send for an error. Before, the live view showed such a value as connected
 - A browser tab that stays open for a long time now keeps its memory use low. Before, each page you opened stayed in memory, so the app used more memory with each click and could become slow
 - Settings: after you delete a price or a payment, the message now says "Deleted". Before, it said "Saved"
+- Amortization: a payment of 100 million or more now shows an error at the amount. Before, the save failed with an error page
 - Keyboard: the bar at the bottom of a phone screen now shows a ring around the tab that has the focus. Before, the focus in the bar was invisible
 - Screen readers: the GitHub link in the footer now has a name, and the name of the author link has a real dash. Before, the GitHub link had no name, and the author link read "&mdash;"
 

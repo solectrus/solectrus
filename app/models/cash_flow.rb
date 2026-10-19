@@ -65,7 +65,14 @@ class CashFlow < ApplicationRecord
 
   validates :date, presence: true
   validates :note, presence: true
-  validates :amount, presence: true, numericality: { other_than: 0 }
+  # The column holds up to eight digits before the decimal point
+  validates :amount,
+            presence: true,
+            numericality: {
+              other_than: 0,
+              greater_than: -100_000_000,
+              less_than: 100_000_000,
+            }
   validate :amount_matches_category_sign
 
   # Fall back to a sign-based category when none is given, so records created
