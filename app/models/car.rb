@@ -118,15 +118,20 @@ class Car < ApplicationRecord
   # count.
   def self.given_name_of(id)
     name, short_name = names[id]
-    name || (short_name unless short_name == id.to_s)
+    given_name(id, name, short_name)
   end
+
+  def self.given_name(id, name, short_name) = name || (short_name unless short_name == id.to_s)
 
   # The given name of the car, or the default name of its id
-  def self.display_name_of(id)
-    given_name_of(id) || I18n.t('cars.default_name', number: id)
-  end
+  def self.display_name_of(id) = given_name_of(id) || default_name(id)
 
-  def display_name = self.class.display_name_of(id)
+  def self.default_name(id) = I18n.t('cars.default_name', number: id)
+
+  # The record holds its stored names, so it needs no query of Car.names
+  def display_name
+    (self.class.given_name(id, name_in_database, short_name_in_database) unless Current.car_names_hidden) || self.class.default_name(id)
+  end
 
   # A guest sees the default name of the car: "Car 1"
   def short_name = Current.car_names_hidden ? display_name : super
