@@ -40,13 +40,17 @@ describe Car::Driving do
     charge(Date.new(2026, 1, 10), 30_000)
     summary(Date.new(2026, 1, 12), :car_odometer_1, :sum, 150)
 
-    # February: 50 km, but no charge in the 28 days before and after
-    summary(Date.new(2026, 2, 20), :car_odometer_1, :sum, 50)
-
     # March: 100 km, and 10 kWh for 3 EUR five days later
     summary(Date.new(2026, 3, 20), :car_odometer_1, :sum, 100)
     charge(Date.new(2026, 3, 25), 10_000)
   end
+
+  # February: 50 km, but no charge in the 28 days before and after
+  def drive_in_february = summary(Date.new(2026, 2, 20), :car_odometer_1, :sum, 50)
+
+  # The energy (Wh) and the cost of a km at the window of a date, before the
+  # balance of a month or a year scales it
+  def window_rate(date) = driving.rate(car, date)
 
   describe '#totals' do
     it 'drives each day at the rate of its own window' do
@@ -59,15 +63,15 @@ describe Car::Driving do
     # The window of February 20 widens to 42 days before and after, from
     # January 9 to April 3: 300 km, 40 kWh and 12 EUR
     it 'widens a window without a charge until it holds one' do
-      totals = driving.totals(Date.new(2026, 2, 1)..Date.new(2026, 2, 28))
+      drive_in_february
 
-      expect(totals.distance).to eq(50)
-      expect(totals.cost_per_100km).to be_within(0.001).of(4.0)
-      expect(totals.consumption_per_100km).to be_within(0.001).of(13.333)
+      expect(window_rate(Date.new(2026, 2, 20)).energy_wh).to be_within(0.001).of(40_000.0 / 300)
+      expect(window_rate(Date.new(2026, 2, 20)).cost).to be_within(0.000001).of(12.0 / 300)
     end
 
     # The charges are 43 days before and after February 20
     it 'gives no rate without a charge in the widest window' do
+      drive_in_february
       ChargingSession.delete_all
       charge(Date.new(2026, 1, 8), 30_000)
       charge(Date.new(2026, 4, 4), 10_000)
@@ -78,13 +82,13 @@ describe Car::Driving do
       expect(totals.cost_per_100km).to be_nil
     end
 
-    # 9 EUR + 2 EUR + 3 EUR for 150 km + 50 km + 100 km
+    # 9 EUR + 3 EUR for 150 km + 100 km
     it 'sums the days of all dates' do
       totals = driving.totals(quarter)
 
-      expect(totals.distance).to eq(300)
-      expect(totals.cost).to be_within(0.001).of(14.0)
-      expect(totals.cost_per_100km).to be_within(0.001).of(4.667)
+      expect(totals.distance).to eq(250)
+      expect(totals.cost).to be_within(0.001).of(12.0)
+      expect(totals.cost_per_100km).to be_within(0.001).of(4.8)
     end
 
     it 'gives no cost rate to a window with a session without a cost' do
@@ -122,7 +126,7 @@ describe Car::Driving do
       charge(Date.new(2026, 1, 26), 15_000, hour: 23)
       charge(Date.new(2026, 1, 27), 15_000, hour: 0)
 
-      expect(january.consumption_per_100km).to be_within(0.001).of(30.0)
+      expect(window_rate(Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(45_000.0 / 150)
     end
 
     it 'ends the windows at the period of the car' do
@@ -145,19 +149,19 @@ describe Car::Driving do
       end
 
       it 'drives on the charged energy less the energy that stays in the battery' do
-        expect(january.consumption_per_100km).to be_within(0.001).of(25.0 / 150 * 100)
+        expect(window_rate(Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(25_000.0 / 150)
       end
 
       # The energy in the battery has the average price of the window
       it 'gives the cost the same share' do
-        expect(january.cost).to be_within(0.001).of(7.5)
+        expect(window_rate(Date.new(2026, 1, 12)).cost).to be_within(0.000001).of(7.5 / 150)
       end
 
       context 'without the energy of a percent' do
         def kwh_per_percent = nil
 
         it 'drives on the charged energy' do
-          expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
+          expect(window_rate(Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(30_000.0 / 150)
         end
       end
 
@@ -165,8 +169,89 @@ describe Car::Driving do
         before { SummaryValue.where(date: Date.new(2025, 12, 28)).delete_all }
 
         it 'drives on the charged energy' do
-          expect(january.consumption_per_100km).to be_within(0.001).of(20.0)
+          expect(window_rate(Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(30_000.0 / 150)
         end
+      end
+    end
+
+    # The battery holds 10 percentage points more at the end of January than
+    # at the end of December: 5 kWh at 0.5 kWh per percent. The windows at
+    # both ends have the price of the charge of January 10, 0.30 EUR/kWh, so
+    # the 5 kWh are worth 1.50 EUR.
+    context 'with the state of charge at the ends of a month' do
+      def soc(date, value) = summary(date, :car_battery_soc_1, :last, value)
+
+      before do
+        allow(ChargingSession).to receive(:kwh_per_percent).and_return(car.id => 0.5)
+        soc(Date.new(2025, 12, 31), 50)
+        soc(Date.new(2026, 1, 31), 60)
+      end
+
+      it 'scales the days of the month to its balance' do
+        expect(january.energy_wh).to be_within(0.001).of(25_000)
+        expect(january.cost).to be_within(0.001).of(7.5)
+        expect(driving.totals(Date.new(2026, 1, 12)..Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(25_000)
+      end
+
+      # January then joins the months of its year without the state of
+      # charge, which hold the charged 40 kWh
+      it 'scales a month without the state of charge at an end with its year' do
+        SummaryValue.where(date: Date.new(2026, 1, 31)).delete_all
+
+        expect(january.energy_wh).to be_within(0.001).of(30_000)
+      end
+
+      it 'keeps the current month, which has no end yet' do
+        travel_to Date.new(2026, 1, 31).in_time_zone.change(hour: 12)
+
+        expect(january.energy_wh).to be_within(0.001).of(30_000)
+      end
+
+      # 35 kWh less 5 kWh, but the cost of the session without a cost is missing
+      it 'scales the energy alone with a session without a cost' do
+        charge(Date.new(2026, 1, 11), 5_000, cost: false)
+
+        expect(january.energy_wh).to be_within(0.001).of(30_000)
+        expect(january).not_to be_cost_rated
+      end
+
+      # 30 kWh and 40 kWh out of the battery give a factor of 70/30
+      it 'keeps a month whose factor hints at missing data' do
+        SummaryValue.find_by(date: Date.new(2025, 12, 31)).update!(value: 90)
+        SummaryValue.find_by(date: Date.new(2026, 1, 31)).update!(value: 10)
+
+        expect(january.energy_wh).to be_within(0.001).of(30_000)
+      end
+    end
+
+    # Without the state of charge, the past months of 2026 scale together to
+    # the charged 40 kWh and 12 EUR. The window of February 20 counts both
+    # charges, so the windows hold 46.67 kWh and 14 EUR (see above).
+    context 'with the months of a year without the state of charge' do
+      before { drive_in_february }
+
+      it 'scales the months together to their charged energy and their charging cost' do
+        totals = driving.totals(Date.new(2026, 1, 1)..Date.new(2026, 8, 31))
+
+        expect(totals.energy_wh).to be_within(0.001).of(40_000)
+        expect(totals.cost).to be_within(0.001).of(12.0)
+        expect(january.energy_wh).to be_within(0.001).of(30_000.0 * 6 / 7)
+      end
+
+      it 'keeps the current month, which has no end yet' do
+        travel_to Date.new(2026, 3, 31).in_time_zone.change(hour: 12)
+
+        expect(driving.totals(Date.new(2026, 3, 1).all_month).energy_wh).to be_within(0.001).of(10_000)
+      end
+
+      # February has no rate, so January and March hold the charged 40 kWh
+      it 'leaves out a month with a distance without a rate' do
+        ChargingSession.delete_all
+        charge(Date.new(2026, 1, 8), 30_000)
+        charge(Date.new(2026, 4, 4), 10_000)
+
+        expect(driving.totals(Date.new(2026, 2, 1).all_month)).not_to be_rated
+        expect(driving.totals(Date.new(2026, 1, 1)..Date.new(2026, 8, 31)).energy_wh).to be_within(0.001).of(40_000)
       end
     end
 
@@ -195,16 +280,25 @@ describe Car::Driving do
   end
 
   describe '.reach' do
-    it 'adds the widest margin on each side, and the day before the first window' do
-      expect(described_class.reach(quarter, min_date:)).to eq(Date.new(2025, 11, 19)..Date.new(2026, 5, 12))
+    # The year of the dates, less 42 days and the day before the first window
+    it 'reads the calendar years of the dates, with the widest margin before them' do
+      expect(described_class.reach(Date.new(2026, 2, 10)..Date.new(2026, 2, 12), min_date:)).to eq(Date.new(2025, 11, 19)..today)
     end
 
     it 'ends today' do
-      expect(described_class.reach(Date.new(2026, 9, 1)..today, min_date:)).to eq(Date.new(2026, 7, 20)..today)
+      expect(described_class.reach(Date.new(2026, 9, 1)..today, min_date:).end).to eq(today)
     end
 
+    # The end of 2025 and 42 days
     it 'starts at the installation date' do
-      expect(described_class.reach(Date.new(2025, 1, 1)..Date.new(2025, 1, 31), min_date:)).to eq(min_date..Date.new(2025, 3, 14))
+      expect(described_class.reach(Date.new(2025, 1, 1)..Date.new(2025, 1, 31), min_date:)).to eq(min_date..Date.new(2026, 2, 11))
+    end
+  end
+
+  # The rate of a date needs its windows alone, not the factors of its month
+  describe '.window_reach' do
+    it 'adds the widest margin on each side, and the day before the first window' do
+      expect(described_class.window_reach(quarter, min_date:)).to eq(Date.new(2025, 11, 19)..Date.new(2026, 5, 12))
     end
   end
 end

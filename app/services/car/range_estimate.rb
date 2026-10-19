@@ -31,7 +31,7 @@ class Car::RangeEstimate
   def min_date = Rails.application.config.x.installation_date
 
   def ledger
-    @ledger ||= Car::Ledger.new(cars, Car::Driving.reach(today..today, min_date:))
+    @ledger ||= Car::Ledger.new(cars, Car::Driving.window_reach(today..today, min_date:))
   end
 
   def driving

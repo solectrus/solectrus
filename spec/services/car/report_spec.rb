@@ -70,11 +70,13 @@ describe Car::Report do
       )
     end
 
-    it 'asks for the days of another timeframe plus the widest margin' do
+    # The year of the timeframe for the factors of its months, and the widest
+    # margin before it, up to today
+    it 'asks for the days of the year of another timeframe plus the widest margin' do
       described_class.pending_days(Timeframe.new('2026-01-01..2026-01-31'))
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Date.new(2025, 11, 19), to: Date.new(2026, 3, 14),
+        from: Date.new(2025, 11, 19), to: Date.new(2026, 9, 23),
       )
     end
   end

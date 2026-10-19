@@ -594,8 +594,49 @@ keeps the season more exactly. A longer margin gives a steadier rate. A shorter 
 gives more days without a rate, because their window has less than 100 km. The wider window
 applies only to such a day, so the other days keep the margin of 14 days.
 
+### The balance of a month
+
+A window reaches into the months around a day. So the days of a month hold the state of
+charge at the ends of their windows, not at the ends of the month. A past calendar month
+therefore scales its days to its balance:
+
+```
+energy of the month  =  charged energy  −  k  ×  (state of charge at its end − at the end of the month before)
+cost of the month    =  charging cost   −  value of the energy in the battery at its end
+                                        +  value of the energy in the battery at its start
+value at an end      =  k  ×  state of charge  ×  price per kWh of the window there
+```
+
+A factor for the energy and a factor for the cost scale each day of the month. So the
+month and the year hold the state of charge at their own ends, and the days still add up
+to them. A week or a free range across the end of a month stays near its balance, but not
+on it. The balance uses the same `k` as the correction of the windows. A `k` for each
+charging power did not make a month more plausible.
+
+Without the state of charge at both ends, a past month cannot know the change of the
+battery. Many cars have no state of charge, or not for the early years. A window then
+counts a charge before a long trip more than once, and a year can be several percent too
+high. So the past months of a calendar year without the state of charge scale together,
+with one factor, to their charged energy and their charging cost. The change of the
+battery counts as zero. Over the many charges of these months, this is a small error. A
+single month would be less exact than its windows, so the factor is one for the year.
+The current year takes its past months, so its factors change at the end of each month.
+
+A month keeps its days, with a factor of 1, in these cases:
+
+- It is the current month, which has no end yet.
+- It is not inside the period of use of the car.
+- A day of the month has a distance without a rate. In a year, such a month stays out of
+  the energy of the other months.
+- A factor is outside 0.5 to 2. This hints at missing data, like a charge that a collector
+  did not report.
+
+The cost alone keeps its days with a session without a cost, or without a price at an
+end. In a year, such a month stays out of the cost of the other months.
+
 The days around the period need a summary and a detection too, so the car page builds them
-before it shows the period (`Car::Report.pending_days`).
+before it shows the period (`Car::Report.pending_days`). A day reads its whole calendar
+year for the factors of its months, and the windows of its days.
 
 ### Rejected designs
 
