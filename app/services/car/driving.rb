@@ -35,34 +35,6 @@ class Car::Driving
   MIN_DISTANCE = 100
   public_constant :MIN_DISTANCE
 
-  # The driving of a set of days. The distance holds only the days with an
-  # energy rate, and the cost distance only the days with a cost rate.
-  Totals =
-    Data.define(:distance, :energy_wh, :cost_distance, :cost) do
-      def self.empty = new(distance: 0.0, energy_wh: 0.0, cost_distance: 0.0, cost: 0.0)
-
-      # The sum of a list of Totals in one pass
-      def self.sum(list)
-        return empty if list.empty?
-
-        new(**members.index_with { |member| list.sum(&member) })
-      end
-
-      def rated? = distance.positive?
-
-      def cost_rated? = cost_distance.positive?
-
-      # Energy is in Wh, so /10 turns Wh per km into kWh per 100 km
-      def consumption_per_100km
-        (energy_wh / 10.0).fdiv(distance) if rated?
-      end
-
-      def cost_per_100km
-        (cost * 100.0).fdiv(cost_distance) if cost_rated?
-      end
-    end
-  public_constant :Totals
-
   # The dates that the windows of the given dates read: MAX_MARGIN_DAYS more
   # on each side, from the first date of the installation to today. The day
   # before the first window gives the state of charge at its start.
@@ -156,30 +128,10 @@ class Car::Driving
     [date - margin, bounds(car).begin].max..[date + margin, bounds(car).end].min
   end
 
-  # The sum of a daily value of a car over a range of the ledger. It is the
-  # difference of two running sums, so the window of each day of a long
-  # period costs no loop over its days.
+  # The sum of a daily value of a car over a range of the ledger (see
+  # Car::Driving::Sums)
   def sum(car, range, key)
-    first = ledger.dates.begin
-    sums = running_sums(car)[key]
-    sums[(range.end - first).to_i + 1] - sums[(range.begin - first).to_i]
+    sums = (@sums ||= {})[car.id] ||= Sums.new(ledger, car)
+    sums.call(key, range)
   end
-
-  # { key => [0, day 1, day 1 + day 2, ...] } over the dates of the ledger
-  def running_sums(car)
-    (@running_sums ||= {})[car.id] ||=
-      begin
-        sums = { distance: [0.0], energy_wh: [0.0], cost: [0.0], uncosted: [0] }
-        ledger.dates.each do |date|
-          sessions = ledger.daily_sessions(car, date)
-          add(sums[:distance], ledger.daily_distance(car, date))
-          add(sums[:energy_wh], sessions.kwh * 1000.0)
-          add(sums[:cost], sessions.cost)
-          add(sums[:uncosted], sessions.uncosted)
-        end
-        sums
-      end
-  end
-
-  def add(running, value) = running << (running.last + value)
 end
