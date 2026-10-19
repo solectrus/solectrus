@@ -70,6 +70,7 @@ Keep every section, an empty one included.
 - Forms show an amount of money with at least two decimals, for example 13.90 instead of 13.9, and the currency after the value
 - Forecast: below each day, the temperature chart now shows the highest and the lowest temperature instead of the average. The day after today shows its weekday instead of "Tomorrow"
 - A list, a map or a chart without content now shows the same note everywhere: an icon in a circle, a title and, where it helps, a short text below it, in the middle of the free space. This applies to the charging sessions, the visits, the locations, the payments, the electric vehicles, the Top 10, the forecast and the charts without data
+- Settings > Cash flows: the form now groups the categories by how they count in the amortization: "Investment base", "Operating" and "Neutral"
 
 ## Fixes
 

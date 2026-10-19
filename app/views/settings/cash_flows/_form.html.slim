@@ -1,4 +1,14 @@
-- categories = CashFlow.categories.keys.map { |key| [CashFlow.human_enum_name(:category, key), key] }
+ruby:
+  # The categories in the groups of the amortization: the investment base, the
+  # operating cash flow, and the neutral rest
+  groups = {
+    investment_base: CashFlow::INVESTMENT_BASE_CATEGORIES,
+    operating: CashFlow::OPERATING_CATEGORIES,
+    neutral: CashFlow.categories.keys - CashFlow::INVESTMENT_BASE_CATEGORIES - CashFlow::OPERATING_CATEGORIES,
+  }
+  categories = groups.to_h do |group, keys|
+    [t("settings.cash_flows.groups.#{group}"), (CashFlow.categories.keys & keys).map { [CashFlow.human_enum_name(:category, it), it] }]
+  end
 
 = form_page_with(model: cash_flow, url: cash_flow.persisted? ? settings_cash_flow_path(cash_flow) : settings_cash_flows_path) do |f|
   = f.group footer: t('settings.cash_flows.amount_hint') do

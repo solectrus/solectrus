@@ -502,6 +502,10 @@ de:
       edit: Zahlung bearbeiten
       amount_hint: "Negativ: Auszahlung (z.B. Anschaffung oder Reparatur)\nPositiv: Einzahlung (z.B. Förderung oder Entschädigung)"
       category_hint: Bestimmt, wie der Betrag in die Amortisation einfließt – Investition erhöht die Investitionsbasis, Förderung/Erstattung senken sie, Betriebskosten/Reparatur/Entschädigung wirken auf den laufenden Ertrag, Ersparnis (manuell) ergänzt ihn um Zeiträume ohne Messdaten, Sonstiges bleibt neutral.
+      groups:
+        investment_base: Investitionsbasis
+        operating: Laufender Betrieb
+        neutral: Neutral
       visibility_label: Amortisationsrechnung anzeigen
       visibility_all: Für alle Nutzer
       visibility_admins: Nur für Admin

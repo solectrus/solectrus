@@ -326,6 +326,19 @@ describe 'Settings::CashFlows' do
 
       expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/cash_flows'])
     end
+
+    it 'groups the categories by their part in the amortization' do
+      get "/settings/cash_flows/#{cash_flow.id}/edit"
+
+      groups = response.parsed_body.css('select#cash_flow_category optgroup').to_h do |group|
+        [group['label'], group.css('option').pluck('value')]
+      end
+      expect(groups).to eq(
+        'Investment base' => %w[investment subsidy refund],
+        'Operating' => %w[operating_cost repair compensation manual_savings],
+        'Neutral' => %w[other],
+      )
+    end
   end
 
   describe 'PATCH /settings/cash_flows/visibility' do
