@@ -327,6 +327,12 @@ state, like for an ongoing visit (see [Visits](#visits)).
   control make such gaps.
 - `wallbox_car_connected` bridges a longer gap, but it never moves an end. Otherwise a
   charge before the sensor reports the connection loses its energy.
+- A 5-minute bucket without a reading is no data, not 0 W. A collector can fail for an
+  hour while the car charges. Such a gap does not end a session. A session also reaches
+  across a gap at each end, to the next bucket with data. The daily sum integrates across
+  the gap from the last value to the next one, so the sessions keep the energy of the day.
+  The buckets without a reading come from a query of their own, because the curve holds
+  the buckets with power alone.
 - A session needs 0.1 kWh at least, because many wallboxes report a standby power.
 - The energy comes from the integral of the power, like the daily sum. The grid share comes
   from `wallbox_power_grid` in the same way. The power splitter writes one value in the

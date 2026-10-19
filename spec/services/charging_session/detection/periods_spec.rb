@@ -1,8 +1,9 @@
 describe ChargingSession::Detection::Periods do
-  subject(:periods) { described_class.new(day, power:, connected:).call }
+  subject(:periods) { described_class.new(day, power:, connected:, gaps:).call }
 
   let(:day) { Date.new(2026, 6, 10) }
   let(:connected) { [] }
+  let(:gaps) { [] }
 
   def at(hour, min = 0) = day.in_time_zone.change(hour:, min:)
 
@@ -52,6 +53,48 @@ describe ChargingSession::Detection::Periods do
       it 'finds two periods' do
         expect(periods.size).to eq(2)
       end
+    end
+  end
+
+  # A collector that fails sends no value, so its buckets have no reading
+  # and are the gaps of the curve
+  def without_data(curve, from, to) = curve.partition { |time, _| time <= from || time > to }
+
+  context 'with a gap without data in a charge' do
+    let(:power) { without_data(curve([at(8), at(9)], [at(10), at(11)], value: 11_000), at(9), at(10)).first }
+    let(:gaps) { without_data(curve, at(9), at(10)).last }
+
+    it 'finds one period' do
+      expect(periods).to eq([[at(8), at(11)]])
+    end
+  end
+
+  # The collector fails at 16:15 and sends 0 W at 17:10
+  context 'with a gap without data at the end of a charge' do
+    let(:power) { without_data(curve([at(16, 10), at(16, 15)], value: 20_000), at(16, 15), at(17, 5)).first }
+    let(:gaps) { without_data(curve, at(16, 15), at(17, 5)).last }
+
+    it 'ends the period at the next bucket with data' do
+      expect(periods).to eq([[at(16, 10), at(17, 10)]])
+    end
+  end
+
+  # The collector sends 0 W at 0:35 and the power of the charge at 2:05
+  context 'with a gap without data at the start of a charge' do
+    let(:power) { without_data(curve([at(2), at(3)], value: 5_600), at(0, 35), at(2)).first }
+    let(:gaps) { without_data(curve, at(0, 35), at(2)).last }
+
+    it 'starts the period at the last bucket with data' do
+      expect(periods).to eq([[at(0, 30), at(3)]])
+    end
+  end
+
+  # The same curve with 0 W instead of the gap
+  context 'with a pause of 0 W in a charge' do
+    let(:power) { curve([at(8), at(9)], [at(10), at(11)], value: 11_000) }
+
+    it 'finds two periods' do
+      expect(periods).to eq([[at(8), at(9)], [at(10), at(11)]])
     end
   end
 

@@ -27,11 +27,13 @@ module Sensor
           BEFORE = 'before:'.freeze
           private_constant :BEFORE
 
-          # `curves` is a list of { sensor_names:, margin:, positive:, state: }.
-          # The margin widens each day on both sides: a car reports its state
-          # only while it is online, so a reading before midnight can belong
-          # to a session after it. `positive` keeps the buckets above 0 alone,
-          # so a wallbox that is idle most of the day sends few rows. `state`
+          # `curves` is a list of { sensor_names:, margin:, positive:, empty:,
+          # state: }. The margin widens each day on both sides: a car reports
+          # its state only while it is online, so a reading before midnight
+          # can belong to a session after it. `positive` keeps the buckets
+          # above 0 alone, so a wallbox that is idle most of the day sends few
+          # rows. `empty` gives the buckets without a reading instead, each
+          # with 0, where a collector sent no data. `state`
           # starts the curve of each day with the last reading before it, at
           # any age, because a state holds until its next reading (see the DSL
           # `state`).
@@ -71,6 +73,7 @@ module Sensor
           # conversion in Flux reads each row and was many times slower.
           def aggregate(curve)
             return '|> aggregateWindow(every: 5m, fn: last, createEmpty: false)' if curve[:boolean]
+            return "|> aggregateWindow(every: 5m, fn: count, createEmpty: true)\n  |> filter(fn: (r) => r._value == 0)" if curve[:empty]
 
             # The mean of an integer is a float as well
             mean = '|> aggregateWindow(every: 5m, fn: mean, createEmpty: false)'

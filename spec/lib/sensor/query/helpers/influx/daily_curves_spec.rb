@@ -45,6 +45,24 @@ describe Sensor::Query::Helpers::Influx::DailyCurves do
     end
   end
 
+  # A collector that fails sends no reading between 10:05 and 10:20
+  context 'with the buckets without a reading' do
+    subject(:curves) { described_class.new([day], [{ sensor_names: %i[wallbox_power], empty: true }]).call[day] }
+
+    it 'gives the empty buckets alone' do
+      start = day.in_time_zone.change(hour: 10)
+      influx_batch do
+        [0, 20].each do |minutes|
+          add_influx_point(name: Sensor::Config.measurement(:wallbox_power), fields: { Sensor::Config.field(:wallbox_power) => 500 }, time: start + minutes.minutes)
+        end
+      end
+      stamps = curves[:wallbox_power].map(&:first)
+
+      expect(stamps).to include(start + 10.minutes, start + 15.minutes, start + 20.minutes)
+      expect(stamps).not_to include(start + 5.minutes, start + 25.minutes)
+    end
+  end
+
   # A collector can write the power as an integer. InfluxDB pins the type of
   # a field, so the integers go to a measurement of their own, without the
   # float conversion of #add_influx_point.

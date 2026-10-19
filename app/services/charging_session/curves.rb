@@ -39,17 +39,25 @@ class ChargingSession::Curves
     car = car_request(dates, cars)
 
     @wallbox = Concurrent::Promises.delay { query(dates, wallbox) }
+    @gaps = Concurrent::Promises.delay { query(dates, gap_requests) }
     @cars = Concurrent::Promises.delay { query(dates, [car]) }
   end
 
   # Starts the programs of the wallbox and of the cars in the background
   def start
     @wallbox.touch
+    @gaps.touch
     @cars.touch
   end
 
   # { date => { sensor_name => [[Time, value], ...] } } of the wallbox
   def wallbox = @wallbox.value!
+
+  # { date => { sensor_name => [[Time, 0.0], ...] } }: the buckets of the
+  # wallbox power without a reading, where its collector sent no data (see
+  # Detection::Periods). They are few, so they need a program of their own
+  # and not each bucket of 0 W in the curve of the wallbox.
+  def wallbox_gaps = @gaps.value!
 
   # { date => { sensor_name => [[Time, value], ...] } } of the cars. A
   # sensor of a car is a state, so its curve of each day starts with the
@@ -71,6 +79,12 @@ class ChargingSession::Curves
       { sensor_names: [:wallbox_power], positive: true },
       { sensor_names: [:wallbox_car_connected].select { Sensor::Config.configured?(it) } },
     ]
+  end
+
+  def gap_requests
+    return [] unless ChargingSession::Detection.enabled?
+
+    [{ sensor_names: [:wallbox_power], empty: true }]
   end
 
   def car_request(dates, cars)

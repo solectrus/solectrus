@@ -122,7 +122,12 @@ class ChargingSession::Detection
 
   # [[from, to], ...] of the day
   def periods(date)
-    Periods.new(date, power: curve(date, :wallbox_power), connected: curve(date, :wallbox_car_connected)).call
+    Periods.new(
+      date,
+      power: curve(date, :wallbox_power),
+      connected: curve(date, :wallbox_car_connected),
+      gaps: curves.wallbox_gaps.dig(date, :wallbox_power) || [],
+    ).call
   end
 
   # The curve of a wallbox sensor or of a car sensor on a day

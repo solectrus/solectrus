@@ -146,6 +146,36 @@ describe ChargingSession::Detection do
     end
   end
 
+  # The collector charges at 20 kW from 16:10, fails at 16:15 and sends 0 W
+  # again at 17:09. The daily sum integrates across the gap. The session
+  # leaves out only the edge before 16:10, like each session (see above).
+  context 'with a collector that fails during a charge' do
+    subject(:detection) { described_class.new([gap_day]) }
+
+    let(:gap_day) { day + 2 }
+
+    before do
+      start = gap_day.in_time_zone.change(hour: 16, min: 10)
+      influx_batch do
+        (0...(24 * 60)).each do |minute|
+          time = gap_day.in_time_zone + minute.minutes
+          next if time >= start + 5.minutes && time < start + 59.minutes
+
+          watt = time >= start && time < start + 5.minutes ? 20_000 : 0
+          add_influx_point(name: Sensor::Config.measurement(:wallbox_power), fields: { Sensor::Config.field(:wallbox_power) => watt }, time:)
+        end
+      end
+    end
+
+    it 'gives the session the energy of the gap, like the daily sum' do
+      day_wh = Sensor::Query::Helpers::Influx::Integral.new(%i[wallbox_power], Timeframe.new(gap_day.iso8601)).call.wallbox_power
+      session = detection.call[gap_day].sole
+
+      expect([session.started_at, session.ended_at].map { it.in_time_zone.strftime('%H:%M') }).to eq(%w[16:10 17:10])
+      expect(session.kwh * 1000).to be_within(200).of(day_wh)
+    end
+  end
+
   context 'without a price' do
     before { Price.delete_all }
 
