@@ -611,6 +611,10 @@ before it shows the period (`Car::Report.pending_days`).
   same window, and all columns of the current month were equal.
 - `EUR/kWh` of the period × `kWh/100 km` of the window. A day that charges cheap PV energy
   then gets a low cost, also when the car drove on grid energy.
+- A weight for each charge, so that it counts once in the overlapping windows. The driven
+  energy of a long time then is the charged energy. But the weight depends on the distance
+  alone, and it undoes the correction of the state of charge. A month with the state of
+  charge was less exact than without the weights.
 
 ### Charging cost and driving cost
 
