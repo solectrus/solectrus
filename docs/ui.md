@@ -37,6 +37,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::Flash`: The message after an action, like "Saved". It slides in at the lower edge of the screen and goes away after two seconds.
 - `Ui::Message`: A page for a message, like an error page, with slots for a symbol, a title, a text and a footer.
 - `Ui::EmptyState`: The place of a list, a map or a chart without content: an icon in a circle, a title and an optional text. It fills the free height and stands in its center. Every empty state uses it.
+- `Ui::FilterBar` and `Ui::FilterLink`: The notice above a filtered list and the chevron in a row that narrows the list. See "Lists with a filter".
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
 - `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view.
@@ -141,6 +142,16 @@ After a save or a delete, `respond_with_list` answers in one of two ways, with `
 2. A submit from the page of a phone gets the stream action `back_to`. When the entry before the form in the browser history is the list, the browser goes back to it. The list loads again and slides in from the left, and a later way back does not show it a second time. Otherwise, like after a reload of the form, a visit to `list_path` replaces the form page.
 
 If the record does not save, `respond_with_errors(record)` answers. A Turbo Stream replaces the form with the partial `form`, which gets the record under the name of its model, like `price`. The form stays in the modal or on its page, with its errors. So the `edit` and `new` views render only the page. `respond_to_save(record, saved)` picks one of the two answers, so `create` and `update` take one line each.
+
+## Lists with a filter
+
+A filter narrows a list, for example the cash flows, to some categories and a range of dates. Three parts make it:
+
+1. `ListFilter`: A `Data` with the members `categories`, `from` and `to` includes this module. It reads the filter from the query of the list, applies it to a scope and gives the filter with another value, like `with_year(date)` or `without_category(category)`. A filter can add members of its own.
+2. `FilteredList`: The controller includes this concern and names the filter with `filters_with CashFlow::Filter`. The concern gives `filter` and `filter_path(other)`, the address of the list with another filter. A form takes the filter of the list that opened it, and the session remembers the filter of the index.
+3. `Ui::FilterBar` shows each part of the filter as a pill. The small x of a pill removes this part alone, and a link clears the whole filter. The bar takes the component of a category pill, and a member of its own adds a pill with `with_pill`. In a row, `Ui::FilterLink` is a chevron beside a value that narrows the list to it. It does not show when it would not change the filter.
+
+The bar has no controls to compose a filter, because the links of the list set it. It stands outside the frame of the list, so a refresh of the list keeps it.
 
 ## One row for both layouts
 

@@ -1,18 +1,20 @@
 class Settings::CashFlowsController < ApplicationController
   include SettingsNavigation
   include FormPageResponse
+  include FilteredList
+
+  filters_with CashFlow::Filter
 
   before_action :admin_required!
 
   before_action :load_cash_flow, only: %i[edit update destroy]
   before_action :new_cash_flow, only: %i[new create]
 
-  # Optionally filtered by category and/or date range, so the amortization
-  # table can drill down into the exact cash flows behind a cell (its category
-  # within the PV year's date range).
+  # Optionally filtered by category and/or date range (see FilteredList), so
+  # the amortization table can drill down into the exact cash flows behind a
+  # cell (its category within the PV year's date range).
   def index
     @cash_flows = filtered_cash_flows
-    remember_filter
   end
 
   # Set who may see the amortization calculation: everyone, admins only, or
@@ -49,85 +51,13 @@ class Settings::CashFlowsController < ApplicationController
 
   # Refresh the list straight from the mutating request (no Turbo broadcast, which
   # could not know the viewer's filter). The filter of the list that opened the
-  # form stays applied (see #list_filter), so a new entry does not reveal the full
+  # form stays applied (see FilteredList), so a new entry does not reveal the full
   # list while the filter is still shown.
   def list_stream
-    turbo_stream.update(
-      'list',
-      CashFlow::List::Component.new(cash_flows: filtered_cash_flows, filter_categories:, filter_from:, filter_to:),
-    )
+    turbo_stream.update('list', CashFlow::List::Component.new(cash_flows: filtered_cash_flows, filter:))
   end
 
-  # The list with the filter the index showed last, for a form that no list
-  # opened (see FormPageResponse)
-  def default_list_path
-    settings_cash_flows_path(session[:cash_flow_filter].to_h.compact_blank)
-  end
-
-  # Persist the filter the index is currently showing. A form that no list opened
-  # falls back to it (see #list_filter).
-  def remember_filter
-    session[:cash_flow_filter] = {
-      category: filter_categories,
-      from: filter_from&.iso8601,
-      to: filter_to&.iso8601,
-    }
-  end
-
-  # Where the filter helpers read from. A mutation carries no filter params, so it
-  # reads the filter of the list that opened the form; every other action reads
-  # the live request params. Both sources share the same keys, so the helpers
-  # below stay identical regardless of the source.
-  def filter_source
-    @filter_source ||=
-      if action_name.in?(%w[create update destroy])
-        list_filter
-      else
-        params
-      end
-  end
-
-  # The filter of the list that opened the form, from its address (see
-  # FormPageResponse#return_to). Without one, the filter remembered from the
-  # last index render.
-  def list_filter
-    @list_filter ||= (return_to ? return_to_params('settings/cash_flows') : session[:cash_flow_filter].to_h).with_indifferent_access
-  end
-
-  def filtered_cash_flows
-    scope = CashFlow.ordered
-    scope = scope.where(category: filter_categories) if filter_categories.any?
-    scope = scope.where(date: ..filter_to) if filter_to
-    scope = scope.where(date: filter_from..) if filter_from
-    scope
-  end
-
-  # The categories the list is narrowed to. Accepts a single value or an array -
-  # the amortization table drills into a whole category group (e.g. all
-  # operating flows) at once. Intersecting with the enum keeps only known values,
-  # so an unexpected param can't reach the query.
-  helper_method def filter_categories
-    @filter_categories ||=
-      Array(filter_source[:category]).map(&:to_s) & CashFlow.categories.keys
-  end
-
-  helper_method def filter_from
-    @filter_from ||= parse_date(filter_source[:from])
-  end
-
-  helper_method def filter_to
-    @filter_to ||= parse_date(filter_source[:to])
-  end
-
-  helper_method def filter_active?
-    filter_categories.any? || filter_from || filter_to
-  end
-
-  def parse_date(value)
-    value.present? ? Date.iso8601(value.to_s) : nil
-  rescue Date::Error
-    nil
-  end
+  def filtered_cash_flows = filter.apply(CashFlow.ordered)
 
   helper_method def title
     t('settings.cash_flows.name')
@@ -141,18 +71,9 @@ class Settings::CashFlowsController < ApplicationController
     @cash_flow = CashFlow.find(params.expect(:id))
   end
 
+  # A new cash flow takes the category of the filter
   def new_cash_flow
-    @cash_flow =
-      if params[:cash_flow]
-        CashFlow.new(permitted_params)
-      else
-        CashFlow.new(date: Date.current, category: default_category)
-      end
-  end
-
-  # Pre-select the filtered category for a new entry. A group drill-down covers
-  # several categories at once; the first one is used as the default.
-  def default_category
-    Array(list_filter[:category]).first
+    @cash_flow = CashFlow.new(date: Date.current, category: filter.category)
+    @cash_flow.assign_attributes(permitted_params) if params[:cash_flow]
   end
 end

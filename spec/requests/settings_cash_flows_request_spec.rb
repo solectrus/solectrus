@@ -104,12 +104,38 @@ describe 'Settings::CashFlows' do
           end
         end
 
+        it 'removes a single part of the filter with the x of its pill' do
+          get '/settings/cash_flows', params: { category: %w[investment repair], from: '2021-01-01', to: '2021-12-31' }
+
+          expect(response.parsed_body.css('a[aria-label="Remove from filter"]').pluck('href')).to eq(
+            [
+              '/settings/cash_flows?category%5B%5D=repair&from=2021-01-01&to=2021-12-31',
+              '/settings/cash_flows?category%5B%5D=investment&from=2021-01-01&to=2021-12-31',
+              '/settings/cash_flows?category%5B%5D=investment&category%5B%5D=repair',
+            ],
+          )
+        end
+
         it 'offers a per-row link to filter by the row category' do
           get '/settings/cash_flows'
 
           expect(response.body).to include(
-            'href="/settings/cash_flows?category=investment"',
+            'href="/settings/cash_flows?category%5B%5D=investment"',
           )
+        end
+
+        it 'offers a per-row link to filter by the year of the row' do
+          get '/settings/cash_flows', params: { category: 'investment' }
+
+          expect(response.body).to include(
+            'href="/settings/cash_flows?category%5B%5D=investment&amp;from=2021-01-01&amp;to=2021-12-31"',
+          )
+        end
+
+        it 'omits the row link for the year already filtered' do
+          get '/settings/cash_flows', params: { from: '2021-01-01', to: '2021-12-31' }
+
+          expect(response.body).not_to include('href="/settings/cash_flows?from=2021-01-01&amp;to=2021-12-31"')
         end
 
         it 'passes the address of the filtered list to its forms' do
@@ -148,7 +174,7 @@ describe 'Settings::CashFlows' do
           get '/settings/cash_flows', params: { category: 'investment' }
 
           expect(response.body).not_to include(
-            'href="/settings/cash_flows?category=investment"',
+            'href="/settings/cash_flows?category%5B%5D=investment"',
           )
         end
 

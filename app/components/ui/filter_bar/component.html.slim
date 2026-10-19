@@ -1,0 +1,17 @@
+/ One line: the icon, the pills, which wrap, and the link that clears the
+  whole filter
+.flex.items-center.gap-3.mb-6.rounded-lg.px-3.py-2.bg-indigo-50.dark:bg-indigo-950/40.ring-1.ring-inset.ring-indigo-100.dark:ring-indigo-900
+  span.inline-flex.shrink-0.text-indigo-600.dark:text-indigo-300 role='img' title=t('.filtered_by') aria-label=t('.filtered_by') data-controller='tooltip' data-tooltip-touch-value='true'
+    = helpers.icon 'filter'
+  .flex.flex-wrap.items-center.gap-1.5.mr-auto
+    - pills.each do |pill|
+      = pill
+    - filter.categories.each do |category|
+      = render category_pill(category)
+    = render dates_pill
+  = link_to clear_path,
+            class: 'shrink-0 inline-flex items-center gap-1 rounded-md p-2 sm:px-2 sm:py-1 text-sm font-medium text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50',
+            data: { turbo_frame: '_top' } do
+    = helpers.icon 'xmark'
+    / On a phone, the x alone leaves the room to the pills
+    span.max-sm:sr-only = t('.clear_filter')

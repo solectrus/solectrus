@@ -510,10 +510,6 @@ en:
       visibility_all: For all users
       visibility_admins: For admins only
       visibility_none: For nobody (hide page)
-      filtered_by: Filtered by
-      from: From
-      to: To
-      clear_filter: Clear filter
     sensors:
       name: Sensors
       generators: Generators

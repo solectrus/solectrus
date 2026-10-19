@@ -14,7 +14,7 @@ describe CashFlow::List::Component, type: :component do
   end
 
   context 'without entries for the filter' do
-    before { render_inline(described_class.new(cash_flows: CashFlow.ordered, filter_categories: %w[repair])) }
+    before { render_inline(described_class.new(cash_flows: CashFlow.ordered, filter: CashFlow::Filter.new(categories: %w[repair]))) }
 
     it 'says that nothing matches' do
       expect(page).to have_text('No cash flows match this filter')

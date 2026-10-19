@@ -510,10 +510,6 @@ de:
       visibility_all: Für alle Nutzer
       visibility_admins: Nur für Admin
       visibility_none: Für niemanden (Seite ausblenden)
-      filtered_by: Gefiltert nach
-      from: Von
-      to: Bis
-      clear_filter: Filter entfernen
     sensors:
       name: Sensoren
       generators: Erzeuger

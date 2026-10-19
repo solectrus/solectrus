@@ -1,0 +1,18 @@
+/ A row of the grid from lg up, each cell in one line: the date, the
+  category, the note and the amount. Below, the same cells form a cell of a
+  grouped list: the note over the date and the category, the amount at the
+  right.
+= render Ui::TableRow::Component.new(href: edit_path, nav_title: t('settings.cash_flows.edit'), css_class: 'group grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
+  .inline-flex.items-center.gap-1.5.whitespace-nowrap.lg:p-2.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:min-w-0.max-lg:text-subhead.max-lg:text-muted
+    = row.link css_class: 'max-lg:truncate' do
+      time datetime=cash_flow.date.iso8601
+        = l cash_flow.date
+      span.lg:hidden = " · #{category_name}"
+    span.max-lg:hidden = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_year(cash_flow.date), label: t('.filter_by_year'))
+  .inline-flex.items-center.gap-1.5.whitespace-nowrap.p-2.max-lg:hidden
+    = render CashFlow::CategoryPill::Component.new(category: cash_flow.category)
+    = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_category(cash_flow.category), label: t('.filter_by_category'))
+  .truncate.lg:p-2.lg:text-sm.lg:text-gray-500.max-lg:col-start-1.max-lg:row-start-1.max-lg:text-headline.max-lg:text-gray-800.dark:max-lg:text-slate-300
+    = cash_flow.note
+  .tabular-nums.text-right.whitespace-nowrap.lg:p-2.max-lg:col-start-2.max-lg:row-span-2.max-lg:row-start-1 class=amount_color
+    = amount
