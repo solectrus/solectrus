@@ -1,6 +1,11 @@
 span class=wrapper_class data-controller='tooltip' data-tooltip-touch-value='true'
   = icon 'circle-info', class: full_icon_class
   span.hidden data-tooltip-target='html'
-    - paragraphs.each_with_index do |paragraph, index|
-      p class=('mt-2' if index.nonzero?)
-        = paragraph
+    - paragraphs.each_with_index do |(lead, items), index|
+      - if lead.present?
+        p class=('mt-2' if index.nonzero?)
+          = lead
+      - if items.any?
+        ul.list-disc.pl-5 class=(lead.present? ? 'mt-1' : ('mt-2' if index.nonzero?))
+          - items.each do |item|
+            li = item

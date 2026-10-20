@@ -1,6 +1,7 @@
 # Info icon with a rich-HTML tooltip, used wherever a figure needs a sentence of
 # explanation without spending layout on it. The hint text is split into
-# paragraphs on blank lines (\n\n), so long hints stay readable.
+# paragraphs on blank lines (\n\n), so long hints stay readable. The lines of
+# a paragraph that start with "- " form a list below its other lines.
 #
 # The tooltip controller sits on the wrapper, not on the <i>: Font Awesome
 # replaces the <i> with an <svg> and discards its children, so the hidden
@@ -36,7 +37,12 @@ class Ui::InfoIcon::Component < ViewComponent::Base
     "font-normal normal-case #{icon_class}"
   end
 
+  # [[lead, items], ...]: the text of each paragraph without its list, and
+  # the items of its list
   def paragraphs
-    text.split("\n\n")
+    text.split("\n\n").map do |paragraph|
+      items, lines = paragraph.lines(chomp: true).partition { it.start_with?('- ') }
+      [lines.join(' '), items.map { it.delete_prefix('- ') }]
+    end
   end
 end
