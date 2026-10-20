@@ -13,10 +13,6 @@ UNIT_WORKERS = ParallelCI.workers_upto(10)
 # contention: 59s at six, 62s at eight, 66s at ten, 78s at twenty.
 SYSTEM_WORKERS = ParallelCI.workers_upto(6)
 
-# slim-lint shares the machine with `rubocop --parallel`, which already asks
-# for every core, so this stays modest.
-LINT_WORKERS = ParallelCI.workers_upto(8)
-
 # Both spec runs number their workers from the same base, so the larger of the
 # two counts is how many test databases bin/ci has to create.
 MAX_WORKERS = [UNIT_WORKERS, SYSTEM_WORKERS].max
@@ -63,10 +59,7 @@ ParallelCI.run do
     # Vite step below replaces this build with its own.
     check 'JavaScript size limit', 'bunx vite build --logLevel warn && bun run size-limit'
 
-    # slim-lint runs on one core and keeps no cache, so it is the slowest
-    # check by far. Splitting the files over processes brings it down from
-    # 32 to 14 seconds.
-    check 'Slim', "git ls-files '*.slim' | xargs -n 20 -P #{LINT_WORKERS} bin/slim-lint"
+    check 'Slim', 'bin/slim-lint .'
   end
 
   # The table of every built asset says nothing that a green build needs to

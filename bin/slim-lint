@@ -13,4 +13,12 @@ ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
 require 'rubygems'
 require 'bundler/setup'
 
+# slim-lint starts one RuboCop run per template, and every run indexes the
+# whole project again (UseProjectIndex). Build the index once per process.
+require 'rubocop'
+index = nil
+RuboCop::Runner.prepend(
+  Module.new { define_method(:build_project_index) { |files| @project_index = (index ||= super(files)) } },
+)
+
 load Gem.bin_path('slim_lint', 'slim-lint')
