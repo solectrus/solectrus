@@ -10,7 +10,7 @@ export {
   applyZeroLineHighlight,
 } from './axes';
 export { ColorManager } from './color_manager';
-export { applyChartDefaults } from './chart_defaults';
+export { applyChartDefaults, chartContext } from './chart_defaults';
 export {
   extractNumericValue,
   isOverlapping,

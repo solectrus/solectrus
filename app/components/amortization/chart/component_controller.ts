@@ -19,7 +19,10 @@ import {
 } from 'chart.js';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import { applyChartDefaults } from '../../chart_loader/helpers/chart_defaults';
+import {
+  applyChartDefaults,
+  chartContext,
+} from '../../chart_loader/helpers/chart_defaults';
 import GenericChartTooltip from '../../chart_loader/helpers/generic_chart_tooltip';
 
 Chart.register(
@@ -225,7 +228,8 @@ export default class extends Controller<HTMLDivElement> {
       borderWidth: 2.5,
     };
 
-    this.chart = new Chart(this.canvasTarget, {
+    const context = chartContext(this.canvasTarget) ?? this.canvasTarget;
+    this.chart = new Chart(context, {
       type: 'line',
       data: {
         datasets: [
@@ -465,7 +469,7 @@ export default class extends Controller<HTMLDivElement> {
     canvas.width = tile;
     canvas.height = height;
 
-    const context = canvas.getContext('2d');
+    const context = chartContext(canvas);
     if (!context) return fallback;
 
     context.lineWidth = 1;

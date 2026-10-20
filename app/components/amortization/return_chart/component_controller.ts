@@ -18,7 +18,10 @@ import {
 import 'chartjs-adapter-luxon';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
-import { applyChartDefaults } from '../../chart_loader/helpers/chart_defaults';
+import {
+  applyChartDefaults,
+  chartContext,
+} from '../../chart_loader/helpers/chart_defaults';
 import GenericChartTooltip from '../../chart_loader/helpers/generic_chart_tooltip';
 
 Chart.register(
@@ -155,7 +158,8 @@ export default class extends Controller<HTMLDivElement> {
     // without evaluable data reads as a gap rather than being cropped away.
     const axisStart = data.start ? Date.parse(data.start) : undefined;
 
-    this.chart = new Chart(this.canvasTarget, {
+    const context = chartContext(this.canvasTarget) ?? this.canvasTarget;
+    this.chart = new Chart(context, {
       type: 'line',
       data: {
         datasets: [

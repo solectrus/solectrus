@@ -3,6 +3,15 @@ import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
 let applied = false;
 
+// The context of a canvas for a chart, in the color space of the page. The
+// colors of Tailwind are oklch and partly outside of sRGB. The page draws them
+// in the wide gamut of the display, a canvas in sRGB would clip them. A browser
+// without display-p3 (Firefox) ignores the setting and stays in sRGB.
+export const chartContext = (
+  canvas: HTMLCanvasElement,
+): CanvasRenderingContext2D | null =>
+  canvas.getContext('2d', { colorSpace: 'display-p3' });
+
 // Global Chart.js setup, applied once before any chart renders. Shared by the
 // generic chart_loader and the bespoke amortization chart so both behave and
 // look identically. Idempotent: several controllers call it, but the patches

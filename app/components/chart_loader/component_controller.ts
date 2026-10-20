@@ -49,6 +49,7 @@ import {
 // Options & tooltip setup
 import {
   applyChartDefaults,
+  chartContext,
   applyFixedYAxisWidth,
   applyLocaleToTimeScale,
   applyTooltipTheme,
@@ -357,7 +358,8 @@ export default class extends Controller<HTMLCanvasElement> {
     const suppressedAnimation =
       options.animation === false && !isReducedMotion();
 
-    this.chart = new Chart(this.canvasTarget, {
+    const context = chartContext(this.canvasTarget) ?? this.canvasTarget;
+    this.chart = new Chart(context, {
       type: this.typeValue,
       data,
       options,
