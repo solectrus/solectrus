@@ -125,7 +125,8 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     suffix = options.delete(:suffix)
     show_label = options[:label] != false
     options.delete(:label) unless show_label
-    options[:class] = input_classes(options, method, suffix)
+    options[:class] = input_classes(options, method)
+    options[:style] = suffix_padding(suffix, options[:style]) if suffix
 
     input =
       @template.public_send(
@@ -146,15 +147,20 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     [(block_given? ? yield : (hint_tag(hint) if hint)), (errors(method) if show_errors)]
   end
 
-  def input_classes(options, method, suffix)
+  def input_classes(options, method)
     [
       options[:class],
       'form-input',
       ('input-error' if error?(method)),
-      # Keep the text clear of the suffix pinned to the right edge
-      ('pr-12' if suffix),
       (options[:maxlength] ? 'w-20' : 'w-full'),
     ].compact.join(' ')
+  end
+
+  # Keep the text and the spin buttons of a number clear of the suffix pinned
+  # to the right edge. The space grows with the suffix, about 1ch for each
+  # character, so "l/100 km" gets more of it than "kWh".
+  def suffix_padding(suffix, style)
+    ["padding-right: calc(#{suffix.to_s.length}ch + 1.5rem)", style].compact.join('; ')
   end
 
   def input_label(method, options)
