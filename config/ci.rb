@@ -58,6 +58,11 @@ ParallelCI.run do
     check 'JavaScript vulnerability audit', 'bun audit --ignore=GHSA-rj75-hqrm-r3gf'
     check 'Brakeman code analysis', 'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
+    # The limits apply to what the Docker image ships, so this needs a
+    # production build. The test build would add the test entrypoint. The
+    # Vite step below replaces this build with its own.
+    check 'JavaScript size limit', 'bunx vite build --logLevel warn && bun run size-limit'
+
     # slim-lint runs on one core and keeps no cache, so it is the slowest
     # check by far. Splitting the files over processes brings it down from
     # 32 to 14 seconds.
