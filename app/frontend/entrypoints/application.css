@@ -109,6 +109,26 @@
   }
 }
 
+/* From lg up, the navigation scrolls away with the page, but the strip is
+   fixed and would stay over the content. So it gets lower as the window
+   scrolls, and it ends where the navigation ends. A browser without
+   scroll-driven animations keeps the strip as it is. */
+@supports (animation-timeline: scroll()) {
+  @media (width >= 64rem) {
+    #theme-strip {
+      animation: theme-strip-scroll linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 4rem;
+    }
+  }
+}
+
+@keyframes theme-strip-scroll {
+  to {
+    height: 0;
+  }
+}
+
 /* An app installed on an iPhone keeps a low band there. A strip of no height
    leaves nothing for iOS to read the color of the status bar from, and iOS 26
    and later then paint their own band of frosted glass over that edge.

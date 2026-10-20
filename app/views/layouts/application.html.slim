@@ -54,9 +54,13 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
 
     = yield :head
 
+  / A fixed navigation wins over full height
+  - fixed_nav = content_for?(:fixed_nav)
+  - full_height = !fixed_nav && content_for?(:full_height)
+
   body.bg-chrome.select-none.font-sans.antialiased[
-    class=('overflow-hidden' if content_for?(:full_height) || content_for?(:fixed_nav))
-    class=('theme-strip-collapsed' if !content_for?(:sub_nav) || content_for?(:fixed_nav))
+    class=[('max-lg:overflow-hidden' if fixed_nav), ('overflow-hidden' if full_height)]
+    class=('theme-strip-collapsed' if !content_for?(:sub_nav) || fixed_nav)
     data-controller= ['fullscreen', content_for(:extra_stimulus_controllers), ('plausible' if Rails.configuration.x.plausible_url)].compact.join(' ')
     data-plausible-url-value= Rails.configuration.x.plausible_url
     data-plausible-domain-value= (Rails.configuration.x.plausible_url.present? ? Rails.configuration.x.app_host : nil)
@@ -69,12 +73,12 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
       keeps the strip and the styles of the page that rendered it first.
     = render Theme::Strip::Component.new
 
-    .flex.flex-col.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=(content_for?(:full_height) || content_for?(:fixed_nav) ? 'h-dvh overflow-hidden' : 'min-h-dvh')
+    .flex.flex-col.min-h-dvh.bg-linear-to-t.from-gray-100.to-white.dark:from-black.dark:to-black class=[('max-lg:h-dvh max-lg:overflow-hidden' if fixed_nav), ('h-dvh overflow-hidden' if full_height)]
       - if banner?
         = render Banner::Component.new registration_status: UpdateCheck.registration_status,
                                        admin: admin?
 
-      = render Nav::Top::Component.new(compact: content_for?(:fixed_nav), unread_count: unread_notifications_count) do |c|
+      = render Nav::Top::Component.new(compact: fixed_nav, unread_count: unread_notifications_count) do |c|
         - c.with_primary_items desktop_primary_items
         - c.with_secondary_items desktop_secondary_items
         = c.with_sub_nav do
@@ -89,15 +93,17 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         - if flash.present?
           = render Ui::Flash::Component.new(notice:, alert:)
 
-      / A page with a fixed navigation fills the window on a computer too, so
-        the card and the footer keep their place between its tabs. The scroll
-        padding keeps a focused element off the edge, so the keyboard shows
-        it with its ring and the rest of its row.
-      main.relative.flex.flex-auto.min-h-0 class= [content_for?(:fixed_nav) ? 'overflow-y-auto scroll-pt-4 scroll-pb-20 bg-white dark:bg-slate-900 lg:-mt-32 lg:bg-transparent lg:dark:bg-transparent' : '-mt-32', content_for?(:full_height) ? 'lg:landscape:max-h-[700px]' : ('lg:landscape:flex-initial' unless content_for?(:fixed_nav))]
+      / A page with a fixed navigation fills the window, so the card and the
+        footer keep their place between its tabs. On a phone, the navigation
+        stays and main scrolls below it. On a computer, the window scrolls,
+        so the scroll bar stays at its edge, and the card grows with its
+        content. The scroll padding keeps a focused element off the edge, so
+        the keyboard shows it with its ring and the rest of its row.
+      main.relative.flex.flex-auto.min-h-0 class= [fixed_nav ? 'max-lg:overflow-y-auto scroll-pt-4 scroll-pb-20 lg:[html:has(&)]:scroll-pt-4 lg:[html:has(&)]:scroll-pb-20 max-lg:bg-white max-lg:dark:bg-slate-900 lg:-mt-32' : '-mt-32', ('lg:landscape:max-h-[700px]' if full_height), ('lg:landscape:flex-initial' unless fixed_nav || full_height)]
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0.min-w-0
           / On a phone, a page with `content_for :grouped` puts white cards on
             the gray of a grouped list, like the Top 10
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=[(content_for?(:fixed_nav) ? 'lg:rounded-lg self-start min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0'), ('max-lg:bg-gray-100 dark:max-lg:bg-slate-900' if content_for?(:grouped))]
+          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=[(fixed_nav ? 'max-lg:self-start max-lg:min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0'), ('max-lg:bg-gray-100 dark:max-lg:bg-slate-900' if content_for?(:grouped))]
             = yield
 
         / Shown while a page loads on a phone (see application.css)
