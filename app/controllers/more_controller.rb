@@ -49,7 +49,7 @@ class MoreController < ApplicationController
 
   # The charging sessions, apart from the views as in the menu of the desktop,
   # and only with a car (see Sensor::HomePage.open?). From here, the list is a
-  # page below this one (see ChargingSessionsParent). The cell keeps the name
+  # page below this one (see BelowMore). The cell keeps the name
   # of the menu, the slide shows the shorter title of the list. A guest gets
   # the request to log in, without a title bar, so only the admin slides.
   helper_method def charging_sessions_link

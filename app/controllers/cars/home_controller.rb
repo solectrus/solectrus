@@ -2,8 +2,8 @@ class Cars::HomeController < HomePageController
   include CarSelectable
 
   # From here, the charging sessions are a page below the car page again (see
-  # ChargingSessionsParent)
-  before_action { ChargingSessionsParent.forget(session) }
+  # BelowMore)
+  before_action { BelowMore.forget(session) }
 
   private
 

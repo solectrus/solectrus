@@ -70,12 +70,12 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     helper_method def more_current?
       helpers.controller.is_a?(MoreController) ||
         secondary_items.any? { it[:current] } || more_child_item.present? ||
-        helpers.controller_namespace == 'settings' || charging_sessions_below_more?
+        helpers.controller_namespace == 'settings' || below_more?
     end
 
     # Only the charging sessions can be a page below the page More or below
-    # the car page (see ChargingSessionsParent)
-    helper_method def charging_sessions_below_more? = false
+    # the car page (see BelowMore)
+    helper_method def below_more? = false
 
     # The logo of the page More, which is the brand of the app
     helper_method def more_logo
@@ -200,7 +200,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         icon_only: true,
         href:
           cars_home_path(sensor_name: (car_sensor_name unless live), timeframe:, car: nil),
-        current: helpers.controller_namespace == 'cars' && !charging_sessions_below_more?,
+        current: helpers.controller_namespace == 'cars' && !below_more?,
       }
     end
 

@@ -2,7 +2,7 @@ class Cars::ChargingSessionsController < ApplicationController
   include Pagy::Method
   include CarListPage
   include FormPageResponse
-  include ChargingSessionsParent
+  include BelowMore
   include ChargingSessionsView
 
   before_action :load_charging_session, only: %i[edit update destroy dismiss]
