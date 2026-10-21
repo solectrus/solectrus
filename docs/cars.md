@@ -826,7 +826,9 @@ and a cookie keeps the choice.
   badge.
 - Driving: the distance with the average for each day. Below it, four rows: the driving
   cost, its rate per 100 km, the consumption per 100 km and the average maximum range.
-  Below, the number of visits and places.
+  Below, the number of places. The badge opens the map of the places, and the map leads to
+  the list of the visits. A second badge for the visits confused users, because the two
+  badges counted the same stops.
 
 Each value opens its chart, and its tooltip explains it. The tooltip of the ring gives the
 share and the cost of each source, and the charging cost. The driving cost gives its
@@ -877,7 +879,7 @@ personal data, so only the admin sees it. The definitions declare `admin_only`:
 - A guest gets no value of the sensors.
 - The list of the visits, the map of the places, the list of the places and the tooltips
   of the places ask a guest to log in. The driving card still shows a guest the number of
-  visits and places.
+  places.
 - The MCP server does not offer the sensors.
 
 A position needs the latitude and the longitude. InfluxDB has no type for a point, so a
@@ -889,7 +891,8 @@ on a map that fills the window. A map in the live view took too much space besid
 gauge, and a place says enough at a glance.
 
 The map of the places is a page below the car page (`/cars/2/places/2025`), like the list
-of the visits. The badge of the places on the driving card opens it. The page has a
+of the visits. The badge of the places on the driving card opens it. The map is the
+first tab of the page, and the list of the visits is the second. The page has a
 timeframe and a select of the car, and the map fills the page. A chart beside the numbers
 of the car page was too small for a map.
 

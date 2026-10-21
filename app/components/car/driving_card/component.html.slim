@@ -28,16 +28,15 @@
       = render Car::StatRow::Component.new(title: t('car_breakdown.range'), sensor_name: max_range_chart, timeframe:, tooltip: max_range_tooltip, bar: max_range_bar) do
         = render Sensor::Value::Component.new(report.max_range, :car_max_range)
 
-  / The visits and their places, like the sessions of the charging card, so
-  / the two cards end alike. Only a short phone puts them on one line, because
-  / the tiles above take more height than the ring of the charging card.
+  / The places of the visits, like the sessions of the charging card, so the
+  / two cards end alike. Only a short phone puts the label and the count on
+  / one line, because the tiles above take more height than the ring of the
+  / charging card.
   - if visits?
     div
       = render Car::SectionTitle::Component.new(title: t('car_breakdown.on_the_road'))
-      div class="grid grid-cols-2 gap-3 max-sm:tiny:gap-2 sm:gap-1.5 md:gap-2"
-        - visit_badges.each do |label, count, href|
-          = link_to href, class: badge_classes do
-            span.truncate.text-sm.sm:text-xs.md:text-sm.text-slate-500.dark:text-slate-400
-              = label
-            span.text-lg.sm:text-sm.md:text-base.font-semibold.tabular-nums.text-slate-700.dark:text-slate-300
-              = count
+      = link_to places_path, class: badge_classes do
+        span.truncate.text-sm.sm:text-xs.md:text-sm.text-slate-500.dark:text-slate-400
+          = t('car_breakdown.places')
+        span.text-lg.sm:text-sm.md:text-base.font-semibold.tabular-nums.text-slate-700.dark:text-slate-300
+          = places_count

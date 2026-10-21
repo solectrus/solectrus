@@ -58,20 +58,16 @@ class Car::DrivingCard::Component < ViewComponent::Base
   # The visits at the places in the timeframe, at the foot of the card like
   # the sessions of the charging card. Only a car with a location has visits,
   # and the visits are whole days. A guest sees the counts too, like the
-  # sessions, but the list asks for the login.
+  # sessions, but the map asks for the login.
   def visits?
     !timeframe.now? && !timeframe.hours? && cars.any?(&:located?)
   end
 
-  # [[label, count, href], ...]: the visits that overlap the timeframe, and
-  # their places. The visits open their list, the places their map.
-  def visit_badges
-    counts = report.visit_counts
-    [
-      [t('car_breakdown.visits'), counts[:visits], helpers.cars_visits_path(**page_params)],
-      [t('car_breakdown.places'), counts[:places], helpers.cars_place_map_path(**page_params)],
-    ]
-  end
+  # The places of the visits that overlap the timeframe. The badge opens
+  # their map, and the map leads on to the list of the visits.
+  def places_count = report.visit_counts[:places]
+
+  def places_path = helpers.cars_place_map_path(**page_params)
 
   # The timeframe and the selected car of the list and the map. The whole
   # time has no timeframe in their address.

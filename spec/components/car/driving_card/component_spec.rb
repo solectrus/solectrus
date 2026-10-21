@@ -251,6 +251,8 @@ describe Car::DrivingCard::Component, type: :component do
   describe 'the visits' do
     let(:cars) { [Car.configured.first] }
 
+    def places_badge = html.at_css('a[href="/cars/1/places/2025"]')
+
     before do
       Sensor::Config.setup(
         env.merge(
@@ -266,24 +268,23 @@ describe Car::DrivingCard::Component, type: :component do
     context 'with the admin' do
       before { allow(vc_test_controller).to receive(:admin?).and_return(true) }
 
-      it 'counts the visits and their places' do
-        badges = html.css('.grid-cols-2:not(.divide-x) > a')
-
-        expect(badges.map { |badge| badge.css('span').map { it.text.squish } }).to eq([%w[Visits 2], %w[Locations 1]])
+      it 'counts the places of the visits' do
+        expect(places_badge.css('span').map { it.text.squish }).to eq(%w[Locations 1])
       end
 
-      it 'links the visits to their list, and the places to their map' do
-        expect(html.css('a[href^="/cars/1/"]').pluck('href')).to include('/cars/1/visits/2025', '/cars/1/places/2025')
+      it 'links the places to their map, and not the visits to their list' do
+        hrefs = html.css('a[href^="/cars/1/"]').pluck('href')
+
+        expect(hrefs).to include('/cars/1/places/2025')
+        expect(hrefs).not_to include('/cars/1/visits/2025')
       end
     end
 
     context 'with a guest' do
       before { allow(vc_test_controller).to receive(:admin?).and_return(false) }
 
-      it 'counts the visits and their places, too' do
-        badges = html.css('.grid-cols-2:not(.divide-x) > a')
-
-        expect(badges.map { |badge| badge.css('span').map { it.text.squish } }).to eq([%w[Visits 2], %w[Locations 1]])
+      it 'counts the places, too' do
+        expect(places_badge.css('span').map { it.text.squish }).to eq(%w[Locations 1])
       end
     end
   end

@@ -39,10 +39,11 @@ module PlacePage
     helper_method def page_path_with(**changes) = path_for(page_route, **page_params, **changes)
 
     # The pages of the places in the header, each in the timeframe and with
-    # the car of the page. The current page keeps its own parameters, like
-    # the place of the list of the visits.
+    # the car of the page. The map comes first, because the driving card
+    # opens it. The current page keeps its own parameters, like the place of
+    # the list of the visits.
     helper_method def nav_items
-      { cars_visits_path: t('visits.name'), cars_place_map_path: t('car_breakdown.places') }.map do |route, name|
+      { cars_place_map_path: t('car_breakdown.places'), cars_visits_path: t('visits.name') }.map do |route, name|
         current = route == page_route
         { name:, href: current ? page_path_with : path_for(route, car: car_selection.to_param), current: }
       end
