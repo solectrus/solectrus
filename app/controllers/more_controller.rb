@@ -16,6 +16,12 @@ class MoreController < ApplicationController
     t('layout.more')
   end
 
+  # The pages of the cars that the page More lists, as in the menu of the
+  # desktop (see MainNavigation#car_pages)
+  helper_method def car_links
+    car_pages.filter_map { it[:item].merge(plain: true, **it[:more]) if it[:more] }
+  end
+
   # A guest sees the settings too, and their page asks to log in. Only the
   # overview of the admin has a title bar that leads back here, so only it
   # slides.

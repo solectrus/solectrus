@@ -89,7 +89,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     helper_method def desktop_secondary_items
       @desktop_secondary_items ||=
         [
-          *charging_sessions_group,
+          *cars_group,
           helios_item,
           settings_item,
           registration_item,
@@ -208,27 +208,36 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     # The data of the menu stands apart from the configuration below it
-    def charging_sessions_group
-      item = charging_sessions_item
-      [item, ___] if item
+    def cars_group
+      items = car_pages.pluck(:item)
+      [*items, ___] if items.any?
     end
 
-    # The list of the charging sessions. A guest sees the list without the
-    # open tasks and the forms. The link starts without the car and the kind
-    # of the current page, in the timeframe of the views, or in the whole time
-    # from the live view.
-    def charging_sessions_item
-      return unless Sensor::HomePage.open?(:cars)
+    # The pages of the cars, apart from the views, and only with a car (see
+    # Sensor::HomePage.open?). Each has its item of the menu and, if the page
+    # More lists it, the changes of its cell there. Each link starts without
+    # the car and the kind of the current page.
+    #
+    # The page More does not list the charging sessions: a phone opens them
+    # from the car page. A guest sees the list without the open tasks and the
+    # forms. The link starts in the timeframe of the views, or in the whole
+    # time from the live view.
+    def car_pages
+      return [] unless Sensor::HomePage.open?(:cars)
 
       timeframe = computed_timeframe
       timeframe = 'all' if timeframe.nil? || timeframe.try(:now?)
 
-      {
-        name: t('layout.charging_sessions'),
-        icon: 'charging-station',
-        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe:),
-        current: helpers.controller.is_a?(Cars::ChargingSessionsController),
-      }
+      [
+        {
+          item: {
+            name: t('layout.charging_sessions'),
+            icon: 'charging-station',
+            href: cars_charging_sessions_path(car: nil, kind: nil, timeframe:),
+            current: helpers.controller.is_a?(Cars::ChargingSessionsController),
+          },
+        },
+      ]
     end
 
     def amortization_item
