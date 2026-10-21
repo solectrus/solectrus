@@ -14,9 +14,7 @@ class CashFlow::List::Component < ViewComponent::Base
 
   def total = cash_flows.sum(&:amount)
 
-  def formatted_total = number_to_currency(total, precision: 2, unit: Currency.symbol)
-
-  def total_color = total.negative? ? 'text-signal-negative' : 'text-signal-positive'
+  def headers = %i[date category note amount].map { CashFlow.human_attribute_name(it) }
 
   # An empty list without a filter introduces the cash flows. With a filter,
   # it only says that nothing matches.

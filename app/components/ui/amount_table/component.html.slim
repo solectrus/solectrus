@@ -1,0 +1,16 @@
+/ A grid from lg up. Below, the same cells form two grouped lists: the
+  rows, and the total in a group of its own.
+.w-full.lg:select-text.max-lg:flex.max-lg:flex-col.max-lg:gap-6
+  .grid.w-full.text-gray-800.dark:text-gray-400.max-lg:block.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60 class=grid_columns
+    / The header sticks to the top while the list scrolls. It has the
+      background of the page, so no row shows through.
+    .col-span-full.grid.grid-cols-subgrid.sticky.top-0.z-10.bg-white.dark:bg-slate-900.font-bold.text-gray-800.dark:text-gray-400.max-lg:hidden
+      - headers.each_with_index do |header, index|
+        div class=header_classes(index) = header
+    = content
+
+  .text-gray-800.dark:text-gray-200.lg:border-t.lg:border-gray-300.lg:dark:border-gray-600.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+    .flex.items-center.justify-between.gap-3.lg:p-2.lg:font-bold.max-lg:min-h-12.max-lg:px-4.max-lg:py-2.5
+      .max-lg:text-headline.dark:max-lg:text-slate-300 = t('.total')
+      .tabular-nums.whitespace-nowrap.max-lg:font-semibold class=total_color
+        = formatted_total
