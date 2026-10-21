@@ -1,21 +1,23 @@
 # The switch between the charging card and the driving card on a phone,
 # where the two cards do not fit side by side (see car_cards_controller.ts).
-# `card` is the card the page shows.
+# The card follows the chart: the charging card belongs to the charged energy
+# and its cost, the driving card to every other chart. The stats render the
+# switch once, and each chart renders it again for its sensor, so a chart of
+# the other card shows that card. The pressed button shows its card (see the
+# stats).
 class Car::CardToggle::Component < ViewComponent::Base
   CARDS = %w[charging driving].freeze
   public_constant :CARDS
 
-  # The cookie of the choice. Without it, the page shows the charging card.
-  COOKIE = :car_card
-  public_constant :COOKIE
+  CHARGING_SENSORS = %i[car_charging car_charging_costs].freeze
+  private_constant :CHARGING_SENSORS
 
-  # The card of the cookie
-  def self.card(cookies) = cookies[COOKIE].presence_in(CARDS) || CARDS.first
-
-  def initialize(card:)
+  def initialize(sensor_name:)
     super()
-    @card = card
+    @sensor_name = sensor_name
   end
 
-  attr_reader :card
+  def card
+    CHARGING_SENSORS.include?(@sensor_name&.to_sym) ? 'charging' : 'driving'
+  end
 end

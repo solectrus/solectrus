@@ -7,6 +7,11 @@
   = turbo_stream.update frame_id('car-select-stats') do
     = render car_select_component(button_class: Car::Select::Component::STATS_BUTTON_CLASS)
 
+/ The toggle of a phone shows the card of the chart (see Car::CardToggle)
+- unless timeframe.now?
+  = turbo_stream.update frame_id('car-card-toggle') do
+    = render Car::CardToggle::Component.new(sensor_name:)
+
 = turbo_stream.update frame_id('chart') do
   .flex.flex-col.flex-auto.min-h-20.sm:gap-2.relative
     - unless timeframe.out_of_scope?

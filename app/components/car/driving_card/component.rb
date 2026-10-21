@@ -19,12 +19,14 @@ class Car::DrivingCard::Component < ViewComponent::Base
 
   # The distance loads its chart, where the chart can draw the timeframe. The
   # distance per day stands below the distance, but beside it on a phone,
-  # which shows one card and has no room for one more line.
+  # which shows one card and has no room for one more line. The toggle of a
+  # phone loads the chart of the card from here.
   def distance_wrapper
     chart_wrapper(
       chart_sensor_name(distance_sensor_name),
       class: 'block max-sm:flex max-sm:items-baseline max-sm:justify-center max-sm:gap-3 min-w-0 text-center',
       link_class: 'click-animation focus:outline-none',
+      data: { car_cards_target: 'chart', car_card: 'driving' },
     )
   end
 

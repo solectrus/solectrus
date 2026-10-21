@@ -192,26 +192,21 @@ describe 'Car Stats' do
           html.at_css('[data-car-cards-target=button][aria-pressed=true]')['data-car-cards-card-param']
         end
 
-        def hidden_cards
-          html = Nokogiri::HTML4(response.body) # rubocop:disable Rails/ResponseParsedBody
-          html.css('[data-car-cards-target=charging], [data-car-cards-target=driving]')
-              .select { it['class'].to_s.split.include?('max-sm:hidden') }
-              .pluck('data-car-cards-target')
-        end
-
-        it 'shows the charging card without a choice' do
-          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
-
-          expect(pressed_card).to eq('charging')
-          expect(hidden_cards).to eq(['driving'])
-        end
-
-        it 'shows the card of the cookie' do
-          cookies[Car::CardToggle::Component::COOKIE] = 'driving'
-          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
-
+        it 'shows the card of the chart' do
+          get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s), headers:)
           expect(pressed_card).to eq('driving')
-          expect(hidden_cards).to eq(['charging'])
+
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
+          expect(pressed_card).to eq('charging')
+        end
+
+        # A tap on the toggle loads the main chart of the card from these
+        it 'marks the main chart of each card' do
+          get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s), headers:)
+
+          html = Nokogiri::HTML4(response.body) # rubocop:disable Rails/ResponseParsedBody
+          expect(html.css('a[data-car-cards-target=chart]').pluck('data-stats-with-chart--component-sensor-name-param'))
+            .to contain_exactly('car_charging', 'car_distance')
         end
       end
 

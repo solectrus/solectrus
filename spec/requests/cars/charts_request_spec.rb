@@ -47,6 +47,15 @@ describe 'Car Charts' do
         get(path, headers:)
         expect(response.body).to include('Garage')
       end
+
+      # The stats keep the toggle, so the chart sets it
+      it 'renders the toggle of a phone for the card of the chart' do
+        get(path, headers:)
+
+        html = Nokogiri::HTML4(response.body) # rubocop:disable Rails/ResponseParsedBody
+        expect(html.at_css("turbo-stream[target='cars-car-card-toggle-#{Date.yesterday.iso8601}'] [aria-pressed=true]")['data-car-cards-card-param'])
+          .to eq('driving')
+      end
     end
   end
 end

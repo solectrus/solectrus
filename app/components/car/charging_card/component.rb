@@ -50,7 +50,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
   # wallbox has no curve of the charging power. A tap on a link opens the
   # chart, so its tooltip needs a long press, and a tap on a plain block opens
   # the tooltip (like Car::StatRow::Component). `link_class` applies to the
-  # link alone.
+  # link alone. The toggle of a phone loads the chart of the card from here.
   def charging_wrapper(**)
     data =
       if parts.any?
@@ -63,7 +63,7 @@ class Car::ChargingCard::Component < ViewComponent::Base
       else
         {}
       end
-    chart_wrapper(charging_chart, data:, **)
+    chart_wrapper(charging_chart, data: data.merge(car_cards_target: 'chart', car_card: 'charging'), **)
   end
 
   def charging_chart = chart_sensor_name(:car_charging)

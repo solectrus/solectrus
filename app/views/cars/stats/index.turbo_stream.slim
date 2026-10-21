@@ -10,7 +10,7 @@
   / space to the edges
   .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5[
     id="stats-#{timeframe.id}"
-    class=('py-4 md:py-6' if timeframe.now?)
+    class=(timeframe.now? ? 'py-4 md:py-6' : 'group/cards')
     data-controller=('car-cards' unless timeframe.now?)
   ]
     - if timeframe.now?
@@ -18,13 +18,14 @@
 
     - else
       / A phone shows one card at a time, with a toggle and the car select
-        above it. The header of a phone has no room for the select.
-      - card = Car::CardToggle::Component.card(cookies)
+        above it. The header of a phone has no room for the select. Each
+        chart renders the toggle again, so a refresh of the stats keeps it.
       - toggle = data.cars.any? && data.driving?
       - if toggle || car_select?
         .sm:hidden.flex.items-center.gap-3
           - if toggle
-            = render Car::CardToggle::Component.new(card:)
+            div id=frame_id('car-card-toggle') data-turbo-permanent=true
+              = render Car::CardToggle::Component.new(sensor_name:)
           - if car_select?
             .ml-auto id=frame_id('car-select-stats')
               = render car_select_component(button_class: Car::Select::Component::STATS_BUTTON_CLASS)
@@ -38,9 +39,10 @@
         / Charging on the left and driving on the right, like the source and
         / the usage of the power balance. A car without an odometer and the
         / guests have no driving, so their charging takes the full width.
+        / On a phone, the pressed button of the toggle shows its card
         .flex-1.min-h-0.grid.gap-4.md:gap-6 class=(data.driving? ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1')
-          .contents data-car-cards-target='charging' class=('max-sm:hidden' if toggle && card != 'charging')
+          .contents class='max-sm:group-has-[[data-car-cards-card-param=driving][aria-pressed=true]]/cards:hidden'
             = render Car::ChargingCard::Component.new(report: data, all: car.nil? && !car_selection.guest?)
           - if data.driving?
-            .contents data-car-cards-target='driving' class=('max-sm:hidden' unless card == 'driving')
+            .contents class='max-sm:group-has-[[data-car-cards-card-param=charging][aria-pressed=true]]/cards:hidden'
               = render Car::DrivingCard::Component.new(report: data)
