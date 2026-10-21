@@ -155,7 +155,7 @@ class Cars::ChargingSessionsController < ApplicationController
 
   # The list shows the sessions of the hours, unlike the car page
   helper_method def timeframe_page
-    TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param, review: ('1' if review_only?) }, hours: true)
+    TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param, review: ('1' if review_only?) })
   end
 
   # The list offers a new offsite session to the admin. It needs a car (see

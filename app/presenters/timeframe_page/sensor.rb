@@ -32,5 +32,8 @@ class TimeframePage::Sensor
     Sensor::HomePage.forecast?(@namespace.to_sym) && Sensor::Config.exists?(:inverter_power_forecast)
   end
 
-  def hours? = Sensor::HomePage.hours?(@namespace.to_sym)
+  # Whether the page offers a kind of timeframe (see
+  # Timeframe::Select::Component::KINDS): each one, the hours only on some
+  # sections
+  def offers?(kind) = kind != :hours || Sensor::HomePage.hours?(@namespace.to_sym)
 end

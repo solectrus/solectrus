@@ -10,7 +10,7 @@ describe TimeframePage::Sensor do
     end
 
     it 'offers the hours' do
-      expect(page).to be_hours
+      expect(page.offers?(:hours)).to be(true)
     end
   end
 
@@ -32,7 +32,7 @@ describe TimeframePage::Sensor do
     end
 
     it 'offers no hours' do
-      expect(page).not_to be_hours
+      expect(page.offers?(:hours)).to be(false)
     end
 
     it 'leads not into the forecast' do

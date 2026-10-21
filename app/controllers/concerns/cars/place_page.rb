@@ -51,7 +51,7 @@ module Cars::PlacePage
 
     # The visits are whole days (see PlaceVisit.overlapping)
     helper_method def timeframe_page
-      TimeframePage::List.new(route: page_route, params: page_params, hours: false)
+      TimeframePage::List.new(route: page_route, params: page_params, kinds: Timeframe::Select::Component::KINDS - [:hours])
     end
   end
 

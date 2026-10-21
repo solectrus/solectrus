@@ -19,8 +19,14 @@ class Timeframe::Select::Component < ViewComponent::Base
 
   public_constant :LABEL_CLASSES, :TILE_CLASSES, :INPUT_CLASSES, :BACK_BUTTON_CLASSES, :SELECTED_COLORS, :UNSELECTED_COLORS
 
-  # `page` gives the address of the selected timeframe and tells whether the
-  # page offers the hours and the forecast (see TimeframePage::Sensor).
+  # The kinds of timeframes that the select can offer: a picker for a day, a
+  # week, a month, a year or a range, and a group of the relative picker (see
+  # Timeframe::Select::RelativePicker::Component)
+  KINDS = %i[day week month year range hours days months all].freeze
+  public_constant :KINDS
+
+  # `page` gives the address of the selected timeframe and tells which kinds
+  # and whether the forecast the page offers (see TimeframePage::Sensor).
   # `comparisons` are the links to the comparisons of the years, if any.
   # `forecast` says that the select belongs to the forecast, which none of
   # the fields can mark.
@@ -49,7 +55,10 @@ class Timeframe::Select::Component < ViewComponent::Base
     ]
   end
 
-  delegate :url_template, :hours?, to: :@page
+  delegate :url_template, :offers?, to: :@page
+
+  # The groups of the relative picker that the page offers
+  def relative_groups = Timeframe::Select::RelativePicker::Component::GROUPS.select { offers?(it) }
 
   def min_date
     Rails.application.config.x.installation_date

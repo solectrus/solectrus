@@ -6,10 +6,12 @@
 class TimeframePage::List
   include Rails.application.routes.url_helpers
 
-  def initialize(route:, params:, hours:)
+  # `kinds` are the kinds of timeframes that the list offers (see
+  # Timeframe::Select::Component::KINDS)
+  def initialize(route:, params:, kinds: Timeframe::Select::Component::KINDS)
     @route = route
     @params = params
-    @hours = hours
+    @kinds = kinds
   end
 
   def path(timeframe)
@@ -22,5 +24,5 @@ class TimeframePage::List
 
   def forecast? = false
 
-  def hours? = @hours
+  def offers?(kind) = @kinds.include?(kind)
 end

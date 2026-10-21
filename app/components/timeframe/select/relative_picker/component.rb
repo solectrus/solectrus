@@ -1,13 +1,13 @@
 class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
-  # Without `hours`, the group of the hours is left out
-  def initialize(timeframe:, min_date: nil, hours: true)
+  # `groups` are the groups that the picker offers (see GROUPS)
+  def initialize(timeframe:, groups:, min_date: nil)
     super()
     @timeframe = timeframe
+    @groups = groups
     @min_date = min_date
-    @hours = hours
   end
 
-  attr_reader :timeframe, :min_date, :hours
+  attr_reader :timeframe, :min_date
 
   OPTION_DEFINITIONS = [
     { value: 'P24H', label_key: '.last_24_hours', group: :hours },
@@ -27,6 +27,9 @@ class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
 
   GROUPED_DEFINITIONS = OPTION_DEFINITIONS.group_by { it[:group] }.freeze
   private_constant :GROUPED_DEFINITIONS
+
+  GROUPS = GROUPED_DEFINITIONS.keys.freeze
+  public_constant :GROUPS
 
   BASE_CLASSES = 'flex-1 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-center ' \
                  'focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-colors'.freeze
@@ -71,7 +74,7 @@ class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
   def whole_options
     [
       ({ value: 'all', label: t('data.all_years') } if grouped_options_by_key.key?(:all)),
-      ({ value: installation_timeframe_value, label: t('data.all_months') } if installation_timeframe_value),
+      ({ value: installation_timeframe_value, label: t('data.all_months') } if installation_timeframe_value && @groups.include?(:months)),
     ].compact
   end
 
@@ -92,7 +95,7 @@ class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
     @grouped_options_by_key ||=
       GROUPED_DEFINITIONS
         .filter_map do |group_key, definitions|
-          next if group_key == :hours && !hours
+          next if @groups.exclude?(group_key)
 
           options = build_options(definitions)
           [group_key, with_installation(group_key, options)] if options.any?

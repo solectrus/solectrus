@@ -14,52 +14,57 @@
       Timeframe::Select::Field::Component)
 
     / Day picker
-    div class=TILE_CLASSES
-      span[
-        class= LABEL_CLASSES
-        id= 'day-picker-input-button-label'
-      ]
-        = t('.day')
-      = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'day-picker-input')
+    - if offers?(:day)
+      div class=TILE_CLASSES
+        span[
+          class= LABEL_CLASSES
+          id= 'day-picker-input-button-label'
+        ]
+          = t('.day')
+        = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'day-picker-input')
 
     / Week picker
-    div class=TILE_CLASSES
-      span[
-        class= LABEL_CLASSES
-        id= 'week-picker-input-button-label'
-      ]
-        = t('.week')
-      = render Timeframe::Select::WeekPicker::Component.new(min_date:, timeframe:, name: 'week-picker-input')
+    - if offers?(:week)
+      div class=TILE_CLASSES
+        span[
+          class= LABEL_CLASSES
+          id= 'week-picker-input-button-label'
+        ]
+          = t('.week')
+        = render Timeframe::Select::WeekPicker::Component.new(min_date:, timeframe:, name: 'week-picker-input')
 
     / Month picker
-    div class=TILE_CLASSES
-      span[
-        class= LABEL_CLASSES
-        id= 'month-picker-input-button-label'
-      ]
-        = t('.month')
-      = render Timeframe::Select::MonthPicker::Component.new(min_date:, timeframe:, name: 'month-picker-input')
+    - if offers?(:month)
+      div class=TILE_CLASSES
+        span[
+          class= LABEL_CLASSES
+          id= 'month-picker-input-button-label'
+        ]
+          = t('.month')
+        = render Timeframe::Select::MonthPicker::Component.new(min_date:, timeframe:, name: 'month-picker-input')
 
     / Year picker
-    div class=TILE_CLASSES
-      span[
-        class= LABEL_CLASSES
-        id= 'year-picker-input-button-label'
-      ]
-        = t('.year')
-      = render Timeframe::Select::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
-
-    / Spacer with divider
-    .hidden.lg:landscape:block.col-span-2.border-t.border-gray-400.dark:border-gray-600
+    - if offers?(:year)
+      div class=TILE_CLASSES
+        span[
+          class= LABEL_CLASSES
+          id= 'year-picker-input-button-label'
+        ]
+          = t('.year')
+        = render Timeframe::Select::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
 
     / Date range. Without the forecast beside it, it fills the row of a phone.
-    div class=[TILE_CLASSES, ('col-span-2' if forecast_items.empty?)]
-      span[
-        class= LABEL_CLASSES
-        id= 'range-picker-input-button-label'
-      ]
-        = t('.date_range')
-      = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
+    - if offers?(:range)
+      / Spacer with divider
+      .hidden.lg:landscape:block.col-span-2.border-t.border-gray-400.dark:border-gray-600
+
+      div class=[TILE_CLASSES, ('col-span-2' if forecast_items.empty?)]
+        span[
+          class= LABEL_CLASSES
+          id= 'range-picker-input-button-label'
+        ]
+          = t('.date_range')
+        = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
 
     / The forecast beside the range on a phone. A wide screen has it after
       today.
@@ -73,7 +78,7 @@
 
     / Relative picker (spans full width, grouped by hours/days/months)
     .col-span-2.mt-2.lg:landscape:mt-0
-      = render Timeframe::Select::RelativePicker::Component.new(timeframe:, min_date:, hours: hours?)
+      = render Timeframe::Select::RelativePicker::Component.new(timeframe:, min_date:, groups: relative_groups)
 
     / The comparisons of the years on a phone, below the whole time. A wide
       screen has them in the menu of its tab.
