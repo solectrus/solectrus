@@ -245,7 +245,7 @@ de:
     charging: Laden
     driving: Fahren
     visits: Besuche
-    places: Standorte
+    places: Orte
     wallbox_short: Wallbox
     wallbox_sessions: Ladevorgänge an der Wallbox
     guest_short: Gast
@@ -484,7 +484,7 @@ de:
       active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.
       battery_kwh_hint: Die nutzbare Kapazität. Sie schätzt die Energie einer unbestätigten Auswärtsladung und ergibt den Ladeverlust.
     places:
-      name: Standorte
+      name: Orte
       edit: Ort bearbeiten
       home_moved: Gespeichert. Bisher war „%{previous}“ das Zuhause.
       empty_title: Noch kein Ort
