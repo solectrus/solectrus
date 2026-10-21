@@ -98,9 +98,11 @@ class Car::Report
   end
 
   # Whether the energy and the cost of the wallbox split into PV and grid.
-  # Without the power splitter a wallbox session has no grid share.
+  # Without the power splitter a wallbox session has no grid share. The car
+  # pages need a sponsorship, like the power splitter, so the split needs no
+  # check of its own.
   def split?
-    memo(:split) { ApplicationPolicy.power_splitter? && sessions(:wallbox).split? }
+    memo(:split) { sessions(:wallbox).split? }
   end
 
   # Whether a selected car has an odometer. Without one, the period has no
