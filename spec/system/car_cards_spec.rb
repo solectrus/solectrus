@@ -7,7 +7,9 @@ describe 'Car cards (mobile)' do
     Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer'))
     allow(Car::Report).to receive(:pending_days).and_return([])
 
-    Car.create!(id: 1, name: 'Trabant')
+    # A late request of the example before can create the car again after
+    # its cleanup (see Car.configured)
+    Car.find_or_initialize_by(id: 1).update!(name: 'Trabant')
     Summary.find_or_create_by!(date: day)
     SummaryValue.create!(date: day, field: :car_odometer_1, aggregation: :sum, value: 150)
     start = day.in_time_zone.change(hour: 12)
