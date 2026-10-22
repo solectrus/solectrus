@@ -709,7 +709,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   def build_chart_data_item(sensor_name)
     sorted_points = sorted_points_for(sensor_name)
     # Return empty dataset for sensors without data (e.g., inverter_power for future days)
-    return empty_dataset(sensor_name) if sorted_points.empty?
+    return held_dataset(sensor_name) || empty_dataset(sensor_name) if sorted_points.empty?
 
     {
       sensor_name:,
@@ -736,6 +736,20 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def empty_dataset(sensor_name)
     { sensor_name:, labels: [], data: [] }
+  end
+
+  # A state without a reading in the window, like a parked car that sends
+  # nothing, holds the last reading before the window (see #holds_value?):
+  # from the start of the window up to now, or up to its end
+  def held_dataset(sensor_name)
+    return unless holds_value?
+
+    seed = seed_values[sensor_name]
+    return if seed.nil?
+
+    ending = [Time.current, series_timeframe.ending].min
+    labels = [series_timeframe.beginning, ending].map { timestamp_to_ms(it) }
+    { sensor_name:, labels:, data: transform_data([seed, seed], sensor_name) }
   end
 
   # Transform data for specific sensor (can be overridden for sign changes etc.)

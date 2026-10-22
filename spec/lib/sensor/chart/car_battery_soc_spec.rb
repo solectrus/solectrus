@@ -79,6 +79,35 @@ describe Sensor::Chart::CarBatterySoc do
     end
   end
 
+  # A parked car often sends nothing for a whole day
+  describe '#data without a reading in the window' do
+    let(:timeframe) { Timeframe.new('2025-03-03') }
+
+    def add_reading(value, time)
+      influx_batch do
+        add_influx_point(
+          name: Sensor::Config.measurement(:car_battery_soc_1),
+          fields: { Sensor::Config.field(:car_battery_soc_1) => value },
+          time:,
+        )
+      end
+    end
+
+    before { travel_to Time.zone.local(2025, 3, 3, 12) }
+
+    it 'holds the last reading before the window up to now' do
+      add_reading(33.0, Time.zone.local(2025, 3, 2, 18))
+
+      expect(chart.data[:labels]).to eq([Time.zone.local(2025, 3, 3), Time.current].map { it.to_i * 1000 })
+      expect(chart.data[:datasets].first[:data]).to eq([33.0, 33.0])
+      expect(chart).not_to be_blank
+    end
+
+    it 'stays blank without any reading' do
+      expect(chart).to be_blank
+    end
+  end
+
   describe '#style_for_sensor' do
     it 'renders the line as steps' do
       style = chart.__send__(:style_for_sensor, Sensor::Registry[:car_battery_soc_1])
