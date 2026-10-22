@@ -201,17 +201,21 @@ class ChartDropdown::Selector::Component < ViewComponent::Base # rubocop:disable
   # the URL of that frame. Leaving the comparison changes the layout of the
   # page instead: the stats come back beside the chart, and only a full load
   # brings them. Such an item drops the frame swap and navigates.
+  #
+  # The controller that loads the chart is the one of the chart, unless the
+  # menu names another one with `chart_controller`, which takes the same
+  # params, like the overview of the car page with a chart in each column.
   def item_data(sensor_name, compare)
     if helpers.year_comparison? && compare.nil?
       return { action: 'ui--dropdown--component#toggle' }
     end
 
+    controller = menu_config.fetch(:chart_controller, 'stats-with-chart--component')
+    param = controller.tr('-', '_')
     {
-      action:
-        'stats-with-chart--component#loadChart ui--dropdown--component#toggle',
-      stats_with_chart__component_sensor_name_param: sensor_name,
-      stats_with_chart__component_chart_url_param:
-        path_for('charts', sensor_name:, compare:),
+      action: "#{controller}#loadChart ui--dropdown--component#toggle",
+      "#{param}_sensor_name_param": sensor_name,
+      "#{param}_chart_url_param": path_for('charts', sensor_name:, compare:),
     }
   end
 

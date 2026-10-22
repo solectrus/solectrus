@@ -34,15 +34,20 @@ module FormPageResponse
   # route of its address, like its filter or its timeframe. None for an
   # address that is not the list of the controller.
   def return_to_params(controller)
-    return {} unless return_to
-
-    uri = URI(return_to)
-    route = Rails.application.routes.recognize_path(uri.path)
+    route = return_to_route
     return {} unless route[:controller] == controller && route[:action] == 'index'
 
-    Rack::Utils.parse_nested_query(uri.query).symbolize_keys.merge(route.except(:controller, :action))
+    Rack::Utils.parse_nested_query(URI(return_to).query).symbolize_keys.merge(route.except(:controller, :action))
+  end
+
+  # The route of the address of the list that opened the form, like its
+  # controller, or none
+  def return_to_route
+    return @return_to_route if defined?(@return_to_route)
+
+    @return_to_route = return_to ? Rails.application.routes.recognize_path(URI(return_to).path) : {}
   rescue ActionController::RoutingError
-    {}
+    @return_to_route = {}
   end
 
   # A stream after a save renders the list that opened the form

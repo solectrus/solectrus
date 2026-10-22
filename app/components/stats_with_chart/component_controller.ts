@@ -2,6 +2,7 @@ import { Controller, type ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
 import { IntervalTimer } from '@/utils/intervalTimer';
+import { isModifiedClick } from '@/utils/click';
 import TooltipController from '@/controllers/tooltip_controller';
 
 type LineDatasetWithId = ChartDataset<'line'> & {
@@ -41,6 +42,13 @@ const HEAT_STACK = {
   generated: 'heatpump_heating_power',
 } as const;
 
+// A step back or forward in the history visits the page again. A page can
+// hold more than one of these controllers, like the two columns of the car
+// page, and they share one listener, so each step makes one visit.
+let popStateUsers = 0;
+const visitOnPopState = () =>
+  Turbo.visit(window.location.href, { action: 'replace' });
+
 export default class extends Controller {
   static readonly targets = ['current', 'stats', 'chart', 'canvas'];
 
@@ -74,7 +82,6 @@ export default class extends Controller {
   private timer?: IntervalTimer;
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
-  private boundHandlePopState?: () => void;
   private shouldStopRequests = false;
   private liveBucketChart?: Chart;
   private liveBucketEndMs?: number;
@@ -92,8 +99,8 @@ export default class extends Controller {
       );
     }
 
-    this.boundHandlePopState = this.handlePopState.bind(this);
-    window.addEventListener('popstate', this.boundHandlePopState);
+    if (popStateUsers++ === 0)
+      window.addEventListener('popstate', visitOnPopState);
 
     this.startLoop();
   }
@@ -109,8 +116,8 @@ export default class extends Controller {
         this.boundHandleVisibilityChange,
       );
 
-    if (this.boundHandlePopState)
-      window.removeEventListener('popstate', this.boundHandlePopState);
+    if (--popStateUsers === 0)
+      window.removeEventListener('popstate', visitOnPopState);
   }
 
   private async reload() {
@@ -126,7 +133,11 @@ export default class extends Controller {
       if (this.shouldStopRequests) return;
       // A reload would take the tooltip away from under the pointer, so the
       // next tick reloads instead
-      if (TooltipController.isShownWithin(this.statsTarget)) return;
+      if (
+        this.hasStatsTarget &&
+        TooltipController.isShownWithin(this.statsTarget)
+      )
+        return;
 
       this.reload();
     }, this.intervalValue * 1000);
@@ -147,16 +158,7 @@ export default class extends Controller {
 
   // Load chart by setting the frame's src directly (avoids Turbo Frame Navigation issues in 8.0.21+).
   loadChart(event: ActionEvent) {
-    // Let modifier/middle clicks behave like normal link navigation (new tab/window).
-    if (
-      event instanceof MouseEvent &&
-      (event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey ||
-        event.button === 1)
-    )
-      return;
+    if (isModifiedClick(event)) return;
 
     event.preventDefault();
 
@@ -168,9 +170,20 @@ export default class extends Controller {
       (element instanceof HTMLOptionElement ? element.value : undefined);
     if (!historyUrl) return;
 
-    if (event.params?.sensorName) this.selectedSensor = event.params.sensorName;
+    this.showChart(
+      historyUrl,
+      event.params?.sensorName,
+      event.params?.chartUrl,
+    );
+  }
 
-    this.applyChartUrl(historyUrl, event.params?.chartUrl);
+  // Loads the chart of a sensor, also for a pick outside this component, like
+  // the menu of the car page, which loads a pick in the column of its chart
+  // (see car_overview_controller.ts). The event `chart` names the sensor.
+  showChart(historyUrl: string, sensorName?: string, chartUrl?: string) {
+    if (sensorName) this.selectedSensor = sensorName;
+    this.applyChartUrl(historyUrl, chartUrl);
+    if (sensorName) this.dispatch('chart', { detail: { sensorName } });
   }
 
   private stopLoop() {
@@ -248,10 +261,6 @@ export default class extends Controller {
       // flight; don't kick off polling in the background.
       if (!document.hidden) this.startLoop();
     });
-  }
-
-  private handlePopState(): void {
-    Turbo.visit(window.location.href, { action: 'replace' });
   }
 
   private addPointToChart() {
@@ -533,10 +542,21 @@ export default class extends Controller {
   // errors to the console for debugging.
   private async reloadFrames(options: { chart: boolean }) {
     // The year comparison drops the stats frame to give the chart the whole
-    // width, so there may be nothing to reload on that side.
-    const reloads = this.hasStatsTarget ? [this.statsTarget.reload()] : [];
-    // A page without a chart (the live view of the cars) has no chart frame
-    if (options.chart && this.hasChartTarget)
+    // width, so there may be nothing to reload on that side. A stats frame
+    // without a source gets its stats from another frame (see
+    // StatsWithChart::Component#stats_frame).
+    const reloads =
+      this.hasStatsTarget && this.statsTarget.src
+        ? [this.statsTarget.reload()]
+        : [];
+    // A page without a chart (the live view of the cars) has no chart frame.
+    // A hidden chart, like the one of the other column of the car page on a
+    // phone, loads again once a pick shows it.
+    if (
+      options.chart &&
+      this.hasChartTarget &&
+      this.chartTarget.checkVisibility()
+    )
       reloads.push(this.chartTarget.reload());
 
     const results = await Promise.allSettled(reloads);

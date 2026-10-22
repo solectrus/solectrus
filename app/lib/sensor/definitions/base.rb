@@ -58,6 +58,10 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     evaluate_config_value(:color_background)
   end
 
+  # The CSS variable of the background color, like "--color-sensor-pv", for
+  # a style that draws the color itself, like a gradient
+  def color_variable = "--color-#{color_background.delete_prefix('bg-')}"
+
   def color_text(index: nil, value: nil)
     data = color_data_dynamic(index:, value:)
     data ? data[:text] : evaluate_config_value(:color_text)

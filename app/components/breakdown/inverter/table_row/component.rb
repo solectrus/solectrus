@@ -63,13 +63,7 @@ class Breakdown::Inverter::TableRow::Component < ViewComponent::Base
     # segment view for the same string while staying light enough for dark text
     # on top (opacity comes from --table-bar-opacity, stronger in dark mode).
     tag.div class: 'absolute inset-x-0 inset-y-1 rounded-r-sm transition-[width] motion-safe:duration-1000 motion-reduce:duration-100',
-            style: "background-color: color-mix(in srgb, var(#{bar_color_variable}) var(--table-bar-opacity), transparent); width: max(1px, #{percent.round}%)"
-  end
-
-  # Derive the CSS color variable from the sensor's Tailwind class
-  # (e.g. "bg-sensor-inverter-1" -> "--color-sensor-inverter-1").
-  def bar_color_variable
-    "--color-#{sensor.color_background.delete_prefix('bg-')}"
+            style: "background-color: color-mix(in srgb, var(#{sensor.color_variable}) var(--table-bar-opacity), transparent); width: max(1px, #{percent.round}%)"
   end
 
   def name_column

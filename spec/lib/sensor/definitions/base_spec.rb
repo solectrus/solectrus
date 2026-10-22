@@ -217,6 +217,12 @@ describe Sensor::Definitions::Base do
     end
   end
 
+  describe '#color_variable' do
+    it 'names the CSS variable of the background color' do
+      expect(Sensor::Registry[:grid_import_power].color_variable).to eq('--color-sensor-grid')
+    end
+  end
+
   describe '#clamp_value' do
     context 'when no value_range is defined' do
       let(:sensor) { test_class.new }

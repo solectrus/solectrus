@@ -18,8 +18,8 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 ### Layout of the phone and the desktop
 
 - `Ui::TitleBar`: The title bar of a page on a phone: the title or a logo, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself. Its page has the gray background of a grouped list. With `plain: true`, the page keeps its own background, like a page with charts. A page that is no list can stand on the gray as well, like the Top 10. Its view sets `content_for :grouped`.
-- `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry.
-- `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. It has the look of the toggle on the car page.
+- `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry. A row without `href` opens nothing and has no chevron, like a row that a guest may only read.
+- `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. With `stretch: true`, it takes the full width on a phone, like the switch in the head of a list.
 - `Ui::GroupedList`: A grouped list, with an optional header above the card and a footer below it. A cell is a link, a button, or a row that holds a control at the right, like a segmented control. A link inside the app shows a chevron, a link to another site an arrow out of a box. With `detail:`, a cell shows a second, smaller line below its name, like the reason why its control is not available.
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone. A form with unsaved changes asks before the modal closes or a link leaves the page.
@@ -40,7 +40,7 @@ A note about iOS in the code describes the browser on iOS, like the zoom into a 
 - `Ui::FilterBar` and `Ui::FilterLink`: The notice above a filtered list and the chevron in a row that narrows the list. See "Lists with a filter".
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
-- `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view.
+- `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view. It shows a spinner, and its text is for a screen reader alone.
 - `Ui::RowGroups` and `Ui::GroupHeader`: The rows of a list in groups of a month, a week or a day, by the length of the timeframe. The header of a group links to the list of this group alone, except in the list of a day. On a phone it cuts the card into a card per group.
 - `Ui::InfoIcon`: An info icon with a tooltip, for a sentence that explains a value.
 - `Ui::VerticalTabs`: Tabs at the left of their panels, from `md` up. On a smaller screen the tabs stand above the panels.

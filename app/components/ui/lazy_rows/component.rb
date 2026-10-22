@@ -27,6 +27,7 @@ class Ui::LazyRows::Component < ViewComponent::Base
 
   def rows = safe_join([content, next_page])
 
+  # The spinner alone shows that more rows come. A screen reader hears it.
   def next_page
     return unless @pagy.next
 
@@ -34,7 +35,7 @@ class Ui::LazyRows::Component < ViewComponent::Base
     # frame. Turbo keeps this frame and takes only the content of the
     # response, so the target goes here.
     helpers.turbo_frame_tag(frame_id(@pagy.next), src: @pagy.page_url(:next), loading: :lazy, target: '_top', class: CLASSES) do
-      tag.div(helpers.icon('spinner', class: 'fa-spin'), class: 'col-span-full text-center py-4 text-gray-400')
+      tag.div(safe_join([helpers.icon('spinner', class: 'fa-spin'), tag.span(t('.loading'), class: 'sr-only')]), class: 'col-span-full text-center py-4 text-gray-400', role: 'status')
     end
   end
 

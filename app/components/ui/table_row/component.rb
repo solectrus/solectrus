@@ -13,6 +13,9 @@
 # cells on a phone. The cells place themselves in the grid of the cell with
 # max-lg: classes, see ChargingSession::Row::Component.
 #
+# A row without `href` opens nothing, like a row that a guest may only read.
+# It has no hover and no chevron, and `row.link` is its plain content.
+#
 #   = render Ui::TableRow::Component.new(href: edit_price_path(price), nav_title: 'Edit price') do |row|
 #     div = row.link { l(price.starts_at) }
 #     div = price.note
@@ -45,7 +48,7 @@ class Ui::TableRow::Component < ViewComponent::Base
   LINK_CLASS = 'rounded-sm focus:outline-none'.freeze
   private_constant :LINK_CLASS
 
-  def initialize(href:, nav_title:, css_class: nil)
+  def initialize(href:, nav_title: nil, css_class: nil)
     super()
     @href = href
     @nav_title = nav_title
@@ -53,6 +56,8 @@ class Ui::TableRow::Component < ViewComponent::Base
   end
 
   def call
+    return tag.div(content, class: [@css_class, CELL_CLASS]) unless @href
+
     tag.div safe_join([content, chevron]),
             class: [@css_class, BASE_CLASS, CELL_CLASS],
             data: {
@@ -63,6 +68,8 @@ class Ui::TableRow::Component < ViewComponent::Base
 
   # No prefetch on hover: the pointer rests on rows all the time
   def link(css_class: nil, &)
+    return tag.span(class: css_class, &) unless @href
+
     helpers.link_to @href,
                     class: [LINK_CLASS, css_class],
                     data: {
