@@ -36,6 +36,18 @@ class ChargingSession::Row::Component < ViewComponent::Base
     t(charging_session.proposal? ? 'charging_sessions.proposal.title' : 'charging_sessions.edit')
   end
 
+  # Whether the state of charge of the session contradicts its energy (see
+  # ChargingSession::StateOfCharge#soc_mismatch?)
+  def soc_mismatch?
+    return @soc_mismatch if defined?(@soc_mismatch)
+
+    @soc_mismatch = charging_session.soc_mismatch?
+  end
+
+  def soc_mismatch_hint
+    "#{t('charging_sessions.soc_finding.mismatch.text').upcase_first}.\n\n#{t('charging_sessions.soc_finding.mismatch.hint')}"
+  end
+
   def pv_share?
     ChargingSession::List::Component.pv_share_column?(charging_session.kind)
   end

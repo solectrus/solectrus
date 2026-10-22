@@ -348,6 +348,18 @@ describe 'Charging sessions' do
       expect(response.body).to include('75% from PV', '0% from PV', '38% from PV')
     end
 
+    # The car reported no new values during the charge
+    it 'explains a state of charge that contradicts the energy' do
+      car.update!(battery_kwh: 50)
+      # A change of the car clears the state of charge, so it comes second
+      unassigned.update!(car:)
+      unassigned.update!(soc_from: 75, soc_to: 75)
+
+      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
+
+      expect(response.body).to include('75 → 75%', I18n.t('charging_sessions.soc_finding.mismatch.hint'))
+    end
+
     it 'shows no PV share without the power splitter' do
       allow(Sensor::Config).to receive(:exists?).and_call_original
       allow(Sensor::Config).to receive(:exists?).with(:wallbox_power_grid).and_return(false)

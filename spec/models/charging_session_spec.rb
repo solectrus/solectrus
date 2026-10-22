@@ -744,6 +744,72 @@ describe ChargingSession do
 
         expect(session.reload.loss).to be_nil
       end
+
+      # The state of charge rose more than the energy explains, for example
+      # in the cold
+      it 'is negative for a rise above the energy' do
+        car.update!(battery_kwh: 50)
+        session.update!(kwh: 18)
+
+        # 40 % of 50 kWh = 20 kWh of 18 kWh
+        expect(session.reload.loss).to be_within(0.001).of(1 - (20.0 / 18))
+      end
+
+      it 'is nil for a rise that contradicts the energy' do
+        car.update!(battery_kwh: 50)
+        session.update!(kwh: 8)
+
+        expect(session.reload.loss).to be_nil
+      end
+    end
+
+    describe '#soc_mismatch?' do
+      before { car.update!(battery_kwh: 50) }
+
+      it 'is false for a rise that fits the energy' do
+        expect(session.reload).not_to be_soc_mismatch
+      end
+
+      # 40 % of 50 kWh = 20 kWh of 26 kWh is a loss of 23 %, normal at a
+      # slow charge
+      it 'is false for a high loss' do
+        session.update!(kwh: 26)
+
+        expect(session.reload).not_to be_soc_mismatch
+      end
+
+      # The car reported no new values during the charge
+      it 'is true for no rise with much energy' do
+        session.update!(soc_to: 30)
+
+        expect(session.reload).to be_soc_mismatch
+      end
+
+      it 'is true for a rise far above the energy' do
+        session.update!(kwh: 8)
+
+        expect(session.reload).to be_soc_mismatch
+      end
+
+      # A whole percent at each end can hide a small rise
+      it 'allows two points for the whole percents' do
+        session.update!(soc_to: 30, kwh: 1.5)
+
+        expect(session.reload).not_to be_soc_mismatch
+      end
+
+      it 'is false for a full car, which takes energy to balance or to heat' do
+        session.update!(soc_from: 99, soc_to: 100, kwh: 6)
+
+        expect(session.reload).not_to be_soc_mismatch
+      end
+
+      it 'needs the capacity of the car' do
+        car.update!(battery_kwh: nil)
+        session.update!(soc_to: 30)
+
+        expect(session.reload).not_to be_soc_mismatch
+      end
     end
   end
 

@@ -393,6 +393,13 @@ de:
     loss: 'ca. %{percent} Ladeverlust (grob geschätzt)'
     soc: 'Ladestand %{range}'
     soc_from: ab %{percent}
+    soc_finding:
+      mismatch:
+        text: passt nicht zur geladenen Energie
+        hint: Das Auto hat während der Ladung vermutlich keine aktuellen Werte gemeldet.
+      above_energy:
+        text: stieg stärker, als die geladene Energie erklärt
+        hint: Bei Kälte oder nach langer Fahrt zeigen viele Autos den Ladestand ungenau an.
     since: seit %{time}
     ongoing: Lädt gerade
     proposal:

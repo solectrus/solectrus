@@ -309,6 +309,18 @@ state of charge has whole percents. The form names it a rough estimate, because
 far from the usual values is a sign of a wrong state of charge
 ([#6056](https://github.com/solectrus/solectrus/issues/6056)).
 
+The state of charge does not always fit the energy (`ChargingSession::StateOfCharge`):
+
+- A negative loss means that the state of charge rose more than the energy explains. The
+  form shows this sentence and no number. The scale of the state of charge changes with
+  the temperature of the battery, so a point can hold a quarter less energy in winter.
+- A rise contradicts the energy when the battery surely got less than half of the energy
+  or more than one and a half times it, for example 75 → 75 % with 20 kWh. The car then
+  reported no current values during the charge. The form explains this, and the list dims
+  the state of charge and adds an info icon. Each end can be off by one point, because
+  the state of charge has whole percents. A full car can take energy without a rise, so a
+  rise to 99 % is never too small.
+
 The list shows a charge over midnight in one row (`ChargingSession.joined`), and a count
 counts it once. The data keeps a session for each day, so the daily sums and the charts
 stay exact. The list keeps the hours view, because the sessions of the last 24 hours are a

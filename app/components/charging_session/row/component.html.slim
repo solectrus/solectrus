@@ -35,8 +35,11 @@
         = icon 'circle-question'
   / The state of charge has a column of its own, so it lines up in each row
   - if soc_range
-    .col-start-3.hidden.lg:block.p-2.text-sm.text-gray-500.dark:text-gray-400.tabular-nums.whitespace-nowrap
+    / A state of charge that contradicts the energy is dimmed and explained
+    .col-start-3.hidden.lg:block.p-2.text-sm.tabular-nums.whitespace-nowrap class=(soc_mismatch? ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400')
       = soc_range
+      - if soc_mismatch?
+        = render Ui::InfoIcon::Component.new(text: soc_mismatch_hint, position: 'relative ml-1')
   / Grid items must follow the order of their columns: the PV share takes
     the wide column after the energy, the address the one before it
   - if pv_share?

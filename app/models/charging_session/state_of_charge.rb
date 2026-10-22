@@ -1,5 +1,6 @@
 # The state of charge of the car at the start and at the end of a session
-# (`soc_from`, `soc_to`), and the loss of the charge that follows from it.
+# (`soc_from`, `soc_to`), the loss of the charge that follows from it, and
+# whether it fits the charged energy.
 # The detection writes it for a wallbox session, and the build for an offsite
 # session (see ChargingSession::OffsiteDetection).
 module ChargingSession::StateOfCharge
@@ -12,6 +13,24 @@ module ChargingSession::StateOfCharge
   # Fewer sessions give no energy of a percent (see .kwh_per_percent)
   MIN_SESSIONS = 5
   private_constant :MIN_SESSIONS
+
+  # Each end of the rise can be off by one point, because the state of
+  # charge has whole percents (see #soc_mismatch?)
+  SOC_TOLERANCE = 2
+  private_constant :SOC_TOLERANCE
+
+  # The rise contradicts the charged energy when the energy that it puts into
+  # the battery is surely below half of it or above one and a half times it.
+  # A smaller difference is normal: the scale of the state of charge changes
+  # with the temperature of the battery, so a point can hold a quarter less
+  # energy in winter.
+  MISMATCH = 0.5
+  private_constant :MISMATCH
+
+  # A full car can take energy without a rise, to balance or to heat its
+  # battery
+  FULL = 99
+  private_constant :FULL
 
   included do
     # The state of charge belongs to the car of the session. A new build
@@ -55,19 +74,36 @@ module ChargingSession::StateOfCharge
     soc_to - soc_from if soc_from && soc_to
   end
 
+  # Whether the rise contradicts the charged energy, for example 75 -> 75 %
+  # with 20 kWh. The car then reported no current values during the charge.
+  def soc_mismatch?
+    return false unless soc_checkable?
+
+    too_small = battery_share(soc_rise + SOC_TOLERANCE) < 1 - MISMATCH && soc_to < FULL
+    too_large = battery_share([soc_rise - SOC_TOLERANCE, 0].max) > 1 + MISMATCH
+    too_small || too_large
+  end
+
   # The share of the energy that did not reach the battery, from the rise of
-  # the state of charge and the capacity of the car. A proposal has no
-  # measured energy, so it has no loss. An ongoing session has no state at
-  # its end yet (see ChargingSession::Ongoing).
+  # the state of charge and the capacity of the car. It is negative when the
+  # state of charge rose more than the energy explains, nil for a rise that
+  # contradicts the energy.
   def loss
-    1 - (soc_rise * car.battery_kwh / 100 / kwh) if loss?
+    1 - battery_share(soc_rise) if loss?
   end
 
   private
 
-  def loss?
-    return false if proposal? || ongoing? || car&.battery_kwh.nil? || !kwh&.positive?
+  # A proposal has no measured energy. An ongoing session has no state at its
+  # end yet (see ChargingSession::Ongoing).
+  def soc_checkable?
+    !proposal? && !ongoing? && car&.battery_kwh.present? && kwh&.positive? && soc_rise.present?
+  end
 
-    soc_rise.to_f >= LOSS_MIN_RISE
+  # The share of the charged energy that a rise puts into the battery
+  def battery_share(rise) = rise * car.battery_kwh / 100 / kwh
+
+  def loss?
+    soc_checkable? && soc_rise >= LOSS_MIN_RISE && !soc_mismatch?
   end
 end

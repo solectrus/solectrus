@@ -393,6 +393,13 @@ en:
     loss: 'about %{percent} loss (rough estimate)'
     soc: 'Charge level %{range}'
     soc_from: from %{percent}
+    soc_finding:
+      mismatch:
+        text: does not fit the charged energy
+        hint: The car probably reported no current values during the charge.
+      above_energy:
+        text: rose more than the charged energy explains
+        hint: Many cars show an inaccurate charge level in the cold or after a long drive.
     since: since %{time}
     ongoing: Charging now
     proposal:
