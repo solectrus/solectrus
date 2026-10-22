@@ -93,4 +93,15 @@ module Car::BatteryDisplay
   def badge_class
     BADGE_CLASSES[Sensor::Definitions::CarBatterySoc.level(soc)]
   end
+
+  LINK_CLASSES = 'click-animation focus-ring'.freeze
+  private_constant :LINK_CLASSES
+
+  # A value of the battery (:soc or :range) as a link to its chart, or as a
+  # plain block without one. The component needs `chart_paths` (see
+  # Car::LiveView::Component#chart_paths).
+  def value_tag(value, **options, &)
+    path = chart_paths[value]
+    content_tag(path ? :a : :div, **options, href: path, class: class_names(options[:class], LINK_CLASSES => path), &)
+  end
 end

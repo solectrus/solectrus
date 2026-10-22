@@ -19,13 +19,16 @@ class Car::RangeGauge::Component < ViewComponent::Base
   # plug, for example the note that no car is in use
   renders_one :center
 
-  # `state` holds the values of one car (see Car::Live::State)
-  def initialize(state:)
+  # `state` holds the values of one car (see Car::Live::State).
+  # `chart_paths` links the values to their charts (see
+  # Car::BatteryDisplay#value_tag).
+  def initialize(state:, chart_paths: {})
     super()
     @state = state
+    @chart_paths = chart_paths
   end
 
-  attr_reader :state
+  attr_reader :state, :chart_paths
 
   # The height that the arc leaves free: 1rem of room, and the height of the
   # block above (4rem, two lines like the name and the time) and of the

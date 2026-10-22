@@ -3,7 +3,7 @@
   Car::LiveView::Component). Else the unit hangs outside, so the digits alone
   stand in the center.
 div class=(compact? ? 'contents' : 'relative flex items-center')
-  div class=class_names('flex items-center', compact? ? 'col-start-2 row-start-1 gap-0.5' : 'gap-1')
+  = content_tag(path ? :a : :div, href: path, aria: { label: (link_label if path) }, class: class_names('flex items-center', compact? ? 'col-start-2 row-start-1 gap-0.5' : 'gap-1', 'click-animation focus-ring rounded-md' => path)) do
     - digits.each do |digit|
       span class=digit_classes
         = digit

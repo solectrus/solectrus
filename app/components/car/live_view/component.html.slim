@@ -20,6 +20,7 @@
       location = location?(state)
       place = place_name(state) if location
       time = as_of(state)
+      paths = chart_paths(state)
     .min-w-0.min-h-0.flex.flex-col.items-center role='group' aria-label=state.car.display_name
       / With several cars, a phone shows the bar and a wider screen the
         gauge. Each variant renders, and the screen hides the other.
@@ -28,7 +29,7 @@
         / The name and the odometer belong to the gauge, so they stay close
           to the arc when the arc is narrower than the space
         div class=variant_classes(variant)
-          = render battery_component(variant).new(state:) do |battery|
+          = render battery_component(variant).new(state:, chart_paths: paths) do |battery|
             / The place of the car, which opens the map. Next to the bar, it
               stands on the right of the time.
             - if location && !bar
@@ -60,10 +61,10 @@
             - if bar
               div class='w-full grid grid-cols-[minmax(0,1fr)_auto] items-center justify-items-start gap-x-3 gap-y-1'
                 = name_block
-                = render Car::Odometer::Component.new(value: state.odometer, compact: true)
+                = render Car::Odometer::Component.new(value: state.odometer, compact: true, path: paths[:odometer])
             - else
               - battery.with_footer do
-                = render Car::Odometer::Component.new(value: state.odometer)
+                = render Car::Odometer::Component.new(value: state.odometer, path: paths[:odometer])
               = name_block
 
 - if wallbox?

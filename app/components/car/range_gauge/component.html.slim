@@ -25,7 +25,7 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
         / Without a range, the state of charge takes its place, at the size
           of the range
         - if range?
-          .text-center
+          = value_tag(:range, class: 'text-center rounded-lg') do
             span class="block font-medium tabular-nums leading-none text-[clamp(1.75rem,12cqi,3.75rem)]"
               = render Sensor::Value::Component.new(range, sensor_name(:car_range))
             / An estimate names itself, and its tooltip tells where it comes from
@@ -33,7 +33,7 @@ div class="flex-1 min-h-0 w-full flex flex-col items-center justify-center gap-6
               = estimated? ? t('cars.battery.estimated') : t('sensors.car_range_short')
 
         - if soc
-          div class=class_names('rounded-full px-4 py-1 font-semibold tabular-nums', badge_class, range? ? 'mt-[clamp(1rem,7cqi,2.25rem)] text-[clamp(0.875rem,5cqi,1.5rem)]' : 'text-[clamp(1.5rem,12cqi,3.5rem)]') title=t('sensors.car_battery_soc_short') aria-label=t('sensors.car_battery_soc_short') data-controller='tooltip'
+          = value_tag(:soc, class: class_names('rounded-full px-4 py-1 font-semibold tabular-nums', badge_class, range? ? 'mt-[clamp(1rem,7cqi,2.25rem)] text-[clamp(0.875rem,5cqi,1.5rem)]' : 'text-[clamp(1.5rem,12cqi,3.5rem)]'), title: t('sensors.car_battery_soc_short'), aria: { label: t('sensors.car_battery_soc_short') }, data: { controller: 'tooltip' }) do
             = "#{soc.round} %"
         / The first badge of the center has no gap above it
         - if stale?

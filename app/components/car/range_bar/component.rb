@@ -8,11 +8,14 @@
 class Car::RangeBar::Component < ViewComponent::Base
   include Car::BatteryDisplay
 
-  # `state` holds the values of one car (see Car::Live::State)
-  def initialize(state:)
+  # `state` holds the values of one car (see Car::Live::State).
+  # `chart_paths` links the values to their charts (see
+  # Car::BatteryDisplay#value_tag).
+  def initialize(state:, chart_paths: {})
     super()
     @state = state
+    @chart_paths = chart_paths
   end
 
-  attr_reader :state
+  attr_reader :state, :chart_paths
 end

@@ -27,6 +27,26 @@ describe Car::Odometer::Component, type: :component do
     end
   end
 
+  context 'with a path' do
+    subject(:component) { described_class.new(value: 64_800, path: '/distance') }
+
+    it 'links the digits' do
+      expect(html.css('a[href="/distance"] span.font-mono').size).to eq(6)
+    end
+
+    it 'names the link with the reading' do
+      expect(html.at_css('a[href="/distance"]')['aria-label']).to eq('Odometer 64,800 km')
+    end
+  end
+
+  context 'without a path' do
+    let(:value) { 64_800 }
+
+    it 'links nowhere' do
+      expect(html.css('a')).to be_empty
+    end
+  end
+
   context 'without a value' do
     let(:value) { nil }
 

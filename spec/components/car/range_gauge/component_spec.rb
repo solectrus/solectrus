@@ -23,9 +23,17 @@ describe Car::RangeGauge::Component, type: :component do
     expect(html.text.squish).to include('208', '62 %', '335')
   end
 
-  # The live view has no chart, so no value links to one
-  it 'links nowhere' do
+  it 'links nowhere without the paths of the charts' do
     expect(html.css('a')).to be_empty
+  end
+
+  context 'with the paths of the charts' do
+    subject(:component) { described_class.new(state:, chart_paths: { soc: '/soc', range: '/range' }) }
+
+    it 'links the state of charge and the range to their charts' do
+      expect(html.css('a[href="/soc"]').text.strip).to eq('62 %')
+      expect(html.css('a[href="/range"]').text).to include('208')
+    end
   end
 
   describe 'the color of the level' do

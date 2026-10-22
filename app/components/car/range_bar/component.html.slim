@@ -8,7 +8,7 @@ div class="flex-1 w-full max-w-md flex flex-col items-center justify-center gap-
       range, the state of charge takes its place.
     .flex.items-center.justify-between.gap-3
       - if range?
-        .flex.items-baseline.gap-2.min-w-0
+        = value_tag(:range, class: 'flex items-baseline gap-2 min-w-0 rounded-md') do
           span.font-medium.tabular-nums.leading-none.text-3xl
             = render Sensor::Value::Component.new(range, sensor_name(:car_range))
           / An estimate names itself, and its tooltip tells where it comes from
@@ -16,7 +16,7 @@ div class="flex-1 w-full max-w-md flex flex-col items-center justify-center gap-
             = estimated? ? t('cars.battery.estimated') : t('sensors.car_range_short')
 
       - if soc
-        div class=class_names('shrink-0 rounded-full px-3 py-0.5 font-semibold tabular-nums', badge_class, range? ? 'text-base' : 'text-2xl') title=t('sensors.car_battery_soc_short') aria-label=t('sensors.car_battery_soc_short') data-controller='tooltip'
+        = value_tag(:soc, class: class_names('shrink-0 rounded-full px-3 py-0.5 font-semibold tabular-nums', badge_class, range? ? 'text-base' : 'text-2xl'), title: t('sensors.car_battery_soc_short'), aria: { label: t('sensors.car_battery_soc_short') }, data: { controller: 'tooltip' }) do
           = "#{soc.round} %"
 
       - if stale?

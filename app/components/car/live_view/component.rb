@@ -67,6 +67,20 @@ class Car::LiveView::Component < ViewComponent::Base
     end
   end
 
+  # A value of a car opens the chart of today on the car page, with the car
+  # selected: the state of charge and the range their own chart, the
+  # odometer the distance. A value without such a chart, for example an
+  # estimated range, links nowhere.
+  DAY_CHARTS = { soc: :car_battery_soc, range: :car_range, odometer: :car_distance }.freeze
+  private_constant :DAY_CHARTS
+
+  # The paths of the charts of the car, by its value (see DAY_CHARTS)
+  def chart_paths(state)
+    DAY_CHARTS.filter_map do |value, sensor_name|
+      [value, helpers.cars_home_path(car: state.car.id, sensor_name:, timeframe: 'day')] if day_chart?(state.car, sensor_name)
+    end.to_h
+  end
+
   # The location is personal data, so only the admin sees it
   def location?(state) = helpers.admin? && !state.location.nil?
 
@@ -121,5 +135,13 @@ class Car::LiveView::Component < ViewComponent::Base
     when 3 then 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
     else 'grid-cols-1 sm:grid-cols-2'
     end
+  end
+
+  private
+
+  # Whether the car page draws the chart of today for the car. The chart
+  # needs the sensor of the car, for example of its range.
+  def day_chart?(car, sensor_name)
+    Sensor::Registry[sensor_name].chart(Timeframe.new('day'), cars: [car], guest: false, admin: helpers.admin?).supported?
   end
 end

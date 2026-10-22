@@ -6,16 +6,25 @@ class Car::Odometer::Component < ViewComponent::Base
   private_constant :MIN_DIGITS
 
   # A compact counter is narrower, so it fits beside the name above the bar
-  # of the battery (see Car::RangeBar::Component)
-  def initialize(value:, compact: false)
+  # of the battery (see Car::RangeBar::Component). With a `path`, the digits
+  # link to the chart of the distance.
+  def initialize(value:, compact: false, path: nil)
     super()
     @value = value
     @compact = compact
+    @path = path
   end
 
-  attr_reader :value
+  attr_reader :value, :path
 
   def active? = !value.nil?
+
+  # The name of the link for a screen reader, which reads the boxes digit
+  # by digit
+  def link_label
+    label = t('sensors.car_odometer_short')
+    active? ? "#{label} #{helpers.number_with_delimiter(value.round)} km" : label
+  end
 
   def compact? = @compact
 

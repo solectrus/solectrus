@@ -120,6 +120,32 @@ describe Car::LiveView::Component, type: :component do
     end
   end
 
+  describe 'the links to the charts of today' do
+    let(:state) { state_at(5.minutes.ago).with(range: 208, odometer: 64_800) }
+    let(:env) { { 'INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'Car:soc', 'INFLUX_SENSOR_CAR_RANGE_1' => 'Car:range', 'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Car:odometer' } }
+
+    before do
+      stub_const('ENV', ENV.to_h.merge(env))
+      stub_feature(:car)
+    end
+
+    it 'links the state of charge, the range and the odometer of the car' do
+      expect(html.css('a[href="/cars/1/car_battery_soc/day"]').text.strip).to eq('80 %')
+      expect(html.css('a[href="/cars/1/car_range/day"]').text).to include('208')
+      expect(html.css('a[href="/cars/1/car_distance/day"] span.font-mono').size).to eq(6)
+    end
+
+    # An estimated range has no chart
+    context 'without a sensor of the range' do
+      let(:env) { super().except('INFLUX_SENSOR_CAR_RANGE_1') }
+
+      it 'links the range nowhere' do
+        expect(html.css('a[href="/cars/1/car_range/day"]')).to be_empty
+        expect(html.css('a[href="/cars/1/car_battery_soc/day"]')).to be_present
+      end
+    end
+  end
+
   context 'without a car in use' do
     let(:live) { instance_double(Car::Live, states: [], wallbox_power: nil, wallbox_car_connected: nil, car_at_wallbox?: false) }
 
