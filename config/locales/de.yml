@@ -390,7 +390,7 @@ de:
     unassigned: Nicht zugeordnet
     no_cost: Keine Kosten, weil für den Tag kein Preis hinterlegt ist
     cost_incomplete: Mindestens, weil ein Ladevorgang keine Kosten hat
-    loss: '%{percent} Ladeverlust'
+    loss: 'ca. %{percent} Ladeverlust (grob geschätzt)'
     soc: 'Ladestand %{range}'
     soc_from: ab %{percent}
     since: seit %{time}

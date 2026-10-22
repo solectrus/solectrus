@@ -304,7 +304,10 @@ proposals that the list showed, so a proposal of a later build stays.
 
 The form shows the loss of a charge: 1 − rise ÷ 100 × `battery_kwh` ÷ `kwh`. A loss in each
 row added no value to the list. The loss needs a rise of 20 points or more, because the
-state of charge has whole percents.
+state of charge has whole percents. The form names it a rough estimate, because
+`battery_kwh` is seldom exactly the capacity that the state of charge refers to. A loss
+far from the usual values is a sign of a wrong state of charge
+([#6056](https://github.com/solectrus/solectrus/issues/6056)).
 
 The list shows a charge over midnight in one row (`ChargingSession.joined`), and a count
 counts it once. The data keeps a session for each day, so the daily sums and the charts

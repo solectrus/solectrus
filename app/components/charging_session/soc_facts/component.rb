@@ -1,5 +1,6 @@
 # The state of charge and the loss of a charge, in the form of a session:
-# "Charge level 23 -> 81 % - 9 % loss". Nothing without a state of charge.
+# "Charge level 23 -> 81 % - about 9 % loss (rough estimate)". Nothing
+# without a state of charge.
 class ChargingSession::SocFacts::Component < ViewComponent::Base
   include ChargingSession::Texts
 

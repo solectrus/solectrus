@@ -390,7 +390,7 @@ en:
     unassigned: Not assigned
     no_cost: No cost, because the day has no price
     cost_incomplete: At least, because a charging session has no cost
-    loss: '%{percent} loss'
+    loss: 'about %{percent} loss (rough estimate)'
     soc: 'Charge level %{range}'
     soc_from: from %{percent}
     since: since %{time}
