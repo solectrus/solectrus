@@ -8,13 +8,26 @@ ChargingSession::OffsiteDetection::CarCurves = Data.define(:car, :soc, :odometer
 # The methods sit in a class body and not in the block of Data.define, like
 # ChargingSession::Sums
 class ChargingSession::OffsiteDetection::CarCurves
+  # A longer step of a drive can hold a charge of its own
+  MAX_EDGE = 30.minutes
+  private_constant :MAX_EDGE
+
   # The steps of each charge: the runs of the state of charge (see
-  # ChargingSession::SocRuns), cut at each step of a drive, which belongs to
-  # no charge. Two stops at chargers on one trip are two charges.
+  # ChargingSession::SocRuns), cut at each step of a drive. Two stops at
+  # chargers on one trip are two charges. A short step of a drive beside a
+  # charge stays with it when no other rise lies beyond the step: a drive
+  # does not raise the state of charge, so the charge began or ended within
+  # the step. With readings every 20 minutes, these steps hold a large part
+  # of the rise. The odometer can also report the end of a drive late, in
+  # the first reading of the charge.
   def charges
     ChargingSession::SocRuns.new(soc).call.flat_map do |run|
-      run.slice_when { |step, next_step| drive?(step) || drive?(next_step) }
-         .reject { |steps| steps.one? && drive?(steps.first) }
+      parts = run.slice_when { |step, next_step| drive?(step) || drive?(next_step) }
+
+      # Each part with the two parts before it and after it
+      [nil, nil, *parts, nil, nil].each_cons(5).filter_map do |far_before, before, steps, after, far_after|
+        [*edge(before, far_before), *steps, *edge(after, far_after)] unless drive?(steps.first)
+      end
     end
   end
 
@@ -57,6 +70,16 @@ class ChargingSession::OffsiteDetection::CarCurves
   end
 
   private
+
+  # The short part of a drive beside a charge, unless the part beyond it
+  # rises, because a drive between two charges belongs to neither (see
+  # #charges)
+  def edge(part, beyond)
+    return unless part && drive?(part.first)
+
+    from, to = part.first
+    part if to - from <= MAX_EDGE && beyond.to_a.none? { |_, _, rise| rise.positive? }
+  end
 
   # The last reading at or before a time, at any age
   def state_at(curve, time)

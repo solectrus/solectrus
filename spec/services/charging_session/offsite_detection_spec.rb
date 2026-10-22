@@ -352,13 +352,55 @@ describe ChargingSession::OffsiteDetection do
 
   # The odometer reports the end of the drive late, in the first reading of
   # the charge
-  it 'leaves out a step of a drive, but keeps the rest of the rise' do
+  it 'takes the rise of a step of a drive into the charge, but not its time' do
     write(:car_battery_soc_1, [[at(8), 50], [at(10), 46], [at(10, 30), 52], [at(11), 80], [at(13), 80]])
     write(:car_odometer_1, [[at(8), 1000], [at(10, 30), 1150]])
 
     run
 
-    expect(proposals).to eq([[at(10, 30), at(11), 52.0, 80.0, 14.0]])
+    expect(proposals).to eq([[at(10, 30), at(11), 46.0, 80.0, 17.0]])
+  end
+
+  # Readings every 20 minutes: the car drives to the charger and starts to
+  # charge within one step, and ends to charge and drives away within another
+  context 'with a step of a drive at each end of a charge' do
+    before do
+      write(:car_battery_soc_1, [[at(8), 36], [at(10, 40), 36], [at(11), 36], [at(11, 20), 45], [at(11, 40), 77], [at(12), 86], [at(14), 86]])
+      write(:car_odometer_1, [[at(8), 1000], [at(11, 20), 1012], [at(11, 40), 1012], [at(12), 1020]])
+    end
+
+    it 'takes the rise of both steps' do
+      run
+
+      expect(proposals).to eq([[at(11, 20), at(11, 40), 36.0, 86.0, 25.0]])
+    end
+
+    it 'gives an entered session the full rise' do
+      session = ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: at(11, 14), ended_at: at(11, 55), kwh: 30, cost: 15)
+
+      run
+
+      expect(session.reload).to have_attributes(soc_from: 36, soc_to: 86)
+    end
+  end
+
+  # A step of an hour can hold a charge of its own before the drive
+  it 'leaves out a long step of a drive' do
+    write(:car_battery_soc_1, [[at(8), 40], [at(10), 11], [at(11), 37], [at(12), 84], [at(13), 99], [at(15), 99]])
+    write(:car_odometer_1, [[at(8), 1000], [at(10), 1080], [at(11), 1096]])
+
+    run
+
+    expect(proposals).to eq([[at(11), at(13), 37.0, 99.0, 31.0]])
+  end
+
+  it 'makes no proposal from the rise of a drive alone' do
+    write(:car_battery_soc_1, [[at(8), 40], [at(10), 40], [at(10, 30), 46], [at(10, 50), 46], [at(11, 10), 44], [at(13), 44]])
+    write(:car_odometer_1, [[at(8), 1000], [at(10, 30), 1030]])
+
+    run
+
+    expect(proposals).to be_empty
   end
 
   context 'with a rise over midnight' do

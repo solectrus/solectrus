@@ -6,10 +6,11 @@
 # ChargingSession::OffsiteDetection::CarCurves):
 #
 # - A step between two readings in which the odometer rises by more than
-#   Sensor::Query::Positions::MOVE is no part of a rise, and it ends the
-#   rise before it. The odometer can report the end of a drive late, in the
-#   first reading of the charge, so only this step goes. Two stops at
-#   chargers on one trip give two rises.
+#   Sensor::Query::Positions::MOVE ends the rise before it. Two stops at
+#   chargers on one trip give two rises. A step of a drive with a rise at
+#   the start or at the end of a charge adds its rise to the state of
+#   charge, because the car drove to the charger or away from it within the
+#   step (see CarCurves#charges).
 # - A value of the state of charge of 0 or less, or above 100, is no reading
 #   (see ChargingSession::Curves.soc_reading?).
 # - A rise needs MIN_RISE. A smaller rise down to MIN_CONNECTED_RISE counts
@@ -46,7 +47,7 @@ class ChargingSession::OffsiteDetection
   public_constant :KEY
 
   # Bump to build each day again (see Summary::Steps)
-  VERSION = 1
+  VERSION = 2
   public_constant :VERSION
 
   # The proposals keep no change of the user, but a dismissed proposal and
@@ -158,8 +159,10 @@ class ChargingSession::OffsiteDetection
 
   # Whether the rise is a charge: MIN_RISE, or MIN_CONNECTED_RISE while the
   # car reports a connection. A car that reports no connection does not
-  # charge.
+  # charge. A rise needs a step without a drive, which gives its time.
   def counts?(curves, steps)
+    return false if steps.all? { curves.drive?(it) }
+
     rise = steps.sum(&:last)
     return false if rise < MIN_CONNECTED_RISE
 
@@ -167,13 +170,17 @@ class ChargingSession::OffsiteDetection
     sign == :connected || (sign.nil? && rise >= MIN_RISE)
   end
 
+  # The time and the position come from the steps without a drive, because
+  # a step of a drive can start long before the charge, at home. The state
+  # of charge comes from all steps (see CarCurves#charges).
   def rise_of(curves, steps)
-    from = steps.first.first
-    to = steps.last.second
+    charge = steps.reject { curves.drive?(it) }
+    from = charge.first.first
+    to = charge.last.second
     position = curves.position_at(from + ((to - from) / 2))
     return if at_home?(position)
 
-    soc_from = curves.soc_at(from)
+    soc_from = curves.soc_at(steps.first.first)
     Rise.new(
       car_id: curves.car.id,
       started_at: from,

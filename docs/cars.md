@@ -431,6 +431,14 @@ The sign is a rise of the state of charge in one charge (`ChargingSession::SocRu
   connection tells a short charge from noise, for example a new calibration of the battery.
 - A drive of more than 1 km ends a rise, so two stops at chargers on one trip give two
   rises.
+- A drive does not raise the state of charge. If the step between two readings holds a
+  drive and a rise, the car charged within the step. Such a step of 30 minutes or less at
+  the start or at the end of a charge adds its rise to the state of charge, but not its
+  time. Otherwise a car that reports every 20 minutes loses a large part of its rise
+  ([#6056](https://github.com/solectrus/solectrus/issues/6056)). An odometer that reports
+  the end of a drive late gives the same step. A longer step can hold a charge of its own,
+  and a drive between two charges belongs to neither. Against the receipts of one
+  installation, the rule halved the spread of the energy per percentage point.
 - A rise at home gives no proposal. There the energy came through the house, or the
   wallbox data has a gap.
 - A rise during a wallbox session, or up to 2 hours after it, belongs to that session,
