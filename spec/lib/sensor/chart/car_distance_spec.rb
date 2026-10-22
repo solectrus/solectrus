@@ -243,6 +243,13 @@ describe Sensor::Chart::CarDistance do
       expect(chart.blank_message).to eq(I18n.t('data.car_no_driving'))
       expect(chart.blank_icon).to eq('road')
     end
+
+    # A drive can still come in the running month
+    it 'shows "yet" in the running month' do
+      travel_to Date.new(2026, 2, 20)
+
+      expect(chart.blank_message).to eq(I18n.t('data.car_no_driving_yet'))
+    end
   end
 
   it 'does not stack the columns' do

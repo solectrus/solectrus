@@ -19,7 +19,7 @@ module Sensor
         end
 
         # A parked car often reports nothing
-        def blank_message = I18n.t('data.car_no_driving')
+        def blank_message = no_driving_message
 
         def blank_icon = 'road'
 

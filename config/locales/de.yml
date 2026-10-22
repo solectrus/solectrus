@@ -305,6 +305,7 @@ de:
     car_edit_periods: Autos bearbeiten
     car_no_charging: Keine Ladevorgänge
     car_no_driving: Keine Fahrten
+    car_no_driving_yet: Noch keine Fahrten
     car_no_charging_cost: Kein Preis für die Ladevorgänge hinterlegt
     car_no_location: Kein Standort
   chart:

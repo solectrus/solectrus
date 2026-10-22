@@ -35,7 +35,7 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
   end
 
   # A period with a distance but without a rate keeps the message
-  def blank_message = driven? ? super : I18n.t('data.car_no_driving')
+  def blank_message = driven? ? super : no_driving_message
 
   def blank_icon = ('road' unless driven?)
 

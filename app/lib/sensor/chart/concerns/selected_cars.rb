@@ -16,6 +16,12 @@ module Sensor
         end
 
         def guest? = @guest
+
+        # The note of a chart without a drive. A drive can still come in a
+        # timeframe that runs, like today.
+        def no_driving_message
+          I18n.t(timeframe.current? ? 'data.car_no_driving_yet' : 'data.car_no_driving')
+        end
       end
     end
   end

@@ -38,7 +38,7 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
     I18n.t('sensors.car_distance')
   end
 
-  def blank_message = I18n.t('data.car_no_driving')
+  def blank_message = no_driving_message
 
   def blank_icon = 'road'
 
