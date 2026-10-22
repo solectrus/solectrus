@@ -27,7 +27,7 @@ class ChargingSession::List::Component < ViewComponent::Base
   end
 
   # A proposal does not count, so the list can show more rows than this
-  def totals? = totals.count > 1 # rubocop:disable Style/CollectionQuerying
+  def totals? = totals.count > 1
 
   # A wallbox session has no cost on a day without a price, so the total
   # cost is too small
