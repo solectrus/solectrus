@@ -19,6 +19,24 @@ describe 'Tooltip' do
     expect(arrow_distance_from('right')).to be < 2
   end
 
+  # The box is fixed to the viewport, so the scroll offset must not move it
+  it 'stays in the viewport on a page scrolled down' do
+    visit '/inverter_power/now'
+    add_tap_tooltip('Hint of the probe')
+    # Far down in the document itself, not in a positioned container
+    page.execute_script(<<~JS)
+      const probe = document.getElementById('probe');
+      Object.assign(probe.style, { position: 'absolute', top: '3000px' });
+      document.body.append(probe);
+    JS
+
+    find_by_id('probe').hover
+    expect(page).to have_css('.floating-tooltip.show')
+    expect(page.evaluate_script(<<~JS)).to be true
+      (({ top, bottom }) => top >= 0 && bottom <= innerHeight)(document.querySelector('.floating-tooltip').getBoundingClientRect())
+    JS
+  end
+
   # On a phone, a tooltip that a touch opens is a sheet
   context 'with a touch screen' do
     before { driven_by :playwright_touch }

@@ -633,6 +633,10 @@ export default class TooltipController extends Controller {
       middlewareData,
     } = await computePosition(target, this.tooltip, {
       placement,
+      // The stylesheet fixes the box to the viewport. The default strategy
+      // gives coordinates in the document, which put the box one scroll
+      // offset too low on a page scrolled down.
+      strategy: 'fixed',
       middleware: [
         offset(10),
         flip(),
