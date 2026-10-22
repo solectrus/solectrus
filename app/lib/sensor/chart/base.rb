@@ -345,7 +345,20 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # { sensor_name => value } of the last reading before the window, at any
   # age. The result of a past window cannot change, so it stays cached.
   def seed_values
-    @seed_values ||= Sensor::Query::LastSeen.new(chart_sensor_names, before: series_timeframe.beginning).readings
+    @seed_values ||= begin
+      readings = Sensor::Query::LastSeen.new(chart_sensor_names, before: series_timeframe.beginning).readings
+      chart_sensor_names.index_with { readings[it] || calculated_seed(it, readings) }
+    end
+  end
+
+  # A calculated state, like the maximum range of a car, has no reading of
+  # its own. It comes from the last readings of its dependencies.
+  def calculated_seed(sensor_name, readings)
+    sensor = Sensor::Registry[sensor_name]
+    return unless sensor.calculated?
+
+    values = sensor.dependencies(context: :influx).index_with { readings[it] }
+    sensor.calculate(**values, context: :influx, sensor_names_with_data: values.compact.keys)
   end
 
   # Carry the last value forward to the window edge, so a trailing null run
