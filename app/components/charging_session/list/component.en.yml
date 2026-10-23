@@ -1,0 +1,9 @@
+en:
+  map: Map of the offsite sessions
+  # The list of the sessions to review
+  reviewed:
+    wallbox: All assigned
+    offsite: All confirmed
+  review_hint:
+    wallbox: These wallbox sessions belong to no car or guest yet.
+    offsite: These sessions come from the state of charge of a car and are not confirmed yet.

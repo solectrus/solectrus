@@ -86,9 +86,15 @@ html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
   @apply mx-auto h-6;
 }
 
+/* The back button stands at the left edge. The buttons at the right stand
+   in a row of their own. */
+.ui-title-bar-back {
+  @apply absolute;
+}
+
 .ui-title-bar-back,
 .ui-title-bar-action {
-  @apply absolute flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
+  @apply flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 

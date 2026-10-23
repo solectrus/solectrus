@@ -1,4 +1,2 @@
 en:
-  as_of: Latest reading of the car
-  yesterday: Yesterday, %{time}
-  weekday: '%{day}, %{time}'
+  charging: charging at the wallbox

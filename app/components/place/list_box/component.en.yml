@@ -1,0 +1,17 @@
+en:
+  map: Map of the places
+  places:
+    one: 1 place
+    other: '%{count} places'
+  at_places:
+    one: at 1 place
+    other: at %{count} places
+  visits_at: '%{visits} %{places}'
+  empty:
+    places:
+      current: No destinations yet
+      past: No destinations
+    visits:
+      current: No visits yet
+      past: No visits
+  empty_text: A place appears once a car stands at one spot for a while.

@@ -1,0 +1,16 @@
+/ A pill in the middle, as wide as its text and without a background, so it
+  does not compete with the bar of the state of charge below it
+= helpers.turbo_frame_tag frame_id, src:, loading: :lazy, class: 'flex justify-center' do
+  = content_tag tag_name, **link_options, class: row_classes do
+    = render Place::Icon::Component.new(place:, round: true)
+    span.min-w-0.truncate.text-sm.lg:text-base
+      / A placeholder in the size of a short name, until the name comes
+      - if src
+        span class='inline-block align-middle h-3.5 w-24 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse motion-reduce:animate-none' aria-hidden='true'
+      span class=(src ? 'sr-only' : 'font-semibold text-slate-800 dark:text-slate-100')
+        = title
+      - if subtitle.present?
+        span.text-slate-500.dark:text-slate-400.tabular-nums
+          = " · #{subtitle}"
+    - if location
+      = helpers.icon 'chevron-right', class: 'shrink-0 text-xs text-slate-400 dark:text-slate-500'

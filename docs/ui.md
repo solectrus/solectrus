@@ -13,13 +13,15 @@ The phone layout takes its patterns from iOS. This document and the code use the
 
 A note about iOS in the code describes the browser on iOS, like the zoom into a small text field.
 
+A page has one of two grounds on a phone. A list or a form stands on the gray page of a grouped list, like the settings and the charging sessions. A page of figures and charts stands on white, like the power balance and the car page. Its figures are soft gray tiles, and its chart has no card of its own.
+
 ## Components
 
 ### Layout of the phone and the desktop
 
-- `Ui::TitleBar`: The title bar of a page on a phone: the title or a logo, a round back button and an optional action button at the right. A form page has its save button there. From `lg` up it hides itself. Its page has the gray background of a grouped list. With `plain: true`, the page keeps its own background, like a page with charts. A page that is no list can stand on the gray as well, like the Top 10. Its view sets `content_for :grouped`.
+- `Ui::TitleBar`: The title bar of a page on a phone: the title or a logo, a round back button and an optional action button at the right. A control of the page, like the select of the car with `mobile_icon:` of `Ui::Dropdown`, can stand before the action as `trailing`. A form page has its save button there. From `lg` up it hides itself. Its page has the gray background of a grouped list. With `plain: true`, the page keeps its own background, like a page with charts. A page that is no list can stand on the gray as well, like the Top 10. Its view sets `content_for :grouped`.
 - `Ui::TableRow`: A row of a desktop table and a cell of a grouped list on a phone. A click anywhere in the row opens its entry. A row without `href` opens nothing and has no chevron, like a row that a guest may only read.
-- `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. With `stretch: true`, it takes the full width on a phone, like the switch in the head of a list.
+- `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. With `stretch: true`, it takes the full width on a phone, like the switch in the head of a list. A segment with a `note` has a tiny amber dot after its name, like a list with sessions to review.
 - `Ui::GroupedList`: A grouped list, with an optional header above the card and a footer below it. A cell is a link, a button, or a row that holds a control at the right, like a segmented control. A link inside the app shows a chevron, a link to another site an arrow out of a box. With `detail:`, a cell shows a second, smaller line below its name, like the reason why its control is not available.
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone. A form with unsaved changes asks before the modal closes or a link leaves the page.
@@ -68,7 +70,7 @@ The tab bar holds the first four entries, the primary entries. If a system has f
 
 A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. It opens in the timeframe of the last view. The page More has no timeframe of its own, so the server keeps the timeframe of the last view in the session.
 
-The other secondary entries, like the Top 10, and the notifications are one level below the page More. The layout gives each of them a `Ui::TitleBar` that leads back to the page More. A page that the tab bar holds shows no title bar. The charging sessions are a page below the car page, not an entry of the page More.
+The other secondary entries, like the Top 10, and the notifications are one level below the page More. The layout gives each of them a `Ui::TitleBar` that leads back to the page More. A page that the tab bar holds shows no title bar. The list of the charging sessions is a page below the car page. When the item "Charging sessions" of the page More opens it, it is a page below the page More (see `BelowMore`).
 
 The switches of the page More, like the language, slide their marking to the new choice, as the tab bar does. The `segment-slide` controller does this for radios and for buttons.
 

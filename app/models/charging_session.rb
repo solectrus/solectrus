@@ -62,6 +62,7 @@ class ChargingSession < ApplicationRecord
   include ChargingSession::Overlap
   include ChargingSession::Proposal
   include ChargingSession::Repricing
+  include ChargingSession::Review
   include ChargingSession::StateOfCharge
 
   enum :kind, wallbox: 'wallbox', offsite: 'offsite'
@@ -160,30 +161,33 @@ class ChargingSession < ApplicationRecord
   scope :unassigned, -> { wallbox.where(car_id: nil, guest: false) }
   scope :in_timeframe, ->(timeframe) { timeframe.all? ? all : where(started_at: timeframe.beginning..timeframe.ending) }
 
-  # The sessions of the list of a kind. The filter is a car id, :guest,
-  # :unassigned or :proposals (see CarSelection#filter). The list shows the
-  # proposals, but not the dismissed ones.
+  # The sessions with a holder: a car or a guest
+  scope :assigned, -> { where.not(car_id: nil).or(where(guest: true)) }
+
+  # The sessions of the cars and, with `guest`, the guest sessions
+  scope :of_cars, ->(cars, guest: false) { guest ? where(car: cars).or(wallbox.where(car_id: nil, guest: true)) : where(car: cars) }
+
+  # The sessions of the list of a kind. The filter is a car id or :guest, nil
+  # for "all" (see CarSelection#filter). The list holds the sessions that
+  # count, like the numbers of the car page. `open` adds the sessions to
+  # review of the admin, and `review` lists them alone (see
+  # ChargingSession::Review). The filter applies to them too, so a car has no
+  # session that is not assigned. The list never shows a dismissed proposal.
   scope :listed,
-        lambda { |kind, timeframe: nil, filter: nil|
+        lambda { |kind, timeframe: nil, filter: nil, open: false, review: false|
           scope = where(kind:, dismissed: false)
+          scope = scope.merge(to_review(kind)) if review
           scope = scope.in_timeframe(timeframe) if timeframe
+          scope = scope.effective.assigned unless open || review
           case filter
-          when :unassigned then scope.unassigned
           when :guest then scope.where(guest: true)
-          when :proposals then scope.proposals
           when Integer then scope.where(car_id: filter)
           else scope
           end
         }
 
   # The list of the charges of a kind (see .joined), newest first
-  scope :list_for, ->(kind, timeframe: nil, filter: nil) { listed(kind, timeframe:, filter:).joined.order(started_at: :desc) }
-
-  # The list opens with the wallbox sessions, or with the offsite sessions
-  # without a wallbox
-  def self.default_kind
-    Sensor::Config.exists?(:wallbox_power) ? 'wallbox' : 'offsite'
-  end
+  scope :list_for, ->(kind, timeframe: nil, filter: nil, open: false, review: false) { listed(kind, timeframe:, filter:, open:, review:).joined.order(started_at: :desc) }
 
   # The kinds that the list offers. Without a wallbox, the wallbox sessions
   # of an earlier wallbox stay as history, so their list stays too.

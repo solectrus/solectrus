@@ -10,3 +10,10 @@
     .tooltip-group
       = render Insights::Row::Component.new(label: t('.maximum'), note: l(maximum.first), url: day_path(maximum.first)) do
         = render Sensor::Value::Component.new(maximum.last, sensor.name, context: :total, scaling: :kilo)
+
+  / The best and the worst period of the same kind
+  - if span_ends.any?
+    .tooltip-group
+      - span_ends.each do |name, value, period|
+        = render Insights::Row::Component.new(label: t(".#{name}"), note: period.localized, url: period_path(period)) do
+          = render Sensor::Value::Component.new(value, sensor.name, context: :total, scaling: :kilo)

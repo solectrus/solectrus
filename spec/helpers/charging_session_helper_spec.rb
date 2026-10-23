@@ -6,7 +6,7 @@ describe ChargingSessionHelper do
 
     before do
       Car.create!(id: 1, name: 'Trabant')
-      # The controller gives the selection (see CarSelectable)
+      # The controller gives the selection (see Cars::Selectable)
       without_partial_double_verification do
         allow(helper).to receive(:car_selection).and_return(CarSelection.new(nil, timeframe: nil))
       end

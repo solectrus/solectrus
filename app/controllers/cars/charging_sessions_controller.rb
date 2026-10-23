@@ -1,35 +1,32 @@
+# The list of the charging sessions, a page below the car page: the wallbox
+# sessions or the offsite sessions of the selected car (see
+# Cars::ChargingSessionListing). The offsite sessions also have their map over the
+# list, and the admin edits a session in its form.
 class Cars::ChargingSessionsController < ApplicationController
-  include Pagy::Method
   include CarListPage
   include FormPageResponse
   include BelowMore
-  include ChargingSessionsView
+  include Cars::ChargingSessionListing
+
+  # A guest reads the list too, without its open tasks and its forms (see
+  # Cars::ChargingSessionListing).
+  skip_before_action :admin_required!, only: :index
 
   before_action :load_charging_session, only: %i[edit update destroy dismiss]
   before_action :new_charging_session, only: %i[new create]
 
   def index
     # An unknown kind goes to the list of the default kind in the timeframe
-    return redirect_to(cars_charging_sessions_path(kind: ChargingSession.default_kind, timeframe: timeframe.to_param)) unless kind.in?(ChargingSession.kinds.keys)
+    return redirect_to(charging_page_path(listed_kinds.first)) unless params.key?(:kind) && kind.in?(listed_kinds)
 
-    # A car that the filter does not offer goes to "all", like on the car page
-    return redirect_to(cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: nil)) unless car_selection.valid?
+    # A car that the page does not offer goes to "all", like on the car page.
+    # The sessions to review that no car narrows are in "all" alone.
+    return redirect_to(cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: nil, review: params[:review])) if !car_selection.valid? || review_of_all?
 
-    next_page = Ui::LazyRows::Component.request?(request, ChargingSession::Rows::Component::FRAME_PREFIX)
+    return render_next_page if next_page?
 
     # While days wait for the detection, the page shows the build instead of the list
-    @missing_or_stale_summary_days = pending_days unless next_page
-    return if @missing_or_stale_summary_days.present?
-
-    # The map loads its spots itself (see ChargingSessionsView)
-    return if map_view?
-
-    @pagy, @charging_sessions = pagy(:countless, list_scope)
-    mark_ongoing(@charging_sessions)
-    return unless next_page
-
-    previous_started_at = sessions_scope.offset(@pagy.offset - 1).pick(:started_at)
-    render ChargingSession::Rows::Component.new(sessions: @charging_sessions, pagy: @pagy, timeframe:, previous_started_at:, frame: true), layout: false
+    @missing_or_stale_summary_days = pending_days
   end
 
   def new
@@ -38,7 +35,7 @@ class Cars::ChargingSessionsController < ApplicationController
   # The form of an offsite session opens without Nominatim, and asks it once
   # it opened, if necessary (see ChargingSession::AddressLookup#prepare)
   def edit
-    mark_ongoing([@charging_session])
+    mark_ongoing(@charging_session.kind, [@charging_session])
     return unless @charging_session.offsite?
 
     lookup = ChargingSession::AddressLookup.new(@charging_session)
@@ -62,13 +59,12 @@ class Cars::ChargingSessionsController < ApplicationController
     respond_with_list(notice: t('charging_sessions.proposal.dismissed'))
   end
 
-  # The proposals of the timeframe of the list go at once, for a time
-  # without receipts. Only the list of the proposals offers it, and only the
-  # proposals that the list showed go: a proposal of a later build stays.
+  # The proposals of the list go at once, for a time without receipts. Only
+  # the proposals that the list showed go: a proposal of a later build stays.
   def dismiss_all
-    return head(:unprocessable_content) unless car_selection.filter == :proposals && listed_at
+    return head(:unprocessable_content) unless return_to && listed_at
 
-    count = ChargingSession.in_timeframe(timeframe).where(created_at: ..listed_at).dismiss_all
+    count = ChargingSession.listed('offsite', timeframe:, filter: car_selection.filter, open: true).proposals.where(created_at: ..listed_at).dismiss_all
     respond_with_list(notice: t('charging_sessions.proposal.dismissed_all', count:))
   end
 
@@ -81,56 +77,55 @@ class Cars::ChargingSessionsController < ApplicationController
 
   private
 
+  def next_page? = Ui::LazyRows::Component.request?(request, ChargingSession::Rows::Component::FRAME_PREFIX)
+
+  # The tab of this list (see CarListPage#list_tabs)
+  def list_tab = :charging_sessions
+
+  # The rows of a next page of the list
+  def render_next_page
+    pagy, sessions = pagy(:countless, listed_sessions(kind))
+    mark_ongoing(kind, sessions)
+    previous_started_at = listed_sessions(kind).offset(pagy.offset - 1).pick(:started_at)
+
+    render ChargingSession::Rows::Component.new(sessions:, pagy:, timeframe:, previous_started_at:, frame: true), layout: false
+  end
+
   # The days of the timeframe without a fresh summary, and so without their
-  # sessions. The page builds them first, like the car page (see
-  # Summary::Builder::Component).
-  # Without a state of charge, the offsite sessions come from the user alone.
+  # sessions (see Summary::Builder::Component). Without a state of charge,
+  # the offsite sessions come from the user alone.
   def pending_days
     return [] if timeframe.now? || (kind == 'offsite' && !ChargingSession::OffsiteDetection.enabled?)
 
     Sensor::Summarizer.build_few(Summary.missing_or_stale_days_for(timeframe))
   end
 
-  # Only a wallbox list up to now can hold an ongoing session
-  def mark_ongoing(sessions)
-    ChargingSession.mark_ongoing(sessions) if kind == 'wallbox' && !timeframe.past?
-  end
-
-  def sessions_scope = ChargingSession.list_for(kind, timeframe:, filter: car_selection.filter)
-
-  def list_scope = sessions_scope.includes(:car)
-
   # Refresh the list straight from the mutating request, so it does not depend
   # on a Turbo broadcast (which could not know the viewer's timeframe). The
-  # timeframe and the car filter come from the list that opened the form (see
-  # #list_source). The list starts over at page 1, its follow-up pages load
-  # from the path of the list, without the query of its address.
-  def list_stream
-    return turbo_stream.update('list', list_component) if map_view?
+  # timeframe, the car and the kind come from the page that opened the form
+  # (see #list_source).
+  def list_stream = turbo_stream.update('list', charging_list_component(kind))
 
-    pagy, charging_sessions =
-      pagy(
-        :countless,
-        list_scope,
-        request: {
-          base_url: request.base_url,
-          path: URI(list_path).path,
-          params: {},
-        },
-      )
-    mark_ongoing(charging_sessions)
+  # The list of the timeframe and the car of the form, for a form that no
+  # list opened (see FormPageResponse)
+  def default_list_path = charging_page_path(kind)
 
-    turbo_stream.update('list', list_component(charging_sessions, pagy))
+  # The list of a kind in the timeframe and with the car of this list, with
+  # its sessions to review alone or not
+  def charging_page_path(kind, review: review_only?)
+    cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: car_selection.to_param, review: ('1' if review))
   end
 
-  # The list of the timeframe and the car filter of the form, for a form that
-  # no list opened (see FormPageResponse)
-  def default_list_path
-    cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: car_selection.to_param)
-  end
+  # The admin can narrow the list to its sessions to review, with the switch
+  # in its head (see ChargingSession::Review)
+  helper_method def review_only? = admin? && list_source[:review].present?
 
-  # Where the timeframe and the car filter come from: the address of the list
-  # itself, or the list that opened the form (see
+  # Whether the list shows the sessions to review of a car, which no car
+  # narrows (see ChargingSession.review_by_car?)
+  def review_of_all? = review_only? && car_selection.to_param && !ChargingSession.review_by_car?(kind)
+
+  # Where the timeframe, the car and the kind come from: the address of the
+  # list itself, or the list that opened the form (see
   # FormPageResponse#return_to_params). So a change renders the list of its
   # own page, also with a second page in another tab.
   def list_source
@@ -146,44 +141,31 @@ class Cars::ChargingSessionsController < ApplicationController
     nil
   end
 
-  # The car filter of the list: one car, all, and the extras of the kind (see
-  # CarSelection::EXTRAS)
+  # The car of the list: one car, all or the guest (see CarSelection)
   helper_method def car_selection
-    @car_selection ||=
-      CarSelection.new(list_source[:car], timeframe:, extras: true)
+    @car_selection ||= CarSelection.new(list_source[:car], timeframe:, guest: true)
   end
 
-  helper_method def title
-    ChargingSession.human_enum_name(:kind, kind)
-  end
-
-  # The car page in the timeframe of the list. It keeps one car and the
-  # guests, but not "not assigned", which the car page does not select.
+  # The way back leads to the car page, in the timeframe and with the car of
+  # the page
   helper_method def back_path
-    car = car_selection.extra == CarSelection::GUEST ? CarSelection::GUEST : car_selection.car&.id
-    cars_home_path(sensor_name: 'car_charging', timeframe: timeframe.to_param, car:)
+    cars_home_path(sensor_name: nil, timeframe: timeframe.to_param, car: car_selection.to_param)
   end
 
+  # The list shows the sessions of the hours, unlike the car page
   helper_method def timeframe_page
-    # The list shows the sessions of the hours, unlike the car page
-    TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param, view: view_param }, hours: true)
+    TimeframePage::List.new(route: :cars_charging_sessions_path, params: { kind:, car: car_selection.to_param, review: ('1' if review_only?) }, hours: true)
   end
 
-  # A new session is an offsite session, the detection writes the others. An
-  # offsite session needs a car.
-  helper_method def new_session_offered? = kind == 'offsite' && car_selection.installed.any?
+  # The list offers a new offsite session to the admin. It needs a car (see
+  # #prefilled_session), so the guest has none.
+  helper_method def add_entry
+    return unless admin? && car_selection.installed.any? && !car_selection.guest?
 
-  # The segments of a phone take the short name, as the card of the car page
-  # that links here
-  helper_method def nav_items(short: false)
-    ChargingSession.listed_kinds.map do |k|
-      {
-        name: short ? t("car_breakdown.#{k}_short") : ChargingSession.human_enum_name(:kind, k),
-        href: cars_charging_sessions_path(kind: k, timeframe:, car: car_selection.to_param_for(k)),
-        current: kind == k,
-      }
-    end
+    { href: new_cars_charging_session_path(return_to: list_address), label: t('charging_sessions.new') }
   end
+
+  helper_method def list_box = charging_list_component(kind)
 
   # The detection writes energy, time and cost of a wallbox session, so the
   # user changes who charged and the note alone. The car field carries the
@@ -201,10 +183,10 @@ class Cars::ChargingSessionsController < ApplicationController
     params.expect(charging_session: %i[car_id started_at ended_at kwh cost power_type evse_id provider address address_of_position latitude longitude note]).merge(kind: 'offsite')
   end
 
-  # The kind of the list, of the session, or of the list that sent the
+  # The kind of the list in its address, or of the list that sent the
   # request (see #list_source)
   helper_method def kind
-    params[:kind] || @charging_session&.kind || list_source[:kind]
+    params[:kind] || list_source[:kind] || ChargingSession.listed_kinds.first
   end
 
   # A wallbox session changes each session of its charge. An offsite session

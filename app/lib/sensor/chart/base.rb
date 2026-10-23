@@ -60,15 +60,19 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   end
 
   # Override in subclasses where an empty chart is a normal state, not a gap
-  # in the data. With an icon, the empty chart shows the icon crossed out as
-  # a watermark and keeps the message for screen readers and as a hover
-  # title.
+  # in the data. With an icon, such a chart draws its empty axes in place of
+  # the message (see ChartLoader::Component).
   def blank_message
     I18n.t('data.blank')
   end
 
   def blank_icon
   end
+
+  # Whether the chart is empty as a normal state and draws its empty axes.
+  # A chart without a sensor, like the one of no car in the timeframe, has
+  # no axes to draw.
+  def empty_axes? = blank? && blank_icon.present? && chart_sensors.any?
 
   def permitted?
     permitted_feature_name.nil? ||

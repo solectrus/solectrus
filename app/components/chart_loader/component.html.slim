@@ -1,10 +1,10 @@
 - if !permitted?
   = render DemoLink::Component.new(feature: permitted_feature_name, url: demo_url)
-- elsif blank?
+- elsif blank? && !empty_axes?
+  / A chart that lacks data says so. A chart that is empty as a normal
+    state, like a day without a drive, draws its empty axes below.
   .flex-1.flex.items-center.justify-center
-    / A chart with an icon of its own is empty as a normal state, so its
-      icon is crossed out. Any other chart lacks data.
-    = render Ui::EmptyState::Component.new(icon: blank_icon || 'chart-line', title: blank_message, slashed: blank_icon.present?, size: :small)
+    = render Ui::EmptyState::Component.new(icon: 'chart-line', title: blank_message, size: :small)
 - else
   = tag.div class: "h-full #{ZOOM_CLASSES}",
             data: { \
@@ -56,7 +56,7 @@
       == data.to_json
 
     script type= 'application/json' data-chart-loader--component-target= 'options'
-      == options.to_json
+      == chart_options.to_json
 
     div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
       = render Ui::Loading::Component.new

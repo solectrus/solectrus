@@ -1,6 +1,6 @@
 - heading = t('settings.places.edit')
 / A place without a visit has nothing to save, only its deletion
-= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: list_title, save: (form_page_id(@place) unless @place.deletable?)
+= render 'settings/sub_nav', title: heading, back_href: list_path, back_label: title, save: (form_page_id(@place) unless @place.deletable?)
 
 / The address and the map show the user which place this is. The modal
   names the address as its title, the page of a phone above the map.

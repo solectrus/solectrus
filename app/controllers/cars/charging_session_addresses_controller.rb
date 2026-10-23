@@ -4,7 +4,7 @@
 # the address with the saved one. With `opened`, the form asks for what the
 # edit left to it (see ChargingSession::AddressLookup#complete).
 class Cars::ChargingSessionAddressesController < ApplicationController
-  include CarPageGate
+  include Cars::PageGate
 
   def create
     @charging_session = params[:id] ? ChargingSession.offsite.find(params.expect(:id)) : ChargingSession.new(kind: :offsite)

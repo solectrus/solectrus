@@ -1,0 +1,17 @@
+de:
+  map: Karte der Orte
+  places:
+    one: 1 Ort
+    other: '%{count} Orte'
+  at_places:
+    one: an 1 Ort
+    other: an %{count} Orten
+  visits_at: '%{visits} %{places}'
+  empty:
+    places:
+      current: Noch keine Ziele
+      past: Keine Ziele
+    visits:
+      current: Noch keine Besuche
+      past: Keine Besuche
+  empty_text: Ein Ort entsteht, sobald ein Auto eine Weile an einer Stelle steht.

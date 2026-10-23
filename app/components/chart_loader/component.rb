@@ -23,7 +23,7 @@ class ChartLoader::Component < ViewComponent::Base
            :options,
            :blank?,
            :blank_message,
-           :blank_icon,
+           :empty_axes?,
            :unit,
            :decimals,
            :scalable?,
@@ -45,6 +45,12 @@ class ChartLoader::Component < ViewComponent::Base
   # buttons would cover a menu opened from the navigation above them.
   CONTROLS_CLASS = 'absolute right-0 top-0 flex gap-3 z-6 group-data-zoomed/zoom:right-4 group-data-zoomed/zoom:top-4'.freeze
   private_constant :CONTROLS_CLASS
+
+  # A chart that is empty as a normal state, like a day without a drive,
+  # draws its grid and its time axis with the line of zero at the foot.
+  # Without a value, Chart.js would place zero in the middle of a scale from
+  # -1 to 1, so the empty chart has a fixed scale without numbers.
+  def chart_options = empty_axes? ? options.deep_merge(scales: { y: { min: 0, max: 1, ticks: { display: false } } }) : options
 
   def currency
     Currency.symbol

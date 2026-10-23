@@ -1,0 +1,25 @@
+.hidden data-tooltip-target='html'
+  - if parts.any?
+    .tooltip-layout.tooltip-layout-table
+      - if colored.any?
+        .tooltip-group
+          - colored.each do |part|
+            = render Tooltip::Row::Component.new(label: part.label, color: part.color) do
+              = part.value
+              - if part.percent
+                span.inline-block.w-14.text-right.font-normal.text-slate-500.dark:text-slate-400 = "#{part.percent} %"
+      - if details.any?
+        .tooltip-group
+          - details.each do |part|
+            .label-value-row
+              span.tooltip-row-label = part.label
+              span.font-semibold.whitespace-nowrap = part.value
+      - if notes.any?
+        .tooltip-group
+          .max-w-72.space-y-2.text-left.text-sm.font-normal.text-slate-500.dark:text-slate-400
+            - notes.each do |note|
+              p = note
+  - else
+    .max-w-72.space-y-2.text-left
+      - notes.each do |note|
+        p = note

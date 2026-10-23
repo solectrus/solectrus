@@ -1,8 +1,7 @@
-# The menu links to the list of all charging sessions while the car page is
-# open. Like the settings, a guest sees the link and the list asks to log in
-# (see CarPageGate).
+# The menu links to the list of the charging sessions while the car page is
+# open
 describe 'Charging sessions menu item' do
-  let(:links) { response.parsed_body.css('a[href="/cars/charging_sessions"]') }
+  let(:links) { response.parsed_body.css('a[href^="/cars/charging_sessions/"]') }
 
   context 'when logged in as admin' do
     before { login_as_admin }
@@ -59,11 +58,12 @@ describe 'Charging sessions menu item' do
       expect(links).to be_present
     end
 
-    it 'asks to log in at the list' do
-      without_detailed_exceptions { get '/cars/charging_sessions' }
+    it 'shows the list without the forms' do
+      allow(Car::Report).to receive(:pending_days).and_return([])
+      get '/cars/charging_sessions/wallbox/all'
 
-      expect(response).to have_http_status(:forbidden)
-      expect(response.parsed_body.css("a[href='#{new_session_path}']")).to be_present
+      expect(response).to have_http_status(:success)
+      expect(response.body).not_to include('/cars/charging_sessions/new')
     end
   end
 end

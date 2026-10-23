@@ -8,7 +8,7 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
   state
 
   # The level of a state of charge: critical up to 5%, low up to 20%. The
-  # color here and the badge of Car::BatteryDisplay follow it.
+  # color here and the fill of the battery in Car::LiveCard follow it.
   def self.level(percent)
     if percent <= 5
       :critical

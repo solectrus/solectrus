@@ -1,13 +1,2 @@
-= render 'shared/place_sub_nav'
-
-/ A phone has the select of the car above the map, as the visits have it
-  above their list. It answers a tap itself, so it stays lit while the next
-  page loads (see application.css).
-- if car_select? && @pending_days.blank?
-  .ui-keep-lit.mb-4.flex.justify-end.lg:hidden
-    = render car_select_component(button_class: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300')
-
-= render Place::VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
-  / The minimum height keeps a short window from shrinking the map to a strip
-  .flex.flex-col.flex-1.lg:min-h-96
-    = render map_component
+= render Car::MapOverlay::Component.new(title: t('car_breakdown.places_map')) do
+  = render map_component

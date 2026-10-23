@@ -1,11 +1,11 @@
 # The visits of the cars at the places, the latest first, each visit in one
-# row (see PlaceVisit.joined). Like the list of the charging sessions, the
-# page has a timeframe and a car select. A place in the address narrows the
-# list to the visits of this place (/cars/places/2/visits), a link of the
-# list of the places. It shows as a chip that removes it.
+# row (see PlaceVisit.joined). The list has a switch to the list of the places
+# and a button to their map (see Cars::PlaceListing). A place in the address
+# (/cars/places/2/visits) narrows the list to the visits of this place, with
+# a pill in the head that removes it again. The number of the visits in the
+# list of the places links it.
 class Cars::VisitsController < ApplicationController
-  include Pagy::Method
-  include PlacePage
+  include Cars::PlacePage
   include ListAddress
 
   def index
@@ -13,29 +13,25 @@ class Cars::VisitsController < ApplicationController
     return redirect_to(page_path_with(car: nil)) unless car_selection.valid?
 
     # While days wait for the build, the page shows the build instead of the list
-    @pending_days = page_frame_request? ? [] : Sensor::Summarizer.build_few(pending_visit_days)
+    @pending_days = next_page? ? [] : Sensor::Summarizer.build_few(pending_visit_days)
     return if @pending_days.present?
 
-    @pagy, @visits = pagy(:countless, visits)
-
-    # Only a list up to now can hold an ongoing visit
-    PlaceVisit.mark_ongoing(@visits) unless timeframe.past?
-
-    return unless page_frame_request?
-
-    previous_started_at = visits.offset(@pagy.offset - 1).pick(:started_at)
-    render Place::VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, previous_started_at:, frame: true), layout: false
+    load_visits
+    render_next_page if next_page?
   end
 
   private
 
-  def visits
-    rows = PlaceVisit.all
-    rows = rows.where(place:) if place
-    rows = rows.where(car:) if car
-    visits = rows.joined
-    visits = visits.overlapping(timeframe) unless timeframe.all?
-    visits.preload(:place, :car)
+  def load_visits
+    @pagy, @visits = pagy(:countless, joined_visits(place:).preload(:place, :car))
+
+    # Only a list up to now can hold an ongoing visit
+    PlaceVisit.mark_ongoing(@visits) unless timeframe.past?
+  end
+
+  def render_next_page
+    previous_started_at = joined_visits(place:).offset(@pagy.offset - 1).pick(:started_at)
+    render Place::VisitList::Rows::Component.new(visits: @visits, pagy: @pagy, context: list_context, previous_started_at:, frame: true), layout: false
   end
 
   helper_method def place
@@ -58,16 +54,24 @@ class Cars::VisitsController < ApplicationController
     (days | Summary.missing_or_stale_days_for(Timeframe.new('day'))).sort
   end
 
-  def page_frame_request? = Ui::LazyRows::Component.request?(request, Place::VisitList::Rows::Component::FRAME_PREFIX)
+  def next_page? = Ui::LazyRows::Component.request?(request, Place::VisitList::Rows::Component::FRAME_PREFIX)
 
-  # What each row of the list needs to know about the list. The car of a
+  # What each row of the visits needs to know about the list. The car of a
   # visit needs a column only with more than one car, and not in the list of
-  # one car.
-  helper_method def list_context
-    @list_context ||= Place::VisitList::Context.new(timeframe:, place:, car_column: !car && located_cars.many?, path: method(:page_path_with))
+  # one car. A group opens the list in its timeframe, with the place.
+  def list_context
+    @list_context ||= Place::VisitList::Context.new(
+      timeframe:,
+      car_column: !car_selection.car && car_selection.offered.many?(&:located?),
+      path: ->(timeframe:) { cars_visits_path(car: car_selection.car&.id, place: place&.id, timeframe: (timeframe unless timeframe == 'all')) },
+    )
   end
 
-  helper_method def title
-    t('visits.name')
+  # The list with the switch to the places, narrowed to the place of the
+  # address
+  helper_method def list_box
+    place_list_component('visits', Place::VisitList::Component.new(visits: @visits, pagy: @pagy, context: list_context), place:)
   end
+
+  helper_method def title = t('car_breakdown.places')
 end

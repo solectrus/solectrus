@@ -40,8 +40,9 @@ None of these changes the design above.
   identifier, the detection can mark it as a guest charge.
 - The assignment of many sessions at once. After the backfill, an installation with more
   than one car can have many sessions that are not assigned. The design:
-  - The list with the filter "not assigned" gets a button. It opens a modal with a select
-    of the car and assigns each session of the filter and the timeframe to this car.
+  - The list of the wallbox sessions of "all" gets a button for the admin. It opens a
+    modal with a select of the car and assigns each session that is not assigned in the
+    timeframe to this car.
     Checkboxes in the rows are worse, because the list loads its pages one after another.
   - The select offers no guest, because a wrong guest mark hides the energy of a car.
   - A session outside the period of use of the car stays not assigned. The flash gives the

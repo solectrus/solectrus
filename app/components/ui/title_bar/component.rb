@@ -27,13 +27,19 @@ class Ui::TitleBar::Component < ViewComponent::Base
   renders_one :action,
               lambda { |href:, icon:, label:|
                 link_to href,
-                        class: 'ui-title-bar-action right-0 click-animation',
+                        class: 'ui-title-bar-action click-animation',
                         data: self.class.link_data(label),
                         title: label,
                         'aria-label': label do
                   icon(icon)
                 end
               }
+
+  # A control of the page beside the action, like the select of the car on
+  # the lists of the car page. It takes the look of the action, the class
+  # `ui-title-bar-action`, and like the action, it leaves the bar when a page
+  # one level down opens.
+  renders_one :trailing
 
   # The save button of a form page: a check mark at the right.
   # It stands outside the form and names it by its id, `form`. The form-dirty
@@ -45,7 +51,7 @@ class Ui::TitleBar::Component < ViewComponent::Base
                            type: :submit,
                            form:,
                            disabled: true,
-                           class: 'ui-title-bar-action ui-title-bar-save right-0 click-animation',
+                           class: 'ui-title-bar-action ui-title-bar-save click-animation',
                            title: label,
                            'aria-label': label,
                            data: { form_dirty_submit: true }

@@ -2,7 +2,8 @@ class Cars::ChartsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
   include SponsoredFrame
-  include CarSelectable
+  include Cars::Selectable
+  include Cars::FrameNavigation
 
   def index
     if turbo_frame_request?

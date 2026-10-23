@@ -64,6 +64,12 @@ class Car::Report
     memo(:sessions, kind, dates, guest) { ledger.sessions(dates, kind:, guest:) }
   end
 
+  # Whether the cars, and with `guest` the guest, charged in the timeframe,
+  # and whether a car drove. They read no sums, so the page can ask them
+  # before the report loads.
+  def charged? = memo(:charged) { sessions_scope.on_dates(dates).exists? }
+  def driven? = memo(:driven) { SummaryValue.where(field: odometer_fields, aggregation: 'sum', date: dates).where('value > 0').exists? }
+
   # The guest sessions belong to no car, so they are the same for each
   # selection, and their cost is a loss for the owner. "all" names them.
   def guest_sessions
@@ -106,6 +112,11 @@ class Car::Report
   # The distance (km) of the cars, nil without a value
   def distance
     memo(:distance) { ledger.distance(dates) }
+  end
+
+  # The distance (km) of each selected car, nil for a car without a value
+  def distances
+    memo(:distances) { cars.index_with { ledger.distance(dates, cars: [it]) } }
   end
 
   # The average distance of a day on which a selected car was in use. Only
@@ -199,7 +210,7 @@ class Car::Report
   # finds the day
   def max_distance_day
     SummaryValue
-      .where(field: cars.map { it.sensor_name(:car_odometer).to_s }, aggregation: 'sum', date: dates)
+      .where(field: odometer_fields, aggregation: 'sum', date: dates)
       .group(:date)
       .order(Arel.sql('SUM(value) DESC'))
       .pick(:date, Arel.sql('SUM(value)'))
@@ -207,11 +218,11 @@ class Car::Report
 
   # The energy of the sessions of the cars and, with `guest`, of the guest
   def max_charging_day
-    scope = ChargingSession.where(car: cars)
-    scope = scope.or(ChargingSession.wallbox.where(car_id: nil, guest: true)) if guest?
-    date, kwh = scope.effective.on_dates(dates).max_daily_kwh
+    date, kwh = sessions_scope.on_dates(dates).max_daily_kwh
     [date, kwh.to_f * 1000] if kwh
   end
+
+  def sessions_scope = ChargingSession.of_cars(cars, guest: guest?).effective
 
   # The driving cost of a day comes from the rates of its window (see
   # Car::Driving), so it exists in Ruby only
@@ -227,6 +238,9 @@ class Car::Report
   def rates
     @rates ||= Car::Driving.new(ledger, min_date: timeframe.min_date)
   end
+
+  # The daily summary of the odometer of each car holds its distance
+  def odometer_fields = cars.map { it.sensor_name(:car_odometer).to_s }
 
   # The passed days of the period on which a selected car was in use. A car
   # outside its period of use drives nothing, so its days do not count. A
@@ -249,7 +263,7 @@ class Car::Report
   def odometer_since
     @odometer_since ||=
       SummaryValue
-        .where(field: cars.map { it.sensor_name(:car_odometer).to_s }, aggregation: 'sum')
+        .where(field: odometer_fields, aggregation: 'sum')
         .group(:field)
         .minimum(:date)
         .transform_keys { Sensor::Cars.number_of(it) }

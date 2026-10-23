@@ -46,7 +46,7 @@ describe 'Place tooltips' do
 
       expect(response.body).not_to include('<html')
       expect(response.body).to include('class="flex items-center gap-1.5 font-semibold"')
-      expect(response.body).to include('Work', '4 h', %(href="/cars/places/#{place.id}/visits"))
+      expect(response.body).to include('Work', '4:00 h', %(href="/cars/places/#{place.id}/visits"))
       expect(response.body).to match(/2 (visits|Besuche)/)
       expect(response.body).to include(%(href="/settings/places/#{place.id}/edit"), 'google.com/maps/search/')
       # A single car names its car, too
@@ -96,7 +96,7 @@ describe 'Place tooltips' do
         get cars_place_tooltip_path(place:, timeframe: 'all')
 
         expect(response.body).to match(/2 (visits|Besuche)/)
-        expect(response.body).to include('3 h', %(href="/cars/places/#{place.id}/visits"))
+        expect(response.body).to include('3:00 h', %(href="/cars/places/#{place.id}/visits"))
         expect(response.body.index('Wartburg')).to be < response.body.index('Trabant')
         expect(response.body).to include('class="size-2.5 shrink-0')
       end
@@ -105,7 +105,7 @@ describe 'Place tooltips' do
         car = Car.configured.first
         get cars_place_tooltip_path(car: car.id, place:, timeframe: 'all')
 
-        expect(response.body).to include('1 h', %(href="/cars/#{car.id}/places/#{place.id}/visits"), 'Trabant')
+        expect(response.body).to include('1:00 h', %(href="/cars/#{car.id}/places/#{place.id}/visits"), 'Trabant')
         expect(response.body).not_to include('Wartburg')
       end
     end

@@ -4,17 +4,6 @@
 class Place::VisitList::Row::Component < ViewComponent::Base
   include Place::VisitTexts
 
-  # The columns of the cell of a phone, by the number of icon columns: the
-  # icons, the place, the duration and the chevron. The times below take the
-  # columns of the place and the duration, so long times leave the place its
-  # room.
-  PHONE_COLUMNS = %w[
-    max-lg:grid-cols-[minmax(0,1fr)_auto_auto]
-    max-lg:grid-cols-[auto_minmax(0,1fr)_auto_auto]
-    max-lg:grid-cols-[auto_auto_minmax(0,1fr)_auto_auto]
-  ].freeze
-  private_constant :PHONE_COLUMNS
-
   def initialize(visit:, context:)
     super()
     @visit = visit
@@ -23,7 +12,20 @@ class Place::VisitList::Row::Component < ViewComponent::Base
 
   attr_reader :visit, :context
 
-  def phone_columns = PHONE_COLUMNS[context.icon_columns]
+  def date = l(visit.started_at.in_time_zone.to_date, format: :weekday)
+
+  # The times of the visit. The list of one day names the times on the day,
+  # and after them a start or an end outside it.
+  def times
+    return time_range unless context.timeframe.day?
+
+    line, note = day_times(context.timeframe.effective_beginning_date)
+    [line, note].compact.join(', ')
+  end
+
+  # The line below the place on a phone: the day, the times and, with more
+  # than one car, the car
+  def phone_line = [date, times, (visit.car.display_name if context.car_column?)].compact.join(' · ')
 
   # The form of the place leads back to this list
   def edit_path

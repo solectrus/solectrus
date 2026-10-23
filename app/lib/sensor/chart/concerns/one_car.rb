@@ -2,7 +2,7 @@ module Sensor
   module Chart
     module Concerns
       # A chart of a sensor of one car, for example its state of charge. The
-      # car page gives its cars (see CarSelectable). The chart needs exactly
+      # car page gives its cars (see Cars::Selectable). The chart needs exactly
       # one of them, because the values of two cars do not add up, and the
       # select above the chart selects the car.
       module OneCar
@@ -18,12 +18,19 @@ module Sensor
           super && car.present? && chart_sensor_names.all? { Sensor::Config.exists?(it) }
         end
 
-        # A parked car often reports nothing
-        def blank_message = no_driving_message
+        # A parked car often reports nothing. A car that drove has a gap in
+        # its data, like a sensor that came later, so the chart says so.
+        def blank_message = driven? ? super : no_driving_message
 
-        def blank_icon = 'road'
+        def blank_icon = ('road' unless driven?)
 
         private
+
+        def driven?
+          return @driven if defined?(@driven)
+
+          @driven = Car::Report.new(timeframe, [car]).driven?
+        end
 
         # The sensor of the car with the given role, for #chart_sensor_names
         def sensor_names_of(role)

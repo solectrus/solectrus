@@ -1,0 +1,8 @@
+en:
+  location: Location
+  on_the_road: On the road
+  near: near %{town}
+  minutes_ago:
+    zero: just now
+    one: 1 minute ago
+    other: '%{count} minutes ago'

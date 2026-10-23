@@ -1,35 +1,17 @@
-/ The form keeps the address of the list, with its timeframe and its car filter
-- action = { href: new_cars_charging_session_path(return_to: list_address), label: t('charging_sessions.new') }
-
+/ The head of the list of the charging sessions, a page below the car page
+  (see Car::SubNav::Component). The desktop has the pills of the lists.
 - content_for :fixed_nav, true
 - content_for :sub_nav do
-  / Phone: the title bar of a page below the car page or the page More, as in
-    the settings. The plus adds a session on a page of its own.
-  = render Ui::TitleBar::Component.new(title: t('charging_sessions.title'), **title_bar_back) do |bar|
-    - bar.with_action(**action, icon: 'plus') if new_session_offered?
-
-  / On a phone the accessory of the title bar. It belongs to the list and
-    leaves the bar when a session opens (see Ui::TitleBar::Component).
-  .ui-title-bar-accessory.relative.flex.flex-col.pb-3.lg:flex-row.lg:items-center.lg:justify-between.lg:py-5
-    / The desktop starts with the way back to the car page and the kinds as
-      pill buttons. A phone has the title bar for the way back, and the kinds
-      above the list (see the index).
-    .hidden.lg:flex.items-center.gap-2
-      = render Car::BackLink::Component.new(path: back_path)
-      = render Nav::Sub::Component.new(abbreviate: false) do |c|
-        - c.with_items nav_items
-
-    / The desktop has the button for a new session and the filter, with the
-      switch between list and map, before the timeframe, in the order of the
-      keyboard too. The group stands at the right edge, so a list without
-      the button keeps the place of the rest. A phone has the filter above
-      the list (see the index) and the button in the title bar.
-    .flex.items-center.lg:gap-4
-      - if new_session_offered?
-        .hidden.lg:block
-          = render Ui::AddButton::Component.new(**action)
-      - if @missing_or_stale_summary_days.blank?
-        .hidden.lg:block.empty:hidden
-          = render filter_component
-      .w-full.min-w-0.flex.items-center.lg:h-8.lg:w-auto
-        = render Timeframe::Component.new(timeframe:, page: timeframe_page)
+  - car_select = ->(**options) { Car::Select::Component.new(cars: car_selection.offered, car: car_selection.car, guest: car_selection.guest_offered?, guest_selected: car_selection.guest?, path: ->(car) { cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car:, review: ('1' if review_only?)) }, **options) }
+  ruby:
+    options = {
+      title: t('charging_sessions.title'),
+      back: title_bar_back,
+      desktop_back: back_path,
+      tabs: list_tabs,
+      add: add_entry,
+      car_select: (car_select if car_selection.offered.many? || car_selection.guest_offered?),
+    }
+  = render Car::SubNav::Component.new(**options) do |nav|
+    - nav.with_timeframe do
+      = render Timeframe::Component.new(timeframe:, page: timeframe_page)

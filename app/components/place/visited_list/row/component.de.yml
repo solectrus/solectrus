@@ -1,0 +1,4 @@
+de:
+  today: heute
+  last: zuletzt %{date}
+  yesterday: gestern

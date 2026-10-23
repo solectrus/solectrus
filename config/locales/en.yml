@@ -101,13 +101,13 @@ en:
     house_power_without_custom: Other consumers
     wallbox_power: EV charging
     wallbox_power_short: Power consumption
-    car_charging: Charging sessions
-    car_charging_short: Charging sessions
+    car_charging: Charged energy
+    car_charging_short: Charged energy
     wallbox_costs_short: Costs
     car_charging_costs: Charging costs
     car_charging_costs_short: Costs
-    car_consumption_rate: Usage/100 km
-    car_cost_rate: Driving cost/100 km
+    car_consumption_rate: Usage per 100 km
+    car_cost_rate: Driving cost per 100 km
     car_driving_costs: Driving costs
     grid_import_power: Grid import
     grid_export_power: Grid export
@@ -195,15 +195,12 @@ en:
       battery_charging_power: Grid electricity is attributed to the consumers.
   visits:
     name: Visits
-    empty: No visit yet
-    period: Period
-    duration: Duration
-    remove_filter: Remove filter
-    filter_place: Only visits at this place
+    count:
+      one: 1 visit
+      other: '%{count} visits'
     at_place:
       one: 1 visit at this place
       other: '%{count} visits at this place'
-    filter_car: Only visits of this car
     # The times of a visit in the list of one day
     from: from %{time}
     since: since %{time}
@@ -218,45 +215,46 @@ en:
       home: The wallbox is here too. The automatic assignment of charging sessions takes the location of the car into account. A change rebuilds all daily summaries.
   cars:
     default_name: Car %{number}
-    # The battery of a car in the live view, as a gauge or as a bar
+    # The time of a reading of a car in the live view (see Car::TimeText)
+    time:
+      yesterday: Yesterday, %{time}
+      weekday: '%{day}, %{time}'
+    # The battery of a car in the live view
     battery:
       stale: No current values
       estimated: Estimated range
       estimated_note: Estimated from the charge level and the consumption of the last 14 days. The consumption also holds the energy that the car uses while it stands.
-    # The time a car spent at a place, on the map of the places
+    # The time a car spent at a place (see DurationText)
     duration:
-      days:
-        one: '%{count} day'
-        other: '%{count} days'
-      hours: '%{count} h'
+      hours: '%{time} h'
       minutes: '%{count} min'
   car_breakdown:
     home: Wallbox
-    guest_included: Of which for guests
-    cost_incomplete: A charging session has no cost, because its day has no price. The charging cost is therefore too small.
-    cost_missing: The charging sessions have no cost, because their days have no price.
+    offsite_map: Map of the offsite sessions
+    places_map: Map of the places
     home_pv: Photovoltaics
     share_pv: from PV
     share_wallbox: at the wallbox
     home_grid: Grid
     offsite: Offsite charging
-    offsite_sessions: Charging sessions away from home
-    guest_sessions: Charging sessions of guests
     charging: Charging
     driving: Driving
     places: Locations
+    # The switch between the list of the places and the list of the visits
+    place_lists:
+      places: Destinations
+      visits: Visits
     wallbox_short: Wallbox
-    wallbox_sessions: Charging sessions at the wallbox
     guest_short: Guest
     offsite_short: Offsite
-    sessions: Charging sessions
-    no_charging: No charging
-    on_the_road: On the road
     unknown_place: Unknown place
-    costs: Costs
-    cost_rate: Cost/100 km
-    consumption_rate: Consumption/100 km
-    range: Ø Range
+    cost_rate: Cost per 100 km
+    consumption_rate: Consumption per 100 km
+    per_day: Ø per day
+    charged: Charged
+    cost_rate_short: Cost/100 km
+    consumption_rate_short: Usage/100 km
+    per_day_note: Ø %{distance}/day
     unconfirmed:
       one: 1 unconfirmed session
       other: '%{count} unconfirmed sessions'
@@ -264,7 +262,7 @@ en:
       one: 1 session not assigned
       other: '%{count} sessions not assigned'
     daily_rate: Each day at the rate of the %{days} days before and after it
-    total: Total
+    # The notes of a period without a value in the overview
   balance_sheet:
     left: Source
     right: Usage
@@ -380,12 +378,17 @@ en:
       continue: Register now
       login_required: Please log in as an administrator to complete the registration.
   charging_sessions:
+    # The sessions to review of a list (see ChargingSession::Review)
+    open:
+      wallbox:
+        one: 1 not assigned
+        other: '%{count} not assigned'
+      offsite:
+        one: 1 unconfirmed
+        other: '%{count} unconfirmed'
     title: Charging sessions
     edit: Edit charging session
     new: New charging session
-    view:
-      list: List
-      map: Map
     map_empty: The map shows the place once the address is found.
     guest: Guest
     unassigned: Not assigned
@@ -406,7 +409,6 @@ en:
     proposal:
       name: Unconfirmed
       title: Confirm the charging session
-      hint: Unconfirmed, from readings
       estimate: Estimated from the state of charge and the battery capacity
       no_estimate: No estimate without the battery capacity of the car
       accept: Confirm
@@ -427,11 +429,13 @@ en:
     description:
       wallbox: Charging sessions at your own wallbox, detected automatically.
       offsite: Charging sessions at public charging stations or on other people's wallboxes.
-      proposals: Offsite charging sessions detected from the car readings. You can confirm or dismiss them.
+      guest: Charging sessions at the home wallbox, assigned to a guest.
     empty:
       wallbox: No charging sessions at the wallbox
       offsite: No offsite charging sessions
-      proposals: No unconfirmed charging sessions
+      wallbox_of: No charging sessions of %{car} at the wallbox
+      offsite_of: No offsite charging sessions of %{car}
+      guest: No guest charging sessions
     form:
       assigned_manually: You chose this. A new detection keeps your choice.
       assigned_by_detection: Detected automatically. You can correct it.

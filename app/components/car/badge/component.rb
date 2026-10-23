@@ -1,20 +1,18 @@
 # The holder of a charging session in the list: the car in its color, a
-# guest, or "not assigned", which is an open task and only an icon. With a car instead of a
-# session, the badge shows that car, for example in the live view.
+# guest, or a question mark for "not assigned", which is an open task (see
+# ChargingSession::ReviewBadge::Component). With a car instead of a session,
+# the badge shows that car, for example on the map of its location.
 #
-# A prominent badge stands on the card itself as a heading. It is larger, and
-# in dark mode it needs more contrast than in a row of the list, whose hover
-# color it must not match.
+# A prominent badge stands as a heading, like over the map of the location of
+# a car. It is larger, and in dark mode it needs more contrast than in a row
+# of the list, whose hover color it must not match.
 class Car::Badge::Component < ViewComponent::Base
-  # A compact prominent badge has a smaller font at the same height, for the
-  # name above the bar of the battery (see Car::RangeBar::Component)
-  def initialize(charging_session: nil, car: nil, prominent: false, short: false, compact: false)
+  def initialize(charging_session: nil, car: nil, prominent: false, short: false)
     super()
     @charging_session = charging_session
     @car = car || charging_session&.car
     @prominent = prominent
     @short = short
-    @compact = compact
   end
 
   def prominent? = @prominent
@@ -54,7 +52,7 @@ class Car::Badge::Component < ViewComponent::Base
   def size_class
     return 'gap-1.5 px-2 py-0.5 text-xs sm:text-sm' unless prominent?
 
-    @compact ? 'gap-2 px-4 py-2 text-base' : 'gap-2 px-4 py-1.5 text-lg'
+    'gap-2 px-4 py-1.5 text-lg'
   end
 
   def color_class

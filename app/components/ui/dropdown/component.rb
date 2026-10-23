@@ -39,6 +39,7 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     disabled: false,
     mobile: true,
     mobile_shape: 'rounded px-2',
+    mobile_icon: nil,
     choices: false,
     stacked: false,
     label: nil,
@@ -55,6 +56,7 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     @disabled = disabled
     @mobile = mobile
     @mobile_shape = mobile_shape
+    @mobile_icon = mobile_icon
     @choices = choices
     @stacked = stacked
     @label = label
@@ -62,7 +64,9 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
   end
 
   # `mobile_shape` is the corners and the padding of the native select of a
-  # phone, `label` names that select for a screen reader.
+  # phone, `label` names that select for a screen reader. `mobile_icon` is an
+  # icon that stands there alone, like a round button of the title bar (see
+  # Ui::TitleBar::Component).
   #
   # `choices: true` holds several choices at once, one group of items for
   # each, like the order and the calculation of a list. Each group marks its
@@ -83,6 +87,7 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
               :disabled,
               :mobile,
               :mobile_shape,
+              :mobile_icon,
               :choices,
               :stacked,
               :label,
@@ -203,6 +208,15 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
   # the short name like the button (see button_text)
   def render_option(item)
     content_tag(:option, item.short_name || item.name, value: item.href, data: item.data, selected: (item == selected_item))
+  end
+
+  # The options of the native select, in their groups
+  def native_options
+    if grouped?
+      safe_join(items.map { |group| tag.optgroup(safe_join(flat_items_for_group(group).filter_map { render_option(it) if it.href }), label: group[:name]) })
+    else
+      safe_join(items.filter_map { render_option(it) if it.href })
+    end
   end
 
   # A phone has the native select, unless the dropdown holds choices

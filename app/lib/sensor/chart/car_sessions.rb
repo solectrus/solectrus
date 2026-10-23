@@ -1,4 +1,4 @@
-# The charging of the selected cars (see CarSelectable) in a column for each
+# The charging of the selected cars (see Cars::Selectable) in a column for each
 # day, month or year: the charged energy or the charging cost of their
 # charging sessions. A guest session and a session that is not assigned count
 # for no car.

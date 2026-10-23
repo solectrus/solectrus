@@ -1,4 +1,7 @@
 describe 'Charging sessions' do
+  # The sums in the head of the list, as text
+  def totals = response.parsed_body.at_css('.ui-keep-lit span.text-slate-600.tabular-nums').text
+
   before do
     login_as_admin
 
@@ -6,6 +9,15 @@ describe 'Charging sessions' do
     # Most examples need no build (see 'the proposals').
     allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(false)
   end
+
+  # The list of the charging sessions of a kind, or its sessions to review
+  # alone
+  def page(kind = 'wallbox', timeframe: 'all', car: nil, review: nil)
+    cars_charging_sessions_path(kind:, timeframe:, car:, review:)
+  end
+
+  # The switch of the sessions to review in the head of the list
+  def review_switch = response.parsed_body.at_css('.ui-keep-lit a[role="switch"]')
 
   let(:car) { Car.create!(id: 1, name: 'Trabant') }
   let!(:recent) do
@@ -28,28 +40,81 @@ describe 'Charging sessions' do
       get '/cars/charging_sessions'
       expect(response).to redirect_to('/cars/charging_sessions/wallbox/all')
     end
-  end
-
-  describe 'GET /cars/charging_sessions/:kind' do
-    it 'defaults to timeframe "all" and lists all sessions for that kind' do
-      get '/cars/charging_sessions/offsite'
-      expect(response).to have_http_status(:success)
-      expect(response.body).to include(recent.started_at.iso8601)
-      expect(response.body).to include(old.started_at.iso8601)
-    end
-
-    it 'shows the car of each session' do
-      get '/cars/charging_sessions/offsite'
-      expect(response.body).to include('Trabant')
-    end
 
     it 'goes back to the car page in the timeframe and with the car' do
       get '/cars/1/charging_sessions/offsite/2025'
-      expect(response.body).to include(%(href="/cars/1/car_charging/2025"))
+      expect(response.body).to include('href="/cars/1/2025"')
+    end
+  end
+
+  describe 'the list' do
+    it 'lists the sessions of the kind and the timeframe' do
+      get page('offsite')
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include(recent.started_at.iso8601, old.started_at.iso8601)
+
+      get page('offsite', timeframe: Date.current.year.to_s)
+      expect(response.body).to include(recent.started_at.iso8601)
+      expect(response.body).not_to include(old.started_at.iso8601)
+    end
+
+    it 'shows the car of each session' do
+      get page('offsite')
+      expect(response.body).to include('Trabant')
+    end
+
+    it 'sums the sessions of the kind in its head' do
+      get page('offsite')
+      expect(totals).to eq('2 charging sessions · 30.0 kWh · € 15.00')
+    end
+
+    # A wallbox session without a price has no cost, so the cost of the sums
+    # is a minimum
+    it 'explains a cost that is a minimum' do
+      allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
+      wallbox(2.days.ago, car:, cost: 2)
+      wallbox(1.day.ago, car:)
+      get page('wallbox')
+
+      expect(totals).to eq('2 charging sessions · 14.0 kWh · ≥ € 2.00')
+      expect(response.parsed_body.at_css('.ui-keep-lit span.tabular-nums[title]')['title']).to eq(I18n.t('charging_sessions.cost_incomplete'))
+    end
+
+    # The desktop has the state of charge before and after in a column
+    it 'shows the state of charge of a session' do
+      allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
+      wallbox(1.day.ago, car:, soc_from: 38, soc_to: 80)
+      get page('wallbox')
+
+      expect(response.body).to include('38 → 80%')
+    end
+
+    it 'renders an empty state message when no sessions match the timeframe' do
+      get page('offsite', timeframe: 'day')
+      expect(response.body).to include('No offsite charging sessions')
+      expect(response.body).not_to include('/map"')
+    end
+
+    it 'names the car in an empty list' do
+      get page('offsite', timeframe: 'day', car: 1)
+      expect(response.body).to include('No offsite charging sessions of Trabant')
+    end
+
+    it 'switches between the kinds, with the car' do
+      get page('offsite', timeframe: '2025', car: 1)
+      expect(response.body).to include(%(href="/cars/1/charging_sessions/wallbox/2025"), %(aria-current="page" href="/cars/1/charging_sessions/offsite/2025"))
+    end
+
+    it 'offers the map of the offsite sessions' do
+      get page('offsite')
+      expect(response.body).to include('href="/cars/charging_sessions/offsite/all/map"')
+
+      get page('wallbox')
+      expect(response.body).not_to include('/map"')
     end
 
     it 'offers a new offsite session' do
-      get '/cars/charging_sessions/offsite'
+      get page
       expect(response.body).to include('/cars/charging_sessions/new')
     end
 
@@ -59,10 +124,26 @@ describe 'Charging sessions' do
       expect(response.body).not_to include(I18n.t('charging_sessions.proposal.form_hint'))
     end
 
-    it 'offers no new wallbox session, the detection writes them' do
-      get '/cars/charging_sessions/wallbox/now'
-      expect(response).to have_http_status(:success)
-      expect(response.body).not_to include('/cars/charging_sessions/new')
+    context 'without login' do
+      before { logout }
+
+      it 'lists the sessions without their places, their forms and the new session' do
+        recent.update_columns(address: 'DE-12345 Town, Main Street 15') # rubocop:disable Rails/SkipsModelValidations
+        get page('offsite')
+
+        expect(response.body).to include(recent.started_at.iso8601)
+        expect(response.body).not_to include('Main Street', '/edit', '/cars/charging_sessions/new', '/map"')
+      end
+
+      it 'loads the next page of the list' do
+        get '/cars/charging_sessions/offsite/all', params: { page: 2 }, headers: { 'Turbo-Frame' => 'sessions_page_2' }
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'forbids the map' do
+        get '/cars/charging_sessions/offsite/all/map'
+        expect(response).to have_http_status(:forbidden)
+      end
     end
 
     # Without a car, there is no car page (see Sensor::HomePage)
@@ -78,16 +159,17 @@ describe 'Charging sessions' do
     context 'without a wallbox' do
       before { Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_WALLBOX_POWER', 'INFLUX_SENSOR_WALLBOX_CAR_CONNECTED')) }
 
-      it 'offers no tab of the wallbox sessions' do
-        get '/cars/charging_sessions/offsite'
-        expect(response.body).not_to include('/cars/charging_sessions/wallbox')
+      it 'lists the offsite sessions without a switch' do
+        get page('offsite')
+        expect(response.body).to include(recent.started_at.iso8601)
+        expect(response.body).not_to include('/charging_sessions/wallbox/all"')
       end
 
       # The sessions of an earlier wallbox stay as history
-      it 'keeps the tab while wallbox sessions exist' do
+      it 'keeps the switch while wallbox sessions exist' do
         wallbox(3.days.ago)
-        get '/cars/charging_sessions/offsite'
-        expect(response.body).to include('/cars/charging_sessions/wallbox')
+        get page('offsite')
+        expect(response.body).to include('/charging_sessions/wallbox/all"')
       end
     end
 
@@ -98,21 +180,6 @@ describe 'Charging sessions' do
         get '/cars/charging_sessions/offsite'
         expect(response).to redirect_to(root_path)
       end
-    end
-  end
-
-  describe 'GET /cars/charging_sessions/:kind/:timeframe' do
-    it 'filters sessions to the given timeframe' do
-      get "/cars/charging_sessions/offsite/#{Date.current.year}"
-      expect(response).to have_http_status(:success)
-      expect(response.body).to include(recent.started_at.iso8601)
-      expect(response.body).not_to include(old.started_at.iso8601)
-    end
-
-    it 'renders an empty state message when no sessions match the filter' do
-      get '/cars/charging_sessions/offsite/day'
-      expect(response).to have_http_status(:success)
-      expect(response.body).to include('No offsite charging sessions')
     end
   end
 
@@ -135,41 +202,35 @@ describe 'Charging sessions' do
     after { Sensor::Config.setup(ENV) }
 
     it 'offers only the cars in use in the timeframe' do
-      get "/cars/charging_sessions/offsite/#{year}"
+      get page('offsite', timeframe: year.to_s)
 
       expect(response.body).to include("/cars/3/charging_sessions/offsite/#{year}")
       expect(response.body).not_to include("/cars/2/charging_sessions/offsite/#{year}")
     end
 
-    it 'keeps the map' do
-      get "/cars/charging_sessions/offsite/#{year}/map"
-
-      expect(response.body).to include(%(href="/cars/3/charging_sessions/offsite/#{year}/map"))
-    end
-
     it 'offers a sold car in a timeframe of its period' do
-      get "/cars/charging_sessions/offsite/#{year - 1}"
+      get page('offsite', timeframe: (year - 1).to_s)
 
       expect(response.body).to include("/cars/2/charging_sessions/offsite/#{year - 1}")
     end
 
     it 'redirects a car outside the timeframe to "all"' do
-      get "/cars/2/charging_sessions/offsite/#{year}"
+      get page('offsite', timeframe: year.to_s, car: 2)
 
-      expect(response).to redirect_to("/cars/charging_sessions/offsite/#{year}")
+      expect(response).to redirect_to(page('offsite', timeframe: year.to_s))
     end
 
-    it 'keeps the whole time in the address of the redirect' do
-      get '/cars/9/charging_sessions/offsite'
+    it 'redirects a car outside the timeframe of the map to "all"' do
+      get '/cars/9/charging_sessions/offsite/all/map'
 
-      expect(response).to redirect_to('/cars/charging_sessions/offsite/all')
+      expect(response).to redirect_to('/cars/charging_sessions/offsite/all/map')
     end
 
     # The add button of the list passes its address, with its timeframe and its car
     describe 'in the form of a new session' do
       def new_session(timeframe: nil, car: nil)
         get '/cars/charging_sessions/new',
-            params: { return_to: cars_charging_sessions_path(kind: 'offsite', timeframe:, car:) },
+            params: { return_to: page('offsite', timeframe:, car:) },
             headers: { 'Turbo-Frame' => 'modal' }
       end
 
@@ -236,17 +297,10 @@ describe 'Charging sessions' do
   end
 
   describe 'the timeframe' do
-    it 'goes to the list of the kind before and after' do
-      get '/cars/charging_sessions/offsite/2025'
+    it 'keeps the chart and the kind before and after' do
+      get page('offsite', timeframe: '2025')
 
-      expect(response.body).to include('href="/cars/charging_sessions/offsite/2024"')
-      expect(response.body).to include('href="/cars/charging_sessions/offsite/2026"')
-    end
-
-    it 'opens its select from its own address' do
-      get '/cars/charging_sessions/offsite/2025'
-
-      expect(response.parsed_body.at_css('a[href="/cars/charging_sessions/offsite/2025"][data-turbo-frame="modal"]')).to be_present
+      expect(response.body).to include('href="/cars/charging_sessions/offsite/2024"', 'href="/cars/charging_sessions/offsite/2026"')
     end
   end
 
@@ -254,68 +308,50 @@ describe 'Charging sessions' do
     def headers = response.parsed_body.css('#list h3').map { it.text.strip }
 
     it 'groups a long list by month' do
-      get '/cars/charging_sessions/offsite/all'
+      get page('offsite')
 
       expect(headers).to eq([I18n.l(recent.date, format: :month), I18n.l(old.date, format: :month)])
     end
 
-    it 'opens the list of a group from its header, with the car filter' do
-      get '/cars/1/charging_sessions/offsite/all'
+    it 'opens the page of a group from its header, with the car and the kind' do
+      get page('offsite', car: 1)
 
       links = response.parsed_body.css('#list h3 a').pluck('href')
-      expect(links).to eq(["/cars/1/charging_sessions/offsite/#{recent.date.strftime('%Y-%m')}", "/cars/1/charging_sessions/offsite/#{old.date.strftime('%Y-%m')}"])
+      expect(links).to eq([page('offsite', car: 1, timeframe: recent.date.strftime('%Y-%m')), page('offsite', car: 1, timeframe: old.date.strftime('%Y-%m'))])
     end
 
     it 'groups the list of a month by week' do
-      get "/cars/charging_sessions/offsite/#{recent.date.strftime('%Y-%m')}"
+      get page('offsite', timeframe: recent.date.strftime('%Y-%m'))
 
       expect(headers).to eq([I18n.l(recent.date.beginning_of_week, format: :week)])
     end
 
     it 'groups the list of a week by day' do
-      get "/cars/charging_sessions/offsite/#{recent.date.strftime('%G-W%V')}"
+      get page('offsite', timeframe: recent.date.strftime('%G-W%V'))
 
       expect(headers).to eq([I18n.l(recent.date, format: '%A')])
     end
 
     it 'gives the list of a day one group' do
-      get "/cars/charging_sessions/offsite/#{recent.date.iso8601}"
+      get page('offsite', timeframe: recent.date.iso8601)
 
       expect(headers).to eq([I18n.l(recent.date, format: '%A')])
       expect(response.parsed_body.css('#list h3 a')).to be_empty
     end
 
-    it 'gives a group that goes on to the next page no second header' do
+    it 'loads the next page from the list, and gives a group that goes on no second header' do
       start = 2.years.ago.beginning_of_month + 10.days
       25.times { ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: start + it.hours, kwh: 1, cost: 1) }
+
+      get page('offsite')
+      expect(response.body).to include('src="/cars/charging_sessions/offsite/all?page=2')
 
       get '/cars/charging_sessions/offsite/all', params: { page: 2 }, headers: { 'Turbo-Frame' => 'sessions_page_2' }
 
       expect(response.body).to include(start.iso8601)
-      expect(headers).to be_empty
-    end
-  end
-
-  describe 'GET /cars/charging_sessions/:kind/:timeframe in the modal' do
-    let(:path) { '/cars/1/charging_sessions/offsite/2025' }
-
-    it 'selects a timeframe of the list of the kind and keeps the car' do
-      get path, headers: { 'Turbo-Frame' => 'modal' }
-
-      expect(response.body).to include('data-timeframe--select--component-url-template-value="/cars/1/charging_sessions/offsite/:timeframe"')
-      expect(response.body).not_to include(recent.started_at.iso8601)
-    end
-
-    it 'keeps the map behind the timeframe' do
-      get "#{path}/map", headers: { 'Turbo-Frame' => 'modal' }
-
-      expect(response.body).to include('data-timeframe--select--component-url-template-value="/cars/1/charging_sessions/offsite/:timeframe/map"')
-    end
-
-    it 'offers the hours, unlike the car page' do
-      get path, headers: { 'Turbo-Frame' => 'modal' }
-
-      expect(response.body).to include('data-value="P24H"')
+      expect(response.parsed_body.css('h3')).to be_empty
+      # The rows of the next page lead back to the page of the charging
+      expect(response.body).to include("return_to=#{CGI.escape(page('offsite'))}")
     end
   end
 
@@ -331,95 +367,127 @@ describe 'Charging sessions' do
       end
     end
 
-    it 'shows "all" with the guest and the open sessions, and counts them' do
-      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
+    it 'shows "all" with the guest and the open sessions, and counts the guest alone' do
+      get page(timeframe: Date.current.year.to_s)
 
-      expect(response.body).to include(unassigned.started_at.iso8601, guest.started_at.iso8601, '2 <span class="font-light">charging sessions</span>')
+      expect(response.body).to include(unassigned.started_at.iso8601, guest.started_at.iso8601)
+      expect(totals).to eq('1 charging session · 7.0 kWh')
     end
 
-    it 'shows the PV share of each session and of all' do
-      allow(Sensor::Config).to receive(:exists?).and_call_original
-      allow(Sensor::Config).to receive(:exists?).with(:wallbox_power_grid).and_return(true)
+    # The row of an open session has a question mark that names the task
+    it 'marks the session that is not assigned' do
+      get page(timeframe: Date.current.year.to_s)
+
+      expect(response.parsed_body.css("[role=img][title='Not assigned']")).to be_present
+    end
+
+    # A switch beside the sums shows the sessions to review alone, and the
+    # sums stay
+    it 'switches to the sessions to review alone and back' do
+      get page(timeframe: Date.current.year.to_s)
+      expect(review_switch).to have_attributes(text: include('1 not assigned'))
+      expect(review_switch['aria-checked']).to eq('false')
+
+      get review_switch['href']
+
+      expect(response.body).to include(unassigned.started_at.iso8601, 'These wallbox sessions belong to no car or guest yet.')
+      expect(response.body).not_to include(guest.started_at.iso8601)
+      expect(totals).to eq('1 charging session · 7.0 kWh')
+      expect(review_switch['aria-checked']).to eq('true')
+      expect(review_switch['href']).to eq(page(timeframe: Date.current.year.to_s))
+    end
+
+    it 'says that nothing is left to review' do
+      unassigned.update!(guest: true)
+      get page(timeframe: Date.current.year.to_s, review: '1')
+
+      expect(response.body).to include('All assigned')
+      expect(review_switch['aria-checked']).to eq('true')
+    end
+
+    # A session that is not assigned belongs to no car, so it can be the
+    # charge of any car. Its list is the one of "all".
+    it 'names the sessions that are not assigned to one car, in the list of all' do
+      get page(timeframe: Date.current.year.to_s, car: car.id)
+      expect(review_switch.text).to include('1 not assigned')
+      expect(review_switch['href']).to eq(page(timeframe: Date.current.year.to_s, review: '1'))
+
+      get page(timeframe: Date.current.year.to_s, car: car.id, review: '1')
+      expect(response).to redirect_to(page(timeframe: Date.current.year.to_s, review: '1'))
+    end
+
+    it 'has no switch without a session to review' do
+      unassigned.update!(guest: true)
+      get page(timeframe: Date.current.year.to_s)
+
+      expect(review_switch).to be_nil
+    end
+
+    it 'has the sessions to review for the admin only' do
+      logout
+      get page(timeframe: Date.current.year.to_s, review: '1')
+
+      expect(review_switch).to be_nil
+      expect(response.body).to include(guest.started_at.iso8601)
+    end
+
+    it 'shows the open sessions only to the admin' do
+      logout
+      get page(timeframe: Date.current.year.to_s)
+
+      expect(response.body).to include(guest.started_at.iso8601)
+      expect(response.body).not_to include(unassigned.started_at.iso8601, 'not assigned')
+    end
+
+    it 'shows the PV share of each session' do
       unassigned.update!(kwh_grid: 1.75)
       guest.update!(kwh_grid: 7)
 
-      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
+      get page(timeframe: Date.current.year.to_s)
 
-      expect(response.body).to include('75% from PV', '0% from PV', '38% from PV')
+      expect(response.body).to include('>75%<', '>0%<')
     end
 
-    # The car reported no new values during the charge
-    it 'explains a state of charge that contradicts the energy' do
-      car.update!(battery_kwh: 50)
-      # A change of the car clears the state of charge, so it comes second
-      unassigned.update!(car:)
-      unassigned.update!(soc_from: 75, soc_to: 75)
+    it 'shows no PV share without the grid share of a session' do
+      get page(timeframe: Date.current.year.to_s)
 
-      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
-
-      expect(response.body).to include('75 → 75%', I18n.t('charging_sessions.soc_finding.mismatch.hint'))
+      expect(response.body).not_to include('>75%<')
     end
 
-    it 'shows no PV share without the power splitter' do
-      allow(Sensor::Config).to receive(:exists?).and_call_original
-      allow(Sensor::Config).to receive(:exists?).with(:wallbox_power_grid).and_return(false)
+    it 'lists the guest sessions of the guest' do
+      get page(timeframe: Date.current.year.to_s, car: 'guest')
 
-      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
-
-      expect(response.body).not_to include('from PV')
-    end
-
-    it 'filters the sessions that are not assigned' do
-      get "/cars/unassigned/charging_sessions/wallbox/#{Date.current.year}"
-
-      expect(response.body).to include(unassigned.started_at.iso8601)
-      expect(response.body).not_to include(guest.started_at.iso8601)
+      expect(response.body).to include(guest.started_at.iso8601)
+      expect(response.body).not_to include(unassigned.started_at.iso8601)
     end
 
     # The car page selects the guest, but no session that is not assigned
     it 'links the day of a guest session to the car page of the guest' do
-      get "/cars/guest/charging_sessions/wallbox/#{Date.current.year}"
-      expect(response.body).to include(%(href="/cars/guest/car_charging/#{day.iso8601}"))
+      get page(timeframe: Date.current.year.to_s)
 
-      get "/cars/unassigned/charging_sessions/wallbox/#{Date.current.year}"
-      expect(response.body).to include(%(href="/wallbox_power/#{day.iso8601}"))
+      expect(response.body).to include(%(href="/cars/guest/car_charging/#{day.iso8601}"), %(href="/wallbox_power/#{day.iso8601}"))
     end
 
-    it 'goes back to the car page of the guest' do
-      get '/cars/guest/charging_sessions/wallbox/all'
+    it 'goes back to the overview of the guest' do
+      get page(car: 'guest')
 
-      expect(response.body).to include(%(href="/cars/guest/car_charging/all"))
+      expect(response.body).to include(%(href="/cars/guest/all"))
     end
 
-    it 'goes back to the car page without the filter "not assigned", which it does not select' do
-      get "/cars/unassigned/charging_sessions/wallbox/#{Date.current.year}"
+    # A guest charges at the wallbox alone (see ChargingSession#guest_without_car)
+    it 'gives the guest the wallbox sessions alone, without a new session' do
+      get page('offsite', timeframe: Date.current.year.to_s, car: 'guest')
+      expect(response).to redirect_to(page('wallbox', timeframe: Date.current.year.to_s, car: 'guest'))
 
-      expect(response.body).to include(%(href="/cars/car_charging/#{Date.current.year}"))
+      follow_redirect!
+      expect(response.body).not_to include('charging_sessions/offsite', 'charging_sessions/new')
     end
 
-    it 'drops the guest filter in the tab of the offsite sessions' do
-      get "/cars/guest/charging_sessions/wallbox/#{Date.current.year}"
+    it 'names the guest in an empty list, without sums' do
+      get page(timeframe: 'day', car: 'guest')
 
-      expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{Date.current.year}"))
-    end
-
-    it 'builds a missing day itself' do
-      Summary.find(day).destroy!
-
-      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
-
-      expect(Summary.exists?(date: day)).to be(true)
-      expect(response.body).not_to include('sequential-frames')
-    end
-
-    # More days than a page builds itself (see Sensor::Summarizer.build_few)
-    it 'shows the build for more missing days' do
-      first = day - 2
-      Summary.where(date: first..day).destroy_all
-
-      get "/cars/charging_sessions/wallbox/#{Date.current.year}"
-
-      expect(response.body).to include("d_#{first}_#{day}")
+      expect(response.body).to include('No guest charging sessions')
+      expect(response.body).not_to include('0 charging sessions')
     end
 
     it 'assigns a session to a car' do
@@ -459,15 +527,13 @@ describe 'Charging sessions' do
         [wallbox(midnight - 1.hour, ended_at: midnight - 1.second, car:), wallbox(midnight, car:)]
       end
 
-      # A single charge has no sums, the row says it all
       it 'shows one charge and counts it once' do
         evening, morning = charge
-        Summary.find_or_create_by!(date: day - 1)
 
-        get "/cars/#{car.id}/charging_sessions/wallbox/#{day - 1}..#{day}"
+        get page(car: car.id, timeframe: "#{day - 1}..#{day}")
 
         expect(response.body).to include(evening.started_at.iso8601)
-        expect(response.body).not_to include('<span class="font-light">charging session')
+        expect(totals).to start_with('1 charging session · 14.0 kWh')
         expect(response.body).not_to include(%(datetime="#{morning.started_at.iso8601}"))
       end
 
@@ -501,6 +567,9 @@ describe 'Charging sessions' do
     let(:year) { Date.current.year }
     let(:map) { response.parsed_body.at_css('[data-controller="car--map--component"]') }
 
+    # The map loads into its frame over the list (see Car::MapOverlay::Component)
+    def frame = { 'Turbo-Frame' => Car::MapOverlay::Component::FRAME_ID }
+
     before { recent.update!(latitude: 50.9, longitude: 14.1) }
 
     # The address of the tooltip of the only spot, as the map builds it
@@ -510,21 +579,21 @@ describe 'Charging sessions' do
     end
 
     it 'shows each offsite session with a position' do
-      get '/cars/charging_sessions/offsite/map'
+      get '/cars/charging_sessions/offsite/map', headers: frame
 
       places = JSON.parse(map['data-car--map--component-cars-value']).sole['places']
       expect(places.sole.first(3)).to eq([50.9, 14.1, 1.0])
     end
 
-    it 'links a spot with one session to its form, which leads back to the map' do
-      get "/cars/charging_sessions/offsite/#{year}/map"
+    it 'links a spot with one session to its form, which leads back to the list' do
+      get "/cars/charging_sessions/offsite/#{year}/map", headers: frame
 
       href = JSON.parse(map['data-car--map--component-cars-value']).sole['places'].sole[4]
-      expect(href).to eq("/cars/charging_sessions/#{recent.id}/edit?return_to=#{CGI.escape("/cars/charging_sessions/offsite/#{year}/map")}")
+      expect(href).to eq("/cars/charging_sessions/#{recent.id}/edit?return_to=#{CGI.escape("/cars/charging_sessions/offsite/#{year}")}")
     end
 
     it 'loads the tooltip of a spot' do
-      get '/cars/charging_sessions/offsite/map'
+      get '/cars/charging_sessions/offsite/map', headers: frame
       get tooltip_path
 
       expect(response.body).to include('Trabant', I18n.l(recent.date))
@@ -532,7 +601,7 @@ describe 'Charging sessions' do
 
     it 'puts the street of the address below the town in the tooltip' do
       recent.update_columns(address: 'DE-12345 Town, Main Street 15') # rubocop:disable Rails/SkipsModelValidations
-      get '/cars/charging_sessions/offsite/map'
+      get '/cars/charging_sessions/offsite/map', headers: frame
       get tooltip_path
 
       lines = response.parsed_body.at_css('.font-semibold').parent.css('> div').map(&:text)
@@ -540,7 +609,7 @@ describe 'Charging sessions' do
     end
 
     it 'loads the tooltip with the car filter and the timeframe of the list' do
-      get "/cars/1/charging_sessions/offsite/#{year}/map"
+      get "/cars/1/charging_sessions/offsite/#{year}/map", headers: frame
       path = tooltip_path
 
       expect(path).to start_with('/cars/1/charging_sessions/spots/')
@@ -554,67 +623,37 @@ describe 'Charging sessions' do
     end
 
     it 'counts the sessions without a position' do
-      get '/cars/charging_sessions/offsite/map'
+      get '/cars/charging_sessions/offsite/map', headers: frame
 
       expect(response.body).to include('1 session without a location is missing from the map')
     end
 
-    it 'keeps the view in the timeframe' do
+    it 'lies over the list with its title' do
+      get "/cars/charging_sessions/offsite/#{year}/map", headers: frame
+
+      expect(response.body).to include('<turbo-frame id="car_map"', 'car--map-overlay--component', ">#{I18n.t('car_breakdown.offsite_map')}</h2>")
+    end
+
+    it 'leads to the list without its frame' do
       get "/cars/charging_sessions/offsite/#{year}/map"
 
-      expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{year - 1}/map"))
+      expect(response).to redirect_to(page('offsite', timeframe: year.to_s))
     end
 
-    it 'leads back to the list' do
-      get "/cars/charging_sessions/offsite/#{year}/map"
-
-      expect(response.body).to include(%(href="/cars/charging_sessions/offsite/#{year}"))
-    end
-
-    it 'marks the current view in the options of a phone' do
-      get '/cars/charging_sessions/offsite/map'
-
-      options = response.parsed_body.at_css('[aria-label="Options"]').ancestors('[data-controller="ui--dropdown--component"]').first
-      expect(options.at_css('a[aria-current="page"][href$="/map"]').text).to include('Map')
-    end
-
-    it 'shows the empty list without a session' do
-      get '/cars/charging_sessions/offsite/2010/map'
+    it 'shows no map without a session' do
+      get '/cars/charging_sessions/offsite/2010/map', headers: frame
 
       expect(map).to be_nil
-      expect(response.body).to include(I18n.t('charging_sessions.empty.offsite'))
     end
 
-    it 'is not offered for the wallbox sessions, which share one place' do
-      wallbox(1.day.ago, car:)
-      get '/cars/charging_sessions/wallbox'
-
-      expect(map).to be_nil
-      expect(response.body).not_to include('/map')
-    end
-
-    it 'does not keep the map in the link to the wallbox sessions' do
-      wallbox(1.day.ago, car:)
-      get "/cars/charging_sessions/offsite/#{year}/map"
-
-      expect(response.body).to include(%(href="/cars/charging_sessions/wallbox/#{year}"))
-      expect(response.body).not_to include("/wallbox/#{year}/map")
-    end
-
-    it 'leads the map of the wallbox sessions to their list' do
-      get "/cars/1/charging_sessions/wallbox/#{year}/map"
-
-      expect(response).to redirect_to("/cars/1/charging_sessions/wallbox/#{year}")
-    end
-
-    it 'refreshes after a save in the form that it opened' do
+    it 'refreshes the list after a save in the form that it opened' do
       patch "/cars/charging_sessions/#{recent.id}",
             params: { charging_session: { cost: 7.5 }, return_to: '/cars/charging_sessions/offsite/map' },
             headers: { 'Turbo-Frame' => 'modal' },
             as: :turbo_stream
 
       expect(response.body).to include('<turbo-stream action="update" target="list">')
-      expect(response.body).to include('data-controller="car--map--component"')
+      expect(response.body).not_to include('data-controller="car--map--component"')
     end
   end
 
@@ -632,10 +671,10 @@ describe 'Charging sessions' do
 
   describe 'GET /cars/charging_sessions/:id/edit' do
     it 'opens from a list with its address' do
-      get "/cars/charging_sessions/offsite/#{Date.current.year}"
+      get page('offsite', timeframe: Date.current.year.to_s)
 
       link = response.parsed_body.at_css("a[href^='/cars/charging_sessions/#{recent.id}/edit?']")
-      expect(Rack::Utils.parse_query(URI(link['href']).query)).to eq('return_to' => "/cars/charging_sessions/offsite/#{Date.current.year}")
+      expect(Rack::Utils.parse_query(URI(link['href']).query)).to eq('return_to' => page('offsite', timeframe: Date.current.year.to_s))
     end
 
     it 'leads back to the list as its address shows it' do
@@ -661,7 +700,7 @@ describe 'Charging sessions' do
 
   describe 'PATCH /cars/charging_sessions/:id' do
     # The modal of the desktop submits within its frame
-    def update_recent(return_to: nil)
+    def update_recent(return_to: page('offsite'))
       patch "/cars/charging_sessions/#{recent.id}",
             params: { charging_session: { cost: 7.5 }, return_to: }.compact,
             headers: { 'Turbo-Frame' => 'modal' },
@@ -677,7 +716,7 @@ describe 'Charging sessions' do
     end
 
     it 'renders the list of the timeframe of the form' do
-      update_recent(return_to: "/cars/charging_sessions/offsite/#{Date.current.year}")
+      update_recent(return_to: page('offsite', timeframe: Date.current.year.to_s))
 
       expect(response.body).to include(recent.started_at.iso8601)
       expect(response.body).not_to include(old.started_at.iso8601)
@@ -693,9 +732,9 @@ describe 'Charging sessions' do
 
     it 'loads the next page of the list from its path, without the query of its address' do
       25.times { ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: 3.days.ago + it.minutes, kwh: 1, cost: 1) }
-      update_recent(return_to: '/cars/charging_sessions/offsite?ref=x')
+      update_recent(return_to: "#{page('offsite')}?ref=x")
 
-      expect(response.body).to include('src="/cars/charging_sessions/offsite?page=')
+      expect(response.body).to include('src="/cars/charging_sessions/offsite/all?page=')
     end
 
     it 'leads the page of a phone back to the address of the list that opened the form' do
@@ -709,7 +748,7 @@ describe 'Charging sessions' do
 
   describe 'DELETE /cars/charging_sessions/:id' do
     it 'responds with the list without the deleted session' do
-      delete "/cars/charging_sessions/#{old.id}", headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
+      delete "/cars/charging_sessions/#{old.id}", params: { return_to: page('offsite') }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(response.body).to include(recent.started_at.iso8601)
       expect(response.body).not_to include(old.started_at.iso8601)
@@ -725,51 +764,66 @@ describe 'Charging sessions' do
       ChargingSession.proposals.sole
     end
 
-    it 'shows a proposal with its estimate, but leaves it out of the sums' do
-      get '/cars/charging_sessions/offsite'
+    # The map and the sums show the sessions that count, so a day with a
+    # proposal alone has neither
+    it 'offers no map and no sums for a proposal alone' do
+      get page('offsite', timeframe: started_at.to_date.iso8601)
 
-      expect(response.body).to include('Unconfirmed, from readings', '30 → 70%')
-      expect(response.body).to include('2 <span class="font-light">charging sessions</span>')
+      expect(response.body).to include(proposal.started_at.iso8601)
+      expect(response.body).not_to include('/map"', '0 charging sessions')
     end
 
-    it 'builds the missing days first' do
-      allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(true)
+    it 'shows a proposal with its estimate, but leaves it out of the sums' do
+      get page('offsite')
 
-      get "/cars/charging_sessions/offsite/#{Date.current.year}"
+      expect(response.body).to include(proposal.started_at.iso8601)
+      expect(response.parsed_body.at_css("[role=img][title='#{I18n.t('charging_sessions.proposal.name')}']")).to be_present
+      expect(totals).to eq('2 charging sessions · 30.0 kWh · € 15.00')
+      expect(review_switch).to have_attributes(text: include('1 unconfirmed'))
+    end
 
-      expect(response.body).to include('sequential-frames')
+    # A kind names its sessions to review with a dot in the switch, also seen
+    # from the other kind
+    it 'marks the kind with proposals in the switch' do
+      allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
+      get page('wallbox')
+
+      expect(response.parsed_body.css('nav a .sr-only').map(&:text)).to eq([', 1 unconfirmed'])
+    end
+
+    it 'lists the proposals alone, which it dismisses at once' do
+      get page('offsite', review: '1')
+
+      expect(response.body).to include(proposal.started_at.iso8601, 'These sessions come from the state of charge of a car', I18n.t('charging_sessions.proposal.dismiss_all'))
+      expect(response.body).not_to include(recent.started_at.iso8601)
+    end
+
+    it 'shows the proposals only to the admin' do
+      logout
+      get page('offsite')
+
+      expect(response.body).not_to include(proposal.started_at.iso8601, 'unconfirmed')
     end
 
     it 'dismisses a proposal' do
-      patch "/cars/charging_sessions/#{proposal.id}/dismiss", headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
+      patch "/cars/charging_sessions/#{proposal.id}/dismiss", params: { return_to: page('offsite') }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
       expect(proposal.reload).to have_attributes(dismissed: true, assigned_manually: true)
       expect(response.body).not_to include(proposal.started_at.iso8601)
       expect(response.body).to include('Dismissed')
     end
 
-    it 'lists the proposals alone, without the sums' do
-      get '/cars/proposals/charging_sessions/offsite'
+    it 'shows the proposals only in the list of the offsite sessions' do
+      get page('wallbox')
 
-      expect(response.body).to include(proposal.started_at.iso8601)
-      expect(response.body).not_to include(recent.started_at.iso8601)
-      expect(response.body).not_to include('<span class="font-light">charging sessions</span>')
-    end
-
-    it 'keeps the list of the proposals after a dismiss' do
-      patch "/cars/charging_sessions/#{proposal.id}/dismiss", params: { return_to: '/cars/proposals/charging_sessions/offsite' }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
-
-      expect(response.body).to include('No unconfirmed charging sessions')
-    end
-
-    it 'drops the proposals in the list of the wallbox sessions' do
-      get '/cars/proposals/charging_sessions/offsite'
-
-      expect(response.body).to include('href="/cars/charging_sessions/wallbox/all"')
+      expect(response.body).not_to include(proposal.started_at.iso8601)
     end
 
     describe 'dismiss all' do
-      def list = "/cars/proposals/charging_sessions/offsite/#{started_at.year}"
+      def list = page('offsite', timeframe: started_at.year.to_s)
+
+      # The list of the proposals alone offers to dismiss them
+      def review_list = page('offsite', timeframe: started_at.year.to_s, review: '1')
 
       def dismiss_all(return_to: list, listed_at: Time.current.iso8601(6), **)
         patch '/cars/charging_sessions/dismiss', params: { return_to:, listed_at: }.compact, **
@@ -783,17 +837,21 @@ describe 'Charging sessions' do
 
       it 'is offered in the list of the proposals, with the time of the list' do
         freeze_time do
-          get list
+          get review_list
 
           form = response.parsed_body.at_css('form[action="/cars/charging_sessions/dismiss"]')
           expect(form['data-turbo-confirm']).to eq('Dismiss 1 unconfirmed charging session? It stays saved, but no longer shows and is not proposed again.')
-          expect(form.at_css('input[name="return_to"]')['value']).to eq(list)
+          expect(form.at_css('input[name="return_to"]')['value']).to eq(review_list)
           expect(form.at_css('input[name="listed_at"]')['value']).to eq(Time.current.iso8601(6))
         end
       end
 
-      it 'is not offered in the list of all offsite sessions' do
-        get '/cars/charging_sessions/offsite'
+      it 'is not offered without a proposal, nor in the list of all sessions' do
+        get list
+        expect(response.parsed_body.at_css('form[action="/cars/charging_sessions/dismiss"]')).to be_nil
+
+        proposal.dismiss!
+        get review_list
 
         expect(response.parsed_body.at_css('form[action="/cars/charging_sessions/dismiss"]')).to be_nil
       end
@@ -806,13 +864,14 @@ describe 'Charging sessions' do
         expect(proposal.reload).to have_attributes(dismissed: true, assigned_manually: true)
         expect(ChargingSession.proposals.count).to eq(1)
         expect(recent.reload.dismissed).to be(false)
-        expect(response.body).to include('1 charging session dismissed', 'No unconfirmed charging sessions')
+        expect(response.body).to include('1 charging session dismissed', recent.started_at.iso8601)
+        expect(response.body).not_to include(proposal.started_at.iso8601)
       end
 
       it 'dismisses the proposals of the whole time in the list of all' do
-        dismiss_all(return_to: '/cars/proposals/charging_sessions/offsite')
+        dismiss_all(return_to: page('offsite'))
 
-        expect(response).to redirect_to('/cars/proposals/charging_sessions/offsite')
+        expect(response).to redirect_to(page('offsite'))
         expect(ChargingSession.proposals).to be_empty
       end
 
@@ -824,13 +883,6 @@ describe 'Charging sessions' do
 
         expect(proposal.reload.dismissed).to be(true)
         expect(ChargingSession.proposals.ids).to eq([later])
-      end
-
-      it 'refuses a list without the filter of the proposals' do
-        dismiss_all(return_to: "/cars/#{car.id}/charging_sessions/offsite/#{started_at.year}")
-
-        expect(response).to have_http_status(:unprocessable_content)
-        expect(proposal.reload).to be_proposal
       end
 
       it 'refuses a request without its list or the time of the list' do
@@ -938,12 +990,12 @@ describe 'Charging sessions' do
     end
 
     it 'offers to dismiss a proposal beside its hint, not as a button of the form' do
-      get "/cars/charging_sessions/#{proposal.id}/edit", params: { return_to: '/cars/proposals/charging_sessions/offsite' }
+      get "/cars/charging_sessions/#{proposal.id}/edit", params: { return_to: page('offsite') }
 
       body = response.parsed_body
       form = body.at_css("form[action='/cars/charging_sessions/#{proposal.id}/dismiss']")
       expect(form.at_css('input[name="_method"]')['value']).to eq('patch')
-      expect(form.at_css('input[name="return_to"]')['value']).to eq('/cars/proposals/charging_sessions/offsite')
+      expect(form.at_css('input[name="return_to"]')['value']).to eq(page('offsite'))
       expect(body.at_css("button[form='#{form['id']}']").text).to include('Dismiss')
       expect(body.css('button[formaction]')).to be_empty
     end

@@ -6,16 +6,13 @@ class Place::VisitList::NameCell::Component < ViewComponent::Base
 
   attr_reader :place
 
-  # The name of the place, or the part of the town where it is, which is
-  # shorter than the locality. The desktop has the town beside it (see
-  # LocalityCell).
+  # The name of the place, or where it is
   def name
-    place.name || place.district || place.town || t('settings.places.unnamed')
+    place.display_name || t('settings.places.unnamed')
   end
 
+  # A place without a name is in italics
   def name_class
-    return if place.name
-
-    place.town ? 'text-muted' : 'italic text-muted'
+    'italic text-muted' unless place.name
   end
 end

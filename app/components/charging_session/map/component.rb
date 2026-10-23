@@ -1,5 +1,5 @@
-# The offsite sessions of the list on a map, the other view of the list (see
-# ChargingSessionsView). A circle marks a spot where the cars charged, and its
+# The offsite sessions of the list on a map over the list (see
+# Cars::ChargingSessionMapsController). A circle marks a spot where the cars charged, and its
 # area shows the share of the energy (see ChargingSession::Spot). The page
 # carries only the circles, and the map loads the tooltip of a spot when the
 # pointer rests on it. A session without a position is missing, and a note on

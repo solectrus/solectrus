@@ -76,6 +76,19 @@ describe Ui::TitleBar::Component, type: :component do
     expect(link.text.strip).to be_empty
   end
 
+  # Two buttons at the right take the room of two on the left too, so the
+  # title keeps the middle
+  it 'renders a control of the page before the action' do
+    html =
+      render_inline(described_class.new(title: 'Sessions')) do |bar|
+        bar.with_trailing { '<span class="ui-title-bar-action" id="car"></span>'.html_safe }
+        bar.with_action(href: '/new', icon: 'plus', label: 'New session')
+      end
+
+    expect(html.css('.ui-title-bar-action').map { it['id'] || it['href'] }).to eq(['car', '/new'])
+    expect(html.at_css('h1')['class']).to include('px-24')
+  end
+
   it 'renders the save button of a form outside it, disabled until the form changes' do
     html =
       render_inline(described_class.new(title: 'Edit price')) do |bar|

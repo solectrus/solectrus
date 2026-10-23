@@ -178,9 +178,11 @@ export default class extends Controller<HTMLElement> {
     bar
       .querySelector('.ui-title-bar-back')
       ?.classList.toggle('invisible', direction === 'pop');
-    // The action belongs to this page, the next one brings its own. The
+    // The actions belong to this page, the next one brings its own. The
     // backdrop stays with the header, a second one would repeat its name.
-    bar.querySelector('.ui-title-bar-action')?.remove();
+    bar
+      .querySelectorAll('.ui-title-bar-action')
+      .forEach((action) => action.remove());
     bar.querySelector('.ui-title-bar-backdrop')?.remove();
 
     const page = document.createElement('div');

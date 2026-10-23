@@ -437,16 +437,19 @@ describe ChargingSession do
         .to eq([recent_offsite])
     end
 
-    it 'filters by car, guest and not assigned' do
+    it 'filters by car and guest' do
       expect(described_class.list_for(:offsite, filter: 1)).to eq([recent_offsite, old_offsite])
       expect(described_class.list_for(:wallbox, filter: :guest)).to eq([guest])
-      expect(described_class.list_for(:wallbox, filter: :unassigned)).to eq([open_task])
     end
 
-    it 'filters by proposals' do
+    # The list holds the sessions that count, and for the admin the open tasks
+    it 'adds the open tasks' do
       described_class.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: 1.day.ago }) # rubocop:disable Rails/SkipsModelValidations
 
-      expect(described_class.list_for(:offsite, filter: :proposals)).to eq([described_class.proposals.sole])
+      expect(described_class.list_for(:wallbox)).not_to include(open_task)
+      expect(described_class.list_for(:wallbox, open: true)).to include(open_task)
+      expect(described_class.list_for(:offsite)).not_to include(described_class.proposals.sole)
+      expect(described_class.list_for(:offsite, open: true)).to include(described_class.proposals.sole)
     end
 
     it 'lists two sessions with the same start as two rows' do
@@ -640,11 +643,11 @@ describe ChargingSession do
       expect(described_class.new(kind: 'offsite', car:)).not_to be_proposal
     end
 
-    it 'shows in the list, but not in its sums' do
+    it 'shows in the list of the admin, but not in its sums' do
       proposal
 
-      expect(described_class.list_for(:offsite).size).to eq(1)
-      expect(described_class.effective.list_for(:offsite).sums.count).to eq(0)
+      expect(described_class.list_for(:offsite, open: true).size).to eq(1)
+      expect(described_class.list_for(:offsite).reorder(nil).sums.count).to eq(0)
     end
 
     it 'is accepted with a save, which needs the cost' do

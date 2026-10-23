@@ -80,43 +80,66 @@ describe Car::LiveView::Component, type: :component do
     end
   end
 
-  context 'without an odometer' do
-    let(:state) { state_at(5.minutes.ago) }
+  describe 'the odometer' do
+    let(:state) { state_at(5.minutes.ago).with(odometer: 65_086) }
 
-    it 'shows the odometer as inactive boxes' do
-      expect(html.css('span.font-mono').map { it.text.strip }).to eq(%w[– – – – – –])
+    it 'shows a car without an odometer without its foot' do
+      expect(html.text).not_to include('Odometer')
+    end
+
+    it 'shows the odometer at the foot' do
+      allow(car).to receive(:sensor?).and_call_original
+      allow(car).to receive(:sensor?).with(:car_odometer).and_return(true)
+
+      expect(html.text.squish).to match(/Odometer\s*65,086\s*km/)
     end
   end
 
-  # A gauge for each car does not fit on a phone
   describe 'the battery' do
     let(:state) { state_at(5.minutes.ago) }
 
-    it 'shows the only car as a gauge on every screen' do
-      expect(html.css('svg[viewBox="30 0 340 300"]').size).to eq(1)
-      expect(html.css('.sm\:hidden, .max-sm\:hidden')).to be_empty
+    it 'shows the state of charge as a bar with the percent' do
+      expect(html.css('div.bg-car-battery[style="width: 80%"]').size).to eq(1)
+      expect(html.css('[role="img"][aria-label="SOC 80 %"]').size).to eq(1)
     end
 
     context 'with two cars' do
       let(:other_state) { state_at(5.minutes.ago).with(car: Car.new(id: 2, active_from: Date.new(2020, 1, 1))) }
       let(:live) { instance_double(Car::Live, states: [state, other_state], wallbox_power: nil, wallbox_car_connected: nil, car_at_wallbox?: false) }
 
-      it 'shows each car as a bar with a compact odometer on a phone' do
-        bars = html.css('.flex-1.sm\:hidden')
-
-        expect(bars.size).to eq(2)
-        expect(bars.css('div.bg-car-battery[style="width: 80%"]').size).to eq(2)
-        expect(bars.css('span.font-mono.w-\[1\\.375rem\]').size).to eq(12)
-        expect(bars.css('svg[viewBox="30 0 340 300"]')).to be_empty
+      it 'shows a card for each car' do
+        expect(html.css('section[aria-label]').pluck('aria-label')).to eq(['Car 1', 'Car 2'])
       end
+    end
+  end
 
-      it 'parts the bars with a line' do
-        expect(html.css('.sm\:hidden.border-t[aria-hidden="true"]').size).to eq(1)
-      end
+  describe 'the plug' do
+    let(:state) { state_at(5.minutes.ago).with(connected: true, charging_power:) }
 
-      it 'shows each car as a gauge on a wider screen' do
-        expect(html.css('.max-sm\:hidden svg[viewBox="30 0 340 300"]').size).to eq(2)
+    context 'when the car charges' do
+      let(:charging_power) { 7_400 }
+
+      it 'shows the charging power' do
+        expect(html.css('[role="img"][aria-label="Charging at 7.4 kW"]').size).to eq(1)
       end
+    end
+
+    context 'when the car does not charge' do
+      let(:charging_power) { 0 }
+
+      it 'shows the plug alone' do
+        expect(html.css('[role="img"][aria-label="Connected"]').size).to eq(1)
+      end
+    end
+  end
+
+  describe 'the wallbox' do
+    let(:state) { state_at(5.minutes.ago).with(connected: false, charging_power: 0) }
+    let(:data) { Sensor::Data::Single.new({ wallbox_power: 7_400 }, timeframe: Timeframe.now, times: { wallbox_power: 3.minutes.ago }) }
+    let(:live) { instance_double(Car::Live, states: [state], wallbox_power: 7_400, car_at_wallbox?: false, data:) }
+
+    it 'shows a card of the guest while it charges' do
+      expect(html.css('section[aria-label="Guest"]').text).to include('charging at the wallbox')
     end
   end
 
@@ -132,7 +155,7 @@ describe Car::LiveView::Component, type: :component do
     it 'links the state of charge, the range and the odometer of the car' do
       expect(html.css('a[href="/cars/1/car_battery_soc/day"]').text.strip).to eq('80 %')
       expect(html.css('a[href="/cars/1/car_range/day"]').text).to include('208')
-      expect(html.css('a[href="/cars/1/car_distance/day"] span.font-mono').size).to eq(6)
+      expect(html.css('a[href="/cars/1/car_distance/day"]').text).to include('64,800')
     end
 
     # An estimated range has no chart
@@ -154,10 +177,7 @@ describe Car::LiveView::Component, type: :component do
     context 'when logged in as admin' do
       let(:admin) { true }
 
-      it 'shows a gray gauge with the note and a link to the settings of the cars' do
-        expect(html.css('svg[viewBox="30 0 340 300"] path').size).to eq(1)
-        expect(html.css('span.font-mono')).to be_empty
-        expect(html.text).not_to include(I18n.t('sensors.car_range_short'))
+      it 'shows the note and a link to the settings of the cars' do
         expect(html.text).to include(I18n.t('data.car_none_in_use_now'))
         expect(html.css('a[href="/settings/cars"]')).to be_present
       end

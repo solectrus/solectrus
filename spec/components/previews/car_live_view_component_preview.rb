@@ -61,7 +61,7 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
     )
   end
 
-  # Three cars, one for each color of the badge: the first charges at the
+  # Three cars, one for each color of the bar: the first charges at the
   # wallbox, the second is nearly empty, the third runs low
   def three_cars
     live_view(
@@ -105,17 +105,10 @@ class CarLiveViewComponentPreview < ViewComponent::Preview
 
   private
 
-  # The names of the places of the cars, the last one long enough to be cut
-  PLACES = { 1 => 'Zuhause', 2 => 'Büro', 3 => 'Parkhaus am Hauptbahnhof' }.freeze
-  private_constant :PLACES
-
   # The live view fills the height of its parent, as on the car page. Only
-  # the admin sees the place of a car, but the preview shows it to everyone,
-  # with a fixed name instead of a lookup.
+  # the admin sees the place of a car, so the preview shows none.
   def live_view(cars, estimates: {}, **data)
     component = Car::LiveView::Component.new(live: Live.new(cars, data, estimates:))
-    component.define_singleton_method(:location?) { |state| !state.location.nil? }
-    component.define_singleton_method(:place_name) { |state| PLACES[state.car.id] }
 
     render_with_template(template: 'car_live_view_component_preview/frame', locals: { component: })
   end

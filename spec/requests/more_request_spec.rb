@@ -26,7 +26,7 @@ describe 'Page More' do
   end
 
   def charging_sessions_link
-    html.at_css('main a[href^="/cars/charging_sessions"]')
+    html.at_css('main a[href*="from=more"]')
   end
 
   describe 'the list' do
@@ -59,7 +59,7 @@ describe 'Page More' do
       aggregate_failures do
         expect(html.css('main section').map { it.at_css('h2')&.text }).to eq(['Other views', nil, 'System', 'Appearance', 'SOLECTRUS', nil])
         expect(html.css('main section')[1].css('a').map { it.text.strip }).to eq(['EV charging sessions'])
-        expect(charging_sessions_link['href']).to eq('/cars/charging_sessions?from=more')
+        expect(charging_sessions_link['href']).to match(%r{\A/cars/charging_sessions/[^?#]+\?from=more\z})
       end
     end
 
@@ -230,7 +230,10 @@ describe 'Page More' do
   end
 
   describe 'the charging sessions' do
-    before { login_as_admin }
+    before do
+      login_as_admin
+      allow(Car::Report).to receive(:pending_days).and_return([])
+    end
 
     def visit(path)
       get path
@@ -242,41 +245,41 @@ describe 'Page More' do
     end
 
     # The way back to the page More slides with its logo, the way back to the
-    # car page, which has no title bar, does not slide
+    # overview of the car page, which has no title bar, does not slide
     def expect_below(parent)
       more = parent == :more
 
       aggregate_failures do
-        expect(back['href']).to(more ? eq('/more') : start_with('/cars/car_charging'))
+        expect(back['href']).to eq(more ? '/more' : '/cars/2026-06')
         expect(back['data-nav-logo'].present?).to eq(more)
         expect(more_tab['aria-current']).to eq(('page' if more))
         expect(tab('Electric vehicle')['aria-current']).to eq(('page' unless more))
       end
     end
 
-    it 'are a page below the car page' do
-      visit '/cars/charging_sessions'
+    it 'are a page below the overview of the car page' do
+      visit '/cars/charging_sessions/wallbox/2026-06'
 
       expect_below(:car)
     end
 
     it 'are a page below the page More when they open from there' do
-      visit '/cars/charging_sessions?from=more'
+      visit '/cars/charging_sessions/wallbox/2026-06?from=more'
 
       expect_below(:more)
     end
 
     it 'stay below the page More in another kind of the list' do
-      visit '/cars/charging_sessions?from=more'
-      visit '/cars/charging_sessions/offsite'
+      visit '/cars/charging_sessions/wallbox/2026-06?from=more'
+      visit '/cars/charging_sessions/offsite/2026-06'
 
       expect_below(:more)
     end
 
-    it 'are below the car page again after a visit there' do
-      visit '/cars/charging_sessions?from=more'
+    it 'are below the overview again after a visit there' do
+      visit '/cars/charging_sessions/wallbox/2026-06?from=more'
       visit '/cars/now'
-      visit '/cars/charging_sessions'
+      visit '/cars/charging_sessions/wallbox/2026-06'
 
       expect_below(:car)
     end

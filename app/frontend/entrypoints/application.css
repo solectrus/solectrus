@@ -360,16 +360,21 @@ html[data-fullscreen-api] [data-fullscreen-btn='switch'] {
    Ui::TitleBar::Component), and not for a visit to the open page, like a
    reload (see setupSamePageVisits.ts). The box of the content stays: the
    header reaches down behind its top. A control that answers the tap itself,
-   like a segmented control, stays with the class ui-keep-lit. A spinner fades
-   in after a moment, for a slow connection. */
+   like a segmented control, stays with the class ui-keep-lit, also deeper in
+   the content, like the head of a list with its switch. A spinner fades in
+   after a moment, for a slow connection. */
 html[aria-busy='true']:not(
     [data-turbo-preview],
     [data-nav-sliding],
     [data-nav-rendering],
     [data-nav-same-page]
   ) {
-  #inner > :not(.ui-keep-lit) {
+  #inner > * {
     @apply max-lg:invisible;
+  }
+
+  #inner .ui-keep-lit {
+    @apply max-lg:visible;
   }
 
   .ui-busy-spinner {

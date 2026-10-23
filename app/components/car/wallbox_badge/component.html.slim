@@ -1,8 +1,0 @@
-/ The plug and the charging power share a badge, each with its own tooltip
-div class=badge_classes
-  = render Car::Plug::Component.new(connected: state.connected, compact: true)
-  - if charging_power?
-    span.flex.items-center.gap-1.5 class=('text-slate-600/40 dark:text-slate-400/40' unless charging?) title=t('sensors.car_charging_power_short') aria-label=t('sensors.car_charging_power_short') data-controller='tooltip'
-      - if state.connected.nil?
-        = helpers.icon 'bolt', class: ('text-sensor-pv' if charging?)
-      = render Sensor::Value::Component.new(charging_power, :wallbox_power, context: :rate)

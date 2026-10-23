@@ -1,7 +1,7 @@
 # The lists and the frames below the car page follow the car page: the
-# settings can switch it off, and a sponsorship opens it (see CarPageGate)
+# settings can switch it off, and a sponsorship opens it (see Cars::PageGate)
 describe 'Car page gate' do
-  let(:frame) { { 'Turbo-Frame' => Car::Location::Component::FRAME_ID } }
+  let(:frame) { { 'Turbo-Frame' => Car::MapOverlay::Component::FRAME_ID } }
 
   before { login_as_admin }
 

@@ -41,7 +41,7 @@ class Car::Ledger
   end
 
   # The distance (km) of the cars on the given dates, nil without a value
-  def distance(dates)
+  def distance(dates, cars: self.cars)
     values = cars.flat_map { |car| values_on(dates, car, :distance) }
     values.sum if values.any?
   end

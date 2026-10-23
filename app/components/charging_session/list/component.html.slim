@@ -1,44 +1,35 @@
-- if sessions.empty?
-  = render Ui::EmptyState::Component.new(icon: 'charging-station', title: t("charging_sessions.empty.#{empty_key}"), text: t("charging_sessions.description.#{empty_key}"))
-- else
-  / The desktop has a table with the totals in a gray row above it. A phone
-    has two cards of a grouped list: the totals above in one line, the
-    sessions below. One container for both, so the pages of the list load
-    once.
-  .grid.w-full.select-text.max-lg:flex.max-lg:flex-col.max-lg:gap-6 class=grid_columns
-    .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
-      = render ChargingSession::Rows::Component.new(sessions:, pagy:, timeframe:)
+= render Car::ListBox::Component.new(label: t('charging_sessions.title'), segments: kinds, totals: totals_text, totals_note:, map_path:, map_label: t('.map')) do |box|
+  / The sessions to review beside the sums: an amber link with their number
+    shows them alone, and then an amber button with an x shows each session
+    again. Both have the same height, so the head keeps its layout.
+  - if review
+    - box.with_switch do
+      = link_to review.href, role: 'switch', aria: { checked: review.on }, class: [REVIEW_CLASS, review.on ? REVIEW_ON_CLASS : REVIEW_OFF_CLASS] do
+        span = review_label
+        - if review.on
+          = icon 'xmark', class: 'text-xs'
 
-    / One session would only repeat its row
-    - if totals?
-      .col-span-full.grid.grid-cols-subgrid.items-center.font-bold.text-gray-800.order-first.rounded-xl.bg-white.lg:mb-4.lg:bg-gray-100.dark:bg-slate-800/60.dark:text-slate-300.max-lg:gap-x-3.max-lg:px-4.max-lg:py-3.max-lg:font-semibold class="max-lg:grid-cols-[minmax(0,1fr)_auto_auto]"
-        .col-start-1.col-span-3.min-w-0.truncate.text-left.lg:px-2.lg:py-3.max-lg:col-span-1
-          = totals.count
-          span.font-light<
-            = t('charging_sessions.count', count: totals.count)
-        .tabular-nums.text-right.whitespace-nowrap.lg:px-2.lg:py-3.max-lg:col-start-2 class=(pv_share? ? 'col-start-4' : 'col-start-5')
-          = render Sensor::Value::Component.new(totals.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)
-        - if pv_share? && totals.pv_percent
-          .col-start-5.hidden.lg:block.px-8.py-3.tabular-nums.whitespace-nowrap
-            = render ChargingSession::PvShareBar::Component.new(percent: totals.pv_percent)
-        .col-start-6.tabular-nums.text-right.whitespace-nowrap.lg:px-2.lg:py-3.max-lg:col-start-3
-          - if cost_incomplete?
-            span.text-gray-400 title=t('charging_sessions.cost_incomplete') ≥
-          = number_to_currency(totals.cost, unit: Currency.symbol)
+  / The sessions to review alone say what to do with them. Their proposals
+    go at once, for a time without receipts. The time of the list keeps a
+    proposal of a later build, which the admin did not see.
+  - if review_only? && sessions.any?
+    - box.with_note do
+      .flex.items-center.justify-between.gap-4.text-sm.max-lg:flex-col.max-lg:items-start.max-lg:gap-2
+        p.text-slate-600.dark:text-slate-400 = t(".review_hint.#{kind}")
+        - if dismiss_all?
+          = button_to helpers.dismiss_cars_charging_sessions_path,
+                      method: :patch,
+                      params: { return_to: helpers.list_address, listed_at: Time.current.iso8601(6) },
+                      form: { data: { turbo_frame: 'list', **Ui::ConfirmDialog::Component.data(t('charging_sessions.proposal.confirm_dismiss_all', count: review.number), button: t('confirm.dismiss_all'), destructive: true) } },
+                      class: 'shrink-0 flex items-center gap-2 whitespace-nowrap cursor-pointer text-signal-negative lg:hover:underline underline-offset-4 max-lg:active:opacity-60' do
+            = icon 'xmark'
+            = t('charging_sessions.proposal.dismiss_all')
 
-    / The proposals have no sums. Their row above the list dismisses them
-      all at once, for a time without receipts. The time of the list keeps
-      a proposal of a later build, which the user did not see.
-    - elsif proposals?
-      .col-span-full.order-first.flex.items-center.justify-between.gap-3.rounded-xl.bg-white.px-4.py-3.text-gray-800.lg:mb-4.lg:px-2.lg:bg-gray-100.dark:bg-slate-800/60.dark:text-slate-300
-        .font-bold.max-lg:font-semibold
-          = proposal_count
-          span.font-light<
-            = t('charging_sessions.count', count: proposal_count)
-        = button_to helpers.dismiss_cars_charging_sessions_path,
-                    method: :patch,
-                    params: { return_to: helpers.list_address, listed_at: Time.current.iso8601(6) },
-                    form: { data: { turbo_frame: 'list', **Ui::ConfirmDialog::Component.data(t('charging_sessions.proposal.confirm_dismiss_all', count: proposal_count), button: t('confirm.dismiss_all'), destructive: true) } },
-                    class: 'flex items-center gap-2 text-signal-negative lg:hover:underline underline-offset-4 max-lg:active:opacity-60' do
-          = icon 'xmark'
-          = t('charging_sessions.proposal.dismiss_all')
+  - if sessions.empty? && review_only?
+    = render Ui::EmptyState::Component.new(icon: 'check', title: t(".reviewed.#{kind}"))
+  - elsif sessions.empty?
+    = render Ui::EmptyState::Component.new(icon: 'charging-station', title: empty_title, text: empty_text)
+  - else
+    .grid.w-full.select-text.lg:px-3.lg:pb-2 class=GRID_COLUMNS
+      .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+        = render ChargingSession::Rows::Component.new(sessions:, pagy:, timeframe:)

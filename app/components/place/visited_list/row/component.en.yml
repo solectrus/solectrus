@@ -1,0 +1,4 @@
+en:
+  today: today
+  last: latest %{date}
+  yesterday: yesterday

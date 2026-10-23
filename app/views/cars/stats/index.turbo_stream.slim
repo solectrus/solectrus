@@ -1,48 +1,25 @@
-= turbo_stream.update frame_id('timeframe') do
-  = render Timeframe::Component.new(timeframe:)
-
+/ The live view has no navigation streams, so it renders its timeframe
 - if timeframe.now?
+  = turbo_stream.update frame_id('timeframe') do
+    = render Timeframe::Component.new(timeframe:)
+
   = turbo_stream.update frame_id('status') do
     = render Status::Component.new time: data.time
 
-= turbo_stream.update scoped_frame_id('stats'), method: :morph do
-  / The live view fills the whole height, so the pills and the odometer need
-  / space to the edges
-  .h-full.w-full.flex.flex-col.gap-3.lg:gap-4.xl:gap-5[
-    id="stats-#{timeframe.id}"
-    class=(timeframe.now? ? 'py-4 md:py-6' : 'group/cards')
-    data-controller=('car-cards' unless timeframe.now?)
-  ]
-    - if timeframe.now?
+  = turbo_stream.update scoped_frame_id('stats'), method: :morph do
+    .h-full.w-full.flex.flex-col id="stats-#{timeframe.id}"
       = render Car::LiveView::Component.new(live: data)
 
-    - else
-      / A phone shows one card at a time, with a toggle and the car select
-        above it. The header of a phone has no room for the select. Each
-        chart renders the toggle again, so a refresh of the stats keeps it.
-      - toggle = data.cars.any? && data.driving?
-      - if toggle || car_select?
-        .sm:hidden.flex.items-center.gap-3
-          - if toggle
-            div id=frame_id('car-card-toggle') data-turbo-permanent=true
-              = render Car::CardToggle::Component.new(sensor_name:)
-          - if car_select?
-            .ml-auto id=frame_id('car-select-stats')
-              = render car_select_component(button_class: Car::Select::Component::STATS_BUTTON_CLASS)
+/ The figures of each column of the overview (see Car::Section), from one
+  request and one report
+- else
+  - overview_sections.each do |section|
+    = turbo_stream.update scoped_frame_id("stats-#{section}"), method: :morph do
+      div id="stats-#{section}-#{timeframe.id}" class="lg:flex-1 lg:flex lg:flex-col"
+        - if section == :driving
+          = render Car::DrivingBox::Component.new(report: data)
+        - else
+          = render Car::ChargingBox::Component.new(report: data, all: car.nil? && !car_selection.guest?)
 
-      / The guest has no car, but its charging
-      - if data.cars.empty? && !car_selection.guest?
-        .flex-1.flex.items-center.justify-center.px-4
-          = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use'))
-
-      - else
-        / Charging on the left and driving on the right, like the source and
-        / the usage of the power balance. A car without an odometer and the
-        / guests have no driving, so their charging takes the full width.
-        / On a phone, the pressed button of the toggle shows its card
-        .flex-1.min-h-0.grid.gap-4.md:gap-6 class=(data.driving? ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1')
-          .contents class='max-sm:group-has-[[data-car-cards-card-param=driving][aria-pressed=true]]/cards:hidden'
-            = render Car::ChargingCard::Component.new(report: data, all: car.nil? && !car_selection.guest?)
-          - if data.driving?
-            .contents class='max-sm:group-has-[[data-car-cards-card-param=charging][aria-pressed=true]]/cards:hidden'
-              = render Car::DrivingCard::Component.new(report: data)
+  / The navigation of a period. The live view refreshes often and keeps it.
+  = render 'cars/navigation_streams'

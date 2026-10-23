@@ -1,0 +1,9 @@
+de:
+  map: Karte der Auswärts-Ladungen
+  # The list of the sessions to review
+  reviewed:
+    wallbox: Alles zugeordnet
+    offsite: Alle bestätigt
+  review_hint:
+    wallbox: Diese Ladungen der Wallbox gehören noch zu keinem Auto oder Gast.
+    offsite: Diese Ladungen wurden aus dem Ladestand eines Autos erkannt und sind noch nicht bestätigt.

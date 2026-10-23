@@ -56,7 +56,7 @@ class Car::PlaceTooltip::Component < ViewComponent::Base
     count = stats.sum { it[:count] }
     return unless count.positive?
 
-    label = count > 1 ? t('.visits', count:) : l(stats.sole[:started_at].in_time_zone.to_date)
+    label = count > 1 ? t('visits.count', count:) : l(stats.sole[:started_at].in_time_zone.to_date)
     link_to label, visits_path, class: LINK_CLASS, data: { turbo_frame: '_top' }
   end
 

@@ -1,18 +1,13 @@
-# The note that no car is in use, in the live view and in a period. The
-# admin gets a link to the settings of the cars, where the period of use of
-# each car lives. In the center of the empty gauge of the live view, the
-# note comes with the icon of a car, and its size follows the gauge. In a
-# period, it is a Ui::EmptyState.
+# The note that no car is in use, in the live view and in a period, as a
+# Ui::EmptyState. The admin gets a link to the settings of the cars, where the
+# period of use of each car lives.
 class Car::NoneInUse::Component < ViewComponent::Base
-  def initialize(text:, gauge: false)
+  def initialize(text:)
     super()
     @text = text
-    @gauge = gauge
   end
 
   attr_reader :text
-
-  def gauge? = @gauge
 
   LINK_CLASS =
     'inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium ' \

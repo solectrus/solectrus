@@ -2,7 +2,8 @@ class Cars::StatsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
   include SponsoredFrame
-  include CarSelectable
+  include Cars::Selectable
+  include Cars::FrameNavigation
 
   before_action :refresh_summaries_if_needed
 

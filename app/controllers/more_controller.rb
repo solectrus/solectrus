@@ -49,16 +49,10 @@ class MoreController < ApplicationController
 
   # The charging sessions, apart from the views as in the menu of the desktop,
   # and only with a car (see Sensor::HomePage.open?). From here, the list is a
-  # page below this one (see BelowMore). The cell keeps the name
-  # of the menu, the slide shows the shorter title of the list. A guest gets
-  # the request to log in, without a title bar, so only the admin slides.
+  # page below this one (see BelowMore). The cell keeps the name of the menu,
+  # the slide shows the title of the list.
   helper_method def charging_sessions_link
-    charging_sessions_item&.merge(
-      href: cars_charging_sessions_path(from: 'more'),
-      slide: admin?,
-      plain: true,
-      nav_title: t('charging_sessions.title'),
-    )
+    charging_sessions_item(from: 'more')&.merge(slide: true, nav_title: t('charging_sessions.title'))
   end
 
   # A guest sees the settings too, and their page asks to log in. Only the

@@ -37,29 +37,8 @@ describe CarSelection do
     end
   end
 
-  describe 'with extras' do
-    it 'selects the guest sessions and the sessions that are not assigned' do
-      expect(described_class.new('guest', timeframe:, extras: true).filter).to eq(:guest)
-      expect(described_class.new('unassigned', timeframe:, extras: true).filter).to eq(:unassigned)
-    end
-
-    it 'selects the proposals' do
-      expect(described_class.new('proposals', timeframe:, extras: true).filter).to eq(:proposals)
-    end
-
-    it 'drops them in the list of the other kind' do
-      guest = described_class.new('guest', timeframe:, extras: true)
-      proposals = described_class.new('proposals', timeframe:, extras: true)
-
-      expect(guest.to_param_for('wallbox')).to eq('guest')
-      expect(guest.to_param_for('offsite')).to be_nil
-      expect(proposals.to_param_for('offsite')).to eq('proposals')
-      expect(proposals.to_param_for('wallbox')).to be_nil
-    end
-
-    it 'selects no extra on the car page' do
-      expect(described_class.new('guest', timeframe:)).not_to be_valid
-    end
+  it 'selects no guest without the guests' do
+    expect(described_class.new('guest', timeframe:)).not_to be_valid
   end
 
   describe 'with the guests' do

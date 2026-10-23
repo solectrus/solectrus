@@ -102,10 +102,12 @@
 #                     cars_location GET              /cars/location/:car(.:format)                                           cars/locations#show {car: /\d+/}
 #                        cars_place GET              /cars/location/:car/place(.:format)                                     cars/places#show {car: /\d+/}
 #                cars_place_tooltip GET              /cars(/:car)/places/:place/tooltip/:timeframe(.:format)                 cars/place_tooltips#show {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                    cars_place_map GET              /cars(/:car)/places(/:timeframe)(.:format)                              cars/place_maps#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                    cars_place_map GET              /cars(/:car)/places/map(/:timeframe)(.:format)                          cars/place_maps#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#               cars_visited_places GET              /cars(/:car)/places(/:timeframe)(.:format)                              cars/visited_places#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                       cars_visits GET              /cars(/:car)(/places/:place)/visits(/:timeframe)(.:format)              cars/visits#index {car: /\d/, place: /\d+/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#                 cars_spot_tooltip GET              /cars(/:car)/charging_sessions/spots/:spot/tooltip/:timeframe(.:format) cars/spot_tooltips#show {car: /(?-mix:\d)|unassigned|guest|proposals/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
-#            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(/:view)(.:format)   cars/charging_sessions#index {car: /(?-mix:\d)|unassigned|guest|proposals/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/, view: /map/}
+#                 cars_spot_tooltip GET              /cars(/:car)/charging_sessions/spots/:spot/tooltip/:timeframe(.:format) cars/spot_tooltips#show {car: /(?-mix:\d)|guest/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#         cars_charging_session_map GET              /cars(/:car)/charging_sessions/offsite(/:timeframe)/map(.:format)       cars/charging_session_maps#index {car: /(?-mix:\d)|guest/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#            cars_charging_sessions GET              /cars(/:car)/charging_sessions(/:kind)(/:timeframe)(.:format)           cars/charging_sessions#index {car: /(?-mix:\d)|guest/, kind: /wallbox|offsite/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #     dismiss_cars_charging_session PATCH            /cars/charging_sessions/:id/dismiss(.:format)                           cars/charging_sessions#dismiss
 #    dismiss_cars_charging_sessions PATCH            /cars/charging_sessions/dismiss(.:format)                               cars/charging_sessions#dismiss_all
 #     address_cars_charging_session POST             /cars/charging_sessions/:id/address(.:format)                           cars/charging_session_addresses#create
@@ -344,9 +346,16 @@ Rails.application.routes.draw do
         constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
 
     # The places of the cars on a map, with the selected car in front
-    get '(:car)/places(/:timeframe)',
+    get '(:car)/places/map(/:timeframe)',
         to: 'place_maps#index',
         as: :place_map,
+        constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
+
+    # The places of the cars, each with its visits, with the selected car in
+    # front
+    get '(:car)/places(/:timeframe)',
+        to: 'visited_places#index',
+        as: :visited_places,
         constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
 
     # The visits of the cars at the places, with the selected car and the
@@ -362,20 +371,24 @@ Rails.application.routes.draw do
     get '(:car)/charging_sessions/spots/:spot/tooltip/:timeframe',
         to: 'spot_tooltips#show',
         as: :spot_tooltip,
-        constraints: { car: CarSelection::CAR_OR_EXTRA, timeframe: Timeframe::REGEX }
+        constraints: { car: CarSelection::CAR_OR_GUEST, timeframe: Timeframe::REGEX }
 
-    # The list of the charging sessions, with the selected car in front. The
-    # list also selects the extras of its kind there (see CarSelection::EXTRAS).
-    # The view "map" shows the offsite sessions on a map (see
-    # ChargingSessionsView). Before the resources, so the list keeps the name.
-    get '(:car)/charging_sessions(/:kind)(/:timeframe)(/:view)',
+    # The offsite sessions on a map over their list, with the car filter of
+    # the list
+    get '(:car)/charging_sessions/offsite(/:timeframe)/map',
+        to: 'charging_session_maps#index',
+        as: :charging_session_map,
+        constraints: { car: CarSelection::CAR_OR_GUEST, timeframe: Timeframe::REGEX }
+
+    # The list of the charging sessions, with the selected car or the guest in
+    # front. Before the resources, so the list keeps the name.
+    get '(:car)/charging_sessions(/:kind)(/:timeframe)',
         to: 'charging_sessions#index',
         as: :charging_sessions,
         constraints: {
-          car: CarSelection::CAR_OR_EXTRA,
+          car: CarSelection::CAR_OR_GUEST,
           kind: Regexp.union(ChargingSession.kinds.keys),
           timeframe: Timeframe::REGEX,
-          view: /map/,
         }
 
     resources :charging_sessions, except: %i[index show] do

@@ -6,7 +6,7 @@
 # (see Place.name_at). The car can be on the road, and only the daily build
 # makes a place where a car stood (see Place.of).
 class Cars::LocationsController < ApplicationController
-  include CarPageGate
+  include Cars::PageGate
 
   def show
     return redirect_to(cars_home_path) unless turbo_frame_request?

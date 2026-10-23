@@ -17,8 +17,8 @@ describe Car::Live do
   it 'gives the state of each car' do
     expect(live.states.map(&:to_h)).to eq(
       [
-        { car: cars.first, soc: 80, range: 300, max_range: 375, odometer: 12_345, connected: true, charging_power: 11_000, latitude: 50.9, longitude: 6.4, time: nil },
-        { car: cars.last, soc: 40, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil },
+        { car: cars.first, soc: 80, range: 300, max_range: 375, odometer: 12_345, connected: true, charging_power: 11_000, latitude: 50.9, longitude: 6.4, time: nil, located_at: nil },
+        { car: cars.last, soc: 40, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil, located_at: nil },
       ],
     )
   end
@@ -27,7 +27,7 @@ describe Car::Live do
     cars.first.update!(active_until: Date.yesterday)
 
     expect(live.states.first.to_h).to eq(
-      car: cars.first, soc: nil, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil,
+      car: cars.first, soc: nil, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil, located_at: nil,
     )
   end
 

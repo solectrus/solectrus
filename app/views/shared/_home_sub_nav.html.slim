@@ -17,8 +17,11 @@
         = render Timeframe::Component.new(timeframe:)
 
       / A select of the page, the car for one, below the timeframe on a tablet
-        and before it on desktop. A phone has it in the page (see the stats of
-        the cars).
+        and before it on desktop. A phone has it as a pill below the
+        timeframe.
       - if content_for?(:sub_nav_select)
         .pt-1.empty:hidden.max-sm:hidden.lg:landscape:pt-0.lg:landscape:order-first.lg:landscape:mr-4
           = yield :sub_nav_select
+      - if content_for?(:sub_nav_pill)
+        .pt-1.sm:hidden
+          = yield :sub_nav_pill

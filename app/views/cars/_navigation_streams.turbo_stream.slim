@@ -1,0 +1,12 @@
+/ The navigation and the select of the car, with each frame of the car page
+  that a pick or a refresh loads, so each link keeps its timeframe, its chart
+  and its car. Only the frame of the chart of the address renders it (see
+  Cars::FrameNavigation).
+- if navigation_frame?
+  = turbo_stream_update_navigation
+
+  - if car_select?
+    = turbo_stream.update frame_id('car-select') do
+      = render car_select_component
+    = turbo_stream.update frame_id('car-select-pill') do
+      = render car_select_component(**Car::SubNav::Component::PILL_SELECT)

@@ -1,4 +1,4 @@
-# The driving of the selected cars (see CarSelectable) in a column for each
+# The driving of the selected cars (see Cars::Selectable) in a column for each
 # day, month or year: the driving cost, the cost per 100 km or the energy per
 # 100 km. Each day drives at the rates of the window around it (see
 # Car::Driving), so a column is the sum of its days. A column without a day

@@ -177,6 +177,13 @@ describe 'Settings Places' do
         expect(response.body).to include(I18n.t('visits.at_place', count: 1))
       end
 
+      it 'leads back to the list of the places that opened it, and keeps its car and timeframe' do
+        get edit_settings_place_path(place, return_to: '/cars/1/places/2026-09')
+
+        expect(response.body).to include('href="/cars/1/places/2026-09"', %(href="/cars/1/places/#{place.id}/visits/2026-09"))
+        expect(response.body).to include(I18n.t('car_breakdown.places'), I18n.t('visits.at_place', count: 1))
+      end
+
       it 'counts the visits of the whole time for a list with an invalid timeframe' do
         get edit_settings_place_path(place, return_to: '/cars/visits/2026-09-30..2026-09-01')
 
@@ -196,7 +203,8 @@ describe 'Settings Places' do
       login_as_admin
       get edit_settings_place_path(place, return_to: "/cars/places/#{place.id}/visits")
 
-      expect(response.body).not_to include(I18n.t('visits.filter_place'))
+      # The way back leads there, but no link to the visits
+      expect(response.body).not_to include('at this place')
     end
 
     it 'ignores a return_to to another host' do
@@ -222,7 +230,7 @@ describe 'Settings Places' do
       expect(place.reload.name).to eq('Home')
       expect(response.body).to include(%(target="place_#{place.id}"), 'Home')
       # The places of the list of the visits
-      expect(response.body).to include(%(targets="[data-visit-place-labels=&#39;#{place.id}&#39;]"), %(targets="[data-visit-place-name=&#39;#{place.id}&#39;]"), %(targets="[data-visit-place-locality=&#39;#{place.id}&#39;]"))
+      expect(response.body).to include(%(targets="[data-visit-place-name=&#39;#{place.id}&#39;]"))
     end
 
     it 'moves home to the place, and replaces the row of the old home' do

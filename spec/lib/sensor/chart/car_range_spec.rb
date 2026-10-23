@@ -55,6 +55,19 @@ describe Sensor::Chart::CarRange do
       expect(chart.blank_message).to eq(I18n.t('data.car_no_driving'))
       expect(chart.blank_icon).to eq('road')
     end
+
+    # The car drove, but its range has a gap, like a sensor that came later
+    context 'with a drive' do
+      before do
+        Summary.create!(date: Date.new(2026, 6, 26))
+        SummaryValue.create!(date: Date.new(2026, 6, 26), field: 'car_odometer_1', aggregation: 'sum', value: 40)
+      end
+
+      it 'names the gap' do
+        expect(chart.blank_message).to eq(I18n.t('data.blank'))
+        expect(chart.blank_icon).to be_nil
+      end
+    end
   end
 
   context 'with the live view' do

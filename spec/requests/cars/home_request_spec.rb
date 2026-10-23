@@ -12,10 +12,10 @@ describe 'Car Home' do
     end
 
     context 'with a sensor of another page' do
-      it 'redirects to the default chart' do
+      it 'redirects to the overview' do
         get cars_home_path(sensor_name: 'wallbox_power', timeframe: '2026-06')
 
-        expect(response).to redirect_to('/cars/car_charging/2026-06')
+        expect(response).to redirect_to('/cars/2026-06')
       end
     end
 
@@ -34,7 +34,7 @@ describe 'Car Home' do
       end
 
       it 'links to the live view without a sensor' do
-        get cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06')
+        get cars_home_path(timeframe: '2026-06')
 
         expect(response.body).to include('/cars/now"')
       end
@@ -48,19 +48,21 @@ describe 'Car Home' do
 
         after { Sensor::Config.setup(ENV) }
 
-        it 'links to the default chart of the other timeframes' do
+        it 'links to the overview of the other timeframes' do
           get cars_home_path(timeframe: 'now')
 
-          expect(response.body).to include("/cars/car_distance/#{Date.current.year}\"")
+          expect(response.body).to include("/cars/#{Date.current.year}\"")
         end
       end
     end
 
+    # The overview has no chart, so its address has no sensor
     context 'without a sensor in another timeframe' do
-      it 'redirects to the default chart of that timeframe' do
+      it 'shows the overview' do
         get cars_home_path(timeframe: '2026-06-26')
 
-        expect(response).to redirect_to('/cars/car_charging/2026-06-26')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to include('/cars/charts/')
       end
     end
 
@@ -80,7 +82,7 @@ describe 'Car Home' do
       end
     end
 
-    # The stats say so across the whole width
+    # The overview says so instead of its columns
     context 'with a period without a car in use' do
       before do
         stub_feature(:car)
@@ -89,18 +91,35 @@ describe 'Car Home' do
         allow(Sensor).to receive(:data?).and_return(true)
       end
 
-      it 'shows no chart' do
-        get cars_home_path(sensor_name: 'car_charging', timeframe: (Date.current.year - 1).to_s)
+      it 'shows the note of the overview, without a chart' do
+        get cars_home_path(timeframe: (Date.current.year - 1).to_s)
 
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include('/cars/stats/')
-        expect(response.body).not_to include('/cars/charts/')
+        expect(response.body).to include(I18n.t('data.car_none_in_use'))
+        expect(response.body).not_to include('/cars/stats/', '/cars/charts/')
       end
 
       it 'shows the chart of a period with the car' do
+        start = Time.current.beginning_of_day
+        ChargingSession.create!(kind: :wallbox, origin: :detection, car_id: 1, started_at: start, ended_at: start + 1.minute, kwh: 1, kwh_grid: 0, cost: 0)
+
         get cars_home_path(sensor_name: 'car_charging', timeframe: Date.current.year.to_s)
 
         expect(response.body).to include('/cars/charts/')
+      end
+
+      # One request fills the figures of each column (see Cars::StatsController)
+      context 'with an odometer' do
+        before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER' => 'Trabant:odometer')) }
+        after { Sensor::Config.setup(ENV) }
+
+        it 'loads the figures of both columns with one request' do
+          get cars_home_path(sensor_name: 'car_charging', timeframe: Date.current.year.to_s)
+
+          frames = response.parsed_body.css('[data-stats-with-chart--component-target=stats]')
+          expect(frames.size).to eq(2)
+          expect(frames.count { it['src'] }).to eq(1)
+        end
       end
     end
 
@@ -142,12 +161,13 @@ describe 'Car Home' do
       end
     end
 
+    # A chart that cannot draw the timeframe gives way to the overview
     context 'with a rate chart and a day' do
-      it 'redirects to the default chart of that day' do
+      it 'redirects to the overview of that day' do
         get cars_home_path(sensor_name: 'car_consumption_rate', timeframe: '2026-06-26')
 
         expect(response).to redirect_to(
-          cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06-26'),
+          cars_home_path(sensor_name: nil, timeframe: '2026-06-26'),
         )
       end
     end
@@ -177,11 +197,11 @@ describe 'Car Home' do
 
       after { Sensor::Config.setup(ENV) }
 
-      it 'redirects a month to the default chart of that month' do
+      it 'redirects a month to the overview of that month' do
         get cars_home_path(sensor_name: 'car_range', timeframe: '2026-06')
 
         expect(response).to redirect_to(
-          cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06'),
+          cars_home_path(sensor_name: nil, timeframe: '2026-06'),
         )
       end
     end
@@ -198,11 +218,11 @@ describe 'Car Home' do
 
       after { Sensor::Config.setup(ENV) }
 
-      it 'redirects to the default chart and keeps the car' do
+      it 'redirects to the overview and keeps the car' do
         get cars_home_path(sensor_name: 'car_range', timeframe: '2026-06-26', car: 1)
 
         expect(response).to redirect_to(
-          cars_home_path(sensor_name: 'car_distance', timeframe: '2026-06-26', car: 1),
+          cars_home_path(sensor_name: nil, timeframe: '2026-06-26', car: 1),
         )
       end
 
@@ -212,11 +232,12 @@ describe 'Car Home' do
         expect(response).to have_http_status(:ok)
       end
 
+      # Without a chart of the driving, the page goes to the overview
       it 'redirects the distance of the car without an odometer' do
         get cars_home_path(sensor_name: 'car_distance', timeframe: '2026-06', car: 2)
 
         expect(response).to redirect_to(
-          cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06', car: 2),
+          cars_home_path(sensor_name: nil, timeframe: '2026-06', car: 2),
         )
       end
     end
@@ -231,11 +252,11 @@ describe 'Car Home' do
 
       after { Sensor::Config.setup(ENV) }
 
-      it 'takes the distance as the default chart of a day' do
+      it 'goes from the charging of a day to the overview' do
         get cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06-26')
 
         expect(response).to redirect_to(
-          cars_home_path(sensor_name: 'car_distance', timeframe: '2026-06-26'),
+          cars_home_path(sensor_name: nil, timeframe: '2026-06-26'),
         )
       end
 
@@ -250,12 +271,12 @@ describe 'Car Home' do
     context 'with the charging cost of a day' do
       before { Car.create!(id: 1) }
 
-      it 'redirects to the default chart without the power splitter' do
+      it 'redirects to the overview without the power splitter' do
         stub_feature(:car)
         get cars_home_path(sensor_name: 'car_charging_costs', timeframe: '2026-06-26')
 
         expect(response).to redirect_to(
-          cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06-26'),
+          cars_home_path(sensor_name: nil, timeframe: '2026-06-26'),
         )
       end
 
@@ -281,10 +302,10 @@ describe 'Car Home' do
           expect(response.body).not_to include('INFLUX_SENSOR_CAR_ODOMETER_1')
         end
 
-        it 'opens the chart of the charging' do
+        it 'shows the overview' do
           get cars_home_path(timeframe: '2026-06')
 
-          expect(response).to redirect_to(cars_home_path(sensor_name: 'car_charging', timeframe: '2026-06'))
+          expect(response).to have_http_status(:ok)
         end
       end
 

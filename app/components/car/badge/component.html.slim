@@ -1,16 +1,12 @@
-/ A session that is not assigned is an open task: an icon like the other
-  hints of the list, with its label as the tooltip
+/ A car in its color, a guest an icon in the width of the car icon. A
+  session that is not assigned is an open task, like a proposal in the
+  list.
 - if state == :unassigned
-  = tag.span class: 'inline-flex shrink-0 text-amber-500 dark:text-amber-400',
-             title: label,
-             aria: { label: },
-             data: { controller: 'tooltip' } do
-    = helpers.icon 'circle-question'
+  = render ChargingSession::ReviewBadge::Component.new(label:)
 - else
   span class=css_class title=title
-    / A car in its color, a guest an icon in the width of the car icon
     - if color
       = car_icon(color)
-    - else
+    - elsif state == :guest
       = helpers.icon 'user', class: 'shrink-0 w-[1.25em] opacity-60'
     span.truncate = label

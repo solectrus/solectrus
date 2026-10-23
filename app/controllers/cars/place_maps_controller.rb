@@ -1,15 +1,15 @@
-# The places of the cars on a map that fills the page (see
-# Place::Map::Component), a page below the car page like the list of the
-# visits. The tooltip of a place links the visits of the place.
+# The places of the cars on a map that fills the window over the list of the
+# places (see Place::Map::Component and Car::MapOverlay::Component). The
+# tooltip of a place links the visits of the place. The map has no page of
+# its own, so its address alone leads to the list.
 class Cars::PlaceMapsController < ApplicationController
-  include PlacePage
+  include Cars::PlacePage
 
   def index
-    # A car that the page does not offer goes to "all", like on the car page
-    return redirect_to(page_path_with(car: nil)) unless car_selection.valid?
+    return redirect_to(place_list_path('places')) unless turbo_frame_request?
 
-    # While days wait for the build, the page shows the build instead of the map
-    @pending_days = Sensor::Summarizer.build_few(pending_visit_days)
+    # A car that the page does not offer goes to "all", like on the car page
+    redirect_to(page_path_with(car: nil)) unless car_selection.valid?
   end
 
   private
@@ -22,9 +22,5 @@ class Cars::PlaceMapsController < ApplicationController
       timeframe:,
       tooltip_url: cars_place_tooltip_path(car: car_selection.to_param, place: ':id', timeframe: timeframe.to_param),
     )
-  end
-
-  helper_method def title
-    t('car_breakdown.places')
   end
 end

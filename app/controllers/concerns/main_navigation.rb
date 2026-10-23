@@ -204,14 +204,11 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       }
     end
 
-    # From the wallbox on the start page, the car page shows the charging, so
-    # the topic stays. The reverse of Sensor::HomePage.balance_sensor.
+    # From the wallbox on the start page, the car page shows the chart of the
+    # charging, so the topic stays. The reverse of
+    # Sensor::HomePage.balance_sensor. Else the first chart of each column.
     def car_sensor_name
-      if helpers.controller_namespace == 'balance' && params[:sensor_name] == 'wallbox_power'
-        'car_charging'
-      else
-        'car_distance'
-      end
+      'car_charging' if helpers.controller_namespace == 'balance' && params[:sensor_name] == 'wallbox_power'
     end
 
     # The data of the menu stands apart from the configuration below it
@@ -220,16 +217,21 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       [item, ___] if item
     end
 
-    # The list of all charging sessions. Like the settings, a guest sees the
-    # link and the list asks to log in (see CarPageGate). The link starts
-    # without the car, kind and timeframe of the current page.
-    def charging_sessions_item
+    # The list of the charging sessions. A guest sees the list without the
+    # open tasks and the forms. The link starts without the car and the kind
+    # of the current page, in the timeframe of the views, or in the whole time
+    # from the live view. `query` goes into the address, like the origin of
+    # the page More.
+    def charging_sessions_item(**query)
       return unless Sensor::HomePage.open?(:cars)
+
+      timeframe = computed_timeframe
+      timeframe = 'all' if timeframe.nil? || timeframe.try(:now?)
 
       {
         name: t('layout.charging_sessions'),
         icon: 'charging-station',
-        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe: nil),
+        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe:, **query),
         current: helpers.controller.is_a?(Cars::ChargingSessionsController),
       }
     end

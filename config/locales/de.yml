@@ -101,13 +101,13 @@ de:
     house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto
     wallbox_power_short: Stromverbrauch
-    car_charging: Beladungen
-    car_charging_short: Beladungen
+    car_charging: Geladene Energie
+    car_charging_short: Geladene Energie
     wallbox_costs_short: Kosten
     car_charging_costs: Ladekosten
     car_charging_costs_short: Kosten
-    car_consumption_rate: Verbrauch/100 km
-    car_cost_rate: Fahrkosten/100 km
+    car_consumption_rate: Verbrauch je 100 km
+    car_cost_rate: Fahrkosten je 100 km
     car_driving_costs: Fahrkosten
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
@@ -195,15 +195,12 @@ de:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
   visits:
     name: Besuche
-    empty: Noch kein Besuch
-    period: Zeitraum
-    duration: Dauer
-    remove_filter: Filter entfernen
-    filter_place: Nur Besuche an diesem Ort
+    count:
+      one: 1 Besuch
+      other: '%{count} Besuche'
     at_place:
       one: 1 Besuch an diesem Ort
       other: '%{count} Besuche an diesem Ort'
-    filter_car: Nur Besuche dieses Autos
     # The times of a visit in the list of one day
     from: ab %{time}
     since: seit %{time}
@@ -218,45 +215,46 @@ de:
       home: Hier steht auch die Wallbox. Bei der automatischen Zuordnung von Ladevorgängen wird der Auto-Standort berücksichtigt. Eine Änderung berechnet alle Zusammenfassungen neu.
   cars:
     default_name: Auto %{number}
-    # The battery of a car in the live view, as a gauge or as a bar
+    # The time of a reading of a car in the live view (see Car::TimeText)
+    time:
+      yesterday: Gestern, %{time}
+      weekday: '%{day}, %{time}'
+    # The battery of a car in the live view
     battery:
       stale: Keine aktuellen Werte
       estimated: Geschätzte Reichweite
       estimated_note: Geschätzt aus dem Ladestand und dem Verbrauch der letzten 14 Tage. Der Verbrauch enthält auch die Energie, die das Auto im Stand braucht.
-    # The time a car spent at a place, on the map of the places
+    # The time a car spent at a place (see DurationText)
     duration:
-      days:
-        one: '%{count} Tag'
-        other: '%{count} Tage'
-      hours: '%{count} Std.'
-      minutes: '%{count} Min.'
+      hours: '%{time} h'
+      minutes: '%{count} min'
   car_breakdown:
     home: Wallbox
-    guest_included: Davon für Gäste
-    cost_incomplete: Ein Ladevorgang hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist. Die Ladekosten sind deshalb zu klein.
-    cost_missing: Die Ladevorgänge haben keine Kosten, weil für ihre Tage kein Preis hinterlegt ist.
+    offsite_map: Karte der Auswärts-Ladungen
+    places_map: Karte der Orte
     home_pv: Photovoltaik
     share_pv: aus PV
     share_wallbox: an der Wallbox
     home_grid: Netzbezug
     offsite: Auswärtsladung
-    offsite_sessions: Ladevorgänge auswärts
-    guest_sessions: Ladevorgänge von Gästen
     charging: Laden
     driving: Fahren
     places: Orte
+    # The switch between the list of the places and the list of the visits
+    place_lists:
+      places: Ziele
+      visits: Besuche
     wallbox_short: Wallbox
-    wallbox_sessions: Ladevorgänge an der Wallbox
     guest_short: Gast
     offsite_short: Auswärts
-    sessions: Ladevorgänge
-    no_charging: Keine Ladung
-    on_the_road: Unterwegs
     unknown_place: Unbekannter Ort
-    costs: Kosten
-    cost_rate: Kosten/100 km
-    consumption_rate: Verbrauch/100 km
-    range: Ø Reichweite
+    cost_rate: Kosten je 100 km
+    consumption_rate: Verbrauch je 100 km
+    per_day: Ø pro Tag
+    charged: Geladen
+    cost_rate_short: Kosten/100 km
+    consumption_rate_short: Verbr./100 km
+    per_day_note: Ø %{distance}/Tag
     unconfirmed:
       one: 1 unbestätigte Ladung
       other: '%{count} unbestätigte Ladungen'
@@ -264,7 +262,7 @@ de:
       one: 1 Ladung nicht zugeordnet
       other: '%{count} Ladungen nicht zugeordnet'
     daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
-    total: Gesamt
+    # The notes of a period without a value in the overview
   balance_sheet:
     left: Herkunft
     right: Verwendung
@@ -380,12 +378,17 @@ de:
       continue: Jetzt registrieren
       login_required: Um die Registrierung vorzunehmen, melde dich bitte als Admin an.
   charging_sessions:
+    # The sessions to review of a list (see ChargingSession::Review)
+    open:
+      wallbox:
+        one: 1 nicht zugeordnet
+        other: '%{count} nicht zugeordnet'
+      offsite:
+        one: 1 unbestätigt
+        other: '%{count} unbestätigt'
     title: Ladevorgänge
     edit: Ladevorgang bearbeiten
     new: Neuer Ladevorgang
-    view:
-      list: Liste
-      map: Karte
     map_empty: Die Karte zeigt den Ort, sobald die Adresse gefunden ist.
     guest: Gast
     unassigned: Nicht zugeordnet
@@ -406,7 +409,6 @@ de:
     proposal:
       name: Unbestätigt
       title: Ladung bestätigen
-      hint: Unbestätigt, aus Messwerten
       estimate: Geschätzt aus Ladestand und Akkukapazität
       no_estimate: Ohne Akkukapazität des Autos keine Schätzung
       accept: Bestätigen
@@ -427,11 +429,13 @@ de:
     description:
       wallbox: Laden an deiner eigenen Wallbox, automatisch erkannt.
       offsite: Laden an öffentlichen Ladesäulen oder fremden Wallboxen.
-      proposals: Aus den Messwerten des Autos erkannte Auswärtsladungen, die du bestätigen oder verwerfen kannst.
+      guest: Laden an der eigenen Wallbox, einem Gast zugeordnet.
     empty:
       wallbox: Keine Ladevorgänge an der Wallbox
       offsite: Keine Auswärtsladungen
-      proposals: Keine unbestätigten Ladungen
+      wallbox_of: Keine Ladevorgänge von %{car} an der Wallbox
+      offsite_of: Keine Auswärtsladungen von %{car}
+      guest: Keine Gastladungen
     form:
       assigned_manually: Von dir gewählt. Eine neue Erkennung behält deine Wahl.
       assigned_by_detection: Automatisch erkannt. Kann korrigiert werden.

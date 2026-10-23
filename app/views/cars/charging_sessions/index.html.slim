@@ -1,21 +1,10 @@
 = render 'sub_nav'
 
-/ A phone has the kinds and the filter above the list, as the car page has
-  its toggle and the select of the car. They scroll away with the list. The
-  desktop has them in the header. They answer a tap themselves, so they
-  stay lit while the next page loads (see application.css).
-.ui-keep-lit.lg:hidden.mb-4.flex.items-center.gap-3
-  = render Ui::SegmentedControl::Component.new(items: nav_items(short: true), label: t('charging_sessions.title'))
-  - if @missing_or_stale_summary_days.blank?
-    .ml-auto.min-w-0.empty:hidden
-      = render filter_component(layout: :select)
-
+- content_for :grouped, true
 - if @missing_or_stale_summary_days.present?
   = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 - else
-  / The minimum height keeps a short list from shrinking the card to a strip.
-  .flex.flex-col.flex-1.lg:min-h-96
-    / A stream refreshes the list (see FormPageResponse). A link in it leaves
-      the list, so it does not load into the frame.
-    = tag.turbo_frame id: 'list', target: '_top', class: 'flex flex-col flex-1 min-h-0' do
-      = render list_component(@charging_sessions, @pagy)
+  / A stream refreshes the list after a save (see FormPageResponse). A link in
+    it leaves the page, so it does not load into the frame.
+  = tag.turbo_frame id: 'list', target: '_top', class: 'flex-1 flex flex-col' do
+    = render list_box

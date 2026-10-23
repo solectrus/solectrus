@@ -22,7 +22,7 @@ module ParamsHandling
     end
 
     # The car is no parameter of the page itself. The car selection reads it
-    # (see CarSelectable), and each link adds it from there. It is named here,
+    # (see Cars::Selectable), and each link adds it from there. It is named here,
     # because selection_params reads the timeframe, which reads these
     # parameters.
     helper_method def permitted_params

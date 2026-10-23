@@ -101,6 +101,22 @@ class PlaceVisit < ApplicationRecord
     )
   end
 
+  # The places of the joined `visits`, each with the number of its visits,
+  # the ids of its cars and the start of its latest visit, the most visited
+  # place first. Each row is a PlaceVisit with these attributes.
+  def self.by_place(visits)
+    unscoped
+      .from(visits.unscope(:order), table_name)
+      .group(:place_id)
+      .select(
+        :place_id,
+        'COUNT(*) AS visit_count',
+        'ARRAY_AGG(DISTINCT car_id ORDER BY car_id) AS car_ids',
+        'MAX(started_at) AS last_started_at',
+      )
+      .order(Arel.sql('visit_count DESC, last_started_at DESC, place_id'))
+  end
+
   # The number of the joined visits of the scope that overlap the timeframe,
   # and the number of their places, in one query. The cut at midnight gives
   # each such visit a row on a day of the timeframe, so the rows of the other

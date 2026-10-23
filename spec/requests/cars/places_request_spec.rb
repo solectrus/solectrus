@@ -15,7 +15,7 @@ describe 'Car Places' do
 
     after { Sensor::Config.setup(ENV) }
 
-    it 'gives the town of the car in the frame of the badge to the admin' do
+    it 'gives the town of the car in the frame of the row to the admin' do
       login_as_admin
       get(cars_place_path(car: 1), headers:)
 
@@ -24,21 +24,13 @@ describe 'Car Places' do
       expect(response.body).not_to include(cars_place_path(car: 1))
     end
 
-    # The live view with several cars has a badge in the bar and one in the
-    # gauge (see Car::LiveView::Component)
-    it 'answers in the frame of the badge that asks' do
-      login_as_admin
-      get(cars_place_path(car: 1, frame: 'bar'), headers: { 'Turbo-Frame' => 'car_place_1_bar' })
-
-      expect(response.body).to include('id="car_place_1_bar"', 'Jülich')
-    end
-
-    it 'gives a generic label without an answer of Nominatim' do
+    it 'leaves out the town without an answer of Nominatim' do
       stub_request(:get, /nominatim/).to_return(status: 503)
       login_as_admin
       get(cars_place_path(car: 1), headers:)
 
-      expect(response.body).to include('>Location</span>')
+      expect(response.body).to include('On the road')
+      expect(response.body).not_to include('near')
       expect(response.body).not_to include('animate-pulse')
     end
 

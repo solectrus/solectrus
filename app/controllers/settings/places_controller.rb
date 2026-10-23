@@ -62,18 +62,15 @@ class Settings::PlacesController < ApplicationController
     [@place, @moved].compact.flat_map { replace_place(it) }
   end
 
-  # The form opens from the list of the places and from the list of the
-  # visits, which passes itself as return_to (see FormPageResponse)
+  # The form opens from the list of the places in the settings, and from the
+  # list of the places or of the visits below the car page, which passes
+  # itself as return_to (see FormPageResponse)
   def default_list_path
     settings_places_path
   end
 
-  helper_method def list_title
-    return_to ? t('visits.name') : title
-  end
-
   # The visits at the place, with the car and the timeframe of the list of
-  # the visits that opened the form. None when that list shows only this
+  # the places or the visits that opened the form. None when that list shows only this
   # place already.
   helper_method def place_visits_path
     list = visits_list_params
@@ -117,7 +114,6 @@ class Settings::PlacesController < ApplicationController
   helper_method def replace_place(place)
     [
       turbo_stream.replace(helpers.dom_id(place), Place::List::Row::Component.new(place: Place.with_seconds.find(place.id))),
-      turbo_stream.replace_all("[data-visit-place-labels='#{place.id}']", Place::VisitList::LabelsCell::Component.new(place:)),
       turbo_stream.replace_all("[data-visit-place-name='#{place.id}']", Place::VisitList::NameCell::Component.new(place:)),
       turbo_stream.replace_all("[data-visit-place-locality='#{place.id}']", Place::VisitList::LocalityCell::Component.new(place:)),
     ]
@@ -140,9 +136,14 @@ class Settings::PlacesController < ApplicationController
     @place = Place.find(params.expect(:id))
   end
 
-  # The car, the timeframe and the place of the list of the visits that
-  # opened the form
+  # The car, the timeframe and the place of the list of the places or the
+  # visits that opened the form
   def visits_list_params
-    @visits_list_params ||= return_to_params('cars/visits').slice(:car, :timeframe, :place)
+    @visits_list_params ||=
+      (CAR_LISTS.include?(return_to_route[:controller]) ? return_to_params(return_to_route[:controller]) : {}).slice(:car, :timeframe, :place)
   end
+
+  # The lists below the car page that open the form
+  CAR_LISTS = %w[cars/visits cars/visited_places].freeze
+  private_constant :CAR_LISTS
 end

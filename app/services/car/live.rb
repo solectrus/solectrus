@@ -5,10 +5,12 @@ class Car::Live
   # The state of one car. `charging_power` is the power of the wallbox for the
   # car at the wallbox, and zero for any other car with a plug. `time` is the
   # latest reading of the car. A car sensor holds its value at any age (see
-  # the DSL `state`), so the time tells how old the state is.
+  # the DSL `state`), so the time tells how old the state is. `located_at` is
+  # the reading of the position, which is the arrival for a source that sends
+  # a change alone.
   State =
-    Data.define(:car, :soc, :range, :max_range, :odometer, :connected, :charging_power, :latitude, :longitude, :time) do
-      def initialize(time: nil, **) = super
+    Data.define(:car, :soc, :range, :max_range, :odometer, :connected, :charging_power, :latitude, :longitude, :time, :located_at) do
+      def initialize(time: nil, located_at: nil, **) = super
 
       # [latitude, longitude], or nil without both
       def location = ([latitude, longitude] if latitude && longitude)
@@ -73,8 +75,8 @@ class Car::Live
 
   def state_of(car)
     in_use = car.in?(cars_in_use)
-    state = State.new(car:, charging_power: nil, time: (time_of(car) if in_use), **ROLES.transform_values { value(car.sensor_name(it)) if in_use })
-    state = state.with(latitude: nil, longitude: nil) if left_location?(car, state)
+    state = State.new(car:, charging_power: nil, time: (time_of(car) if in_use), located_at: (data.time_for(car.sensor_name(:car_latitude)) if in_use), **ROLES.transform_values { value(car.sensor_name(it)) if in_use })
+    state = state.with(latitude: nil, longitude: nil, located_at: nil) if left_location?(car, state)
     state = estimated_range(car, state)
     state.with(connected: connected_of(car, state))
   end

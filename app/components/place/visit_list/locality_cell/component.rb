@@ -1,18 +1,14 @@
+# The locality of a place with a name, after the name and a comma in a lighter
+# gray. A place without a name has its locality as its name (see NameCell), so
+# it stays empty. The form replaces each locality on the page after a change
+# (see Settings::PlacesController).
 class Place::VisitList::LocalityCell::Component < ViewComponent::Base
   def initialize(place:)
     super()
     @place = place
   end
 
-  attr_reader :place
-
-  # The name of a place without a name is its district (see NameCell), so the
-  # town follows. A district that names the town stands alone (see
-  # Place#locality).
-  def text
-    return place.locality if place.name
-
-    district = place.district
-    place.town if district && place.town && district.exclude?(place.town)
+  def call
+    tag.span((", #{@place.locality}" if @place.name && @place.locality), class: 'text-gray-500 dark:text-slate-400', data: { visit_place_locality: @place.id })
   end
 end

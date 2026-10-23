@@ -9,7 +9,11 @@ describe 'Charging sessions' do
     find('#list [data-controller="ui--table-row--component"]', text:)
   end
 
-  before { login_as_admin }
+  before do
+    login_as_admin
+    # The page of the charging builds the days of its windows first
+    allow(Car::Report).to receive(:pending_days).and_return([])
+  end
 
   # System tests are not transactional
   after { ChargingSession.delete_all }
@@ -167,17 +171,17 @@ describe 'Charging sessions' do
       expect(proposal.reload).to be_dismissed
     end
 
-    # The list has no timeframe in its address. The save goes back to its
-    # entry in the history, so the next way back leaves the list.
+    # The save goes back to the entry of the list in the history, so the next
+    # way back leaves the list
     it 'returns to the list as its address shows it' do
       visit '/cars/charging_sessions/offsite/2022'
-      page.execute_script("Turbo.visit('/cars/charging_sessions/offsite')")
+      page.execute_script("Turbo.visit('/cars/charging_sessions/offsite/all')")
       row('June trip').click
 
       fill_in 'charging_session_note', with: 'June trip, edited'
       click_on 'Speichern'
 
-      expect(page).to have_current_path('/cars/charging_sessions/offsite')
+      expect(page).to have_current_path('/cars/charging_sessions/offsite/all')
       expect(page).to have_text('June trip, edited')
 
       page.go_back
@@ -196,16 +200,21 @@ describe 'Charging sessions' do
       )
     end
 
-    it 'marks it as a guest charge and keeps the car filter of the list' do
-      visit '/cars/unassigned/charging_sessions/wallbox/2022-06'
+    # The overview names the session, and its hint leads to the list
+    it 'marks it as a guest charge, which then counts' do
+      visit '/cars/2022-06'
+      click_on '1 Ladung nicht zugeordnet'
 
       find('#list [data-controller="ui--table-row--component"]').click
       within '#modal' do
         select 'Gast', from: 'charging_session_car_id'
         click_on 'Speichern'
       end
+      expect(page).to have_text('Gespeichert')
 
-      expect(page).to have_text('Keine Ladevorgänge an der Wallbox')
+      visit '/cars/2022-06'
+      expect(page).to have_text('Ladekosten')
+      expect(page).to have_no_text('nicht zugeordnet')
       expect(ChargingSession.wallbox.sole).to have_attributes(guest: true, car_id: nil)
     end
   end

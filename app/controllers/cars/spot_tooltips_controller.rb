@@ -4,11 +4,11 @@
 # tooltip takes the sessions of the timeframe and of the car filter of the
 # list.
 class Cars::SpotTooltipsController < ApplicationController
-  include CarPageGate
+  include Cars::PageGate
 
   def show
     timeframe = Timeframe.new(params.expect(:timeframe))
-    selection = CarSelection.new(params[:car], timeframe:, extras: true)
+    selection = CarSelection.new(params[:car], timeframe:, guest: true)
     scope = ChargingSession.listed('offsite', timeframe:, filter: selection.filter)
     spot = ChargingSession::Spot.find(scope, params.expect(:spot))
     return head(:not_found) unless spot

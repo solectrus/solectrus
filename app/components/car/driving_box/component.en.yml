@@ -1,0 +1,8 @@
+en:
+  no_rate: The data is not enough. The days around a trip need 100 km at least and charged energy.
+  no_price: Prices are missing. A charging session in the days around a trip has no cost, because its day has no price.
+  energy: Energy used
+  cost_reason: The car drives on energy that it charged on other days. Each trip therefore counts the charging cost of the %{days} days before and after it.
+  consumption_reason: The energy comes from the charging sessions of the %{days} days around each day driven.
+  consumption_losses: It is measured at charging and includes the charging losses. The car itself therefore mostly shows less.
+  unrated: Without %{distance} that lack charging data.

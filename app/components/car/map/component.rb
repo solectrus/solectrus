@@ -1,7 +1,8 @@
 # A map of the places of cars, drawn by MapLibre with the vector tiles of
 # OpenFreeMap. A period shows a circle for each place of the cars (see
 # Place::Map::Component). The live view shows the latest location of one car
-# (see Car::Location::Component).
+# (see Car::Location::Component). These two fill the window over their page
+# (see Car::MapOverlay::Component).
 #
 # The location is personal data, so the caller gives the places to the admin
 # only.
@@ -36,13 +37,12 @@ class Car::Map::Component < ViewComponent::Base
     { hint: t('.move_hint'), station: t('.station', name: '{name}'), unnamedStation: t('.unnamed_station') }
   end
 
-  # A map of a period fills the card up to its edges, with a minimum for a
-  # short window. Its negative margins match the padding of the card, and its
-  # corners the corners of the card. A live map stands inside its box.
+  # A map of a period fills the window (see Car::MapOverlay::Component), with
+  # a minimum for a short window. A live map stands inside its box.
   def root_classes
     class_names(
-      'flex flex-1 flex-col overflow-hidden bg-slate-100 dark:bg-slate-800',
-      live? ? 'size-full min-h-20 rounded-lg' : 'relative min-h-80 -mx-4 -mb-3 sm:-mx-6 sm:-mb-5 lg:-mt-5 lg:rounded-lg',
+      'flex flex-1 flex-col overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800',
+      live? ? 'size-full min-h-20' : 'relative min-h-80',
     )
   end
 end

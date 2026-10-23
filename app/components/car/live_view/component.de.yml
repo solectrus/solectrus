@@ -1,4 +1,2 @@
 de:
-  as_of: Letzte Meldung des Autos
-  yesterday: Gestern, %{time}
-  weekday: '%{day}, %{time}'
+  charging: lädt an der Wallbox

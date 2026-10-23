@@ -1,0 +1,26 @@
+= render Ui::TitleBar::Component.new(title:, **back) do |bar|
+  - bar.with_trailing { title_bar_car_select } if car_select?
+  - bar.with_action(**add, icon: 'plus') if add
+
+/ On a phone the accessory of the title bar, which leaves the bar when a
+  page one level down opens (see Ui::TitleBar::Component)
+.ui-title-bar-accessory.relative.flex.flex-col.items-center.gap-2.pb-3.lg:flex-row.lg:justify-between.lg:py-5
+  .hidden.lg:flex.items-center.gap-2
+    = render Car::BackLink::Component.new(path: desktop_back)
+    - if tabs.any?
+      = render Nav::Sub::Component.new(abbreviate: false) do |c|
+        - c.with_items tabs
+    - else
+      h1.px-2.text-lg.font-medium.uppercase.tracking-wider.text-white.dark:text-gray-300
+        = title
+
+  / The button for a new entry and the select of the car stand before the
+    timeframe, in the order of the keyboard too
+  .w-full.flex.flex-col.items-center.gap-2.lg:w-auto.lg:flex-row.lg:gap-4
+    - if add
+      = render Ui::AddButton::Component.new(**add)
+    - if car_select?
+      .hidden.lg:block
+        = header_car_select
+    .w-full.min-w-0.flex.items-center.lg:h-8.lg:w-auto
+      = timeframe

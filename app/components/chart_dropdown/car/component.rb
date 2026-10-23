@@ -1,30 +1,20 @@
 class ChartDropdown::Car::Component < ViewComponent::Base
   include ChartDropdown::Logic
 
-  # The order of the menu. A sensor the list does not know goes to the end,
-  # so a new one shows up instead of disappearing.
-  ORDER = %i[
-    car_charging
-    car_charging_costs
-    car_driving_costs
-    car_consumption_rate
-    car_cost_rate
-    car_distance
-    car_battery_soc
-    car_range
-    car_max_range
-  ].freeze
-  private_constant :ORDER
-
-  # The titles of the tiles that link to the charts
+  # The titles of the menu that differ from the names of the sensors
   TITLES = {
-    car_charging: 'sensors.car_charged_short',
-    car_distance: 'sensors.car_distance_short',
     car_battery_soc: 'sensors.car_battery_soc_short',
     car_range: 'sensors.car_range_short',
-    car_max_range: 'sensors.car_max_range_short',
   }.freeze
   private_constant :TITLES
+
+  # With `all`, the menu has the charts of each column of the overview with a
+  # chart, for a phone with one chart below both columns. The overview loads
+  # each pick in the column of its chart (see car_overview_controller.ts).
+  def initialize(all: false, **)
+    super(**)
+    @all = all
+  end
 
   def call
     render_chart_selector
@@ -34,15 +24,25 @@ class ChartDropdown::Car::Component < ViewComponent::Base
 
   def page_key = :cars
 
-  # The menu has the charts that the timeframe and the selected cars support
-  # (see ChartDropdown::Logic). A rate needs buckets of a day at least, the
-  # range draws a day at most, and a chart of one car needs the selection of
-  # one car.
-  def menu_items
-    @menu_items ||= sensor_names.sort_by { ORDER.index(it) || ORDER.size }
+  # The menu has the charts of the column of the chart, or of each column,
+  # that the period has (see Cars::Selectable#section_charts) and that the
+  # timeframe and the selected cars support (see ChartDropdown::Logic), a
+  # group per column. A rate needs buckets of a day at least, the range draws
+  # a day at most, and a chart of one car needs the selection of one car.
+  def sensor_names = column_charts.flatten & super
+
+  def menu_items = join_groups(*column_charts.map { it & sensor_names })
+
+  def column_charts
+    sections = @all ? helpers.chart_sections : [Car::Section.of(sensor_name)]
+    sections.map { helpers.section_charts.fetch(it, []) }
   end
 
   def menu_config
-    super.merge(grouped: false, display_names: menu_items.index_with { TITLES[it]&.then { I18n.t(it) } }.compact)
+    super.merge(
+      grouped: false,
+      display_names: menu_items.index_with { TITLES[it]&.then { I18n.t(it) } }.compact,
+      chart_controller: 'car-overview',
+    )
   end
 end

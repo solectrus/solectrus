@@ -103,8 +103,9 @@
   transition: none !important;
 }
 
-/* The part of the arc of a car that the charge fills next. Only its opacity
-   changes, so the browser does not paint the arc again for each frame. */
+/* The part of the battery of a car that the charge fills next. Only its
+   opacity changes, so the browser does not paint the bar again for each
+   frame. */
 .charging-pulse {
   animation: charging-pulse 2s ease-in-out infinite;
   will-change: opacity;

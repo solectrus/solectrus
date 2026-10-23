@@ -5,7 +5,7 @@
 # address here (see Place#geocode!). The browser asks for one place at a
 # time, and Place::Nominatim keeps one second between two requests.
 class Cars::PlaceTooltipsController < ApplicationController
-  include CarPageGate
+  include Cars::PageGate
 
   def show
     place = Place.find(params.expect(:place)).geocode!

@@ -43,6 +43,7 @@ en:
       long: '%A, %e. %B %Y'
       short: '%b %d'
       month: '%B %Y'
+      weekday: '%a, %b %-d'
       week: 'CW %V, %G'
     month_names:
       -

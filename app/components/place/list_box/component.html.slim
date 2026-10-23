@@ -1,0 +1,9 @@
+= render Car::ListBox::Component.new(label: t('car_breakdown.places'), segments:, totals:, map_path:, map_label: t('.map')) do |box|
+  - if place
+    - box.with_filter do
+      = render Ui::FilterBar::Pill::Component.new(icon: 'location-dot', remove_path: unfiltered_path) do
+        = render Place::VisitList::NameCell::Component.new(place:)
+  - if visits?
+    = render component
+  - else
+    = render Ui::EmptyState::Component.new(icon: 'location-dot', title: empty_title, text: t('.empty_text'))

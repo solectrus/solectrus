@@ -1,7 +1,9 @@
 # The figures and the trends of a chart of the car page: the value of the
 # timeframe, its change against the previous month and the previous year (see
-# Car::Trend), and the day with the highest value. `car` is the selection of
-# the car page (see CarSelection).
+# Car::Trend), the day with the highest value, and for a rate and the maximum
+# range the best and the worst period of the same kind (see Car::Spans). The
+# overview shows the place of a rate in this span, and the insights lead to
+# its ends. `car` is the selection of the car page (see CarSelection).
 class Car::Insights::Component < ViewComponent::Base
   def initialize(sensor:, timeframe:, car:)
     super()
@@ -50,6 +52,28 @@ class Car::Insights::Component < ViewComponent::Base
       previous_year: trend(:previous_year),
     }.compact
   end
+
+  # The spans of the charts, with the end that is good: a low rate, a high
+  # range
+  SPANS = {
+    car_cost_rate: %i[cost_per_100km min],
+    car_consumption_rate: %i[consumption_per_100km min],
+    car_max_range: %i[max_range max],
+  }.freeze
+  private_constant :SPANS
+
+  # [[key, value, timeframe], ...] of the best and the worst period, empty
+  # without a span. The shown period can be an end.
+  def span_ends
+    key, best = SPANS[sensor.name]
+    span = report.spans&.public_send(key) if key
+    return [] unless span
+
+    worst = best == :min ? :max : :min
+    [[:best, best], [:worst, worst]].map { |name, extreme| [name, span.public_send(extreme), span.public_send(:"#{extreme}_timeframe")] }
+  end
+
+  def period_path(period) = helpers.cars_home_path(sensor_name: sensor.name, timeframe: period.to_s, car: selection.to_param)
 
   def trend_path(trend)
     helpers.cars_home_path(sensor_name: sensor.name, timeframe: trend.base_timeframe.to_s, car: selection.to_param)

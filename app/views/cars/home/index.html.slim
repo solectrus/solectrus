@@ -10,23 +10,53 @@
 
 - elsif Sensor::HomePage.permitted?(page_key)
   - if stats?
-    / With more than one car or with guest sessions, the select stays also for
-    / a timeframe with one car, so it does not come and go with the timeframe.
-    / The live view shows each car in use, with its name, so it needs no select.
+    / With more than one car or with guest sessions, the select stays also
+      for a timeframe with one car, so it does not come and go with the
+      timeframe. The live view shows each car in use, with its name, so it
+      needs no select. A phone has the select as a pill below the timeframe.
     - if car_select? && !timeframe.now?
       - content_for :sub_nav_select do
         div id=frame_id('car-select')
           = render car_select_component
+      - content_for :sub_nav_pill do
+        div id=frame_id('car-select-pill')
+          = render car_select_component(**Car::SubNav::Component::PILL_SELECT)
     = render 'shared/home_sub_nav'
+
     / The sensors of a car report far less often than the sensors of the
-    / house, so the live view has no chart and refreshes less often. The cars
-    / take its place. The tiles of the driving card cannot shrink, so on a
-    / short phone the chart gets less room.
-    = render StatsWithChart::Component.new(sensor_name:, timeframe:, chart: chart?, min_interval: 30.seconds, rigid_stats: true)
-    / The map of the location of a car fills the window. Its frame is outside
-      the live view, so the refresh keeps it.
-    - if timeframe.now? && admin?
-      = turbo_frame_tag Car::Location::Component::FRAME_ID
+      house, so the live view has no chart and refreshes less often
+    - if timeframe.now?
+      = render StatsWithChart::Component.new(sensor_name:, timeframe:, chart: false, min_interval: 30.seconds)
+      / The map of the location of a car fills the window. Its frame is
+        outside the live view, so the refresh keeps it.
+      - if admin?
+        = turbo_frame_tag Car::MapOverlay::Component::FRAME_ID
+
+    - elsif cars.empty? && !car_selection.guest?
+      .flex-1.flex.items-center.justify-center.rounded-2xl.bg-white.dark:bg-slate-800/60.px-4
+        = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use'))
+
+    / The charging and the driving, each with its figures and its chart, side
+      by side on the desktop. A phone has the figures of both one below the
+      other, and below them the chart of the column of the last tap (see
+      car_overview_controller.ts).
+    - else
+      div class=['flex-1 min-h-0 flex flex-col gap-3 lg:grid lg:gap-6', (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
+        - overview_sections.each_with_index do |section, index|
+          - chart = column_charts[section]
+          = render StatsWithChart::Component.new(sensor_name: chart || Car::Section::CHARTS[section].first, timeframe:, chart: chart.present?, scope: section) do |column|
+            / A card on the desktop. A phone puts the figures of both columns
+              first, and below them the chart of the active column.
+            = tag.div class: 'group/column max-lg:contents lg:flex lg:flex-col lg:min-h-0',
+                      data: column.refresh_options.merge(car_overview_target: 'column', car_overview_charts: Car::Section::CHARTS[section].join(' '), active: section == phone_section) do
+              / The first column loads the figures of each column. Until they
+                come, a placeholder in the layout of the box keeps their place,
+                so the chart below does not move and draw itself again.
+              = column.stats_frame([index.zero? ? 'max-lg:order-1' : 'max-lg:order-2', ('lg:flex-1 lg:flex lg:flex-col' unless column.chart?)], source: index.zero?) do
+                = render Car::OverviewBox::Component.placeholder(title: t("car_breakdown.#{section}"), timeframe:)
+              - if column.chart?
+                / A phone hides the chart of the other column, so it loads once it shows
+                = column.chart_frame('max-lg:order-3 flex-1 min-h-48 flex relative lg:pt-3 max-lg:group-data-[active=false]/column:hidden', lazy: section != phone_section)
   - else
     = render Ui::Message::Component.new do |c|
       - c.with_watermark do

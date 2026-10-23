@@ -1,5 +1,10 @@
+# The car page. Its live view shows each car, and a period shows the charging
+# and the driving side by side, each with its figures and its chart (see
+# Car::Section). A click on a figure loads its chart in its column. The sensor
+# of the chart in the address chooses the chart of its column, and the other
+# column shows its first chart: /cars/2/2025, /cars/2/car_cost_rate/2025.
 class Cars::HomeController < HomePageController
-  include CarSelectable
+  include Cars::Selectable
 
   # From here, the charging sessions are a page below the car page again (see
   # BelowMore)
@@ -16,36 +21,23 @@ class Cars::HomeController < HomePageController
     Sensor::Config.exists?(:car_driving_costs) || Sensor::Cars.numbered(:car_battery_soc).any?
   end
 
-  # The live view has no chart, and neither has a period without a car in
-  # use: its stats say so across the whole width (see Cars::StatsController)
-  helper_method def chart?
-    !timeframe.now? && (cars.any? || car_selection.guest?)
-  end
-
-  # The distance, because a car drives on more days than it charges. The
-  # charged energy where the timeframe has no chart of the distance, for
-  # example for a car without an odometer.
-  DEFAULT_SENSOR_NAMES = %i[car_distance car_charging].freeze
-  private_constant :DEFAULT_SENSOR_NAMES
-
-  def default_sensor_name
-    @default_sensor_name ||= (DEFAULT_SENSOR_NAMES.find { supported_chart?(it) } if timeframe) || DEFAULT_SENSOR_NAMES.first
-  end
-
-  # The live view has no chart, so its address has no sensor: /cars/now (see
-  # Sensor::HomePage.live_chart?)
+  # The live view has no chart, so its address has no sensor. A period
+  # without a sensor shows the first chart of each column. A chart that
+  # cannot draw the timeframe or the selection goes to the first chart of
+  # each column, too.
   def supported_sensor?
-    timeframe&.now? ? sensor_name.nil? : super
+    return true if sensor_name.nil?
+    return false if timeframe&.now? || Car::Section.of(sensor_name).nil?
+
+    super
   end
 
+  def default_sensor_name = nil
+
+  # The live view has no chart, so its address has no sensor: /cars/now
   def path_for(name, keep_timeframe = nil)
     super((name unless keep_timeframe.nil? || keep_timeframe.try(:now?)), keep_timeframe)
   end
-
-  # The links of the live view go to the first default chart. Its check
-  # needs the target timeframe, so the rare chart that does not support it
-  # redirects there.
-  def chart_sensor_name = sensor_name || DEFAULT_SENSOR_NAMES.first
 
   # The car page has no forecast, so a future timeframe goes back to now.
   def future_path = path_for(nil)
@@ -60,5 +52,25 @@ class Cars::HomeController < HomePageController
     return super if timeframe.now?
 
     @missing_or_stale_summary_days = Sensor::Summarizer.build_few(Car::Report.pending_days(timeframe))
+  end
+
+  # The chart of each column: the chart of the address in its column, else
+  # its first chart (see Cars::Selectable#section_charts), or nil without one.
+  # A chart of the address that the period cannot draw stays in the address,
+  # so it comes back with the next timeframe.
+  helper_method def column_charts
+    @column_charts ||= section_charts.transform_values do |charts|
+      charts.find { it.to_s == sensor_name.to_s } || charts.first
+    end
+  end
+
+  # The column whose chart a phone shows: the column of the chart in the
+  # address, else the first column with a chart and a value, like the
+  # driving of a day without charging
+  helper_method def phone_section
+    section = Car::Section.of(sensor_name)
+    return section if section.in?(chart_sections)
+
+    chart_sections.find { !idle_section?(it) } || chart_sections.first || overview_sections.first
   end
 end

@@ -58,6 +58,30 @@ describe Car::Report do
     end
   end
 
+  describe '#charged? and #driven?' do
+    it 'is true for a period with a session and a distance' do
+      expect(report).to have_attributes(charged?: true, driven?: true)
+    end
+
+    context 'with a day without a session and a distance' do
+      let(:timeframe) { Timeframe.new('2026-01-20') }
+
+      it 'is false' do
+        expect(report).to have_attributes(charged?: false, driven?: false)
+      end
+    end
+
+    # The session of the guest counts only with the guest
+    context 'with a day of the guest alone' do
+      let(:timeframe) { Timeframe.new('2026-01-12') }
+
+      it 'counts the guest session with the guest' do
+        expect(report.charged?).to be(false)
+        expect(described_class.new(timeframe, selected_cars, guest: true).charged?).to be(true)
+      end
+    end
+  end
+
   describe '.pending_days' do
     before { allow(Summary).to receive(:missing_or_stale_days).and_return([]) }
 
