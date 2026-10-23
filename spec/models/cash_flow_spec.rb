@@ -44,6 +44,13 @@ describe CashFlow do
     it { is_expected.to validate_presence_of(:note) }
     it { is_expected.to validate_presence_of(:amount) }
 
+    it 'names a blank amount once' do
+      cash_flow = described_class.new(date: Date.current, note: 'Test', amount: nil)
+
+      expect(cash_flow).not_to be_valid
+      expect(cash_flow.errors.details[:amount]).to eq([{ error: :blank }])
+    end
+
     it 'rejects a zero amount' do
       cash_flow = described_class.new(date: Date.current, note: 'Test', amount: 0)
 

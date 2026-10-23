@@ -131,11 +131,12 @@ class ChargingSession < ApplicationRecord
   validates :started_at, presence: true
   # A save through the model is a choice of the user, so it accepts a
   # proposal and needs its energy and its cost. Only a dismissed proposal
-  # can be without them.
-  validates :kwh, presence: true, numericality: { greater_than: 0 }, unless: :dismissed?
+  # can be without them. A blank value gets one message, from the presence
+  # alone.
+  validates :kwh, presence: true, numericality: { greater_than: 0, allow_nil: true }, unless: :dismissed?
   validates :cost,
             presence: true,
-            numericality: { greater_than_or_equal_to: 0 },
+            numericality: { greater_than_or_equal_to: 0, allow_nil: true },
             if: -> { offsite? && !dismissed? }
   validates :car, presence: true, if: :offsite?
   validates :ended_at, presence: true, if: :wallbox?

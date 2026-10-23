@@ -68,7 +68,14 @@ describe Price do
     it do
       is_expected.to validate_numericality_of(
         :amount_per_kwh,
-      ).is_greater_than_or_equal_to(0)
+      ).is_greater_than_or_equal_to(0).allow_nil
+    end
+
+    it 'names a blank price once' do
+      price = described_class.electricity.new(starts_at: Date.current, amount_per_kwh: nil)
+
+      expect(price).not_to be_valid
+      expect(price.errors.details[:amount_per_kwh]).to eq([{ error: :blank }])
     end
 
     it do

@@ -46,10 +46,17 @@ describe ChargingSession do
 
       it { is_expected.to validate_presence_of(:cost) }
       it { is_expected.to validate_presence_of(:car) }
-      it { is_expected.to validate_numericality_of(:kwh).is_greater_than(0) }
+      it { is_expected.to validate_numericality_of(:kwh).is_greater_than(0).allow_nil }
 
       it 'requires non-negative cost' do
-        expect(session).to validate_numericality_of(:cost).is_greater_than_or_equal_to(0)
+        expect(session).to validate_numericality_of(:cost).is_greater_than_or_equal_to(0).allow_nil
+      end
+
+      it 'names a blank energy and a blank cost once each' do
+        session.assign_attributes(kwh: nil, cost: nil)
+
+        expect(session).not_to be_valid
+        expect(session.errors.details.slice(:kwh, :cost)).to eq(kwh: [{ error: :blank }], cost: [{ error: :blank }])
       end
 
       it 'is no guest charge' do

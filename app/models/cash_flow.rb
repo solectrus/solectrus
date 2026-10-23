@@ -72,6 +72,7 @@ class CashFlow < ApplicationRecord
               other_than: 0,
               greater_than: -100_000_000,
               less_than: 100_000_000,
+              allow_nil: true,
             }
   validate :amount_matches_category_sign
 

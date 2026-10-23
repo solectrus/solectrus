@@ -67,6 +67,7 @@ Keep every section, an empty one included.
 - A browser tab that stays open for a long time now keeps its memory use low. Before, it grew with each page
 - Settings: after a delete, the message now says "Deleted". Before, it said "Saved"
 - Amortization: a payment of 100 million or more now shows an error at the amount. Before, the save failed with an error page
+- Settings: an empty price or amount now shows one error. Before, it also said that the value is not a number
 - On desktop, a page like the settings now scrolls as a whole, with the scroll bar at the edge of the window. Before, only the content below the header scrolled
 - On desktop, a long page like the Top 10 now shows all of its content while you scroll. Before, a band at the top edge covered it
 - Keyboard: the bar at the bottom of a phone screen now shows the focus. Before, the focus was invisible

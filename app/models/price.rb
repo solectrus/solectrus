@@ -27,6 +27,7 @@ class Price < ApplicationRecord
             presence: true,
             numericality: {
               greater_than_or_equal_to: 0,
+              allow_nil: true,
             }
   # A base fee belongs to the grid connection, so only the electricity tariff
   # can carry one.
