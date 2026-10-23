@@ -22,7 +22,7 @@ class Ui::SegmentedControl::Component < ViewComponent::Base
   # The raised segment moves to the tapped one at once and slides there, as
   # the period tabs
   def call
-    tag.nav class: ['relative inline-flex rounded-lg bg-slate-500/12 p-1 dark:bg-slate-800', ('max-lg:flex max-lg:w-full' if @stretch)],
+    tag.nav class: ['relative inline-flex rounded-lg bg-slate-500/12 p-1 dark:bg-slate-800 dark:lg:bg-slate-950/60', ('max-lg:flex max-lg:w-full' if @stretch)],
             'aria-label': @label,
             data: { controller: 'optimistic-nav', optimistic_nav_slide_value: true, action: OptimisticNav::ACTIONS } do
       safe_join(@items.map { segment(it) })

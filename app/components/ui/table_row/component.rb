@@ -20,6 +20,7 @@
 #     div = row.link { l(price.starts_at) }
 #     div = price.note
 class Ui::TableRow::Component < ViewComponent::Base
+  # On the desktop the light of a row has round corners, like a menu item.
   # Another link of the row is a target of its own. While the pointer rests on
   # it, the row does not light up, so it shows where a click lands.
   #
@@ -27,7 +28,7 @@ class Ui::TableRow::Component < ViewComponent::Base
   # the link opens. An outline lies above the cells, a ring would lie below
   # their backgrounds.
   BASE_CLASS =
-    'cursor-pointer ' \
+    'cursor-pointer lg:rounded-lg ' \
     'hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-100 ' \
     'dark:hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-700 ' \
     'has-[[data-ui--table-row--component-target]:focus-visible]:outline-2 ' \
