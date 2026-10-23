@@ -1,3 +1,4 @@
 de:
   disconnect: Keine Daten
-  connect: Live
+  live: Live
+  connected: Verbunden

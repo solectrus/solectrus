@@ -1,27 +1,39 @@
 class Status::Component < ViewComponent::Base
-  def initialize(time:, status: nil, status_ok: nil)
+  # A reading younger than `max_age` is live. Without `live_expected`, as for
+  # a page whose values are states, the status reads "Connected" instead of
+  # "Live", and an older reading warns instead of counting as missing.
+  def initialize(time:, max_age:, status: nil, status_ok: nil, live_expected: true)
     super()
     @time = time
+    @max_age = max_age
     @status = status
     @status_ok = status_ok
+    @live_expected = live_expected
   end
-  attr_reader :time, :status
+  attr_reader :time, :max_age, :status
 
   def live?
-    time && time > tolerated_delay.ago
+    time && time > max_age.ago
   end
 
-  def tolerated_delay
-    Influx::PollInterval.current * 2
+  # :ok, :warning (a status that is not ok, or an old state) or :missing
+  def state
+    if live?
+      status_ok? ? :ok : :warning
+    elsif time && !@live_expected
+      :warning
+    else
+      :missing
+    end
   end
 
   def text
-    live? ? live_text : t('.disconnect')
+    state == :missing ? t('.disconnect') : live_text
   end
 
   def live_text
     Sensor::ValueFormatter.new(status, unit: :string).to_s.presence ||
-      t('.connect')
+      t(@live_expected ? '.live' : '.connected')
   end
 
   def message
@@ -48,15 +60,12 @@ class Status::Component < ViewComponent::Base
       'dark:bg-white/10 dark:ring-white/15 dark:text-gray-200'
   end
 
-  def dot_class
-    if live?
-      if status_ok?
-        'bg-green-400 dark:bg-green-500'
-      else
-        'bg-yellow-400 dark:bg-yellow-500'
-      end
-    else
-      'bg-red-400 dark:bg-red-500'
-    end
-  end
+  DOT_CLASSES = {
+    ok: 'bg-green-400 dark:bg-green-500',
+    warning: 'bg-yellow-400 dark:bg-yellow-500',
+    missing: 'bg-red-400 dark:bg-red-500',
+  }.freeze
+  private_constant :DOT_CLASSES
+
+  def dot_class = DOT_CLASSES[state]
 end

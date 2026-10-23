@@ -3,7 +3,7 @@
 
 - if timeframe.now?
   = turbo_stream.update frame_id('status') do
-    = render Status::Component.new time: data.time
+    = render Status::Component.new time: data.time, max_age: Influx::PollInterval.tolerated_delay
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   .h-full.w-full.flex.flex-col.min-h-0.gap-3 id= "stats-#{timeframe.id}"

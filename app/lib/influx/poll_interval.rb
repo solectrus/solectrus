@@ -59,6 +59,11 @@ class Influx::PollInterval
       interval_for(load_deltas)
     end
 
+    # A latest value older than two intervals counts as missing
+    def tolerated_delay
+      current * 2
+    end
+
     def reset!
       Rails.cache.delete(CACHE_KEY)
     end

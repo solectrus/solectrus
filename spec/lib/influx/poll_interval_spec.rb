@@ -3,6 +3,12 @@ describe Influx::PollInterval do
 
   after { described_class.reset! }
 
+  describe '.tolerated_delay' do
+    it 'is two intervals' do
+      expect(described_class.tolerated_delay).to eq(10.seconds)
+    end
+  end
+
   describe '.current' do
     it 'always returns an ActiveSupport::Duration' do
       expect(described_class.current).to be_an(ActiveSupport::Duration)
