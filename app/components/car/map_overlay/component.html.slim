@@ -8,7 +8,7 @@
     aria-label=title
     autofocus=true
     data-controller='car--map-overlay--component'
-    data-action='cancel->car--map-overlay--component#cancel'
+    data-action='cancel->car--map-overlay--component#cancel turbo:before-cache@document->car--map-overlay--component#close'
   ]
     .relative.flex.items-center.justify-center.min-h-10.mx-4.sm:mx-0.px-12
       - if head?

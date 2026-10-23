@@ -171,6 +171,23 @@ describe 'Charging sessions' do
       expect(proposal.reload).to be_dismissed
     end
 
+    # A tap on a spot leaves the list while the map is open. The map visits
+    # like the script here, so the spec needs no tiles.
+    it 'returns from a spot of the map to the list without the map' do
+      visit '/cars/charging_sessions/offsite/2022-06'
+      find('a[data-turbo-frame="car_map"]').click
+      expect(page).to have_css('#car_map dialog[open]')
+
+      session = ChargingSession.sole
+      page.execute_script("Turbo.visit('/cars/charging_sessions/#{session.id}/edit?return_to=%2Fcars%2Fcharging_sessions%2Foffsite%2F2022-06')")
+      expect(page).to have_css('.ui-title-bar h1', text: 'Ladevorgang bearbeiten')
+
+      find('.ui-title-bar-back').click
+      expect(page).to have_current_path('/cars/charging_sessions/offsite/2022-06')
+      expect(page).to have_text('June trip')
+      expect(page.document).to have_no_css('#car_map dialog')
+    end
+
     # The save goes back to the entry of the list in the history, so the next
     # way back leaves the list
     it 'returns to the list as its address shows it' do

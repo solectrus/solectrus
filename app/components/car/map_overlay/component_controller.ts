@@ -2,7 +2,10 @@ import { Controller } from '@hotwired/stimulus';
 
 // A map that fills the window over the page (see Car::MapOverlay::Component).
 // It opens as a modal dialog. The close button and ESC empty its frame, so the
-// page shows again.
+// page shows again. A link in a tooltip leaves the page with the map open, so
+// Turbo would cache it as an open dialog that is not modal. The way back would
+// then show a dead map, and showModal() fails on it. So the frame empties
+// before the cache too.
 export default class extends Controller<HTMLDialogElement> {
   connect() {
     this.element.showModal();
