@@ -14,7 +14,7 @@ class Place::Labels::Component < ViewComponent::Base
 
   def label_icon(label)
     name = Place.human_label(label)
-    tag.span(class: 'shrink-0 text-gray-500 dark:text-gray-400', title: name, data: { controller: 'tooltip' }) do
+    tag.span(class: 'shrink-0 text-muted', title: name, data: { controller: 'tooltip' }) do
       icon(Place::LABELS[label]) + tag.span(name, class: 'sr-only')
     end
   end

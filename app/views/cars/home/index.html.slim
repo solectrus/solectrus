@@ -33,7 +33,7 @@
         = turbo_frame_tag Car::MapOverlay::Component::FRAME_ID
 
     - elsif cars.empty? && !car_selection.guest?
-      .flex-1.flex.items-center.justify-center.rounded-2xl.bg-white.dark:bg-slate-800/60.px-4
+      .flex-1.flex.items-center.justify-center.rounded-2xl.bg-surface.px-4
         = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use'))
 
     / The charging and the driving, each with its figures and its chart, side

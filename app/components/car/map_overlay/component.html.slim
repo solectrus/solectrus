@@ -14,10 +14,10 @@
       - if head?
         = head
       - else
-        h2.text-base.sm:text-lg.font-semibold.truncate.text-slate-800.dark:text-slate-100 = title
+        h2.text-base.sm:text-lg.font-semibold.truncate.text-fg = title
 
       button[
-        class='absolute right-0 top-0 flex items-center justify-center size-10 rounded-full cursor-pointer bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 focus-ring'
+        class='absolute right-0 top-0 flex items-center justify-center size-10 rounded-full cursor-pointer bg-fill hover:bg-fill-strong text-fg-secondary focus-ring'
         type='button'
         data-action='car--map-overlay--component#close'
         data-controller='tooltip'

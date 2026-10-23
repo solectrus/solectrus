@@ -204,7 +204,7 @@ describe 'Page More' do
     it 'stands on the gray of a grouped list on a phone' do
       aggregate_failures do
         expect(title_bar['class']).not_to include('ui-title-bar-plain')
-        expect(html.at_css('#inner')['class']).to include('max-lg:bg-gray-100')
+        expect(html.at_css('#inner')['class']).to include('max-lg:bg-canvas')
       end
     end
 

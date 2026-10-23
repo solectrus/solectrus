@@ -69,9 +69,40 @@
      and the web manifest. A spec fails if the two drift apart. */
   --color-chrome: #4f46e5; /* indigo-600 */
 
-  /* Text of lower weight, like the subtitle of a cell. The dark value
-     sits in the .dark block below, as for --color-chrome. */
-  --color-muted: var(--color-gray-500);
+  /* The neutral colors of the app, all of slate. Each dark value sits in the
+     .dark block below, as for --color-chrome, so a class like `bg-fill`
+     needs no dark: variant (see docs/conventions.md).
+
+     Surfaces: the gray page behind cards, a card, and a fill on a card,
+     like a tile, a pill or the track of a switch. A fill is translucent,
+     like the system fill of iOS, so it stands out the same on a card and
+     on the page. `fill-strong` is its hover, press and selection. */
+  --color-canvas: var(--color-slate-100);
+  --color-surface: var(--color-white);
+  --color-fill: color-mix(in oklab, var(--color-slate-500) 10%, transparent);
+  --color-fill-strong: color-mix(
+    in oklab,
+    var(--color-slate-500) 18%,
+    transparent
+  );
+  --color-line: var(--color-slate-200);
+
+  /* Text in four steps: the main text, a secondary text like a label, text
+     of lower weight like the subtitle of a cell, and the faintest one like
+     a dash without a value or a chevron. */
+  --color-fg: var(--color-slate-800);
+  --color-fg-secondary: var(--color-slate-600);
+  --color-muted: var(--color-slate-500);
+  --color-faint: var(--color-slate-400);
+
+  /* Something to review, like a charging session that is not assigned: the
+     fill of a badge or a pill with `on-attention` text, a text or a dot of
+     its own, which is darker so it reads at a small size, and a soft ground
+     for a hint. */
+  --color-attention: var(--color-amber-500);
+  --color-attention-strong: var(--color-amber-700);
+  --color-attention-soft: var(--color-amber-50);
+  --color-on-attention: var(--color-slate-900);
 
   /* The type sizes of the sheet: the title bar (17px) and secondary text
      (15px) */
@@ -422,7 +453,40 @@ html[aria-busy='true']:not(
     color-scheme: dark;
 
     --color-chrome: #312e81; /* indigo-900 */
+
+    /* A card is a lighter step of the page, the tone of slate-800 at 60 %
+       on slate-900 */
+    --color-canvas: var(--color-slate-900);
+    --color-surface: color-mix(
+      in oklab,
+      var(--color-slate-800) 60%,
+      var(--color-slate-900)
+    );
+    --color-fill: color-mix(in oklab, var(--color-slate-400) 12%, transparent);
+    --color-fill-strong: color-mix(
+      in oklab,
+      var(--color-slate-400) 20%,
+      transparent
+    );
+    --color-line: var(--color-slate-700);
+
+    /* No text is white: on a dark ground, a large white number glares.
+       The four steps of text are even, from slate-200 to slate-500. */
+    --color-fg: var(--color-slate-200);
+    --color-fg-secondary: color-mix(
+      in oklab,
+      var(--color-slate-300),
+      var(--color-slate-400)
+    );
     --color-muted: var(--color-slate-400);
+    --color-faint: var(--color-slate-500);
+
+    --color-attention-strong: var(--color-amber-400);
+    --color-attention-soft: color-mix(
+      in oklab,
+      var(--color-amber-500) 10%,
+      transparent
+    );
 
     --chart-axis-color: #888888;
     --chart-grid-color: #242a3b;

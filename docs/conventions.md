@@ -92,6 +92,30 @@ div class=['text-base', dynamic_class]
 .text-base.@c1:text-xl
 ```
 
+### Color tokens
+
+A color token names the role of a color, not the color. Each token has a light and a dark value in `app/frontend/entrypoints/application.css`. Thus a class like `bg-fill` needs no `dark:` variant. The neutral tokens are all of slate.
+
+| Token              | Role                                                        |
+| ------------------ | ----------------------------------------------------------- |
+| `canvas`           | The gray page behind cards on a phone                       |
+| `surface`          | A card, a cell of a grouped list, a tile of a phone         |
+| `fill`             | A fill on a card: a tile, a pill, a badge                   |
+| `fill-strong`      | The hover, the press or the selection of a fill or of a row |
+| `line`             | A separator or a border                                     |
+| `fg`               | The main text                                               |
+| `fg-secondary`     | A secondary text, like the label of a figure                |
+| `muted`            | Text of lower weight, like the subtitle of a cell           |
+| `faint`            | The faintest text, like a dash without a value or a chevron |
+| `attention`        | The fill of a badge or a pill for something to review       |
+| `on-attention`     | The text on the `attention` fill                            |
+| `attention-strong` | The text or the dot of something to review                  |
+| `attention-soft`   | The soft ground of a hint about something to review         |
+
+A fill is translucent, like the system fill of iOS. It stands out the same on a card and on the page, and a badge on a row stays visible when the row has its hover.
+
+Use a token for a new surface or text. A color with its own meaning keeps its own token, like `chrome` for the frame of the app and `signal-positive` for a good value. The car page and the `Ui::` components use the tokens. Other pages still have colors with a `dark:` variant.
+
 ### Forms
 
 `TailwindFormBuilder` is the `default_form_builder` of `ApplicationController`,

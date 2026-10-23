@@ -42,7 +42,7 @@ class Car::ListBox::Component < ViewComponent::Base
   # The sums with each number in bold, and the units and the words in the
   # normal weight, like 4 sessions and 55.6 kWh
   def totals_html
-    ERB::Util.html_escape(totals).to_str.gsub(NUMBER) { tag.span(it, class: 'font-semibold text-slate-800 dark:text-slate-200') }.html_safe # rubocop:disable Rails/OutputSafety
+    ERB::Util.html_escape(totals).to_str.gsub(NUMBER) { tag.span(it, class: 'font-semibold text-fg') }.html_safe # rubocop:disable Rails/OutputSafety
   end
 
   # A number with its separators, like 1.877,83

@@ -5,7 +5,7 @@
   .lg:p-2.max-lg:row-span-2
     = render Place::Icon::Component.new(place:)
   .min-w-0.lg:p-2.max-lg:col-start-2.max-lg:row-start-1
-    = row.link css_class: 'block truncate text-gray-800 dark:text-slate-200' do
+    = row.link css_class: 'block truncate text-fg' do
       = render Place::VisitList::NameCell::Component.new(place:)
       = render Place::VisitList::LocalityCell::Component.new(place:)
   / Each car in its color, like in the list of the charging sessions
@@ -15,7 +15,7 @@
   / The list has no head, so the numbers name what they count. The visits
     are a target of their own on the desktop, like the day of a charging
     session. On a phone a tap opens the place, whose page leads to them.
-  .tabular-nums.text-right.whitespace-nowrap.font-semibold.text-gray-800.dark:text-slate-200.lg:p-2.max-lg:col-start-3.max-lg:row-span-2.max-lg:font-normal
+  .tabular-nums.text-right.whitespace-nowrap.font-semibold.text-fg.lg:p-2.max-lg:col-start-3.max-lg:row-span-2.max-lg:font-normal
     = link_to t('visits.count', count: visit_count), visits_href, class: 'max-lg:pointer-events-none rounded-sm lg:hover:underline underline-offset-4 focus-ring-inset'
-  .hidden.lg:block.tabular-nums.text-right.whitespace-nowrap.text-gray-600.dark:text-slate-400.p-2
+  .hidden.lg:block.tabular-nums.text-right.whitespace-nowrap.text-fg-secondary.p-2
     = t('.last', date: last)

@@ -17,7 +17,7 @@
       / A save accepts the proposal of the build. Its dismissal stands beside
         the hint, but submits a form of its own (see the view edit), so Enter
         in a field still saves. The modal gives the hint its whole width.
-      .mt-2.mb-4.p-4.text-sm.bg-amber-50.text-amber-700.dark:bg-amber-500/10.dark:text-amber-400.flex.items-center.gap-3 class=(form_in_modal? ? '-mx-6 px-6' : 'rounded-lg')
+      .mt-2.mb-4.p-4.text-sm.bg-attention-soft.text-attention-strong.flex.items-center.gap-3 class=(form_in_modal? ? '-mx-6 px-6' : 'rounded-lg')
         p.flex-1 = t('charging_sessions.proposal.form_hint')
         button.shrink-0.flex.items-center.gap-2.whitespace-nowrap.cursor-pointer.text-signal-negative.lg:hover:underline.underline-offset-4.max-lg:active:opacity-60 type='submit' form=dom_id(charging_session, :dismiss)
           = icon 'xmark'

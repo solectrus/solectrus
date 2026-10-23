@@ -16,7 +16,7 @@ class ChargingSession::ReviewBadge::Component < ViewComponent::Base
   def call
     tag.span(
       tag.span(icon('question', class: 'text-[0.75em]'), class: 'inline-flex items-center h-[1lh]'),
-      class: 'inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs sm:text-sm bg-amber-500 text-white dark:text-slate-900',
+      class: 'inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs sm:text-sm bg-attention text-on-attention',
       role: 'img',
       title: label,
       aria: { label: },

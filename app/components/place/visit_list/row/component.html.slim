@@ -7,10 +7,10 @@
     = render Place::Icon::Component.new(place: visit.place)
   .hidden.lg:block.p-2.whitespace-nowrap
     time datetime=visit.started_at.iso8601 = date
-  .hidden.lg:block.p-2.whitespace-nowrap.tabular-nums.text-gray-600.dark:text-slate-400
+  .hidden.lg:block.p-2.whitespace-nowrap.tabular-nums.text-fg-secondary
     = times
   .min-w-0.lg:p-2.max-lg:col-start-2.max-lg:row-start-1
-    = row.link css_class: 'block truncate text-gray-800 dark:text-slate-200' do
+    = row.link css_class: 'block truncate text-fg' do
       = render Place::VisitList::NameCell::Component.new(place: visit.place)
       = render Place::VisitList::LocalityCell::Component.new(place: visit.place)
   .lg:hidden.min-w-0.truncate.col-start-2.row-start-2.text-subhead.text-muted.tabular-nums
@@ -18,5 +18,5 @@
   - if context.car_column?
     .hidden.lg:flex.min-w-0.p-2
       = render Car::Badge::Component.new(car: visit.car, short: true)
-  .tabular-nums.text-right.whitespace-nowrap.font-semibold.text-gray-800.dark:text-slate-200.lg:p-2.max-lg:col-start-3.max-lg:row-span-2.max-lg:font-normal
+  .tabular-nums.text-right.whitespace-nowrap.font-semibold.text-fg.lg:p-2.max-lg:col-start-3.max-lg:row-span-2.max-lg:font-normal
     = DurationText.call(visit.current_seconds)

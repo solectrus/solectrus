@@ -9,6 +9,6 @@ class Place::VisitList::LocalityCell::Component < ViewComponent::Base
   end
 
   def call
-    tag.span((", #{@place.locality}" if @place.name && @place.locality), class: 'text-gray-500 dark:text-slate-400', data: { visit_place_locality: @place.id })
+    tag.span((", #{@place.locality}" if @place.name && @place.locality), class: 'text-muted', data: { visit_place_locality: @place.id })
   end
 end

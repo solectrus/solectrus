@@ -11,7 +11,9 @@ describe 'HELIOS menu item' do
   end
 
   let(:html) { response.parsed_body }
-  let(:amber_dot) { 'span[aria-hidden="true"].bg-amber-400' }
+  let(:amber_dot) { 'span[aria-hidden="true"].bg-attention-strong' }
+  # A button of the navigation sits on the color of the chrome, so its dot is light
+  let(:button_dot) { 'span[aria-hidden="true"].bg-amber-400' }
 
   def helios_links
     html.css('a[href$=":3999"]')
@@ -33,7 +35,7 @@ describe 'HELIOS menu item' do
     end
 
     it 'marks the buttons that open the menu' do
-      expect(menu_buttons).to all(satisfy { it.at_css(amber_dot) })
+      expect(menu_buttons).to all(satisfy { it.at_css(button_dot) })
     end
   end
 
@@ -47,7 +49,7 @@ describe 'HELIOS menu item' do
 
     it 'leaves the buttons plain' do
       expect(menu_buttons).to all(be_present)
-      expect(menu_buttons).to all(satisfy { it.at_css(amber_dot).nil? })
+      expect(menu_buttons).to all(satisfy { it.at_css(button_dot).nil? })
     end
   end
 end

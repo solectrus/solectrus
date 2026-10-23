@@ -96,8 +96,8 @@ class ChargingSession::List::Component < ViewComponent::Base
   end
 
   REVIEW_CLASS = 'inline-flex items-center gap-1.5 h-7 rounded-full text-sm lg:text-base whitespace-nowrap tabular-nums focus-ring click-animation'.freeze
-  REVIEW_OFF_CLASS = 'px-1 text-amber-600 dark:text-amber-400 hover:underline underline-offset-4'.freeze
-  REVIEW_ON_CLASS = 'px-2.5 bg-amber-500 text-white hover:bg-amber-600 dark:text-slate-900 dark:hover:bg-amber-400'.freeze
+  REVIEW_OFF_CLASS = 'px-1 text-attention-strong hover:underline underline-offset-4'.freeze
+  REVIEW_ON_CLASS = 'px-2.5 bg-attention text-on-attention hover:brightness-110'.freeze
   private_constant :REVIEW_CLASS, :REVIEW_OFF_CLASS, :REVIEW_ON_CLASS
 
   # The columns of the table from lg up: the day, the time, the car, the

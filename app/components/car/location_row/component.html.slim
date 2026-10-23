@@ -6,11 +6,11 @@
     span.min-w-0.truncate.text-sm.lg:text-base
       / A placeholder in the size of a short name, until the name comes
       - if src
-        span class='inline-block align-middle h-3.5 w-24 rounded-full bg-slate-300 dark:bg-slate-600 animate-pulse motion-reduce:animate-none' aria-hidden='true'
-      span class=(src ? 'sr-only' : 'font-semibold text-slate-800 dark:text-slate-100')
+        span class='inline-block align-middle h-3.5 w-24 rounded-full bg-fill-strong animate-pulse motion-reduce:animate-none' aria-hidden='true'
+      span class=(src ? 'sr-only' : 'font-semibold text-fg')
         = title
       - if subtitle.present?
-        span.text-slate-500.dark:text-slate-400.tabular-nums
+        span.text-muted.tabular-nums
           = " · #{subtitle}"
     - if location
-      = helpers.icon 'chevron-right', class: 'shrink-0 text-xs text-slate-400 dark:text-slate-500'
+      = helpers.icon 'chevron-right', class: 'shrink-0 text-xs text-faint'

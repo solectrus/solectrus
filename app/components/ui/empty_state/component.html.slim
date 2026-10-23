@@ -1,10 +1,10 @@
 .flex.flex-1.flex-col.items-center.justify-center.px-4.py-12.text-center class=classes(:root)
-  .flex.shrink-0.items-center.justify-center.rounded-full.bg-slate-100.dark:bg-slate-800 class=classes(:circle) aria-hidden='true'
+  .flex.shrink-0.items-center.justify-center.rounded-full.bg-fill class=classes(:circle) aria-hidden='true'
     - if slashed?
-      = helpers.slashed_icon icon_name, class: "text-slate-400 dark:text-slate-500 #{classes(:icon)}"
+      = helpers.slashed_icon icon_name, class: "text-faint #{classes(:icon)}"
     - else
-      = helpers.icon icon_name, class: "text-slate-400 dark:text-slate-500 #{classes(:icon)}"
-  p.max-w-prose.text-slate-700.dark:text-slate-300 class=classes(:title)
+      = helpers.icon icon_name, class: "text-faint #{classes(:icon)}"
+  p.max-w-prose.text-fg-secondary class=classes(:title)
     = title
   - if text
     p.max-w-prose.text-muted class=classes(:text)

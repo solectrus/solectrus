@@ -6,11 +6,11 @@ div
     div = line
 
   / The line breaks only between the facts, not inside "3 sessions"
-  .text-slate-500.dark:text-slate-400
+  .text-muted
     = safe_join(facts.map { tag.span(it, class: 'whitespace-nowrap') }, ' · ')
 
   - if cars.any?
-    .mt-2.pt-2.flex.flex-col.gap-1.border-t.border-slate-200.text-slate-500.dark:border-slate-700.dark:text-slate-400
+    .mt-2.pt-2.flex.flex-col.gap-1.border-t.border-line.text-muted
       - cars.each do |car|
         span.flex.items-center.gap-2
           span class='size-2.5 shrink-0 rounded-full car-color bg-current ring-1 ring-black/10 dark:ring-white/20' style="--car-color: #{car.display_color}"

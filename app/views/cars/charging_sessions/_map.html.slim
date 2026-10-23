@@ -6,7 +6,7 @@
   laptop. Without a position, the space stays, so the form does not jump when
   the address-lookup controller shows the map. The space names the error of
   the address, which the field leaves to it (see the partial address).
-#charging_session_map class=['flex h-56 lg:h-[clamp(8rem,100dvh-42rem,20rem)] overflow-hidden rounded-xl', ('items-center justify-center gap-2 px-4 text-center text-sm text-muted bg-slate-100 dark:bg-slate-800' unless charging_session.location)] data-address-lookup-target='map' data-action='car--map--component:moved->address-lookup#move'
+#charging_session_map class=['flex h-56 lg:h-[clamp(8rem,100dvh-42rem,20rem)] overflow-hidden rounded-xl', ('items-center justify-center gap-2 px-4 text-center text-sm text-muted bg-fill' unless charging_session.location)] data-address-lookup-target='map' data-action='car--map--component:moved->address-lookup#move'
   - if charging_session.location
     / A live map, also when the point does not move: one marker, without a tooltip
     = render Car::Map::Component.new(cars: [{ places: [[*charging_session.location, 1]] }], live: true, movable: charging_session.position_of_address?)

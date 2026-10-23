@@ -4,8 +4,8 @@
 # the badge shows that car, for example on the map of its location.
 #
 # A prominent badge stands as a heading, like over the map of the location of
-# a car. It is larger, and in dark mode it needs more contrast than in a row
-# of the list, whose hover color it must not match.
+# a car. It is larger, and its text is the main text. The fill is
+# translucent, so the badge stays visible over the hover of a row.
 class Car::Badge::Component < ViewComponent::Base
   def initialize(charging_session: nil, car: nil, prominent: false, short: false)
     super()
@@ -55,11 +55,5 @@ class Car::Badge::Component < ViewComponent::Base
     'gap-2 px-4 py-1.5 text-lg'
   end
 
-  def color_class
-    if prominent?
-      'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-100'
-    else
-      'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-    end
-  end
+  def color_class = prominent? ? 'bg-fill text-fg' : 'bg-fill text-fg-secondary'
 end

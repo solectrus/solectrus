@@ -1,5 +1,5 @@
 / The desktop has a table, a phone a grouped list (see the row). One
   container for both, so the pages of the list load once.
 .grid.w-full.select-text.lg:px-3.lg:pb-2 class=(context.car_column? ? 'lg:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto_auto]' : 'lg:grid-cols-[auto_auto_auto_minmax(0,1fr)_auto]')
-  .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+  .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-surface
     = render Place::VisitList::Rows::Component.new(visits:, pagy:, context:)

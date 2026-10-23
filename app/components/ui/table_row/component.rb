@@ -29,8 +29,7 @@ class Ui::TableRow::Component < ViewComponent::Base
   # their backgrounds.
   BASE_CLASS =
     'cursor-pointer lg:rounded-lg ' \
-    'hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-100 ' \
-    'dark:hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-gray-700 ' \
+    'hover:not-has-[a:not([data-ui--table-row--component-target]):hover]:bg-fill ' \
     'has-[[data-ui--table-row--component-target]:focus-visible]:outline-2 ' \
     'has-[[data-ui--table-row--component-target]:focus-visible]:-outline-offset-2 ' \
     'has-[[data-ui--table-row--component-target]:focus-visible]:outline-indigo-500'.freeze
@@ -41,9 +40,9 @@ class Ui::TableRow::Component < ViewComponent::Base
   # off the separator of the last cell (see Ui::NavList::Component)
   CELL_CLASS =
     'max-lg:relative max-lg:-mb-px max-lg:min-h-12 max-lg:gap-x-3 max-lg:py-2.5 max-lg:px-4 ' \
-    'max-lg:active:bg-gray-200 dark:max-lg:active:bg-slate-700/60 ' \
+    'max-lg:active:bg-fill-strong ' \
     'max-lg:after:absolute max-lg:after:right-0 max-lg:after:bottom-0 max-lg:after:left-4 max-lg:after:h-px ' \
-    'max-lg:after:bg-gray-300/70 dark:max-lg:after:bg-slate-700'.freeze
+    'max-lg:after:bg-line'.freeze
   private_constant :CELL_CLASS
 
   LINK_CLASS = 'rounded-sm focus:outline-none'.freeze
@@ -88,6 +87,6 @@ class Ui::TableRow::Component < ViewComponent::Base
   # takes the last column over all rows, so the grid of the cell names its
   # columns and rows.
   def chevron
-    icon('chevron-right', class: 'lg:hidden col-end-[-1] row-span-full self-center text-sm text-gray-400 dark:text-slate-500')
+    icon('chevron-right', class: 'lg:hidden col-end-[-1] row-span-full self-center text-sm text-faint')
   end
 end

@@ -23,7 +23,7 @@ section class='flex-1 flex flex-col' aria-label=label
             / A phone has the switch in a line of its own below the sums
             div class='lg:mr-3 max-lg:order-last max-lg:w-full max-lg:flex max-lg:justify-center' = switch
           - if totals.present?
-            span.text-sm.lg:text-base.text-slate-600.dark:text-slate-400.tabular-nums title=totals_note data-controller=('tooltip' if totals_note) data-tooltip-touch-value=('true' if totals_note) = totals_html
+            span.text-sm.lg:text-base.text-fg-secondary.tabular-nums title=totals_note data-controller=('tooltip' if totals_note) data-tooltip-touch-value=('true' if totals_note) = totals_html
           - if map_path
             = link_to map_path, class: 'lg:hidden relative inline-flex items-center text-indigo-600 dark:text-indigo-400 touch-target focus-ring rounded', title: map_label, aria: { label: map_label }, data: { controller: 'tooltip', turbo_frame: map_frame } do
               = icon 'map'
@@ -37,7 +37,7 @@ section class='flex-1 flex flex-col' aria-label=label
       = helpers.turbo_frame_tag map_frame, target: '_top'
 
   - notes.each do |note|
-    div class='max-lg:mb-4 max-lg:px-1 lg:px-5 lg:py-3 lg:border-b lg:border-slate-200 dark:lg:border-slate-700'
+    div class='max-lg:mb-4 max-lg:px-1 lg:px-5 lg:py-3 lg:border-b lg:border-line'
       = note
 
   = content

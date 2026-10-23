@@ -2,24 +2,24 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
   / The title and the link to the list of the column. The head keeps the
     height of its button, also without it.
   div class='box-content flex items-center justify-between min-h-8 max-lg:px-1 lg:pb-3'
-    h2 id=heading_id class='text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 lg:text-xl lg:normal-case lg:tracking-normal lg:text-slate-800 dark:lg:text-slate-100'
+    h2 id=heading_id class='text-sm font-semibold uppercase tracking-wide text-muted lg:text-xl lg:normal-case lg:tracking-normal lg:text-fg'
       = title
     / A phone has a link beside the title of the group, the desktop a pill.
       Open tasks of the list put an amber dot after its label.
     - if list
       - notes = capture do
         - if list.notes.any?
-          span.shrink-0.size-2.rounded-full.bg-amber-500 aria-hidden='true'
+          span.shrink-0.size-2.rounded-full.bg-attention-strong aria-hidden='true'
           span.sr-only = list.notes.join(', ')
-      = link_to list.href, class: 'lg:hidden flex items-center gap-1 min-h-8 rounded-lg px-2 text-sm font-medium text-slate-700 active:bg-slate-200/70 dark:text-slate-300 dark:active:bg-slate-700/60 focus-ring click-animation' do
+      = link_to list.href, class: 'lg:hidden flex items-center gap-1 min-h-8 rounded-lg px-2 text-sm font-medium text-fg-secondary active:bg-fill-strong focus-ring click-animation' do
         = list.label
         = notes
-        = icon 'chevron-right', class: 'text-xs text-slate-400 dark:text-slate-500'
-      = link_to list.href, class: 'max-lg:hidden flex items-center gap-2 rounded-full bg-slate-100 px-3.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-200 dark:bg-slate-700/60 dark:text-slate-200 dark:hover:bg-slate-700 focus-ring click-animation' do
-        = icon list.icon, class: 'text-slate-500 dark:text-slate-400'
+        = icon 'chevron-right', class: 'text-xs text-faint'
+      = link_to list.href, class: 'max-lg:hidden flex items-center gap-2 rounded-full bg-fill px-3.5 py-1.5 text-sm font-medium text-fg-secondary hover:bg-fill-strong focus-ring click-animation' do
+        = icon list.icon, class: 'text-muted'
         = list.label
         = notes
-        = icon 'chevron-right', class: 'text-xs text-slate-400'
+        = icon 'chevron-right', class: 'text-xs text-faint'
 
   / The desktop: the head with the ring and the main number, and a tile for
     each further figure, all soft boxes with the same edges and gray. A wide
@@ -33,12 +33,12 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
         it, like the tooltip of a tile. The ring leaves room around the text
         in its center.
       span class=ring_classes style=ring_style
-        span class='flex flex-col items-center justify-center size-24 @min-[35rem]:size-22 rounded-full bg-white dark:bg-slate-800 text-center'
+        span class='flex flex-col items-center justify-center size-24 @min-[35rem]:size-22 rounded-full bg-surface text-center'
           - if head.center
-            span.text-lg.font-bold.leading-tight.tabular-nums.text-slate-800.dark:text-slate-100 = head.center
+            span.text-lg.font-bold.leading-tight.tabular-nums.text-fg = head.center
           - if head.center_label
-            span.text-sm.leading-tight.text-slate-500.dark:text-slate-400 = head.center_label
-      span class='text-4xl @min-[35rem]:text-[2rem] font-semibold leading-none tabular-nums whitespace-nowrap text-slate-800 dark:text-slate-100' aria-label=head.label
+            span.text-sm.leading-tight.text-muted = head.center_label
+      span class='text-4xl @min-[35rem]:text-[2rem] font-semibold leading-none tabular-nums whitespace-nowrap text-fg' aria-label=head.label
         = head.value
       / A screen reader reads the parts, which the tooltip shows
       - if head.parts.any?
@@ -51,8 +51,8 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
       div class='grid gap-3 @min-[35rem]:flex @min-[35rem]:flex-col @min-[35rem]:w-50 @min-[35rem]:shrink-0' style="grid-template-columns: repeat(#{figures.size}, minmax(0, 1fr))"
         - figures.each do |figure|
           = figure_tag(figure.sensor_name, tooltip: figure.tooltip?, class: [BOX_CLASS, 'flex flex-col gap-1.5 min-h-21.5 @min-[35rem]:flex-1 @min-[35rem]:justify-center', ('@min-[35rem]:items-center @min-[35rem]:text-center' if figures.one?)]) do
-            span.text-sm.text-slate-600.dark:text-slate-400 = figure.label
-            span.text-2xl.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-slate-800.dark:text-slate-100 = figure.value
+            span.text-sm.text-fg-secondary = figure.label
+            span.text-2xl.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-fg = figure.value
             - if figure.bar
               = render figure.bar
             - if figure.tooltip?
@@ -63,13 +63,13 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
     height when its figures replace the placeholder, whatever they hold.
   div class='lg:hidden grid gap-2' style="grid-template-columns: repeat(#{tiles.size}, minmax(0, 1fr))"
     - tiles.each do |tile|
-      = figure_tag(tile.sensor_name, tooltip: tile.tooltip?, class: 'flex min-w-0 min-h-22 flex-col gap-1 rounded-xl px-2 py-2 text-left bg-slate-100 active:bg-slate-200 dark:bg-slate-700/30 dark:active:bg-slate-700/50') do
-        span.truncate.text-sm.text-slate-600.dark:text-slate-400 = tile.label
-        span.text-lg.font-semibold.leading-tight.tabular-nums.whitespace-nowrap.text-slate-800.dark:text-slate-100 = tile.value
+      = figure_tag(tile.sensor_name, tooltip: tile.tooltip?, class: 'flex min-w-0 min-h-22 flex-col gap-1 rounded-xl px-2 py-2 text-left bg-fill active:bg-fill-strong') do
+        span.truncate.text-sm.text-fg-secondary = tile.label
+        span.text-lg.font-semibold.leading-tight.tabular-nums.whitespace-nowrap.text-fg = tile.value
         - if tile.bar
           = render tile.bar
         - elsif tile.note
           / The decimals and the unit of a note keep its size, smaller would not read
-          span class='truncate text-sm text-slate-500 dark:text-slate-400 [&_small]:text-[1em]' = tile.note
+          span class='truncate text-sm text-muted [&_small]:text-[1em]' = tile.note
         - if tile.tooltip?
           = render Car::OverviewBox::Tooltip::Component.new(parts: tile.parts, notes: tile.notes)

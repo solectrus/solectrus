@@ -41,7 +41,7 @@ class Car::Map::Component < ViewComponent::Base
   # a minimum for a short window. A live map stands inside its box.
   def root_classes
     class_names(
-      'flex flex-1 flex-col overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800',
+      'flex flex-1 flex-col overflow-hidden rounded-lg bg-fill',
       live? ? 'size-full min-h-20' : 'relative min-h-80',
     )
   end

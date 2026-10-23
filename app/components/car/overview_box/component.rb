@@ -12,7 +12,7 @@ class Car::OverviewBox::Component < ViewComponent::Base
 
   # The soft box of the head and of a tile of the desktop, a step darker
   # with a hover
-  BOX_CLASS = 'rounded-xl px-3 py-3 text-left bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/30 dark:hover:bg-slate-700/50 focus-ring'.freeze
+  BOX_CLASS = 'rounded-xl px-3 py-3 text-left bg-fill hover:bg-fill-strong focus-ring'.freeze
   private_constant :BOX_CLASS
 
   # A part of the main number with the color of its part of the ring, a CSS
@@ -75,7 +75,7 @@ class Car::OverviewBox::Component < ViewComponent::Base
   # A gray bar in the height of the text around it, like the location row of
   # the live view while its name loads
   def self.skeleton(width)
-    ActionController::Base.helpers.tag.span(class: ['inline-block align-middle h-[0.8em] rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse motion-reduce:animate-none', width], aria: { hidden: true })
+    ActionController::Base.helpers.tag.span(class: ['inline-block align-middle h-[0.8em] rounded-full bg-fill-strong animate-pulse motion-reduce:animate-none', width], aria: { hidden: true })
   end
   private_class_method :skeleton
 
@@ -93,7 +93,7 @@ class Car::OverviewBox::Component < ViewComponent::Base
   end
 
   def ring_classes
-    class_names('relative flex shrink-0 items-center justify-center size-30 @min-[35rem]:size-28 rounded-full', 'bg-slate-200 dark:bg-slate-700' => segments.empty?)
+    class_names('relative flex shrink-0 items-center justify-center size-30 @min-[35rem]:size-28 rounded-full', 'bg-fill-strong' => segments.empty?)
   end
 
   # The tag and the options of a part that loads the chart of the sensor, or

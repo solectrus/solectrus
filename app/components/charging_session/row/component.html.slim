@@ -11,17 +11,17 @@
   / The day is a target of its own on the desktop, with its own hover. On a
     phone a tap opens the session, so the day is plain text there.
   div class=['min-w-0 flex items-center gap-2 whitespace-nowrap lg:p-2 max-lg:row-start-1', phone_columns[:text]]
-    = link_to day_path, class: 'max-lg:pointer-events-none shrink-0 rounded-sm text-gray-800 dark:text-slate-200 lg:hover:underline underline-offset-4 focus-ring-inset' do
+    = link_to day_path, class: 'max-lg:pointer-events-none shrink-0 rounded-sm text-fg lg:hover:underline underline-offset-4 focus-ring-inset' do
       time datetime=charging_session.started_at.iso8601
         = date
     / A phone has the start alone beside the day
-    span.lg:hidden.truncate.text-gray-500.dark:text-slate-400.tabular-nums = "· #{start_time}"
+    span.lg:hidden.truncate.text-muted.tabular-nums = "· #{start_time}"
     - if charging_session.ongoing?
       span.lg:hidden.flex = ongoing_dot
 
   / The desktop has the time in a column of its own, so the times of the
     rows stand one below the other
-  .max-lg:hidden.flex.items-center.gap-2.whitespace-nowrap.p-2.text-gray-500.dark:text-slate-400.tabular-nums
+  .max-lg:hidden.flex.items-center.gap-2.whitespace-nowrap.p-2.text-muted.tabular-nums
     = time_range
     = ongoing_dot if charging_session.ongoing?
 
@@ -31,18 +31,18 @@
 
   / The energy stands left of the place or the bar of the PV share on the
     desktop
-  div class=['tabular-nums text-right whitespace-nowrap font-semibold text-gray-800 dark:text-slate-200 lg:p-2 max-lg:row-start-1 max-lg:text-headline', phone_columns[:value]]
+  div class=['tabular-nums text-right whitespace-nowrap font-semibold text-fg lg:p-2 max-lg:row-start-1 max-lg:text-headline', phone_columns[:value]]
     - if charging_session.kwh
       - if charging_session.proposal?
-        span.text-gray-400 title=t('charging_sessions.proposal.estimate') ≈&nbsp;
+        span.text-faint title=t('charging_sessions.proposal.estimate') ≈&nbsp;
       = render energy
     - else
-      span.text-gray-400 title=t('charging_sessions.proposal.no_estimate') –
+      span.text-faint title=t('charging_sessions.proposal.no_estimate') –
 
   / The state of charge before and after the session, on the desktop alone.
     A state of charge that contradicts the energy is dimmed and explained. A
     session without it leaves its cell empty, so a list without it has no gap.
-  div class=['hidden lg:flex items-center text-sm tabular-nums whitespace-nowrap', ('p-2' if soc_range), soc_mismatch? ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400']
+  div class=['hidden lg:flex items-center text-sm tabular-nums whitespace-nowrap', ('p-2' if soc_range), soc_mismatch? ? 'text-faint' : 'text-muted']
     - if soc_range
       = soc_range
       - if soc_mismatch?
@@ -55,22 +55,22 @@
   div class=['min-w-0 flex items-center gap-1.5 lg:p-2 max-lg:row-start-2 max-lg:text-subhead max-lg:text-muted', phone_columns[:text]]
     / A proposal has the question mark of the sessions to review in place of
       the place, which stays the text of the link for a screen reader
-    = row.link css_class: ['truncate lg:text-gray-600 dark:lg:text-slate-400', ('sr-only' if charging_session.wallbox? || charging_session.proposal?)] do
+    = row.link css_class: ['truncate lg:text-fg-secondary', ('sr-only' if charging_session.wallbox? || charging_session.proposal?)] do
       = charging_session.proposal? ? t('charging_sessions.proposal.name') : place
     - if charging_session.proposal?
       = render ChargingSession::ReviewBadge::Component.new(label: t('charging_sessions.proposal.name'))
     - if pv_percent
-      .max-lg:hidden.flex-1.min-w-0.pr-6.text-gray-600.dark:text-slate-400.tabular-nums.whitespace-nowrap
+      .max-lg:hidden.flex-1.min-w-0.pr-6.text-fg-secondary.tabular-nums.whitespace-nowrap
         = render ChargingSession::PvShareBar::Component.new(percent: pv_percent)
     - unless charging_session.wallbox? || charging_session.proposal?
       span.lg:hidden.shrink-0 aria-hidden='true' ·
     span.lg:hidden.shrink-0
       = charging_session.car ? charging_session.car.short_name : render(Car::Badge::Component.new(charging_session:, short: true))
 
-  div class=['tabular-nums text-right whitespace-nowrap text-gray-600 dark:text-slate-400 lg:p-2 max-lg:row-start-2 max-lg:text-subhead max-lg:text-muted', phone_columns[:value]]
+  div class=['tabular-nums text-right whitespace-nowrap text-fg-secondary lg:p-2 max-lg:row-start-2 max-lg:text-subhead max-lg:text-muted', phone_columns[:value]]
     / A proposal never has a cost, so only a session without a price has a
       dash
     - if cost
       = cost
     - elsif !charging_session.proposal?
-      span.text-gray-400 title=t('charging_sessions.no_cost') –
+      span.text-faint title=t('charging_sessions.no_cost') –

@@ -9,9 +9,9 @@ class Ui::SegmentedControl::Component < ViewComponent::Base
   ITEM_CLASS =
     'relative rounded-md px-4 py-1 text-center text-sm font-medium whitespace-nowrap focus-ring'.freeze
 
-  CURRENT_CLASS = 'bg-white text-slate-800 shadow-sm dark:bg-slate-600 dark:text-white'.freeze
+  CURRENT_CLASS = 'bg-white text-fg shadow-sm dark:bg-slate-600'.freeze
 
-  OTHER_CLASS = 'text-slate-500 dark:text-slate-400'.freeze
+  OTHER_CLASS = 'text-muted'.freeze
   private_constant :ITEM_CLASS, :CURRENT_CLASS, :OTHER_CLASS
 
   def initialize(items:, label:, stretch: false)
@@ -43,6 +43,6 @@ class Ui::SegmentedControl::Component < ViewComponent::Base
   def dot(note)
     return unless note
 
-    safe_join([tag.span(class: 'inline-block ml-1.5 size-1.5 rounded-full bg-amber-500 align-middle', aria: { hidden: true }), tag.span(", #{note}", class: 'sr-only')])
+    safe_join([tag.span(class: 'inline-block ml-1.5 size-1.5 rounded-full bg-attention-strong align-middle', aria: { hidden: true }), tag.span(", #{note}", class: 'sr-only')])
   end
 end

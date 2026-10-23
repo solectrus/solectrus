@@ -78,7 +78,7 @@ class Car::LocationRow::Component < ViewComponent::Base
   def row_classes
     class_names(
       'inline-flex max-w-full items-center gap-2 min-h-9 pl-1 pr-3 py-1 rounded-full',
-      'focus-ring-inset hover:bg-slate-100 dark:hover:bg-slate-700/50 click-animation' => location,
+      'focus-ring-inset hover:bg-fill click-animation' => location,
     )
   end
 

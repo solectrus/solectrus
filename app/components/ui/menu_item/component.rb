@@ -67,7 +67,7 @@ class Ui::MenuItem::Component < ViewComponent::Base
     if name == '-'
       separator =
         tag.hr(
-          class: 'my-2 hidden lg:block border-gray-200 dark:border-gray-700',
+          class: 'my-2 hidden lg:block border-line',
         )
 
       return separator
@@ -154,7 +154,7 @@ class Ui::MenuItem::Component < ViewComponent::Base
 
   def render_dot
     tag.span(
-      class: 'block size-2.5 rounded-full bg-amber-400 dark:bg-amber-500',
+      class: 'block size-2.5 rounded-full bg-attention-strong',
       'aria-hidden': true,
     )
   end

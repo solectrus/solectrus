@@ -15,7 +15,7 @@
   - if review_only? && sessions.any?
     - box.with_note do
       .flex.items-center.justify-between.gap-4.text-sm.max-lg:flex-col.max-lg:items-start.max-lg:gap-2
-        p.text-slate-600.dark:text-slate-400 = t(".review_hint.#{kind}")
+        p.text-fg-secondary = t(".review_hint.#{kind}")
         - if dismiss_all?
           = button_to helpers.dismiss_cars_charging_sessions_path,
                       method: :patch,
@@ -31,5 +31,5 @@
     = render Ui::EmptyState::Component.new(icon: 'charging-station', title: empty_title, text: empty_text)
   - else
     .grid.w-full.select-text.lg:px-3.lg:pb-2 class=GRID_COLUMNS
-      .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-white.dark:max-lg:bg-slate-800/60
+      .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-surface
         = render ChargingSession::Rows::Component.new(sessions:, pagy:, timeframe:)

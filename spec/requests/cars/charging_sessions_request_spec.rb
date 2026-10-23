@@ -1,6 +1,6 @@
 describe 'Charging sessions' do
   # The sums in the head of the list, as text
-  def totals = response.parsed_body.at_css('.ui-keep-lit span.text-slate-600.tabular-nums').text
+  def totals = response.parsed_body.at_css('.ui-keep-lit span.text-fg-secondary.tabular-nums').text
 
   before do
     login_as_admin

@@ -96,7 +96,7 @@ class Car::LiveCard::Component < ViewComponent::Base
   # The percent takes the color of the text of the fill, or beside the fill
   # the color of the scale
   def percent_classes
-    percent_inside? ? fill_classes.split.grep(/\Atext-/) : 'text-slate-600 dark:text-slate-300'
+    percent_inside? ? fill_classes.split.grep(/\Atext-/) : 'text-fg-secondary'
   end
 
   def bar_label
@@ -137,9 +137,9 @@ class Car::LiveCard::Component < ViewComponent::Base
       if charging?
         'px-3 lg:px-4 font-semibold tabular-nums text-white bg-signal-positive'
       elsif state.connected
-        'text-car-battery bg-slate-100 dark:bg-slate-700/60'
+        'text-car-battery bg-fill'
       else
-        'text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/60'
+        'text-faint bg-fill'
       end,
     )
   end

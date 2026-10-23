@@ -20,8 +20,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
 
   ROW_CLASS = 'flex w-full items-center gap-3 pl-4 text-left'.freeze
   TAP_CLASS =
-    'active:bg-gray-200 dark:active:bg-slate-700/60 pointer-fine:hover:bg-gray-200/60 ' \
-    'dark:pointer-fine:hover:bg-slate-700/40 focus-ring-inset cursor-pointer'.freeze
+    'active:bg-fill-strong pointer-fine:hover:bg-fill focus-ring-inset cursor-pointer'.freeze
   private_constant :ROW_CLASS, :TAP_CLASS
 
   def initialize( # rubocop:disable Metrics/ParameterLists
@@ -83,7 +82,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
   end
 
   def name_class
-    @destructive ? 'text-signal-negative' : 'text-gray-800 dark:text-slate-300'
+    @destructive ? 'text-signal-negative' : 'text-fg'
   end
 
   # Where a tap leads: out of the app, or one level down. A destructive cell
@@ -98,7 +97,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
   # shows as a slide. A wide screen with a mouse has the hover instead. A
   # tablet of the same width has no hover, so it keeps the chevron.
   def trailing_icon_class
-    ['text-sm text-gray-400 dark:text-slate-500', ('lg:pointer-fine:hidden' unless leaves_app?)]
+    ['text-sm text-faint', ('lg:pointer-fine:hidden' unless leaves_app?)]
   end
 
   private
