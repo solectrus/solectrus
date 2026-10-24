@@ -81,9 +81,9 @@ html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
   @apply max-lg:bg-white! dark:max-lg:bg-slate-900!;
 }
 
-/* A logo in place of the title, as high as the text it replaces */
+/* A logo in place of the title, no higher than the capitals of a title */
 .ui-title-bar-logo {
-  @apply mx-auto h-6;
+  @apply mx-auto h-5;
 }
 
 /* The back button stands at the left edge. The buttons at the right stand
@@ -94,7 +94,7 @@ html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
 
 .ui-title-bar-back,
 .ui-title-bar-action {
-  @apply flex size-10 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
+  @apply flex size-9 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 
