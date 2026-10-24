@@ -27,9 +27,9 @@ describe 'Bottom navigation (mobile)' do
     end
   end
 
-  # A tool is a page below the page More. It slides in with a title bar, and
-  # its back button slides back to the list.
-  it 'slides from the page More to a tool and back' do
+  # A tool of the page More stands on its own, like a tab: a title bar with
+  # its name, but no back button. The tab More leads back to the list.
+  it 'opens a tool of the page More like a tab' do
     visit '/'
     tab_bar { click_on 'Mehr' }
     expect(page).to have_css('.ui-title-bar h1 img[alt="Mehr"]')
@@ -37,10 +37,30 @@ describe 'Bottom navigation (mobile)' do
     click_on 'Top 10'
     expect(page).to have_css('.ui-title-bar h1', text: 'Top 10')
     expect(page).to have_current_path(%r{/top10/})
+    expect(page).to have_no_css('.ui-title-bar-back')
 
-    find('.ui-title-bar-back').click
+    tab_bar { click_on 'Mehr' }
     expect(page).to have_current_path('/more')
-    tab_bar { expect(page).to have_css('a[aria-current][aria-label="Mehr"]') }
+  end
+
+  # The notifications are one level below the page More. They slide in with a
+  # title bar, and its back button slides back to the list.
+  context 'with a notification' do
+    before { Notification.create!(title: 'News', body: '<p>News</p>', published_at: 1.day.ago) }
+
+    after { Notification.delete_all }
+
+    it 'slides from the page More to the notifications and back' do
+      visit '/more'
+
+      click_on 'Benachrichtigungen'
+      expect(page).to have_css('.ui-title-bar h1', text: 'Benachrichtigungen')
+      expect(page).to have_current_path('/notifications')
+
+      find('.ui-title-bar-back').click
+      expect(page).to have_current_path('/more')
+      tab_bar { expect(page).to have_css('a[aria-current][aria-label="Mehr"]') }
+    end
   end
 
   # A tab that does not fit into the tab bar stays a tab: it takes the

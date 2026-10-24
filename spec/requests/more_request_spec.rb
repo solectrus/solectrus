@@ -40,15 +40,10 @@ describe 'Page More' do
       expect(group_links('Other views').keys).to eq(['Generation', 'Forecast', 'Essentials', 'Top 10', 'Amortization'])
     end
 
-    it 'opens a view as it is, and slides into the other pages' do
-      links = group_links('Other views')
-
-      aggregate_failures do
-        expect(links.values_at('Generation', 'Forecast').pluck('data-nav-title')).to all(be_nil)
-        expect(links.values_at('Essentials', 'Top 10', 'Amortization').pluck('data-nav-title')).to eq(['Essentials', 'Top 10', 'Amortization'])
-        expect(links['Amortization']['data-nav-plain']).to eq('true')
-        expect(links['Top 10']['data-nav-plain']).to be_nil
-      end
+    # Each of them stands on its own, like a tab, so none slides in as a
+    # page below this one
+    it 'opens each other view as it is' do
+      expect(group_links('Other views').values.pluck('data-nav-title')).to all(be_nil)
     end
 
     # The car page opens the charging sessions in a sheet (see SheetPage)
@@ -164,16 +159,36 @@ describe 'Page More' do
     end
   end
 
-  describe 'a page below the page More' do
-    before { get '/top10/day/inverter_power/sum/desc' }
+  describe 'the notifications' do
+    before do
+      Notification.create!(title: 'Test', body: '<p>Test</p>', published_at: 1.day.ago)
+    end
 
-    it 'leads back with a title bar that names it' do
+    it 'slide in from the page More' do
+      get '/more'
+
+      expect(group('System').at_css('a[href="/notifications"]')['data-nav-title']).to eq('Notifications')
+    end
+
+    it 'are a page below the page More, which leads back there' do
+      get '/notifications'
       back = title_bar.at_css('a.ui-title-bar-back')
 
       aggregate_failures do
-        expect(title_bar.at_css('h1').text.strip).to eq('Top 10')
+        expect(title_bar.at_css('h1').text.strip).to eq('Notifications')
         expect(back['href']).to eq('/more')
         expect(back['data-nav-logo']).to be_present
+      end
+    end
+  end
+
+  describe 'another view of the page More' do
+    before { get '/top10/day/inverter_power/sum/desc' }
+
+    it 'names itself in a title bar without a way back' do
+      aggregate_failures do
+        expect(title_bar.at_css('h1').text.strip).to eq('Top 10')
+        expect(title_bar.at_css('a.ui-title-bar-back')).to be_nil
       end
     end
 

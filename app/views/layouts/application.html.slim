@@ -82,11 +82,12 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         - c.with_primary_items desktop_primary_items
         - c.with_secondary_items desktop_secondary_items
         = c.with_sub_nav do
-          / A page below the page More leads back there with a title bar on a
-            phone. Its own navigation follows as the accessory of the bar.
+          / A page of the page More names itself with a title bar on a phone,
+            and a page below it leads back there. Its own navigation follows
+            as the accessory of the bar.
           - item = more_child_item
           - if item
-            = render Ui::TitleBar::Component.new(title: item[:name], back_href: more_path, back_label: t('layout.more'), back_logo: more_logo, plain: !content_for?(:grouped))
+            = render Ui::TitleBar::Component.new(title: item[:name], back_href: (more_path if item[:back]), back_label: t('layout.more'), back_logo: more_logo, plain: !content_for?(:grouped))
           = item ? tag.div(yield(:sub_nav), class: 'ui-title-bar-accessory') : yield(:sub_nav)
 
       = tag.turbo_frame id: 'flash' do

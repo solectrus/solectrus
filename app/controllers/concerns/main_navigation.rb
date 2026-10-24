@@ -25,8 +25,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     # First the views of the energy, in the order of their importance. All but
     # the forecast share the timeframe, which looks ahead instead. Then the
     # other pages. A phone shows the first of them in its tab bar, the primary
-    # items, and lists the rest, the secondary items, in the page More. The
-    # Top 10 stands on the gray of a grouped list on a phone (see its view).
+    # items, and lists the rest, the secondary items, in the page More.
     def build_mobile_items
       views = [
         root_item,
@@ -39,7 +38,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
 
       views + [
         essentials_item,
-        top10_item.merge(grouped: true),
+        top10_item,
         amortization_item,
       ].compact
     end
@@ -50,13 +49,14 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       @secondary_items ||= all_mobile_items.drop(Nav::Bottom::Component::MAX_BAR_ITEMS)
     end
 
-    # The pages below the page More, which lead back there with a title bar:
-    # the secondary items but the views, and the notifications. The settings
-    # have a title bar of their own.
+    # The pages of the page More with a title bar on a phone: the secondary
+    # items but the views, and the notifications. A secondary item stands on
+    # its own, like a tab, so only the notifications lead `back` to More. The
+    # settings have a title bar of their own.
     helper_method def more_child_items
       @more_child_items ||= [
         *secondary_items.reject { it[:view] },
-        notifications_item,
+        notifications_item&.merge(back: true),
       ].compact
     end
 

@@ -3,9 +3,10 @@
 # desktop has these items in its top bar and never links here.
 #
 # A view among the secondary items stays a view: it shows no title bar, and
-# it opens in the timeframe of the last view. Each other page in the list is
-# a page below this one, which leads back here with a title bar (see the
-# layout).
+# it opens in the timeframe of the last view. The other secondary items show
+# a title bar without a way back, as they stand on their own like a tab. The
+# pages below this one, like the notifications, lead back here with a title
+# bar (see the layout).
 class MoreController < ApplicationController
   def show
   end
@@ -38,13 +39,6 @@ class MoreController < ApplicationController
     return super unless computed_timeframe
 
     super.merge(href: balance_home_path(params: { timeframe: computed_timeframe.to_param }))
-  end
-
-  # A page below this one slides in, as it shows a title bar. It keeps its
-  # own background, unless it stands on the gray of a grouped list. A view
-  # opens as it is.
-  helper_method def secondary_links
-    secondary_items.map { it[:view] ? it : it.merge(slide: true, plain: !it[:grouped]) }
   end
 
   # A guest sees the settings too, and their page asks to log in. Only the

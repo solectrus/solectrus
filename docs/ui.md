@@ -70,7 +70,7 @@ The tab bar holds the first four entries, the primary entries. If a system has f
 
 A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. It opens in the timeframe of the last view. The page More has no timeframe of its own, so the server keeps the timeframe of the last view in the session.
 
-The other secondary entries, like the Top 10, and the notifications are one level below the page More. The layout gives each of them a `Ui::TitleBar` that leads back to the page More. A page that the tab bar holds shows no title bar.
+The other secondary entries, like the Top 10, stand on their own, like a tab. The layout gives each of them a `Ui::TitleBar` with its name but without a back button, and a tap on the page More opens it without a slide. The notifications are one level below the page More, so their title bar leads back there. A page that the tab bar holds shows no title bar.
 
 The switches of the page More, like the language, slide their marking to the new choice, as the tab bar does. The `segment-slide` controller does this for radios and for buttons.
 

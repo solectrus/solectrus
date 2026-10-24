@@ -8,7 +8,7 @@
   = render PremiumStatus::Component.new(cell: true)
 
   = render Ui::GroupedList::Component.new(header: t('.secondary')) do |list|
-    - secondary_links.each do |item|
+    - secondary_items.each do |item|
       - list.with_cell(**cell_args(item))
 
   = render Ui::GroupedList::Component.new(header: t('.system')) do |list|
