@@ -17,7 +17,7 @@
         = Price.human_attribute_name(:amount_per_month)
 
   - prices.each_with_index do |price, index|
-    = render Ui::TableRow::Component.new(href: edit_settings_price_path(price), nav_title: t("settings.prices.edit.#{name}"), css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid lg:p-2 lg:tabular-nums max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:gap-y-0.5') do |row|
+    = render Ui::TableRow::Component.new(href: edit_settings_price_path(price), form_sheet: true, css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid lg:p-2 lg:tabular-nums max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:gap-y-0.5') do |row|
       = row.link css_class: 'max-lg:col-start-1 max-lg:row-start-1 max-lg:text-headline max-lg:text-gray-800 dark:max-lg:text-slate-300' do
         time.whitespace-nowrap datetime= price.starts_at.iso8601
           = l price.starts_at

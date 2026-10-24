@@ -1,8 +1,12 @@
-- if helpers.form_in_modal?
-  = render Ui::TurboModal::Component.new(title:, width:) do
+- if helpers.form_sheet?
+  = render Ui::SheetPage::Component.new(title:, subtitle:, frame: false) do |page|
+    - page.with_save(form:) if form
+    = content
+- elsif helpers.form_in_modal?
+  = render Ui::TurboModal::Component.new(title: heading, width:) do
     = content
 - else
   .lg:max-w-2xl
     / The title bar names the page on a phone, this heading on the desktop
-    h1.hidden.lg:block.mb-4.font-bold.text-2xl.text-gray-800.dark:text-gray-300 = title
+    h1.hidden.lg:block.mb-4.font-bold.text-2xl.text-gray-800.dark:text-gray-300 = heading
     = content

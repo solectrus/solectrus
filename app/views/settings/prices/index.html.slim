@@ -1,4 +1,4 @@
-= render 'settings/sub_nav', action: { href: new_settings_price_path(price: { name: }), icon: 'plus', label: t("settings.prices.new.#{name}") }
+= render 'settings/sub_nav', action: { href: new_settings_price_path(price: { name: }), icon: 'plus', label: t("settings.prices.new.#{name}"), sheet: true }
 
 / A stream refreshes the list. The link of a row on a phone leaves the frame.
 = tag.turbo_frame id: 'list', target: '_top' do

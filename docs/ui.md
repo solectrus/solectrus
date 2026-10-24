@@ -24,7 +24,7 @@ A page has one of two grounds on a phone. A list or a form stands on the gray pa
 - `Ui::SegmentedControl`: A segmented control above a list: pages of the same level side by side, made from hashes like `Ui::NavList`. With `stretch: true`, it takes the full width on a phone, like the switch in the head of a list. A segment with a `note` has a tiny amber dot after its name, like a list with sessions to review.
 - `Ui::GroupedList`: A grouped list, with an optional header above the card and a footer below it. A cell is a link, a button, or a row that holds a control at the right, like a segmented control. A link inside the app shows a chevron, a link to another site an arrow out of a box. With `detail:`, a cell shows a second, smaller line below its name, like the reason why its control is not available. `icon_class:` colors the tile of its icon, like the state of the sponsorship. A cell without a link, an action or a control only shows a state.
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
-- `Ui::FormPage`: The form of one list entry: in a modal on the desktop, on a page of its own on a phone. A form with unsaved changes asks before the modal closes or a link leaves the page.
+- `Ui::FormPage`: The form of one list entry: in a modal on the desktop, in a tall sheet on a phone, and on a page of its own without a frame. A form with unsaved changes asks before the sheet closes or a link leaves the page.
 - `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. It shows only while the form has changes, next to a button that discards them. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`.
 - `Ui::SaveBar`: The save buttons of a form that the desktop shows on the page, like the general settings. They show at the right of the tabs only while the form has changes, with a button that discards the changes. The other tabs then dim and take no clicks, and a link or a reload asks before it leaves the changes behind. The partial `settings/sub_nav` takes the id of the form as `save_bar:`. A phone has the save button in the `Ui::TitleBar` instead.
 - `Ui::ConfirmDialog`: The question before an action, in the middle of the screen instead of the confirm of the browser. The layout renders it once. It answers each `data-turbo-confirm`, see `docs/conventions.md`. A controller asks it through an outlet, like `form-dirty` and the modal before unsaved changes are lost.
@@ -124,14 +124,14 @@ The index page renders the list once, in a Turbo frame that a stream refreshes:
   = render Price::List::Component.new(prices: @prices, name:)
 ```
 
-The list is a table on the desktop and a grouped list on a phone, see "One row for both layouts". Each row opens the form, in the modal frame on the desktop and on a page of its own on a phone. The `+` button for a new entry is the action of the `Ui::TitleBar` on a phone and a `Ui::AddButton` on the desktop.
+The list is a table on the desktop and a grouped list on a phone, see "One row for both layouts". Each row opens the form in the modal frame. The desktop shows it in a modal, a phone in a tall sheet over the list. The `+` button for a new entry is the action of the `Ui::TitleBar` with `sheet: true` on a phone and a `Ui::AddButton` on the desktop.
 
 Each row is a `Ui::TableRow`. A click anywhere in the row opens the form, so the row has no edit button. One cell puts `row.link` around the main value of the row, like the date or the name. The keyboard and screen readers reach the form through this link. A click on another link of the row, or a click that ends a text selection, does not open the form. Such a link is a target of its own. While the pointer is on it, the row does not light up. A row has no buttons, because each action on the entry is in its form.
 
-The `edit` and `new` views render the form in a `Ui::FormPage`. The component finds out from the request where it shows the form:
+The `edit` and `new` views render the form in a `Ui::FormPage`. The component finds out from the request where it shows the form. A phone asks with the parameter `form_sheet`, which the row and the `+` button add (see `FormPageHelper#form_sheet?`). `form:` is the id of the form, for the save button in the head of the sheet:
 
 ```slim
-= render Ui::FormPage::Component.new(title: t('settings.prices.edit')) do
+= render Ui::FormPage::Component.new(title: t('settings.prices.edit'), form: form_page_id(@price)) do
   = render 'form', price: @price
 ```
 
@@ -144,9 +144,9 @@ The partial `form` builds the form with `form_page_with` of `FormPageHelper`. It
   = render Ui::SubmitButton::Component.new
 ```
 
-`form_page_with` gives the form the class `ui-form`, an id from the record and the `form-dirty` controller, which enables the save button. A form that comes back with errors holds input that is not saved yet. It counts as changed until a save succeeds. On a page, the controller also asks in `Ui::ConfirmDialog` before a link leaves unsaved changes. It asks at the click, before the title bar starts its slide. `form_page_with` also sets where the form submits: in the modal frame, or as a visit that replaces the page in the history. A field with `autofocus: true` takes the focus in the modal only. On a page, iOS would open the keyboard during the slide. For other content that differs between the two places, `form_in_modal?` tells the view where the form is.
+`form_page_with` gives the form the class `ui-form`, an id from the record and the `form-dirty` controller, which enables the save button. A form that comes back with errors holds input that is not saved yet. It counts as changed until a save succeeds. On a page, the controller also asks in `Ui::ConfirmDialog` before a link leaves unsaved changes. It asks at the click, before the title bar starts its slide. `form_page_with` also sets where the form submits: in the modal frame, also from the sheet of a phone, or as a visit that replaces the page in the history. A field with `autofocus: true` takes the focus in the modal of the desktop only. In the sheet or on a page, iOS would open the keyboard at once. For other content that differs between the places, `form_in_modal?` and `form_sheet?` tell the view where the form is.
 
-On a phone, the save button stands in the title bar, outside the form. The view gives the title bar the id of the form, and the button names the form with its `form` attribute. The `form-dirty` controller finds the button among the elements of the form and enables it. Enter in a field submits with this button, because it is the first submit button of the form. The partial `settings/sub_nav` takes the id as `save:`:
+On a phone, the save button stands in the head of the sheet, outside the form. The button names the form with its `form` attribute. The `form-dirty` controller finds the button among the elements of the form and enables it. Enter in a field submits with this button, because it is the first submit button of the form. On a page of its own, the save button stands in the title bar. The partial `settings/sub_nav` takes the id as `save:`:
 
 ```slim
 = render 'settings/sub_nav', title: heading, back_href: list_path, back_label: title, save: form_page_id(@price)
@@ -154,7 +154,7 @@ On a phone, the save button stands in the title bar, outside the form. The view 
 
 A view that renders its own `Ui::TitleBar` calls `bar.with_save(form: form_page_id(@record))`.
 
-The form deletes its entry, too. With `delete_path:`, `Ui::SubmitButton` adds a button that submits the form as a DELETE to that path. In the modal it is a trash icon at the left edge, far from the save button. On a page it is a red line below the fields.
+The form deletes its entry, too. With `delete_path:`, `Ui::SubmitButton` adds a button that submits the form as a DELETE to that path. In the modal it is a trash icon at the left edge, far from the save button. In the sheet and on a page of a phone, it is a red line below the fields.
 
 The controller includes `FormPageResponse` and defines two methods: `default_list_path`, the list of a form that no list opened, and `list_stream`, the Turbo Stream that refreshes the list. `list_stream` can also return several streams, as the places do.
 
@@ -162,8 +162,8 @@ A list can have more than one address, for example with a filter or a timeframe.
 
 After a save or a delete, `respond_with_list` answers in one of two ways, with `notice:` as an optional message of its own:
 
-1. A submit from the modal or from the desktop table gets `list_stream`, which refreshes the list in place.
-2. A submit from the page of a phone gets the stream action `back_to`. When the entry before the form in the browser history is the list, the browser goes back to it. The list loads again and slides in from the left, and a later way back does not show it a second time. Otherwise, like after a reload of the form, a visit to `list_path` replaces the form page.
+1. A submit from the modal, from the sheet of a phone or from the desktop table gets `list_stream`, which refreshes the list in place. The modal or the sheet then closes.
+2. A submit from a page of its own gets the stream action `back_to`. When the entry before the form in the browser history is the list, the browser goes back to it. The list loads again and slides in from the left, and a later way back does not show it a second time. Otherwise, like after a reload of the form, a visit to `list_path` replaces the form page.
 
 If the record does not save, `respond_with_errors(record)` answers. A Turbo Stream replaces the form with the partial `form`, which gets the record under the name of its model, like `price`. The form stays in the modal or on its page, with its errors. So the `edit` and `new` views render only the page. `respond_to_save(record, saved)` picks one of the two answers, so `create` and `update` take one line each.
 
@@ -181,7 +181,7 @@ The bar has no controls to compose a filter, because the links of the list set i
 
 Each list renders each row once. The same cells are a row of the table from `lg` up and a cell of a grouped list below. You can see it in `Price::List::Component` and `ChargingSession::Row::Component`.
 
-The row is a `Ui::TableRow`, and its `nav_title:` is the title of the slide. Below `lg`, its link opens the entry on a page of its own, with the slide. From `lg` up, the controller of the row points the link to the modal. It also does so after the screen turns. The row adds a chevron for a phone.
+The row is a `Ui::TableRow`. Below `lg`, its link opens the entry on a page of its own, with `nav_title:` as the title of the slide. With `form_sheet: true`, it opens the form of the entry in a sheet instead, like the lists of the settings. From `lg` up, the controller of the row points the link to the modal. It also does so after the screen turns. The row adds a chevron for a phone.
 
 The classes of each cell do the rest. Without a prefix or with `lg:`, they give the column of the table. With `max-lg:`, they place the cell in the grid of the cell. That grid names its columns and its rows, because the chevron takes the last column over all rows. A wrapper with `max-lg:contents` lets its children take places of their own. A link in a cell that is a target of its own on the desktop gets `max-lg:pointer-events-none`, so a tap on a phone opens the entry.
 

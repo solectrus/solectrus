@@ -4,7 +4,7 @@
 
 / The address and the map show the user which place this is. The modal
   names the address as its title, the page of a phone above the map, and
-  the sheet of a phone below its title (see SheetPage).
+  each sheet of a phone below its title (see SheetPage and FormPage).
 - page = capture do
   - if @place.address && !turbo_frame_request?
     p.lg:hidden.px-4.text-center.text-muted class='pb-1.5' = @place.address
@@ -29,8 +29,14 @@
       name. A phone opens the place with a tap on its row, so the way to its
       visits is here.
     - if place_visits_path && !form_in_modal? && place_visits_count.positive?
+      - visits = { name: t('visits.at_place', count: place_visits_count), href: place_visits_path, icon: 'location-dot' }
       .lg:hidden.mb-8
-        = render Ui::NavList::Component.new(items: [{ name: t('visits.at_place', count: place_visits_count), href: place_visits_path, icon: 'location-dot' }], label: t('visits.name'))
+        / From the sheet, the link leaves for the page of the visits
+        - if form_sheet?
+          = render Ui::GroupedList::Component.new do |list|
+            - list.with_cell(**visits, data: { turbo_frame: '_top' })
+        - else
+          = render Ui::NavList::Component.new(items: [visits], label: t('visits.name'))
 
     = render 'form', place: @place
 
@@ -58,5 +64,5 @@
     = page
 - else
   = render('settings/sub_nav', title: heading, back_href: list_path, back_label: title, save:)
-  = render Ui::FormPage::Component.new(title: @place.address || heading) do
+  = render Ui::FormPage::Component.new(title: heading, subtitle: @place.address, form: save) do
     = page

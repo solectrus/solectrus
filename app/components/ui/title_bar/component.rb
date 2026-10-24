@@ -24,11 +24,13 @@ class Ui::TitleBar::Component < ViewComponent::Base
     { nav_title: title, nav_logo: logo, nav_plain: (true if plain), turbo_prefetch: false }.compact
   end
 
+  # An action with `sheet: true` opens its page in the modal frame instead,
+  # like the form of a new entry in a sheet (see FormPageHelper#form_sheet?)
   renders_one :action,
-              lambda { |href:, icon:, label:|
-                link_to href,
+              lambda { |href:, icon:, label:, sheet: false|
+                link_to (sheet ? FormPageHelper.sheet_path(href) : href),
                         class: 'ui-title-bar-action click-animation',
-                        data: self.class.link_data(label),
+                        data: sheet ? { turbo_frame: 'modal', controller: 'modal-launcher' } : self.class.link_data(label),
                         title: label,
                         'aria-label': label do
                   icon(icon)

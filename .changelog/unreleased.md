@@ -43,7 +43,7 @@ Keep every section, an empty one included.
 - With more than one car in use, the power balance shows only the charge level of the home battery. With one car, it stays as before (#6020)
 - The timeframe in the header is shorter. It no longer shows the years since commissioning or the first and last date of a week
 - A tooltip of a live value stays open while the values refresh
-- On a phone, the prices and the payments in the settings show as a list, as on an iPhone. An entry opens on a page of its own
+- On a phone, the prices and the payments in the settings show as a list, as on an iPhone. An entry opens in a sheet over the list, as do the cars and the places
 - On a phone, the forms of the settings look like the settings of an iPhone, with a switch for each option
 - The loading bar shows only when a page takes longer than half a second
 - The Top 10 has two buttons: one for the sensor, and one for the car, the calculation and the order

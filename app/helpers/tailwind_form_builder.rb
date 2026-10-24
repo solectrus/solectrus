@@ -112,8 +112,8 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   delegate :tag, :link_to, :safe_join, :render, to: :template
 
   # The form of a list entry (see FormPageHelper#form_page_with) focuses a
-  # field in the modal only. On its page, iOS would open the keyboard or a
-  # picker right at the slide.
+  # field in the modal of the desktop only. On its page or in the sheet of a
+  # phone, iOS would open the keyboard or a picker right at the slide.
   def page_autofocus!(html_options) = options[:form_page] && (html_options[:autofocus] &&= @template.form_in_modal?)
 
   # `errors: false` keeps the errors of the field for a place of the caller's

@@ -2,10 +2,29 @@
 # Ui::FormPage::Component, and the data of a form that the desktop shows on
 # the page.
 module FormPageHelper
+  # The parameter of a phone that asks for the form in a sheet
+  FORM_SHEET = :form_sheet
+  private_constant :FORM_SHEET
+
+  # The address that opens the form at `href` in the sheet of a phone
+  def self.sheet_path(href)
+    uri = URI(href)
+    uri.query = [uri.query, "#{FORM_SHEET}=1"].compact.join('&')
+    uri.to_s
+  end
+
   # The desktop asks for the form from the modal frame, and the form submits
-  # within it. The page of a phone asks without a frame.
+  # within it. A phone asks from the modal frame too, but with FORM_SHEET.
+  # Without a frame, the form is a page of its own.
   def form_in_modal?
-    turbo_frame_request? && !sheet_page?
+    turbo_frame_request? && !sheet_page? && !form_sheet?
+  end
+
+  # A phone shows the form in a tall sheet, with a head like a page of a
+  # sheet (see Ui::SheetPage::Component). It submits within the modal frame,
+  # as on the desktop, so a save closes the sheet.
+  def form_sheet?
+    turbo_frame_request_id == 'modal' && params.key?(FORM_SHEET)
   end
 
   # The form of a list entry, as a grouped list on a phone
@@ -69,6 +88,6 @@ module FormPageHelper
   def form_page_target
     return { turbo_frame: SheetPage::FRAME } if sheet_page?
 
-    form_in_modal? ? { turbo_frame: 'modal' } : { turbo_action: 'replace' }
+    form_in_modal? || form_sheet? ? { turbo_frame: 'modal' } : { turbo_action: 'replace' }
   end
 end

@@ -87,21 +87,22 @@ describe 'Cash flow settings' do
       login_as_admin
     end
 
-    # The filter of a row links to one category, and the way back names it as
-    # a list of categories. Both are the same list, so the back button goes
-    # back in the history.
-    it 'goes back to the filtered list in the history' do
+    # The form opens in a sheet over the filtered list, and a save refreshes
+    # that list with its filter
+    it 'saves in a sheet over the filtered list' do
       CashFlow.create!(date: Date.new(2023, 8, 1), amount: -5000, note: 'Wechselrichter', category: 'investment')
       visit '/settings/cash_flows?category=investment'
 
       click_on '01.08.2023'
-      expect(page).to have_current_path(%r{/settings/cash_flows/\d+/edit})
+      within('dialog#modal-sheet') do
+        expect(page).to have_css('h2', text: 'Zahlung bearbeiten')
+        fill_in 'cash_flow_note', with: 'Neuer Wechselrichter'
+        click_on 'Speichern'
+      end
 
-      find('.ui-title-bar-back').click
+      expect(page).to have_no_css('dialog#modal-sheet[open]')
       expect(page).to have_current_path('/settings/cash_flows?category=investment')
-
-      page.go_forward
-      expect(page).to have_current_path(%r{/settings/cash_flows/\d+/edit})
+      expect(page).to have_text('Neuer Wechselrichter')
     end
   end
 

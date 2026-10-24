@@ -36,7 +36,7 @@ describe Price::List::Component, type: :component do
       row = page.find("a[href='/settings/prices/#{price.id}/edit']").ancestor('[data-controller="ui--table-row--component"]')
 
       aggregate_failures do
-        expect(row).to have_css('a[data-nav-title]')
+        expect(row['data-ui--table-row--component-form-sheet-value']).to eq('true')
         expect(row).to have_text('New tariff')
         expect(row).to have_text(%r{0\.08\s*/kWh})
       end

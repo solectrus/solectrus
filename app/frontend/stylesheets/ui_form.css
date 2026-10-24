@@ -9,16 +9,16 @@
  * for labels too long to share a line. A text area shows its name as the
  * placeholder instead of a label.
  *
- * A form in the modal keeps the usual look, as the sheet of a phone is white.
- * A page of a tall sheet has the gray of a page, and its form the look of a
- * page (see Ui::SheetPage::Component).
+ * A form in a white sheet, like the modal of a tablet, keeps the usual look.
+ * A tall sheet has the gray of a page, and its form the look of a page
+ * (see Ui::SheetPage::Component and Ui::FormPage::Component).
  *
  * Unlayered, because the classes of @tailwindcss/forms and their dark
  * variants in application.css are unlayered too. The desktop keeps the usual
  * form.
  */
 @variant max-lg {
-  .ui-form:is(:not(#modal *), #sheet-page *) {
+  .ui-form:is(:not(#modal *), .bottom-sheet-panel.is-tall *) {
     @apply px-0 [--ui-form-separator:var(--color-gray-300)] dark:[--ui-form-separator:var(--color-slate-700)];
 
     .ui-form-header {

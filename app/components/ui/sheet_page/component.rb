@@ -6,6 +6,10 @@
 # the page scrolls, and a drag on it moves the sheet. A page one level down,
 # with a way back, slides in from the right (see component_controller.ts).
 #
+# With `frame: false`, the sheet holds this one page, like the form of an
+# entry of the list on the page below (see FormPageHelper#form_sheet?). Its
+# form submits within the modal frame, so a save closes the sheet.
+#
 #   = render Ui::SheetPage::Component.new(title: 'Edit', back_href: list_path, back_label: 'Charging') do |page|
 #     - page.with_save(form: form_page_id(record))
 #     = render 'form', record:
@@ -28,10 +32,12 @@ class Ui::SheetPage::Component < ViewComponent::Base
   # keeps the middle
   BUTTON_CLASS = 'flex size-9 items-center justify-center rounded-full bg-fill text-indigo-600 dark:text-indigo-400 click-animation focus-ring'.freeze
   SAVE_CLASS = 'flex size-9 items-center justify-center rounded-full bg-indigo-600 text-white disabled:opacity-40 click-animation focus-ring'.freeze
-  private_constant :BUTTON_CLASS, :SAVE_CLASS
+  WRAPPER_CLASS = 'flex-1 flex flex-col'.freeze
+  private_constant :BUTTON_CLASS, :SAVE_CLASS, :WRAPPER_CLASS
 
-  def initialize(title:, subtitle: nil, back_href: nil, back_label: nil)
+  def initialize(title:, subtitle: nil, back_href: nil, back_label: nil, frame: true)
     super()
+    @frame = frame
     @title = title
     @subtitle = subtitle
     @back_href = back_href
@@ -45,6 +51,14 @@ class Ui::SheetPage::Component < ViewComponent::Base
   # them.
   def head_columns
     actions.many? && !save? ? 'grid-cols-[5rem_1fr_5rem]' : 'grid-cols-[2.25rem_1fr_2.25rem]'
+  end
+
+  # The frame in which the pages of the sheet change, or a plain box for the
+  # one page of a sheet without a frame
+  def wrapper(&)
+    return tag.div(class: WRAPPER_CLASS, &) unless @frame
+
+    tag.turbo_frame(id: SheetPage::FRAME, class: WRAPPER_CLASS, data: frame_data, &)
   end
 
   # The controller asks in Ui::ConfirmDialog::Component before a link leaves

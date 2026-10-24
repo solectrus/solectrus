@@ -76,6 +76,21 @@ describe Ui::TitleBar::Component, type: :component do
     expect(link.text.strip).to be_empty
   end
 
+  it 'opens an action in the sheet of a phone, without a slide' do
+    html =
+      render_inline(described_class.new(title: 'Prices')) do |bar|
+        bar.with_action(href: '/new?price%5Bname%5D=feed_in', icon: 'plus', label: 'New price', sheet: true)
+      end
+
+    link = html.css('a.ui-title-bar-action').first
+
+    aggregate_failures do
+      expect(link['href']).to eq('/new?price%5Bname%5D=feed_in&form_sheet=1')
+      expect(link['data-turbo-frame']).to eq('modal')
+      expect(link['data-nav-title']).to be_nil
+    end
+  end
+
   # Two buttons at the right take the room of two on the left too, so the
   # title keeps the middle
   it 'renders a control of the page before the action' do

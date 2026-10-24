@@ -18,7 +18,7 @@
       .p-2.text-right = Car.human_attribute_name(:battery_kwh)
       .col-start-6.p-2 = t('settings.cars.period')
     - cars.each do |car|
-      = render Ui::TableRow::Component.new(href: edit_settings_car_path(car), nav_title: t('settings.cars.edit', number: car.id), css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
+      = render Ui::TableRow::Component.new(href: edit_settings_car_path(car), form_sheet: true, css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
         .p-2.tabular-nums.max-lg:hidden = car.id
         .min-w-0.lg:p-2.max-lg:col-start-1.max-lg:row-start-1
           = row.link css_class: 'flex items-center gap-2 max-lg:text-headline max-lg:text-gray-800 dark:max-lg:text-slate-300' do

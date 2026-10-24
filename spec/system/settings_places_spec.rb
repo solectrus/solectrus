@@ -22,19 +22,17 @@ describe 'Settings places (mobile)' do
     Sensor::Config.setup(ENV)
   end
 
-  # The link leaves the frame of its page as a visit of Turbo. Else the frame
-  # loads the form first, misses itself in the response and loads the page in
-  # full (see setupStimulus), which drops the marker of the window.
-  it 'opens a place of a further page as a visit of Turbo' do
+  # A row of a further page opens the place in the sheet as well. The link
+  # leaves the frame of its page for the modal frame, so the page stays and
+  # keeps the marker of the window.
+  it 'opens a place of a further page in a sheet' do
     visit settings_places_path
     scroll_to find_by_id('places_page_2', visible: :all)
-    link = find('#places_page_2 a[data-nav-title]')
-    path = link[:href]
     page.execute_script('window.visitMarker = true')
-    link.click
+    find('#places_page_2 [data-ui--table-row--component-target="link"]').click
 
-    expect(page).to have_current_path(path)
-    expect(page).to have_css('.ui-title-bar h1', text: 'Ort bearbeiten')
+    expect(page).to have_css('dialog#modal-sheet h2', text: 'Ort bearbeiten')
+    expect(page).to have_current_path(settings_places_path)
     expect(page.evaluate_script('window.visitMarker')).to be(true)
   end
 end

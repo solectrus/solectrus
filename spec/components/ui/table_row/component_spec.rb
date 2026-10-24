@@ -28,4 +28,14 @@ describe Ui::TableRow::Component, type: :component do
   it 'renders a chevron for a phone' do
     expect(page).to have_css('div.grid > .fa-chevron-right.lg\:hidden')
   end
+
+  # The controller then points the link of a phone to the modal frame too,
+  # with the parameter of the sheet
+  it 'tells the controller to open the form in a sheet on a phone' do
+    expect(page.find('div.grid.cursor-pointer')['data-ui--table-row--component-form-sheet-value']).to be_nil
+
+    render_inline(described_class.new(href: '/edit', form_sheet: true)) { 'Row' }
+
+    expect(page.find('div.cursor-pointer')['data-ui--table-row--component-form-sheet-value']).to eq('true')
+  end
 end

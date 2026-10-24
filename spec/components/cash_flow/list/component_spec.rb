@@ -36,7 +36,7 @@ describe CashFlow::List::Component, type: :component do
       row = page.find("a[href='/settings/cash_flows/#{cash_flow.id}/edit?return_to=%2Fsettings%2Fcash_flows']").ancestor('[data-controller="ui--table-row--component"]')
 
       aggregate_failures do
-        expect(row).to have_css('a[data-nav-title]')
+        expect(row['data-ui--table-row--component-form-sheet-value']).to eq('true')
         expect(row.text).to include('Panels', '2021-03-01 · Investment')
       end
     end

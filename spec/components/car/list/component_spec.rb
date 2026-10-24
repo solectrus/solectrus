@@ -9,7 +9,7 @@ describe Car::List::Component, type: :component do
     link = page.find("a[href='/settings/cars/#{car.id}/edit']")
     aggregate_failures do
       expect(link).to have_text('Model Y')
-      expect(link['data-nav-title']).to eq(I18n.t('settings.cars.edit', number: car.id))
+      expect(link.ancestor('[data-controller="ui--table-row--component"]')['data-ui--table-row--component-form-sheet-value']).to eq('true')
       expect(page).to have_text('MY')
       expect(page).to have_text("#{I18n.l(Date.new(2024, 3, 1))} – #{I18n.t('settings.cars.today')}")
     end

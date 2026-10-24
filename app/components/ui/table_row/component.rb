@@ -8,10 +8,12 @@
 # control of the row or one that ends a text selection.
 #
 # On a phone the link opens the entry on a page of its own, one level down,
-# with nav_title as the title of the slide (see Ui::TitleBar::Component). From
-# lg up the controller points the link to the modal. A chevron follows the
-# cells on a phone. The cells place themselves in the grid of the cell with
-# max-lg: classes, see ChargingSession::Row::Component.
+# with nav_title as the title of the slide (see Ui::TitleBar::Component).
+# With `form_sheet: true`, it opens the form of the entry in a sheet instead
+# (see FormPageHelper#form_sheet?). From lg up the controller points the
+# link to the modal. A chevron follows the cells on a phone. The cells place
+# themselves in the grid of the cell with max-lg: classes, see
+# ChargingSession::Row::Component.
 #
 # A row without `href` opens nothing, like a row that a guest may only read.
 # It has no hover and no chevron, and `row.link` is its plain content.
@@ -48,11 +50,12 @@ class Ui::TableRow::Component < ViewComponent::Base
   LINK_CLASS = 'rounded-sm focus:outline-none'.freeze
   private_constant :LINK_CLASS
 
-  def initialize(href:, nav_title: nil, css_class: nil)
+  def initialize(href:, nav_title: nil, css_class: nil, form_sheet: false)
     super()
     @href = href
     @nav_title = nav_title
     @css_class = css_class
+    @form_sheet = form_sheet
   end
 
   def call
@@ -63,7 +66,8 @@ class Ui::TableRow::Component < ViewComponent::Base
             data: {
               controller: 'ui--table-row--component',
               action: 'click->ui--table-row--component#open',
-            }
+              ui__table_row__component_form_sheet_value: (true if @form_sheet),
+            }.compact
   end
 
   # No prefetch on hover: the pointer rests on rows all the time
