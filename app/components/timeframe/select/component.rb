@@ -44,7 +44,7 @@ class Timeframe::Select::Component < ViewComponent::Base
   # The forecast looks like the period of a field
   def forecast_classes(item)
     [
-      'flex items-center px-3 py-2 rounded-lg text-sm cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
+      'flex items-center px-3 py-2 max-lg:py-3 rounded-lg text-sm cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
       item[:current] ? SELECTED_COLORS : UNSELECTED_COLORS,
     ]
   end

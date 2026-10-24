@@ -46,10 +46,10 @@ class Timeframe::Select::Field::Component < ViewComponent::Base
 
   # The period, marked when the page shows it. On a phone, the field is a
   # tile of half the width, so the period and its chevron join as one split
-  # button.
+  # button, as high as a tap target (44px).
   def button_classes
     [
-      'flex-1 min-w-0 px-3 py-2 rounded-lg text-left text-sm cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
+      'flex-1 min-w-0 px-3 py-2 max-lg:py-3 rounded-lg text-left text-sm cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500',
       'max-[22.5rem]:px-2.5 lg:landscape:px-4 lg:landscape:text-base',
       ('rounded-r-none lg:landscape:rounded-r-lg' if choosable?),
       @selected ? Timeframe::Select::Component::SELECTED_COLORS : Timeframe::Select::Component::UNSELECTED_COLORS,

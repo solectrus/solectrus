@@ -82,7 +82,7 @@ class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
     ]
   end
 
-  COMPACT_CLASSES = 'truncate px-1 py-2 rounded-lg text-sm text-center ' \
+  COMPACT_CLASSES = 'truncate px-1 py-2 max-lg:py-3 rounded-lg text-sm text-center ' \
                     'focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-colors'.freeze
   public_constant :COMPACT_CLASSES
 
