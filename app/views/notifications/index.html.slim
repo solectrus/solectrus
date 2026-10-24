@@ -8,6 +8,8 @@
       = icon 'message', class: 'text-indigo-200 dark:text-gray-400 text-2xl'
 
 - if admin?
+  / A phone shows the list as a grouped list on gray
+  - content_for :grouped, true
   = render Notification::List::Component.new(notifications:)
 - else
   = render Notification::LoginRequired::Component.new(unread_count: unread_notifications_count)

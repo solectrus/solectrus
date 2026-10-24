@@ -1,16 +1,19 @@
-= link_to notification_path(notification),
-          id: dom_id(notification),
-          class: 'block px-3 py-4 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 focus-ring-inset',
-          data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
-  .flex.items-center.gap-4
-    .relative.flex-shrink-0.w-10.h-10.rounded-full.bg-indigo-100.dark:bg-indigo-900.flex.items-center.justify-center
-      = icon 'message', class: 'text-indigo-600 dark:text-indigo-400'
+/ A row of the list, like a mail in a list of mails: the dot of an unread
+  notification stands in a column of its own at the left, so the titles line
+  up, read or not. On a phone the rows are the cells of a grouped list. The
+  separator starts after the dot, and the last row has none.
+li class='group/row' id=dom_id(notification)
+  = link_to notification_path(notification),
+            class: 'flex items-stretch gap-2 pl-2 lg:rounded-lg active:bg-fill-strong pointer-fine:hover:bg-fill focus-ring-inset',
+            data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
+    span.flex.w-3.shrink-0.justify-center.pt-4.5
       - if unread?
-        span.absolute.top-0.right-0.w-3.h-3.rounded-full.bg-red-500.border-2.border-white.dark:border-slate-800
-
-    .flex-1.min-w-0
-      .text-sm.text-gray-500.dark:text-gray-400
-        = formatted_published_at
-
-      div class=['mt-1 text-gray-800 dark:text-gray-300 leading-snug', ('font-semibold' if unread?)]
-        = title
+        span.size-2.5.rounded-full.bg-indigo-500.dark:bg-indigo-400 aria-hidden='true'
+    div class='flex min-w-0 flex-1 items-center gap-3 border-b border-line py-3 pr-4 group-last/row:border-b-0'
+      .min-w-0.flex-1
+        div class=['line-clamp-2 text-headline leading-snug text-fg', ('font-semibold' if unread?)]
+          - if unread?
+            span.sr-only = "#{t('.unread')}: "
+          = title
+        time.mt-0.5.block.text-sm.text-muted = formatted_published_at
+      = icon 'chevron-right', class: 'text-sm text-faint lg:pointer-fine:hidden'

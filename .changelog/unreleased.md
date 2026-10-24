@@ -49,6 +49,7 @@ Keep every section, an empty one included.
 - The Top 10 has two buttons: one for the sensor, and one for the car, the calculation and the order
 - On a phone, "More" opens a page of its own, as on an iPhone. Language, theme, color palette and fullscreen are switches there
 - On a phone, a tap on a link clears the content at once, so you see that the tap works
+- On a phone, the notifications show as a list, as on an iPhone. A dot marks an unread notification. "Understood" spans the width of the panel
 - On a phone, the timeframe takes one row: Now, a button for every other period, and Today, with an arrow at each end. The lists of the car and the forecast have the same row. On Now and Today, the button shows the current week, month or year, of the kind that you chose last. When it is active, it shows an arrow, and a tap opens the date selection. A long press opens it at once. The arrows and a swipe change the page to the period before or after, and from Today and Now to yesterday and to the forecast. When you swipe, the page follows the finger and slides to the side, as on an iPhone. The live status no longer shows in this row
 - On desktop, the arrows beside the date are double arrows
 - On a phone, the car page opens the charging sessions and the places in a tall sheet. A tap on an entry opens its form in the same sheet. After a save, the sheet shows the list again. A link that leaves a form with unsaved changes asks first

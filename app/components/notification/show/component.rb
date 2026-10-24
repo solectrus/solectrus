@@ -37,6 +37,11 @@ class Notification::Show::Component < ViewComponent::Base
   ].join(' ').freeze
   private_constant :BODY_CLASS
 
+  # The button marks the notification as read and closes the modal at once,
+  # the answer updates the list and the badges behind it
+  BUTTON_DATA = { turbo_frame: '_top', action: 'click->ui--turbo-modal--component#closeDialog' }.freeze
+  private_constant :BUTTON_DATA
+
   # Sanitize the body and force every link to open in a new browser tab.
   # Without this, links inside the notification modal would replace the
   # current Turbo Frame instead of opening externally.

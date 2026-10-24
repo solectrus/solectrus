@@ -89,6 +89,23 @@ describe 'Notifications' do
         expect(response.body).to include('Test Notification')
       end
 
+      # An unread notification has a dot and a bold title, like a mail. A
+      # screen reader reads the state before the title.
+      it 'marks an unread notification' do
+        get '/notifications'
+        row = response.parsed_body.at_css("li#notification_#{notification.id}")
+
+        expect(row.at_css('span.rounded-full')).to be_present
+        expect(row.text.squish).to start_with('Unread: Test Notification')
+
+        notification.mark_as_read!
+        get '/notifications'
+        row = response.parsed_body.at_css("li#notification_#{notification.id}")
+
+        expect(row.at_css('span.rounded-full')).to be_nil
+        expect(row.text.squish).to start_with('Test Notification')
+      end
+
       # The list page is public, so a logout here must stay here. It is the one
       # page a fresh guest should see, and bouncing to the homepage would hide
       # the explanation the red mark points at.

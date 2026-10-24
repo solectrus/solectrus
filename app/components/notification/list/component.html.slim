@@ -2,8 +2,10 @@
   h1.pb-4.text-gray-500.text-base.sm:text-lg.md:text-xl.lg:text-2xl.flex-shrink-0.hidden.sm:block
     = t('layout.notifications')
 
-  / Negative margin lets the row background reach past the content edge, so the
-  / row text still aligns with the heading above.
-  .-mx-3.divide-y.divide-gray-200.dark:divide-gray-700.overflow-y-auto.flex-1
+  / A phone has the rows in a white card on the gray page, like a grouped
+    list. The desktop has them on its white box, where a negative margin lets
+    the hover reach past the content edge, so the text still aligns with the
+    heading above.
+  ul.max-lg:overflow-clip.max-lg:rounded-xl.max-lg:bg-surface.lg:-mx-3.lg:overflow-y-auto.lg:flex-1
     - notifications.each do |notification|
       = render Notification::Item::Component.new(notification:)

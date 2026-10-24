@@ -6,14 +6,17 @@
     div class=['mt-6 overflow-y-auto flex-1 min-h-0', BODY_CLASS]
       = safe_body
 
-    .mt-6.pt-4.border-t.border-gray-200.dark:border-slate-700.flex.justify-end.shrink-0
-      = render Ui::Button::Component.new path: mark_as_read_notification_path(notification),
-                                         title: t('.understood'),
-                                         type: :button,
-                                         options: { \
-                                           method: :patch,
-                                           data: { \
-                                             turbo_frame: '_top',
-                                             action: 'click->ui--turbo-modal--component#closeDialog',
-                                           },
-                                         }
+    / A phone has one wide button at the lower edge of the sheet, as a sheet
+      with news has it. The desktop keeps the button at the right, below a line.
+    .mt-6.shrink-0.lg:pt-4.lg:border-t.lg:border-gray-200.lg:dark:border-slate-700.lg:flex.lg:justify-end
+      = button_to t('.understood'),
+                  mark_as_read_notification_path(notification),
+                  method: :patch,
+                  form: { class: 'lg:hidden' },
+                  class: 'flex h-12 w-full items-center justify-center rounded-xl bg-indigo-600 text-headline font-semibold text-white dark:bg-indigo-700 dark:text-gray-200 click-animation focus-ring',
+                  data: BUTTON_DATA
+      .max-lg:hidden
+        = render Ui::Button::Component.new path: mark_as_read_notification_path(notification),
+                                           title: t('.understood'),
+                                           type: :button,
+                                           options: { method: :patch, data: BUTTON_DATA }
