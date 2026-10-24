@@ -818,22 +818,25 @@ its address redirects to `/cars/now`. When another timeframe has one car in use,
 from the live view to it selects that car, also when the timeframe has a guest session.
 Otherwise the link goes to "all". An installation without a select keeps "all".
 
-Each car has a card of its own (`Car::LiveCard::Component`). A phone shows the cards one
-below the other, and a wider screen side by side. One car stands in the middle, at most
-35rem wide. The card shows from top to bottom:
+Each car has a section of its own (`Car::LiveCard::Component`), in the way of the grouped
+lists of iOS. A phone shows the sections one below the other, from the top, with white cards
+on the gray of the page. A wider screen shows them side by side. One car stands in the
+middle, at most 35rem wide. The desktop has gray cards on its white page. There a lone car
+is 64rem wide and has its list beside the card, as a panel of the same height. The section
+shows from top to bottom:
 
 - The name of the car with a dot in its color, and the time of its latest reading. The time
   is necessary, because a car sensor holds its value at any age.
-- For the admin, the place as a pill (`Car::LocationRow::Component`), which opens the map.
-- The range, and the state of charge as a bar with the percent in the bar. Below the bar,
-  the scale from 0 to the maximum range.
-- The plug of the car (`car_connected_<n>`) as an icon. While the car charges, the icon is
-  green and shows the charging power. It stands in the middle below the bar.
-- The odometer at the foot.
+- A card with the range, and the state of charge as a bar with the percent in the bar.
+  Below the bar, the scale from 0 to the maximum range.
+- A list with a cell for each detail:
+  - For the admin, the place (`Car::LocationRow::Component`), which opens the map.
+  - The plug of the car at the wallbox (`car_connected_<n>`). While the car charges, the
+    cell shows the charging power in green.
+  - The odometer.
 
-A phone shows the cards one below the other, and a lone card in the middle of the height.
-With more than one card, a phone card is compact, so two cars fit without scrolling: the
-range has its name and the plug beside it.
+With more than one car, the card of a phone is a little smaller, so two cars fit with less
+scrolling.
 
 Only the car at the wallbox shows the power of the wallbox (`Car::Live`). When the wallbox
 charges and no car shows its power, the live view adds a card of the wallbox with the

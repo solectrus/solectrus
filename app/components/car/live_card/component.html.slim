@@ -4,64 +4,67 @@
     = helpers.car_icon(car.display_color)
     span.truncate = car.display_name
 
-  - if location?
-    = render Car::LocationRow::Component.new(state:)
-
-  div class=['flex-1 flex flex-col justify-center', content_gap_class]
-    / The range, and without one the state of charge, with its name below.
-      A compact card has the name and the plug beside it.
-    div class=range_row_class
-      = value_tag(range? ? :range : :soc, class: [range_class, 'min-w-0 rounded-md']) do
-        span.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-fg class=range_size_class
-          - if range?
-            = render Sensor::Value::Component.new(range, sensor_name(:car_range))
-          - elsif soc
-            = percent
-          - else
-            | –
-        / An estimate names itself, and its tooltip tells where it comes from
-        span.truncate.text-sm.uppercase.tracking-wider.text-muted class=range_name_class title=(t('cars.battery.estimated_note') if estimated?) data-controller=('tooltip' if estimated?)
-          - if range?
-            = estimated? ? t('cars.battery.estimated') : t('sensors.car_range_short')
-          - else
-            = t('sensors.car_battery_soc_short')
-      - if inline_plug?
-        .sm:hidden = plug
-
-    / The state of charge as a bar, gray without one, with the percent at the
-      end of the fill. While the car charges, the part that the charge fills
-      next pulses. Below the bar, the scale from 0 to the maximum range.
-    div
-      = value_tag(:soc, class: 'block rounded-full') do
-        .relative.lg:h-11.rounded-full.overflow-hidden.bg-fill-strong class=bar_height_class role='img' aria-label=bar_label
-          / The pulse lies below the fill and reaches further, so it ends
-            round like the fill
-          - if charging_percent
-            .charging-pulse.absolute.inset-y-0.left-0.rounded-full class=fill_classes style="width: #{charging_percent}%"
-          - if soc&.positive?
-            .absolute.inset-y-0.left-0.rounded-full class=fill_classes style="width: #{fill_percent}%"
-          - if soc
-            span.absolute.inset-y-0.flex.items-center.lg:text-lg.font-bold.tabular-nums class=[percent_classes, percent_size_class] style=percent_style aria-hidden='true'
+  / A lone car on the desktop has its list beside the card, as a panel
+  div class=body_classes
+    div class=['flex flex-col gap-4 rounded-2xl p-4 lg:gap-5 lg:p-6', GROUND]
+      / The range, and without one the state of charge, with its name below
+      div
+        = value_tag(range? ? :range : :soc, class: 'inline-flex flex-col items-start gap-1 lg:gap-1.5 min-w-0 rounded-md') do
+          span.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-fg class=range_size_class
+            - if range?
+              = render Sensor::Value::Component.new(range, sensor_name(:car_range))
+            - elsif soc
               = percent
-      - if scale?
-        div class=['mt-1.5 lg:mt-2 flex justify-between gap-3 lg:text-lg lg:font-medium tabular-nums text-muted', scale_size_class]
-          span = render Sensor::Value::Component.new(0, sensor_name(:car_range))
-          - if max_range
-            span title=t('sensors.car_max_range_short') data-controller='tooltip'
-              = render Sensor::Value::Component.new(max_range, sensor_name(:car_max_range))
+            - else
+              | –
+          / An estimate names itself, and its tooltip tells where it comes from
+          span.truncate.text-subhead.text-muted title=(t('cars.battery.estimated_note') if estimated?) data-controller=('tooltip' if estimated?)
+            - if range?
+              = estimated? ? t('cars.battery.estimated') : t('sensors.car_range_short')
+            - else
+              = t('sensors.car_battery_soc_short')
 
-    - if plug?
-      div class=['flex justify-center', plug_class] = plug
+      / The state of charge as a bar, gray without one, with the percent at the
+        end of the fill. While the car charges, the part that the charge fills
+        next pulses. Below the bar, the scale from 0 to the maximum range.
+      div
+        = value_tag(:soc, class: 'block rounded-full') do
+          .relative.lg:h-11.rounded-full.overflow-hidden.bg-fill-strong class=bar_height_class role='img' aria-label=bar_label
+            / The pulse lies below the fill and reaches further, so it ends
+              round like the fill
+            - if charging_percent
+              .charging-pulse.absolute.inset-y-0.left-0.rounded-full class=fill_classes style="width: #{charging_percent}%"
+            - if soc&.positive?
+              .absolute.inset-y-0.left-0.rounded-full class=fill_classes style="width: #{fill_percent}%"
+            - if soc
+              span.absolute.inset-y-0.flex.items-center.lg:text-lg.font-bold.tabular-nums class=[percent_classes, percent_size_class] style=percent_style aria-hidden='true'
+                = percent
+        - if scale?
+          div class=['mt-1.5 lg:mt-2 flex justify-between gap-3 lg:text-lg lg:font-medium tabular-nums text-muted', scale_size_class]
+            span = render Sensor::Value::Component.new(0, sensor_name(:car_range))
+            - if max_range
+              span title=t('sensors.car_max_range_short') data-controller='tooltip'
+                = render Sensor::Value::Component.new(max_range, sensor_name(:car_max_range))
 
-    - if stale?
-      div class='self-center rounded-full px-3 py-0.5 text-sm bg-fill text-muted'
-        = t('cars.battery.stale')
+      - if stale?
+        div class='self-start rounded-full px-3 py-0.5 text-sm bg-fill text-muted'
+          = t('cars.battery.stale')
 
-  - if odometer?
-    div class=['flex items-center justify-between gap-3 border-t border-line pt-2.5 lg:pt-3.5 lg:text-base text-muted', odometer_size_class]
-      span = t('sensors.car_roles.car_odometer')
-      = value_tag(:odometer, class: 'rounded-md font-semibold tabular-nums text-fg-secondary') do
-        - if state.odometer
-          = render Sensor::Value::Component.new(state.odometer, sensor_name(:car_odometer))
-        - else
-          | –
+    / The place, the plug and the odometer as the cells of a grouped list.
+      Beside the card, the cells share its height.
+    - if location? || plug? || odometer?
+      div class=['rounded-2xl overflow-hidden divide-y divide-line lg:grid lg:auto-rows-fr', GROUND]
+        - if location?
+          = render Car::LocationRow::Component.new(state:)
+        - if plug?
+          div class=Car::LocationRow::Component::CELL
+            span = t('car_breakdown.wallbox_short')
+            = plug_state
+        - if odometer?
+          div class=Car::LocationRow::Component::CELL
+            span = t('sensors.car_roles.car_odometer')
+            = value_tag(:odometer, class: 'rounded-md tabular-nums text-fg-secondary') do
+              - if state.odometer
+                = render Sensor::Value::Component.new(state.odometer, sensor_name(:car_odometer))
+              - else
+                | –

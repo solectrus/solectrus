@@ -1,15 +1,14 @@
-# The card of one car in the live view (see Car::LiveView::Component): its
-# name with a car in its color and the time of its latest reading, for the
-# admin the row of its place, then its range, its state of charge as a bar
-# with the scale from 0 to the maximum range, the plug, and the odometer at
-# the foot. The range, the bar and the odometer open the chart of today.
+# The card of one car in the live view (see Car::LiveView::Component), in the
+# way of the grouped lists of iOS: its name with a car in its color and the
+# time of its latest reading, then a card with its range and its state of
+# charge as a bar with the scale from 0 to the maximum range. Below it, the
+# cells of a list: for the admin its place, the plug and the odometer. The
+# range, the bar and the odometer open the chart of today.
 #
-# The plug is an icon. While the car charges, it is green with the charging
-# power beside it. It stands in the middle below the bar.
-#
-# A phone shows the cards one below the other. With more than one card, the
-# phone has a compact card, so two cars fit without scrolling: the range
-# with its name in one line, and the plug on the right of it.
+# A phone has white cards on the gray of the page, the desktop gray cards on
+# its white page. A lone car on the desktop has the list beside the card.
+# With more than one card, the card is a little smaller, so two cars fit on a
+# phone with less scrolling.
 class Car::LiveCard::Component < ViewComponent::Base
   include Car::BatteryDisplay
   include Car::TimeText
@@ -40,28 +39,24 @@ class Car::LiveCard::Component < ViewComponent::Base
 
   attr_reader :state, :compact
 
+  # The ground of the card and of the list. The dark page of the desktop has
+  # the color of the canvas, so the card takes the surface and a fine edge
+  # there.
+  GROUND = 'bg-surface lg:bg-canvas dark:lg:bg-surface dark:lg:ring-1 dark:lg:ring-white/10'.freeze
+  public_constant :GROUND
+
+  # A lone car on the desktop has the room for its list beside the card. The
+  # class names stay literal, so Tailwind finds them.
+  def body_classes = compact ? 'contents' : 'contents lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6'
+
   # The class names stay literal, so Tailwind finds them
-  def range_row_class = compact ? 'flex items-center justify-between gap-3 sm:justify-center' : 'flex justify-center'
-
-  def range_class = compact ? 'flex items-baseline gap-2 sm:flex-col sm:items-center sm:gap-1.5' : 'flex flex-col items-center gap-1.5'
-
-  def range_size_class = compact ? 'text-4xl sm:text-5xl lg:text-6xl' : 'text-5xl lg:text-6xl'
-
-  def range_name_class = ('max-sm:normal-case max-sm:tracking-normal' if compact)
-
-  def content_gap_class = compact ? 'gap-3 sm:gap-4 lg:gap-5' : 'gap-4 lg:gap-5'
+  def range_size_class = compact ? 'text-4xl lg:text-6xl' : 'text-5xl lg:text-6xl'
 
   # The bar with its percent, the scale below it and the odometer, a step
   # larger for a lone card, which has the room for it
   def bar_height_class = compact ? 'h-8' : 'h-10'
   def percent_size_class = compact ? 'text-sm' : 'text-lg'
   def scale_size_class = compact ? 'text-xs' : 'text-sm'
-  def odometer_size_class = compact ? 'text-sm' : 'text-base'
-
-  # The plug on the right of the range, on a compact phone card alone
-  def inline_plug? = compact && plug?
-
-  def plug_class = ('max-sm:hidden' if compact)
 
   delegate :car, to: :state
 
@@ -115,34 +110,22 @@ class Car::LiveCard::Component < ViewComponent::Base
   # The plug of the car, or the charging power while it charges
   def plug? = charging? || !state.connected.nil?
 
-  def plug_label
-    if charging?
-      t('.charging', power: power_text)
-    else
-      t(state.connected ? 'sensors.wallbox_car_connected_short' : 'sensors.wallbox_car_disconnected_short')
-    end
-  end
+  # The state of the plug as the value of its cell: the charging power in
+  # green, or whether the car is connected
+  def plug_state
+    text, classes =
+      if charging?
+        [t('.charging', power: power_text), 'font-semibold tabular-nums text-signal-positive']
+      elsif state.connected
+        [t('sensors.wallbox_car_connected_short'), 'text-car-battery']
+      else
+        [t('sensors.wallbox_car_disconnected_short'), 'text-muted']
+      end
 
-  def plug
-    tag.span(class: plug_classes, role: 'img', title: plug_label, aria: { label: plug_label }, data: { controller: 'tooltip', tooltip_touch_value: 'true' }) do
-      safe_join([helpers.icon(charging? ? 'bolt' : 'plug'), (tag.span(power_text, aria: { hidden: true }) if charging?)])
-    end
+    tag.span(safe_join([helpers.icon(charging? ? 'bolt' : 'plug'), text]), class: ['flex items-center gap-1.5', classes])
   end
 
   def power_text = Sensor::ValueFormatter.new(charging_power, unit: Sensor::Registry[:wallbox_power].unit, context: :rate).to_s
-
-  def plug_classes
-    class_names(
-      'flex shrink-0 items-center justify-center gap-1.5 rounded-full h-9 min-w-9 lg:h-11 lg:min-w-11 lg:gap-2 text-base lg:text-lg',
-      if charging?
-        'px-3 lg:px-4 font-semibold tabular-nums text-white bg-signal-positive'
-      elsif state.connected
-        'text-car-battery bg-fill'
-      else
-        'text-faint bg-fill'
-      end,
-    )
-  end
 
   private
 

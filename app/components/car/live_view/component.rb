@@ -1,7 +1,8 @@
 # The live view of the car page: a card for each car in use today (see
 # Car::LiveCard::Component). The live view has no select, so each card names
-# its car. A phone shows the cards one below the other, a wider screen side
-# by side. One car stands in the middle, at most 35rem wide.
+# its car. A phone shows the cards one below the other, from the top, on the
+# gray of the page. A wider screen shows them side by side. One car stands in
+# the middle, at most 35rem wide, and on the desktop 64rem.
 #
 # The wallbox gets a card of its own while it charges and no car shows its
 # power: a guest charges, or no car has a plug. With the plugs of the cars,
@@ -35,10 +36,8 @@ class Car::LiveView::Component < ViewComponent::Base
 
   def cards = states.size + (wallbox? ? 1 : 0)
 
-  # A phone puts a lone card in the middle of the height. The auto margins
-  # keep its top in reach, should it ever be higher than the screen. The
-  # class names stay literal, so Tailwind finds them.
+  # The class names stay literal, so Tailwind finds them
   def card_classes
-    cards == 1 ? 'max-sm:my-auto sm:w-full sm:max-w-[35rem]' : 'sm:flex-1 sm:max-w-[37.5rem]'
+    cards == 1 ? 'sm:w-full sm:max-w-[35rem] lg:max-w-5xl' : 'sm:flex-1 sm:max-w-[37.5rem]'
   end
 end

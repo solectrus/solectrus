@@ -113,14 +113,17 @@ describe Car::LiveView::Component, type: :component do
     end
   end
 
+  # The state of the plug as a cell of the list below the card
   describe 'the plug' do
+    def plug_cell = html.css('section div').to_a.rfind { it.text.start_with?('Wallbox') }.element_children.last.text.squish
+
     let(:state) { state_at(5.minutes.ago).with(connected: true, charging_power:) }
 
     context 'when the car charges' do
       let(:charging_power) { 7_400 }
 
       it 'shows the charging power' do
-        expect(html.css('[role="img"][aria-label="Charging at 7.4 kW"]').size).to eq(1)
+        expect(plug_cell).to eq('Charging at 7.4 kW')
       end
     end
 
@@ -128,7 +131,7 @@ describe Car::LiveView::Component, type: :component do
       let(:charging_power) { 0 }
 
       it 'shows the plug alone' do
-        expect(html.css('[role="img"][aria-label="Connected"]').size).to eq(1)
+        expect(plug_cell).to eq('Connected')
       end
     end
   end

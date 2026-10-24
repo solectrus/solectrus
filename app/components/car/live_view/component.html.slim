@@ -1,8 +1,8 @@
-/ A phone fills the height with the cards, and scrolls through more than fit.
-  A line parts the cards one below the other.
-div class='flex-1 min-h-0 flex flex-col gap-3.5 overflow-y-auto max-sm:divide-y max-sm:divide-line sm:flex-row sm:justify-center sm:gap-5'
+/ A phone shows the cards one below the other, and scrolls through more than
+  fit
+div class='flex-1 min-h-0 flex flex-col gap-2 overflow-y-auto sm:flex-row sm:justify-center sm:gap-5'
   - if states.empty?
-    div class=[Car::LiveShell::Component::CARD, card_classes, 'flex-1 items-center justify-center p-4']
+    div class=[Car::LiveShell::Component::CARD, card_classes, 'flex-1 items-center justify-center p-4', Car::LiveCard::Component::GROUND]
       = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use_now'))
 
   - states.each do |state|
@@ -16,7 +16,7 @@ div class='flex-1 min-h-0 flex flex-col gap-3.5 overflow-y-auto max-sm:divide-y 
       - card.with_title do
         = icon 'charging-station'
         = title
-      div class='flex-1 flex flex-col items-center justify-center gap-1.5'
+      div class=['flex-1 flex flex-col items-center justify-center gap-1.5 rounded-2xl p-6', Car::LiveCard::Component::GROUND]
         span.text-5xl.lg:text-7xl.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-signal-positive
           = render Sensor::Value::Component.new(live.data, :wallbox_power, context: :rate)
         span.text-sm.text-muted.lg:uppercase.lg:tracking-wider

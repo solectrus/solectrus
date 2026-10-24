@@ -1,5 +1,6 @@
-# The place of a car in the live view, as a pill that opens the map (see
-# Car::Location::Component). A car at a place shows the name of the place. A
+# The place of a car in the live view, as a cell of its list that opens the
+# map (see Car::Location::Component and Car::LiveCard::Component). A car at a
+# place shows the name of the place. A
 # car at no place is on the road: the row names the town near its latest
 # position and how old that position is. A car that drove away from its
 # latest position is on the road without a town (see
@@ -11,6 +12,11 @@
 # live view then knows the name.
 class Car::LocationRow::Component < ViewComponent::Base
   include Car::TimeText
+
+  # A cell of the list below the card of a car: its name at the left, its
+  # value at the right
+  CELL = 'flex items-center justify-between gap-3 min-h-12 px-4 py-2.5 text-base text-fg lg:px-6'.freeze
+  public_constant :CELL
 
   # Below this age, the row says how many minutes ago the car reported its
   # position. An older position names its time.
@@ -76,10 +82,7 @@ class Car::LocationRow::Component < ViewComponent::Base
   end
 
   def row_classes
-    class_names(
-      'inline-flex max-w-full items-center gap-2 min-h-9 pl-1 pr-3 py-1 rounded-full',
-      'focus-ring-inset hover:bg-fill click-animation' => location,
-    )
+    class_names(CELL, 'focus-ring-inset hover:bg-fill-strong active:bg-fill-strong' => location)
   end
 
   private
