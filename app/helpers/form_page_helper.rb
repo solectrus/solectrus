@@ -23,6 +23,9 @@ module FormPageHelper
   # carries it, not the address of the form, because a delete button
   # replaces that address.
   #
+  # A form that comes back with errors holds input that is not saved yet,
+  # although its fields show it as rendered (see form_dirty_controller.ts).
+  #
   #   = form_page_with(model: price, url: [:settings, price]) do |f|
   def form_page_with(model:, **, &)
     form_with(
@@ -30,7 +33,7 @@ module FormPageHelper
       id: form_page_id(model),
       builder: TailwindFormBuilder,
       form_page: true,
-      html: { class: 'ui-form', data: { **(turbo_frame_request? ? { controller: 'form-dirty' } : page_form_data), **form_page_target } },
+      html: { class: 'ui-form', data: { **(turbo_frame_request? ? { controller: 'form-dirty' } : page_form_data), **form_page_target, **unsaved_data(model) } },
       **,
     ) do |f|
       safe_join([(hidden_field_tag(:return_to, return_to, id: nil) if return_to), capture(f, &)])
@@ -52,6 +55,10 @@ module FormPageHelper
   # The id of the form of a list entry. The save button in the title bar of a
   # phone names the form by it (see Ui::TitleBar::Component).
   def form_page_id(model) = dom_id(Array(model).last, :form)
+
+  def unsaved_data(model)
+    Array(model).last.errors.any? ? { form_dirty_unsaved_value: true } : {}
+  end
 
   # In the modal, a form submits within that frame, so the controller can
   # tell the two places apart (see FormPageResponse). On its page, a redirect

@@ -103,6 +103,25 @@ describe 'Charging sessions' do
       end
     end
 
+    # The check replaces the field, whose rendered value is then the checked
+    # address
+    it 'asks before it closes with a checked address' do
+      found_place = Place.new(latitude: 51.0, longitude: 7.0, geocoding: { 'address' => { 'country_code' => 'de', 'postcode' => '12345', 'town' => 'Town', 'road' => 'Main Street' } })
+      allow(Place).to receive(:search).and_return(found_place)
+      visit '/cars/charging_sessions/offsite/2022-06'
+
+      row('June trip').click
+      within('#modal') do
+        fill_in 'charging_session_address', with: 'main street 1, town'
+        find_field('charging_session_note').click
+        expect(page).to have_field('charging_session_address', with: 'DE-12345 Town, Main Street 1')
+
+        click_on 'Schließen'
+      end
+
+      expect(page.document).to have_css('#confirm-dialog[open]', text: 'Änderungen verwerfen?')
+    end
+
     # The form opens without Nominatim and asks it once it is shown
     it 'offers the address at the position of the car once the form opened' do
       ChargingSession.find_by(note: 'June trip').update_columns(latitude: 50.0, longitude: 8.0) # rubocop:disable Rails/SkipsModelValidations

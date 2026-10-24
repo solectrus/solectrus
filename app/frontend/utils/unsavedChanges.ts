@@ -1,8 +1,18 @@
-// Whether a form inside `root` holds changes that are not saved yet: a field
-// whose value differs from the one the page rendered. A field changed and
-// then changed back counts as unchanged.
+// A form with the form-dirty controller carries this attribute while it holds
+// changes. The controller compares the data of the form with the data at its
+// start, so it also sees fields that a script replaced or set, like the
+// address of a charging session after its check, and a form that came back
+// with errors (see form_dirty_controller.ts).
+export const CHANGED_ATTRIBUTE = 'data-form-dirty-changed';
+
+// Whether a form inside `root` holds changes that are not saved yet: a form
+// that its form-dirty controller marks, or a field whose value differs from
+// the one the page rendered. A field changed and then changed back counts as
+// unchanged.
 export function hasUnsavedChanges(root: ParentNode): boolean {
   for (const form of root.querySelectorAll('form')) {
+    if (form.hasAttribute(CHANGED_ATTRIBUTE)) return true;
+
     for (const element of form.elements) {
       if (isChanged(element)) return true;
     }

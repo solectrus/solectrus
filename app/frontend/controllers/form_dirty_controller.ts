@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { visit } from '@hotwired/turbo';
 import type ConfirmDialogController from '../../components/ui/confirm_dialog/component_controller';
+import { CHANGED_ATTRIBUTE } from '@/utils/unsavedChanges';
 
 // Enables the save buttons of a form once a field changes. A button can stand
 // outside the form and name it with its form attribute, like the save button
@@ -13,12 +14,21 @@ import type ConfirmDialogController from '../../components/ui/confirm_dialog/com
 // asks. The title bar of a phone starts its slide at the click on a link,
 // before the visit (see Ui::TitleBar::Component). So the controller asks at
 // the click already, and clicks the link again once the user leaves.
+//
+// A form that comes back with errors (`unsaved`) shows the input that the
+// save refused as its rendered values. It counts as changed until a save
+// succeeds, so its save buttons stay enabled and a visit asks first.
+//
+// While the form holds changes, it carries an attribute, so the sheet and the
+// modal ask before they close it (see utils/unsavedChanges.ts).
 type TurboClickEvent = CustomEvent<{ originalEvent: Event }>;
 
 export default class extends Controller<HTMLFormElement> {
   static readonly outlets = ['ui--confirm-dialog--component'];
+  static readonly values = { unsaved: Boolean };
 
   declare readonly uiConfirmDialogComponentOutlet: ConfirmDialogController;
+  declare unsavedValue: boolean;
 
   private initialData = '';
   private lastCheckedData = '';
@@ -29,7 +39,7 @@ export default class extends Controller<HTMLFormElement> {
     this.initialData = this.formData();
     this.lastCheckedData = this.initialData;
     this.submitting = false;
-    this.setDisabled(true);
+    this.setChanged(this.unsavedValue);
 
     this.element.addEventListener('input', this.handleChange);
     this.element.addEventListener('change', this.handleChange);
@@ -75,7 +85,7 @@ export default class extends Controller<HTMLFormElement> {
     if (current === this.lastCheckedData) return;
 
     this.lastCheckedData = current;
-    this.setDisabled(current === this.initialData);
+    this.setChanged(this.unsavedValue || current !== this.initialData);
   };
 
   // A reset button, like the discard button of Ui::SaveBar::Component and
@@ -130,7 +140,10 @@ export default class extends Controller<HTMLFormElement> {
 
   private readonly handleSubmitEnd = (event: Event): void => {
     const { success } = (event as CustomEvent).detail;
-    if (success) this.resetState();
+    if (success) {
+      this.unsavedValue = false;
+      this.resetState();
+    }
     this.submitting = false;
   };
 
@@ -149,13 +162,21 @@ export default class extends Controller<HTMLFormElement> {
   };
 
   private dirty(): boolean {
-    return !this.submitting && this.formData() !== this.initialData;
+    return (
+      !this.submitting &&
+      (this.unsavedValue || this.formData() !== this.initialData)
+    );
   }
 
   private resetState(): void {
     this.initialData = this.formData();
     this.lastCheckedData = this.initialData;
-    this.setDisabled(true);
+    this.setChanged(this.unsavedValue);
+  }
+
+  private setChanged(changed: boolean): void {
+    this.element.toggleAttribute(CHANGED_ATTRIBUTE, changed);
+    this.setDisabled(!changed);
   }
 
   private setDisabled(disabled: boolean): void {

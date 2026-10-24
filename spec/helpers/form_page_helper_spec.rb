@@ -62,6 +62,24 @@ describe FormPageHelper do
       end
     end
 
+    context 'when the form comes back with errors' do
+      let(:modal) { true }
+
+      before { price.errors.add(:base, :invalid) }
+
+      it 'holds input that is not saved yet' do
+        expect(form['data-form-dirty-unsaved-value']).to eq('true')
+      end
+    end
+
+    context 'without errors' do
+      let(:modal) { true }
+
+      it 'holds no unsaved input' do
+        expect(form['data-form-dirty-unsaved-value']).to be_nil
+      end
+    end
+
     context 'with a model in a namespace' do
       let(:modal) { false }
 
