@@ -514,6 +514,11 @@ html[aria-busy='true']:not(
     -webkit-touch-callout: none;
     /* Disable dragging on iOS */
     -webkit-user-drag: none;
+    /* No zoom on a double tap, like two quick taps on the arrow of the
+       timeframe. Pinch to zoom stays. On every element, not on the root
+       alone: a scroll container, like main on a phone, starts the search
+       for the touch-action anew. A utility like touch-none still wins. */
+    touch-action: manipulation;
   }
 
   main code {

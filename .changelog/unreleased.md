@@ -66,6 +66,7 @@ Keep every section, an empty one included.
 - A tooltip on a page that you scrolled down now opens next to its element. Before, it opened lower by the scroll distance
 - On a phone, the bar at the bottom now stays in view on a long page. Before, it scrolled away
 - On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page
+- On a phone, two quick taps, like on an arrow of the timeframe, now count as two taps. Before, they could zoom into the page
 - A sensor that tells whether a car is connected now reads "False", "OFF" and a negative number as not connected. Before, they counted as connected
 - A browser tab that stays open for a long time now keeps its memory use low. Before, it grew with each page
 - Settings: after a delete, the message now says "Deleted". Before, it said "Saved"
