@@ -68,7 +68,7 @@ A phone has a tab bar at its lower edge. Its navigation starts with the views of
 
 The tab bar holds the first four entries, the primary entries. If a system has fewer than four views, other pages take the free places. The last tab opens the page More. It lists the secondary entries, which do not fit into the tab bar, in one group, the views first.
 
-A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. It opens in the timeframe of the last view. The page More has no timeframe of its own, so the server keeps the timeframe of the last view in the session.
+A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. The page More has no timeframe of its own, so its links open the views in their default timeframe.
 
 The other secondary entries, like the Top 10, stand on their own, like a tab. The layout gives each of them a `Ui::TitleBar` with its name but without a back button, and a tap on the page More opens it without a slide. The notifications are one level below the page More, so their title bar leads back there. A page that the tab bar holds shows no title bar.
 

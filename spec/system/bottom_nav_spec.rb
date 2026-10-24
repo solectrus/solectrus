@@ -63,9 +63,9 @@ describe 'Bottom navigation (mobile)' do
     end
   end
 
-  # A tab that does not fit into the tab bar stays a tab: it takes the
-  # timeframe of the other tabs over and shows no title bar.
-  it 'opens a tab of the page More in the timeframe of the last tab' do
+  # A tab that does not fit into the tab bar stays a tab: it shows no title
+  # bar. The page More has no timeframe, so the tab opens in its default.
+  it 'opens a tab of the page More in its default timeframe' do
     visit '/house/house_power/now'
     click_on 'Heute'
     expect(page).to have_current_path('/house/house_power/day')
@@ -73,7 +73,7 @@ describe 'Bottom navigation (mobile)' do
     tab_bar { click_on 'Mehr' }
     click_on 'Erzeugung'
 
-    expect(page).to have_current_path('/inverter/inverter_power/day')
+    expect(page).to have_current_path('/inverter/inverter_power/now')
     expect(page).to have_no_css('.ui-title-bar')
     tab_bar { expect(page).to have_css('a[aria-current][aria-label="Mehr"]') }
   end

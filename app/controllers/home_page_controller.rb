@@ -24,16 +24,10 @@ class HomePageController < ApplicationController
 
   private
 
-  # The home pages are the views of the energy that share the timeframe.
-  # The tab bar of a phone hands it on in its links. The page More cannot, as
-  # it has no timeframe of its own, so it reads the one of the last view from
-  # here (see MoreController).
-  #
   # The period segment of a phone names the period chosen last while the page
   # shows the live view or today (see TimeframeSegments). A window counted
   # back from now keeps the period before it.
   def remember_timeframe
-    session[:view_timeframe] = timeframe.to_param
     session[:period_timeframe] = timeframe.to_param if period_kind?(timeframe)
     remember_forecast_origin
   end

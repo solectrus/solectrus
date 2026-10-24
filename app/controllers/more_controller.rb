@@ -2,11 +2,10 @@
 # fit into the tab bar, and the items of the menu as a grouped list. The
 # desktop has these items in its top bar and never links here.
 #
-# A view among the secondary items stays a view: it shows no title bar, and
-# it opens in the timeframe of the last view. The other secondary items show
-# a title bar without a way back, as they stand on their own like a tab. The
-# pages below this one, like the notifications, lead back here with a title
-# bar (see the layout).
+# A view among the secondary items stays a view: it shows no title bar. The
+# other secondary items show a title bar without a way back, as they stand on
+# their own like a tab. The pages below this one, like the notifications, lead
+# back here with a title bar (see the layout).
 class MoreController < ApplicationController
   def show
   end
@@ -15,30 +14,6 @@ class MoreController < ApplicationController
 
   helper_method def title
     t('layout.more')
-  end
-
-  # The timeframe of the last view, which the links to the views take over.
-  # The links of the tab bar on this page take it too.
-  def computed_timeframe
-    return @computed_timeframe if defined?(@computed_timeframe)
-
-    @computed_timeframe = remembered_timeframe
-  end
-
-  def remembered_timeframe
-    Timeframe.new(session[:view_timeframe]) if session[:view_timeframe].present?
-  rescue ArgumentError
-    nil
-  end
-
-  # This page names no sensor of the power balance, so the balance opens on
-  # its default sensor, in the timeframe of the last view. Without a sensor,
-  # the path has no place for the timeframe, so it goes into the query, and
-  # the balance takes it along when it sends the visit to its default sensor.
-  def root_item
-    return super unless computed_timeframe
-
-    super.merge(href: balance_home_path(params: { timeframe: computed_timeframe.to_param }))
   end
 
   # A guest sees the settings too, and their page asks to log in. Only the

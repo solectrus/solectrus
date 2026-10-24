@@ -123,27 +123,15 @@ describe 'Page More' do
   end
 
   describe 'the timeframe of the views' do
-    it 'goes from the last view to the views in the list' do
+    it 'leaves the links without a timeframe, also after a view' do
       get '/house/house_power/2026-06'
       get '/more'
 
       aggregate_failures do
-        expect(group_links('Other views')['Generation']['href']).to eq('/inverter/inverter_power/2026-06')
-        expect(tab('House consumption')['href']).to eq('/house/house_power/2026-06')
+        expect(group_links('Other views')['Generation']['href']).to eq('/inverter/inverter_power')
+        expect(tab('House consumption')['href']).to eq('/house/house_power')
+        expect(tab('Power balance')['href']).to eq('/')
       end
-    end
-
-    it 'goes to the power balance, which picks its sensor itself' do
-      get '/house/house_power/2026-06'
-      get '/more'
-
-      expect(tab('Power balance')['href']).to eq('/?timeframe=2026-06')
-    end
-
-    it 'leaves the links without a timeframe before any view' do
-      get '/more'
-
-      expect(group_links('Other views')['Generation']['href']).to eq('/inverter/inverter_power')
     end
   end
 
