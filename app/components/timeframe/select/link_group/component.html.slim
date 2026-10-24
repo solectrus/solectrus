@@ -1,0 +1,7 @@
+div
+  .text-xs.text-gray-500.dark:text-gray-400.mb-1.uppercase.tracking-wider
+    = heading
+  / Columns of equal width, as the groups of the relative picker above
+  .grid.grid-flow-col.auto-cols-fr.gap-2
+    - items.each do |item|
+      = link_to item[:name], item[:href], class: link_classes(item), 'aria-current': (item[:current] ? 'page' : nil)

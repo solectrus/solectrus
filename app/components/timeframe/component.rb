@@ -93,7 +93,7 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def timeframe_select_path
-    page.path(timeframe) unless forecast_mode?
+    TimeframeSelectModal.path(page.path(timeframe)) unless forecast_mode?
   end
 
   def paginate_button_classes

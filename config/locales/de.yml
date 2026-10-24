@@ -288,6 +288,10 @@ de:
     quarters_across_years: Quartale im Jahresvergleich
     quarter_with_year: '%{quarter}. Quartal %{year}'
     seasons_across_years: Jahreszeiten im Jahresvergleich
+    year_comparison: Jahresvergleich
+    by_month: Monate
+    by_quarter: Quartale
+    by_season: Jahreszeiten
     season_with_year: '%{season} %{year}'
     season_with_years: '%{season} %{from}/%{to}'
     seasons:

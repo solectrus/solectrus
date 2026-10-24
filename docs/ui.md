@@ -74,6 +74,18 @@ The other secondary entries, like the Top 10, and the notifications are one leve
 
 The switches of the page More, like the language, slide their marking to the new choice, as the tab bar does. The `segment-slide` controller does this for radios and for buttons.
 
+## The timeframe of a view on a phone
+
+Below a wide screen in landscape, a view shows its timeframe in one row of three segments (`Timeframe::Segments`) in one bar: the live view, a segment for every other period, and today. The period lies before today, so the arrow back from today marks the segment to its left. An arrow stands at each end of the row. The segments keep their width, so the row does not move when the current one changes. The marking slides from segment to segment. The desktop keeps the tabs and the timeframe with its arrows.
+
+The period segment names the period of the page. On the live view and on today, it names the current period of the kind that the user chose last: the current week, month or year. After a day or a range, it names the current month. The whole time stays as it is. A window that counts back from now, like the last 90 days, does not turn, so the segment keeps the period before it. Before the first choice, it names the current year.
+
+A tap on the period segment leads to that period. When the segment is the current one, a tap opens the timeframe select in a sheet, and a chevron marks it. The chevron shows only then, so it never promises a sheet that a tap does not open. Elsewhere it keeps its room, so the name does not move. A long press on it opens the sheet at once, whether it is the current one or not. The arrows turn the page, as a swipe does: from today and from the live view, they lead to yesterday and to the forecast. An arrow without a page in its direction stays dimmed in its place.
+
+In the timeframe select, each field of a day, a week, a month and a year has two buttons. The first selects the period that it shows. The chevron opens the picker for another one.
+
+On a phone, the select fits without scrolling, and no picker opens by itself. Each field is a tile with its name above it, in two columns. The period and its chevron join as one split button. The range and the forecast share the third row. Below the tiles, the windows back from now form one grid, and each window shows its unit. The whole time follows, in years and in months, with the names of the menu on the wide screen. The comparisons of the years stand at the bottom. The tile of a week names its year only when that is not the current year.
+
 Fullscreen is a mode of the document, and Turbo keeps the document from page to page. The page More turns it on with a switch, and the page that the user opens next shows in fullscreen. The menu of the desktop lies over the page, so it keeps its two items to enter and to leave fullscreen.
 
 ## Forms

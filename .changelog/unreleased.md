@@ -49,8 +49,9 @@ Keep every section, an empty one included.
 - The Top 10 has two buttons: one for the sensor, and one for the car, the calculation and the order
 - On a phone, "More" opens a page of its own, as on an iPhone. Language, theme, color palette and fullscreen are switches there
 - On a phone, a tap on a link clears the content at once, so you see that the tap works
-- On a phone, a small arrow next to the timeframe shows that a tap opens the date selection
-- On a phone, the period tabs stand above the date as a segmented control, as on an iPhone. On desktop, the arrows beside the date are double arrows
+- On a phone, the timeframe takes one row: Now, a button for every other period, and Today, with an arrow at each end. On Now and Today, the button shows the current week, month or year, of the kind that you chose last. When it is active, it shows an arrow, and a tap opens the date selection. A long press opens it at once. The arrows and a swipe change the page to the period before or after, and from Today and Now to yesterday and to the forecast. The live status no longer shows in this row
+- On desktop, the arrows beside the date are double arrows
+- In the date selection, a tap on the day, week, month or year selects it. The arrow beside it opens the calendar for another one. On a phone, the date selection is shorter and fits without scrolling. The day, week, month, year, custom range and forecast are tiles in two columns. The hours, days and months back from now are one group, each with its unit. "All years" and "All months" stand under "Overall", above the year comparison
 - Forms show an amount of money with at least two decimals, for example 13.90
 - Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average
 - An empty list or chart shows the same note everywhere: an icon, a title and a short text

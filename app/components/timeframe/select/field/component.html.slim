@@ -1,0 +1,23 @@
+.flex.items-stretch.gap-px.lg:landscape:gap-2
+  - if choosable?
+    button[
+      type='button'
+      class=button_classes
+      aria-labelledby=labelled_by
+      data=period_data
+    ]
+      span.block.truncate id=text_id data=target('displayText') = content
+
+  details class=(choosable? ? 'shrink-0' : 'flex-1 min-w-0') data=details_data
+    summary[
+      id=id
+      class=summary_classes
+      aria-labelledby=labelled_by(with_text: !choosable?)
+      data=target('displayButton')
+    ]
+      - unless choosable?
+        span.min-w-0 id=text_id data=target('displayText') = content
+      span class=('opacity-60' unless choosable?) aria-hidden='true'
+        = icon 'chevron-right'
+
+    = panel

@@ -1,0 +1,30 @@
+/ One bar between the arrows: the live view, the period and today. The
+  segments keep their width whatever they show: a label in bold or the next
+  period would move the row on each change. The period cuts a longer name
+  short.
+
+  optimistic-nav swaps the class lists of the segments, so all of them are
+  children of one nav, each in its column, and the bar lies behind them.
+nav.relative.grid.items-stretch.text-sm.font-medium[
+  class='grid-cols-[1.25rem_1fr_2.5fr_1fr_1.25rem]'
+  aria-label=t('.label')
+  data-controller='optimistic-nav'
+  data-optimistic-nav-slide-value='true'
+  data-action=OptimisticNav::ACTIONS
+]
+  span class="#{BAR_CLASSES} col-span-3 col-start-2"
+
+  = arrow(:prev, arrows[:prev], column: 1)
+
+  = segment(live, column: 2)
+
+  / The chevron says that a tap opens the choice of periods, so it shows on
+    the current period alone. Elsewhere it keeps its room, so the name does
+    not move when the period becomes the current one.
+  = link_to period_href, **period_options do
+    span.truncate = period[:name]
+    = icon 'chevron-down', class: ['ml-1 w-3 shrink-0 text-xs', ('invisible' unless period[:current])]
+
+  = segment(today, column: 4)
+
+  = arrow(:next, arrows[:next], column: 5)

@@ -1,57 +1,82 @@
 .timeframe-select
-  .grid.gap-x-6.gap-y-4.items-center.mt-8[
-    class= 'grid-cols-[auto_1fr]'
+  / A wide screen in landscape puts each name before its field, in rows. A
+    phone puts the name above the field, in tiles of two columns: each tile
+    is a flex column there and dissolves into the rows of the grid on the
+    wide screen.
+  .grid.grid-cols-2.gap-3.mt-2[
+    class= 'lg:landscape:grid-cols-[auto_1fr] lg:landscape:gap-x-6 lg:landscape:items-center'
     data-controller= 'timeframe--select--component'
     data-timeframe--select--component-url-template-value= url_template
     data-timeframe--select--component-id-value= timeframe.id
     data-action= 'picker:selected@window->timeframe--select--component#handlePickerSelected'
   ]
+    / Each field takes its name from the text before it (see
+      Timeframe::Select::Field::Component)
+
     / Day picker
-    label[
-      class= LABEL_CLASSES
-      for= 'day-picker-input-button'
-    ]
-      = t('.day')
-    = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'day-picker-input')
+    div class=TILE_CLASSES
+      span[
+        class= LABEL_CLASSES
+        id= 'day-picker-input-button-label'
+      ]
+        = t('.day')
+      = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'day-picker-input')
 
     / Week picker
-    label[
-      class= LABEL_CLASSES
-      for= 'week-picker-input-button'
-    ]
-      = t('.week')
-    = render Timeframe::Select::WeekPicker::Component.new(min_date:, timeframe:, name: 'week-picker-input')
+    div class=TILE_CLASSES
+      span[
+        class= LABEL_CLASSES
+        id= 'week-picker-input-button-label'
+      ]
+        = t('.week')
+      = render Timeframe::Select::WeekPicker::Component.new(min_date:, timeframe:, name: 'week-picker-input')
 
     / Month picker
-    label[
-      class= LABEL_CLASSES
-      for= 'month-picker-input-button'
-    ]
-      = t('.month')
-    = render Timeframe::Select::MonthPicker::Component.new(min_date:, timeframe:, name: 'month-picker-input')
+    div class=TILE_CLASSES
+      span[
+        class= LABEL_CLASSES
+        id= 'month-picker-input-button-label'
+      ]
+        = t('.month')
+      = render Timeframe::Select::MonthPicker::Component.new(min_date:, timeframe:, name: 'month-picker-input')
 
     / Year picker
-    label[
-      class= LABEL_CLASSES
-      for= 'year-picker-input'
-    ]
-      = t('.year')
-    = render Timeframe::Select::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
+    div class=TILE_CLASSES
+      span[
+        class= LABEL_CLASSES
+        id= 'year-picker-input-button-label'
+      ]
+        = t('.year')
+      = render Timeframe::Select::YearPicker::Component.new(min_date:, timeframe:, name: 'year-picker-input')
 
     / Spacer with divider
-    .col-span-2.border-t.border-gray-400.dark:border-gray-600.my-2
+    .hidden.lg:landscape:block.col-span-2.border-t.border-gray-400.dark:border-gray-600
 
-    / Date range
-    label[
-      class= LABEL_CLASSES
-      for= 'range-picker-input-button'
-    ]
-      = t('.date_range')
-    = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
+    / Date range. Without the forecast beside it, it fills the row of a phone.
+    div class=[TILE_CLASSES, ('col-span-2' if forecast_items.empty?)]
+      span[
+        class= LABEL_CLASSES
+        id= 'range-picker-input-button-label'
+      ]
+        = t('.date_range')
+      = render Timeframe::Select::DayPicker::Component.new(min_date:, timeframe:, name: 'range-picker-input', range: true)
+
+    / The forecast beside the range on a phone. A wide screen has it after
+      today.
+    - forecast_items.each do |item|
+      .flex.flex-col.gap-1.min-w-0.lg:landscape:hidden
+        span class=LABEL_CLASSES = t('forecast.title')
+        = link_to item[:name], item[:href], class: forecast_classes(item), 'aria-current': ('page' if item[:current])
 
     / Spacer with divider
-    .col-span-2.border-t.border-gray-400.dark:border-gray-600.my-2
+    .hidden.lg:landscape:block.col-span-2.border-t.border-gray-400.dark:border-gray-600
 
     / Relative picker (spans full width, grouped by hours/days/months)
-    .col-span-2
+    .col-span-2.mt-2.lg:landscape:mt-0
       = render Timeframe::Select::RelativePicker::Component.new(timeframe:, min_date:, hours: hours?)
+
+    / The comparisons of the years on a phone, below the whole time. A wide
+      screen has them in the menu of its tab.
+    - if comparisons.present?
+      .col-span-2.lg:landscape:hidden
+        = render Timeframe::Select::LinkGroup::Component.new(heading: t('data.year_comparison'), items: comparisons)

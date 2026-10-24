@@ -268,7 +268,7 @@ describe 'Cars Visits' do
   describe 'GET /cars/visits in the modal' do
     it 'renders the select of the list, which keeps the place' do
       login_as_admin
-      get cars_visits_path(timeframe: '2026-09', place: work.id), headers: { 'Turbo-Frame' => 'modal' }
+      get cars_visits_path(timeframe: '2026-09', place: work.id, select: 1), headers: { 'Turbo-Frame' => 'modal' }
 
       expect(response).to have_http_status(:ok)
       expect(response.body).to include('<turbo-frame id="modal"', %(data-timeframe--select--component-url-template-value="/cars/places/#{work.id}/visits/:timeframe"))

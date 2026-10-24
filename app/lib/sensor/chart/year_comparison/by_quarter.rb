@@ -9,6 +9,11 @@ class Sensor::Chart::YearComparison::ByQuarter < Sensor::Chart::YearComparison
   LABEL_KEY = 'data.quarters_across_years'.freeze
   public_constant :LABEL_KEY
 
+  # The button of the timeframe select of a phone, below the heading of the
+  # comparisons
+  SHORT_LABEL_KEY = 'data.by_quarter'.freeze
+  public_constant :SHORT_LABEL_KEY
+
   # The axis says "Q1" in every language this app speaks, so the labels are
   # not translated. The tooltip has the room to spell the quarter out, and
   # does (see data.quarter_with_year).

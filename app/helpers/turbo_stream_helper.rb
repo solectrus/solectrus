@@ -5,8 +5,15 @@ module TurboStreamHelper
         turbo_stream_update_primary_nav,
         turbo_stream_update_second_nav,
         turbo_stream_update_timeframe,
+        turbo_stream_update_segments,
       ],
     )
+  end
+
+  def turbo_stream_update_segments
+    turbo_stream.update(frame_id('segments')) do
+      render Timeframe::Segments::Component.new(**segment_items)
+    end
   end
 
   private

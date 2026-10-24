@@ -12,27 +12,24 @@ div(
   / Hidden input that holds the actual value (YYYY format)
   input type="hidden" name=name data-timeframe--select--year-picker--component-target="hiddenInput"
 
-  / Details/Summary for native accessibility and ESC handling
-  details data-timeframe--select--year-picker--component-target="details" data-action="toggle->timeframe--select--year-picker--component#handleToggle"
-    / Display button as summary
-    summary.w-full.px-4.py-2.5.text-base.text-left.border.border-gray-300.dark:border-gray-600.rounded-lg.bg-white.dark:bg-gray-700.text-gray-900.dark:text-white.focus:outline-none.focus:ring-2.focus:ring-indigo-500.focus:border-indigo-500.appearance-none.cursor-pointer.transition-colors.hover:border-gray-400.dark:hover:border-gray-500.flex.items-center.justify-between.list-none id=button_id data-timeframe--select--year-picker--component-target="displayButton"
-      span data-timeframe--select--year-picker--component-target="displayText"
-        = value.presence || t('.select_year')
-      = icon 'arrow-right', class: 'text-gray-400'
+  / The field and its picker (see Timeframe::Select::Field::Component)
+  = render Timeframe::Select::Field::Component.new(controller: 'timeframe--select--year-picker--component', id: button_id, value:, selected: selected_value.present?) do |field|
+    - field.with_panel do
+      / Year picker panel (replaces modal content)
+      .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe--select--year-picker--component-target="modal"
+        .flex.flex-col.h-full
+          / Header with back button and centered title
+          .relative.p-4.border-b.border-gray-200.dark:border-gray-700
+            button type="button" class=Timeframe::Select::Component::BACK_BUTTON_CLASSES data-action="timeframe--select--year-picker--component#close"
+              = icon 'arrow-left'
+              span.hidden.sm:inline = t('.back')
+            div class='text-lg font-medium text-gray-900 dark:text-white text-center'
+              = t('.select_year')
 
-    / Year picker panel (replaces modal content)
-    .absolute.inset-0.bg-white.dark:bg-slate-800.z-50 data-timeframe--select--year-picker--component-target="modal"
-      .flex.flex-col.h-full
-        / Header with back button and centered title
-        .relative.p-4.border-b.border-gray-200.dark:border-gray-700
-          button type="button" class=Timeframe::Select::Component::BACK_BUTTON_CLASSES data-action="timeframe--select--year-picker--component#close"
-            = icon 'arrow-left'
-            span.hidden.sm:inline = t('.back')
-          div class='text-lg font-medium text-gray-900 dark:text-white text-center'
-            = t('.select_year')
+          / Content area with year grid
+          .flex-1.min-h-0.p-4
+            .grid.grid-cols-3.auto-rows-fr.gap-3.h-full
+              - (min_year..max_year).each do |year|
+                button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe--select--year-picker--component#selectYear" data-timeframe--select--year-picker--component-target="yearCell" data-year=year = year
 
-        / Content area with year grid
-        .flex-1.min-h-0.p-4
-          .grid.grid-cols-3.auto-rows-fr.gap-3.h-full
-            - (min_year..max_year).each do |year|
-              button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe--select--year-picker--component#selectYear" data-timeframe--select--year-picker--component-target="yearCell" data-year=year = year
+    = value.presence || t('.select_year')

@@ -45,6 +45,14 @@ class Timeframe::Select::WeekPicker::Component < ViewComponent::Base
     I18n.l(parsed_date, format: :week)
   end
 
+  # The tile of a phone names the year only when it is not the current one,
+  # as the timeframe row does (see TimeframeSegmentItems)
+  def short_formatted_value
+    return formatted_value unless valid_value? && parsed_date.cwyear == Date.current.cwyear
+
+    I18n.l(parsed_date, format: :week_of_year)
+  end
+
   private
 
   def valid_value?

@@ -12,3 +12,7 @@ en:
   last_365_days: '<strong>365</strong>'
   last_12_months: '<strong>12</strong>'
   since_installation: '<strong>%{months}</strong> (since installation)'
+  recent: Last
+  unit_hours: h
+  unit_days: days
+  unit_months: mo.

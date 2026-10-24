@@ -47,6 +47,7 @@ de:
       month: '%B %Y'
       weekday: '%a, %-d. %b'
       week: 'KW %V, %G'
+      week_of_year: 'KW %V'
     month_names:
       -
       - Januar

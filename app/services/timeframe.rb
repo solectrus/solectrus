@@ -114,6 +114,12 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     day? && current?
   end
 
+  # Neither the live view nor today. The timeframe of a phone names such a
+  # period in its third segment (see TimeframeSegmentItems).
+  def period?
+    !now? && !today?
+  end
+
   def past?
     return false if now? || all?
 

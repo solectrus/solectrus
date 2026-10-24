@@ -1,5 +1,6 @@
 module TimeframeNavigation
   extend ActiveSupport::Concern
+  include TimeframeSegments
 
   included do
     private
@@ -38,13 +39,12 @@ module TimeframeNavigation
 
     def live_path = path_with_timeframe('now', sensor_name: live_sensor_name)
 
+    # The first tab, and the first segment of a phone
+    def live_item = { name: t('data.now'), href: live_path, current: timeframe.now? }
+
     helper_method def nav_items
       [
-        {
-          name: t('data.now'),
-          href: live_path,
-          current: timeframe.now?,
-        },
+        live_item,
         nav_item(:day),
         nav_item(:week),
         nav_item(:month),

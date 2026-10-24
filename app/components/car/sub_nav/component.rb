@@ -31,7 +31,7 @@ class Car::SubNav::Component < ViewComponent::Base
 
   def header_car_select = render(@car_select.call)
 
-  # The pill below the timeframe of a phone, which the car page has
+  # The pill below the timeframe of a phone or a tablet, which the car page has
   PILL_SELECT = { button_class: 'bg-white/20 text-white ring-1 ring-inset ring-white/35 font-semibold dark:bg-white/10', mobile_shape: 'rounded-full px-3.5' }.freeze
   public_constant :PILL_SELECT
 

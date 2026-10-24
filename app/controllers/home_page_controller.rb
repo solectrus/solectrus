@@ -18,7 +18,7 @@ class HomePageController < ApplicationController
     return redirect_to(future_path) if timeframe.future? && future_path
     return redirect_to(path_for(sensor_name, timeframe)) unless offered_selection?
 
-    remember_view_timeframe
+    remember_timeframe
     load_missing_or_stale_summary_days(timeframe)
   end
 
@@ -28,8 +28,13 @@ class HomePageController < ApplicationController
   # The tab bar of a phone hands it on in its links. The page More cannot, as
   # it has no timeframe of its own, so it reads the one of the last view from
   # here (see MoreController).
-  def remember_view_timeframe
+  #
+  # The period segment of a phone names the period chosen last while the page
+  # shows the live view or today (see TimeframeSegments). A window counted
+  # back from now keeps the period before it.
+  def remember_timeframe
     session[:view_timeframe] = timeframe.to_param
+    session[:period_timeframe] = timeframe.to_param if period_kind?(timeframe)
   end
 
   # The addresses of the page for its timeframe select. They keep the

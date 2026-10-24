@@ -47,14 +47,13 @@ describe 'Bottom navigation (mobile)' do
   # timeframe of the other tabs over and shows no title bar.
   it 'opens a tab of the page More in the timeframe of the last tab' do
     visit '/house/house_power/now'
-    click_on 'Woche'
-    expect(page).to have_current_path(%r{/house/house_power/\d{4}-W\d{2}})
-    week = page.current_path.split('/').last
+    click_on 'Heute'
+    expect(page).to have_current_path('/house/house_power/day')
 
     tab_bar { click_on 'Mehr' }
     click_on 'Erzeugung'
 
-    expect(page).to have_current_path("/inverter/inverter_power/#{week}")
+    expect(page).to have_current_path('/inverter/inverter_power/day')
     expect(page).to have_no_css('.ui-title-bar')
     tab_bar { expect(page).to have_css('a[aria-current][aria-label="Mehr"]') }
   end

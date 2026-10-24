@@ -18,6 +18,11 @@ class Sensor::Chart::YearComparison::BySeason < Sensor::Chart::YearComparison
   LABEL_KEY = 'data.seasons_across_years'.freeze
   public_constant :LABEL_KEY
 
+  # The button of the timeframe select of a phone, below the heading of the
+  # comparisons
+  SHORT_LABEL_KEY = 'data.by_season'.freeze
+  public_constant :SHORT_LABEL_KEY
+
   # The axis begins where the sun comes back rather than where the calendar
   # begins. A winter therefore stands at the right end of its year, although
   # it ran before the spring beside it.

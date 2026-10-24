@@ -8,6 +8,11 @@ class Sensor::Chart::YearComparison::ByMonth < Sensor::Chart::YearComparison
   LABEL_KEY = 'data.months_across_years'.freeze
   public_constant :LABEL_KEY
 
+  # The button of the timeframe select of a phone, below the heading of the
+  # comparisons
+  SHORT_LABEL_KEY = 'data.by_month'.freeze
+  public_constant :SHORT_LABEL_KEY
+
   private
 
   def period

@@ -1,6 +1,5 @@
 - turbo_exempts_page_from_cache
 - content_for :full_height, true
-- extra_stimulus_controllers 'swipe' if timeframe&.can_paginate?
 / The live view of a phone is a grouped list on gray (see Car::LiveCard)
 - content_for :grouped, true if timeframe&.now?
 
@@ -15,7 +14,8 @@
     / With more than one car or with guest sessions, the select stays also
       for a timeframe with one car, so it does not come and go with the
       timeframe. The live view shows each car in use, with its name, so it
-      needs no select. A phone has the select as a pill below the timeframe.
+      needs no select. Below a wide screen, the select is a pill below the
+      timeframe.
     - if car_select? && !timeframe.now?
       - content_for :sub_nav_select do
         div id=frame_id('car-select')

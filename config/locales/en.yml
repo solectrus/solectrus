@@ -288,6 +288,10 @@ en:
     quarters_across_years: Quarters across the years
     quarter_with_year: Q%{quarter} %{year}
     seasons_across_years: Seasons across the years
+    year_comparison: Year comparison
+    by_month: Months
+    by_quarter: Quarters
+    by_season: Seasons
     season_with_year: '%{season} %{year}'
     season_with_years: '%{season} %{from}/%{to}'
     seasons:

@@ -1,8 +1,14 @@
 # The timeframe select loads the address of the page into the modal, and the
-# page renders the select instead of itself (see TimeframePage::Sensor)
+# page renders the select instead of itself (see TimeframeSelectModal)
 describe 'Timeframe select' do
   def get_select(path)
-    get path, headers: { 'Turbo-Frame' => 'modal' }
+    get TimeframeSelectModal.path(path), headers: { 'Turbo-Frame' => 'modal' }
+  end
+
+  it 'renders the page itself without the parameter' do
+    get '/inverter_power/day', headers: { 'Turbo-Frame' => 'modal' }
+
+    expect(response.body).not_to include('data-timeframe--select--component-url-template-value')
   end
 
   it 'renders the select of the start page, with the hours' do
@@ -10,6 +16,18 @@ describe 'Timeframe select' do
 
     expect(response.body).to include('<turbo-frame id="modal"', 'data-timeframe--select--component-url-template-value="/inverter_power/:timeframe"')
     expect(response.body).to include('data-value="P24H"')
+  end
+
+  # A phone shows the windows back from now in one grid, each with its unit,
+  # and the whole time apart, in years and in months
+  it 'groups the windows of a phone' do
+    get_select('/inverter_power/day')
+
+    groups = response.parsed_body.css('[data-controller="timeframe--select--relative-picker--component"] > div:last-child > div')
+    expect(groups.map { it.at_css('div').text.strip }).to eq(%w[Last Overall])
+    expect(groups.first.at_css('button[data-value="P24H"]').text.squish).to eq('24 h')
+    expect(groups.first.css('button').pluck('data-value')).not_to include('all')
+    expect(groups.last.css('button').map(&:text)).to start_with('All years')
   end
 
   it 'renders the select of another home page' do

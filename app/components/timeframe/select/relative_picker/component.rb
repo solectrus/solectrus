@@ -28,11 +28,12 @@ class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
   GROUPED_DEFINITIONS = OPTION_DEFINITIONS.group_by { it[:group] }.freeze
   private_constant :GROUPED_DEFINITIONS
 
-  BASE_CLASSES = 'flex-1 whitespace-nowrap px-4 py-2.5 rounded-lg text-sm font-medium text-center ' \
+  BASE_CLASSES = 'flex-1 whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-center ' \
                  'focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-colors'.freeze
-  SELECTED_BUTTON_CLASSES = "#{BASE_CLASSES} bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700".freeze
-  UNSELECTED_BUTTON_CLASSES = "#{BASE_CLASSES} bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-indigo-100 dark:hover:bg-indigo-900".freeze
-  private_constant :BASE_CLASSES, :SELECTED_BUTTON_CLASSES, :UNSELECTED_BUTTON_CLASSES
+  SELECTED_BUTTON_CLASSES = "#{BASE_CLASSES} #{Timeframe::Select::Component::SELECTED_COLORS}".freeze
+  UNSELECTED_BUTTON_CLASSES = "#{BASE_CLASSES} #{Timeframe::Select::Component::UNSELECTED_COLORS}".freeze
+  private_constant :BASE_CLASSES
+  public_constant :SELECTED_BUTTON_CLASSES, :UNSELECTED_BUTTON_CLASSES
 
   def value
     return @value if defined?(@value)
@@ -47,34 +48,63 @@ class Timeframe::Select::RelativePicker::Component < ViewComponent::Base
   end
 
   def grouped_options
-    groups = []
-
-    GROUPED_DEFINITIONS
-      .each do |group_key, definitions|
-        next if group_key == :hours && !hours
-
-        options = build_options(definitions)
-        next if options.empty?
-
-        if group_key == :months && installation_timeframe_value
-          options << {
-            value: installation_timeframe_value,
-            label:
-              t('.since_installation', months: months_since_installation),
-          }
-        end
-
-        groups << { heading: t(".#{group_key}", default: nil), options: }
-      end
-
-    groups
+    grouped_options_by_key.map do |group_key, options|
+      { heading: t(".#{group_key}", default: nil), options: }
+    end
   end
 
   def option_classes(option_value)
     value.to_s == option_value ? SELECTED_BUTTON_CLASSES : UNSELECTED_BUTTON_CLASSES
   end
 
+  # A phone has no room for a heading per group. It shows the windows that
+  # count back from now in one grid, each with its unit, and the whole time
+  # apart: in years and in months, named as in the menu of the wide screen.
+  def recent_options
+    grouped_options_by_key.except(:all).flat_map do |group_key, options|
+      options
+        .reject { it[:value] == installation_timeframe_value }
+        .map { it.merge(unit: t(".unit_#{group_key}")) }
+    end
+  end
+
+  def whole_options
+    [
+      ({ value: 'all', label: t('data.all_years') } if grouped_options_by_key.key?(:all)),
+      ({ value: installation_timeframe_value, label: t('data.all_months') } if installation_timeframe_value),
+    ].compact
+  end
+
+  def compact_option_classes(option_value)
+    [
+      COMPACT_CLASSES,
+      value.to_s == option_value ? Timeframe::Select::Component::SELECTED_COLORS : Timeframe::Select::Component::UNSELECTED_COLORS,
+    ]
+  end
+
+  COMPACT_CLASSES = 'truncate px-1 py-2 rounded-lg text-sm text-center ' \
+                    'focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer transition-colors'.freeze
+  public_constant :COMPACT_CLASSES
+
   private
+
+  def grouped_options_by_key
+    @grouped_options_by_key ||=
+      GROUPED_DEFINITIONS
+        .filter_map do |group_key, definitions|
+          next if group_key == :hours && !hours
+
+          options = build_options(definitions)
+          [group_key, with_installation(group_key, options)] if options.any?
+        end
+        .to_h
+  end
+
+  def with_installation(group_key, options)
+    return options unless group_key == :months && installation_timeframe_value
+
+    [*options, { value: installation_timeframe_value, label: t('.since_installation', months: months_since_installation) }]
+  end
 
   def build_options(definitions)
     definitions.filter_map do |tf|

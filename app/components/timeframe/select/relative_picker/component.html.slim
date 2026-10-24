@@ -1,6 +1,6 @@
 div data-controller="timeframe--select--relative-picker--component"
-  / Grouped inline buttons - side by side on desktop, stacked on mobile
-  .flex.flex-col.gap-3 class="sm:flex-row sm:justify-between"
+  / A wide screen: the groups side by side, each under its heading
+  .hidden.lg:landscape:flex.gap-3.justify-between
     - grouped_options.each do |group|
       div
         - if group[:heading].present?
@@ -12,3 +12,18 @@ div data-controller="timeframe--select--relative-picker--component"
           - group[:options].each do |option|
             button type="button" class=option_classes(option[:value]) data-action="timeframe--select--relative-picker--component#selectOption" data-timeframe--select--relative-picker--component-target="optionCell" data-value=option[:value]
               == option[:label]
+
+  / A phone: the windows back from now in one grid, and the whole time below
+    (see #recent_options)
+  .flex.flex-col.gap-4.lg:landscape:hidden
+    - [[t('.recent'), recent_options, 'grid-cols-4 max-[22.5rem]:grid-cols-3'], [t('data.all'), whole_options, 'grid-cols-2']].each do |heading, options, columns|
+      - if options.any?
+        div
+          .text-xs.text-gray-500.dark:text-gray-400.mb-1.uppercase.tracking-wider
+            = heading
+          .grid.gap-2 class=columns
+            - options.each do |option|
+              button type="button" class=compact_option_classes(option[:value]) data-action="timeframe--select--relative-picker--component#selectOption" data-timeframe--select--relative-picker--component-target="optionCell" data-value=option[:value]
+                == option[:label]
+                - if option[:unit]
+                  = " #{option[:unit]}"

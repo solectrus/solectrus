@@ -20,6 +20,12 @@ describe 'Timeframe select' do
     expect(page).to have_css('h1', text: 'Zeitraum wählen')
   end
 
+  # The chevron of the field opens its picker. The rest of the field selects
+  # the period it shows.
+  def open_picker(name)
+    find_by_id("#{name}-picker-input-button").click
+  end
+
   def close_current_picker
     # Close any open picker by clicking the back button
     # The back button shows "Anderer Zeitraum" text
@@ -41,6 +47,14 @@ describe 'Timeframe select' do
     expect(page).to have_css('button[data-value="P7D"]')
   end
 
+  it 'selects the period that a field shows' do
+    close_current_picker
+
+    click_button 'Juni 2022'
+
+    expect(page).to have_current_path('/inverter_power/2022-06')
+  end
+
   it 'navigates when selecting day picker' do
     # Day picker is auto-opened since we're on a day page
     # Day picker now uses custom button with data-date attribute
@@ -55,7 +69,7 @@ describe 'Timeframe select' do
     close_current_picker
 
     # Click the year picker button to open the modal
-    find_by_id('year-picker-input-button').click
+    open_picker('year')
 
     find('button[data-year="2022"]').click
 
@@ -68,7 +82,7 @@ describe 'Timeframe select' do
     close_current_picker
 
     # Click the week picker button to open it
-    find_by_id('week-picker-input-button').click
+    open_picker('week')
 
     find('button[data-week="2022-W25"]').click
 
@@ -81,7 +95,7 @@ describe 'Timeframe select' do
     close_current_picker
 
     # Click the month picker button to open it
-    find_by_id('month-picker-input-button').click
+    open_picker('month')
 
     click_on 'Juni'
 
