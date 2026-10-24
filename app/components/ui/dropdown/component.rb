@@ -226,7 +226,7 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
 
   def button_shape
     if choices
-      "#{mobile_shape} h-9 text-base lg:h-auto lg:rounded-md lg:px-4 lg:py-2 lg:text-sm"
+      "#{mobile_shape} relative touch-target h-9 text-base lg:h-auto lg:rounded-md lg:px-4 lg:py-2 lg:text-sm"
     else
       'rounded-md px-2 sm:px-4 py-2 text-sm'
     end

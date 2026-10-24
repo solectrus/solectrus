@@ -92,9 +92,14 @@ html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
   @apply absolute;
 }
 
+.ui-title-bar-action {
+  @apply relative;
+}
+
+/* A round button of 36px, which takes the taps of a tap target (44px) */
 .ui-title-bar-back,
 .ui-title-bar-action {
-  @apply flex size-9 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
+  @apply touch-target flex size-9 items-center justify-center rounded-full bg-white/15 text-white dark:bg-white/10 dark:text-gray-300;
   @apply focus:ring-2 focus:ring-gray-300 focus:ring-offset-0 focus:outline-none dark:focus:ring-gray-400;
 }
 

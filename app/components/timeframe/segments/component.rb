@@ -30,13 +30,15 @@ class Timeframe::Segments::Component < ViewComponent::Base
   # An arrow without a page in its direction keeps its place, dimmed, so the
   # row does not move. It sits in a span, as optimistic-nav takes a link of
   # the nav itself for a segment. Each arrow stands at its end of the row.
-  # Its link gives the swipe its page (`data-nav`).
+  # Its link gives the swipe its page (`data-nav`). The arrow is narrow, so
+  # its tap area reaches the edge of the screen and takes the height of a tap
+  # target. Where it meets a segment, the segment lies above it.
   def arrow(direction, href, column:)
     icon = helpers.icon(direction == :prev ? 'chevron-left' : 'chevron-right')
     classes = ['flex flex-1 items-center', direction == :prev ? 'justify-start' : 'justify-end']
     arrow =
       if href
-        link_to icon, href, class: [*classes, '[&.is-pressed]:opacity-50 transition-opacity'], 'aria-label': t(".#{direction}"), data: { nav: direction }
+        link_to icon, href, class: [*classes, 'relative after:absolute after:-inset-x-4 after:-inset-y-1 [&.is-pressed]:opacity-50 transition-opacity'], 'aria-label': t(".#{direction}"), data: { nav: direction }
       else
         tag.span(icon, class: [*classes, 'opacity-30'], 'aria-hidden': true)
       end
