@@ -59,17 +59,14 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
               = render Car::OverviewBox::Tooltip::Component.new(parts: figure.parts, notes: figure.notes)
 
   / A phone: a row of three tiles, soft boxes like the tiles of the desktop.
-    Each tile has the height of one with a note or a bar, so a row keeps its
-    height when its figures replace the placeholder, whatever they hold.
+    The value comes first, its caption below it says what it counts, since
+    the title of the group says the rest.
   div class='lg:hidden grid gap-2' style="grid-template-columns: repeat(#{tiles.size}, minmax(0, 1fr))"
     - tiles.each do |tile|
-      = figure_tag(tile.sensor_name, tooltip: tile.tooltip?, class: 'flex min-w-0 min-h-22 flex-col gap-1 rounded-xl px-2 py-2 text-left bg-fill active:bg-fill-strong') do
-        span.truncate.text-sm.text-fg-secondary = tile.label
+      = figure_tag(tile.sensor_name, tooltip: tile.tooltip?, class: tile_classes) do
         span.text-lg.font-semibold.leading-tight.tabular-nums.whitespace-nowrap.text-fg = tile.value
+        span.truncate.text-sm.text-muted = tile.label
         - if tile.bar
           = render tile.bar
-        - elsif tile.note
-          / The decimals and the unit of a note keep its size, smaller would not read
-          span class='truncate text-sm text-muted [&_small]:text-[1em]' = tile.note
         - if tile.tooltip?
           = render Car::OverviewBox::Tooltip::Component.new(parts: tile.parts, notes: tile.notes)

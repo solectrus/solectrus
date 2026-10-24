@@ -251,9 +251,11 @@ de:
     cost_rate: Kosten je 100 km
     consumption_rate: Verbrauch je 100 km
     per_day: Ø pro Tag
-    charged: Geladen
-    cost_rate_short: Kosten/100 km
-    consumption_rate_short: Verbr./100 km
+    # The captions below the values of the tiles of a phone
+    charged: geladen
+    driven: gefahren
+    cost: Kosten
+    per_100km: pro 100 km
     per_day_note: Ø %{distance}/Tag
     unconfirmed:
       one: 1 unbestätigte Ladung

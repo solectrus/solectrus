@@ -1,7 +1,7 @@
 describe Car::DrivingBox::Component, type: :component do
   subject(:html) { render_inline(described_class.new(report:)) }
 
-  # The label and the value of each tile of a phone
+  # The value and the caption of each tile of a phone
   def tiles = html.css('div.lg\:hidden.grid > *').map { |tile| tile.css('> span').first(2).map { it.text.squish } }
 
   # The charts that a click on a figure loads
@@ -34,12 +34,11 @@ describe Car::DrivingBox::Component, type: :component do
   it 'shows the distance with its average of a day, and the two rates' do
     expect(tiles).to eq(
       [
-        [I18n.t('sensors.car_distance_short'), '9,877 km'],
-        [I18n.t('car_breakdown.cost_rate_short'), '3.77 €'],
-        [I18n.t('car_breakdown.consumption_rate_short'), '21.2 kWh'],
+        ['9,877 km', 'Ø 27 km/day'],
+        ['3.77 €', 'per 100 km'],
+        ['21.2 kWh', 'per 100 km'],
       ],
     )
-    expect(html.text).to include(I18n.t('car_breakdown.per_day_note', distance: '27 km'))
   end
 
   it 'loads the chart of each figure' do
@@ -60,7 +59,7 @@ describe Car::DrivingBox::Component, type: :component do
     let(:driving) { Car::Driving::Totals.empty }
 
     it 'tells what is missing' do
-      expect(tiles.drop(1).map(&:last)).to eq(%w[– –])
+      expect(tiles.drop(1).map(&:first)).to eq(%w[– –])
       expect(tooltips).to all(include('The data is not enough'))
     end
   end
@@ -74,9 +73,9 @@ describe Car::DrivingBox::Component, type: :component do
     it 'shows 0 and dashes in the same tiles' do
       expect(tiles).to eq(
         [
-          [I18n.t('sensors.car_distance_short'), '0 km'],
-          [I18n.t('car_breakdown.cost_rate_short'), '–'],
-          [I18n.t('car_breakdown.consumption_rate_short'), '–'],
+          ['0 km', 'driven'],
+          ['–', 'per 100 km'],
+          ['–', 'per 100 km'],
         ],
       )
     end

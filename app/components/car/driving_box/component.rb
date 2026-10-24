@@ -54,12 +54,12 @@ class Car::DrivingBox::Component < ViewComponent::Base
   # The cost and the consumption per 100 km. A low rate is good.
   def figures = rates.map { |label, figure| figure.with(label: t("car_breakdown.#{label}")) }
 
-  # The tiles of a phone: the distance with its average of a day, and the
-  # two rates with their short names
+  # The tiles of a phone: the distance with its average of a day below it,
+  # and the two rates, whose unit tells them apart, each "per 100 km"
   def tiles
     [
-      Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, label: t('sensors.car_distance_short'), value: render(distance_value), note: (t('car_breakdown.per_day_note', distance: center) if center)),
-      *rates.map { |label, figure| figure.with(label: t("car_breakdown.#{label}_short")) },
+      Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, label: center ? t('car_breakdown.per_day_note', distance: center) : t('car_breakdown.driven'), value: render(distance_value)),
+      *rates.map { |_, figure| figure.with(label: t('car_breakdown.per_100km')) },
     ]
   end
 
@@ -77,10 +77,10 @@ class Car::DrivingBox::Component < ViewComponent::Base
   def rates
     [
       rate(:cost_rate, :car_cost_rate, driving.cost_per_100km, spans&.cost_per_100km, **cost_rate_tooltip) do
-        Sensor::ValueFormatter.new(it, unit: Sensor::Registry[:total_costs].unit, precision: 2).to_s
+        Sensor::Value::Component.new(it, :total_costs, precision: 2)
       end,
       rate(:consumption_rate, :car_consumption_rate, driving.consumption_per_100km, spans&.consumption_per_100km, **consumption_rate_tooltip) do
-        Sensor::ValueFormatter.new(it * 1000, unit: Sensor::Registry[:wallbox_power].unit, context: :total, scaling: :kilo, precision: 1).to_s
+        Sensor::Value::Component.new(it * 1000, :wallbox_power, context: :total, scaling: :kilo, precision: 1)
       end,
     ]
   end
@@ -89,7 +89,7 @@ class Car::DrivingBox::Component < ViewComponent::Base
   # of a rate, so its figure loads nothing.
   def rate(label, sensor_name, value, span, parts: [], notes: [])
     bar = Car::SpanBar::Component.new(value:, span:, better: :lower) if value && span
-    [label, Car::OverviewBox::Component::Figure.new(sensor_name:, label: nil, value: value ? yield(value) : '–', bar:, parts:, notes:)]
+    [label, Car::OverviewBox::Component::Figure.new(sensor_name:, label: nil, value: value ? render(yield(value)) : '–', bar:, parts:, notes:)]
   end
 
   # The tooltip of a rate has the amount that it divides by the distance

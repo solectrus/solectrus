@@ -3,7 +3,7 @@ describe Car::ChargingBox::Component, type: :component do
 
   def sums(count: 0, **) = ChargingSession::Sums.empty.with(count:, rows: count, **)
 
-  # The label and the value of each tile of a phone
+  # The value and the caption of each tile of a phone
   def tiles = html.css('div.lg\:hidden.grid > *').map { |tile| tile.css('> span').first(2).map { it.text.squish } }
 
   # The text in the center of the ring
@@ -38,9 +38,9 @@ describe Car::ChargingBox::Component, type: :component do
   it 'shows the charged energy, the share of PV and the cost as tiles' do
     expect(tiles).to eq(
       [
-        [I18n.t('car_breakdown.charged'), '2,078 kWh'],
-        [I18n.t('car_breakdown.share_pv').upcase_first, '56 %'],
-        [I18n.t('sensors.car_charging_costs'), '372 €'],
+        ['2,078 kWh', 'charged'],
+        ['56 %', 'from PV'],
+        ['372 €', 'cost'],
       ],
     )
   end
@@ -54,7 +54,7 @@ describe Car::ChargingBox::Component, type: :component do
     let(:offsite) { sums(count: 7, kwh: 154.0, cost: 60.0, uncosted: 1) }
 
     it 'marks the cost as a minimum and tells why' do
-      expect(tiles.last.last).to eq('≥ 372 €')
+      expect(tiles.last.first).to eq('≥ 372 €')
       expect(html.text).to include(I18n.t('charging_sessions.cost_incomplete'))
     end
   end
@@ -67,9 +67,9 @@ describe Car::ChargingBox::Component, type: :component do
     it 'shows 0 and dashes in the same tiles' do
       expect(tiles).to eq(
         [
-          [I18n.t('car_breakdown.charged'), '0 kWh'],
-          [I18n.t('car_breakdown.share_pv').upcase_first, '–'],
-          [I18n.t('sensors.car_charging_costs'), '–'],
+          ['0 kWh', 'charged'],
+          ['–', 'from PV'],
+          ['–', 'cost'],
         ],
       )
     end

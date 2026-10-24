@@ -30,11 +30,11 @@ class Car::OverviewBox::Component < ViewComponent::Base
   public_constant :Head
 
   # A figure that loads its chart, with an optional bar of its span (see
-  # Car::SpanBar::Component) or a note below the value. Its tooltip has the
-  # `parts` of the value, like the cost of each source, and the paragraphs
-  # of its `notes`, like how the value comes about.
-  Figure = Data.define(:sensor_name, :label, :value, :bar, :note, :parts, :notes) do
-    def initialize(bar: nil, note: nil, parts: [], notes: [], **) = super
+  # Car::SpanBar::Component). Its tooltip has the `parts` of the value, like
+  # the cost of each source, and the paragraphs of its `notes`, like how the
+  # value comes about.
+  Figure = Data.define(:sensor_name, :label, :value, :bar, :parts, :notes) do
+    def initialize(bar: nil, parts: [], notes: [], **) = super
 
     def tooltip? = parts.any? || notes.any?
   end
@@ -109,4 +109,11 @@ class Car::OverviewBox::Component < ViewComponent::Base
   end
 
   def tooltip_touch(sensor_name) = sensor_name ? 'long' : 'true'
+
+  # A tile of a phone. Where the timeframe has spans, a tile has the height
+  # of one with a bar, so a row keeps its height when its figures replace
+  # the placeholder (see Car::Spans).
+  def tile_classes
+    class_names('flex min-w-0 flex-col gap-1 rounded-xl px-2 py-2 text-left bg-fill active:bg-fill-strong', 'min-h-18.5' => Car::Spans.kind(timeframe))
+  end
 end

@@ -72,12 +72,13 @@ class Car::ChargingBox::Component < ViewComponent::Base
 
   # The tiles of a phone: the charged energy with the energy of each source
   # in its tooltip, the share of PV or of the offsite sessions, and the
-  # charging cost
+  # charging cost. The title of the group says "charging", so the caption
+  # of the cost leaves it out.
   def tiles
     [
       Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging, label: t('car_breakdown.charged'), value: render(energy_value(total_kwh)), parts:),
       share_tile,
-      cost_figure,
+      cost_figure.with(label: t('car_breakdown.cost')),
     ].compact
   end
 
@@ -119,7 +120,7 @@ class Car::ChargingBox::Component < ViewComponent::Base
   # cost is a minimum.
   def cost_figure
     sessions = report.sessions
-    cost = ("#{'≥ ' unless sessions.costed?}#{currency(sessions.cost)}" if sessions.cost?)
+    cost = (safe_join([('≥ ' unless sessions.costed?), render(Sensor::Value::Component.new(sessions.cost, :total_costs))]) if sessions.cost?)
     Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging_costs, label: t('sensors.car_charging_costs'), value: cost || '–', parts: cost_parts, notes: cost_notes(sessions))
   end
 
@@ -165,7 +166,7 @@ class Car::ChargingBox::Component < ViewComponent::Base
   def share_tile
     return unless center_key
 
-    Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging, label: t("car_breakdown.share_#{center_key}").upcase_first, value: share_text(center_key))
+    Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging, label: t("car_breakdown.share_#{center_key}"), value: share_text(center_key))
   end
 
   def share_text(key) = sources.any? ? "#{share_of(key)} %" : '–'

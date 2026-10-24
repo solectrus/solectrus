@@ -251,9 +251,11 @@ en:
     cost_rate: Cost per 100 km
     consumption_rate: Consumption per 100 km
     per_day: Ø per day
-    charged: Charged
-    cost_rate_short: Cost/100 km
-    consumption_rate_short: Usage/100 km
+    # The captions below the values of the tiles of a phone
+    charged: charged
+    driven: driven
+    cost: cost
+    per_100km: per 100 km
     per_day_note: Ø %{distance}/day
     unconfirmed:
       one: 1 unconfirmed session

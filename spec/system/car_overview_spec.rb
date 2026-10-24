@@ -29,14 +29,16 @@ describe 'Car overview (mobile)' do
 
   def chart(sensor_name) = find("turbo-frame[src*='/cars/charts/#{sensor_name}/']", visible: :all)
 
-  def tile(label) = find('div.lg\:hidden.grid a', text: label)
+  # The tile of a phone that loads the chart of the sensor, the first one where
+  # two load it, like the charged energy before the share of PV
+  def tile(sensor_name) = first("div.lg\\:hidden.grid a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
 
   it 'shows the chart of the column of a tapped tile' do
     visit "/cars/car_distance/#{day}"
-    expect(tile('Fahrleistung')).to be_visible
+    expect(tile('car_distance')).to be_visible
     expect(active_column).to eq('car_distance')
 
-    tile('Geladen').click
+    tile('car_charging').click
 
     expect(page).to have_current_path("/cars/car_charging/#{day}")
     expect(active_column).to eq('car_charging')
@@ -49,10 +51,10 @@ describe 'Car overview (mobile)' do
   # before its chart loads (see Cars::FrameNavigation).
   it 'keeps the chart of the tap in the navigation' do
     visit "/cars/car_distance/#{day}"
-    expect(tile('Fahrleistung')).to be_visible
+    expect(tile('car_distance')).to be_visible
     expect(page).to have_css("a[href='/cars/car_distance/#{day - 1}']", visible: :all)
 
-    tile('Geladen').click
+    tile('car_charging').click
 
     expect(page).to have_css("a[href='/cars/car_charging/#{day - 1}']", visible: :all)
     expect(page).to have_no_css("a[href='/cars/car_distance/#{day - 1}']", visible: :all)
