@@ -1,7 +1,7 @@
 # The list of the charging sessions, with its pages and its refresh after a
 # save (see Cars::ChargingSessionsController). The controller gives
-# `car_selection`, `timeframe`, `review_only?` and `charging_page_path`, the
-# list of a kind.
+# `car_selection`, `timeframe`, `review_only?`, `sheet_page?` (see SheetPage)
+# and `charging_page_path`, the list of a kind.
 module Cars::ChargingSessionListing
   extend ActiveSupport::Concern
   include Pagy::Method
@@ -34,6 +34,7 @@ module Cars::ChargingSessionListing
       kinds: charging_kind_items(kind),
       map_path: (charging_map_path if kind == 'offsite' && admin?),
       review: review_switch(kind),
+      sheet: sheet_page?,
     )
   end
 

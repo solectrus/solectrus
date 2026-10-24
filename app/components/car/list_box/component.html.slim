@@ -6,7 +6,7 @@ section class='flex-1 flex flex-col' aria-label=label
       desktop it is a tinted band over the full width of the white page, and
       its content stays in line with the rows below. On a phone it stays while
       the next list loads, so only the list changes.
-    div class='ui-keep-lit flex flex-wrap items-center gap-x-3 gap-y-2 max-lg:mb-4 lg:flex-nowrap lg:gap-5 lg:min-h-18.5 lg:-mx-6 lg:-mt-5 lg:mb-2 lg:pl-9 lg:pr-11 lg:py-4 lg:rounded-t-lg lg:bg-indigo-50 dark:lg:bg-slate-800/70'
+    div class='ui-keep-lit flex flex-wrap items-center gap-x-3 gap-y-2 max-lg:mb-5 lg:flex-nowrap lg:gap-5 lg:min-h-18.5 lg:-mx-6 lg:-mt-5 lg:mb-2 lg:pl-9 lg:pr-11 lg:py-4 lg:rounded-t-lg lg:bg-indigo-50 dark:lg:bg-slate-800/70'
       - if segments.any?
         .max-lg:w-full.max-lg:min-h-10.max-lg:flex.max-lg:items-center
           = render Ui::SegmentedControl::Component.new(items: segments, label:, stretch: true)
@@ -17,17 +17,28 @@ section class='flex-1 flex flex-col' aria-label=label
         phone the icon of the map at their end. The icon has the size of the
         text, so the line keeps its height with or without the map, and the
         switch of the lists above keeps its width.
-      - if totals.present? || map_path || switch?
-        div class='flex flex-wrap items-center justify-center lg:justify-end gap-x-2.5 gap-y-2 max-lg:w-full max-lg:px-1 lg:ml-auto'
+      - if totals.present? || map_button? || switch?
+        div class=['flex flex-wrap items-center justify-center lg:justify-end gap-x-2.5 gap-y-2 max-lg:w-full lg:ml-auto', (stats.any? ? 'max-lg:mt-2' : 'max-lg:px-1')]
           - if switch?
             / A phone has the switch in a line of its own below the sums
             div class='lg:mr-3 max-lg:order-last max-lg:w-full max-lg:flex max-lg:justify-center' = switch
           - if totals.present?
-            span.text-sm.lg:text-base.text-fg-secondary.tabular-nums title=totals_note data-controller=('tooltip' if totals_note) data-tooltip-touch-value=('true' if totals_note) = totals_html
-          - if map_path
+            span.text-sm.lg:text-base.text-fg-secondary.tabular-nums class=('max-lg:hidden' if stats.any?) title=totals_note data-controller=('tooltip' if totals_note) data-tooltip-touch-value=('true' if totals_note) = totals_html
+          / The sums of a phone as columns in a card, each value above its caption
+          - if stats.any?
+            div class='lg:hidden w-full grid rounded-xl bg-surface py-3 divide-x divide-line text-center' style="grid-template-columns: repeat(#{stat_columns}, minmax(0, 1fr))"
+              - stats.each do |stat|
+                div class='flex min-w-0 flex-col' title=stat.note data-controller=('tooltip' if stat.note) data-tooltip-touch-value=('true' if stat.note)
+                  span.text-lg.font-semibold.leading-tight.tabular-nums.whitespace-nowrap.text-fg = stat.value
+                  span.truncate.text-sm.text-muted = stat.caption
+              - if map_button?
+                = link_to map_path, class: 'flex min-w-0 flex-col items-center rounded text-indigo-600 dark:text-indigo-400 focus-ring click-animation', title: map_label, aria: { label: map_label }, data: { turbo_frame: map_frame } do
+                  span.text-lg.leading-tight = icon 'map'
+                  span.truncate.text-sm = t('.map')
+          - elsif map_button?
             = link_to map_path, class: 'lg:hidden relative inline-flex items-center text-indigo-600 dark:text-indigo-400 touch-target focus-ring rounded', title: map_label, aria: { label: map_label }, data: { controller: 'tooltip', turbo_frame: map_frame } do
               = icon 'map'
-      - if map_path
+      - if map_button?
         div class=['max-lg:hidden', ('ml-auto' if totals.blank?)]
           = render Ui::Button::Component.new(path: map_path, style: :secondary, icon: 'map', title: t('.map'), options: { data: { turbo_frame: map_frame } })
 

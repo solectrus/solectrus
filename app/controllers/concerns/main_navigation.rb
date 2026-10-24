@@ -70,12 +70,8 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     helper_method def more_current?
       helpers.controller.is_a?(MoreController) ||
         secondary_items.any? { it[:current] } || more_child_item.present? ||
-        helpers.controller_namespace == 'settings' || below_more?
+        helpers.controller_namespace == 'settings'
     end
-
-    # Only the charging sessions can be a page below the page More or below
-    # the car page (see BelowMore)
-    helper_method def below_more? = false
 
     # The logo of the page More, which is the brand of the app
     helper_method def more_logo
@@ -200,7 +196,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         icon_only: true,
         href:
           cars_home_path(sensor_name: (car_sensor_name unless live), timeframe:, car: nil),
-        current: helpers.controller_namespace == 'cars' && !below_more?,
+        current: helpers.controller_namespace == 'cars',
       }
     end
 
@@ -220,9 +216,8 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     # The list of the charging sessions. A guest sees the list without the
     # open tasks and the forms. The link starts without the car and the kind
     # of the current page, in the timeframe of the views, or in the whole time
-    # from the live view. `query` goes into the address, like the origin of
-    # the page More.
-    def charging_sessions_item(**query)
+    # from the live view.
+    def charging_sessions_item
       return unless Sensor::HomePage.open?(:cars)
 
       timeframe = computed_timeframe
@@ -231,7 +226,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.charging_sessions'),
         icon: 'charging-station',
-        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe:, **query),
+        href: cars_charging_sessions_path(car: nil, kind: nil, timeframe:),
         current: helpers.controller.is_a?(Cars::ChargingSessionsController),
       }
     end

@@ -47,14 +47,6 @@ class MoreController < ApplicationController
     secondary_items.map { it[:view] ? it : it.merge(slide: true, plain: !it[:grouped]) }
   end
 
-  # The charging sessions, apart from the views as in the menu of the desktop,
-  # and only with a car (see Sensor::HomePage.open?). From here, the list is a
-  # page below this one (see BelowMore). The cell keeps the name of the menu,
-  # the slide shows the title of the list.
-  helper_method def charging_sessions_link
-    charging_sessions_item(from: 'more')&.merge(slide: true, nav_title: t('charging_sessions.title'))
-  end
-
   # A guest sees the settings too, and their page asks to log in. Only the
   # overview of the admin has a title bar that leads back here, so only it
   # slides.
@@ -77,6 +69,6 @@ class MoreController < ApplicationController
 
   # The keys of a menu item that a cell of the grouped list takes
   helper_method def cell_args(item)
-    item.slice(:name, :icon, :href, :data, :badge_count, :dot, :slide, :plain, :nav_title, :external, :destructive)
+    item.slice(:name, :icon, :href, :data, :badge_count, :dot, :slide, :plain, :external, :destructive)
   end
 end

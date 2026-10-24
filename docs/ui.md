@@ -70,7 +70,7 @@ The tab bar holds the first four entries, the primary entries. If a system has f
 
 A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. It opens in the timeframe of the last view. The page More has no timeframe of its own, so the server keeps the timeframe of the last view in the session.
 
-The other secondary entries, like the Top 10, and the notifications are one level below the page More. The layout gives each of them a `Ui::TitleBar` that leads back to the page More. A page that the tab bar holds shows no title bar. The list of the charging sessions is a page below the car page. When the item "Charging sessions" of the page More opens it, it is a page below the page More (see `BelowMore`).
+The other secondary entries, like the Top 10, and the notifications are one level below the page More. The layout gives each of them a `Ui::TitleBar` that leads back to the page More. A page that the tab bar holds shows no title bar.
 
 The switches of the page More, like the language, slide their marking to the new choice, as the tab bar does. The `segment-slide` controller does this for radios and for buttons.
 
@@ -87,6 +87,16 @@ In the timeframe select, each field of a day, a week, a month and a year has two
 On a phone, the select fits without scrolling, and no picker opens by itself. Each field is a tile with its name above it, in two columns. The period and its chevron join as one split button. The range and the forecast share the third row. Below the tiles, the windows back from now form one grid, and each window shows its unit. The whole time follows, in years and in months, with the names of the menu on the wide screen. The comparisons of the years stand at the bottom. The tile of a week names its year only when that is not the current year.
 
 Fullscreen is a mode of the document, and Turbo keeps the document from page to page. The page More turns it on with a switch, and the page that the user opens next shows in fullscreen. The menu of the desktop lies over the page, so it keeps its two items to enter and to leave fullscreen.
+
+## Sheets with pages
+
+On a phone, the car page opens its lists in a tall sheet: the charging sessions and the places. A tall sheet leaves a small strip of the page above it. It keeps its height while its content changes. `Ui::SheetPage` renders one page of the sheet. Each page has a head with its title, a way back, and actions at the right, like the map and the button for a new entry, or the save button of a form. The main action stands at the very right. From `md` up, the sheet is a dialog in the gray of a page. It has no head of its own, so the first page holds the close button in its head.
+
+The pages of a sheet load into the frame `sheet-page` (see `SheetPage`). The first page loads into the modal frame with the parameter `sheet`. Its links and its forms then stay in the sheet. A tap on an entry opens its form as a page one level down. That page slides in from the right, and the way back slides it out again. After a save, the server sends the sheet back to the list. If the sheet closes after a save, the figures and the charts of the car page load again, so they show the changes.
+
+If a form in the sheet has unsaved changes, a link that leaves it asks first. The sheet asks too before it closes. A drag on a map in the sheet moves the map, not the sheet.
+
+The desktop does not use these sheets. It keeps the lists as pages and the forms in the modal. The lists keep their own pages on a phone too, for a link from another page.
 
 ## Forms
 

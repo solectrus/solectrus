@@ -931,12 +931,13 @@ period.", and the admin gets a link to the settings of the cars.
 The list of the charging sessions and the list of the places are pages below the overview.
 Each has a timeframe and a select of the car, and its way back leads to the overview in the
 same timeframe and with the same car. A desktop shows both lists as pills in the head of
-the page. A phone has a title bar with the way back.
+the page. A phone has a title bar with the way back. On a phone, the overview opens both
+lists in a tall sheet, with their forms as pages of the sheet (see the section "Sheets with
+pages" in [docs/ui.md](ui.md)).
 
 - The charging sessions (`/cars/2/charging_sessions/wallbox/2025`, see [The list](#the-list)).
-  The admin adds an offsite session with the button `+`. The item "Charging sessions" of the
-  page More opens this list, and its way back then leads to the page More (`BelowMore`). The
-  link from the wallbox on the power balance opens the list too.
+  The admin adds an offsite session with the button `+`. The link from the wallbox on the
+  power balance opens the list too.
 - The places (`/cars/2/places/2025`) and the visits (`/cars/2/visits/2025`), see
   [Location](#location). Only a car with a location has places, so without one the overview
   has no link to them.

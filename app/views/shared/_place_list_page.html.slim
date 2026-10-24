@@ -1,0 +1,15 @@
+/ The list of the places or of the visits (see Cars::PlacePage)
+- list = capture do
+  = render Place::VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
+    = render list_box
+
+/ The list in the sheet of a phone, over the car page (see SheetPage)
+- if sheet_page?
+  = render Ui::SheetPage::Component.new(title:, subtitle: timeframe.localized, back_href: sheet_back_path, back_label: t('car_breakdown.place_lists.places')) do |page|
+    - if @pending_days.blank? && list_box.map_path
+      - page.with_action(href: list_box.map_path, icon: 'map', label: list_box.map_label, frame: Car::MapOverlay::Component::FRAME_ID)
+    = list
+- else
+  - content_for :grouped, true
+  = render 'shared/place_sub_nav'
+  = list

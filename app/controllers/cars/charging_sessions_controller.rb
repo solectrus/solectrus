@@ -1,12 +1,13 @@
 # The list of the charging sessions, a page below the car page: the wallbox
 # sessions or the offsite sessions of the selected car (see
 # Cars::ChargingSessionListing). The offsite sessions also have their map over the
-# list, and the admin edits a session in its form.
+# list, and the admin edits a session in its form. A phone shows the list and
+# its forms in a sheet over the car page (see SheetPage).
 class Cars::ChargingSessionsController < ApplicationController
   include CarListPage
   include FormPageResponse
-  include BelowMore
   include Cars::ChargingSessionListing
+  include SheetPage
 
   # A guest reads the list too, without its open tasks and its forms (see
   # Cars::ChargingSessionListing).
@@ -165,7 +166,7 @@ class Cars::ChargingSessionsController < ApplicationController
     { href: new_cars_charging_session_path(return_to: list_address), label: t('charging_sessions.new') }
   end
 
-  helper_method def list_box = charging_list_component(kind)
+  helper_method def list_box = (@list_box ||= charging_list_component(kind))
 
   # The detection writes energy, time and cost of a wallbox session, so the
   # user changes who charged and the note alone. The car field carries the

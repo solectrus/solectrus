@@ -90,7 +90,8 @@ class Car::ChargingBox::Component < ViewComponent::Base
     notes = review_notes
     return if sources.none? && notes.none?
 
-    Car::OverviewBox::Component::List.new(label: t('charging_sessions.title'), href: sessions_path(*notes.keys.first), icon: 'charging-station', notes: notes.values)
+    kind = notes.keys.first || ChargingSession.listed_kinds.first
+    Car::OverviewBox::Component::List.new(label: t('charging_sessions.title'), href: sessions_path(kind), sheet_href: sessions_path(kind, sheet: 1), icon: 'charging-station', notes: notes.values)
   end
 
   # The note of the sessions to review of each kind that has some
@@ -102,8 +103,8 @@ class Car::ChargingBox::Component < ViewComponent::Base
   end
 
   # The list of the sessions in the timeframe and with the car of the page
-  def sessions_path(kind = ChargingSession.listed_kinds.first)
-    helpers.cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: helpers.selection_params[:car])
+  def sessions_path(kind, **)
+    helpers.cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car: helpers.selection_params[:car], **)
   end
 
   private

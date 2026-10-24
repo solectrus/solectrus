@@ -114,5 +114,13 @@ describe Car::ChargingBox::Component, type: :component do
       expect(link['href']).to include('/charging_sessions/wallbox/2025')
       expect(link.text).to include(I18n.t('car_breakdown.unassigned', count: 2))
     end
+
+    # A phone opens the list in a sheet over the car page (see SheetPage)
+    it 'opens the list in a sheet on a phone' do
+      link = html.at_css('a.lg\:hidden[href*="/charging_sessions/"]')
+
+      expect(link['href']).to include('/charging_sessions/wallbox/2025?sheet=1')
+      expect(link['data-turbo-frame']).to eq('modal')
+    end
   end
 end

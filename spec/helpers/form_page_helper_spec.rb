@@ -14,10 +14,11 @@ describe FormPageHelper do
     let(:list) { nil }
 
     before do
-      allow(helper).to receive(:form_in_modal?).and_return(modal)
-      # A helper method of FormPageResponse
+      allow(helper).to receive(:turbo_frame_request?).and_return(modal)
+      # Helper methods of FormPageResponse and ApplicationController
       address = list
       helper.define_singleton_method(:return_to) { address }
+      helper.define_singleton_method(:sheet_page?) { false }
     end
 
     context 'when the modal asks for it' do

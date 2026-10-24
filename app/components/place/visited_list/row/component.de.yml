@@ -1,4 +1,5 @@
 de:
   today: heute
+  visits: "%{count}\u202F×"
   last: zuletzt %{date}
   yesterday: gestern

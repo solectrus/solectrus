@@ -1,5 +1,11 @@
 en:
   map: Map of the offsite sessions
+  # The captions of the sums of a phone
+  count:
+    one: session
+    other: sessions
+  charged: charged
+  cost: cost
   # The list of the sessions to review
   reviewed:
     wallbox: All assigned

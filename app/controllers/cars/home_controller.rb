@@ -6,10 +6,6 @@
 class Cars::HomeController < HomePageController
   include Cars::Selectable
 
-  # From here, the charging sessions are a page below the car page again (see
-  # BelowMore)
-  before_action { BelowMore.forget(session) }
-
   private
 
   def page_key = :cars

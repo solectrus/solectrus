@@ -9,12 +9,14 @@ module Cars::PlaceListing
 
   # The box of the places or the visits with the switch between them, and
   # `component` as the list. A place narrows the visits, and the pill of the
-  # place leads to the list without it.
+  # place leads to the list without it. The sheet of a phone has the map in
+  # its head (see SheetPage).
   def place_list_component(list, component, place: nil)
     Place::ListBox::Component.new(
       list:,
       counts: place_counts(place:),
       segments: place_list_items(list),
+      sheet: sheet_page?,
       map_path: cars_place_map_path(**place_page_params),
       component:,
       timeframe:,
@@ -40,7 +42,7 @@ module Cars::PlaceListing
   end
 
   # The places and the visits, which switch the list. Their names do not
-  # repeat the name of the page ("Places"). The switch shows all places.
+  # repeat the name of the page ("Places").
   def place_list_items(current)
     %w[places visits].map do |list|
       { name: t("car_breakdown.place_lists.#{list}"), href: place_list_path(list), current: list == current }

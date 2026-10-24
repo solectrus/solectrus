@@ -3,14 +3,18 @@
 # location, and builds the days that wait for the visits first (see
 # PlaceVisitsBuild). The map of the places over the list takes its timeframe
 # and its car from here too. The controller names its route (#page_route),
-# and adds its parameters (#page_params).
+# and adds its parameters (#page_params). A phone shows the page in a sheet
+# over the car page (see SheetPage).
 module Cars::PlacePage
   extend ActiveSupport::Concern
   include PlaceVisitsBuild
   include CarListPage
   include Cars::PlaceListing
+  include SheetPage
 
   included do
+    helper_method :sheet_back_path
+
     private
 
     # Like Cars::Selectable, but without its selection_params, which would
@@ -66,4 +70,8 @@ module Cars::PlacePage
 
   # The tab of the pages of the places (see CarListPage#list_tabs)
   def list_tab = :places
+
+  # In the sheet of a phone, the page leads back to here, if anywhere (see
+  # shared/_place_list_page)
+  def sheet_back_path = nil
 end

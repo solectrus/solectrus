@@ -6,6 +6,11 @@ import type ConfirmDialogController from '../confirm_dialog/component_controller
 // Shows the page of a modal frame request in a BottomSheet, and removes it from
 // the frame once it is closed. Before a form with unsaved changes closes, it
 // asks in Ui::ConfirmDialog::Component, its outlet.
+//
+// A sheet with pages (Ui::SheetPage::Component) stays open after a save in
+// it. Once it closes, it announces the change (`changed` on the document), and
+// the stats and the charts of the page behind it load again (see
+// stats_with_chart).
 export default class extends Controller<HTMLElement> {
   static readonly targets = ['dialog'];
   static readonly outlets = ['ui--confirm-dialog--component'];
@@ -15,10 +20,14 @@ export default class extends Controller<HTMLElement> {
   declare readonly uiConfirmDialogComponentOutlet: ConfirmDialogController;
 
   private sheet: BottomSheet | null = null;
+  private changed = false;
 
   connect(): void {
     this.sheet = new BottomSheet(this.dialogTarget, {
-      onClosed: () => this.element.remove(),
+      onClosed: () => {
+        this.element.remove();
+        if (this.changed) this.dispatch('changed', { target: document });
+      },
       // An open <details> inside takes Escape first
       canCancel: () => !this.dialogTarget.querySelector('details[open]'),
       confirmDiscard: () =>
@@ -48,6 +57,15 @@ export default class extends Controller<HTMLElement> {
   // Stimulus Action: Close on successful form submission
   // Called via data-action="turbo:submit-end->ui--turbo-modal--component#submitEnd"
   submitEnd(event: CustomEvent): void {
-    if (event.detail.success) this.closeDialog();
+    if (!event.detail.success) return;
+
+    if (isInSheetPage(event.target)) this.changed = true;
+    else this.closeDialog();
   }
+}
+
+const SHEET_PAGE = 'turbo-frame#sheet-page';
+
+function isInSheetPage(target: EventTarget | null): boolean {
+  return target instanceof Element && target.closest(SHEET_PAGE) !== null;
 }

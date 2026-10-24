@@ -1,10 +1,21 @@
-= render 'sub_nav'
+/ A stream refreshes the list after a save (see FormPageResponse). A link in
+  it leaves the page, so it does not load into the frame. In the sheet of a
+  phone, over the car page, it stays in the sheet (see SheetPage).
+- list = capture do
+  - if @missing_or_stale_summary_days.present?
+    = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+  - else
+    = tag.turbo_frame id: 'list', target: (sheet_page? ? SheetPage::FRAME : '_top'), class: 'flex-1 flex flex-col' do
+      = render list_box
 
-- content_for :grouped, true
-- if @missing_or_stale_summary_days.present?
-  = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+- if sheet_page?
+  = render Ui::SheetPage::Component.new(title: t('charging_sessions.title'), subtitle: timeframe.localized) do |page|
+    / The map before the button for a new entry, which stands at the very right
+    - if @missing_or_stale_summary_days.blank? && list_box.map_path
+      - page.with_action(href: list_box.map_path, icon: 'map', label: list_box.map_label, frame: Car::MapOverlay::Component::FRAME_ID)
+    - page.with_action(**add_entry, icon: 'plus') if add_entry
+    = list
 - else
-  / A stream refreshes the list after a save (see FormPageResponse). A link in
-    it leaves the page, so it does not load into the frame.
-  = tag.turbo_frame id: 'list', target: '_top', class: 'flex-1 flex flex-col' do
-    = render list_box
+  = render 'sub_nav'
+  - content_for :grouped, true
+  = list

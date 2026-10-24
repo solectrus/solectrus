@@ -120,6 +120,12 @@ export default class extends Controller {
       window.removeEventListener('popstate', visitOnPopState);
   }
 
+  // Stimulus Action: The data behind the page changed, like after a save in a
+  // sheet (see ui/turbo_modal), so the stats and the chart load again
+  refresh() {
+    this.reloadFrames({ chart: true });
+  }
+
   private async reload() {
     await this.reloadFrames({ chart: this.reloadChartValue });
 

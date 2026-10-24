@@ -28,8 +28,10 @@ class Cars::VisitedPlacesController < ApplicationController
   end
 
   helper_method def list_box
-    pagy, rows = places_page
-    place_list_component('places', Place::VisitedList::Component.new(rows:, pagy:, visits_path: method(:place_visits_path)))
+    @list_box ||= begin
+      pagy, rows = places_page
+      place_list_component('places', Place::VisitedList::Component.new(rows:, pagy:, visits_path: method(:place_visits_path)))
+    end
   end
 
   # The places with their visits, the most visited first, a page at a time

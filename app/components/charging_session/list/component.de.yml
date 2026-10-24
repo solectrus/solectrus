@@ -1,5 +1,11 @@
 de:
   map: Karte der Auswärts-Ladungen
+  # The captions of the sums of a phone
+  count:
+    one: Ladung
+    other: Ladungen
+  charged: geladen
+  cost: Kosten
   # The list of the sessions to review
   reviewed:
     wallbox: Alles zugeordnet

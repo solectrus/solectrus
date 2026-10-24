@@ -42,9 +42,10 @@ class Car::OverviewBox::Component < ViewComponent::Base
 
   # The link to the list of the column. `notes` name the open tasks of the
   # list, like the sessions to review. The link has an amber dot then, and a
-  # screen reader reads the notes.
-  List = Data.define(:label, :href, :icon, :notes) do
-    def initialize(notes: [], **) = super
+  # screen reader reads the notes. A list with `sheet_href` opens in a sheet
+  # on a phone (see SheetPage).
+  List = Data.define(:label, :href, :icon, :notes, :sheet_href) do
+    def initialize(notes: [], sheet_href: nil, **) = super
   end
   public_constant :List
 

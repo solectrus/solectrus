@@ -11,10 +11,12 @@ class Ui::TurboModal::Component < ViewComponent::Base
 
   include Turbo::FramesHelper
 
-  def initialize(title: nil, width: :wide)
+  # `tall`, see Ui::BottomSheet::Component
+  def initialize(title: nil, width: :wide, tall: false)
     super()
     @title = title
     @width = width
+    @tall = tall
   end
 
   # The title as a text or as a slot
@@ -35,6 +37,7 @@ class Ui::TurboModal::Component < ViewComponent::Base
     Ui::BottomSheet::Component.new(
       id: 'modal-sheet',
       width: @width,
+      tall: @tall,
       data: {
         ui__turbo_modal__component_target: 'dialog',
         action: 'turbo:submit-end->ui--turbo-modal--component#submitEnd',

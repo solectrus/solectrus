@@ -10,6 +10,7 @@ class Settings::PlacesController < ApplicationController
   include Pagy::Method
   include PlaceVisitsBuild
   include FormPageResponse
+  include SheetPage
 
   before_action :admin_required!
   before_action(except: :index) { head(:not_found) unless sponsored? }

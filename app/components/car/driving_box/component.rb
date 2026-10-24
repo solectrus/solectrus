@@ -65,8 +65,8 @@ class Car::DrivingBox::Component < ViewComponent::Base
 
   # The list of the places, which only a car with a location has, and a
   # period without a drive leaves out
-  def places_path
-    helpers.cars_visited_places_path(timeframe: timeframe.to_param, car: report.car&.id) if driven? && cars.any?(&:located?)
+  def places_path(**)
+    helpers.cars_visited_places_path(timeframe: timeframe.to_param, car: report.car&.id, **) if driven? && cars.any?(&:located?)
   end
 
   private

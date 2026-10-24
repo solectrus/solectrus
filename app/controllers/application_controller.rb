@@ -79,4 +79,7 @@ class ApplicationController < ActionController::Base
   # car page (see Sensor::Definitions::Base#chart). Each chart of the page
   # gets them (see ApplicationHelper#chart_options).
   def chart_options = {}
+
+  # Only a page of SheetPage can show in the sheet of a phone
+  helper_method def sheet_page? = false
 end

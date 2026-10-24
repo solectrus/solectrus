@@ -1,0 +1,16 @@
+/ The form in the modal of the desktop, or on a page of its own on a phone,
+  one level below the list (see Ui::FormPage::Component). In the sheet of a
+  phone, it is a page of the sheet (see SheetPage).
+- if sheet_page?
+  = render Ui::SheetPage::Component.new(title: heading, back_href: list_path, back_label: t('car_breakdown.charging')) do |page|
+    - page.with_save(form: form_page_id(@charging_session))
+    = yield
+
+- else
+  - content_for :fixed_nav, true
+  - content_for :sub_nav do
+    = render Ui::TitleBar::Component.new(title: heading, back_href: list_path, back_label: t('car_breakdown.charging')) do |bar|
+      - bar.with_save(form: form_page_id(@charging_session))
+
+  = render Ui::FormPage::Component.new(title: heading, width:) do
+    = yield

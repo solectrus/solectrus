@@ -113,6 +113,13 @@ describe 'Charging sessions' do
       expect(response.body).not_to include('/map"')
     end
 
+    # A phone has the sums as columns, each value above its caption
+    it 'shows the sums as columns on a phone' do
+      get page('offsite')
+      stats = response.parsed_body.css('.ui-keep-lit .grid > div').map { |stat| stat.element_children.map { it.text.squish } }
+      expect(stats).to eq([%w[2 sessions], ['30.0 kWh', 'charged'], ['15.00 €', 'cost']])
+    end
+
     it 'offers a new offsite session' do
       get page
       expect(response.body).to include('/cars/charging_sessions/new')
@@ -743,6 +750,48 @@ describe 'Charging sessions' do
             as: :turbo_stream
 
       expect(response.body).to include('<turbo-stream action="back_to" target="/cars/charging_sessions/offsite">')
+    end
+  end
+
+  # A phone shows the list and its forms in a sheet over the car page (see
+  # SheetPage)
+  describe 'in the sheet of a phone' do
+    def sheet_page = response.parsed_body.at_css('turbo-frame#sheet-page')
+
+    it 'opens the list in the modal frame, not the timeframe select' do
+      get page('offsite', timeframe: Date.current.year.to_s), params: { sheet: 1 }, headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.parsed_body.at_css('turbo-frame#modal dialog.bottom-sheet')).to be_present
+      expect(sheet_page.at_css('h2').text.squish).to eq('Charging sessions')
+      expect(sheet_page.at_css('turbo-frame#list')['target']).to eq('sheet-page')
+      expect(response.body).not_to include('Select timeframe')
+    end
+
+    # The map stands in the head of the sheet, not beside the sums
+    it 'has the map in its head, before the button for a new session' do
+      get page('offsite'), params: { sheet: 1 }, headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(sheet_page.css('header a').pluck('aria-label')).to eq(['Map of the offsite sessions', I18n.t('charging_sessions.new')])
+      expect(sheet_page.css('a[href$="/map"]').size).to eq(1)
+    end
+
+    it 'shows the form as a page of the sheet' do
+      get "/cars/charging_sessions/#{recent.id}/edit", params: { return_to: page('offsite') }, headers: { 'Turbo-Frame' => 'sheet-page' }
+
+      form = sheet_page.at_css('form.ui-form')
+      expect(form['data-turbo-frame']).to eq('sheet-page')
+      expect(sheet_page.at_css("button[form='#{form['id']}'][data-form-dirty-submit]")).to be_present
+      expect(URI(sheet_page.at_css('header a')['href']).path).to eq(page('offsite'))
+    end
+
+    it 'leads back to the list in the sheet after a save' do
+      patch "/cars/charging_sessions/#{recent.id}",
+            params: { charging_session: { cost: 7.5 }, return_to: page('offsite') },
+            headers: { 'Turbo-Frame' => 'sheet-page' },
+            as: :turbo_stream
+
+      expect(response).to redirect_to(page('offsite'))
+      expect(recent.reload.cost).to eq(7.5)
     end
   end
 

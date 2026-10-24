@@ -1,4 +1,5 @@
 en:
   today: today
+  visits: "%{count}\u202F×"
   last: latest %{date}
   yesterday: yesterday

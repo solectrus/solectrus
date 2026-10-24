@@ -25,10 +25,6 @@ describe 'Page More' do
     html.at_css('.ui-title-bar')
   end
 
-  def charging_sessions_link
-    html.at_css('main a[href*="from=more"]')
-  end
-
   describe 'the list' do
     before { get '/more' }
 
@@ -55,11 +51,11 @@ describe 'Page More' do
       end
     end
 
-    it 'lists the charging sessions in a group of their own, between the views and the system' do
+    # The car page opens the charging sessions in a sheet (see SheetPage)
+    it 'has no charging sessions' do
       aggregate_failures do
-        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq(['Other views', nil, 'System', 'Appearance', 'SOLECTRUS', nil])
-        expect(html.css('main section')[1].css('a').map { it.text.strip }).to eq(['EV charging sessions'])
-        expect(charging_sessions_link['href']).to match(%r{\A/cars/charging_sessions/[^?#]+\?from=more\z})
+        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq(['Other views', 'System', 'Appearance', 'SOLECTRUS', nil])
+        expect(html.at_css('main a[href*="/charging_sessions"]')).to be_nil
       end
     end
 
@@ -83,22 +79,6 @@ describe 'Page More' do
       link = html.at_css('main a[href="/login"]')
 
       expect(link.at_css('.text-signal-negative')).to be_nil
-    end
-  end
-
-  context 'without a car' do
-    before do
-      Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_CAR_BATTERY_SOC'))
-      get '/more'
-    end
-
-    after { Sensor::Config.setup(ENV) }
-
-    it 'has no charging sessions and no empty group' do
-      aggregate_failures do
-        expect(charging_sessions_link).to be_nil
-        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq(['Other views', 'System', 'Appearance', 'SOLECTRUS', nil])
-      end
     end
   end
 
@@ -140,10 +120,6 @@ describe 'Page More' do
 
     it 'slides into the settings' do
       expect(group_links('System')['Settings']['data-nav-title']).to eq('Settings')
-    end
-
-    it 'slides into the charging sessions' do
-      expect(charging_sessions_link['data-nav-title']).to eq('Charging sessions')
     end
 
     it 'offers the logout in red' do
@@ -244,44 +220,17 @@ describe 'Page More' do
       title_bar.at_css('a.ui-title-bar-back')
     end
 
-    # The way back to the page More slides with its logo, the way back to the
-    # overview of the car page, which has no title bar, does not slide
-    def expect_below(parent)
-      more = parent == :more
-
-      aggregate_failures do
-        expect(back['href']).to eq(more ? '/more' : '/cars/2026-06')
-        expect(back['data-nav-logo'].present?).to eq(more)
-        expect(more_tab['aria-current']).to eq(('page' if more))
-        expect(tab('Electric vehicle')['aria-current']).to eq(('page' unless more))
-      end
-    end
-
+    # The way back to the overview of the car page, which has no title bar,
+    # does not slide
     it 'are a page below the overview of the car page' do
       visit '/cars/charging_sessions/wallbox/2026-06'
 
-      expect_below(:car)
-    end
-
-    it 'are a page below the page More when they open from there' do
-      visit '/cars/charging_sessions/wallbox/2026-06?from=more'
-
-      expect_below(:more)
-    end
-
-    it 'stay below the page More in another kind of the list' do
-      visit '/cars/charging_sessions/wallbox/2026-06?from=more'
-      visit '/cars/charging_sessions/offsite/2026-06'
-
-      expect_below(:more)
-    end
-
-    it 'are below the overview again after a visit there' do
-      visit '/cars/charging_sessions/wallbox/2026-06?from=more'
-      visit '/cars/now'
-      visit '/cars/charging_sessions/wallbox/2026-06'
-
-      expect_below(:car)
+      aggregate_failures do
+        expect(back['href']).to eq('/cars/2026-06')
+        expect(back['data-nav-logo']).to be_blank
+        expect(more_tab['aria-current']).to be_nil
+        expect(tab('Electric vehicle')['aria-current']).to eq('page')
+      end
     end
   end
 

@@ -21,10 +21,14 @@ class Ui::BottomSheet::Component < ViewComponent::Base
   }.freeze
   private_constant :WIDTHS
 
-  def initialize(id:, width: :wide, data: {})
+  # A `tall` sheet takes nearly the whole height of a phone, whatever its
+  # content, so it keeps its height while its page changes (see
+  # Ui::SheetPage::Component)
+  def initialize(id:, width: :wide, tall: false, data: {})
     super()
     @id = id
     @width = WIDTHS[width]
+    @tall = tall
     @data = data
   end
 
@@ -44,6 +48,6 @@ class Ui::BottomSheet::Component < ViewComponent::Base
   end
 
   def panel_class
-    ['bottom-sheet-panel', @width]
+    ['bottom-sheet-panel', @width, ('is-tall' if @tall)]
   end
 end

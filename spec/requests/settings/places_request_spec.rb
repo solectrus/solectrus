@@ -259,64 +259,89 @@ describe 'Settings Places' do
     end
   end
 
-  describe 'DELETE /settings/places/:id' do
-    it 'forbids the deletion to a guest' do
-      delete settings_place_path(place), as: :turbo_stream
-
-      expect(response).to have_http_status(:forbidden)
-      expect(Place).to exist(place.id)
-    end
-
-    it 'offers the deletion alone for a place without a visit' do
-      login_as_admin
-      get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
-
-      expect(response.body).to include(%(action="#{settings_place_path(place)}"), 'name="_method" value="delete"', I18n.t('settings.places.without_visits'))
-      expect(response.body).not_to include('name="place[name]"', I18n.t('settings.places.make_home'))
-    end
-
-    it 'has nothing to save on the page of a phone for a place without a visit' do
-      login_as_admin
-      get edit_settings_place_path(place)
-
-      expect(response.body).not_to include(%(form="form_place_#{place.id}"))
-    end
-
-    it 'deletes a place without a visit and removes its row in the modal' do
-      login_as_admin
-      delete settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
-
-      expect(Place).not_to exist(place.id)
-      expect(response.body).to include(%(<turbo-stream action="remove" target="place_#{place.id}">), I18n.t('crud.deleted'))
-    end
-
-    it 'goes back to the list from the page of a phone' do
-      login_as_admin
-      delete settings_place_path(place), as: :turbo_stream
-
-      expect(response.body).to include(%(<turbo-stream action="back_to" target="#{settings_places_path}">))
-    end
-
-    it 'keeps a place with a visit, whose form offers no deletion' do
+  # A phone shows the form in the sheet of the places over the car page (see
+  # SheetPage)
+  describe 'in the sheet of a phone' do
+    before do
       visit!
       login_as_admin
-      get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
-
-      expect(response.body).not_to include('name="_method" value="delete"')
-
-      delete settings_place_path(place), as: :turbo_stream
-
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(place.visits).to exist
     end
 
-    it 'keeps home' do
-      place.update!(labels: ['home'])
-      login_as_admin
-      delete settings_place_path(place), as: :turbo_stream
+    it 'shows the form as a page of the sheet, with the address below its title' do
+      get edit_settings_place_path(place, return_to: '/cars/places/2026-09'), headers: { 'Turbo-Frame' => 'sheet-page' }
 
-      expect(response).to have_http_status(:unprocessable_content)
-      expect(Place.home).to eq(place)
+      page = response.parsed_body.at_css('turbo-frame#sheet-page')
+      expect(page.at_css('header h2').text.squish).to eq('Edit place')
+      expect(page.at_css('header p').text.squish).to eq('Jülich')
+      expect(page.at_css('form.ui-form')['data-turbo-frame']).to eq('sheet-page')
     end
+
+    it 'leads back to the list in the sheet after a save' do
+      patch settings_place_path(place), params: { place: { name: 'Home' }, return_to: '/cars/places/2026-09' }, headers: { 'Turbo-Frame' => 'sheet-page' }, as: :turbo_stream
+
+      expect(place.reload.name).to eq('Home')
+      expect(response).to redirect_to('/cars/places/2026-09')
+    end
+  end
+
+  describe 'DELETE /settings/places/:id' do
+      it 'forbids the deletion to a guest' do
+        delete settings_place_path(place), as: :turbo_stream
+
+        expect(response).to have_http_status(:forbidden)
+        expect(Place).to exist(place.id)
+      end
+
+      it 'offers the deletion alone for a place without a visit' do
+        login_as_admin
+        get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
+
+        expect(response.body).to include(%(action="#{settings_place_path(place)}"), 'name="_method" value="delete"', I18n.t('settings.places.without_visits'))
+        expect(response.body).not_to include('name="place[name]"', I18n.t('settings.places.make_home'))
+      end
+
+      it 'has nothing to save on the page of a phone for a place without a visit' do
+        login_as_admin
+        get edit_settings_place_path(place)
+
+        expect(response.body).not_to include(%(form="form_place_#{place.id}"))
+      end
+
+      it 'deletes a place without a visit and removes its row in the modal' do
+        login_as_admin
+        delete settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
+
+        expect(Place).not_to exist(place.id)
+        expect(response.body).to include(%(<turbo-stream action="remove" target="place_#{place.id}">), I18n.t('crud.deleted'))
+      end
+
+      it 'goes back to the list from the page of a phone' do
+        login_as_admin
+        delete settings_place_path(place), as: :turbo_stream
+
+        expect(response.body).to include(%(<turbo-stream action="back_to" target="#{settings_places_path}">))
+      end
+
+      it 'keeps a place with a visit, whose form offers no deletion' do
+        visit!
+        login_as_admin
+        get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
+
+        expect(response.body).not_to include('name="_method" value="delete"')
+
+        delete settings_place_path(place), as: :turbo_stream
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(place.visits).to exist
+      end
+
+      it 'keeps home' do
+        place.update!(labels: ['home'])
+        login_as_admin
+        delete settings_place_path(place), as: :turbo_stream
+
+        expect(response).to have_http_status(:unprocessable_content)
+        expect(Place.home).to eq(place)
+      end
   end
 end

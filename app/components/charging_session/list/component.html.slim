@@ -1,4 +1,4 @@
-= render Car::ListBox::Component.new(label: t('charging_sessions.title'), segments: kinds, totals: totals_text, totals_note:, map_path:, map_label: t('.map')) do |box|
+= render Car::ListBox::Component.new(label: t('charging_sessions.title'), segments: kinds, totals: totals_text, totals_note:, stats:, map_path:, map_label:, map_button: !sheet) do |box|
   / The sessions to review beside the sums: an amber link with their number
     shows them alone, and then an amber button with an x shows each session
     again. Both have the same height, so the head keeps its layout.

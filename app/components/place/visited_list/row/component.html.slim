@@ -1,10 +1,11 @@
 / A row of the table from lg up: the icon, the place with its locality, the
   cars, the visits and the latest visit. Below lg a cell of a grouped list:
-  the icon, the place with its cars below it, and the visits at the right.
+  the icon, the place in the first line, and its cars with the visits at the
+  right in the second. The place takes the whole width up to the chevron.
 = render Ui::TableRow::Component.new(href:, nav_title: t('settings.places.edit'), css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[auto_minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto] max-lg:gap-y-0.5') do |row|
   .lg:p-2.max-lg:row-span-2
     = render Place::Icon::Component.new(place:)
-  .min-w-0.lg:p-2.max-lg:col-start-2.max-lg:row-start-1
+  .min-w-0.lg:p-2.max-lg:col-span-2.max-lg:col-start-2.max-lg:row-start-1
     = row.link css_class: 'block truncate text-fg' do
       = render Place::VisitList::NameCell::Component.new(place:)
       = render Place::VisitList::LocalityCell::Component.new(place:)
@@ -12,10 +13,12 @@
   .min-w-0.flex.gap-1.lg:flex-wrap.lg:p-2.max-lg:overflow-hidden.max-lg:col-start-2.max-lg:row-start-2
     - cars.each do |car|
       = render Car::Badge::Component.new(car:, short: true)
-  / The list has no head, so the numbers name what they count. The visits
-    are a target of their own on the desktop, like the day of a charging
-    session. On a phone a tap opens the place, whose page leads to them.
-  .tabular-nums.text-right.whitespace-nowrap.font-semibold.text-fg.lg:p-2.max-lg:col-start-3.max-lg:row-span-2.max-lg:font-normal
-    = link_to t('visits.count', count: visit_count), visits_href, class: 'max-lg:pointer-events-none rounded-sm lg:hover:underline underline-offset-4 focus-ring-inset'
+  / The number of visits as a short "24 ×". Its full name is its label for
+    screen readers.
+    The visits are a target of their own on the desktop, like the day of a
+    charging session. On a phone a tap opens the place, whose page leads to
+    them.
+  .tabular-nums.text-right.whitespace-nowrap.font-semibold.text-fg.lg:p-2.max-lg:col-start-3.max-lg:row-start-2.max-lg:font-normal.max-lg:text-subhead.max-lg:text-fg-secondary
+    = link_to t('.visits', count: visit_count), visits_href, 'aria-label': t('visits.count', count: visit_count), class: 'max-lg:pointer-events-none rounded-sm lg:hover:underline underline-offset-4 focus-ring-inset'
   .hidden.lg:block.tabular-nums.text-right.whitespace-nowrap.text-fg-secondary.p-2
     = t('.last', date: last)

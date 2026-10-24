@@ -64,6 +64,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def refresh_options
     {
       controller: 'stats-with-chart--component',
+      action: 'ui--turbo-modal--component:changed@document->stats-with-chart--component#refresh',
       'stats-with-chart--component-sensor-name-value': sensor_name,
       'stats-with-chart--component-interval-value':
         (

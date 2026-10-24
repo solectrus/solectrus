@@ -1,5 +1,1 @@
-- content_for :grouped, true
-= render 'shared/place_sub_nav'
-
-= render Place::VisitsBuild::Component.new(timeframe: build_timeframe, pending_days: @pending_days) do
-  = render list_box
+= render 'shared/place_list_page'

@@ -33,11 +33,25 @@ describe 'Cars Visited places' do
     context 'when logged in as admin' do
       before { login_as_admin }
 
+      # A phone opens the list in a sheet over the car page (see SheetPage)
+      # The switch has no numbers, and the head of the sheet has the map
+      it 'opens the list in the modal frame, not the timeframe select' do
+        get cars_visited_places_path(timeframe: '2026-09', sheet: 1), headers: { 'Turbo-Frame' => 'modal' }
+
+        page = response.parsed_body.at_css('turbo-frame#modal turbo-frame#sheet-page')
+        expect(page.at_css('header h2').text.squish).to eq('Locations')
+        expect(page.at_css('header p').text.squish).to eq('September 2026')
+        expect(page.css('nav a').map { it.text.squish }).to eq(%w[Destinations Visits])
+        expect(page.at_css('.ui-keep-lit span.text-fg-secondary.tabular-nums')).to be_nil
+        expect(page.at_css('header a[data-turbo-frame="car_map"]')).to be_present
+      end
+
       it 'lists the places with their visits, the most visited first' do
         get cars_visited_places_path(timeframe: '2026-09')
 
         expect(response.parsed_body.at_css('.ui-keep-lit span.tabular-nums').text).to eq('2 places')
-        expect(response.body).to include('Home', '2 visits')
+        expect(response.body).to include('Home')
+        expect(response.parsed_body.at_css('a[aria-label="2 visits"]').text.strip).to eq("2\u202F×")
         expect(response.parsed_body.css('[data-ui--table-row--component-target=link]').map { it.text.strip }).to eq(['Home', work.display_name || 'Unnamed'])
       end
 

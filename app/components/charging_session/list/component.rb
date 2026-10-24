@@ -18,8 +18,9 @@ class ChargingSession::List::Component < ViewComponent::Base
   # `selection` is the car of the page (see CarSelection). `kinds` are the
   # items of the switch, empty for one kind. `map_path` opens the map of the
   # sessions, or is nil. `review` is the switch of the sessions to review,
-  # or nil.
-  def initialize(charging_sessions:, kind:, selection:, pagy: nil, timeframe: nil, kinds: [], map_path: nil, review: nil) # rubocop:disable Metrics/ParameterLists
+  # or nil. In the `sheet` of a phone, the head of the sheet has the button
+  # of the map.
+  def initialize(charging_sessions:, kind:, selection:, pagy: nil, timeframe: nil, kinds: [], map_path: nil, review: nil, sheet: false) # rubocop:disable Metrics/ParameterLists
     super()
     @charging_sessions = charging_sessions
     @kind = kind
@@ -29,13 +30,16 @@ class ChargingSession::List::Component < ViewComponent::Base
     @kinds = kinds
     @map_path = map_path
     @review = review
+    @sheet = sheet
   end
 
-  attr_reader :charging_sessions, :kind, :pagy, :timeframe, :kinds, :review
+  attr_reader :charging_sessions, :kind, :pagy, :timeframe, :kinds, :review, :sheet
 
   # The map shows the sessions that count, like the sums, so a list of
   # proposals alone has nothing to show on it
   def map_path = (@map_path if totals.any?)
+
+  def map_label = t('.map')
 
   def review_only? = review&.on
 
@@ -68,6 +72,18 @@ class ChargingSession::List::Component < ViewComponent::Base
   # A cost without the cost of each session is a minimum, which the sums
   # explain
   def totals_note = (t('charging_sessions.cost_incomplete') if totals.any? && totals.cost? && !totals.costed?)
+
+  # The sums as the columns of a phone, each value with its caption. The
+  # cost has the note of a minimum in its tooltip.
+  def stats
+    return [] if totals.none?
+
+    [
+      Car::ListBox::Component::Stat.new(value: helpers.number_with_delimiter(totals.count), caption: t('.count', count: totals.count)),
+      Car::ListBox::Component::Stat.new(value: render(Sensor::Value::Component.new(totals.kwh * 1000, :wallbox_power, context: :total, scaling: :kilo)), caption: t('.charged')),
+      (Car::ListBox::Component::Stat.new(value: cost_value, caption: t('.cost'), note: totals_note) if totals.cost?),
+    ].compact
+  end
 
   # The text of an empty list names the selection: the guest, one car, or
   # the sessions of the kind
@@ -112,5 +128,12 @@ class ChargingSession::List::Component < ViewComponent::Base
   def cost_text
     cost = number_to_currency(totals.cost, unit: Currency.symbol)
     totals.costed? ? cost : "≥ #{cost}"
+  end
+
+  # Cents below 100, where they still count, whole amounts above, so the
+  # column keeps its width
+  def cost_value
+    precision = totals.cost >= 100 ? 0 : 2
+    safe_join([('≥ ' unless totals.costed?), render(Sensor::Value::Component.new(totals.cost, :total_costs, precision:))])
   end
 end

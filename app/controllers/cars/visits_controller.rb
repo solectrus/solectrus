@@ -70,8 +70,12 @@ class Cars::VisitsController < ApplicationController
   # The list with the switch to the places, narrowed to the place of the
   # address
   helper_method def list_box
-    place_list_component('visits', Place::VisitList::Component.new(visits: @visits, pagy: @pagy, context: list_context), place:)
+    @list_box ||= place_list_component('visits', Place::VisitList::Component.new(visits: @visits, pagy: @pagy, context: list_context), place:)
   end
 
   helper_method def title = t('car_breakdown.places')
+
+  # In the sheet of a phone, the visits of a place lead back to the places
+  # (see SheetPage)
+  helper_method def sheet_back_path = (place_list_path('places') if place)
 end

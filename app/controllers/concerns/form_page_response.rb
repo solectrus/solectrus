@@ -59,9 +59,13 @@ module FormPageResponse
   # stream refreshes the list. The page of a phone goes back to the list, which
   # slides in from the left: the stream action back_to returns to the entry of
   # the list in the history (see setupBackTo.ts). The list shows the notice
-  # when it loads. Without Turbo Streams, a redirect leads to the list.
+  # when it loads. Without Turbo Streams, a redirect leads to the list. In the
+  # sheet of a phone, the redirect loads the list into the sheet (see
+  # SheetPage).
   def respond_with_list(notice: t('crud.success'))
-    if turbo_frame_request?
+    if sheet_page?
+      redirect_to list_path, status: :see_other
+    elsif turbo_frame_request?
       flash.now[:notice] = notice
       render turbo_stream: [*list_stream, turbo_stream_update_flash]
     elsif request.format.turbo_stream?

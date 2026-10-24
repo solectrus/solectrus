@@ -1,4 +1,4 @@
-= render Car::ListBox::Component.new(label: t('car_breakdown.places'), segments:, totals:, map_path:, map_label: t('.map')) do |box|
+= render Car::ListBox::Component.new(label: t('car_breakdown.places'), segments:, totals:, map_path:, map_label:, map_button: !sheet) do |box|
   - if place
     - box.with_filter do
       = render Ui::FilterBar::Pill::Component.new(icon: 'location-dot', remove_path: unfiltered_path) do

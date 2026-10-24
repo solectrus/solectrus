@@ -23,10 +23,18 @@ const CLOSE_TIMEOUT_MS = 500;
 
 const OPEN_CLASS = 'is-open';
 const INSTANT_CLASS = 'is-instant';
+// While the keyboard of a phone covers the lower part of the sheet
+const KEYBOARD_CLASS = 'has-keyboard';
+const KEYBOARD_INSET = '--keyboard-inset';
 
-// A drag that starts on one of these is an input, not a swipe. A link or a
-// button may start a swipe, because a whole page can be links.
-const FORM_FIELD = 'input, select, textarea';
+// The close button of the head, or another one of the content, like the
+// head of a page of a tall sheet (see Ui::SheetPage::Component)
+const CLOSE = '.bottom-sheet-close, [data-bottom-sheet-close]';
+
+// A drag that starts on one of these is an input, not a swipe: a field, or a
+// map, which pans. A link or a button may start a swipe, because a whole page
+// can be links.
+const NO_SWIPE = 'input, select, textarea, .maplibregl-map';
 // A drag further than this (px) is no tap: a click this soon (ms) after it
 // must not follow a link
 const TAP_SLOP = 10;
@@ -113,6 +121,8 @@ export class BottomSheet {
     this.panel.style.transform = '';
     this.dialog.classList.toggle(INSTANT_CLASS, instant);
     this.dialog.showModal();
+    window.visualViewport?.addEventListener('resize', this.fitKeyboard);
+    window.visualViewport?.addEventListener('scroll', this.fitKeyboard);
     this.focusPanelInsteadOfClose();
     this.openedAt = performance.now();
     this.markScrollable();
@@ -146,6 +156,7 @@ export class BottomSheet {
     const finish = () => {
       stop();
       this.state = 'closed';
+      this.stopFittingKeyboard();
       this.dialog.close();
       this.options.onClosed?.();
     };
@@ -198,6 +209,7 @@ export class BottomSheet {
 
   destroy(): void {
     this.resizeObserver.disconnect();
+    this.stopFittingKeyboard();
     this.dialog.removeEventListener('click', this.handleClick);
     this.dialog.removeEventListener('keydown', this.handleKeydown);
     this.dialog.removeEventListener('cancel', this.handleCancel);
@@ -208,10 +220,42 @@ export class BottomSheet {
     this.panel.removeEventListener('click', this.swallowClickAfterDrag, true);
   }
 
+  // The keyboard of iOS shrinks the visual viewport only. The sheet is fixed
+  // to the layout viewport, so its lower part stays below the keyboard, and
+  // a field there counts as visible and does not scroll into view. The
+  // stylesheet lifts the panel by the covered height instead, and the
+  // content scrolls to the field that has the focus. Only a sheet on the
+  // lower edge needs this, a dialog in the middle has room.
+  private readonly fitKeyboard = (): void => {
+    const viewport = window.visualViewport;
+    if (!viewport) return;
+
+    const covered = window.matchMedia(COMPACT_QUERY).matches
+      ? Math.max(
+          0,
+          Math.round(window.innerHeight - viewport.height - viewport.offsetTop),
+        )
+      : 0;
+    this.dialog.style.setProperty(KEYBOARD_INSET, `${covered}px`);
+    this.dialog.classList.toggle(KEYBOARD_CLASS, covered > 0);
+    if (covered === 0) return;
+
+    const field = document.activeElement;
+    if (field instanceof HTMLElement && this.content.contains(field))
+      field.scrollIntoView({ block: 'nearest' });
+  };
+
+  private stopFittingKeyboard(): void {
+    window.visualViewport?.removeEventListener('resize', this.fitKeyboard);
+    window.visualViewport?.removeEventListener('scroll', this.fitKeyboard);
+    this.dialog.style.removeProperty(KEYBOARD_INSET);
+    this.dialog.classList.remove(KEYBOARD_CLASS);
+  }
+
   private readonly handleClick = (event: MouseEvent): void => {
     if (!(event.target instanceof Element)) return;
 
-    if (event.target.closest('.bottom-sheet-close')) {
+    if (event.target.closest(CLOSE)) {
       this.requestClose();
       return;
     }
@@ -260,7 +304,7 @@ export class BottomSheet {
     if (this.state !== 'open') return;
     if (!window.matchMedia(COMPACT_QUERY).matches) return;
     if (!(event.target instanceof Element)) return;
-    if (event.target.closest(FORM_FIELD)) return;
+    if (event.target.closest(NO_SWIPE)) return;
 
     // An area that scrolls keeps its vertical pan. There, only a handle, like
     // the header, drags the panel.

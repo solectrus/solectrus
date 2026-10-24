@@ -61,6 +61,55 @@
   }
 }
 
+/* A tall sheet leaves a strip of the page above it on a phone, as on iOS. It
+   holds pages (see Ui::SheetPage::Component) with the gray, the margin and
+   the head of a page of a phone, below the grabber. The dialog of a tablet
+   has the same gray, and the head of its page is its only head. Its height
+   has a limit, so a tall tablet keeps its header in view, as the form sheet
+   of an iPad does. Dark, a fine edge sets it apart from the dim page. */
+.bottom-sheet-panel.is-tall {
+  @apply bg-canvas max-h-none;
+  height: calc(100dvh - env(safe-area-inset-top) - 0.75rem);
+
+  @variant md {
+    @apply dark:ring-1 dark:ring-white/10;
+    height: min(85dvh, 46rem);
+  }
+
+  .bottom-sheet-header {
+    @apply max-md:pb-0 md:hidden;
+  }
+
+  .bottom-sheet-content {
+    @apply max-md:px-4;
+  }
+}
+
+/* While the keyboard of a phone is open, the panel ends above it and loses
+   the room for the home indicator, which the keyboard covers. The script
+   measures the covered height (see utils/bottomSheet.ts). A tall panel keeps
+   its distance to the top of the screen. A field that scrolls into view
+   keeps some room to the keyboard. */
+.bottom-sheet.has-keyboard {
+  padding-bottom: var(--keyboard-inset);
+
+  .bottom-sheet-panel {
+    padding-bottom: 0;
+    max-height: calc(90dvh - var(--keyboard-inset));
+  }
+
+  .bottom-sheet-content {
+    scroll-padding-bottom: 1rem;
+  }
+
+  .bottom-sheet-panel.is-tall {
+    max-height: none;
+    height: calc(
+      100dvh - env(safe-area-inset-top) - 0.75rem - var(--keyboard-inset)
+    );
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bottom-sheet-panel {
     transform: none;
