@@ -30,6 +30,6 @@
   - elsif sessions.empty?
     = render Ui::EmptyState::Component.new(icon: 'charging-station', title: empty_title, text: empty_text)
   - else
-    .grid.w-full.select-text.lg:px-3.lg:pb-2 class=GRID_COLUMNS
+    .grid.w-full.lg:select-text.lg:px-3.lg:pb-2 class=GRID_COLUMNS
       .lg:contents.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-surface
         = render ChargingSession::Rows::Component.new(sessions:, pagy:, timeframe:)
