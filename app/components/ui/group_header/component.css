@@ -10,7 +10,7 @@
  * before it and the background of a pressed cell at the corners.
  */
 .ui-group-header {
-  @apply [--page:var(--color-gray-100)] [--radius:var(--radius-xl)] dark:[--page:var(--color-slate-900)];
+  @apply [--page:var(--color-canvas)] [--radius:var(--radius-xl)];
 
   @variant max-lg {
     @apply relative z-1 bg-(--page);
