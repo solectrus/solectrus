@@ -3,13 +3,13 @@
 
 ARG SKIP_BOOTSNAP_PRECOMPILE=true
 
-FROM ghcr.io/ledermann/rails-base-builder:4.0.8-alpine AS builder
+FROM ghcr.io/ledermann/rails-base-builder:4.0.9-alpine AS builder
 
 # Remove some files not needed in resulting image.
 # Because they are required for building the image, they can't be added to .dockerignore
 RUN rm -r package.json vite.config.mts tsconfig.json
 
-FROM ghcr.io/ledermann/rails-base-final:4.0.8-alpine
+FROM ghcr.io/ledermann/rails-base-final:4.0.9-alpine
 
 # Tells the Docker image from a working copy (see config/docker_image.rb). The
 # directory belongs to root and the application does not, so the application
