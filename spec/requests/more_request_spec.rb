@@ -54,7 +54,7 @@ describe 'Page More' do
     # The car page opens the charging sessions in a sheet (see SheetPage)
     it 'has no charging sessions' do
       aggregate_failures do
-        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq(['Other views', 'System', 'Appearance', 'SOLECTRUS', nil])
+        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq([nil, 'Other views', 'System', 'Appearance', 'SOLECTRUS', nil])
         expect(html.at_css('main a[href*="/charging_sessions"]')).to be_nil
       end
     end

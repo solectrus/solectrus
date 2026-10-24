@@ -4,7 +4,7 @@
 li.-mb-px data=row_data
   = content_tag tag_name, **tag_options do
     - if icon_name
-      span.flex.size-8.shrink-0.items-center.justify-center.rounded-lg.bg-fill-strong.text-muted
+      span.flex.size-8.shrink-0.items-center.justify-center.rounded-lg class=icon_class
         = icon(icon_name, class: 'text-base')
     .flex.min-h-14.min-w-0.flex-1.items-center.gap-3.border-b.border-line.py-2.5.pr-4
       - if detail

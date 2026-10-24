@@ -14,10 +14,9 @@
 # at a glance: green is fine, amber asks for something, gray is the local
 # development mode.
 #
-# It has two layouts. The wide one gives the description and the call to
-# action a line of their own. The compact one runs all parts into a single
-# line, separated by a middot. The page More of a phone asks for the compact
-# one, as a line at the top of the page.
+# The page More of a phone asks for a cell of a grouped list instead, as the
+# first card of the page. The tile of its icon carries the color there, and
+# a tap on the cell follows the call to action.
 class PremiumStatus::Component < ViewComponent::Base
   # Every grant this app can name. The update server can report one that is not
   # here, because a later release of the server can add a grant. Such a grant
@@ -52,6 +51,14 @@ class PremiumStatus::Component < ViewComponent::Base
   }.freeze
   private_constant :BOXES
 
+  # The tile of the icon in the cell, white on the color of the state as in
+  # the settings of iOS. The neutral state keeps the gray tile of a cell.
+  TILES = {
+    positive: 'bg-emerald-600 text-white',
+    attention: 'bg-attention text-white',
+  }.freeze
+  private_constant :TILES
+
   # A locale file must not name any route it likes, so cta_link picks from
   # here. The free trial is started on the registration site, not in the app.
   LINKS = {
@@ -64,9 +71,9 @@ class PremiumStatus::Component < ViewComponent::Base
   # policy. Only the Lookbook preview passes them, because it must show every
   # state on one page and an installation is in exactly one of them. The app
   # itself leaves both out and the policy decides.
-  def initialize(compact: false, scenario: nil, ends_at: nil)
+  def initialize(cell: false, scenario: nil, ends_at: nil)
     super()
-    @compact = compact
+    @cell = cell
     @scenario = scenario
     @given_ends_at = ends_at
   end
@@ -81,18 +88,8 @@ class PremiumStatus::Component < ViewComponent::Base
     value(:title)
   end
 
-  # The compact layout has one line for the whole box, so a scenario can carry
-  # a shorter text for it. Most of them do, because the long text needs two
-  # lines or three on the screen of a phone. A scenario that is short enough
-  # already names no second text, and both layouts then use the same one.
-  #
-  # A scenario with a call to action drops the description in the compact
-  # layout. The two together are wider than the screen of a phone, and the
-  # button already says what the user can do.
   def description
-    return if @compact && cta_text
-
-    @compact ? compact_description : value(:description)
+    value(:description)
   end
 
   def icon_name
@@ -120,71 +117,23 @@ class PremiumStatus::Component < ViewComponent::Base
     BOXES[TONES[scenario]]
   end
 
-  # The second part of the box. A scenario can carry a description, a call to
-  # action, or both.
-  def detail?
-    description.present? || cta_text.present?
-  end
+  def cell? = @cell
 
-  def box_layout
-    @compact ? 'items-baseline gap-2 px-4 py-2' : 'items-start gap-3 p-4'
-  end
-
-  # The compact row aligns the baselines, and an icon sits on the baseline with
-  # its lower edge. The shift is the one Font Awesome gives an inline icon, so
-  # the icon centers on the text.
-  def icon_layout
-    @compact ? 'translate-y-[0.125em]' : 'fa-lg mt-0.5'
-  end
-
-  # The compact layout is a single row. It sends the two parts to opposite
-  # ends, which keeps the middle free and makes the row easy to scan. The wide
-  # layout stacks them, so neither part is a flex item there.
-  def body_layout
-    'flex grow items-baseline justify-between gap-4' if @compact
-  end
-
-  # The compact row never wraps, because a second line in one language only
-  # moves the page below it when the language changes. The short texts fit a
-  # screen of 340px. On a narrower one, the title ends with an ellipsis.
-  def title_layout
-    @compact ? 'min-w-0 truncate' : 'block'
-  end
-
-  # The compact layout needs the description and the call to action in one box,
-  # because that box is what the row pushes to the right. It keeps its whole
-  # text on one line, and the title gives way instead. The wide layout wants no
-  # box around them at all, and "contents" removes it.
-  def detail_layout
-    @compact ? 'shrink-0 whitespace-nowrap text-right' : 'contents'
-  end
-
-  def description_layout
-    @compact ? 'inline' : 'block mt-1'
-  end
-
-  def cta_layout
-    @compact ? 'inline' : 'block mt-2'
-  end
-
-  # Only the compact layout needs a mark between the two, because there it
-  # follows the description in the same line.
-  def cta_separator
-    ' · ' if @compact && description
+  # The title of the cell keeps one line, so the days left lead the text
+  # below it, which can wrap. With a call to action, that text names the
+  # action, because a tap on the cell follows it.
+  def cell_args
+    {
+      name: title,
+      icon: icon_name,
+      icon_class: TILES[TONES[scenario]],
+      detail: [countdown&.upcase_first, cta_text || description].compact.join(' · '),
+      href: cta_link,
+      data: (cta_link ? { turbo: false } : {}),
+    }.compact
   end
 
   private
-
-  # A scenario names compact_description when the long text needs a second line
-  # on a phone. An empty one means the title says enough on its own, and the
-  # row then carries no second text. A scenario without the key keeps the long
-  # text for both layouts.
-  def compact_description
-    short = t("#{scope}.compact_description", default: nil)
-    return value(:description) if short.nil?
-
-    short.presence
-  end
 
   def build_countdown
     ends_at = @given_ends_at || PremiumStatus.ends_at

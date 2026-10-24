@@ -4,10 +4,8 @@
 
 .flex.flex-col.gap-7.pb-4
   / The state of the sponsorship comes first, because it decides what the
-    page below offers. On a phone it reaches from edge to edge, over the
-    side padding of the page (see #inner in the layout).
-  .overflow-hidden.empty:hidden.-mx-4.sm:-mx-6.lg:mx-0.lg:rounded-xl
-    = render PremiumStatus::Component.new(compact: true)
+    page below offers
+  = render PremiumStatus::Component.new(cell: true)
 
   = render Ui::GroupedList::Component.new(header: t('.secondary')) do |list|
     - secondary_links.each do |item|

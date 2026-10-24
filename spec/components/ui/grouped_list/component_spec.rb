@@ -89,6 +89,27 @@ describe Ui::GroupedList::Component, type: :component do
       end
     end
 
+    it 'shows a state without href or action, and reacts to no tap' do
+      li = cell_html(detail: 'All available')
+
+      aggregate_failures do
+        expect(li.element_children.first.name).to eq('div')
+        expect(li.text).to include('All available')
+        expect(li.at_css('a, button')).to be_nil
+      end
+    end
+
+    it 'puts its icon on a gray tile, unless it names a color' do
+      gray = cell_html(icon: 'code').at_css('.fa-code').parent
+      tinted = cell_html(icon: 'heart', icon_class: 'bg-emerald-600 text-white').at_css('.fa-heart').parent
+
+      aggregate_failures do
+        expect(gray['class']).to include('bg-fill-strong')
+        expect(tinted['class']).to include('bg-emerald-600')
+        expect(tinted['class']).not_to include('bg-fill-strong')
+      end
+    end
+
     it 'paints a destructive action red, without a chevron' do
       li = cell_html(href: '/logout', destructive: true)
 

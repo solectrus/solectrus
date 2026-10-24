@@ -20,12 +20,13 @@ class PremiumStatusComponentPreview < ViewComponent::Preview
 
   # @!group Layouts
 
-  # @label Menu on a phone (one line)
-  def compact
+  # @label Page More of a phone (cell)
+  def cell
     render_with_template(
+      template: 'premium_status_component_preview/states',
       locals: {
         scenarios: scenarios,
-        compact: true,
+        cell: true,
       },
     )
   end
@@ -33,10 +34,10 @@ class PremiumStatusComponentPreview < ViewComponent::Preview
   # @label Sidebar on a desktop (two lines)
   def wide
     render_with_template(
-      template: 'premium_status_component_preview/compact',
+      template: 'premium_status_component_preview/states',
       locals: {
         scenarios: scenarios,
-        compact: false,
+        cell: false,
       },
     )
   end

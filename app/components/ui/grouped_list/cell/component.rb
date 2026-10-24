@@ -8,23 +8,27 @@
 # that leads back here (see docs/ui.md), `plain: true` when that page keeps
 # its own background. Without href, the cell is a button, and `data` names
 # its action. With an accessory, the cell holds that control and does
-# not react to a tap itself.
+# not react to a tap itself. Without href, data and accessory, the cell only
+# shows a state.
 #
 # `row_data` goes to the row itself, so a rule can hide the whole row,
 # separator included. `destructive: true` paints the name red, like a logout.
 # `detail` is a second, smaller line below the name, like a reason why a
-# control is not available.
+# control is not available. `icon_class` colors the tile of the icon, like
+# the color of a state. Without it, the tile is gray.
 class Ui::GroupedList::Cell::Component < ViewComponent::Base
   renders_one :accessory
 
   ROW_CLASS = 'flex w-full items-center gap-3 pl-4 text-left'.freeze
   TAP_CLASS =
     'active:bg-fill-strong pointer-fine:hover:bg-fill focus-ring-inset cursor-pointer'.freeze
-  private_constant :ROW_CLASS, :TAP_CLASS
+  ICON_CLASS = 'bg-fill-strong text-muted'.freeze
+  private_constant :ROW_CLASS, :TAP_CLASS, :ICON_CLASS
 
   def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
     icon: nil,
+    icon_class: ICON_CLASS,
     href: nil,
     data: {},
     row_data: {},
@@ -40,6 +44,7 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
     @name = name
     @detail = detail
     @icon_name = icon
+    @icon_class = icon_class
     @href = href
     @data = data
     @row_data = row_data
@@ -51,13 +56,13 @@ class Ui::GroupedList::Cell::Component < ViewComponent::Base
     @destructive = destructive
   end
 
-  attr_reader :name, :icon_name, :row_data, :badge_count, :dot, :detail
+  attr_reader :name, :icon_name, :icon_class, :row_data, :badge_count, :dot, :detail
 
   def tag_name
     if @href
       :a
     else
-      (accessory? ? :div : :button)
+      (accessory? || @data.empty? ? :div : :button)
     end
   end
 

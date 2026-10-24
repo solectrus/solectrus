@@ -211,55 +211,49 @@ describe PremiumStatus::Component, type: :component do
     end
   end
 
-  # The menu on a phone shares its height with the page below it, so the box
-  # there runs every part into a single row. The sidebar on a desktop has the
-  # height to spare and keeps the two lines.
-  describe 'the compact layout' do
-    subject(:compact) { render_inline(described_class.new(compact: true)).to_html }
+  # The page More of a phone shows the state as the first cell of its
+  # grouped lists. The sidebar on a desktop keeps the colored box.
+  describe 'the cell' do
+    subject(:cell) { render_inline(described_class.new(cell: true)) }
 
     before { allow(PremiumStatus).to receive(:reason).and_return(:development) }
 
-    it 'says the same as the wide one, in short' do
-      expect(compact).to include('Development mode')
-      expect(compact).to include('All available')
-      expect(compact).to include('bg-gray-200')
+    it 'names the state and what it means, on the gray tile of a neutral state' do
+      aggregate_failures do
+        expect(cell.text).to include('Development mode')
+        expect(cell.text).to include('All features available')
+        expect(cell.at_css('.fa-code').parent['class']).to include('bg-fill-strong')
+      end
     end
 
-    # A second line in one language moves the page below when the language
-    # changes
-    it 'keeps the row on one line' do
-      expect(compact).to include('truncate')
-      expect(compact).to include('whitespace-nowrap')
+    it 'leads nowhere without a call to action' do
+      expect(cell.at_css('a, button')).to be_nil
     end
 
-    # The row sends the title to the left edge and the rest to the right edge.
-    it 'holds the two parts apart' do
-      expect(compact).to include('justify-between')
-      expect(compact).to include('text-right')
+    # The title keeps one line, so the days left go into the text below it
+    it 'starts the text with the days left' do
+      intro = render_inline(described_class.new(cell: true, scenario: :intro, ends_at: 5.days.from_now))
+
+      expect(intro.text).to include('5 days left · All features are unlocked.')
     end
 
-    # A part of its own line costs height, and height is what this layout saves.
-    it 'gives no part a line of its own' do
-      expect(compact).not_to include('block mt-1')
-      expect(compact).not_to include('block mt-2')
-    end
-
-    it 'leaves the wide layout stacked' do
-      expect(html).to include('block mt-1')
-      expect(html).not_to include('justify-between')
-    end
-
-    # The title, the description and the link together are wider than the
-    # screen of a phone. The link is the part that carries the message.
+    # A tap on the cell follows the call to action, so the text below the
+    # title names it instead of the description
     context 'with a call to action' do
       before do
         allow(PremiumStatus).to receive_messages(reason: nil, unknown?: false)
       end
 
-      it 'keeps the link and drops the description' do
-        expect(compact).to include('No sponsorship')
-        expect(compact).to include('Become a sponsor')
-        expect(compact).not_to include('The full feature set')
+      it 'links the whole cell to it, on a tile of the color of the state' do
+        link = cell.at_css('a[href="/sponsoring"]')
+
+        aggregate_failures do
+          expect(link.text).to include('No sponsorship')
+          expect(link.text).to include('Become a sponsor')
+          expect(link.text).not_to include('The full feature set')
+          expect(link['data-turbo']).to eq('false')
+          expect(link.at_css('.fa-lock').parent['class']).to include('bg-attention')
+        end
       end
 
       it 'still spells the description out in the wide layout' do
@@ -309,7 +303,7 @@ describe PremiumStatus::Component, type: :component do
   describe 'the locale files' do
     subject(:de) { scenarios('de') }
 
-    let(:known_keys) { %w[title description compact_description icon countdown cta_text cta_link] }
+    let(:known_keys) { %w[title description icon countdown cta_text cta_link] }
 
     def scenarios(locale)
       file = "app/components/premium_status/component.#{locale}.yml"

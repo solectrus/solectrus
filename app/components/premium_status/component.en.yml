@@ -2,7 +2,6 @@ en:
   sponsoring:
     title: Sponsorship
     description: Thank you for your support!
-    compact_description: Thanks!
     icon: heart
     countdown:
       zero: ends today
@@ -11,7 +10,6 @@ en:
   intro:
     title: Trial period
     description: All features are unlocked. A sponsorship keeps them for you.
-    compact_description: All unlocked
     icon: hourglass-half
     countdown:
       zero: ends today
@@ -20,7 +18,6 @@ en:
   free_trial:
     title: Free month
     description: All features are unlocked. A sponsorship keeps them for you.
-    compact_description: All unlocked
     icon: hourglass-half
     countdown:
       zero: ends today
@@ -29,7 +26,6 @@ en:
   granted:
     title: All features
     description: Enabled for this installation
-    compact_description: ''
     icon: gift
     countdown:
       zero: ends today
@@ -38,7 +34,6 @@ en:
   development:
     title: Development mode
     description: All features available
-    compact_description: All available
     icon: code
   locked_with_trial:
     title: No sponsorship
@@ -57,5 +52,4 @@ en:
     description: >-
       The update server cannot be reached. The sponsor features stay locked until
       it answers again.
-    compact_description: Server offline
     icon: circle-exclamation
