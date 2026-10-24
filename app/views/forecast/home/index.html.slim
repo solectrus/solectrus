@@ -5,7 +5,7 @@
 - content_for :sub_nav do
   / A phone has the timeframe in one row, as the home pages have it (see
     Timeframe::Segments::Component)
-  .pb-3.lg:landscape:hidden
+  .pb-2.lg:landscape:hidden
     = render Timeframe::Segments::Component.new(**segment_items)
 
   .hidden.lg:landscape:flex.items-center.justify-between.py-5

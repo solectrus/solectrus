@@ -6,7 +6,7 @@
   / A phone has the timeframe in one row (see Timeframe::Segments::Component),
     and a select of the page, the car for one, as a pill below it. The status
     of the live view stays with the wide screen.
-  .flex.flex-col.items-center.gap-2.pb-3.lg:landscape:hidden
+  .flex.flex-col.items-center.gap-2.pb-2.lg:landscape:hidden
     = tag.div id: frame_id('segments'), class: 'w-full' do
       = render Timeframe::Segments::Component.new(**segment_items)
     - if content_for?(:sub_nav_pill)
