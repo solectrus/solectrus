@@ -35,6 +35,20 @@ class HomePageController < ApplicationController
   def remember_timeframe
     session[:view_timeframe] = timeframe.to_param
     session[:period_timeframe] = timeframe.to_param if period_kind?(timeframe)
+    remember_forecast_origin
+  end
+
+  # The forecast leads back to the page that leads to it, with its chart and
+  # its selection (see Forecast::HomeController#origin)
+  def remember_forecast_origin
+    return unless timeframe_page.forecast?
+
+    session[:forecast_origin] = {
+      'namespace' => helpers.controller_namespace,
+      'sensor_name' => chart_sensor_name.to_s,
+      'params' => selection_params.compact.transform_keys(&:to_s),
+      'live' => URI(live_path).request_uri,
+    }
   end
 
   # The addresses of the page for its timeframe select. They keep the

@@ -22,11 +22,14 @@ class Timeframe::Select::Component < ViewComponent::Base
   # `page` gives the address of the selected timeframe and tells whether the
   # page offers the hours and the forecast (see TimeframePage::Sensor).
   # `comparisons` are the links to the comparisons of the years, if any.
-  def initialize(timeframe:, page:, comparisons: nil)
+  # `forecast` says that the select belongs to the forecast, which none of
+  # the fields can mark.
+  def initialize(timeframe:, page:, comparisons: nil, forecast: false)
     super()
     @timeframe = timeframe
     @page = page
     @comparisons = comparisons
+    @forecast = forecast
   end
 
   attr_reader :timeframe, :comparisons
@@ -35,7 +38,7 @@ class Timeframe::Select::Component < ViewComponent::Base
   def forecast_items
     return [] unless @page.forecast?
 
-    [{ name: t('.next_days'), href: helpers.forecast_path, current: false }]
+    [{ name: t('.next_days'), href: helpers.forecast_path, current: @forecast }]
   end
 
   # The forecast looks like the period of a field

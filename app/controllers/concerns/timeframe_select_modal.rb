@@ -15,13 +15,15 @@ module TimeframeSelectModal
   end
 
   included do
-    before_action(only: :index, if: :timeframe_select?) { render 'timeframe_select/index' }
+    before_action(only: :index, if: :timeframe_select?) { render timeframe_select_template }
     helper_method :year_comparison_items
   end
 
   private
 
   def timeframe_select? = turbo_frame_request_id == 'modal' && params.key?(PARAM)
+
+  def timeframe_select_template = 'timeframe_select/index'
 
   # A home page offers the comparisons of the years (see TimeframeSegments), a
   # list has none

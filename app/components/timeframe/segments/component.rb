@@ -2,12 +2,13 @@
 # Nav::TabLook): the live view, the period of the page and today in one bar.
 # The period lies before today, so the arrow back from today marks the
 # segment to its left. Each one is a hash with :name, :href and :current,
-# and each leads to its page. Once the period is the current one, it carries
-# a chevron and opens the timeframe select in the sheet instead, so a tap from
-# the live view or today never lands in the sheet. A long press on the period
-# opens the sheet in either case (see component_controller.ts). The arrows at
-# the ends of the row turn the page, and so does a swipe (see
-# swipe_controller.ts).
+# and each leads to its page. A segment without :href stays in its place,
+# disabled, as the live view of a list does. Once the period is the current
+# one, it carries a chevron and opens the timeframe select in the sheet
+# instead, so a tap from the live view or today never lands in the sheet. A
+# long press on the period opens the sheet in either case (see
+# component_controller.ts). The arrows at the ends of the row turn the page,
+# and so does a swipe (see swipe_controller.ts).
 class Timeframe::Segments::Component < ViewComponent::Base
   include Nav::TabLook
 
@@ -43,7 +44,11 @@ class Timeframe::Segments::Component < ViewComponent::Base
     tag.span(arrow, class: 'row-start-1 flex text-white dark:text-slate-300', style: "grid-column: #{column}")
   end
 
-  def segment(item, column:) = link_to(item[:name], item[:href], **segment_options(item, column:))
+  def segment(item, column:)
+    return link_to(item[:name], item[:href], **segment_options(item, column:)) if item[:href]
+
+    tag.span(item[:name], class: [*segment_classes(item), 'opacity-40'], style: "grid-column: #{column}", 'aria-disabled': true)
+  end
 
   # The layout is the same for each segment: optimistic-nav swaps the class
   # lists of the segment it leaves and of the tapped one. The column stays.

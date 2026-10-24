@@ -3,29 +3,33 @@
 #
 # The desktop starts with the way back, and then the lists as pills (`tabs`),
 # or the title of the page. At the right stand the button for a new entry
-# (`add`), the select of the car and the timeframe. A phone has the title bar
-# with the way back (`back`, see Ui::TitleBar::Component), and at the right
-# the select of the car as a round button and the button for a new entry.
-# Below it, the timeframe.
+# (`add`), the select of the car and the timeframe. A phone starts with the
+# timeframe in one row, at the very top as on the home pages. Below it stands
+# the title bar with the way back (`back`, see Ui::TitleBar::Component), and
+# at the right the select of the car as a round button and the button for a
+# new entry.
 class Car::SubNav::Component < ViewComponent::Base
-  # The timeframe of the page, for example in its frame
+  # The timeframe of the desktop, for example in its frame
   renders_one :timeframe
 
   # `back` takes the options of the way back of Ui::TitleBar::Component.
   # `desktop_back` is the way back of the desktop, which has no page More.
-  # `add` is a hash with :href and :label, or nil. `car_select` builds the
-  # select of the car with the options of its place, or is nil.
-  def initialize(title:, back:, desktop_back: back[:back_href], tabs: [], add: nil, car_select: nil)
+  # `segments` are the items of the timeframe of a phone (see
+  # TimeframeSegmentItems). `add` is a hash with :href and :label, or nil.
+  # `car_select` builds the select of the car with the options of its place,
+  # or is nil.
+  def initialize(title:, back:, segments:, desktop_back: back[:back_href], tabs: [], add: nil, car_select: nil) # rubocop:disable Metrics/ParameterLists
     super()
     @title = title
     @back = back
+    @segments = segments
     @desktop_back = desktop_back
     @tabs = tabs
     @add = add
     @car_select = car_select
   end
 
-  attr_reader :title, :back, :desktop_back, :tabs, :add
+  attr_reader :title, :back, :segments, :desktop_back, :tabs, :add
 
   def car_select? = !@car_select.nil?
 

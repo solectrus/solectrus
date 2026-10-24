@@ -23,8 +23,9 @@ class Timeframe::Component < ViewComponent::Base
     forecast_days.present?
   end
 
-  # The period for the bottom sheet of a tooltip. The sheet covers this
-  # navigation, so it repeats the period (utils/tooltipSheet.ts).
+  # The period for the bottom sheet of a tooltip, which repeats it
+  # (utils/tooltipSheet.ts). A phone hides this navigation and shows
+  # Timeframe::Segments::Component instead, but the sheet reads it here too.
   def period_name
     forecast_mode? ? t('forecast.next_days', count: forecast_days) : timeframe.localized
   end
@@ -101,23 +102,16 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   # A minimum width keeps the arrows in place while one paginates. A longer
-  # label grows, so it stays in the middle, like the bold one of a phone.
-  LABEL_WIDTHS = { day: 'md:min-w-72', week: 'min-w-36', month: 'min-w-42', year: 'min-w-16' }.freeze
+  # label grows, so it stays in the middle.
+  LABEL_WIDTHS = { day: 'min-w-72', week: 'min-w-36', month: 'min-w-42', year: 'min-w-16' }.freeze
   private_constant :LABEL_WIDTHS
 
   def label_classes
     "text-center #{LABEL_WIDTHS[timeframe.id]}"
   end
 
-  # A phone shows no hover, so the chevron marks the label as a menu. The
-  # desktop has the hover, and the chevron would stand next to the arrows of
-  # the pagination.
-  def select_chevron
-    helpers.icon('chevron-down', class: 'lg:hidden ml-1 text-xs')
-  end
-
   def timeframe_link_classes(additional_classes = nil)
-    interactive_button_classes(additional_classes: "font-semibold lg:font-normal max-lg:tracking-normal text-base leading-5 #{additional_classes}")
+    interactive_button_classes(additional_classes: "leading-5 #{additional_classes}")
   end
 
   private

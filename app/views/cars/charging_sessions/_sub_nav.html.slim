@@ -1,12 +1,16 @@
 / The head of the list of the charging sessions, a page below the car page
   (see Car::SubNav::Component). The desktop has the pills of the lists.
 - content_for :fixed_nav, true
+/ A swipe turns the page to the period before or after, as on the home
+  pages (see swipe_controller.ts)
+- extra_stimulus_controllers 'swipe' if timeframe.can_paginate?
 - content_for :sub_nav do
   - car_select = ->(**options) { Car::Select::Component.new(cars: car_selection.offered, car: car_selection.car, guest: car_selection.guest_offered?, guest_selected: car_selection.guest?, path: ->(car) { cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car:, review: ('1' if review_only?)) }, **options) }
   ruby:
     options = {
       title: t('charging_sessions.title'),
       back: title_bar_back,
+      segments: segment_items,
       desktop_back: back_path,
       tabs: list_tabs,
       add: add_entry,

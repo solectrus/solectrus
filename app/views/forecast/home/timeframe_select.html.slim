@@ -1,0 +1,8 @@
+/ The timeframe select of the forecast. The live view marks none of its
+  fields, which start at today, and the forecast below them is the current
+  one (see Timeframe::Select::Component).
+= render Ui::TurboModal::Component.new do |modal|
+  - modal.with_title do
+    = t('timeframe_select.index.title')
+
+  = render Timeframe::Select::Component.new(timeframe: Timeframe.now, page: timeframe_page, comparisons: year_comparison_items, forecast: true)

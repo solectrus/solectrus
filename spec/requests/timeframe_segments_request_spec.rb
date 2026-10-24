@@ -7,7 +7,8 @@ describe 'Timeframe segments' do
     response.parsed_body.css('nav[aria-label="Timeframe"] > a')
   end
 
-  # The period lies between the live view and today
+  # The period lies between the live view and today. A list has no link for
+  # the live view.
   def period_segment = segments[-2]
 
   it 'names the current year while no period was chosen' do
@@ -150,7 +151,92 @@ describe 'Timeframe segments' do
     end
   end
 
-  # The sheet of a phone ends with the comparisons of the years
+  # A list has the same row, without a live view
+  describe 'on a list' do
+    before do
+      login_as_admin
+      allow(ChargingSession::OffsiteDetection).to receive(:enabled?).and_return(false)
+    end
+
+    def live = response.parsed_body.at_css('nav[aria-label="Timeframe"] > span[aria-disabled]')
+
+    it 'disables the live view and names the whole time' do
+      get '/cars/charging_sessions/wallbox/all'
+
+      expect(live.text).to eq('Now')
+      expect(segments.map { it.text.squish }).to eq(%w[Overall Today])
+      expect(period_segment['aria-current']).to eq('page')
+    end
+
+    it 'turns the period of the list' do
+      get '/cars/charging_sessions/wallbox/2026-09'
+
+      expect(period_segment.text.squish).to eq('September 2026')
+      expect(response.parsed_body.css('nav[aria-label="Timeframe"] a[aria-label]').map { URI(it['href']).path })
+        .to eq(%w[/cars/charging_sessions/wallbox/2026-08 /cars/charging_sessions/wallbox/2026-10])
+    end
+
+    it 'keeps the whole time beside today' do
+      get '/cars/charging_sessions/wallbox/day'
+
+      expect(segments.last['aria-current']).to eq('page')
+      expect(period_segment['href']).to end_with('/cars/charging_sessions/wallbox/all')
+      expect(response.parsed_body.at_css('nav[aria-label="Timeframe"] a[data-nav="prev"]')['href'])
+        .to end_with('/cars/charging_sessions/wallbox/2026-10-22')
+    end
+  end
+
+  # The forecast is the period after today. Its live view, today and its
+  # timeframe select belong to the page that led here.
+  describe 'on the forecast' do
+    before do
+      allow(Sensor::Query::ForecastAvailability).to receive(:new).and_return(instance_double(Sensor::Query::ForecastAvailability, call: Date.current + 6.days))
+    end
+
+    it 'names the days of the forecast' do
+      get '/forecast'
+
+      expect(segments.map { it.text.squish }).to eq(['Now', 'Next 7 days', 'Today'])
+      expect(period_segment['aria-current']).to eq('page')
+      expect(period_segment['data-turbo-frame']).to eq('modal')
+      expect(URI(period_segment['href']).path).to eq('/forecast')
+    end
+
+    it 'leads back to the page that led here' do
+      get '/power_balance/2026-10-20'
+      get '/forecast'
+
+      expect(segments.map { URI(it['href']).path }).to eq(%w[/power_balance/now /forecast /power_balance/day])
+      expect(response.parsed_body.at_css('nav[aria-label="Timeframe"] a[data-nav="prev"]')['href']).to eq('/power_balance/day')
+    end
+
+    it 'leads to the power balance of the inverter without a page before' do
+      get '/forecast'
+
+      expect(segments.map { URI(it['href']).path }).to eq(%w[/inverter_power/now /forecast /inverter_power/day])
+    end
+
+    # The timeframe select of the forecast marks the forecast alone, not the
+    # period chosen last
+    it 'marks the forecast in the timeframe select' do
+      get '/inverter_power/2020'
+      get '/forecast?select=1', headers: { 'Turbo-Frame' => 'modal' }
+
+      select = response.parsed_body.at_css('.timeframe-select')
+      expect(select.css('a[aria-current]').map { [it.text, it['href']] }).to eq([['Next days', '/forecast']])
+      expect(select.at_css('[data-controller="timeframe--select--year-picker--component"]')['data-timeframe--select--year-picker--component-value-value']).to be_nil
+      expect(select.css('a[href*="/all/by_"]').map(&:text)).to eq(%w[Months Quarters Seasons])
+    end
+
+    it 'selects a timeframe of the page that led here' do
+      get '/power_balance/2026-10-20'
+      get '/forecast?select=1', headers: { 'Turbo-Frame' => 'modal' }
+
+      expect(response.parsed_body.at_css('[data-timeframe--select--component-url-template-value]')['data-timeframe--select--component-url-template-value'])
+        .to eq('/power_balance/:timeframe')
+    end
+  end
+
   describe 'the links in the timeframe select' do
     def comparisons
       response.parsed_body.css('.timeframe-select a[href*="/all/by_"]')

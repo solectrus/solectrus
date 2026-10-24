@@ -1,11 +1,17 @@
+/ A phone has the timeframe at the very top, as each page with a timeframe
+  has it, and the title bar below it. It lies above the backdrop of the
+  title bar, which reaches up to the top of the header, also while a page
+  slides (see Ui::TitleBar::Component).
+.relative.z-10.lg:hidden class='max-lg:[view-transition-name:nav-timeframe]'
+  = render Timeframe::Segments::Component.new(**segments)
+
 = render Ui::TitleBar::Component.new(title:, **back) do |bar|
   - bar.with_trailing { title_bar_car_select } if car_select?
   - bar.with_action(**add, icon: 'plus') if add
 
-/ On a phone the accessory of the title bar, which leaves the bar when a
-  page one level down opens (see Ui::TitleBar::Component)
-.ui-title-bar-accessory.relative.flex.flex-col.items-center.gap-2.pb-3.lg:flex-row.lg:justify-between.lg:py-5
-  .hidden.lg:flex.items-center.gap-2
+/ The desktop has the way back, the lists or the title, and the timeframe
+.hidden.lg:flex.relative.items-center.justify-between.py-5
+  .flex.items-center.gap-2
     = render Car::BackLink::Component.new(path: desktop_back)
     - if tabs.any?
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
@@ -16,11 +22,10 @@
 
   / The button for a new entry and the select of the car stand before the
     timeframe, in the order of the keyboard too
-  .w-full.flex.flex-col.items-center.gap-2.lg:w-auto.lg:flex-row.lg:gap-4
+  .flex.items-center.gap-4
     - if add
       = render Ui::AddButton::Component.new(**add)
     - if car_select?
-      .hidden.lg:block
-        = header_car_select
-    .w-full.min-w-0.flex.items-center.lg:h-8.lg:w-auto
+      = header_car_select
+    .flex.min-w-0.items-center.h-8
       = timeframe

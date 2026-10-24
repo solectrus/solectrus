@@ -1,4 +1,4 @@
-.flex-auto.max-w-full.grid.items-center.gap-2.md:gap-4.text-gray-300.dark:text-gray-400.max-lg:text-white.max-lg:dark:text-slate-200.tracking-wider.whitespace-nowrap.text-sm.md:text-base class=(can_navigate? ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-1') data-timeframe-label=period_name data-timeframe-dates=period_dates
+.flex-auto.max-w-full.grid.items-center.gap-4.text-gray-300.dark:text-gray-400.tracking-wider.whitespace-nowrap.text-base class=(can_navigate? ? 'grid-cols-[1fr_auto_1fr]' : 'grid-cols-1') data-timeframe-label=period_name data-timeframe-dates=period_dates
   - if can_navigate?
     div
       - if can_navigate_backward?
@@ -15,13 +15,11 @@
   - elsif timeframe.all?
     = link_to timeframe_select_path, class: timeframe_link_classes('text-center'), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
       == label_for_all || timeframe.localized
-      = select_chevron
 
   - elsif !timeframe.now?
     = link_to timeframe_select_path, class: timeframe_link_classes(label_classes), data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }, title: t('.select_hint') do
       time datetime= timeframe.iso8601
         = timeframe.localized
-      = select_chevron
 
   - if can_navigate?
     .justify-self-end

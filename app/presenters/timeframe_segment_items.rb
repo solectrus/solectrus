@@ -1,13 +1,15 @@
 # The items of the timeframe of a phone in one row (see
-# Timeframe::Segments::Component), for a home page.
+# Timeframe::Segments::Component), for a page with a timeframe: a home page or
+# a list.
 #
 # `period` is the period that the third segment names: the one of the page, or
 # another one while the page shows the live view or today. `path` gives the
-# address of the page in a timeframe. `live` is the item of the live view.
-# `forecast_path` is where the day after today leads, if anywhere.
-# `period_item` changes the item of the period, for example its name.
+# address of the page in a timeframe. `live` is the item of the live view, nil
+# for a page without one, which shows it disabled. `forecast_path` is where
+# the day after today leads, if anywhere. `period_item` changes the item of
+# the period, for example its name.
 class TimeframeSegmentItems
-  def initialize(timeframe:, period:, path:, live:, forecast_path: nil, period_item: {})
+  def initialize(timeframe:, period:, path:, live: nil, forecast_path: nil, period_item: {})
     @timeframe = timeframe
     @period = period
     @path = path
@@ -18,7 +20,7 @@ class TimeframeSegmentItems
 
   def to_h
     {
-      live: @live,
+      live: @live || { name: I18n.t('data.now'), href: nil, current: false },
       today: { name: I18n.t('timeframe.day'), href: @path.call('day'), current: timeframe.today? },
       period: { name: period_name, href: @path.call(period.to_param), current: timeframe.period?, **@period_item },
       arrows:,
