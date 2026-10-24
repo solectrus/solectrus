@@ -52,6 +52,18 @@ export default class extends Controller<HTMLElement> {
   #skeleton?: HTMLElement;
   #leaving = false;
 
+  // Each page with a title bar asks for view transitions (see the component).
+  // A page that Turbo restores from its cache lacks the tag, because a slide
+  // removed it before Turbo took the page into its cache (see #startSlide).
+  connect() {
+    if (document.head.querySelector('meta[name="view-transition"]')) return;
+
+    const meta = document.createElement('meta');
+    meta.name = 'view-transition';
+    meta.content = 'same-origin';
+    document.head.append(meta);
+  }
+
   slide(event: TurboClickEvent) {
     const target = event.target as HTMLElement;
     const back = target.closest<HTMLAnchorElement>('a.ui-title-bar-back');
@@ -90,6 +102,12 @@ export default class extends Controller<HTMLElement> {
     // The slide is the answer to the tap, so the content does not go away for
     // the visit (see application.css). The old page goes into the slide as it is.
     dataset.navSliding = '';
+    // The skeleton already shows the title of the next page, so the response
+    // replaces it at once, without a view transition of its own. Turbo runs one
+    // only when this page asks for it, and the next page brings the tag back
+    // with its head. In an app installed on an iPhone, that transition blurred
+    // the title bar until it had ended.
+    document.head.querySelector('meta[name="view-transition"]')?.remove();
     this.#slide = document.startViewTransition(() =>
       this.#showSkeleton(link.dataset, direction),
     ).finished;
