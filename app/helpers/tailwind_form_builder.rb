@@ -33,9 +33,13 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     input_field(:text_area, method, placeholder: options[:label] || label_text(method, options.except(:label)), **options, &)
   end
 
-  # An amount of money has the currency as its unit and at least two decimals
+  # An amount of money has the currency as its unit and at least two decimals.
+  # A field without negative values gets the keypad of digits and the decimal
+  # separator on a phone. That keypad has no minus, so a field that takes a
+  # negative value keeps the full keyboard.
   def number_field(method, currency: false, **options, &)
     options = { suffix: Currency.symbol, value: Currency.input_value(object.public_send(method)) }.merge(options) if currency
+    options = { inputmode: 'decimal' }.merge(options) if (options[:in]&.begin || options[:min])&.then { it.to_f >= 0 }
     input_field(:number_field, method, **options, &)
   end
 

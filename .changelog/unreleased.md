@@ -55,6 +55,7 @@ Keep every section, an empty one included.
 - On a phone, the car page opens the charging sessions and the places in a tall sheet. A tap on an entry opens its form in the same sheet. After a save, the sheet shows the list again. A link that leaves a form with unsaved changes asks first
 - In the date selection, a tap on the day, week, month or year selects it. The arrow beside it opens the calendar for another one. On a phone, the date selection is shorter and fits without scrolling. The day, week, month, year, custom range and forecast are tiles in two columns. The hours, days and months back from now are one group, each with its unit. "All years" and "All months" stand under "Overall", above the year comparison
 - Forms show an amount of money with at least two decimals, for example 13.90
+- On a phone, a number field without negative values, like a price, opens the keypad of digits and the decimal separator
 - Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average
 - An empty list or chart shows the same note everywhere: an icon, a title and a short text
 - Settings > Cash flows: the form groups the categories by how they count in the amortization
