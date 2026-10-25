@@ -1,16 +1,15 @@
-# The header of a group of rows in a list (see Ui::RowGroups). It spans the
-# table on the desktop and cuts the card of a phone into a card per group
-# (see component.css). It links to the list of the group alone, unless
-# `href` is nil.
+# The header of a group of rows in a list, like the month of the charging
+# sessions (see Timeframe::RowGroups). It spans the table on the desktop and
+# cuts the card of a phone into a card per group (see component.css). With
+# `href`, it links to the list of the group alone.
+#
+#   = render Ui::GroupHeader::Component.new(title: 'March 2026', href: list_path(month))
 class Ui::GroupHeader::Component < ViewComponent::Base
-  def initialize(group:, href: nil)
+  def initialize(title:, href: nil)
     super()
-    @group = group
+    @title = title
     @href = href
   end
 
-  attr_reader :href
-
-  # A day names its weekday alone, its rows show the date
-  def title = @group.day? ? l(@group.date, format: '%A') : @group.localized
+  attr_reader :title, :href
 end

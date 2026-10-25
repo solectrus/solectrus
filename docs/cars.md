@@ -297,7 +297,7 @@ can be the charge of any car, so the list and the car page of a car or of the gu
 it too, and the link opens the list of "all". A guest sees nothing to review, no address of
 an offsite session and no form, so a row of a guest opens nothing.
 
-The list groups its rows by month, week or day, like the other lists (see `Ui::RowGroups`).
+The list groups its rows by month, week or day, like the other lists (see `Timeframe::RowGroups`).
 Its next pages load into frames of the same address. The forms of the rows keep the address
 of the list, so a save renders the list again.
 

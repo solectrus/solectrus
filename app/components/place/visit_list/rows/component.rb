@@ -3,12 +3,12 @@ class Place::VisitList::Rows::Component < ViewComponent::Base
   FRAME_PREFIX = 'visits_page_'.freeze
   public_constant :FRAME_PREFIX
 
-  # `previous_started_at`: see Ui::RowGroups
+  # `previous_started_at`: see Timeframe::RowGroups
   def initialize(visits:, pagy:, context:, previous_started_at: nil, frame: false)
     super()
     @pagy = pagy
     @context = context
-    @groups = Ui::RowGroups.new(visits, timeframe: context.timeframe, previous_started_at:)
+    @groups = Timeframe::RowGroups.new(visits, timeframe: context.timeframe, previous_started_at:)
     @frame = frame
   end
 

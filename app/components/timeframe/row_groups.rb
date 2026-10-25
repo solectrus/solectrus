@@ -1,11 +1,11 @@
 # The rows of a list in groups of a month, a week or a day, by the start of
 # each row (`started_at`). The length of the timeframe selects the period.
-# Each group starts with a header (see Ui::GroupHeader::Component).
+# Each group starts with a header (see Ui::GroupHeader::Component and #title).
 #
 # `previous_started_at` is the start of the last row of the page before, so a
 # group that goes on from there gets no second header. A row that starts
 # before the timeframe goes in its first group.
-class Ui::RowGroups
+class Timeframe::RowGroups
   include Enumerable
 
   def initialize(rows, timeframe:, previous_started_at: nil)
@@ -18,6 +18,10 @@ class Ui::RowGroups
   # Each row with the timeframe of the group that it starts, or with nil for a
   # row that continues the group of the row before
   def each(&) = @rows.zip(starts).each(&)
+
+  # The title of the header of a group. A day names its weekday alone, its
+  # rows show the date.
+  def title(group) = group.day? ? I18n.l(group.date, format: '%A') : group.localized
 
   private
 

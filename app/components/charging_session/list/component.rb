@@ -2,7 +2,7 @@
 # with the switch of the kinds, the sums of the kind and, for the offsite
 # sessions of the admin, the button of their map. Below, a table on the
 # desktop and a grouped list on a phone, grouped by week or month (see
-# Ui::RowGroups), and a next page that loads when it comes into view.
+# Timeframe::RowGroups), and a next page that loads when it comes into view.
 #
 # The sums are the sessions that count, like the chart above. The admin also
 # sees the sessions to review in the list, which the sums leave out (see

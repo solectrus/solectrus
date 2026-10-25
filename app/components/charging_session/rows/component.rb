@@ -3,12 +3,12 @@ class ChargingSession::Rows::Component < ViewComponent::Base
   FRAME_PREFIX = 'sessions_page_'.freeze
   public_constant :FRAME_PREFIX
 
-  # `previous_started_at`: see Ui::RowGroups
+  # `previous_started_at`: see Timeframe::RowGroups
   def initialize(sessions:, pagy:, timeframe:, previous_started_at: nil, frame: false)
     super()
     @pagy = pagy
     @timeframe = timeframe
-    @groups = Ui::RowGroups.new(sessions, timeframe:, previous_started_at:)
+    @groups = Timeframe::RowGroups.new(sessions, timeframe:, previous_started_at:)
     @frame = frame
   end
 
