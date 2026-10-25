@@ -86,6 +86,16 @@ html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
   @apply mx-auto h-5;
 }
 
+/* A bar without an accessory below it ends here, so it needs air below its
+   buttons. An accessory brings its own. */
+.ui-title-bar {
+  @apply pt-1 pb-3;
+}
+
+.ui-title-bar:has(+ .ui-title-bar-accessory:not(:empty)) {
+  @apply pb-1;
+}
+
 /* The back button stands at the left edge. The buttons at the right stand
    in a row of their own. */
 .ui-title-bar-back {
