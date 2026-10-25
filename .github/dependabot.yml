@@ -39,7 +39,6 @@ updates:
           - 'rails'
           - 'railties'
           - 'turbo-rails'
-          - 'stimulus-rails'
       rubocop:
         patterns:
           - 'rubocop'

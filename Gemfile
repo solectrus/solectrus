@@ -14,9 +14,6 @@ gem 'rails_vite'
 # The speed of a single-page web application without having to write any JavaScript. (https://github.com/hotwired/turbo-rails)
 gem 'turbo-rails'
 
-# A modest JavaScript framework for the HTML you already have. (https://stimulus.hotwired.dev)
-gem 'stimulus-rails'
-
 # Pg is the Ruby interface to the PostgreSQL RDBMS (https://github.com/ged/ruby-pg)
 gem 'pg', '~> 1.1'
 
