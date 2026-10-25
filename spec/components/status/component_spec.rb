@@ -42,6 +42,11 @@ describe Status::Component, type: :component do
     it 'renders Online when live is not expected' do
       expect(render_inline(described_class.new(time:, max_age: 10.seconds, live_expected: false)).css('time').text).to eq('Online')
     end
+
+    it 'renders a capsule of glass on the bar and a filled capsule on the page' do
+      expect(render_inline(described_class.new(time:, max_age: 10.seconds)).at_css('time.rounded-full.ring-1')).to be_present
+      expect(render_inline(described_class.new(time:, max_age: 10.seconds, on_bar: false)).at_css('time.rounded-full.bg-fill')).to be_present
+    end
   end
 
   context 'when live is not expected' do

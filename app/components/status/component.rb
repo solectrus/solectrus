@@ -2,13 +2,16 @@ class Status::Component < ViewComponent::Base
   # A reading younger than `max_age` is live. Without `live_expected`, as for
   # a page whose values are states, the status reads "Connected" instead of
   # "Live", and an older reading warns instead of counting as missing.
-  def initialize(time:, max_age:, status: nil, status_ok: nil, live_expected: true)
+  # `on_bar: false` gives the look for the content of the page instead of the
+  # colored bar.
+  def initialize(time:, max_age:, status: nil, status_ok: nil, live_expected: true, on_bar: true)
     super()
     @time = time
     @max_age = max_age
     @status = status
     @status_ok = status_ok
     @live_expected = live_expected
+    @on_bar = on_bar
   end
   attr_reader :time, :max_age, :status
 
@@ -53,10 +56,13 @@ class Status::Component < ViewComponent::Base
     @status_ok
   end
 
-  # A capsule of glass on a colored bar
+  # A capsule: of glass on a colored bar, filled like a chip on the page. The
+  # text comes from the system and can be long, the capsule grows with it.
   def outer_class
-    'rounded-full px-3 py-1 font-medium ' \
-      'bg-white/20 ring-1 ring-inset ring-white/30 text-white ' \
+    base = 'rounded-full px-3 py-1 text-sm font-medium'
+    return "#{base} bg-fill dark:bg-fill-strong text-fg-secondary" unless @on_bar
+
+    "#{base} bg-white/20 ring-1 ring-inset ring-white/30 text-white " \
       'dark:bg-white/10 dark:ring-white/15 dark:text-gray-200'
   end
 

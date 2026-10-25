@@ -1,6 +1,6 @@
 / The live view keeps its arrows hidden, for the swipe alone
 nav[
-  class=(period ? '-mt-4 mb-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center text-muted' : 'hidden')
+  class=(period ? [ROW_CLASS, 'grid grid-cols-[auto_minmax(0,1fr)_auto] items-center text-muted'] : 'hidden')
   aria-label=t('.label')
   aria-hidden=('true' unless period)
 ]

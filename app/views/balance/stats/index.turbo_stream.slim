@@ -2,11 +2,10 @@
   = render Timeframe::Component.new(timeframe:)
 
 - if timeframe.now?
-  = turbo_stream.update frame_id('status') do
-    = render Status::Component.new time: data.time,
-                                   max_age: Influx::PollInterval.tolerated_delay,
-                                   status: data.system_status,
-                                   status_ok: data.system_status_ok
+  = turbo_stream_update_status time: data.time,
+                               max_age: Influx::PollInterval.tolerated_delay,
+                               status: data.system_status,
+                               status_ok: data.system_status_ok
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   - if timeframe.now?

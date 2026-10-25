@@ -16,6 +16,17 @@ module TurboStreamHelper
     end
   end
 
+  # The status of the live view: in the bar of a wide screen, and in the
+  # content of a phone (see shared/_home_sub_nav)
+  def turbo_stream_update_status(**)
+    safe_join(
+      [
+        turbo_stream.update(frame_id('status')) { render Status::Component.new(**) },
+        turbo_stream.update(frame_id('status-content')) { render Status::Component.new(**, on_bar: false) },
+      ],
+    )
+  end
+
   private
 
   def turbo_stream_update_primary_nav

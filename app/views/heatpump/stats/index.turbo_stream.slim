@@ -2,10 +2,9 @@
   = render Timeframe::Component.new(timeframe:)
 
 - if timeframe.now? && Sensor::Config.exists?(:heatpump_status)
-  = turbo_stream.update frame_id('status') do
-    = render Status::Component.new time: data.time,
-                                   max_age: Influx::PollInterval.tolerated_delay,
-                                   status: data.heatpump_status
+  = turbo_stream_update_status time: data.time,
+                               max_age: Influx::PollInterval.tolerated_delay,
+                               status: data.heatpump_status
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   ruby:

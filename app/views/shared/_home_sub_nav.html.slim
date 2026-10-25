@@ -28,10 +28,14 @@
 
 / A phone has the period at the top of the content (see
   Timeframe::Pager::Component), and below it the choices of a select of the
-  page as chips, the cars for one. The status of the live view stays with the
-  wide screen.
+  page as chips, the cars for one. The live view has its status in the place
+  of the period (see TurboStreamHelper#turbo_stream_update_status).
 = tag.div id: frame_id('pager'), class: 'lg:landscape:hidden' do
   = render Timeframe::Pager::Component.new(**pager_items)
+- if timeframe.now?
+  = tag.turbo_frame id: frame_id('status-content'),
+                    data: { turbo_permanent: true },
+                    class: [Timeframe::Pager::Component::ROW_CLASS, 'flex items-center justify-center lg:landscape:hidden']
 - if content_for?(:sub_nav_chips)
   .mb-3.lg:landscape:hidden
     = yield :sub_nav_chips
