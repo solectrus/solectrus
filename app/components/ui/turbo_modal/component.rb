@@ -9,8 +9,6 @@ class Ui::TurboModal::Component < ViewComponent::Base
 
   renders_one :title
 
-  include Turbo::FramesHelper
-
   # `tall`, see Ui::BottomSheet::Component
   def initialize(title: nil, width: :wide, tall: false)
     super()
