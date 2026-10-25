@@ -116,7 +116,7 @@ describe Ui::TitleBar::Component, type: :component do
       expect(button['form']).to eq('form_price_1')
       expect(button['disabled']).not_to be_nil
       expect(button['data-form-dirty-submit']).not_to be_nil
-      expect(button['aria-label']).to eq(I18n.t('crud.save'))
+      expect(button['aria-label']).to eq(I18n.t('ui.save'))
     end
   end
 end

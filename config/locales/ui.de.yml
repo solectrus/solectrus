@@ -1,0 +1,9 @@
+# The texts of the Ui:: components that several of them share. A text of
+# one component alone stays beside it, in its component.de.yml.
+de:
+  ui:
+    save: Speichern
+    discard: Änderungen verwerfen
+    delete: Löschen
+    delete_question: Diesen Eintrag löschen? Das lässt sich nicht rückgängig machen.
+    delete_confirm: Ja, löschen

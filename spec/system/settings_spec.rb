@@ -77,7 +77,7 @@ describe 'Settings' do
       let(:endpoint_label) do
         I18n.t('settings.general.mcp.endpoint', locale: :de)
       end
-      let(:save_button) { I18n.t('crud.save', locale: :de) }
+      let(:save_button) { I18n.t('ui.save', locale: :de) }
       let(:success_message) { I18n.t('crud.success', locale: :de) }
 
       context 'when MCP is already enabled' do

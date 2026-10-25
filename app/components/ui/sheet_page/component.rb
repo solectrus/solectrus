@@ -24,7 +24,7 @@ class Ui::SheetPage::Component < ViewComponent::Base
 
   # The save button of a form, which the form-dirty controller enables
   renders_one :save,
-              lambda { |form:, label: t('crud.save')|
+              lambda { |form:, label: t('ui.save')|
                 tag.button icon('check'), type: :submit, form:, disabled: true, class: SAVE_CLASS, title: label, 'aria-label': label, data: { form_dirty_submit: true }
               }
 

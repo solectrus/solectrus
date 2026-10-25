@@ -23,6 +23,6 @@ class Ui::ConfirmDialog::Component < ViewComponent::Base
 
   # The question before a delete
   def self.delete_data
-    data(I18n.t('crud.confirm_delete'), button: I18n.t('confirm.delete'), destructive: true)
+    data(I18n.t('ui.delete_question'), button: I18n.t('ui.delete_confirm'), destructive: true)
   end
 end

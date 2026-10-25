@@ -30,10 +30,10 @@ class Ui::SubmitButton::Component < ViewComponent::Base
   attr_reader :delete_path
 
   def label
-    @label || t('crud.save')
+    @label || t('ui.save')
   end
 
   def delete_options
-    { formaction: delete_path, formmethod: :delete, formnovalidate: true, 'aria-label': t('crud.delete') }
+    { formaction: delete_path, formmethod: :delete, formnovalidate: true, 'aria-label': t('ui.delete') }
   end
 end

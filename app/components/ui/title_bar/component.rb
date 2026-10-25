@@ -48,7 +48,7 @@ class Ui::TitleBar::Component < ViewComponent::Base
   # controller of the form enables it once a field changes, and it is the
   # button that Enter in a field takes (see Ui::SubmitButton::Component).
   renders_one :save,
-              lambda { |form:, label: t('crud.save')|
+              lambda { |form:, label: t('ui.save')|
                 tag.button icon('check'),
                            type: :submit,
                            form:,

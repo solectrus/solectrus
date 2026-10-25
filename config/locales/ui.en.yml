@@ -1,0 +1,9 @@
+# The texts of the Ui:: components that several of them share. A text of
+# one component alone stays beside it, in its component.en.yml.
+en:
+  ui:
+    save: Save
+    discard: Discard changes
+    delete: Delete
+    delete_question: Delete this entry? This cannot be undone.
+    delete_confirm: Yes, delete

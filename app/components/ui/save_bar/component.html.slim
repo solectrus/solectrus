@@ -11,8 +11,8 @@
   button.inline-flex.items-center.rounded-md.p-2.text-white/80.dark:text-gray-300.hover:text-white.hover:bg-white/10.focus:outline-none.focus-visible:ring-2.focus-visible:ring-white[
     type='reset'
     form=form
-    title=t('crud.discard')
-    aria-label=t('crud.discard')
+    title=t('ui.discard')
+    aria-label=t('ui.discard')
     data-controller='tooltip'
   ]
     = icon 'xmark', class: 'fa-fw'
@@ -20,8 +20,8 @@
     type='submit'
     form=form
     disabled=true
-    aria-label=t('crud.save')
+    aria-label=t('ui.save')
     data-form-dirty-submit=true
   ]
     = icon 'check', class: 'fa-fw'
-    span.hidden.xl:inline = t('crud.save')
+    span.hidden.xl:inline = t('ui.save')
