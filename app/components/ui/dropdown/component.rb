@@ -233,6 +233,14 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     end
   end
 
+  # An entry of the menu. The top and the bottom item have places of their
+  # own, and an entry without a link has no place in a menu.
+  def menu_entry(item)
+    return if item == top_item || item == bottom_item || item.href.nil?
+
+    item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
+  end
+
   def menu_item_classes(item)
     classes = [
       if choices

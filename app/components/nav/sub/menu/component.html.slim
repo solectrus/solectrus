@@ -1,19 +1,12 @@
-.relative.flex.flex-1.lg:landscape:flex-initial data-controller='ui--dropdown--component'
-  button[
-    type='button'
-    class=button_classes
-    aria-haspopup='true'
-    aria-expanded='false'
-    data-ui--dropdown--component-target='button'
-    data-action='click->ui--dropdown--component#toggle'
-  ]
+= render Ui::Popover::Component.new(class: 'relative flex flex-1 lg:landscape:flex-initial') do |popover|
+  - popover.with_trigger(class: button_classes) do
     = label
     = menu_caret
 
   / An invisible native select over the button, for the widths with no room for
   / a chevron. It hands the choice to the picker of the phone, which is easier
   / to hit than a menu of our own and says by itself that there is a choice.
-  select.absolute.inset-0.w-full.appearance-none.opacity-0.sm:hidden aria-label=name data-action='change->ui--dropdown--component#choose'
+  select.absolute.inset-0.w-full.appearance-none.opacity-0.sm:hidden aria-label=name data-action='change->ui--popover--component#choose'
     - items.each do |item|
       option value=item[:href] selected=item[:current] = item[:name]
 
@@ -21,19 +14,8 @@
   / most likely to carry a menu, and centered under that one the menu would
   / run past the edge of a phone.
   /
-  / `hidden` is the closed state the controller takes off again. `max-sm:hidden`
-  / is not: below that width the select answers instead, and the menu stays out
-  / of the way whatever the controller does with it.
-  div[
-    class=menu_classes
-    role='menu'
-    data-ui--dropdown--component-target='menu'
-    data-transition-enter='transition ease-out duration-100'
-    data-transition-enter-start='opacity-0 scale-95'
-    data-transition-enter-end='opacity-100 scale-100'
-    data-transition-leave='transition ease-in duration-75'
-    data-transition-leave-start='opacity-100 scale-100'
-    data-transition-leave-end='opacity-0 scale-95'
-  ]
+  / Below sm the select answers instead, and `max-sm:hidden` keeps the menu
+  / out of the way whatever the popover does with it.
+  - popover.with_panel(class: menu_classes, role: 'menu') do
     - items.each do |item|
       = link_to item[:name], item[:href], class: entry_classes(item), role: 'menuitem', 'aria-current': (item[:current] ? 'true' : nil)

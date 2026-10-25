@@ -89,6 +89,18 @@ describe 'Top 10' do
   end
 
   # The bar label is rounded, so the exact value lives in a tooltip
+  it 'closes the options with Escape' do
+    visit '/top10/year/inverter_power/sum/desc'
+
+    find('button[aria-label="Optionen"]').click
+    expect(page).to have_css('button[aria-label="Optionen"][aria-expanded="true"]')
+    expect(page).to have_link('Aufsteigend')
+
+    find('button[aria-label="Optionen"]').send_keys(:escape)
+    expect(page).to have_css('button[aria-label="Optionen"][aria-expanded="false"]')
+    expect(page).to have_no_link('Aufsteigend')
+  end
+
   it 'reveals the exact value on hover' do
     visit '/top10/day/inverter_power/sum/desc'
     expect(page).to have_css('#chart-day')

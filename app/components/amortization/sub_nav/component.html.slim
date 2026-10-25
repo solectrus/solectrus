@@ -42,27 +42,13 @@
     = icon 'gear', class: 'fa-xl block'
 
   /! Mobile: the same sliders behind a dropdown button - no room inline.
-  div class='relative shrink-0 lg:landscape:hidden' data-controller='ui--dropdown--component'
-    button[
-      type='button'
-      class='rounded-md p-2 text-gray-300 hover:bg-indigo-500 dark:text-gray-400 dark:hover:bg-indigo-950/50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0'
-      data-ui--dropdown--component-target='button'
-      data-action='click->ui--dropdown--component#toggle'
-      data-controller='tooltip'
-      title=t('amortization.index.parameters')
-      aria-label=t('amortization.index.parameters')
-      aria-haspopup='true'
-      aria-expanded='false'
-    ]
+  = render Ui::Popover::Component.new(class: 'relative shrink-0 lg:landscape:hidden') do |popover|
+    - popover.with_trigger( \
+        class: 'rounded-md p-2 text-gray-300 hover:bg-indigo-500 dark:text-gray-400 dark:hover:bg-indigo-950/50 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-gray-400 focus:ring-offset-0',
+        data: { controller: 'tooltip' },
+        title: t('amortization.index.parameters'),
+        'aria-label': t('amortization.index.parameters'),
+      ) do
       = icon 'sliders', class: 'fa-xl block'
-    div[
-      class='absolute top-full right-0 z-40 mt-2 hidden w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left text-gray-700 dark:text-gray-300 shadow-lg ring-1 ring-black/5'
-      data-ui--dropdown--component-target='menu'
-      data-transition-enter='transition ease-out duration-100'
-      data-transition-enter-start='opacity-0 scale-95'
-      data-transition-enter-end='opacity-100 scale-100'
-      data-transition-leave='transition ease-in duration-75'
-      data-transition-leave-start='opacity-100 scale-100'
-      data-transition-leave-end='opacity-0 scale-95'
-    ]
+    - popover.with_panel(class: 'absolute top-full right-0 z-40 mt-2 w-96 max-w-[calc(100vw-2rem)] rounded-lg bg-white dark:bg-gray-800 p-4 text-left text-gray-700 dark:text-gray-300 shadow-lg ring-1 ring-black/5') do
       = render Amortization::Controls::Component.new(period_years:, interest_rate:, view:)

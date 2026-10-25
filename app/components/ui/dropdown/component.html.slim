@@ -1,7 +1,7 @@
 .text-gray-700.dark:text-gray-400
   / A page that shows the select elsewhere on a phone leaves it out here
   - if native_select?
-    div data-controller= 'select'
+    div data-controller= 'ui--dropdown--select'
       / Mobile: native select shrink-wrapped to its selected label, with the
       / chevron right after it, so the gap stays constant for any selection.
       / The chevron uses currentColor, adapting to the surrounding text color.
@@ -12,15 +12,15 @@
         - if selected_item&.leading
           span.flex.self-center.mr-1 = selected_item.leading
         / field-sizing-content shrink-wraps the select to its selected option in
-        / CSS. Where a browser lacks it, select_controller measures instead.
+        / CSS. Where a browser lacks it, select_controller.ts measures instead.
         / Below 16px, iOS zooms into the page when the select gets the focus.
         / A select renders no ::after, so it takes the 44px of a tap target itself.
         / The negative margin keeps the layout at the height of the text.
         / A disabled select keeps the color of the text around it
         select.appearance-none.bg-none.border-0.bg-transparent.focus:ring-0.font-medium.text-base.px-0.min-h-11.-my-1.field-sizing-content.min-w-0.disabled:text-current.disabled:opacity-100[
-          data-select-target= 'select'
+          data-ui--dropdown--select-target= 'select'
           disabled= disabled
-          data-action= 'select#onChange'
+          data-action= 'ui--dropdown--select#onChange'
           name= name
           aria-label= label
         ]
@@ -29,25 +29,13 @@
         = chevron_icon(class_names('size-5 shrink-0 pointer-events-none', 'opacity-50' => disabled))
 
       select.absolute.invisible.font-medium.px-0[
-        data-select-target= 'temp'
+        data-ui--dropdown--select-target= 'temp'
         name= "#{name}-temp"
       ]
         option
-
-  .relative.text-left class=(choices ? 'inline-block' : 'hidden lg:inline-block') data-controller="ui--dropdown--component"
+  = render Ui::Popover::Component.new(class: ['relative text-left', (choices ? 'inline-block' : 'hidden lg:inline-block')]) do |popover|
     / No id: a page can hold several dropdowns, like the Top 10
-    button.flex.items-center.font-medium.focus:outline-none.focus:ring-2.focus:ring-gray-700.dark:focus:ring-gray-400.focus:ring-offset-0.gap-2[
-      type= 'button'
-      class= button_shape
-      class= button_class
-      aria-label= (label if choices)
-      class= ('pointer-events-none' if disabled)
-      disabled= disabled
-      data-ui--dropdown--component-target="button"
-      data-action= ('click->ui--dropdown--component#toggle' unless disabled)
-      aria-haspopup= 'true'
-      aria-expanded= 'false'
-    ]
+    - popover.with_trigger(class: ['flex items-center font-medium focus:outline-none focus:ring-2 focus:ring-gray-700 dark:focus:ring-gray-400 focus:ring-offset-0 gap-2', button_shape, button_class, ('pointer-events-none' if disabled)], 'aria-label': (label if choices), disabled:) do
       / The leading visual of the selected item, like in the menu
       - if selected_item&.leading && !display_name
         span.flex.self-center = selected_item.leading
@@ -55,33 +43,22 @@
 
       = chevron_icon(class_names('h-5', 'opacity-50' => disabled))
 
-    .z-10.absolute.w-max.mt-2.ring-1.ring-black/5.hidden.overflow-hidden[
-      class=menu_position_classes
-      class=menu_surface_class
-      data-ui--dropdown--component-target="menu"
-      data-transition-enter="transition ease-out duration-100"
-      data-transition-enter-start="opacity-0 scale-95"
-      data-transition-enter-end="opacity-100 scale-100"
-      data-transition-leave="transition ease-in duration-75"
-      data-transition-leave-start="opacity-100 scale-100"
-      data-transition-leave-end="opacity-0 scale-95"
-    ]
+    - popover.with_panel(class: ['z-10 absolute w-max mt-2 ring-1 ring-black/5 overflow-hidden', menu_position_classes, menu_surface_class], pick: true) do
       .whitespace-nowrap aria-label=label aria-orientation="vertical" role="menu"
         - if top_item
           .border-b.border-gray-200.dark:border-gray-600
-            = top_item&.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', top_item.current ? 'font-bold' : nil])
+            = top_item.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', top_item.current ? 'font-bold' : nil])
 
         - if grouped? && stacked
           / The groups one below the other, each with a line below its name and
             some space above it
-          .pb-1
-            - items.each_with_index do |group, index|
-              div class=('mt-2' if index.positive?)
+          .pb-1.space-y-2
+            - items.each do |group|
+              div
                 div class= group_header_class(group)
                   = group[:name]
                 - flat_items_for_group(group).each do |item|
-                  - unless item == top_item || item == bottom_item || item.href.nil?
-                    = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
+                  = menu_entry(item)
         - elsif grouped?
           div class="grid #{grid_classes} gap-x-4"
             - items.each do |group|
@@ -96,20 +73,17 @@
                     - else
                       .px-3.pt-3.pb-2.text-xs.font-medium.mb-2.opacity-0 &nbsp;
                     - subgroup[:items].each do |item|
-                      - unless item == top_item || item == bottom_item || item.href.nil?
-                        = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
+                      = menu_entry(item)
               - else
                 .min-w-0
                   div class= group_header_class(group)
                     = group[:name]
                   - group[:items].each do |item|
-                    - unless item == top_item || item == bottom_item || item.href.nil?
-                      = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
+                    = menu_entry(item)
         - else
           div class= menu_class
             - items.each do |item|
-              - unless item == top_item || item == bottom_item || item.href.nil?
-                = item.call(with_icon: icons?, with_check: choices, css_extra: menu_item_classes(item))
+              = menu_entry(item)
 
         - if bottom_item
           .border-t.border-gray-200.dark:border-gray-600

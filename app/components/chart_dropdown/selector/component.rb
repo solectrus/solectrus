@@ -206,14 +206,12 @@ class ChartDropdown::Selector::Component < ViewComponent::Base # rubocop:disable
   # menu names another one with `chart_controller`, which takes the same
   # params, like the overview of the car page with a chart in each column.
   def item_data(sensor_name, compare)
-    if helpers.year_comparison? && compare.nil?
-      return { action: 'ui--dropdown--component#toggle' }
-    end
+    return {} if helpers.year_comparison? && compare.nil?
 
     controller = menu_config.fetch(:chart_controller, 'stats-with-chart--component')
     param = controller.tr('-', '_')
     {
-      action: "#{controller}#loadChart ui--dropdown--component#toggle",
+      action: "#{controller}#loadChart",
       "#{param}_sensor_name_param": sensor_name,
       "#{param}_chart_url_param": path_for('charts', sensor_name:, compare:),
     }

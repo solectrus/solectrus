@@ -93,9 +93,6 @@ class Top10::SensorSelect::Component < ViewComponent::Base
       name: menu_name(Sensor::Registry[sensor_name]),
       id: sensor_name,
       href: helpers.url_for(**permitted_params, sensor_name:, only_path: true),
-      data: {
-        action: 'ui--dropdown--component#toggle',
-      },
       current: sensor_name == current_sensor&.name,
     )
   end

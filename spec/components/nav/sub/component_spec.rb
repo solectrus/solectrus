@@ -28,7 +28,7 @@ describe Nav::Sub::Component, type: :component do
 
     it 'opens the menu from the current tab' do
       expect(current_tab.css('button').to_html).to include(
-        'ui--dropdown--component#toggle',
+        'ui--popover--component#toggle',
       )
       expect(current_tab.css('a').to_html).to include('href="/all/by_month"')
     end

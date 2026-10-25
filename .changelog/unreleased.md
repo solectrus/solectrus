@@ -61,6 +61,7 @@ Keep every section, an empty one included.
 - Settings > Cash flows: the form groups the categories by how they count in the amortization
 - Settings > Cash flows: a click on the arrow beside a date shows the cash flows of that year alone
 - Settings > Cash flows: each part of the filter has its own x that removes it
+- Escape now closes an open menu, like the options of the Top 10 or the selection of a chart
 
 ## Fixes
 

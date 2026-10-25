@@ -1,4 +1,8 @@
 import { Controller } from '@hotwired/stimulus';
+
+// The native select of a Ui::Dropdown::Component on a phone. A pick clicks
+// the link of the menu with the same address, so it runs the same actions.
+// Without field-sizing, it measures the width of the selected option.
 export default class SelectController extends Controller<HTMLSelectElement> {
   static readonly targets = ['select', 'temp'];
 

@@ -16,7 +16,7 @@ class Nav::Sub::Menu::Component < ViewComponent::Base
 
   def menu_classes
     'absolute z-20 right-0 origin-top-right mt-2 py-1 w-max rounded-md ' \
-      'shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black/5 hidden ' \
+      'shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black/5 ' \
       'max-sm:hidden overflow-hidden normal-case tracking-normal text-sm ' \
       'text-gray-700 dark:text-gray-400'
   end
