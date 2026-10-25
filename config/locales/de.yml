@@ -549,6 +549,7 @@ de:
       restricted_title: Nur für Admin verfügbar
       restricted_body: Die Amortisationsrechnung zeigt, ab wann sich die PV-Anlage bezahlt macht. Bitte melde dich als Admin an, um sie zu sehen.
       parameters: Parameter anpassen
+      uncertain_prognosis: Prognose noch unsicher – weniger als ein Jahr Messdaten vorhanden
   timeframe_select:
     index:
       title: Zeitraum wählen

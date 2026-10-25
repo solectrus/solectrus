@@ -1,0 +1,34 @@
+.shrink-0 data-controller='amortization--options--component'
+  button[
+    type='button'
+    class=button_class
+    title=t('amortization.index.parameters')
+    aria-label=t('amortization.index.parameters')
+    aria-haspopup='dialog'
+    data-action='amortization--options--component#open'
+  ]
+    = icon 'sliders', class: icon_class
+    - if dot?
+      span.absolute.top-0.right-0.size-2.5.rounded-full.bg-attention.ring-2.ring-chrome aria-hidden='true'
+
+  = render Ui::BottomSheet::Component.new(id: sheet_id, width: :narrow, data: { 'amortization--options--component-target': 'dialog' }) do
+    / The head of a sheet of iOS, as Ui::SheetPage has it: the title in the
+      middle and the check mark at the right. The sliders apply at once, so
+      the check mark only closes the sheet. From md up, the dialog has its
+      close button in its own head instead.
+    div class='grid grid-cols-[2.25rem_1fr_2.25rem] items-center gap-2 pb-6' data-bottom-sheet-handle=''
+      div
+      h2.text-headline.font-semibold.truncate.text-center = t('amortization.index.parameters')
+      button.md:invisible[
+        type='button'
+        class=done_class
+        title=t('.done')
+        aria-label=t('.done')
+        data-bottom-sheet-close=''
+      ]
+        = icon 'check'
+    - if warning?
+      p.mb-4.flex.items-start.gap-2.text-sm.text-attention-strong
+        = icon 'triangle-exclamation', class: 'mt-0.5'
+        = t('amortization.index.uncertain_prognosis')
+    = render Amortization::Controls::Component.new(period_years:, interest_rate:, view:)

@@ -549,6 +549,7 @@ en:
       restricted_title: Only visible to administrators
       restricted_body: The amortization calculation shows when the PV system pays for itself. Please log in as an administrator to see it.
       parameters: Adjust parameters
+      uncertain_prognosis: Prognosis still uncertain – less than a year of measured data available
   timeframe_select:
     index:
       title: Select timeframe

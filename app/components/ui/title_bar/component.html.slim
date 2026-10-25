@@ -21,11 +21,12 @@
       /! Placeholder, which the skeleton of a child page shows as its back button
       span.ui-title-bar-back.left-0.invisible aria-hidden='true'
         = icon 'chevron-left'
-    h1.truncate.font-medium.text-lg.text-white.dark:text-gray-200.px-12
+    h1.truncate.font-medium.text-lg.text-white.dark:text-gray-200 class=title_class
       - if logo
         = image_tag logo, alt: title, class: 'ui-title-bar-logo'
       - else
         = title
-    - if action? || save?
+    - if action? || save? || options?
       .absolute.right-0.flex.items-center.gap-2
         = action || save
+        = options

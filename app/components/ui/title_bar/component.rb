@@ -37,6 +37,11 @@ class Ui::TitleBar::Component < ViewComponent::Base
                 end
               }
 
+  # A button with options of the page at the far right, like the parameters
+  # of a calculation. The page brings the button and its panel, the button
+  # takes the class ui-title-bar-action. An action stands left of it.
+  renders_one :options
+
   # The save button of a form page: a check mark at the right.
   # It stands outside the form and names it by its id, `form`. The form-dirty
   # controller of the form enables it once a field changes, and it is the
@@ -74,6 +79,12 @@ class Ui::TitleBar::Component < ViewComponent::Base
   end
 
   attr_reader :title, :logo, :back_href, :back_label, :plain
+
+  # The title keeps the middle, so it leaves the room of the buttons at the
+  # right on both sides: one button, or two
+  def title_class
+    (action? || save?) && options? ? 'px-23' : 'px-12'
+  end
 
   def back_data
     @back_slide ? self.class.link_data(back_label, logo: @back_logo) : {}

@@ -24,4 +24,16 @@ class Amortization::SubNav::Component < ViewComponent::Base
   attr_reader :period_years, :interest_rate, :view, :projection_uncertain
 
   delegate :nav_items, :admin?, to: :helpers
+
+  # A phone has a title bar when the page is listed in the page More. Its
+  # buttons then stand in the title bar, and the row keeps the tabs alone.
+  def title_bar? = helpers.more_child_item.present?
+
+  def phone_class = ('max-lg:hidden' if title_bar?)
+
+  # Below lg, unless the title bar has them. A wide screen in landscape has
+  # the sliders in the bar.
+  def options_class
+    title_bar? ? 'shrink-0 hidden lg:block lg:landscape:hidden' : 'shrink-0 lg:landscape:hidden'
+  end
 end

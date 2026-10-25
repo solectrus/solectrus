@@ -239,6 +239,14 @@ describe 'Amortization' do
           expect(response.parsed_body.at_css('a.ui-title-bar-action[href="/settings/cash_flows?back=%2Famortization"]')).to be_present
         end
 
+        it 'puts the sliders of a phone into a sheet behind the title bar' do
+          get '/amortization'
+
+          title_bar = response.parsed_body.at_css('.ui-title-bar')
+          expect(title_bar.at_css('button.ui-title-bar-action[aria-haspopup=dialog]')).to be_present
+          expect(title_bar.at_css('dialog input[name="amortization[period_years]"]')).to be_present
+        end
+
         it 'does not set a cookie for a visitor using the defaults' do
           get '/amortization'
 

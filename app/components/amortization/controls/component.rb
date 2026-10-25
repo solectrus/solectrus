@@ -12,7 +12,7 @@ class Amortization::Controls::Component < ViewComponent::Base
   private_constant :INTEREST_RANGE
   private_constant :INTEREST_STEP
 
-  # variant: :panel renders for a light dropdown (mobile), :bar renders compact
+  # variant: :panel renders for the light sheet (mobile), :bar renders compact
   # with light text for the indigo sub-navigation bar (desktop, inline).
   def initialize(period_years:, interest_rate:, view: :chart, variant: :panel)
     super()
@@ -44,10 +44,15 @@ class Amortization::Controls::Component < ViewComponent::Base
     ['range-slider w-full', ('range-slider--bar' if bar?)].compact.join(' ')
   end
 
-  # Both sliders side by side and width-capped on the bar; a two-column grid
-  # filling the dropdown panel otherwise.
+  # Both sliders side by side and width-capped on the bar; one below the
+  # other in the sheet, where each takes the full width.
   def wrapper_class
-    bar? ? 'flex items-end gap-5' : 'grid grid-cols-2 gap-x-6 lg:gap-x-16 gap-y-3'
+    bar? ? 'flex items-end gap-5' : 'grid gap-y-8 pt-2 pb-4'
+  end
+
+  # Compact in the bar, larger in the sheet, which has the room
+  def row_class
+    bar? ? 'py-1 text-sm' : 'pb-2 text-base'
   end
 
   # Keep each slider narrow enough to sit next to the tabs in the bar.

@@ -19,6 +19,11 @@
   - content_for :sub_nav do
     = render Amortization::SubNav::Component.new(period_years: @page.period_years, interest_rate: @page.interest_rate, view: current_view, projection_uncertain: @page.projection_uncertain?)
 
+  / The title bar of a phone has the sliders, so the tabs keep the row below
+    it (see Amortization::SubNav::Component#title_bar?)
+  - content_for :title_bar_options do
+    = render Amortization::Options::Component.new(period_years: @page.period_years, interest_rate: @page.interest_rate, view: current_view, projection_uncertain: @page.projection_uncertain?, title_bar: true)
+
 - case @page.state
 - when :restricted
   /! Admin decided the calculation is not public - hint that admin login is
