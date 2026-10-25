@@ -1,28 +1,6 @@
 .text-gray-700.dark:text-gray-400
   / A page that shows the select elsewhere on a phone leaves it out here
-  - if native_select? && mobile_icon
-    / Mobile: an icon alone, like a round button. The native select lies
-      over it, invisible, so a tap opens its options. The keyboard focus
-      rings the whole shape.
-      The select keeps the full width also where the controller sets one.
-    div data-controller='select'
-      .relative.inline-flex.items-center.justify-center.lg:hidden class=['has-[select:focus-visible]:ring-2 has-[select:focus-visible]:ring-indigo-500', mobile_shape, button_class]
-        span.flex aria-hidden='true' = mobile_icon
-        select[
-          class='absolute inset-0 h-full min-w-full max-w-full appearance-none border-0 p-0 opacity-0 text-base'
-          data-select-target='select'
-          disabled=disabled
-          data-action='select#onChange'
-          name=name
-          aria-label=label
-        ]
-          = native_options
-      select.absolute.invisible[
-        data-select-target='temp'
-        name="#{name}-temp"
-      ]
-        option
-  - elsif native_select?
+  - if native_select?
     div data-controller= 'select'
       / Mobile: native select shrink-wrapped to its selected label, with the
       / chevron right after it, so the gap stays constant for any selection.

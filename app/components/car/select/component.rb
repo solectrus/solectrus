@@ -7,7 +7,9 @@ class Car::Select::Component < ViewComponent::Base
   # as `path`, which takes the car id, or nil for "all". A page that shows
   # one car at a time leaves out "all". The car page also offers the guest
   # sessions (`guest: true`), and `guest_selected` is whether it shows them.
-  def initialize(cars:, car:, path: nil, all: true, guest: false, guest_selected: false, button_class: Ui::Dropdown::Component::HEADER_BUTTON_CLASS, mobile_shape: nil, mobile_icon: false) # rubocop:disable Metrics/ParameterLists
+  # `chips: true` shows each choice as a chip, as a phone has them below the
+  # period (see Ui::Chips::Component).
+  def initialize(cars:, car:, path: nil, all: true, guest: false, guest_selected: false, chips: false) # rubocop:disable Metrics/ParameterLists
     super()
     @cars = cars
     @car = car
@@ -15,29 +17,16 @@ class Car::Select::Component < ViewComponent::Base
     @all = all
     @guest = guest
     @guest_selected = guest_selected
-    @button_class = button_class
-    @mobile_shape = mobile_shape
-    @mobile_icon = mobile_icon
+    @chips = chips
   end
 
-  attr_reader :cars, :car, :button_class
+  attr_reader :cars, :car
 
-  # The corners and the padding of the button of a phone, for example a pill.
-  # A button with an icon alone names the select for a screen reader.
-  def dropdown_options
-    { button_class:, mobile_shape: @mobile_shape, mobile_icon: (button_icon if @mobile_icon), label: (t('.label') if @mobile_icon) }.compact
-  end
+  def chips? = @chips
 
-  # The icon of a button without a name: the car in its color, the icon of
-  # "all" from the menu, and the initial for the guest
-  def button_icon
-    if @guest_selected
-      tag.span(t('.guest').first, class: 'text-lg font-semibold leading-none')
-    elsif car
-      helpers.car_icon(car.display_color)
-    else
-      helpers.icon('layer-group')
-    end
+  # The choices as chips, each with the short name that the button shows
+  def chip_items
+    items.map { { name: it.short_name.presence || it.name, href: it.href, current: it.current, leading: it.leading } }
   end
 
   # Each choice: "all" first, then the cars, then the guest. A line divides

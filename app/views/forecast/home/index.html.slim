@@ -3,12 +3,7 @@
 - extra_stimulus_controllers 'swipe'
 
 - content_for :sub_nav do
-  / A phone has the timeframe in one row, as the home pages have it (see
-    Timeframe::Segments::Component)
-  .pb-2.lg:landscape:hidden
-    = render Timeframe::Segments::Component.new(**segment_items)
-
-  .hidden.lg:landscape:flex.items-center.justify-between.py-5
+  .flex.flex-col.gap-2.pb-2.lg:landscape:flex-row.lg:landscape:items-center.lg:landscape:justify-between.lg:landscape:gap-0.lg:landscape:py-5
     = tag.turbo_frame id: 'forecast-second-nav', target: '_top' do
       = render Nav::Sub::Component.new do |c|
         - c.with_items nav_items
@@ -16,7 +11,12 @@
     - if days
       = tag.turbo_frame id: 'forecast-timeframe',
                         target: '_top',
-                        class: 'h-8 space-x-4 flex flex-1 items-center justify-end' do
+                        class: 'hidden lg:landscape:flex h-8 space-x-4 flex-1 items-center justify-end' do
         = render Timeframe::Component.new(timeframe:, forecast_days: days)
+
+/ The period of a phone, at the top of the content, as the home pages have it
+  (see Timeframe::Pager::Component)
+.lg:landscape:hidden
+  = render Timeframe::Pager::Component.new(**pager_items)
 
 = render Forecast::Component.new(days:)

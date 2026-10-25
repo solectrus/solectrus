@@ -1,2 +1,5 @@
-/ With one choice, there is nothing to choose
-= render Ui::Dropdown::Component.new(name: 'car', items:, selected:, disabled: items.one?, **dropdown_options)
+- if chips?
+  = render Ui::Chips::Component.new(items: chip_items, label: t('.label'), replace: true)
+- else
+  / With one choice, there is nothing to choose
+  = render Ui::Dropdown::Component.new(name: 'car', items:, selected:, disabled: items.one?, button_class: Ui::Dropdown::Component::HEADER_BUTTON_CLASS)

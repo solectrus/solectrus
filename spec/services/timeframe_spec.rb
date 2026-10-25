@@ -103,13 +103,6 @@ describe Timeframe do
     end
   end
 
-  describe '#period?' do
-    it 'is neither the live view nor today' do
-      expect(%w[now day].map { described_class.new(it).period? }).to eq([false, false])
-      expect([Date.yesterday.to_s, 'week', 'all'].map { described_class.new(it).period? }).to eq([true, true, true])
-    end
-  end
-
   context 'when string is "now"' do
     let(:string) { 'now' }
 

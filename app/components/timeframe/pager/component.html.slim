@@ -1,0 +1,15 @@
+/ The live view keeps its arrows hidden, for the swipe alone
+nav[
+  class=(period ? '-mt-4 mb-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center text-muted' : 'hidden')
+  aria-label=t('.label')
+  aria-hidden=('true' unless period)
+]
+  = arrow(:prev)
+
+  / The chevron says that a tap opens the choice of periods
+  - if period
+    = link_to select_href, class: 'flex min-w-0 items-center justify-center gap-1.5 h-11 px-2 rounded-md text-base font-semibold text-fg click-animation', 'aria-haspopup': 'dialog', data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
+      span.truncate = period[:name]
+      = icon 'chevron-down', class: 'shrink-0 text-xs text-faint'
+
+  = arrow(:next)

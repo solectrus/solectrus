@@ -1,5 +1,5 @@
 class Forecast::HomeController < ApplicationController
-  # The period segment of a phone opens the timeframe select here
+  # The period of a phone opens the timeframe select here
   include TimeframeSelectModal
 
   def index
@@ -35,25 +35,19 @@ class Forecast::HomeController < ApplicationController
     t('forecast.title')
   end
 
-  # The timeframe of a phone in one row, as the home pages have it (see
-  # TimeframeSegmentItems). The forecast is the current period, after today.
-  # It opens the timeframe select, which marks the forecast. The live view
-  # and today are the ones of the page that led here.
-  helper_method def segment_items
-    today = timeframe_page.path('day')
-
+  # The period of a phone, as the home pages have it (see
+  # Timeframe::Pager::Component). It opens the timeframe select, which marks
+  # the forecast. The arrow back to today leads to the page that led here.
+  helper_method def pager_items
     {
-      live: { name: t('data.now'), href: origin['live'] || timeframe_page.path('now'), current: false },
-      today: { name: t('timeframe.day'), href: today, current: false },
-      period: { name: days ? t('forecast.next_days_short', count: days) : title, href: forecast_path, current: true },
-      arrows: { prev: today },
+      period: { name: days ? t('forecast.next_days', count: days) : title, href: forecast_path },
+      arrows: { prev: timeframe_page.path('day') },
     }
   end
 
   def balance_path(timeframe, compare: nil) = balance_home_path(sensor_name: 'inverter_power', timeframe:, compare:)
 
-  # The timeframe select leads to the page that led here, as the other
-  # periods of the row do
+  # The timeframe select leads to the page that led here, as the tabs do
   helper_method def timeframe_page
     TimeframePage::Sensor.new(
       namespace: origin.fetch('namespace', 'balance'),
@@ -77,11 +71,12 @@ class Forecast::HomeController < ApplicationController
     end
   end
 
+  # The tabs lead to the page that led here, its live view included
   helper_method def nav_items
     %w[now day week month year all].map do |timeframe|
       {
         name: t("data.#{timeframe}"),
-        href: balance_home_path(sensor_name: 'inverter_power', timeframe:),
+        href: (origin['live'] if timeframe == 'now') || timeframe_page.path(timeframe),
         current: false,
       }
     end

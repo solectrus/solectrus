@@ -5,14 +5,14 @@ module TurboStreamHelper
         turbo_stream_update_primary_nav,
         turbo_stream_update_second_nav,
         turbo_stream_update_timeframe,
-        turbo_stream_update_segments,
+        turbo_stream_update_pager,
       ],
     )
   end
 
-  def turbo_stream_update_segments
-    turbo_stream.update(frame_id('segments')) do
-      render Timeframe::Segments::Component.new(**segment_items)
+  def turbo_stream_update_pager
+    turbo_stream.update(frame_id('pager')) do
+      render Timeframe::Pager::Component.new(**pager_items)
     end
   end
 

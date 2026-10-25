@@ -321,9 +321,6 @@ en:
     next_days:
       one: Tomorrow
       other: The next %{count} days
-    next_days_short:
-      one: Tomorrow
-      other: Next %{count} days
     approximately: About as expected
     better_html: '%{value} more than expected'
     worse_html: '%{value} less than expected'

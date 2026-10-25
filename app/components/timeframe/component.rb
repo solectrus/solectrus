@@ -25,7 +25,7 @@ class Timeframe::Component < ViewComponent::Base
 
   # The period for the bottom sheet of a tooltip, which repeats it
   # (utils/tooltipSheet.ts). A phone hides this navigation and shows
-  # Timeframe::Segments::Component instead, but the sheet reads it here too.
+  # Timeframe::Pager::Component instead, but the sheet reads it here too.
   def period_name
     forecast_mode? ? t('forecast.next_days', count: forecast_days) : timeframe.localized
   end

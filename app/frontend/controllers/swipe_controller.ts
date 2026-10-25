@@ -8,10 +8,10 @@ import { isReducedMotion, isTouchEnabled } from '@/utils/device';
 // A swipe commits by its speed at the end (a flick) or by its distance. A
 // flick back against the drag springs back, whatever the distance.
 //
-// The links of the timeframe (`data-nav`) give the pages. The first ones on
-// the page win: the arrows of the row of a phone, which lead from the live
-// view to yesterday and to the forecast too (see
-// Timeframe::Segments::Component).
+// The links of the timeframe (`data-nav`) give the pages, the first ones on
+// the page. The live view has them only in the period of a phone, hidden,
+// where they lead to yesterday and to the forecast (see
+// Timeframe::Pager::Component).
 
 // A flick commits above this speed, in px per ms, measured over the last
 // moves of the finger

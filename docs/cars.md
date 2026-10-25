@@ -787,12 +787,12 @@ timeframe goes to today.
 ### The selection of the car
 
 With more than one car, a select in the header chooses one car or "all". On a phone, the car
-page has the select as a pill below the timeframe. The lists have it as a round button at the
-right of the title bar. The button shows the car in its color, the icon of "all" or the
-initial of the guest. The address has the car in front of the page
-(`/cars/2/2025`, `/cars/2/car_charging/2025`). The lists do the same. Each link
-of the car page keeps the car, and a link to another page does not get it. Without the car
-in the address, the page shows "all".
+page and the lists show each choice as a chip below the period (`Ui::Chips`). A tap on a chip
+selects it. Each chip shows the car in its color, the icon of "all" or the icon of the guest.
+The live view has no chips, because it shows each car in use with its name. The address has
+the car in front of the page (`/cars/2/2025`, `/cars/2/car_charging/2025`). The lists do the
+same. Each link of the car page keeps the car, and a link to another page does not get it.
+Without the car in the address, the page shows "all".
 
 A timeframe offers only the cars in use in it. The select offers "all" also with one car in
 the timeframe, because "all" adds the guest sessions to that car. A car that the page does

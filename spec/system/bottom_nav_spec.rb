@@ -67,8 +67,8 @@ describe 'Bottom navigation (mobile)' do
   # bar. The page More has no timeframe, so the tab opens in its default.
   it 'opens a tab of the page More in its default timeframe' do
     visit '/house/house_power/now'
-    click_on 'Heute'
-    expect(page).to have_current_path('/house/house_power/day')
+    click_on 'Woche'
+    expect(page).to have_current_path(%r{/house/house_power/\d{4}-W\d{2}})
 
     tab_bar { click_on 'Mehr' }
     click_on 'Erzeugung'

@@ -25,7 +25,7 @@ module TimeframeSelectModal
 
   def timeframe_select_template = 'timeframe_select/index'
 
-  # A home page offers the comparisons of the years (see TimeframeSegments), a
+  # A home page offers the comparisons of the years (see TimeframePager), a
   # list has none
   def year_comparison_items = []
 end

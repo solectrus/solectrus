@@ -21,15 +21,11 @@
       /! Placeholder, which the skeleton of a child page shows as its back button
       span.ui-title-bar-back.left-0.invisible aria-hidden='true'
         = icon 'chevron-left'
-    / Two buttons at the right take the room of two on the left too, so the
-      title keeps the middle
-    h1.truncate.font-medium.text-lg.text-white.dark:text-gray-200 class=(trailing? && (action? || save?) ? 'px-24' : 'px-12')
+    h1.truncate.font-medium.text-lg.text-white.dark:text-gray-200.px-12
       - if logo
         = image_tag logo, alt: title, class: 'ui-title-bar-logo'
       - else
         = title
-    / A control of the page, like a select, before the action
-    - if trailing? || action? || save?
+    - if action? || save?
       .absolute.right-0.flex.items-center.gap-2
-        = trailing
         = action || save

@@ -4,8 +4,16 @@
 / A swipe turns the page to the period before or after, as on the home
   pages (see swipe_controller.ts)
 - extra_stimulus_controllers 'swipe' if timeframe.can_paginate?
+- car_select_offered = car_select? && @pending_days.blank?
 - content_for :sub_nav do
-  - car_select = (->(**select) { car_select_component(**select) } if car_select? && @pending_days.blank?)
-  = render Car::SubNav::Component.new(title:, back: { back_href: back_path, back_label: t('layout.car'), back_slide: false }, segments: segment_items, tabs: list_tabs, car_select:) do |nav|
+  = render Car::SubNav::Component.new(title:, back: { back_href: back_path, back_label: t('layout.car'), back_slide: false }, tabs: list_tabs, car_select: (car_select_component if car_select_offered)) do |nav|
     - nav.with_timeframe do
       = render Timeframe::Component.new(timeframe:, page: timeframe_page)
+
+/ The period of a phone at the top of the content, and the cars as chips, as
+  on the car page (see Timeframe::Pager::Component)
+.lg:hidden
+  = render Timeframe::Pager::Component.new(**pager_items)
+  - if car_select_offered
+    .mb-3
+      = render car_select_component(chips: true)

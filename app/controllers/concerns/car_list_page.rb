@@ -9,21 +9,18 @@ module CarListPage
   include TimeframeSelectModal
 
   included do
-    helper_method :timeframe, :list_tabs, :segment_items
+    helper_method :timeframe, :list_tabs, :pager_items
   end
 
   private
 
-  # The timeframe of a phone in one row, as the home pages have it (see
-  # TimeframeSegmentItems). A list has no live view. Its period is the one of
-  # the list, or the whole time while the list shows today.
-  def segment_items
-    period = timeframe.period? ? timeframe : Timeframe.new('all')
-
-    TimeframeSegmentItems.new(
+  # The period of a phone, as the home pages have it (see
+  # TimeframePagerItems). The whole time of a list has a name of its own.
+  def pager_items
+    TimeframePagerItems.new(
       timeframe:,
-      period:,
       path: ->(timeframe) { timeframe_page.path(timeframe) },
+      period_item: (timeframe.all? ? { name: timeframe_page.label_for_all } : {}),
     ).to_h
   end
 

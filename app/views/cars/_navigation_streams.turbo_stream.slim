@@ -8,5 +8,5 @@
   - if car_select?
     = turbo_stream.update frame_id('car-select') do
       = render car_select_component
-    = turbo_stream.update frame_id('car-select-pill') do
-      = render car_select_component(**Car::SubNav::Component::PILL_SELECT)
+    = turbo_stream.update frame_id('car-select-chips') do
+      = render car_select_component(chips: true)

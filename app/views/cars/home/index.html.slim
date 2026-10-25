@@ -14,15 +14,15 @@
     / With more than one car or with guest sessions, the select stays also
       for a timeframe with one car, so it does not come and go with the
       timeframe. The live view shows each car in use, with its name, so it
-      needs no select. Below a wide screen, the select is a pill below the
-      timeframe.
+      needs no select. Below a wide screen, the choices are chips below the
+      period.
     - if car_select? && !timeframe.now?
       - content_for :sub_nav_select do
         div id=frame_id('car-select')
           = render car_select_component
-      - content_for :sub_nav_pill do
-        div id=frame_id('car-select-pill')
-          = render car_select_component(**Car::SubNav::Component::PILL_SELECT)
+      - content_for :sub_nav_chips do
+        div id=frame_id('car-select-chips')
+          = render car_select_component(chips: true)
     = render 'shared/home_sub_nav'
 
     / The sensors of a car report far less often than the sensors of the

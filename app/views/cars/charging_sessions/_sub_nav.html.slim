@@ -4,18 +4,27 @@
 / A swipe turns the page to the period before or after, as on the home
   pages (see swipe_controller.ts)
 - extra_stimulus_controllers 'swipe' if timeframe.can_paginate?
+
+- car_select = ->(**options) { Car::Select::Component.new(cars: car_selection.offered, car: car_selection.car, guest: car_selection.guest_offered?, guest_selected: car_selection.guest?, path: ->(car) { cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car:, review: ('1' if review_only?)) }, **options) }
+- car_select_offered = car_selection.offered.many? || car_selection.guest_offered?
 - content_for :sub_nav do
-  - car_select = ->(**options) { Car::Select::Component.new(cars: car_selection.offered, car: car_selection.car, guest: car_selection.guest_offered?, guest_selected: car_selection.guest?, path: ->(car) { cars_charging_sessions_path(kind:, timeframe: timeframe.to_param, car:, review: ('1' if review_only?)) }, **options) }
   ruby:
     options = {
       title: t('charging_sessions.title'),
       back: { back_href: back_path, back_label: t('layout.car'), back_slide: false },
-      segments: segment_items,
       desktop_back: back_path,
       tabs: list_tabs,
       add: add_entry,
-      car_select: (car_select if car_selection.offered.many? || car_selection.guest_offered?),
+      car_select: (car_select.call if car_select_offered),
     }
   = render Car::SubNav::Component.new(**options) do |nav|
     - nav.with_timeframe do
       = render Timeframe::Component.new(timeframe:, page: timeframe_page)
+
+/ The period of a phone at the top of the content, and the cars as chips, as
+  on the car page (see Timeframe::Pager::Component)
+.lg:hidden
+  = render Timeframe::Pager::Component.new(**pager_items)
+  - if car_select_offered
+    .mb-3
+      = render car_select.call(chips: true)

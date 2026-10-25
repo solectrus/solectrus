@@ -263,11 +263,11 @@ describe 'Car Stats' do
         expect(response.body).not_to include('name="car"')
       end
 
-      # A phone has the select as a pill below the timeframe
+      # A phone has the choices as chips below the period
       it 'has the select of a phone in the header' do
         get cars_home_path(timeframe: day.to_s)
 
-        expect(response.body).to include("id=\"cars-car-select-pill-#{day}\"")
+        expect(response.body).to include("id=\"cars-car-select-chips-#{day}\"")
       end
 
       it 'keeps the car in each link of the overview' do
@@ -561,7 +561,7 @@ describe 'Car Stats' do
         it 'renders the select again with the chart that loads' do
           get(cars_charts_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers:)
 
-          expect(response.body).to include("target=\"cars-car-select-#{day}\"", "target=\"cars-car-select-pill-#{day}\"")
+          expect(response.body).to include("target=\"cars-car-select-#{day}\"", "target=\"cars-car-select-chips-#{day}\"")
           expect(response.body).to include("/cars/guest/car_distance/#{day}")
         end
 

@@ -37,12 +37,6 @@ class Ui::TitleBar::Component < ViewComponent::Base
                 end
               }
 
-  # A control of the page beside the action, like the select of the car on
-  # the lists of the car page. It takes the look of the action, the class
-  # `ui-title-bar-action`, and like the action, it leaves the bar when a page
-  # one level down opens.
-  renders_one :trailing
-
   # The save button of a form page: a check mark at the right.
   # It stands outside the form and names it by its id, `form`. The form-dirty
   # controller of the form enables it once a field changes, and it is the

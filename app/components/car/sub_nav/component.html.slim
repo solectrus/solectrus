@@ -1,12 +1,4 @@
-/ A phone has the timeframe at the very top, as each page with a timeframe
-  has it, and the title bar below it. It lies above the backdrop of the
-  title bar, which reaches up to the top of the header, also while a page
-  slides (see Ui::TitleBar::Component).
-.relative.z-10.lg:hidden class='max-lg:[view-transition-name:nav-timeframe]'
-  = render Timeframe::Segments::Component.new(**segments)
-
 = render Ui::TitleBar::Component.new(title:, **back) do |bar|
-  - bar.with_trailing { title_bar_car_select } if car_select?
   - bar.with_action(**add, icon: 'plus') if add
 
 / The desktop has the way back, the lists or the title, and the timeframe

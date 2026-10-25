@@ -1,12 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 
-// The tabs and the timeframe of a wide screen in landscape. Below it, the
-// period segment of a phone opens the select, and its fields come first.
-const wideScreen = window.matchMedia(
-  '(min-width: 64rem) and (orientation: landscape)',
-);
-
 // Connects to data-controller="timeframe--select--component"
 export default class extends Controller<HTMLElement> {
   static readonly values = {
@@ -50,9 +44,9 @@ export default class extends Controller<HTMLElement> {
     Turbo.visit(this.urlTemplateValue.replace(':timeframe', timeframe));
   }
 
-  // A phone shows the fields first, which an open picker would cover
+  // The picker of the period opens at once. Its way back leads to the fields.
   private autoOpenPicker(): void {
-    if (!this.idValue || !wideScreen.matches) return;
+    if (!this.idValue) return;
 
     const buttonId = this.pickerConfig[this.idValue];
     if (!buttonId) return;
