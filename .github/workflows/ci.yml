@@ -104,6 +104,14 @@ jobs:
       UNIT_WORKERS: 4
 
     steps:
+      # Since 2026-10-13 the unit specs take up to twice as long, with the
+      # same code and image. This shows the hardware behind each run.
+      - name: Show runner hardware
+        run: |
+          nproc
+          lscpu | grep -E '^(Model name|CPU\(s\)|Thread\(s\) per core|Core\(s\) per socket|Hypervisor vendor):'
+          free -m
+
       - uses: actions/checkout@v7
 
       - uses: ./.github/actions/setup
