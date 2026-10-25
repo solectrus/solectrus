@@ -9,9 +9,6 @@
 #                     running         = HELIOS answers, nothing to do
 #                     action_required = HELIOS answers and asks for the user
 #                     Without it no HELIOS runs, as before.
-#
-# If a change seems to have no effect, run `bin/spring stop` first - a
-# preloaded application keeps the environment it booted with.
 return unless Rails.env.development?
 
 module HeliosCheckSimulation

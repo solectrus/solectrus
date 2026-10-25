@@ -92,10 +92,8 @@ check "another name than production" MATCH 'the Docker image runs production' --
   --entrypoint ruby -e RAILS_ENV=development \
   "${IMAGE}" -e 'require_relative "/app/config/application"'
 
-# The way a service starts it. A binstub loads bin/spring before
-# config/boot.rb, and that stops the process under this name for a reason of
-# its own, so the check asks only that nothing boots.
-check "that name on the way a service starts it" NO-MATCH 'booted' -- \
+# The way a service starts it
+check "that name on the way a service starts it" MATCH 'the Docker image runs production' -- \
   -e RAILS_ENV=development "${IMAGE}" ./bin/rails runner 'puts :booted'
 
 echo ""

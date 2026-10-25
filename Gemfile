@@ -130,12 +130,6 @@ group :development do
   # Guard gem for RSpec (https://github.com/guard/guard-rspec)
   gem 'guard-rspec', require: false
 
-  # Rails application preloader (https://github.com/rails/spring)
-  gem 'spring'
-
-  # rspec command for spring (https://github.com/jonleighton/spring-commands-rspec)
-  gem 'spring-commands-rspec', require: false
-
   # Lookbook is a UI development environment for Ruby on Rails applications (https://github.com/lookbook-hq/lookbook)
   gem 'lookbook'
 

@@ -40,9 +40,6 @@
 #                                  update server knows from the registration.
 #                                  The yield per kWp needs it. Without it that
 #                                  yield is missing.
-#
-# If a change seems to have no effect, run `bin/spring stop` first - a
-# preloaded application keeps the environment it booted with.
 return unless Rails.env.development?
 
 module UpdateCheckSimulation

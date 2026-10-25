@@ -71,7 +71,7 @@ After preparing development environment (see above):
 
 ```bash
 bin/influxdb-restart.sh
-DISABLE_SPRING=1 bin/rspec
+bin/rspec
 open coverage/index.html
 ```
 
