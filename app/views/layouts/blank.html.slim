@@ -51,7 +51,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
       = yield
 
       = render 'layouts/modal_backdrop'
-      = tag.turbo_frame id: 'modal', target: '_top'
+      = tag.turbo_frame id: Ui::TurboModal::Component::FRAME, target: '_top'
 
     footer.hidden.lg:flex.justify-between.items-center.w-full.text-xs.pt-3.pb-6.px-4.sm:px-6.lg:px-8.text-white
       .flex.items-center.gap-2

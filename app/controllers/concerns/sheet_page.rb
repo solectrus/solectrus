@@ -7,12 +7,10 @@
 module SheetPage
   extend ActiveSupport::Concern
 
-  FRAME = 'sheet-page'.freeze
-  public_constant :FRAME
-
   private
 
   def sheet_page?
-    turbo_frame_request_id == FRAME || (turbo_frame_request_id == 'modal' && params.key?(:sheet))
+    turbo_frame_request_id == Ui::SheetPage::Component::FRAME ||
+      (turbo_frame_request_id == Ui::TurboModal::Component::FRAME && params.key?(:sheet))
   end
 end

@@ -8,7 +8,7 @@ nav[
 
   / The chevron says that a tap opens the choice of periods
   - if period
-    = link_to select_href, class: 'flex min-w-0 items-center justify-center gap-1.5 h-11 px-2 rounded-md text-base font-semibold text-fg click-animation', 'aria-haspopup': 'dialog', data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
+    = link_to select_href, class: 'flex min-w-0 items-center justify-center gap-1.5 h-11 px-2 rounded-md text-base font-semibold text-fg click-animation', 'aria-haspopup': 'dialog', data: Ui::TurboModal::Component.link_data do
       span.truncate = period[:name]
       = icon 'chevron-down', class: 'shrink-0 text-xs text-faint'
 

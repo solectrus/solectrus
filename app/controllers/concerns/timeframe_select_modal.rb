@@ -21,7 +21,7 @@ module TimeframeSelectModal
 
   private
 
-  def timeframe_select? = turbo_frame_request_id == 'modal' && params.key?(PARAM)
+  def timeframe_select? = turbo_frame_request_id == Ui::TurboModal::Component::FRAME && params.key?(PARAM)
 
   def timeframe_select_template = 'timeframe_select/index'
 

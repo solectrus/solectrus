@@ -26,7 +26,7 @@ class Notification::Badge::Component < ViewComponent::Base
 
   def link_data
     if opens_message?
-      { turbo_frame: 'modal', controller: 'tooltip modal-launcher' }
+      Ui::TurboModal::Component.link_data(tooltip: true)
     else
       { turbo_frame: '_top', controller: 'tooltip' }
     end

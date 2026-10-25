@@ -14,6 +14,10 @@
 #     - page.with_save(form: form_page_id(record))
 #     = render 'form', record:
 class Ui::SheetPage::Component < ViewComponent::Base
+  # The frame in which the pages of the sheet change
+  FRAME = 'sheet-page'.freeze
+  public_constant :FRAME
+
   # A link at the right of the head, like the button for a new entry or the
   # map, which loads into its `frame`. The last one stands at the very right,
   # so it comes as the main action.
@@ -58,7 +62,7 @@ class Ui::SheetPage::Component < ViewComponent::Base
   def wrapper(&)
     return tag.div(class: WRAPPER_CLASS, &) unless @frame
 
-    tag.turbo_frame(id: SheetPage::FRAME, class: WRAPPER_CLASS, data: frame_data, &)
+    tag.turbo_frame(id: FRAME, class: WRAPPER_CLASS, data: frame_data, &)
   end
 
   # The controller asks in Ui::ConfirmDialog::Component before a link leaves

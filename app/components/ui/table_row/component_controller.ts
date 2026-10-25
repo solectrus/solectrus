@@ -1,11 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
+import { FORM_SHEET_PARAM, MODAL_FRAME } from '../frames';
 
 // The breakpoint lg of Tailwind, from which the row opens its entry in the
 // modal
 const desktop = window.matchMedia('(min-width: 64rem)');
-
-// The parameter that asks for the form in a sheet (see FormPageHelper)
-const FORM_SHEET = 'form_sheet';
 
 // Passes a click on a table row on to the link of the row, see
 // Ui::TableRow::Component. A click on another control of the row keeps its
@@ -50,12 +48,12 @@ export default class extends Controller<HTMLElement> {
     const sheet = !desktop.matches && this.formSheetValue;
     if (this.formSheetValue) {
       const url = new URL(link.href);
-      if (sheet) url.searchParams.set(FORM_SHEET, '1');
-      else url.searchParams.delete(FORM_SHEET);
+      if (sheet) url.searchParams.set(FORM_SHEET_PARAM, '1');
+      else url.searchParams.delete(FORM_SHEET_PARAM);
       link.href = url.pathname + url.search + url.hash;
     }
 
-    if (desktop.matches || sheet) link.dataset.turboFrame = 'modal';
+    if (desktop.matches || sheet) link.dataset.turboFrame = MODAL_FRAME;
     else delete link.dataset.turboFrame;
   };
 }

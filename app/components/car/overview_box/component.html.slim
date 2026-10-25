@@ -11,7 +11,7 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
         - if list.notes.any?
           span.shrink-0.size-2.rounded-full.bg-attention-strong aria-hidden='true'
           span.sr-only = list.notes.join(', ')
-      = link_to list.sheet_href || list.href, data: ({ turbo_frame: 'modal', controller: 'modal-launcher' } if list.sheet_href), class: 'lg:hidden relative touch-target flex items-center gap-1 min-h-8 rounded-lg px-2 text-sm font-medium text-fg-secondary active:bg-fill-strong focus-ring click-animation' do
+      = link_to list.sheet_href || list.href, data: (Ui::TurboModal::Component.link_data if list.sheet_href), class: 'lg:hidden relative touch-target flex items-center gap-1 min-h-8 rounded-lg px-2 text-sm font-medium text-fg-secondary active:bg-fill-strong focus-ring click-animation' do
         = list.label
         = notes
         = icon 'chevron-right', class: 'text-xs text-faint'

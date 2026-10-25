@@ -112,7 +112,7 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
           = render Ui::Loading::Component.new
 
         = render 'layouts/modal_backdrop'
-        = tag.turbo_frame id: 'modal', target: '_top'
+        = tag.turbo_frame id: Ui::TurboModal::Component::FRAME, target: '_top'
         = render Ui::BottomSheet::Component.new(id: 'tooltip-sheet', data: { turbo_permanent: true })
         = render Ui::ConfirmDialog::Component.new
 

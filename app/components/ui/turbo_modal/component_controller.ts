@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { BottomSheet } from '@/utils/bottomSheet';
 import { hideModalBackdrop, isModalBackdropPreloaded } from '@/utils/modal';
+import { SHEET_PAGE_FRAME } from '../frames';
 import type ConfirmDialogController from '../confirm_dialog/component_controller';
 
 // Shows the page of a modal frame request in a BottomSheet, and removes it from
@@ -64,7 +65,7 @@ export default class extends Controller<HTMLElement> {
   }
 }
 
-const SHEET_PAGE = 'turbo-frame#sheet-page';
+const SHEET_PAGE = `turbo-frame#${SHEET_PAGE_FRAME}`;
 
 function isInSheetPage(target: EventTarget | null): boolean {
   return target instanceof Element && target.closest(SHEET_PAGE) !== null;

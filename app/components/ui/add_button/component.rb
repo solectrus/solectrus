@@ -24,7 +24,7 @@ class Ui::AddButton::Component < ViewComponent::Base
             class: BASE_CLASS,
             title: @label,
             'aria-label': @label,
-            data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' } do
+            data: Ui::TurboModal::Component.link_data(tooltip: true) do
       icon('plus')
     end
   end

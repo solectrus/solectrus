@@ -23,7 +23,7 @@
       - if path_to_insights
         = link_to path_to_insights,
                   class: "#{ICON_BUTTON_CLASS} group-data-zoomed/zoom:hidden",
-                  data: { turbo_frame: 'modal', controller: 'tooltip modal-launcher' },
+                  data: Ui::TurboModal::Component.link_data(tooltip: true),
                   title: t('layout.insights') do
           = icon 'lightbulb', class: 'fa-lg'
 

@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { preloadModalBackdrop } from '@/utils/modal';
+import { MODAL_FRAME } from '../../components/ui/frames';
 import type TooltipController from './tooltip_controller';
 
 export default class extends Controller<HTMLElement> {
@@ -18,7 +19,7 @@ export default class extends Controller<HTMLElement> {
   // Handle click on the link - show backdrop immediately. Only while the link
   // loads into the modal: a row of Ui::TableRow opens a page on a phone.
   private readonly handleClick = (): void => {
-    if (this.element.dataset.turboFrame !== 'modal') return;
+    if (this.element.dataset.turboFrame !== MODAL_FRAME) return;
 
     // Hide tooltip if present (tooltip controller is on the same element)
     this.hideTooltip();

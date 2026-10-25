@@ -14,6 +14,17 @@
 #   = render Ui::FormPage::Component.new(title: 'Edit price', form: form_page_id(price)) do
 #     = render 'form', price:
 class Ui::FormPage::Component < ViewComponent::Base
+  # The parameter of a phone that asks for the form in a sheet
+  SHEET_PARAM = :form_sheet
+  public_constant :SHEET_PARAM
+
+  # The address that opens the form at `href` in the sheet of a phone
+  def self.sheet_path(href)
+    uri = URI(href)
+    uri.query = [uri.query, "#{SHEET_PARAM}=1"].compact.join('&')
+    uri.to_s
+  end
+
   def initialize(title:, subtitle: nil, width: :wide, form: nil)
     super()
     @title = title

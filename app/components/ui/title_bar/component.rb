@@ -28,9 +28,9 @@ class Ui::TitleBar::Component < ViewComponent::Base
   # like the form of a new entry in a sheet (see FormPageHelper#form_sheet?)
   renders_one :action,
               lambda { |href:, icon:, label:, sheet: false|
-                link_to (sheet ? FormPageHelper.sheet_path(href) : href),
+                link_to (sheet ? Ui::FormPage::Component.sheet_path(href) : href),
                         class: 'ui-title-bar-action click-animation',
-                        data: sheet ? { turbo_frame: 'modal', controller: 'modal-launcher' } : self.class.link_data(label),
+                        data: sheet ? Ui::TurboModal::Component.link_data : self.class.link_data(label),
                         title: label,
                         'aria-label': label do
                   icon(icon)

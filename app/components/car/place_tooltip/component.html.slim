@@ -15,7 +15,7 @@ div
   .mt-2.pt-2.flex.flex-col.gap-1.border-t.border-line
     = link_to helpers.edit_settings_place_path(place),
               class: 'flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-4 focus-ring rounded',
-              data: { turbo_frame: 'modal', controller: 'modal-launcher', action: 'car--map--component#closeTooltip' } do
+              data: Ui::TurboModal::Component.link_data(action: 'car--map--component#closeTooltip') do
       span.flex.w-4.justify-center = icon 'pencil', class: 'text-xs'
       = t('.edit')
     = link_to google_maps_url,

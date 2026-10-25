@@ -1,7 +1,6 @@
 import * as Turbo from '@hotwired/turbo';
 import { enter } from '@/utils/transition';
-
-const FRAME_ID = 'modal';
+import { MODAL_FRAME } from '../../components/ui/frames';
 
 function backdrop(): HTMLElement | null {
   return document.getElementById('modal-backdrop');
@@ -37,7 +36,7 @@ export function hideModalBackdrop(): void {
 // Loads a page into the modal, as a link with data-turbo-frame="modal" does
 export function openModal(url: string): void {
   preloadModalBackdrop();
-  Turbo.visit(url, { frame: FRAME_ID });
+  Turbo.visit(url, { frame: MODAL_FRAME });
 }
 
 // Turbo hands a hover prefetch to the next request for its URL, and the
@@ -46,7 +45,7 @@ export function openModal(url: string): void {
 // modal would get the whole page and stay empty.
 document.addEventListener('turbo:before-fetch-request', (event) => {
   const { target, detail } = event as CustomEvent<{ fetchRequest?: unknown }>;
-  if (target instanceof HTMLElement && target.id === FRAME_ID)
+  if (target instanceof HTMLElement && target.id === MODAL_FRAME)
     delete detail.fetchRequest;
 });
 
@@ -55,7 +54,10 @@ document.addEventListener('turbo:before-fetch-request', (event) => {
 // and the second request no longer sends the new locality to the list.
 document.addEventListener('turbo:before-prefetch', (event) => {
   const { target } = event;
-  if (target instanceof HTMLElement && target.dataset.turboFrame === FRAME_ID)
+  if (
+    target instanceof HTMLElement &&
+    target.dataset.turboFrame === MODAL_FRAME
+  )
     event.preventDefault();
 });
 
@@ -65,7 +67,7 @@ document.addEventListener('turbo:before-prefetch', (event) => {
 // user no longer expects it.
 document.addEventListener('turbo:fetch-request-error', (event) => {
   const frame = event.target;
-  if (!(frame instanceof HTMLElement) || frame.id !== FRAME_ID) return;
+  if (!(frame instanceof HTMLElement) || frame.id !== MODAL_FRAME) return;
 
   frame.removeAttribute('src');
   hideModalBackdrop();

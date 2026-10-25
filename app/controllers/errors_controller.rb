@@ -36,6 +36,6 @@ class ErrorsController < ApplicationController
   end
 
   def modal_frame?
-    request.headers['Turbo-Frame'] == 'modal'
+    request.headers['Turbo-Frame'] == Ui::TurboModal::Component::FRAME
   end
 end

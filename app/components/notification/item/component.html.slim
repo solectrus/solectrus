@@ -5,7 +5,7 @@
 li class='group/row' id=dom_id(notification)
   = link_to notification_path(notification),
             class: 'flex items-stretch gap-2 pl-2 lg:rounded-lg active:bg-fill-strong pointer-fine:hover:bg-fill focus-ring-inset',
-            data: { turbo_frame: 'modal', controller: 'modal-launcher' } do
+            data: Ui::TurboModal::Component.link_data do
     span.flex.w-3.shrink-0.justify-center.pt-4.5
       - if unread?
         span.size-2.5.rounded-full.bg-indigo-500.dark:bg-indigo-400 aria-hidden='true'

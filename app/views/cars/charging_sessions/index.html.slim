@@ -5,7 +5,7 @@
   - if @missing_or_stale_summary_days.present?
     = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
   - else
-    = tag.turbo_frame id: 'list', target: (sheet_page? ? SheetPage::FRAME : '_top'), class: 'flex-1 flex flex-col' do
+    = tag.turbo_frame id: 'list', target: (sheet_page? ? Ui::SheetPage::Component::FRAME : '_top'), class: 'flex-1 flex flex-col' do
       = render list_box
 
 - if sheet_page?
