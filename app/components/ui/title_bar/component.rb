@@ -45,12 +45,10 @@ class Ui::TitleBar::Component < ViewComponent::Base
               lambda { |form:, label: t('ui.save')|
                 tag.button icon('check'),
                            type: :submit,
-                           form:,
-                           disabled: true,
                            class: 'ui-title-bar-action ui-title-bar-save click-animation',
                            title: label,
                            'aria-label': label,
-                           data: { form_dirty_submit: true }
+                           **Ui::SubmitButton::Component.save_attributes(form:)
               }
 
   # `back_slide: false` for a parent without a title bar, like the car page:

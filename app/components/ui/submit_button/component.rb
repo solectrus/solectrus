@@ -11,15 +11,20 @@
 # a page it replaces the page in the history as a save does (see
 # FormPageHelper).
 class Ui::SubmitButton::Component < ViewComponent::Base
-  # The primary button of Ui::Button::Component. While disabled, it keeps its
-  # place, so the row does not move when it shows.
-  BUTTON_CLASS =
-    'inline-flex items-center justify-center gap-2 click-animation transition duration-200 text-white bg-indigo-600 ' \
-    'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 ' \
-    'disabled:pointer-events-none disabled:invisible disabled:opacity-0 ' \
-    'rounded px-3 py-2 shadow-sm hover:bg-indigo-700 hover:scale-105 ' \
-    'dark:bg-indigo-800 dark:text-gray-300'.freeze
-  private_constant :BUTTON_CLASS
+  # The attributes of every save button, here and in the title bar, the head
+  # of a sheet and the save bar: disabled from the start, until the form-dirty
+  # controller of the form finds a change. A button outside the form names it
+  # by its id, `form`. The key carries dashes, so Slim writes it as Rails does.
+  def self.save_attributes(form: nil)
+    { form:, disabled: true, data: { 'form-dirty-submit': true } }.compact
+  end
+
+  # The primary Ui::Button::Component. While disabled, it keeps its place, so
+  # the row does not move when it shows.
+  SAVE_CLASS =
+    'peer order-last justify-center transition duration-200 ' \
+    'disabled:pointer-events-none disabled:invisible disabled:opacity-0'.freeze
+  private_constant :SAVE_CLASS
 
   def initialize(label: nil, delete_path: nil)
     super()
