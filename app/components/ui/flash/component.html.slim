@@ -11,7 +11,6 @@
   data-transition-leave-end=   'translate-y-32'
 ]
   .flex.justify-center.items-center.mx-auto
-    - if icon_name
-      = icon icon_name, class: icon_color
+    = icon icon_name, class: text_class
     p.text-base.font-medium.ml-2 class= text_class
       = text
