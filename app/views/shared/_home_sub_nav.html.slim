@@ -2,6 +2,9 @@
   yesterday or to the forecast (see swipe_controller.ts)
 - extra_stimulus_controllers 'swipe' if timeframe.can_paginate? || timeframe.now?
 
+/ The live view shows its status, unless the page passes `status: false`
+- status = timeframe.now? && local_assigns.fetch(:status, true)
+
 - content_for :sub_nav do
   .flex.flex-col.gap-2.pb-2.lg:landscape:flex-row.lg:landscape:items-center.lg:landscape:justify-between.lg:landscape:gap-0.lg:landscape:py-5
     = tag.turbo_frame id: frame_id('second-nav'), target: '_top' do
@@ -10,7 +13,7 @@
 
     / The timeframe of a wide screen
     .hidden.lg:landscape:flex.items-center.justify-end
-      - if timeframe.now?
+      - if status
         = tag.turbo_frame id: frame_id('status'),
                           data: { turbo_permanent: true },
                           class: 'flex items-center order-1'
@@ -32,7 +35,7 @@
   of the period (see TurboStreamHelper#turbo_stream_update_status).
 = tag.div id: frame_id('pager'), class: 'lg:landscape:hidden' do
   = render Timeframe::Pager::Component.new(**pager_items)
-- if timeframe.now?
+- if status
   = tag.turbo_frame id: frame_id('status-content'),
                     data: { turbo_permanent: true },
                     class: [Timeframe::Pager::Component::ROW_CLASS, 'flex items-center justify-center lg:landscape:hidden']

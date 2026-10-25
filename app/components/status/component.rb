@@ -1,16 +1,12 @@
 class Status::Component < ViewComponent::Base
-  # A reading younger than `max_age` is live. Without `live_expected`, as for
-  # a page whose values are states, the status reads "Connected" instead of
-  # "Live", and an older reading warns instead of counting as missing.
-  # `on_bar: false` gives the look for the content of the page instead of the
-  # colored bar.
-  def initialize(time:, max_age:, status: nil, status_ok: nil, live_expected: true, on_bar: true)
+  # A reading younger than `max_age` is live. `on_bar: false` gives the look
+  # for the content of the page instead of the colored bar.
+  def initialize(time:, max_age:, status: nil, status_ok: nil, on_bar: true)
     super()
     @time = time
     @max_age = max_age
     @status = status
     @status_ok = status_ok
-    @live_expected = live_expected
     @on_bar = on_bar
   end
   attr_reader :time, :max_age, :status
@@ -19,15 +15,11 @@ class Status::Component < ViewComponent::Base
     time && time > max_age.ago
   end
 
-  # :ok, :warning (a status that is not ok, or an old state) or :missing
+  # :ok, :warning (a status that is not ok) or :missing
   def state
-    if live?
-      status_ok? ? :ok : :warning
-    elsif time && !@live_expected
-      :warning
-    else
-      :missing
-    end
+    return :missing unless live?
+
+    status_ok? ? :ok : :warning
   end
 
   def text
@@ -36,7 +28,7 @@ class Status::Component < ViewComponent::Base
 
   def live_text
     Sensor::ValueFormatter.new(status, unit: :string).to_s.presence ||
-      t(@live_expected ? '.live' : '.connected')
+      t('.live')
   end
 
   def message

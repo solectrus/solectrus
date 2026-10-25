@@ -44,10 +44,6 @@ describe Car::Live do
     it 'gives the latest reading of each car' do
       expect(live.states.map(&:time)).to eq([Time.zone.local(2026, 10, 7, 12), Time.zone.local(2026, 10, 6, 9)])
     end
-
-    it 'gives the latest reading of all cars, without the wallbox' do
-      expect(live.time).to eq(Time.zone.local(2026, 10, 7, 12))
-    end
   end
 
   # The source of the position stopped, but the car drove on

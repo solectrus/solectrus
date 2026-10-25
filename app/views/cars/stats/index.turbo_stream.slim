@@ -3,8 +3,6 @@
   = turbo_stream.update frame_id('timeframe') do
     = render Timeframe::Component.new(timeframe:)
 
-  = turbo_stream_update_status time: data.time, max_age: Car::Live::MAX_AGE, live_expected: false
-
   = turbo_stream.update scoped_frame_id('stats'), method: :morph do
     .h-full.w-full.flex.flex-col id="stats-#{timeframe.id}"
       = render Car::LiveView::Component.new(live: data)

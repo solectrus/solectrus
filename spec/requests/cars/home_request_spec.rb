@@ -27,6 +27,13 @@ describe 'Car Home' do
         expect(response).to have_http_status(:ok)
       end
 
+      # Each car names the time of its latest reading instead
+      it 'renders no status' do
+        get cars_home_path(timeframe: 'now')
+
+        expect(response.body).not_to include('id="cars-status-now"', 'id="cars-status-content-now"')
+      end
+
       it 'redirects a sensor to the address without it' do
         get cars_home_path(sensor_name: 'car_battery_soc', timeframe: 'now')
 

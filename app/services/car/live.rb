@@ -28,11 +28,6 @@ class Car::Live
   }.freeze
   private_constant :ROLES
 
-  # A car reports seldom, for example while it sleeps. A latest reading older
-  # than this makes the status warn.
-  MAX_AGE = 48.hours
-  public_constant :MAX_AGE
-
   WALLBOX_SENSORS = %i[wallbox_power wallbox_car_connected].freeze
   private_constant :WALLBOX_SENSORS
 
@@ -48,10 +43,6 @@ class Car::Live
   def data
     @data ||= Sensor::Query::Latest.new([*WALLBOX_SENSORS, *cars.flat_map { |car| ROLES.values.map { car.sensor_name(it) } }]).call
   end
-
-  # The latest reading of the cars in use, for the status. The readings of the
-  # wallbox do not count, because the wallbox reports all the time.
-  def time = states.filter_map(&:time).max
 
   def wallbox_power = value(:wallbox_power)
 
