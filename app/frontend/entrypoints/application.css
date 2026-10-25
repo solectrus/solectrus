@@ -181,10 +181,10 @@
 
     /* iOS paints the status bar outside the page, so a sheet cannot dim it.
        A head that starts right below it would show the edge between the
-       bright status bar and the dim page on its controls. A gap keeps that
-       edge on the plain frame. */
+       bright status bar and the dim page on its controls. A small gap keeps
+       that edge on the plain frame, and keeps the tabs close to the top. */
     .nav-top-sub {
-      padding-top: 8px;
+      padding-top: 4px;
     }
   }
 }
