@@ -144,6 +144,12 @@ describe 'Amortization' do
           expect(response.body).to include('Manage cash flows')
           expect(response.body).to include('/settings/cash_flows')
         end
+
+        it 'leaves the title bar of a phone without the shortcut' do
+          get '/amortization'
+
+          expect(response.parsed_body.at_css('a.ui-title-bar-action')).to be_nil
+        end
       end
 
       context 'when not logged in and not made public' do
@@ -225,6 +231,12 @@ describe 'Amortization' do
           expect(response.body).to include('name="amortization[period_years]"')
           expect(response.body).to include('name="amortization[interest_rate]"')
           expect(response.body).to include('type="range"')
+        end
+
+        it 'puts the shortcut to the cash flows into the title bar of a phone' do
+          get '/amortization'
+
+          expect(response.parsed_body.at_css('a.ui-title-bar-action[href="/settings/cash_flows?back=%2Famortization"]')).to be_present
         end
 
         it 'does not set a cookie for a visitor using the defaults' do

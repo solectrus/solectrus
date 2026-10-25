@@ -22,6 +22,18 @@ describe 'Settings::CashFlows' do
         expect(response.body).to include('Test')
       end
 
+      it 'leads back to the page of the amortization that opened it' do
+        get '/settings/cash_flows', params: { back: '/amortization/details' }
+
+        expect(response.parsed_body.at_css('a.ui-title-bar-back')['href']).to eq('/amortization/details')
+      end
+
+      it 'leads back to the settings for any other page' do
+        get '/settings/cash_flows', params: { back: 'https://example.com' }
+
+        expect(response.parsed_body.at_css('a.ui-title-bar-back')['href']).to eq('/settings')
+      end
+
       context 'with drill-down filters' do
         before do
           CashFlow.create!(

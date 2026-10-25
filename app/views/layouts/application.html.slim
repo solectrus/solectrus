@@ -87,7 +87,8 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
             as the accessory of the bar.
           - item = more_child_item
           - if item
-            = render Ui::TitleBar::Component.new(title: item[:name], back_href: (more_path if item[:back]), back_label: t('layout.more'), back_logo: more_logo, plain: !content_for?(:grouped))
+            = render Ui::TitleBar::Component.new(title: item[:name], back_href: (more_path if item[:back]), back_label: t('layout.more'), back_logo: more_logo, plain: !content_for?(:grouped)) do |bar|
+              - bar.with_action(**title_bar_action) if title_bar_action
           = item ? tag.div(yield(:sub_nav), class: 'ui-title-bar-accessory') : yield(:sub_nav)
 
       = tag.turbo_frame id: 'flash' do

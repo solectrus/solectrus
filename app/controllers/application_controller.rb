@@ -82,4 +82,8 @@ class ApplicationController < ActionController::Base
 
   # Only a page of SheetPage can show in the sheet of a phone
   helper_method def sheet_page? = false
+
+  # The action of the title bar that the layout draws for a page below More,
+  # as the arguments of Ui::TitleBar::Component#with_action
+  helper_method def title_bar_action = nil
 end

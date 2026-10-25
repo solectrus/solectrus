@@ -50,6 +50,16 @@ class AmortizationController < ApplicationController
 
   private
 
+  # A phone has the shortcut to the cash flows in the title bar, so the tabs
+  # keep the row below it. An admin alone gets it, as the settings need one.
+  # The cash flows lead back to this page then (see
+  # Settings::CashFlowsController#back_to_amortization).
+  def title_bar_action
+    return unless admin? && @page&.calculation_expected?
+
+    { href: settings_cash_flows_path(back: request.path), icon: 'gear', label: t('settings.cash_flows.name') }
+  end
+
   def visibility = @visibility ||= AmortizationVisibility.new(admin: admin?)
 
   def detail_page

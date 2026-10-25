@@ -63,6 +63,13 @@ class Settings::CashFlowsController < ApplicationController
     t('settings.cash_flows.name')
   end
 
+  # A phone opens the cash flows from the amortization too, which names its
+  # page as `back`. The way back then leads there, not to the settings. Only
+  # the pages of the amortization count.
+  helper_method def back_to_amortization
+    request.query_parameters['back'].presence_in([amortization_path, returns_amortization_path, details_amortization_path])
+  end
+
   def permitted_params
     params.expect(cash_flow: %i[date amount note category])
   end
