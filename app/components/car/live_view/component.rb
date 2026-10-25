@@ -2,7 +2,7 @@
 # Car::LiveCard::Component). The live view has no select, so each card names
 # its car. A phone shows the cards one below the other, from the top, on the
 # gray of the page. A wider screen shows them side by side. One car stands in
-# the middle, at most 35rem wide, and on the desktop 64rem.
+# the middle, at most 35rem wide, and on the desktop as wide as the page.
 #
 # The wallbox gets a card of its own while it charges and no car shows its
 # power: a guest charges, or no car has a plug. With the plugs of the cars,
@@ -38,6 +38,6 @@ class Car::LiveView::Component < ViewComponent::Base
 
   # The class names stay literal, so Tailwind finds them
   def card_classes
-    cards == 1 ? 'sm:w-full sm:max-w-[35rem] lg:max-w-5xl' : 'sm:flex-1 sm:max-w-[37.5rem]'
+    cards == 1 ? 'sm:w-full sm:max-w-[35rem] lg:max-w-none' : 'sm:flex-1 sm:max-w-[37.5rem]'
   end
 end
