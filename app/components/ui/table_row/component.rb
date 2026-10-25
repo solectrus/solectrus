@@ -79,7 +79,6 @@ class Ui::TableRow::Component < ViewComponent::Base
                     data: {
                       nav_title: @nav_title,
                       turbo_prefetch: false,
-                      controller: 'modal-launcher',
                       ui__table_row__component_target: 'link',
                     },
                     &
