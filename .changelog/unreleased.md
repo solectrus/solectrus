@@ -51,7 +51,6 @@ Keep every section, an empty one included.
 - On a phone, a tap on a link clears the content at once, so you see that the tap works
 - On a phone, the notifications show as a list, as on an iPhone. A dot marks an unread notification. "Understood" spans the width of the panel
 - On a phone, the date with its arrows stands at the top of the page, below the tabs. A tap on it opens the calendar of its day, week, month or year, and the arrow back leads to the date selection. The lists of the car and the forecast have the same row. The arrows and a swipe change the page to the period before or after. On Now and Today, a swipe leads to yesterday and to the forecast. When you swipe, the page follows the finger and slides to the side, as on an iPhone
-- On desktop, the arrows beside the date are double arrows
 - On a phone, the car page opens the charging sessions and the places in a tall sheet. A tap on an entry opens its form in the same sheet. After a save, the sheet shows the list again. A link that leaves a form with unsaved changes asks first
 - In the date selection, a tap on the day, week, month or year selects it. The arrow beside it opens the calendar for another one. On a phone, the date selection is shorter and fits without scrolling. The day, week, month, year, custom range and forecast are tiles in two columns. The hours, days and months back from now are one group, each with its unit. "All years" and "All months" stand under "Overall", above the year comparison
 - Forms show an amount of money with at least two decimals, for example 13.90
