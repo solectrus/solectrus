@@ -57,7 +57,7 @@ ParallelCI.run do
     # The limits apply to what the Docker image ships, so this needs a
     # production build. The test build would add the test entrypoint. The
     # Vite step below replaces this build with its own.
-    check 'JavaScript size limit', 'bunx vite build --logLevel warn && bun run size-limit'
+    check 'JavaScript size limit', 'bun vite build --logLevel warn && bun run size-limit'
 
     check 'Slim', 'bin/slim-lint .'
   end
@@ -65,7 +65,7 @@ ParallelCI.run do
   # The table of every built asset says nothing that a green build needs to
   # say. `warn` keeps the warnings and the errors. The request specs render
   # layouts that read the Vite manifest, so this runs before both spec steps.
-  step 'Build: Vite assets', 'bunx vite build --mode test --logLevel warn'
+  step 'Build: Vite assets', 'bun vite build --mode test --logLevel warn'
 
   # parallel_tests sets DISABLE_SPRING itself, so the spec steps carry only
   # what differs between them.

@@ -50,7 +50,7 @@ jobs:
 
       - name: Check JS size limit
         run: |
-          bunx vite build
+          bun vite build
           bun run size-limit
 
       - name: Shellcheck shell scripts
@@ -115,7 +115,7 @@ jobs:
         run: bin/rake "parallel:create[$UNIT_WORKERS]" "parallel:load_schema[$UNIT_WORKERS]"
 
       - name: Build Vite assets for test
-        run: bunx vite build --mode test
+        run: bun vite build --mode test
 
       # No runtime log here: the unit specs split by file size, and
       # config/ci.rb says why that beats a split by runtime for them.
@@ -214,7 +214,7 @@ jobs:
         run: bin/rails db:create db:schema:load
 
       - name: Build Vite assets for test
-        run: bunx vite build --mode test
+        run: bun vite build --mode test
 
       - name: Run System tests with RSpec (group ${{ matrix.group }}/${{ strategy.job-total }})
         run: |

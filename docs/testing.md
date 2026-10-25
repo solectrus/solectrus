@@ -12,7 +12,7 @@ System specs drive Playwright and they are slow. Run them only when the change a
 
 Always run them with `PLAYWRIGHT_HEADLESS=true`. Without it, browser windows open in the foreground and block the machine.
 
-They run against compiled assets. After a change to the frontend, run `bunx vite build --mode test` first.
+They run against compiled assets. After a change to the frontend, run `bun vite build --mode test` first.
 
 For a display problem on iOS, the `ios-simulator` skill runs SOLECTRUS on an iPhone in the simulator. It opens the application as a page in Safari or as the installed PWA.
 

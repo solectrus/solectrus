@@ -23,7 +23,6 @@ Dockerfile
 .simplecov
 .slim-lint.yml
 .vscode
-bunfig.toml
 eslint.config.mjs
 Guardfile
 **/*.DS_Store

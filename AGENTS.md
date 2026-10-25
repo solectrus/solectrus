@@ -45,7 +45,7 @@ the same commit. The file carries the rules for the wording.
 
 System specs drive Playwright: only when a request spec cannot cover the
 behavior, always `PLAYWRIGHT_HEADLESS=true`, and after a frontend change
-`bunx vite build --mode test` first.
+`bun vite build --mode test` first.
 
 Run the specs that cover your change. `bin/ci` is the full gate, before a
 release rather than after each change. `docs/testing.md` covers it and the other

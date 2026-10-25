@@ -4,3 +4,8 @@
 # are not picked up during resolution.
 # Matches the cooldown Dependabot applies to the bun ecosystem.
 minimumReleaseAge = 259200 # seconds (3 days)
+
+[run]
+# Run package binaries with Bun even if their shebang points to node. This
+# applies to `bun run` and `bun <bin>`, but not to `bunx`.
+bun = true
