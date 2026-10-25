@@ -20,6 +20,6 @@
         =< t('.mark_stays')
 
   = c.with_footer do
-    = render Ui::Button::Component.new path: login_path,
-                                       title: t('layout.login'),
-                                       options: { data: { turbo: false } }
+    = render Ui::Button::Component.new href: login_path,
+                                       label: t('layout.login'),
+                                       data: { turbo: false }

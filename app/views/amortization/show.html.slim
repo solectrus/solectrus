@@ -29,8 +29,8 @@
     = c.with_title { t('amortization.index.restricted_title') }
     = c.with_body { t('amortization.index.restricted_body') }
     = c.with_footer do
-      = render Ui::Button::Component.new title: t('amortization.index.login'),
-                                         path: new_session_path(return_to: request.fullpath),
+      = render Ui::Button::Component.new label: t('amortization.index.login'),
+                                         href: new_session_path(return_to: request.fullpath),
                                          style: :primary
 - when :unavailable
   /! Sponsor feature not available: promote it and link to the demo
@@ -45,8 +45,8 @@
     = c.with_body { t('amortization.index.no_cash_flows_body') }
     - if admin?
       = c.with_footer do
-        = render Ui::Button::Component.new title: t('amortization.index.manage_cash_flows'),
-                                           path: settings_cash_flows_path,
+        = render Ui::Button::Component.new label: t('amortization.index.manage_cash_flows'),
+                                           href: settings_cash_flows_path,
                                            style: :primary
 - else
   /! The frame the sliders re-render, so an auto-submit never touches the

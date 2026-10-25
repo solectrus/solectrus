@@ -16,7 +16,8 @@
                   class: 'flex h-12 w-full items-center justify-center rounded-xl bg-indigo-600 text-headline font-semibold text-white dark:bg-indigo-700 dark:text-gray-200 click-animation focus-ring',
                   data: BUTTON_DATA
       .max-lg:hidden
-        = render Ui::Button::Component.new path: mark_as_read_notification_path(notification),
-                                           title: t('.understood'),
+        = render Ui::Button::Component.new href: mark_as_read_notification_path(notification),
+                                           label: t('.understood'),
                                            type: :button,
-                                           options: { method: :patch, data: BUTTON_DATA }
+                                           method: :patch,
+                                           data: BUTTON_DATA

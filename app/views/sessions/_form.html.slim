@@ -12,8 +12,8 @@
                          autofocus: true
 
     = f.actions do
-      = render Ui::Button::Component.new path: @return_to,
-                                         title: t('login.cancel'),
+      = render Ui::Button::Component.new href: @return_to,
+                                         label: t('login.cancel'),
                                          style: :secondary
       = f.submit t('login.submit')
 - else

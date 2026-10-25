@@ -40,7 +40,7 @@ section class='flex-1 flex flex-col' aria-label=label
               = icon 'map'
       - if map_button?
         div class=['max-lg:hidden', ('ml-auto' if totals.blank?)]
-          = render Ui::Button::Component.new(path: map_path, style: :secondary, icon: 'map', title: t('.map'), options: { data: { turbo_frame: map_frame } })
+          = render Ui::Button::Component.new(href: map_path, style: :secondary, icon: 'map', label: t('.map'), data: { turbo_frame: map_frame })
 
     / The map fills the window over the list (see Car::MapOverlay::Component).
       A link in its tooltip leaves the list.

@@ -3,9 +3,9 @@
 class ButtonComponentPreview < ViewComponent::Preview
   # @!group Overview
 
-  # @param title
-  def primary(title: 'Click me')
-    render Ui::Button::Component.new(title:, path: '#')
+  # @param label
+  def primary(label: 'Click me')
+    render Ui::Button::Component.new(label:, href: '#')
   end
 
   # Button with icon
@@ -13,20 +13,20 @@ class ButtonComponentPreview < ViewComponent::Preview
   #                    trash, xmark, battery-empty, battery-quarter, battery-half, battery-three-quarters,
   #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, gear]
   def icon(icon: 'bolt')
-    render Ui::Button::Component.new(icon:, path: '#')
+    render Ui::Button::Component.new(icon:, href: '#')
   end
 
-  # @param title
+  # @param label
   # @param icon select [sun, home, car, plug, bolt, chevron-left, chevron-right, plus, pencil,
   #                    trash, xmark, battery-empty, battery-quarter, battery-half, battery-three-quarters,
   #                    battery-full, arrow-right-to-bracket, arrow-right-from-bracket, gear]
-  def icon_and_title(icon: 'bolt', title: 'Click me')
-    render Ui::Button::Component.new(title:, icon:, path: '#')
+  def icon_and_label(icon: 'bolt', label: 'Click me')
+    render Ui::Button::Component.new(label:, icon:, href: '#')
   end
 
-  # @param title
-  def secondary(title: 'Edit', icon: 'pencil')
-    render Ui::Button::Component.new(style: :secondary, title:, icon:, path: '#')
+  # @param label
+  def secondary(label: 'Edit', icon: 'pencil')
+    render Ui::Button::Component.new(style: :secondary, label:, icon:, href: '#')
   end
 
   # @!endgroup

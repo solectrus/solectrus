@@ -25,12 +25,12 @@
   = c.with_footer do
     .flex.gap-10.justify-center
       - if demo_url
-        = render Ui::Button::Component.new title: t('.demo'),
-                                           path: demo_url,
-                                           options: { target: '_blank' },
+        = render Ui::Button::Component.new label: t('.demo'),
+                                           href: demo_url,
+                                           target: '_blank',
                                            style: :primary
 
-      = render Ui::Button::Component.new title: t('.about_sponsoring'),
-                                         path: sponsoring_path,
-                                         options: { data: { turbo: false } },
+      = render Ui::Button::Component.new label: t('.about_sponsoring'),
+                                         href: sponsoring_path,
+                                         data: { turbo: false },
                                          style: :secondary

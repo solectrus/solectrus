@@ -6,10 +6,11 @@
       - if admin
         .flex.items-center
           = render Ui::Button::Component.new( \
-              path: registration_path(status: 'snooze'),
+              href: registration_path(status: 'snooze'),
               icon: 'xmark',
               style: :tertiary,
-              options: { class: 'text-gray-500 dark:text-pink-100/50 text-lg', data: { turbo_prefetch: false } },
+              class: 'text-gray-500 dark:text-pink-100/50 text-lg',
+              data: { turbo_prefetch: false },
             )
 
           - if pending?
@@ -19,16 +20,16 @@
             = t('.unregistered')
 
         = render Ui::Button::Component.new( \
-            path: registration_path,
-            title: t('.button_to_register'),
+            href: registration_path,
+            label: t('.button_to_register'),
             icon: 'id-card',
-            options: { data: { turbo: 'false' } },
+            data: { turbo: 'false' },
           )
 
       - else
         = t('.login_to_register')
 
         = render Ui::Button::Component.new( \
-            path: new_session_path,
-            title: t('layout.login'),
+            href: new_session_path,
+            label: t('layout.login'),
           )

@@ -20,7 +20,7 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def submit(title)
-    render Ui::Button::Component.new(type: :submit, title:)
+    render Ui::Button::Component.new(type: :submit, label: title)
   end
 
   def text_field(method, **, &)

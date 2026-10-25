@@ -10,10 +10,10 @@
     / frame, and neither target page contains that frame. Without `_top`
     / Turbo empties the frame, which closes the modal and goes nowhere.
     - if status_code == 403
-      = render Ui::Button::Component.new path: new_session_path, \
-                                     title: t('errors.login'), \
-                                     options: { data: { turbo_frame: '_top' } }
+      = render Ui::Button::Component.new href: new_session_path, \
+                                     label: t('errors.login'), \
+                                     data: { turbo_frame: '_top' }
     - else
-      = render Ui::Button::Component.new path: balance_home_path, \
-                                     title: t('errors.back_to_home'), \
-                                     options: { data: { turbo_frame: '_top' } }
+      = render Ui::Button::Component.new href: balance_home_path, \
+                                     label: t('errors.back_to_home'), \
+                                     data: { turbo_frame: '_top' }
