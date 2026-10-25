@@ -102,12 +102,13 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   # A minimum width keeps the arrows in place while one paginates. A longer
-  # label grows, so it stays in the middle.
+  # label grows, so it stays in the middle. The forecast follows the day, so
+  # it takes the width of the day.
   LABEL_WIDTHS = { day: 'min-w-72', week: 'min-w-36', month: 'min-w-42', year: 'min-w-16' }.freeze
   private_constant :LABEL_WIDTHS
 
   def label_classes
-    "text-center #{LABEL_WIDTHS[timeframe.id]}"
+    "text-center #{LABEL_WIDTHS[forecast_mode? ? :day : timeframe.id]}"
   end
 
   def timeframe_link_classes(additional_classes = nil)

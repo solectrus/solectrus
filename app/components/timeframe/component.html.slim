@@ -9,7 +9,7 @@
           = icon 'angles-left', class: 'fa-lg opacity-50'
 
   - if forecast_mode?
-    div class= timeframe_link_classes('text-center')
+    div class= timeframe_link_classes(label_classes)
       = period_name
 
   - elsif timeframe.all?
