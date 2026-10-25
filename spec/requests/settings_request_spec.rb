@@ -292,6 +292,16 @@ describe 'Settings' do
           'href="/settings/sensors/consumers"',
         )
       end
+
+      it 'renders the fields of every group in a tab of the desktop' do
+        get '/settings/sensors'
+
+        panels = response.parsed_body.css('[role="tabpanel"]')
+        aggregate_failures do
+          expect(panels.size).to be > 1
+          expect(panels).to all(satisfy { it.at_css('input, select') })
+        end
+      end
     end
   end
 
