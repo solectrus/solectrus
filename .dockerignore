@@ -24,7 +24,6 @@ Dockerfile
 .slim-lint.yml
 .vscode
 eslint.config.mjs
-Guardfile
 **/*.DS_Store
 
 # Local environment and process setup

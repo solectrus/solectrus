@@ -127,11 +127,11 @@ group :development do
   # A debugging tool for your Ruby on Rails applications. (https://github.com/rails/web-console)
   gem 'web-console'
 
-  # Guard gem for RSpec (https://github.com/guard/guard-rspec)
-  gem 'guard-rspec', require: false
-
   # Lookbook is a UI development environment for Ruby on Rails applications (https://github.com/lookbook-hq/lookbook)
   gem 'lookbook'
+
+  # Listen to file modifications (https://github.com/guard/listen)
+  gem 'listen'
 
   # A gem for generating annotations for Rails projects. (https://github.com/drwl/annotaterb)
   gem 'annotaterb'
