@@ -1,6 +1,6 @@
 # UI building blocks
 
-The `Ui::` components are the general building blocks of the interface. They know nothing of SOLECTRUS, so another app could use them as they are.
+The `Ui::` components are the general building blocks of the interface. They know nothing of the domain of SOLECTRUS, like a sensor or a timeframe. Some of them use parts of the app that belong to the kit, see "Parts outside the namespace".
 
 One group of them gives the phone the layout of an app. The desktop keeps the usual web layout: tables, modals and buttons with icons. A page that uses these components shows the phone layout below the `lg` breakpoint and the desktop layout from `lg` up.
 
@@ -26,29 +26,45 @@ A page has one of two grounds on a phone. A list or a form stands on the gray pa
 - `Ui::GroupedList`: A grouped list, with an optional header above the card and a footer below it. A cell is a link, a button, or a row that holds a control at the right, like a segmented control. A link inside the app shows a chevron, a link to another site an arrow out of a box. With `detail:`, a cell shows a second, smaller line below its name, like the reason why its control is not available. `icon_class:` colors the tile of its icon, like the state of the sponsorship. A cell without a link, an action or a control only shows a state.
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, in a tall sheet on a phone, and on a page of its own without a frame. A form with unsaved changes asks before the sheet closes or a link leaves the page.
-- `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. It shows only while the form has changes, next to a button that discards them. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`.
+- `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. It shows only while the form has changes, next to a button that discards them. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`. `Ui::SubmitButton::Component.save_attributes` gives the attributes that every save button needs, also one outside the form.
 - `Ui::SaveBar`: The save buttons of a form that the desktop shows on the page, like the general settings. They show at the right of the tabs only while the form has changes, with a button that discards the changes. The other tabs then dim and take no clicks, and a link or a reload asks before it leaves the changes behind. The partial `settings/sub_nav` takes the id of the form as `save_bar:`. A phone has the save button in the `Ui::TitleBar` instead.
 - `Ui::ConfirmDialog`: The question before an action, in the middle of the screen instead of the confirm of the browser. The layout renders it once. It answers each `data-turbo-confirm`, see `docs/conventions.md`. A controller asks it through an outlet, like `form-dirty` and the modal before unsaved changes are lost.
 - `Ui::AddButton`: The `+` button for a new entry of a list on the desktop. It stands at the right of the header, where a phone has the action of the `Ui::TitleBar`. It opens the form in the modal.
 
 ### General
 
-- `Ui::Button`: A link, a button or a submit button with a label, an icon or both. The styles are `:primary`, `:secondary` and `:tertiary`.
-- `Ui::Dropdown`: A menu that opens below its button. On a phone it can show a native select instead. Each entry is a `Ui::MenuItem`, a link or a button. The `key:` of an entry names it for the code that builds the menu, like the sensor of a chart. Groups of entries stand in columns, or one below the other with `stacked: true`. With `choices: true`, one dropdown holds several choices, one group for each, and marks the current entry of each group with a check. A native select can mark one entry only, so such a dropdown shows its menu on a phone too, in the look of a menu of iOS. The options of the Top 10 work like this. `pill_options` give the button of a phone above a list on the gray page.
+- `Ui::Button`: A link, a button or a submit button with a `label:`, an `icon:` or both. `type:` is `:link`, `:button` or `:submit`, and `style:` is `:primary`, `:secondary` or `:tertiary`. Every other option goes to the element, like `data:` or `title:`.
+- `Ui::Popover`: A button that opens a panel below it, like a menu or a few controls without room on a phone. Escape and a click beside the panel close it. With `pick: true` on the panel, a tap on an entry closes it too. The trigger and the panel take the classes of the caller.
+- `Ui::Dropdown`: A menu that opens below its button, built on `Ui::Popover`. On a phone it can show a native select instead. Each entry is a `Ui::MenuItem`, a link or a button. The `key:` of an entry names it for the code that builds the menu, like the sensor of a chart. Groups of entries stand in columns, or one below the other with `stacked: true`. With `choices: true`, one dropdown holds several choices, one group for each, and marks the current entry of each group with a check. A native select can mark one entry only, so such a dropdown shows its menu on a phone too, in the look of a menu of iOS. The options of the Top 10 work like this. `look:` names the look of the button: `:default`, `:header` on the colored bar of the header, `:plain` without a background, or `:pill` above a list on the gray page of a phone.
 - `Ui::BottomSheet`: A sheet on a phone, a dialog in the middle of the screen from `md` up. `app/frontend/utils/bottomSheet.ts` opens and closes it.
-- `Ui::TurboModal`: The modal of the frame `modal`. A request of this frame shows the page in a `Ui::BottomSheet`, any other request shows it as a plain page. A form with unsaved changes asks in `Ui::ConfirmDialog` before the modal closes.
+- `Ui::TurboModal`: The modal of the frame `modal`. A request of this frame shows the page in a `Ui::BottomSheet`, any other request shows it as a plain page. A form with unsaved changes asks in `Ui::ConfirmDialog` before the modal closes. A link opens its page in the modal with `data: Ui::TurboModal::Component.link_data`, and `link_data(tooltip: true)` for a link with a tooltip.
 - `Ui::Flash`: The message after an action, like "Saved". It slides in at the lower edge of the screen and goes away after two seconds.
 - `Ui::Message`: A page for a message, like an error page, with slots for a symbol, a title, a text and a footer.
 - `Ui::EmptyState`: The place of a list, a map or a chart without content: an icon in a circle, a title and an optional text. It fills the free height and stands in its center. Every empty state uses it.
-- `Ui::FilterBar` and `Ui::FilterLink`: The notice above a filtered list and the chevron in a row that narrows the list. See "Lists with a filter".
+- `Ui::FilterBar` and `Ui::FilterLink`: The notice above a filtered list and the chevron in a row that narrows the list. See "Lists with a filter". `Ui::RemoveLink` is the small x of a pill that removes a part of the filter.
+- `Ui::Badge`: A short label in a colored pill, like the category of an entry. With `remove_path:`, a `Ui::RemoveLink` follows the label.
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
 - `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view. It shows a spinner, and its text is for a screen reader alone.
-- `Ui::RowGroups` and `Ui::GroupHeader`: The rows of a list in groups of a month, a week or a day, by the length of the timeframe. The header of a group links to the list of this group alone, except in the list of a day. On a phone it cuts the card into a card per group.
+- `Ui::GroupHeader`: The header of a group of rows, with a `title:` and an optional `href:` to the list of the group alone. On a phone it cuts the card into a card per group. `Timeframe::RowGroups`, outside the namespace, puts the rows of a list in groups of a month, a week or a day and gives the title of each group.
+- `Ui::OptimisticNav`: The data of a navigation whose marking moves to the tapped item at once, like `Ui::Chips` and `Ui::SegmentedControl`. With `slide: true`, the marking slides there.
 - `Ui::InfoIcon`: An info icon with a tooltip, for a sentence that explains a value.
 - `Ui::VerticalTabs`: Tabs at the left of their panels, from `md` up. On a smaller screen the tabs stand above the panels.
 
 Each component file starts with a comment that describes its parameters and slots.
+
+## Parts outside the namespace
+
+The components use some parts of the app. These parts belong to the kit:
+
+- `config/locales/ui.en.yml` and `ui.de.yml`: The texts that several components share, like "Save". A text of one component alone stays in the yml file beside it.
+- `app/components/ui/frames.ts`: The names of the frames `modal` and `sheet-page` and of the parameter `form_sheet`, for the TypeScript side. The Ruby side has them as `Ui::TurboModal::Component::FRAME`, `Ui::SheetPage::Component::FRAME` and `Ui::FormPage::Component::SHEET_PARAM`.
+- `FormPageHelper`, `FormPageResponse` and the concern `SheetPage`: They tell `Ui::FormPage` and `Ui::SheetPage` where a form shows, and they answer a save. See "Forms" and "Sheets with pages".
+- `ListFilter` and `FilteredList`: The filter that `Ui::FilterBar` and `Ui::FilterLink` show. Both call `filter_path` of the concern. See "Lists with a filter".
+- The Stimulus controllers `form-dirty`, `modal-launcher`, `tooltip` and `optimistic-nav` in `app/frontend/controllers`, and `utils/bottomSheet.ts` and `utils/modal.ts`.
+- `app/frontend/stylesheets/ui_form.css`: The look of a form on a phone, see "Forms".
+
+The navigation of the app on a phone, with the tab bar and the timeframe of a view, is in `docs/navigation.md`.
 
 ## Drill-down navigation
 
@@ -62,34 +78,6 @@ The slide needs two things:
 The desktop has no slide. There the hover of a row shows that it is a link, so the chevron of a row shows only on a phone. A cell of a grouped list hides its chevron only for a mouse, because a tablet as wide as a desktop has no hover.
 
 The header below the title bar can hold more controls of the page, like the timeframe of the charging sessions. Give their container the class `ui-title-bar-accessory`. These controls belong to their page. When a tap slides to the next page, they leave the header, and the header takes the height of the next page during the slide. On the way back, the header grows again when the page arrives.
-
-## The tab bar and the page More
-
-A phone has a tab bar at its lower edge. Its navigation starts with the views of the energy: the balance, the house, the heat pump, the car, the generation and the forecast. All views but the forecast share the timeframe. The other pages follow, like the Top 10.
-
-The tab bar holds the first four entries, the primary entries. If a system has fewer than four views, other pages take the free places. The last tab opens the page More. It lists the secondary entries, which do not fit into the tab bar, in one group, the views first.
-
-A view on the page More stays a tab. It shows no title bar, and the tab More stays marked. The page More has no timeframe of its own, so its links open the views in their default timeframe.
-
-The other secondary entries, like the Top 10, stand on their own, like a tab. The layout gives each of them a `Ui::TitleBar` with its name but without a back button, and a tap on the page More opens it without a slide. The notifications are one level below the page More, so their title bar leads back there. A page that the tab bar holds shows no title bar.
-
-The switches of the page More, like the language, slide their marking to the new choice, as the tab bar does. The `segment-slide` controller does this for radios and for buttons.
-
-## The timeframe of a view on a phone
-
-Below a wide screen in landscape, a view shows its timeframe in two rows. The header holds the tabs: the live view, the day, the week, the month, the year and the whole time. The tabs between the first and the last show their initial only. The content starts with the period (`Timeframe::Pager`): its name between two arrows. The tabs pick the kind of period, and the arrows turn it.
-
-A tap on the name opens the timeframe select in a sheet, with the picker of the period already open. Its way back shows the fields of the select. A chevron beside the name marks this. The arrows turn the page, as a swipe does. From today, they lead to yesterday and to the forecast. An arrow without a page in its direction stays dimmed in its place.
-
-The live view shows no period. Its arrows stay in the page, hidden, because the swipe takes its pages from them. So a swipe on the live view leads to yesterday and to the forecast. A comparison of the years shows no period either, because the menu of its tab picks the comparison.
-
-The lists of the car have no tabs. Their period stands at the top of the list, below the title bar. On the car page and on its lists, the cars follow below the period as chips (`Ui::Chips`). On the forecast, the period names the next days. Its tabs, the arrow back to today and its timeframe select belong to the view that led to the forecast. The desktop keeps the tabs and the timeframe with its arrows in the header.
-
-In the timeframe select, each field of a day, a week, a month and a year has two buttons. The first selects the period that it shows. The chevron opens the picker for another one. On the forecast, the select marks the forecast and none of the fields.
-
-On a phone, the select fits without scrolling. Each field is a tile with its name above it, in two columns. The period and its chevron join as one split button. The range and the forecast share the third row. Below the tiles, the windows back from now form one grid, and each window shows its unit. The whole time follows, in years and in months, with the names of the menu on the wide screen. The comparisons of the years stand at the bottom. The tile of a week names its year only when that is not the current year.
-
-Fullscreen is a mode of the document, and Turbo keeps the document from page to page. The page More turns it on with a switch, and the page that the user opens next shows in fullscreen. The menu of the desktop lies over the page, so it keeps its two items to enter and to leave fullscreen.
 
 ## Sheets with pages
 
