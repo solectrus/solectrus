@@ -1,3 +1,15 @@
+# An entry of a menu, like the menu of a Ui::Dropdown::Component or of the
+# top navigation: a link with `href`, else a button that `data` gives its
+# action. The menu renders it with `call`, which takes the options of the
+# menu: an icon column, a check before the current entry, and classes.
+#
+# `name` is the text, `short_name` the text of a button that names the
+# selected entry. `id` names the entry for `selected` of the dropdown, `key`
+# names it for the code that builds the menu, like the sensor of a chart.
+# `leading` stands before the name, like the icon of a car. `badge_count` and
+# `dot` mark an entry that needs attention. `separator_before` draws a line
+# above it. An entry with the name "-" is a line alone. `component` is a
+# component class that the top navigation renders in place of the entry.
 class Ui::MenuItem::Component < ViewComponent::Base
   def initialize( # rubocop:disable Metrics/ParameterLists
     name: nil,
