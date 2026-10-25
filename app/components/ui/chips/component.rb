@@ -29,7 +29,7 @@ class Ui::Chips::Component < ViewComponent::Base
   # wider than the screen, so it scrolls from its first chip.
   def call
     tag.nav class: '-mx-4 flex overflow-x-auto px-4 py-1.5 [scrollbar-width:none]', 'aria-label': @label do
-      tag.div class: 'mx-auto flex gap-2', data: { controller: 'optimistic-nav', action: OptimisticNav::ACTIONS } do
+      tag.div class: 'mx-auto flex gap-2', data: Ui::OptimisticNav.data do
         safe_join(@items.map { chip(it) })
       end
     end

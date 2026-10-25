@@ -4,9 +4,7 @@
 nav.relative.w-full.grid.grid-flow-col.lg:landscape:flex.items-stretch.lg:landscape:justify-start.rounded-lg.bg-black/15.dark:bg-black/25.lg:landscape:rounded-none.lg:landscape:bg-transparent.dark:lg:landscape:bg-transparent.lg:landscape:p-0.font-medium.lg:landscape:uppercase.sm:landscape:text-sm.md:landscape:text-base.md:landscape:tracking-wider.lg:landscape:gap-0.lg:landscape:space-x-4[
   aria-label="Tabs"
   class=['gap-0.5 p-0.5', (abbreviate ? 'text-sm' : 'text-xs sm:text-sm')]
-  data-controller="optimistic-nav"
-  data-optimistic-nav-slide-value="true"
-  data-action=OptimisticNav::ACTIONS
+  data=Ui::OptimisticNav.data(slide: true)
 ]
   - items.each do |item|
     = item

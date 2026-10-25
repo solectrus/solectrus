@@ -26,7 +26,7 @@ class Ui::SegmentedControl::Component < ViewComponent::Base
   def call
     tag.nav class: ['relative inline-flex rounded-xl bg-slate-500/12 p-1.5 dark:bg-slate-800 dark:lg:bg-slate-950/60', ('max-lg:flex max-lg:w-full' if @stretch)],
             'aria-label': @label,
-            data: { controller: 'optimistic-nav', optimistic_nav_slide_value: true, action: OptimisticNav::ACTIONS } do
+            data: Ui::OptimisticNav.data(slide: true) do
       safe_join(@items.map { segment(it) })
     end
   end
