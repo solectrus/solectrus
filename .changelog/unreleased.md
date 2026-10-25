@@ -78,5 +78,6 @@ Keep every section, an empty one included.
 - Keyboard: the bar at the bottom of a phone screen now shows the focus. Before, the focus was invisible
 - Screen readers: the GitHub link in the footer now has a name, and the author link reads a real dash. Before, it read "&mdash;"
 - Screen readers now read a message after an action, like "Saved", and say which tab of the sensor settings is selected. Before, they kept silent
+- A click with Cmd or Ctrl on a link that opens a dialog, like the timeframe, now only opens a new tab. Before, the page stayed dimmed
 
 ## Maintenance
