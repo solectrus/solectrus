@@ -57,27 +57,25 @@
         option
 
   .relative.text-left class=(choices ? 'inline-block' : 'hidden lg:inline-block') data-controller="ui--dropdown--component"
-    - if button
-      = button
-    - else
-      button#options-menu.flex.items-center.font-medium.focus:outline-none.focus:ring-2.focus:ring-gray-700.dark:focus:ring-gray-400.focus:ring-offset-0.gap-2[
-        type= 'button'
-        class= button_shape
-        class= button_class
-        aria-label= (label if choices)
-        class= ('pointer-events-none' if disabled)
-        disabled= disabled
-        data-ui--dropdown--component-target="button"
-        data-action= ('click->ui--dropdown--component#toggle' unless disabled)
-        aria-haspopup= 'true'
-        aria-expanded= 'false'
-      ]
-        / The leading visual of the selected item, like in the menu
-        - if selected_item&.leading && !display_name
-          span.flex.self-center = selected_item.leading
-        = button_text
+    / No id: a page can hold several dropdowns, like the Top 10
+    button.flex.items-center.font-medium.focus:outline-none.focus:ring-2.focus:ring-gray-700.dark:focus:ring-gray-400.focus:ring-offset-0.gap-2[
+      type= 'button'
+      class= button_shape
+      class= button_class
+      aria-label= (label if choices)
+      class= ('pointer-events-none' if disabled)
+      disabled= disabled
+      data-ui--dropdown--component-target="button"
+      data-action= ('click->ui--dropdown--component#toggle' unless disabled)
+      aria-haspopup= 'true'
+      aria-expanded= 'false'
+    ]
+      / The leading visual of the selected item, like in the menu
+      - if selected_item&.leading && !display_name
+        span.flex.self-center = selected_item.leading
+      = button_text
 
-        = chevron_icon(class_names('h-5', 'opacity-50' => disabled))
+      = chevron_icon(class_names('h-5', 'opacity-50' => disabled))
 
     .z-10.absolute.w-max.mt-2.ring-1.ring-black/5.hidden.overflow-hidden[
       class=menu_position_classes
@@ -90,7 +88,7 @@
       data-transition-leave-start="opacity-100 scale-100"
       data-transition-leave-end="opacity-0 scale-95"
     ]
-      .whitespace-nowrap aria-labelledby="options-menu" aria-orientation="vertical" role="menu"
+      .whitespace-nowrap aria-label=label aria-orientation="vertical" role="menu"
         - if top_item
           .border-b.border-gray-200.dark:border-gray-600
             = top_item&.call(with_icon: icons?, css_extra: [extra_item_class, 'py-2 px-3 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800', top_item.current ? 'font-bold' : nil])

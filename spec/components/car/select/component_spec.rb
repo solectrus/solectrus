@@ -5,7 +5,7 @@ describe Car::Select::Component, type: :component do
   let(:html) { render_inline(component) }
 
   it 'shows the short name on the button and the full name in the menu' do
-    expect(html.at_css('button#options-menu').text.squish).to eq('Volt')
+    expect(html.at_css('button[aria-haspopup]').text.squish).to eq('Volt')
     expect(html.css('[role=menu] a').map { it.text.squish }).to include('Renault Voltaire', 'Model Y')
   end
 
@@ -15,7 +15,7 @@ describe Car::Select::Component, type: :component do
     it 'offers them last and selects them' do
       expect(html.css('[role=menu] a').map { it.text.squish }).to eq(['All cars', 'Renault Voltaire', 'Model Y', 'Guest'])
       expect(html.css('[role=menu] a').pluck('href').last).to eq('/cars/guest')
-      expect(html.at_css('button#options-menu').text.squish).to eq('Guest')
+      expect(html.at_css('button[aria-haspopup]').text.squish).to eq('Guest')
     end
 
     # A line divides the cars from "all" and from the guest
@@ -33,7 +33,7 @@ describe Car::Select::Component, type: :component do
 
     it 'offers "all" and the car, and selects "all"' do
       expect(html.css('[role=menu] a').map { it.text.squish }).to eq(['All cars', 'Renault Voltaire'])
-      expect(html.at_css('button#options-menu').text.squish).to eq('All cars')
+      expect(html.at_css('button[aria-haspopup]').text.squish).to eq('All cars')
     end
   end
 end

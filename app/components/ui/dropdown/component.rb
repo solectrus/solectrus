@@ -2,12 +2,6 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
   CENTERED = 'left-1/2 -translate-x-1/2 origin-top'.freeze
   private_constant :CENTERED
 
-  renders_many :items, Ui::MenuItem::Component
-  renders_one :top_item, Ui::MenuItem::Component
-  renders_one :bottom_item, Ui::MenuItem::Component
-
-  renders_one :button
-
   # The button on the colored bar of the page header. Its text takes the
   # color of the tabs beside it (see Nav::TabLook).
   HEADER_BUTTON_CLASS =
@@ -125,7 +119,7 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
 
   def selected_item
     @selected_item ||=
-      flat_items.find { |item| item.respond_to?(:id) && item.id.to_s == selected.to_s }
+      flat_items.find { |item| item.id.to_s == selected.to_s }
   end
 
   # The button prefers the short name of the selected item, because it stands
@@ -135,7 +129,9 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
   end
 
   def icons?
-    flat_items.any?(&:icon_name)
+    return @icons if defined?(@icons)
+
+    @icons = flat_items.any?(&:icon_name)
   end
 
   def menu_class
@@ -253,7 +249,7 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     classes << 'font-bold' if item.current && !choices
 
     # In a stacked menu, the names of the groups divide the items
-    if item.respond_to?(:separator_before) && item.separator_before && !stacked
+    if item.separator_before && !stacked
       classes << 'border-t border-gray-200 dark:border-gray-600'
     end
 
