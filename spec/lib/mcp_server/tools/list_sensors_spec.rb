@@ -157,7 +157,7 @@ describe McpServer::Tools::ListSensors do
       it 'carries the short name of a car without a name' do
         Car.create!(id: 1, short_name: 'ZOE')
 
-        expect(entry('car_battery_soc_1')[:display_name]).to eq('ZOE (SOC)')
+        expect(entry('car_battery_soc_1')[:display_name]).to eq('ZOE SOC')
       end
 
       it 'omits the field for a car with the number as short name' do

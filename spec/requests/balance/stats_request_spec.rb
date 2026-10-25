@@ -27,7 +27,7 @@ describe 'Stats' do
               'Turbo-Frame' => 'random-turbo-frame',
             }
 
-        expect(response.body).to include('soc-badge', '64%', '78%', cars_home_path(timeframe: 'now'))
+        expect(response.body).to include('soc-badge', '64%', '78%', balance_charts_path(sensor_name: 'car_battery_soc_1', timeframe: 'now'))
       end
     end
 

@@ -123,6 +123,12 @@ class Car < ApplicationRecord
 
   def self.given_name(id, name, short_name) = name || (short_name unless short_name == id.to_s)
 
+  # The short name of the car, or else its name, as in .given_name_of
+  def self.given_short_name_of(id)
+    name, short_name = names[id]
+    (short_name unless short_name == id.to_s) || name
+  end
+
   # The given name of the car, or the default name of its id
   def self.display_name_of(id) = given_name_of(id) || default_name(id)
 

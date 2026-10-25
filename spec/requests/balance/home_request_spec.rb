@@ -61,6 +61,12 @@ describe 'Home' do
             )
         expect(response).to have_http_status(:ok)
       end
+
+      it 'renders the state of charge of the one car in use' do
+        get balance_home_path(sensor_name: 'car_battery_soc_1', timeframe: 'day')
+
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     # The car link keeps the topic of the chart

@@ -87,6 +87,7 @@ en:
     car_sensor:
       named: '%{car} (%{role})'
       unnamed: 'Car %{number}: %{role}'
+      soc: '%{car} SOC'
     power_balance: Power balance
     inverter_power: Generation
     inverter_power_1: Generation 1

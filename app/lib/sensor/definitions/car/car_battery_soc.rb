@@ -55,5 +55,24 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
   aggregations stored: %i[min max avg last], meta: %i[min max avg], computed: %i[min max avg]
   summary_version '2026-10-16'
 
+  # Named like the home battery, which stands next to it on the power
+  # balance, with the short name of the car: "Ladestand ZOE". Without a
+  # given name, as for a guest, the one car in use is just the car.
+  def display_name(_format = :long)
+    car = Car.given_short_name_of(car_number)
+    return I18n.t('sensors.car_battery_soc') if car.nil? && Car.sole_in_use&.id == car_number
+
+    I18n.t('sensors.car_sensor.soc', car: car || Car.default_name(car_number))
+  end
+
+  # The power balance shows the chart of the one car in use next to the home
+  # battery, as its badge does (see Balance::SocBadge::Component). Otherwise
+  # the car page shows the chart of the role (see CarBatterySocChart).
+  home_pages { Car.sole_in_use&.id == car_number ? [:balance] : [] }
+
+  chart do |timeframe, **|
+    Sensor::Chart::CarBatterySoc.new(timeframe:, cars: Car.configured.select { it.id == car_number })
+  end
+
   requires_permission :car
 end

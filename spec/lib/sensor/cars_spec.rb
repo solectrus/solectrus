@@ -51,15 +51,15 @@ describe Sensor::Cars do
     it 'is the name of the car plus the role' do
       Car.create!(id: 1, name: 'Model Y')
 
-      expect(Sensor::Registry[:car_battery_soc_1].display_name).to eq('Model Y (SOC)')
-      expect(Sensor::Registry[:car_battery_soc_1]).to be_user_defined_name
+      expect(Sensor::Registry[:car_odometer_1].display_name).to eq('Model Y (Odometer)')
+      expect(Sensor::Registry[:car_odometer_1]).to be_user_defined_name
     end
 
     it 'is the short name of a car without a name plus the role' do
       Car.create!(id: 1, short_name: 'ZOE')
 
-      expect(Sensor::Registry[:car_battery_soc_1].display_name).to eq('ZOE (SOC)')
-      expect(Sensor::Registry[:car_battery_soc_1]).to be_user_defined_name
+      expect(Sensor::Registry[:car_odometer_1].display_name).to eq('ZOE (Odometer)')
+      expect(Sensor::Registry[:car_odometer_1]).to be_user_defined_name
     end
 
     it 'comes from I18n for a car without a name' do

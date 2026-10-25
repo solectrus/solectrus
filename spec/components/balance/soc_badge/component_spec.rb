@@ -11,8 +11,11 @@ describe Balance::SocBadge::Component, type: :component do
     expect(html.css('.soc-value').last[:class]).to include('text-signal-warning')
   end
 
-  it 'links the car to the car page, out of the frame' do
-    expect(html.at_css("a[href='/cars/now']")['data-turbo-frame']).to eq('_top')
+  it 'loads the chart of the car into the power balance' do
+    link = html.at_css("a[href='/car_battery_soc_1/now']")
+
+    expect(link['data-stats-with-chart--component-chart-url-param']).to eq('/charts/car_battery_soc_1/now')
+    expect(link['data-turbo-frame']).to be_nil
   end
 
   context 'with the car at the plug' do

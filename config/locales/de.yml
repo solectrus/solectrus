@@ -87,6 +87,7 @@ de:
     car_sensor:
       named: '%{car} (%{role})'
       unnamed: 'Auto %{number}: %{role}'
+      soc: 'Ladestand %{car}'
     power_balance: Strombilanz
     inverter_power: Erzeugung
     inverter_power_1: Erzeugung 1
