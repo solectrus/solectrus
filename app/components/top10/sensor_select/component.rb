@@ -17,9 +17,7 @@ class Top10::SensorSelect::Component < ViewComponent::Base
 
   attr_reader :current_sensor, :permitted_params
 
-  def dropdown_options
-    @phone ? Ui::Dropdown::Component.pill_options : {}
-  end
+  def look = @phone ? :pill : :default
 
   def sensor_groups
     @sensor_groups ||= build_grouped_sensor_items

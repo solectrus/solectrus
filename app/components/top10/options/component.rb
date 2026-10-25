@@ -22,9 +22,7 @@ class Top10::Options::Component < ViewComponent::Base
     [car_group, calc_group, order_group].compact
   end
 
-  def dropdown_options
-    @phone ? Ui::Dropdown::Component.pill_options : {}
-  end
+  def look = @phone ? :pill : :default
 
   def display
     helpers.icon('sliders', class: 'fa-fw')

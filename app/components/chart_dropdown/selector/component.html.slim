@@ -8,7 +8,7 @@
                                            selected: selected_id,
                                            display_name: display_name,
                                            menu_position:,
-                                           button_class: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900'
+                                           look: :plain
 - elsif sensor_items.any?
   .justify-center.flex.items-center
     = render Ui::Dropdown::Component.new name: 'sensor-selector',
@@ -18,4 +18,4 @@
                                          selected: selected_id,
                                          display_name: display_name,
                                          menu_position:,
-                                         button_class: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900'
+                                         look: :plain

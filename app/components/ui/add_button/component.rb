@@ -7,10 +7,11 @@
 class Ui::AddButton::Component < ViewComponent::Base
   # The look and the height of the other buttons on the header, like the car
   # filter of the charging sessions
-  BASE_CLASS =
-    'hidden lg:flex size-9 shrink-0 items-center justify-center rounded-md click-animation ' \
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-400 ' \
-    "#{Ui::Dropdown::Component::HEADER_BUTTON_CLASS}".freeze
+  BASE_CLASS = [
+    'hidden lg:flex size-9 shrink-0 items-center justify-center rounded-md click-animation',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-gray-400',
+    Ui::Dropdown::Component.button_class(:header),
+  ].join(' ').freeze
   private_constant :BASE_CLASS
 
   def initialize(href:, label:)

@@ -1,26 +1,56 @@
+# A menu that opens below its button (see Ui::Popover::Component). Each item
+# is a Ui::MenuItem::Component, a link or a button. On a phone the dropdown
+# shows a native select of the links instead, unless `mobile: false`.
+#
+# `items` is a list of items, or a list of groups: hashes with a `:name` and
+# `:items`, or with `:subgroups` that split a long group into columns. The
+# item whose `id` is `selected` names the button, by its short name, unless
+# `display_name` gives another. `top_item` and `bottom_item` stand above and
+# below the others, set apart by a line.
+#
+# `look` is the look of the button: `:default`, `:header` on the colored bar
+# of the page header, `:plain` without a background, or `:pill` above a list
+# on the gray page of a phone. `label` names the select and the menu for a
+# screen reader.
+#
+#   = render Ui::Dropdown::Component.new(name: 'car', items:, selected: car.id, look: :header)
 class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   CENTERED = 'left-1/2 -translate-x-1/2 origin-top'.freeze
   private_constant :CENTERED
 
-  # The button on the colored bar of the page header. Its text takes the
-  # color of the tabs beside it (see Nav::TabLook).
-  HEADER_BUTTON_CLASS =
-    'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10 ' \
-    'dark:lg:landscape:text-gray-400 dark:lg:landscape:hover:text-gray-300'.freeze
+  # The shape (corners and padding of the native select of a phone, and of
+  # the button of choices) and the colors of the button of each look
+  LOOKS = {
+    default: {
+      shape: 'rounded px-2',
+      button: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800',
+    },
+    # On the colored bar of the page header. Its text takes the color of the
+    # tabs beside it (see Nav::TabLook).
+    header: {
+      shape: 'rounded px-2',
+      button: 'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10 ' \
+              'dark:lg:landscape:text-gray-400 dark:lg:landscape:hover:text-gray-300',
+    },
+    # In a card, like the selection of a chart
+    plain: {
+      shape: 'rounded px-2',
+      button: 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-900',
+    },
+    # Above a list on the gray page of a grouped list, like the filter of the
+    # charging sessions: white, like the cards below it. From lg up, where the
+    # page is white, it takes the look of the default.
+    pill: {
+      shape: 'max-w-full rounded-lg px-3',
+      button: 'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300 ' \
+              'lg:bg-gray-200 lg:hover:bg-white lg:text-current lg:dark:bg-gray-400 lg:dark:hover:bg-gray-300 lg:dark:text-gray-800',
+    },
+  }.freeze
+  private_constant :LOOKS
 
-  # The button of a phone above a list on the gray page of a grouped list,
-  # like the filter of the charging sessions: white, like the cards below it.
-  # From lg up, where the page is white, it takes the look of the default.
-  PILL_SHAPE = 'max-w-full rounded-lg px-3'.freeze
-  PILL_BUTTON_CLASS =
-    'bg-white text-slate-700 dark:bg-slate-800 dark:text-slate-300 ' \
-    'lg:bg-gray-200 lg:hover:bg-white lg:text-current lg:dark:bg-gray-400 lg:dark:hover:bg-gray-300 lg:dark:text-gray-800'.freeze
-  public_constant :HEADER_BUTTON_CLASS, :PILL_SHAPE, :PILL_BUTTON_CLASS
-
-  # The options of that button, for a component that passes them on
-  def self.pill_options
-    { mobile_shape: PILL_SHAPE, button_class: PILL_BUTTON_CLASS }
-  end
+  # The colors of a button of the look, for a button beside the dropdown
+  # that must look the same, like Ui::AddButton::Component
+  def self.button_class(look) = LOOKS[look][:button]
 
   def initialize( # rubocop:disable Metrics/ParameterLists
     name:,
@@ -32,11 +62,10 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     menu_position: :right,
     disabled: false,
     mobile: true,
-    mobile_shape: 'rounded px-2',
+    look: :default,
     choices: false,
     stacked: false,
-    label: nil,
-    button_class: 'bg-gray-200 hover:bg-white dark:bg-gray-400 dark:hover:bg-gray-300 dark:text-gray-800'
+    label: nil
   )
     super()
     @name = name
@@ -48,22 +77,18 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
     @menu_position = menu_position.to_sym
     @disabled = disabled
     @mobile = mobile
-    @mobile_shape = mobile_shape
+    @look = LOOKS[look]
     @choices = choices
     @stacked = stacked
     @label = label
-    @button_class = button_class
   end
 
-  # `mobile_shape` is the corners and the padding of the native select of a
-  # phone, `label` names that select for a screen reader.
-  #
   # `choices: true` holds several choices at once, one group of items for
   # each, like the order and the calculation of a list. Each group marks its
   # own current item with a check. A native select selects one option only,
   # so such a dropdown shows its menu on a phone too, in the look of a menu
-  # of iOS. Its button takes `mobile_shape` there, and `label` names it,
-  # because its `display_name` can be an icon.
+  # of iOS. Its button takes the shape of the look there, and `label` names
+  # it, because its `display_name` can be an icon.
   #
   # The menu puts the groups side by side in columns. `stacked: true` puts
   # them one below the other, for a few short groups like these choices.
@@ -76,11 +101,13 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
               :menu_position,
               :disabled,
               :mobile,
-              :mobile_shape,
               :choices,
               :stacked,
-              :label,
-              :button_class
+              :label
+
+  def mobile_shape = @look[:shape]
+
+  def button_class = @look[:button]
 
   # Where the menu hangs from its button. `center` puts it under the button and
   # tucks it to the right edge where the row grows wide enough to hold it
