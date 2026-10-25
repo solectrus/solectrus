@@ -1,65 +1,29 @@
 import { Controller } from '@hotwired/stimulus';
 
+// Shows the panel of the selected tab (see Ui::VerticalTabs::Component). At
+// the start, the hash of the address can name the panel.
 export default class extends Controller {
   static readonly targets = ['tab', 'panel'];
-  static readonly values = {
-    activeTab: String,
-    inactiveTab: String,
-    activePanel: String,
-    hiddenPanel: String,
-  };
 
-  declare tabTargets: HTMLElement[];
-  declare panelTargets: HTMLElement[];
-
-  declare readonly activeTabValue: string;
-  declare readonly inactiveTabValue: string;
-  declare readonly activePanelValue: string;
-  declare readonly hiddenPanelValue: string;
+  declare readonly tabTargets: HTMLElement[];
+  declare readonly panelTargets: HTMLElement[];
 
   connect() {
-    const hash = window.location.hash?.replace('#', '');
-    let panelIndex = 0;
-
-    if (hash) {
-      const foundIndex = this.panelTargets.findIndex(
-        (panel) => panel.id === hash,
-      );
-      if (foundIndex >= 0) panelIndex = foundIndex;
-    }
-
-    this.activate(this.tabTargets[panelIndex], this.panelTargets[panelIndex]);
+    const id = window.location.hash.slice(1);
+    if (id) this.activate(this.panelTargets.findIndex((it) => it.id === id));
   }
 
   select(event: Event) {
     event.preventDefault();
-
-    const tab = event.currentTarget as HTMLElement;
-    const index = this.tabTargets.indexOf(tab);
-    const panel = this.panelTargets[index];
-
-    if (tab && panel) {
-      this.activate(tab, panel);
-    }
+    this.activate(this.tabTargets.indexOf(event.currentTarget as HTMLElement));
   }
 
-  activate(tab?: HTMLElement, panel?: HTMLElement) {
-    if (!tab || !panel) return;
+  private activate(index: number) {
+    if (index < 0) return;
 
-    for (const el of this.tabTargets) {
-      el.classList.remove(...this.activeTabValue.split(' '));
-      el.classList.add(...this.inactiveTabValue.split(' '));
-    }
-
-    for (const el of this.panelTargets) {
-      el.classList.remove(...this.activePanelValue.split(' '));
-      el.classList.add(...this.hiddenPanelValue.split(' '));
-    }
-
-    tab.classList.remove(...this.inactiveTabValue.split(' '));
-    tab.classList.add(...this.activeTabValue.split(' '));
-
-    panel.classList.remove(...this.hiddenPanelValue.split(' '));
-    panel.classList.add(...this.activePanelValue.split(' '));
+    this.tabTargets.forEach((tab, i) =>
+      tab.setAttribute('aria-selected', String(i === index)),
+    );
+    this.panelTargets.forEach((panel, i) => (panel.hidden = i !== index));
   }
 }

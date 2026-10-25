@@ -42,4 +42,9 @@ class Ui::Flash::Component < ViewComponent::Base
   def text
     notice || alert
   end
+
+  # A screen reader reads the message, an alert at once
+  def role
+    notice ? 'status' : 'alert'
+  end
 end
