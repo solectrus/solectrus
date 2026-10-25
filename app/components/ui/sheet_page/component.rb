@@ -71,7 +71,13 @@ class Ui::SheetPage::Component < ViewComponent::Base
     {
       controller: 'ui--sheet-page--component',
       ui__sheet_page__component_ui__confirm_dialog__component_outlet: Ui::ConfirmDialog::Component::SELECTOR,
-      action: 'turbo:before-frame-render->ui--sheet-page--component#render click->ui--sheet-page--component#guard:capture',
+      action: [
+        'click->ui--sheet-page--component#guard:capture',
+        'turbo:before-fetch-request->ui--sheet-page--component#start',
+        'turbo:before-frame-render->ui--sheet-page--component#render',
+        'turbo:fetch-request-error->ui--sheet-page--component#abort',
+        'turbo:frame-missing->ui--sheet-page--component#abort',
+      ].join(' '),
     }
   end
 end
