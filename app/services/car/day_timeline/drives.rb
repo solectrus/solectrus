@@ -120,7 +120,7 @@ class Car::DayTimeline::Drives
   public_constant :NOISE
 
   ARRIVAL = ChargingSession::Detection::CarAssignment::REPORT_LAG + Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
-  private_constant :ARRIVAL
+  public_constant :ARRIVAL
 
   # Rounding of the source (see Sensor::MeterReadings)
   TOLERANCE = Sensor::MeterReadings::TOLERANCE

@@ -60,9 +60,14 @@ class Car::DayTimeline
     def origin(drive) = origin_visit(drive)&.place
 
     # The place where the drive ended: the visit after the one where it
-    # started that starts closest to its end, an hour away at most
+    # started that starts closest to its end, an hour away at most. A visit
+    # that lasts past the end by more than the late report of an arrival
+    # (see Car::DayTimeline::Drives::ARRIVAL) saw the car back after the
+    # drive: a round trip, whose stop was too short for a visit.
     def goal(drive)
       origin = origin_visit(drive)
+      return origin.place if origin && origin.ended_at > drive.ended_at + Car::DayTimeline::Drives::ARRIVAL
+
       visit = visits.select { origin.nil? || it.started_at > origin.started_at }.min_by { (it.started_at - drive.ended_at).abs }
       visit.place if visit && (visit.started_at - drive.ended_at).abs <= 1.hour
     end

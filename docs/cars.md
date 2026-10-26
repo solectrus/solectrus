@@ -986,7 +986,9 @@ These rules find the drives:
 
 A car reports its place late, so a visit can last until the car arrives at the next place,
 and only the start of a visit is sure. A drive therefore starts at the last place where the
-car arrived before it.
+car arrived before it. It ends at the next visit. If the visit at the start lasts more than
+20 minutes after the end of the drive, the car came back. The drive then ends at its start,
+because its stop was too short for a visit.
 
 A wrong reading of the odometer adds no drive, like in the distance of the day (see
 [Distance](#distance)).
