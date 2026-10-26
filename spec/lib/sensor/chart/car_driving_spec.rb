@@ -129,6 +129,22 @@ describe Sensor::Chart::CarDriving do
     end
   end
 
+  describe 'the energy used' do
+    subject(:chart) { Sensor::Registry[:car_driving_energy].chart(Timeframe.new('2026')) }
+
+    # 150 km at 30 kWh / 150 km in January, in Wh like the charged energy
+    it 'gives each month the energy of its days' do
+      expect(rates(chart).first(3)).to eq([30_000.0, nil, nil])
+    end
+
+    it 'explains each column with the calculation and the daily rate' do
+      notes = chart.data[:datasets].first[:tooltipNotes]
+      rate_unit = Sensor::UnitFormatter.format(unit: :kwh_per_100km, context: :total)
+
+      expect(notes.first).to eq(["150 km × 20.0 #{rate_unit}", 'Each day at the rate of the 14 days before and after it'])
+    end
+  end
+
   describe 'the driving cost' do
     subject(:chart) { Sensor::Registry[:car_driving_costs].chart(timeframe) }
 
@@ -201,7 +217,7 @@ describe Sensor::Chart::CarDriving do
 
         expect(datasets.pluck(:label)).to eq(['Car 1', 'Wartburg'])
         expect(datasets.pluck(:tintColor)).to eq([Car::DEFAULT_COLOR, '#ff0000'])
-        expect(datasets.pluck(:stack).uniq).to eq(['CarDrivingCosts'])
+        expect(datasets.pluck(:stack).uniq).to eq(['CarDriving'])
         expect(datasets.pluck(:summed)).to all(be(true))
         expect(datasets.map { it[:data].first(3) }).to eq([[9.0, nil, nil], [nil, nil, 10.0]])
       end

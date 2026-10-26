@@ -167,6 +167,12 @@ class Car::Report
     driving.cost if distance && driving.cost_rated?
   end
 
+  # The energy of the distance in Wh, the sum of its days. It differs from
+  # the charged energy like the driving cost from the charging cost.
+  def driving_energy
+    driving.energy_wh if distance && driving.rated?
+  end
+
   # The value of a chart of the car page for its insights and its trend (see
   # Car::Trend), nil without one. The energy is in Wh, like a column of the
   # chart. Sessions without a price have no cost.
@@ -175,6 +181,7 @@ class Car::Report
     when :car_distance then distance
     when :car_charging then sessions.kwh * 1000
     when :car_charging_costs then sessions.cost if sessions.cost?
+    when :car_driving_energy then driving_energy
     when :car_driving_costs then driving_cost
     when :car_cost_rate then driving.cost_per_100km
     when :car_consumption_rate then driving.consumption_per_100km
@@ -182,13 +189,14 @@ class Car::Report
     end
   end
 
-  # [date, value] of the day with the highest distance, charged energy (Wh)
-  # or driving cost, nil without one
+  # [date, value] of the day with the highest distance, charged energy (Wh),
+  # energy used (Wh) or driving cost, nil without one
   def maximum(sensor_name)
     case sensor_name
     when :car_distance then max_distance_day
     when :car_charging then max_charging_day
-    when :car_driving_costs then max_driving_cost_day
+    when :car_driving_energy then max_driving_day { it.energy_wh if it.rated? }
+    when :car_driving_costs then max_driving_day { it.cost if it.cost_rated? }
     end
   end
 
@@ -224,14 +232,11 @@ class Car::Report
 
   def sessions_scope = ChargingSession.of_cars(cars, guest: guest?).effective
 
-  # The driving cost of a day comes from the rates of its window (see
-  # Car::Driving), so it exists in Ruby only
-  def max_driving_cost_day
-    days =
-      dates.filter_map do |date|
-        day = rates.totals(date..date, cars:)
-        [date, day.cost] if day.cost_rated?
-      end
+  # The driving of a day comes from the rates of its window (see
+  # Car::Driving), so it exists in Ruby only. The block gives the value of
+  # the totals of a day, nil without a rate.
+  def max_driving_day
+    days = dates.filter_map { |date| (value = yield rates.totals(date..date, cars:)) && [date, value] }
     days.max_by(&:last)
   end
 

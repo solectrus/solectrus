@@ -89,14 +89,14 @@ class Car::DrivingBox::Component < ViewComponent::Base
     )
   end
 
-  # The energy used has no chart of its own, so it loads the chart of the
-  # consumption per 100 km
+  # The energy used loads its chart. Without an energy rate, the energy of
+  # the driven kilometers is unknown.
   def energy_figure
     energy = Sensor::Value::Component.new(driving.energy_wh, :wallbox_power, context: :total, scaling: :kilo, precision: driving.energy_wh >= 100_000 ? 0 : 1) if driving.rated?
     Car::OverviewBox::Component::Figure.new(
-      sensor_name: :car_consumption_rate,
+      sensor_name: :car_driving_energy,
       label: t('car_breakdown.used'),
-      wide_label: t('.energy'),
+      wide_label: t('sensors.car_driving_energy'),
       value: energy ? render(energy) : '–',
       **energy_tooltip,
     )

@@ -158,6 +158,7 @@ its history. The car management page says this.
 | `car_charging_costs`   | none, chart only                    | none                | charging cost                |
 | `car_consumption_rate` | none, chart only                    | none                | `kWh/100 km`                 |
 | `car_cost_rate`        | none, chart only                    | none                | `EUR/100 km`                 |
+| `car_driving_energy`   | none, chart only                    | none                | energy used for driving      |
 | `car_driving_costs`    | none, chart only                    | none                | driving cost                 |
 | `car_battery_soc`      | none, chart only                    | none                | state of charge of one car   |
 | `car_distance`         | none, chart only                    | none                | distance of the cars         |
@@ -170,8 +171,9 @@ chooses the car, and the chart menu chooses the chart. The chart menu offers no 
 the selected cars cannot draw, like the distance of a car without an odometer, and an
 address of such a chart goes to the default chart.
 
-All car sensors need the permission `:car`. The rates and the driving cost exist when a car
-has an odometer, because the energy and the cost can come from the offsite sessions alone.
+All car sensors need the permission `:car`. The rates, the energy used and the driving cost
+exist when a car has an odometer, because the energy and the cost can come from the offsite
+sessions alone.
 
 A car sensor is a state (`state` in the definition): its value holds until the next
 reading, at any age. A car reports only while it is online, and some sources send only a
@@ -695,13 +697,13 @@ rate is not. The user interface must never add a rate.
 
 ## Charts
 
-| Chart                                                        | Class           | Columns                                              |
-| ------------------------------------------------------------ | --------------- | ---------------------------------------------------- |
-| `car_charging`, `car_charging_costs`                         | `CarSessions`   | PV, grid and offsite, of all selected cars together  |
-| `car_consumption_rate`, `car_cost_rate`, `car_driving_costs` | `CarDriving`    | sum of the days of the column, a rate ÷ the distance |
-| `car_distance`                                               | `CarDistance`   | distance of the column, a part for each car          |
-| `car_battery_soc`                                            | `CarBatterySoc` | min and max of the column, one car                   |
-| `car_max_range`                                              | `CarMaxRange`   | average of the column, one car                       |
+| Chart                                                                              | Class           | Columns                                              |
+| ---------------------------------------------------------------------------------- | --------------- | ---------------------------------------------------- |
+| `car_charging`, `car_charging_costs`                                               | `CarSessions`   | PV, grid and offsite, of all selected cars together  |
+| `car_driving_energy`, `car_driving_costs`, `car_consumption_rate`, `car_cost_rate` | `CarDriving`    | sum of the days of the column, a rate ÷ the distance |
+| `car_distance`                                                                     | `CarDistance`   | distance of the column, a part for each car          |
+| `car_battery_soc`                                                                  | `CarBatterySoc` | min and max of the column, one car                   |
+| `car_max_range`                                                                    | `CarMaxRange`   | average of the column, one car                       |
 
 A week and a month have a column for each day, a year for each month, and all for each
 year. The live view and a day have no chart. A day has the timeline of the day in the place

@@ -238,6 +238,14 @@ describe Car::Report do
       expect(cost).to be_within(0.001).of(5.6)
     end
 
+    # 100 km of car 2 on its 20 kWh, more than 120 km of car 1 on 18 kWh
+    it 'finds the day with the most energy used in Wh' do
+      date, energy = report.maximum(:car_driving_energy)
+
+      expect(date).to eq(Date.new(2026, 1, 25))
+      expect(energy).to be_within(0.1).of(20_000)
+    end
+
     it 'has none for a rate' do
       expect(report.maximum(:car_cost_rate)).to be_nil
     end

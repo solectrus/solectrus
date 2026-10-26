@@ -1,21 +1,27 @@
 # The driving of the selected cars (see Cars::Selectable) in a column for each
-# day, month or year: the driving cost, the cost per 100 km or the energy per
-# 100 km. Each day drives at the rates of the window around it (see
+# day, month or year: the energy used, the driving cost, or one of their rates
+# per 100 km. Each day drives at the rates of the window around it (see
 # Car::Driving), so a column is the sum of its days. A column without a day
 # with a rate has a gap, and a column that the timeframe cuts is hatched.
 #
-# The tooltip of a column says that each day has a window of its own. The
-# driving cost shows its calculation first: the distance times the rate.
+# The tooltip of a column says that each day has a window of its own. A sum,
+# the energy or the cost, shows its calculation first: the distance times the
+# rate.
 #
-# Several cars stack the driving cost by car, each part in the color of the
+# Several cars stack a sum by car, each part in the color of the
 # chart with a tint of its car. A rate stays one column, because the rates of
 # the cars do not add up.
 class Sensor::Chart::CarDriving < Sensor::Chart::Base
   include Sensor::Chart::Concerns::CarColumns
 
   # The stack of the parts of the cars, which the tooltip adds up
-  STACK = 'CarDrivingCosts'.freeze
+  STACK = 'CarDriving'.freeze
   private_constant :STACK
+
+  # The metrics that add up over the days and the cars, each with the rate
+  # of its calculation
+  SUMS = { car_driving_energy: :car_consumption_rate, car_driving_costs: :car_cost_rate }.freeze
+  private_constant :SUMS
 
   # The metric is the sensor of the chart, like car_cost_rate
   def initialize(metric:, **)
@@ -46,12 +52,14 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
 
   # A rate has the fixed precision of its unit: 18.4 kWh/100 km, 2.53 EUR/100 km
   def decimals
-    chart_sensors.first.exact_precision unless metric == :car_driving_costs
+    chart_sensors.first.exact_precision unless sum?
   end
 
   private
 
   def driven? = report.distance&.positive?
+
+  def sum? = SUMS.key?(metric)
 
   def build_data
     return if columns.empty?
@@ -60,7 +68,7 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
     values = totals.map { value(it) }
     tooltip_notes = totals.zip(values).map { |sum, value| notes(sum) if value }
     datasets =
-      if metric == :car_driving_costs && cars.many?
+      if sum? && cars.many?
         car_datasets(tooltip_notes)
       else
         [dataset(chart_sensor_names.first, label, values, tooltip_notes)]
@@ -69,7 +77,7 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
     { labels:, datasets: }
   end
 
-  # A part for each car with a driving cost in the timeframe, tinted with the
+  # A part for each car with a value in the timeframe, tinted with the
   # color of the car, from the bottom up in the order of the cars. Each part
   # shows the notes of its whole column, because the tooltip shows the notes of
   # one part.
@@ -94,9 +102,10 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
     }
   end
 
-  # The value of a column, or nil without a rate
-  def value(totals)
-    case metric
+  # The value of a column for the metric or another one, nil without a rate
+  def value(totals, name = metric)
+    case name
+    when :car_driving_energy then totals.energy_wh if totals.rated?
     when :car_driving_costs then totals.cost if totals.cost_rated?
     when :car_cost_rate then totals.cost_per_100km
     when :car_consumption_rate then totals.consumption_per_100km
@@ -106,12 +115,15 @@ class Sensor::Chart::CarDriving < Sensor::Chart::Base
   # The lines below the value in the tooltip
   def notes(totals)
     daily_rate = I18n.t('car_breakdown.daily_rate', days: Car::Driving::MARGIN_DAYS)
-    return [daily_rate] unless metric == :car_driving_costs
+    return [daily_rate] unless sum?
 
-    [calculation(totals.cost_distance, totals.cost_per_100km), daily_rate]
+    [calculation(totals), daily_rate]
   end
 
-  def calculation(distance, cost_per_100km)
-    "#{Sensor::ValueFormatter.new(distance, unit: :kilometer)} × #{Sensor::ValueFormatter.new(cost_per_100km, unit: :money_per_100km)}"
+  # The distance times the rate of the sum
+  def calculation(totals)
+    rate = Sensor::Registry[SUMS[metric]]
+    distance = metric == :car_driving_costs ? totals.cost_distance : totals.distance
+    "#{Sensor::ValueFormatter.new(distance, unit: :kilometer)} × #{Sensor::ValueFormatter.new(value(totals, rate.name), unit: rate.unit)}"
   end
 end

@@ -51,11 +51,11 @@ describe Car::DrivingBox::Component, type: :component do
   end
 
   it 'names the cost and the energy in full on the desktop' do
-    expect(wide_labels).to eq(['Energy used', I18n.t('sensors.car_driving_costs')])
+    expect(wide_labels).to eq([I18n.t('sensors.car_driving_energy'), I18n.t('sensors.car_driving_costs')])
   end
 
   it 'loads the chart of each figure' do
-    expect(charts).to eq(%w[car_distance car_consumption_rate car_driving_costs])
+    expect(charts).to eq(%w[car_distance car_driving_energy car_driving_costs])
   end
 
   # Like a bar of a drive in the timeline of a day
@@ -140,7 +140,7 @@ describe Car::DrivingBox::Component, type: :component do
     end
 
     it 'loads the empty charts, but explains nothing' do
-      expect(charts).to eq(%w[car_distance car_consumption_rate car_driving_costs])
+      expect(charts).to eq(%w[car_distance car_driving_energy car_driving_costs])
       expect(tooltips).to be_empty
     end
 

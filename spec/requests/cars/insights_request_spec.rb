@@ -33,6 +33,7 @@ describe 'Car Insights' do
     car_distance
     car_charging
     car_charging_costs
+    car_driving_energy
     car_driving_costs
     car_cost_rate
     car_consumption_rate

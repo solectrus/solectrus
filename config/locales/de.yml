@@ -109,6 +109,7 @@ de:
     car_charging_costs_short: Kosten
     car_consumption_rate: Verbrauch je 100 km
     car_cost_rate: Fahrkosten je 100 km
+    car_driving_energy: Verbrauchte Energie
     car_driving_costs: Fahrkosten
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
@@ -722,6 +723,7 @@ de:
     car_charging: 'In das E-Auto geladene Energie (Wallbox und auswärtiges Laden zusammen).'
     car_consumption_rate: 'Verbrauch des E-Autos in kWh pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
     car_cost_rate: 'Kosten des E-Autos pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
+    car_driving_energy: 'Verbrauchte Energie des E-Autos: die gefahrenen Kilometer jedes Tages mal der Verbrauch pro 100 km der Tage um ihn herum.'
     car_driving_costs: 'Fahrkosten des E-Autos: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
     wallbox_car_connected: 'Ob aktuell ein E-Auto an der Wallbox angeschlossen ist.'
     outdoor_temp: 'Außenlufttemperatur.'

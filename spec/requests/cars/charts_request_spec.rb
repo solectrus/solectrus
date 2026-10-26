@@ -4,6 +4,7 @@ describe 'Car Charts' do
       'car_consumption_rate' => %w[2026-W30 2026-06 2026 all],
       'car_cost_rate' => %w[2026-W30 2026-06 2026 all],
       'car_driving_costs' => %w[2026-W30 2026-06 2026 all],
+      'car_driving_energy' => %w[2026-W30 2026-06 2026 all],
     }.each do |sensor_name, timeframes|
       timeframes.each do |timeframe|
         context "with #{sensor_name} and timeframe #{timeframe}" do

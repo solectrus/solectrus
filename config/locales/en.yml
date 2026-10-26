@@ -109,6 +109,7 @@ en:
     car_charging_costs_short: Costs
     car_consumption_rate: Usage per 100 km
     car_cost_rate: Driving cost per 100 km
+    car_driving_energy: Energy used
     car_driving_costs: Driving costs
     grid_import_power: Grid import
     grid_export_power: Grid export
@@ -722,6 +723,7 @@ en:
     car_charging: 'Energy charged into the electric vehicle (wallbox and offsite charging combined).'
     car_consumption_rate: 'Consumption of the electric vehicle in kWh per 100 km. Each day takes the rate of the 28 days around it.'
     car_cost_rate: 'Cost of the electric vehicle per 100 km. Each day takes the rate of the 28 days around it.'
+    car_driving_energy: 'Energy used by the electric vehicle: the distance of each day times the consumption per 100 km of the days around it.'
     car_driving_costs: 'Driving costs of the electric vehicle: the distance of each day times the cost per 100 km of the days around it.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'

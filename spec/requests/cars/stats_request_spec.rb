@@ -489,7 +489,7 @@ describe 'Car Stats' do
           expect(response).to have_http_status(:ok)
           expect(response.body).not_to include('Trabant', 'Wartburg')
 
-          %w[car_charging car_charging_costs car_distance car_driving_costs car_cost_rate car_consumption_rate].each do |sensor_name|
+          %w[car_charging car_charging_costs car_distance car_driving_energy car_driving_costs car_cost_rate car_consumption_rate].each do |sensor_name|
             get(cars_charts_path(sensor_name:, timeframe: '2026-W24'), headers:)
 
             expect(response).to have_http_status(:ok)
