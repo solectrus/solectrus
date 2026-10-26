@@ -1,0 +1,25 @@
+de:
+  title: Tagesverlauf
+  soc: Ladestand
+  soc_label: Ladestand von %{from} % auf %{to} %
+  soc_change: '%{from} → %{to} %'
+  guest: Gast
+  distance: Strecke
+  energy: Geladen
+  cost: Kosten
+  now: jetzt
+  drive: Fahren
+  charge_wallbox: Laden an der Wallbox
+  charge_offsite: Auswärtsladung
+  pv_share: PV-Anteil
+  plugged: Angesteckt
+  since: seit %{from}
+  until: bis %{to}
+  estimated: 'Zeit geschätzt, da ohne Ende erfasst'
+  start_estimated: Messwerte lückenhaft, daher Beginn geschätzt
+  soc_estimated: Messwerte lückenhaft, daher Verlauf geschätzt
+  start_unknown: Messwerte lückenhaft, daher Beginn unbekannt
+  window: Messwerte lückenhaft, Fahrt lag irgendwann in diesem Zeitraum
+  too_fast: Strecke passt nicht zur Dauer, daher Zeit ungenau
+  started_before: Zählt zum Tag, an dem sie begann
+  soc_value: 'Ladestand %{value} %'

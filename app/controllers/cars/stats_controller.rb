@@ -9,6 +9,9 @@ class Cars::StatsController < ApplicationController
 
   def index
     if turbo_frame_request?
+      # The curves of the timeline load while the figures render
+      day_timeline&.start
+
       # Request comes from a single TurboFrame, but we want to update multiple other frames, too
       render formats: :turbo_stream
     else
@@ -35,4 +38,11 @@ class Cars::StatsController < ApplicationController
   def data_now = Car::Live.new(car_selection.offered)
 
   def data_range = Car::Report.new(timeframe, cars, guest: car_selection.with_guest?)
+
+  # The timeline of a day, below its figures (see Car::DayTimeline)
+  helper_method def day_timeline
+    return unless timeframe.day?
+
+    @day_timeline ||= Car::DayTimeline.new(timeframe, cars, guest: car_selection.with_guest?, admin: admin?)
+  end
 end

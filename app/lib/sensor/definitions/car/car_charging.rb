@@ -3,16 +3,12 @@ class Sensor::Definitions::CarCharging < Sensor::Definitions::Base
 
   value unit: :watt, category: :consumer
 
-  # A charging session belongs to a full day, so now and a day show the power
-  # curve of the wallbox, and a longer timeframe the charged energy of the
-  # sessions. The chart builds it from the wallbox sensors and the charging
-  # sessions, so the sensor itself never carries a scalar value.
+  # The charged energy of the sessions. A charging session belongs to a full
+  # day, so now and a day have no chart, but the timeline of the day (see
+  # Car::Section.charts?). The chart builds it from the charging sessions, so
+  # the sensor itself never carries a scalar value.
   chart do |timeframe, cars: nil, guest: false, **|
-    if timeframe.short?
-      Sensor::Chart::CarChargingPower.new(timeframe:, cars:, guest:)
-    else
-      Sensor::Chart::CarSessions.new(timeframe:, cars:, guest:, measure: :energy)
-    end
+    Sensor::Chart::CarSessions.new(timeframe:, cars:, guest:, measure: :energy) unless timeframe.short?
   end
 
   trend

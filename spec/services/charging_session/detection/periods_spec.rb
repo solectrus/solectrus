@@ -1,5 +1,8 @@
 describe ChargingSession::Detection::Periods do
-  subject(:periods) { described_class.new(day, power:, connected:, gaps:).call }
+  subject(:found) { described_class.new(day, power:, connected:, gaps:).call }
+
+  # The periods without their parts
+  let(:periods) { found.map { [it.from, it.to] } }
 
   let(:day) { Date.new(2026, 6, 10) }
   let(:connected) { [] }
@@ -33,6 +36,10 @@ describe ChargingSession::Detection::Periods do
 
     context 'when the car stays connected' do
       let(:connected) { curve([at(7, 55), at(10, 5)]) }
+
+      it 'keeps the parts with power in the period' do
+        expect(found.first.parts).to eq([[at(8), at(9)], [at(9, 20), at(10)]])
+      end
 
       it 'finds one period' do
         expect(periods).to eq([[at(8), at(10)]])
@@ -86,6 +93,21 @@ describe ChargingSession::Detection::Periods do
 
     it 'starts the period at the last bucket with data' do
       expect(periods).to eq([[at(0, 30), at(3)]])
+    end
+  end
+
+  # The connected car joins two parts over a pause with one bucket of 0 W
+  # between buckets without data. Both parts reach across the buckets
+  # without data to that bucket.
+  context 'with one bucket of data in a pause without data' do
+    def missing = [at(9, 5), at(9, 15), at(9, 20)]
+
+    let(:power) { curve([at(8), at(9)], [at(9, 20), at(10)], value: 11_000).reject { it.first.in?(missing) } }
+    let(:gaps) { missing.map { [it, 0.0] } }
+    let(:connected) { curve([at(7, 55), at(10, 5)]) }
+
+    it 'keeps the parts apart' do
+      expect(found.sole.parts).to eq([[at(8), at(9, 5)], [at(9, 5), at(10)]])
     end
   end
 

@@ -1,7 +1,7 @@
 # The charges in a curve of the state of charge of a car, for the energy of
-# an offsite session in the day chart (see ChargingSession::OffsiteProfile)
-# and for the proposals of offsite sessions (see
-# ChargingSession::OffsiteDetection).
+# an offsite session in the timeline of a day (see
+# Car::DayTimeline::OffsiteEstimate) and for the proposals of offsite sessions
+# (see ChargingSession::OffsiteDetection).
 #
 # A step goes from one reading to the next. The readings of the same value
 # join into one pause, and the steps up to a fall or up to a pause longer

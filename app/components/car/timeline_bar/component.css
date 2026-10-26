@@ -1,0 +1,34 @@
+/*
+ * Car::TimelineBar::Component: a bar whose end is an estimate ends in a
+ * jagged edge, like a torn strip, instead of its round corners. The mask
+ * keeps the bar up to the edge and cuts teeth into its last pixels.
+ */
+.timeline-bar-estimated {
+  --tooth: 4px;
+
+  mask:
+    linear-gradient(#000 0 0) left / calc(100% - var(--tooth)) 100% no-repeat,
+    conic-gradient(from -135deg at right, #0000, #000 1deg 89deg, #0000 90deg)
+      right / var(--tooth) calc(2 * var(--tooth)) repeat-y;
+}
+
+/* The same edge at the start, where the start is an estimate */
+.timeline-bar-estimated-start {
+  --tooth: 4px;
+
+  mask:
+    linear-gradient(#000 0 0) right / calc(100% - var(--tooth)) 100% no-repeat,
+    conic-gradient(from 45deg at left, #0000, #000 1deg 89deg, #0000 90deg)
+      left / var(--tooth) calc(2 * var(--tooth)) repeat-y;
+}
+
+/* Both edges, where the time is a window that the readings leave open */
+.timeline-bar-estimated.timeline-bar-estimated-start {
+  mask:
+    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--tooth)) 100%
+      no-repeat,
+    conic-gradient(from 45deg at left, #0000, #000 1deg 89deg, #0000 90deg)
+      left / var(--tooth) calc(2 * var(--tooth)) repeat-y,
+    conic-gradient(from -135deg at right, #0000, #000 1deg 89deg, #0000 90deg)
+      right / var(--tooth) calc(2 * var(--tooth)) repeat-y;
+}

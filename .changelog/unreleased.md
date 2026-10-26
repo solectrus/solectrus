@@ -21,7 +21,7 @@ Keep every section, an empty one included.
 - The chart of the total timeframe can compare the years by month, quarter or season. Pick the comparison in the OVERALL menu. A dashed line shows the average of the years, and a period with missing days is hatched (#2131)
 - The current timeframe tab opens a menu with its readings, for example "This month" and "Last 30 days"
 - Prices: an electricity tariff can have a base fee for the grid connection. It is prorated by day and counts into the grid costs of the house (#2560)
-- Electric vehicles: a new car page for up to five cars, with a live view, the distance, the charged energy, the costs for charging and driving, the consumption and the range. It lists the charging sessions at the wallbox and at public charging stations, and the places that the cars visited. Settings > Electric vehicles holds the cars and their places (#3517, #5836, #6021, #6022, #6035, #6053, #6057)
+- Electric vehicles: a new car page for up to five cars, with a live view, the distance, the charged energy, the costs for charging and driving, the consumption and the range. A day shows a timeline with the drives, the charges and the charge level. It lists the charging sessions at the wallbox and at public charging stations, and the places that the cars visited. Settings > Electric vehicles holds the cars and their places (#3517, #5836, #6021, #6022, #6035, #6053, #6057)
 - Electric vehicles: each car sensor carries the number of its car, for example `INFLUX_SENSOR_CAR_BATTERY_SOC_1`. `INFLUX_SENSOR_CAR_BATTERY_SOC` without a number stays valid for the first car. New optional sensors give the odometer, the range, whether the car is plugged in, and its location
 
 ## Improvements

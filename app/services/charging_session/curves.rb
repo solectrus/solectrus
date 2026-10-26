@@ -34,19 +34,24 @@ class ChargingSession::Curves
     Sensor::Cars.configured_numbers.flat_map { |number| CAR_ROLES.map { Sensor::Cars.sensor_name(it, number) } }
   end
 
-  def initialize(dates, cars: Car.configured)
+  # `roles` are the sensors of the cars that the curves read, `margin` how
+  # far they reach into the day before and the day after
+  def initialize(dates, cars: Car.configured, roles: CAR_ROLES, margin: MARGIN)
     wallbox = wallbox_requests
-    car = car_request(dates, cars)
+    car = car_request(dates, cars, roles, margin)
 
     @wallbox = Concurrent::Promises.delay { query(dates, wallbox) }
     @gaps = Concurrent::Promises.delay { query(dates, gap_requests) }
     @cars = Concurrent::Promises.delay { query(dates, [car]) }
   end
 
-  # Starts the programs of the wallbox and of the cars in the background
-  def start
-    @wallbox.touch
-    @gaps.touch
+  # Starts the programs of the wallbox and of the cars in the background, or
+  # those of the cars alone
+  def start(wallbox: true)
+    if wallbox
+      @wallbox.touch
+      @gaps.touch
+    end
     @cars.touch
   end
 
@@ -87,10 +92,10 @@ class ChargingSession::Curves
     [{ sensor_names: [:wallbox_power], empty: true }]
   end
 
-  def car_request(dates, cars)
+  def car_request(dates, cars, roles, margin)
     days = dates.min..dates.max
-    sensor_names = cars.select { it.active_during?(days) }.flat_map { |car| CAR_ROLES.map { car.sensor_name(it) } }
+    sensor_names = cars.select { it.active_during?(days) }.flat_map { |car| roles.map { car.sensor_name(it) } }
 
-    { sensor_names: sensor_names.select { Sensor::Config.configured?(it) }, margin: MARGIN, state: true }
+    { sensor_names: sensor_names.select { Sensor::Config.configured?(it) }, margin:, state: true }
   end
 end

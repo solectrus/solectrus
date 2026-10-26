@@ -1,0 +1,71 @@
+/ A timeline for each car, and one for the guest, each with its own axis.
+  Several timelines name their car or the guest beside the title. The
+  spaces are those of the groups of figures above.
+div class=['flex flex-col gap-6 lg:gap-8', fill_class]
+  - (placeholder? ? [nil] : lanes).each_with_index do |lane, index|
+    section class=['flex flex-col gap-2 lg:gap-3', fill_class] aria-labelledby="car-day-timeline-#{index}"
+      div class='flex min-h-8 items-center max-lg:px-1'
+        h2 id="car-day-timeline-#{index}" class='flex items-baseline gap-2 text-xl font-semibold text-fg'
+          = t('.title')
+          - if lane && named_lanes?
+            span class='font-normal text-muted' = lane_name(lane)
+
+      - if lane.nil?
+        / The rows of a car with drives and a state of charge, and the axis, in
+          the heights of the timeline, so the page keeps its height when it
+          comes
+        div class=['flex flex-col gap-2 animate-pulse motion-reduce:animate-none', fill_class] aria-hidden='true'
+          div class='h-8 rounded-lg bg-fill lg:h-9'
+          div class='h-8 rounded-lg bg-fill lg:h-9'
+          div class=['rounded-lg bg-fill', soc_height_class]
+        div class='h-5' aria-hidden='true'
+      - else
+        / The rows of the day like a chart: the drives and the charging, each
+          on a faint lane, and the state of charge. A dotted line at each label
+          of the axis runs through all rows, so a bar reads its time. The
+          tooltips of the bars say what each one is, so the rows need no names.
+        div class=['relative flex flex-col gap-2', fill_class]
+          - ticks.each do |tick|
+            div class=grid_classes(tick) style="left: #{tick.position}%" aria-hidden='true'
+          - if lane.driving?
+            div class='relative h-8 rounded-lg bg-fill/50 lg:h-9'
+              - drive_bars(lane).each do |bar|
+                = render Car::TimelineBar::Component.new(bar:)
+          / The charges, and in grey the times in which the car was plugged in
+            but did not charge
+          div class='relative h-8 rounded-lg bg-fill/50 lg:h-9'
+            - [*plugged_bars(lane), *charge_bars(lane)].each do |bar|
+              = render Car::TimelineBar::Component.new(bar:)
+          - if lane.soc?
+            / The scale from 0 to 100 % on a lane like the rows above, with a
+              dotted line at 50 %. The line of the state of charge has a soft
+              area below it.
+            div class=['relative rounded-lg bg-fill/50', soc_height_class] role='img' aria-label=soc_label(lane)
+              div class='absolute inset-x-0 top-1/2 border-t border-dotted border-line'
+              - known, unknown = soc_paths(lane)
+              svg class='absolute inset-0 size-full overflow-visible text-fg' viewBox='0 0 1000 100' preserveAspectRatio='none' aria-hidden='true'
+                defs
+                  lineargradient id="car-day-soc-#{index}" x1='0' y1='0' x2='0' y2='1'
+                    stop offset='0' stop-color='currentColor' stop-opacity='0.16'
+                    stop offset='1' stop-color='currentColor' stop-opacity='0'
+                path d=soc_area(lane) fill="url(#car-day-soc-#{index})"
+                path d=known fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' vector-effect='non-scaling-stroke'
+                - if unknown.present?
+                  path d=unknown fill='none' stroke='currentColor' stroke-width='2' stroke-dasharray='3 4' vector-effect='non-scaling-stroke'
+              / Each piece of the line has its tooltip over the full height. The
+                label of the row tells a screen reader the start and the end.
+              - soc_bars(lane).each do |bar|
+                = render Car::TimelineBar::Component.new(bar:)
+
+          - if now
+            / The running day ends at now, and the rest of the day stays empty
+            div class='pointer-events-none absolute inset-y-0 border-l border-dashed border-muted' style="left: #{now}%"
+
+        / The axis of the day below the rows
+        div class='relative h-5 text-xs tabular-nums text-muted'
+          - ticks.each_with_index do |tick, tick_index|
+            span class=tick_classes(tick, tick_index) style="left: #{tick.position}%"
+              = tick.label
+          - if now
+            span class='absolute top-0 -translate-x-1/2 whitespace-nowrap font-semibold text-fg' style="left: #{now}%"
+              = t('.now')

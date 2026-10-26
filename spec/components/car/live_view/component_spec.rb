@@ -146,7 +146,8 @@ describe Car::LiveView::Component, type: :component do
     end
   end
 
-  describe 'the links to the charts of today' do
+  # The timeline of today shows the state of charge and the drives
+  describe 'the links to today' do
     let(:state) { state_at(5.minutes.ago).with(range: 208, odometer: 64_800) }
     let(:env) { { 'INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'Car:soc', 'INFLUX_SENSOR_CAR_RANGE_1' => 'Car:range', 'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Car:odometer' } }
 
@@ -155,19 +156,18 @@ describe Car::LiveView::Component, type: :component do
       stub_feature(:car)
     end
 
-    it 'links the state of charge, the range and the odometer of the car' do
-      expect(html.css('a[href="/cars/1/car_battery_soc/day"]').text.strip).to eq('80 %')
-      expect(html.css('a[href="/cars/1/car_range/day"]').text).to include('208')
-      expect(html.css('a[href="/cars/1/car_distance/day"]').text).to include('64,800')
+    def links = html.css('a[href="/cars/1/day"]').map { it.text.squish }
+
+    it 'links the state of charge and the odometer of the car, but not the range' do
+      expect(links).to include('80 %', a_string_including('64,800'))
+      expect(links).not_to include(a_string_including('208'))
     end
 
-    # An estimated range has no chart
-    context 'without a sensor of the range' do
-      let(:env) { super().except('INFLUX_SENSOR_CAR_RANGE_1') }
+    context 'without a sensor of the odometer' do
+      let(:env) { super().except('INFLUX_SENSOR_CAR_ODOMETER_1') }
 
-      it 'links the range nowhere' do
-        expect(html.css('a[href="/cars/1/car_range/day"]')).to be_empty
-        expect(html.css('a[href="/cars/1/car_battery_soc/day"]')).to be_present
+      it 'links the state of charge alone' do
+        expect(links).to eq(['80 %'])
       end
     end
   end

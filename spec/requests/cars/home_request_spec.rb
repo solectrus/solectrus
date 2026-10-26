@@ -133,14 +133,15 @@ describe 'Car Home' do
     context 'with an hours timeframe' do
       before { Car.create!(id: 1) }
 
-      it 'redirects to today and keeps the sensor and the car' do
+      # A day has no charts, so its address has no sensor
+      it 'redirects to today and keeps the car' do
         get cars_home_path(sensor_name: 'car_battery_soc', timeframe: 'P24H', car: 1)
 
-        expect(response).to redirect_to(cars_home_path(sensor_name: 'car_battery_soc', timeframe: 'day', car: 1))
+        expect(response).to redirect_to('/cars/1/day')
       end
 
       it 'offers no hours in the menu of today' do
-        get cars_home_path(sensor_name: 'car_battery_soc', timeframe: Date.current.iso8601, car: 1)
+        get cars_home_path(timeframe: Date.current.iso8601, car: 1)
 
         expect(response).to have_http_status(:ok)
         expect(response.body).not_to include('/P24H')
@@ -162,7 +163,7 @@ describe 'Car Home' do
 
       # The spans of a day read each day (see Car::Spans)
       it 'builds the summaries of the whole time first' do
-        get cars_home_path(sensor_name: 'car_charging', timeframe: day.iso8601)
+        get cars_home_path(timeframe: day.iso8601)
 
         expect(response.body).to include("d_#{Rails.configuration.x.installation_date}_", "_#{Date.current}\"")
       end
@@ -195,29 +196,11 @@ describe 'Car Home' do
       end
     end
 
-    context 'with the range chart' do
-      before do
-        Sensor::Config.setup(
-          ENV.to_h.merge('INFLUX_SENSOR_CAR_RANGE_1' => 'Trabant:range'),
-        )
-      end
-
-      after { Sensor::Config.setup(ENV) }
-
-      it 'redirects a month to the overview of that month' do
-        get cars_home_path(sensor_name: 'car_range', timeframe: '2026-06')
-
-        expect(response).to redirect_to(
-          cars_home_path(sensor_name: nil, timeframe: '2026-06'),
-        )
-      end
-    end
-
     # Each chart needs the sensors of a selected car
     context 'with a chart of a sensor that the selected car does not have' do
       before do
         Sensor::Config.setup(
-          ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer', 'INFLUX_SENSOR_CAR_RANGE_2' => 'Wartburg:range'),
+          ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer', 'INFLUX_SENSOR_CAR_BATTERY_SOC_2' => 'Wartburg:soc'),
         )
         Car.create!(id: 1)
         Car.create!(id: 2)
@@ -225,18 +208,15 @@ describe 'Car Home' do
 
       after { Sensor::Config.setup(ENV) }
 
-      it 'redirects to the overview and keeps the car' do
-        get cars_home_path(sensor_name: 'car_range', timeframe: '2026-06-26', car: 1)
+      # A day has the timeline of the day in place of the charts
+      it 'redirects a day to its overview and keeps the car, with or without the sensor' do
+        [1, 2].each do |car|
+          get cars_home_path(sensor_name: 'car_distance', timeframe: '2026-06-26', car:)
 
-        expect(response).to redirect_to(
-          cars_home_path(sensor_name: nil, timeframe: '2026-06-26', car: 1),
-        )
-      end
-
-      it 'renders the chart of the car with the sensor' do
-        get cars_home_path(sensor_name: 'car_range', timeframe: '2026-06-26', car: 2)
-
-        expect(response).to have_http_status(:ok)
+          expect(response).to redirect_to(
+            cars_home_path(sensor_name: nil, timeframe: '2026-06-26', car:),
+          )
+        end
       end
 
       # Without a chart of the driving, the page goes to the overview
@@ -274,24 +254,18 @@ describe 'Car Home' do
       end
     end
 
-    # The cost of the wallbox on a day comes from the split into PV and grid
+    # A day has the timeline of the day in place of the charts, also where a
+    # chart could draw it
     context 'with the charging cost of a day' do
       before { Car.create!(id: 1) }
 
-      it 'redirects to the overview without the power splitter' do
-        stub_feature(:car)
+      it 'redirects to the overview, also with the power splitter' do
+        stub_feature(:car, :power_splitter)
         get cars_home_path(sensor_name: 'car_charging_costs', timeframe: '2026-06-26')
 
         expect(response).to redirect_to(
           cars_home_path(sensor_name: nil, timeframe: '2026-06-26'),
         )
-      end
-
-      it 'renders with the power splitter' do
-        stub_feature(:car, :power_splitter)
-        get cars_home_path(sensor_name: 'car_charging_costs', timeframe: '2026-06-26')
-
-        expect(response).to have_http_status(:ok)
       end
     end
 

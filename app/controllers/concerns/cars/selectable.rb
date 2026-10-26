@@ -36,9 +36,12 @@ module Cars::Selectable
     end
 
     # The charts of each column (see Car::Section::CHARTS) that draw the
-    # timeframe and the selection
+    # timeframe and the selection, none for a period without charts (see
+    # Car::Section.charts?)
     helper_method def section_charts
       @section_charts ||= overview_sections.index_with do |section|
+        next [] if timeframe && !Car::Section.charts?(timeframe)
+
         Car::Section::CHARTS[section].select do
           Sensor::HomePage.accepts?(:cars, it) && Sensor::Registry[it].chart(timeframe, **chart_options)&.supported? != false
         end
@@ -77,8 +80,7 @@ module Cars::Selectable
     end
 
     # Each chart of the car page shows the selected cars, and the guest
-    # sessions for the guest and for "all". Only the admin sees the places of
-    # a car.
-    def chart_options = { cars:, guest: car_selection.with_guest?, admin: admin? }
+    # sessions for the guest and for "all"
+    def chart_options = { cars:, guest: car_selection.with_guest? }
   end
 end

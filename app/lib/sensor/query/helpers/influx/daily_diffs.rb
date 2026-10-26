@@ -31,16 +31,12 @@ module Sensor
           EDGE_WINDOW = 30.days
           private_constant :EDGE_WINDOW
 
-          # `cache` keeps the points of past days that can no longer change
-          # (see #cached_points). The daily build reads each day once, so it
-          # does not cache.
-          def initialize(dates, sensor_names, cache: false)
+          def initialize(dates, sensor_names)
             @dates = dates
             @sensor_names = sensor_names.select { Sensor::Config.configured?(it) }
-            @cache = cache
             # The points read once, also when two threads ask for them (see
             # DailyBatch)
-            @points = Concurrent::Delay.new { @sensor_names.empty? || @dates.empty? ? {} : fetch_points }
+            @points = Concurrent::Delay.new { @sensor_names.empty? || @dates.empty? ? {} : query_points }
           end
 
           attr_reader :dates, :sensor_names
@@ -96,11 +92,6 @@ module Sensor
 
           def reading_after(points, time) = points.select { |t, _| t > time }.min_by(&:first)
 
-          # { sensor_name => [[Time, value], ...] }
-          def fetch_points
-            @cache ? cached_points : query_points
-          end
-
           # The edges of the ranges, which InfluxDB reads from its storage directly.
           # A wrong reading at an edge hides the readings beside it, so only then
           # a second program reads the edges of its sensors above 0 (see
@@ -116,20 +107,6 @@ module Sensor
           def read_points(names, reader)
             flux = build_flux(names, reader)
             parse(FluxProgram.query(flux, class_name: self.class.name, sensors: names), names)
-          end
-
-          # The readings up to the end of the last date stay as they are, and
-          # the first reading after it is the one that a later reading cannot
-          # replace. So once each sensor has read after the last date, the
-          # points are final and stay cached, like a query of the past.
-          def cached_points
-            key = "sensor_influx:daily_diffs:#{Digest::SHA256.hexdigest(build_flux(sensor_names, 'source'))}"
-            Rails.cache.read(key) || query_points.tap { Rails.cache.write(key, it) if final?(it) }
-          end
-
-          def final?(points)
-            stop = Timeframe.new(dates.max.iso8601).beginning_of_next
-            stop.past? && sensor_names.all? { |name| points[name].any? { |time, _| time >= stop } }
           end
 
           def build_flux(names, reader)

@@ -1,6 +1,18 @@
 .hidden data-tooltip-target='html'
-  - if parts.any?
+  - if title || parts.any?
     .tooltip-layout.tooltip-layout-table
+      - if title
+        = render Tooltip::Header::Component.new(title:) do
+          / The lines stand close below the title. The first one, like the
+            time of a bar, stands on its own line, apart from the others, like
+            an address.
+          - if lines.any?
+            span class='flex max-w-72 flex-col justify-self-center text-center text-sm font-normal'
+              span.tabular-nums.text-fg-secondary = lines.first
+              - if lines.many?
+                span.mt-2.flex.flex-col.gap-0.5
+                  - lines.drop(1).each do |line|
+                    span.text-muted = line
       - if colored.any?
         .tooltip-group
           - colored.each do |part|
@@ -14,9 +26,11 @@
             .label-value-row
               span.tooltip-row-label = part.label
               span.font-semibold.whitespace-nowrap = part.value
+      / The notes wrap at the width of the rows above them, so a long note
+        does not widen the tooltip
       - if notes.any?
         .tooltip-group
-          .max-w-72.space-y-2.text-left.text-sm.font-normal.text-muted
+          div class='w-0 min-w-[max(100%,14rem)] space-y-2 text-left text-sm font-normal text-muted'
             - notes.each do |note|
               p = note
   - else

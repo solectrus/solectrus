@@ -38,12 +38,8 @@ class Car::Insights::Component < ViewComponent::Base
     @maximum = (report.maximum(sensor.name) if timeframe.days_passed > 1)
   end
 
-  # The car page of the day. The driving cost has no chart of a day, so the
-  # distance.
-  def day_path(date)
-    sensor_name = sensor.name == :car_driving_costs ? :car_distance : sensor.name
-    helpers.cars_home_path(sensor_name:, timeframe: date.to_s, car: selection.to_param)
-  end
+  # The car page of the day, with the timeline of the day in place of a chart
+  def day_path(date) = helpers.cars_home_path(timeframe: date.to_s, car: selection.to_param)
 
   # The previous month only for a month, like Insights
   def trends

@@ -472,7 +472,7 @@ describe 'Charging sessions' do
     it 'links the day of a guest session to the car page of the guest' do
       get page(timeframe: Date.current.year.to_s)
 
-      expect(response.body).to include(%(href="/cars/guest/car_charging/#{day.iso8601}"), %(href="/wallbox_power/#{day.iso8601}"))
+      expect(response.body).to include(%(href="/cars/guest/#{day.iso8601}"), %(href="/wallbox_power/#{day.iso8601}"))
     end
 
     it 'goes back to the overview of the guest' do

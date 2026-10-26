@@ -69,20 +69,20 @@ class Car::LiveCard::Component < ViewComponent::Base
 
   def odometer? = sensor?(:car_odometer)
 
-  # A value of the car opens the chart of today on the car page, with the
-  # car selected: the state of charge and the range their own chart, the
-  # odometer the distance. A value without such a chart, for example an
-  # estimated range, links nowhere.
-  DAY_CHARTS = { soc: :car_battery_soc, range: :car_range, odometer: :car_distance }.freeze
-  private_constant :DAY_CHARTS
+  # A value of the car opens today on the car page, with the car selected,
+  # where the timeline of the day shows it (see Car::DayTimeline::Component):
+  # the state of charge as its line, the odometer as the drives. The range
+  # has no line there, so it links nowhere.
+  DAY_SENSORS = { soc: :car_battery_soc, odometer: :car_odometer }.freeze
+  private_constant :DAY_SENSORS
 
   LINK_CLASSES = 'click-animation focus-ring'.freeze
   private_constant :LINK_CLASSES
 
-  # A value (see DAY_CHARTS) as a link to its chart, or as a plain block
+  # A value (see DAY_SENSORS) as a link to today, or as a plain block
   # without one
   def value_tag(value, **options, &)
-    path = chart_path(value)
+    path = day_path(value)
     content_tag(path ? :a : :div, **options, href: path, class: class_names(options[:class], LINK_CLASSES => path), &)
   end
 
@@ -129,17 +129,8 @@ class Car::LiveCard::Component < ViewComponent::Base
 
   private
 
-  def chart_path(value)
-    sensor_name = DAY_CHARTS[value]
-    helpers.cars_home_path(car: car.id, sensor_name:, timeframe: 'day') if day_chart?(sensor_name)
-  end
-
-  # Whether the car page draws the chart of today for the car. The chart
-  # needs the sensor of the car, for example of its range.
-  def day_chart?(sensor_name)
-    @day_chart ||= {}
-    @day_chart.fetch(sensor_name) do
-      @day_chart[sensor_name] = Sensor::Registry[sensor_name].chart(Timeframe.new('day'), cars: [car], guest: false, admin: helpers.admin?).supported?
-    end
+  def day_path(value)
+    role = DAY_SENSORS[value]
+    helpers.cars_home_path(car: car.id, timeframe: 'day') if role && sensor?(role)
   end
 end

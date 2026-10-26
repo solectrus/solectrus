@@ -1,9 +1,18 @@
-section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' aria-labelledby=heading_id
+section class='@container flex flex-col lg:flex-1 max-lg:gap-2 max-lg:shrink-0' aria-labelledby=heading_id
   / The title and the link to the list of the column. The head keeps the
     height of its button, also without it.
-  div class='box-content flex items-center justify-between min-h-8 max-lg:px-1 lg:pb-3'
-    h2 id=heading_id class='text-sm font-semibold uppercase tracking-wide text-muted lg:text-xl lg:normal-case lg:tracking-normal lg:text-fg'
-      = title
+  div class='box-content flex items-center justify-between min-h-8 max-lg:px-1 lg:min-h-9 lg:pb-3'
+    / A note, like the window of the rates, in an info icon beside the title.
+      The swatch before the title has the colors of the bars of the column in
+      the timeline of a day, its parts stacked from the bottom like there.
+    div class='flex items-center gap-2'
+      span class='flex flex-col-reverse gap-px overflow-hidden rounded-sm h-5 w-7' aria-hidden='true'
+        - swatch.each do |segment|
+          span class='basis-0' style="flex-grow: #{segment.percent}; background: #{segment.color}"
+      h2 id=heading_id class='text-xl font-semibold text-fg'
+        = title
+      - if note
+        = render Ui::InfoIcon::Component.new(text: note, position: 'relative', icon_class: 'text-sm text-faint')
     / A phone has a link beside the title of the group, the desktop a pill.
       Open tasks of the list put an amber dot after its label.
     - if list
@@ -15,58 +24,31 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-1 max-lg:shrink-0' 
         = list.label
         = notes
         = icon 'chevron-right', class: 'text-xs text-faint'
-      = link_to list.href, class: 'max-lg:hidden flex items-center gap-2 rounded-full bg-fill px-3.5 py-1.5 text-sm font-medium text-fg-secondary hover:bg-fill-strong focus-ring click-animation' do
-        = icon list.icon, class: 'text-muted'
+      = link_to list.href, class: 'max-lg:hidden flex items-center gap-2 rounded-full px-3 py-1.5 text-base font-medium text-fg-secondary hover:bg-fill focus-ring click-animation' do
         = list.label
         = notes
-        = icon 'chevron-right', class: 'text-xs text-faint'
+        = icon 'chevron-right', class: '-ml-1 text-sm text-faint'
 
-  / The desktop: the head with the ring and the main number, and a tile for
-    each further figure, all soft boxes with the same edges and gray. A wide
-    column has the tiles on the right of the head, one below the other, so
-    the head takes no more room than it fills. A lone tile there has the
-    height of the head, with its content in the middle. A narrow column has
-    the tiles below the head, side by side.
-  div class='max-lg:hidden mb-2 flex flex-col gap-3 @min-[35rem]:flex-row @min-[35rem]:min-h-46'
-    = figure_tag(head.sensor_name, tooltip: head.parts.any?, class: [BOX_CLASS, 'flex items-center gap-6 @min-[35rem]:flex-1 @min-[35rem]:gap-4']) do
-      / The parts of the main number show in the tooltip of the head, below
-        it, like the tooltip of a tile. The ring leaves room around the text
-        in its center.
-      span class=ring_classes style=ring_style
-        span class='flex flex-col items-center justify-center size-24 @min-[35rem]:size-22 rounded-full bg-surface text-center'
-          - if head.center
-            span.text-lg.font-bold.leading-tight.tabular-nums.text-fg = head.center
-          - if head.center_label
-            span.text-sm.leading-tight.text-muted = head.center_label
-      span class='text-4xl @min-[35rem]:text-[2rem] font-semibold leading-none tabular-nums whitespace-nowrap text-fg' aria-label=head.label
-        = head.value
-      / A screen reader reads the parts, which the tooltip shows
-      - if head.parts.any?
-        = render Car::OverviewBox::Tooltip::Component.new(parts: head.parts)
-        span.sr-only = safe_join(head.parts.map { safe_join([it.label, it.value, "#{it.percent} %"], ' ') }, ', ')
-
-    / A figure without a bar keeps the height of one with a bar, so the two
-      columns align
-    - if figures.any?
-      div class='grid gap-3 @min-[35rem]:flex @min-[35rem]:flex-col @min-[35rem]:w-50 @min-[35rem]:shrink-0' style="grid-template-columns: repeat(#{figures.size}, minmax(0, 1fr))"
-        - figures.each do |figure|
-          = figure_tag(figure.sensor_name, tooltip: figure.tooltip?, class: [BOX_CLASS, 'flex flex-col gap-1.5 min-h-21.5 @min-[35rem]:flex-1 @min-[35rem]:justify-center', ('@min-[35rem]:items-center @min-[35rem]:text-center' if figures.one?)]) do
-            span.text-sm.text-fg-secondary = figure.label
-            span.text-2xl.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-fg = figure.value
-            - if figure.bar
-              = render figure.bar
-            - if figure.tooltip?
-              = render Car::OverviewBox::Tooltip::Component.new(parts: figure.parts, notes: figure.notes)
-
-  / A phone: a row of three tiles, soft boxes like the tiles of the desktop.
-    The value comes first, its caption below it says what it counts, since
-    the title of the group says the rest.
-  div class='lg:hidden grid gap-2' style="grid-template-columns: repeat(#{tiles.size}, minmax(0, 1fr))"
-    - tiles.each do |tile|
-      = figure_tag(tile.sensor_name, tooltip: tile.tooltip?, class: tile_classes) do
-        span.text-lg.font-semibold.leading-tight.tabular-nums.whitespace-nowrap.text-fg = tile.value
-        span.truncate.text-sm.text-muted = tile.label
-        - if tile.bar
-          = render tile.bar
-        - if tile.tooltip?
-          = render Car::OverviewBox::Tooltip::Component.new(parts: tile.parts, notes: tile.notes)
+  / The figures in a row: one box with a line between them. The value comes
+    first, its caption below it says what it counts, since the title of the
+    group says the rest.
+  div class='grid rounded-xl bg-fill lg:flex-1' style="grid-template-columns: repeat(#{figures.size}, minmax(0, 1fr))"
+    - figures.each_with_index do |figure, index|
+      = figure_tag(figure.sensor_name, tooltip: figure.tooltip?, class: figure_classes(index)) do
+        span class='text-xl font-semibold leading-tight tabular-nums whitespace-nowrap text-fg @sm:text-2xl'
+          = figure.value
+        - if figure.wide_label
+          span.truncate.text-sm.text-muted.lg:hidden = figure.label
+          span.truncate.text-sm.text-muted.max-lg:hidden = figure.wide_label
+        - else
+          span.truncate.text-sm.text-muted = figure.label
+        - if segments(figure).any?
+          / The parts of the value side by side, like the sources of the
+            charged energy, which the tooltip of the energy names
+          span class='mt-1 flex h-1.5 w-full max-w-36 gap-0.5 overflow-hidden rounded-full' aria-hidden='true'
+            - segments(figure).each do |segment|
+              span style="flex-grow: #{segment.percent}; background: #{segment.color}"
+        - if figure.bar
+          = render figure.bar
+        - if figure.tooltip?
+          = render Car::OverviewBox::Tooltip::Component.new(parts: figure.parts, notes: figure.notes)

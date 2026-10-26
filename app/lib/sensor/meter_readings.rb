@@ -13,7 +13,7 @@ class Sensor::MeterReadings
   # Rounding of the source, so a small step back is no error (in the unit
   # of the meter)
   TOLERANCE = 1
-  private_constant :TOLERANCE
+  public_constant :TOLERANCE
 
   # `readings` are [[Time, value], ...]
   def initialize(readings)

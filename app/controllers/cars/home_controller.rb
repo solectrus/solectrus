@@ -17,22 +17,24 @@ class Cars::HomeController < HomePageController
     Sensor::Config.exists?(:car_driving_costs) || Sensor::Cars.numbered(:car_battery_soc).any?
   end
 
-  # The live view has no chart, so its address has no sensor. A period
-  # without a sensor shows the first chart of each column. A chart that
-  # cannot draw the timeframe or the selection goes to the first chart of
-  # each column, too.
+  # A period without charts, the live view and a day, has no sensor in its
+  # address (see Car::Section.charts?). A period without a sensor shows the
+  # first chart of each column. A chart that cannot draw the timeframe or the
+  # selection goes to the first chart of each column, too.
   def supported_sensor?
     return true if sensor_name.nil?
-    return false if timeframe&.now? || Car::Section.of(sensor_name).nil?
+    return false if (timeframe && !Car::Section.charts?(timeframe)) || Car::Section.of(sensor_name).nil?
 
     super
   end
 
   def default_sensor_name = nil
 
-  # The live view has no chart, so its address has no sensor: /cars/now
+  # A period without charts has no sensor in its address: /cars/now,
+  # /cars/2026-06-26. The timeframe can come as text, like "day" for today.
   def path_for(name, keep_timeframe = nil)
-    super((name unless keep_timeframe.nil? || keep_timeframe.try(:now?)), keep_timeframe)
+    keep = keep_timeframe.is_a?(String) ? Timeframe.new(keep_timeframe) : keep_timeframe
+    super((name if keep && Car::Section.charts?(keep)), keep_timeframe)
   end
 
   # The car page has no forecast, so a future timeframe goes back to now.

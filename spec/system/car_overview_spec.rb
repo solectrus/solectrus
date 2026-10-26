@@ -1,5 +1,7 @@
 describe 'Car overview (mobile)' do
   let(:day) { Date.new(2022, 6, 20) }
+  # A day has the timeline of the day in place of the charts, so a month
+  let(:month) { '2022-06' }
 
   before do
     driven_by :playwright_mobile
@@ -31,16 +33,24 @@ describe 'Car overview (mobile)' do
 
   # The tile of a phone that loads the chart of the sensor, the first one where
   # two load it, like the charged energy before the share of PV
-  def tile(sensor_name) = first("div.lg\\:hidden.grid a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
+  def tile(sensor_name) = first("section > div.grid a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
+
+  # The figures of a day load the timeline of the day below them
+  it 'shows the timeline of a day in place of the charts' do
+    visit "/cars/#{day}"
+
+    expect(page).to have_css(%([role="img"][aria-label*="12:00\u202F–\u202F13:00"]))
+    expect(page).to have_no_css("turbo-frame[src*='/cars/charts/']", visible: :all)
+  end
 
   it 'shows the chart of the column of a tapped tile' do
-    visit "/cars/car_distance/#{day}"
+    visit "/cars/car_distance/#{month}"
     expect(tile('car_distance')).to be_visible
     expect(active_column).to eq('car_distance')
 
     tile('car_charging').click
 
-    expect(page).to have_current_path("/cars/car_charging/#{day}")
+    expect(page).to have_current_path("/cars/car_charging/#{month}")
     expect(active_column).to eq('car_charging')
     expect(chart('car_charging')).to be_visible
     expect(chart('car_distance')).not_to be_visible
@@ -50,19 +60,19 @@ describe 'Car overview (mobile)' do
   # comes as the referer of the chart. So a tap must change the address
   # before its chart loads (see Cars::FrameNavigation).
   it 'keeps the chart of the tap in the navigation' do
-    visit "/cars/car_distance/#{day}"
+    visit "/cars/car_distance/#{month}"
     expect(tile('car_distance')).to be_visible
-    expect(page).to have_css("a[href='/cars/car_distance/#{day - 1}']", visible: :all)
+    expect(page).to have_link(href: '/cars/car_distance/2022-05', visible: :all)
 
     tile('car_charging').click
 
-    expect(page).to have_css("a[href='/cars/car_charging/#{day - 1}']", visible: :all)
-    expect(page).to have_no_css("a[href='/cars/car_distance/#{day - 1}']", visible: :all)
+    expect(page).to have_link(href: '/cars/car_charging/2022-05', visible: :all)
+    expect(page).to have_no_link(href: '/cars/car_distance/2022-05', visible: :all)
   end
 
   # The menu of a chart offers the charts of both columns
   it 'shows the column of a chart from the menu' do
-    visit "/cars/car_distance/#{day}"
+    visit "/cars/car_distance/#{month}"
     expect(active_column).to eq('car_distance')
 
     find('select[name="sensor-selector"] option[value*="/car_charging/"]', visible: :all).select_option

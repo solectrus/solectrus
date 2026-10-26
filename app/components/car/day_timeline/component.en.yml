@@ -1,0 +1,25 @@
+en:
+  title: Course of the day
+  soc: SOC
+  soc_label: SOC from %{from} % to %{to} %
+  soc_change: '%{from} → %{to} %'
+  guest: Guest
+  distance: Distance
+  energy: Charged
+  cost: Cost
+  now: now
+  drive: Driving
+  charge_wallbox: Charging at the wallbox
+  charge_offsite: Offsite charging
+  pv_share: PV share
+  plugged: Plugged in
+  since: since %{from}
+  until: until %{to}
+  estimated: 'Time estimated, as recorded without an end'
+  start_estimated: Readings with gaps, so the start is estimated
+  soc_estimated: Readings with gaps, so the course is estimated
+  start_unknown: Readings with gaps, so the start is unknown
+  window: Readings with gaps, the drive took place at some time in this window
+  too_fast: The distance does not fit the duration, so the time is inexact
+  started_before: Counts for the day on which it started
+  soc_value: 'SOC %{value} %'

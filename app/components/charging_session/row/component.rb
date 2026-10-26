@@ -43,12 +43,12 @@ class ChargingSession::Row::Component < ViewComponent::Base
   end
 
   # The day of the session on the car page: for the session of a car or of
-  # the guest the overview with the chart of the charging, and on the power
+  # the guest the overview with the timeline of the day, and on the power
   # balance for a session that is not assigned, which the car page does not select
   def day_path
     day = charging_session.date.iso8601
     if charging_session.car || charging_session.guest?
-      helpers.cars_home_path(sensor_name: 'car_charging', timeframe: day, car: charging_session.car_id || CarSelection::GUEST)
+      helpers.cars_home_path(timeframe: day, car: charging_session.car_id || CarSelection::GUEST)
     else
       helpers.balance_home_path(sensor_name: 'wallbox_power', timeframe: day)
     end

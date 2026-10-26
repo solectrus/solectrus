@@ -5,9 +5,12 @@ module Car::ChartLink
 
   # The sensor whose chart a click loads, or nil when its chart cannot draw
   # the timeframe or the selected cars. A rate and the driving cost need a
-  # longer timeframe than a day. A card asks for a sensor several times, and
-  # each answer builds the chart.
+  # longer timeframe than a day, and a day has no charts at all (see
+  # Car::Section.charts?). A card asks for a sensor several times, and each
+  # answer builds the chart.
   def chart_sensor_name(sensor_name)
+    return unless Car::Section.charts?(timeframe)
+
     @chart_sensor_names ||= Hash.new do |names, name|
       names[name] = (name if Sensor::Registry[name.to_sym].chart(timeframe, **helpers.chart_options).supported?)
     end

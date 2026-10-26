@@ -127,7 +127,6 @@ de:
     wallbox_car_disconnected_short: Nicht angeschlossen
     car_distance: Fahrleistung
     car_distance_short: Fahrleistung
-    car_range: Reichweite
     car_range_short: Reichweite
     car_max_range: Maximale Reichweite
     car_max_range_short: Max. Reichweite
@@ -251,7 +250,6 @@ de:
     unknown_place: Unbekannter Ort
     cost_rate: Kosten je 100 km
     consumption_rate: Verbrauch je 100 km
-    per_day: Ø pro Tag
     # The captions below the values of the tiles of a phone
     charged: geladen
     driven: gefahren

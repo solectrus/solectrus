@@ -2,7 +2,6 @@ de:
   no_rate: Es fehlen Daten. Die Tage rund um eine Fahrt brauchen mindestens 100 km und geladene Energie.
   no_price: Es fehlen Preise. Ein Ladevorgang in den Tagen rund um eine Fahrt hat keine Kosten, weil für seinen Tag kein Preis hinterlegt ist.
   energy: Verbrauchte Energie
-  cost_reason: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen für jede Fahrt die Ladekosten der %{days} Tage davor und danach.
-  consumption_reason: Die Energie stammt aus den Ladevorgängen der %{days} Tage um jeden gefahrenen Tag.
-  consumption_losses: Sie ist beim Laden gemessen und enthält die Ladeverluste. Das Auto selbst zeigt deshalb meist weniger an.
+  consumption_losses: Die Energie ist beim Laden gemessen und enthält die Ladeverluste. Das Auto selbst zeigt deshalb meist weniger an.
   unrated: Ohne %{distance}, für die Ladedaten fehlen.
+  window: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen je 100 km die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag.

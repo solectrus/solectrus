@@ -1,5 +1,6 @@
 - turbo_exempts_page_from_cache
-- content_for :full_height, true
+/ A day grows with the timelines of its cars, so the window scrolls
+- content_for :full_height, true unless timeframe&.day?
 / The live view of a phone is a grouped list on gray (see Car::LiveCard)
 - content_for :grouped, true if timeframe&.now?
 
@@ -38,27 +39,39 @@
       .flex-1.flex.items-center.justify-center.rounded-2xl.bg-surface.px-4
         = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use'))
 
-    / The charging and the driving, each with its figures and its chart, side
+    / The driving and the charging, each with its figures and its chart, side
       by side on the desktop. A phone has the figures of both one below the
       other, and below them the chart of the column of the last tap (see
-      car_overview_controller.ts).
+      car_overview_controller.ts). A day has no charts, but the timeline of
+      the day below the figures.
     - else
-      div class=['flex-1 min-h-0 flex flex-col gap-3 lg:grid lg:gap-6', (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
+      div class=['flex flex-col gap-6 lg:grid lg:grid-rows-[auto_1fr] lg:gap-y-0', (timeframe.day? ? 'shrink-0' : 'flex-1 min-h-0'), (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
         - overview_sections.each_with_index do |section, index|
           - chart = column_charts[section]
           = render StatsWithChart::Component.new(sensor_name: chart || Car::Section::CHARTS[section].first, timeframe:, chart: chart.present?, scope: section) do |column|
-            / A card on the desktop. A phone puts the figures of both columns
-              first, and below them the chart of the active column.
-            = tag.div class: 'group/column max-lg:contents lg:flex lg:flex-col lg:min-h-0',
+            / A card on the desktop. The columns share the rows of the figures
+              and of the chart, so their boxes have one height and their charts
+              one top. A phone puts the figures of both columns first, and below
+              them the chart of the active column.
+            = tag.div class: 'group/column max-lg:contents lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:min-h-0',
                       data: column.refresh_options.merge(car_overview_target: 'column', car_overview_charts: Car::Section::CHARTS[section].join(' '), active: section == phone_section) do
               / The first column loads the figures of each column. Until they
                 come, a placeholder in the layout of the box keeps their place,
                 so the chart below does not move and draw itself again.
-              = column.stats_frame([index.zero? ? 'max-lg:order-1' : 'max-lg:order-2', ('lg:flex-1 lg:flex lg:flex-col' unless column.chart?)], source: index.zero?) do
+              = column.stats_frame([index.zero? ? 'max-lg:order-1' : 'max-lg:order-2', 'lg:flex lg:flex-col'], source: index.zero?) do
                 = render Car::OverviewBox::Component.placeholder(title: t("car_breakdown.#{section}"), timeframe:)
               - if column.chart?
                 / A phone hides the chart of the other column, so it loads once it shows
                 = column.chart_frame('max-lg:order-3 flex-1 min-h-48 flex relative lg:pt-3 max-lg:group-data-[active=false]/column:hidden', lazy: section != phone_section)
+
+      / The figures load the timeline with them (see the stats of the cars).
+        Until it comes, a placeholder keeps its place. Like the figures, it is
+        permanent: a refresh of the page keeps the figures and loads them not
+        again, so it keeps the timeline too. On a phone, it takes the rest of
+        the window, so a single timeline can fill it.
+      - if timeframe.day?
+        div id=scoped_frame_id('timeline') class='mt-6 max-lg:flex-1 max-lg:flex max-lg:flex-col lg:mt-8' data-turbo-permanent=true
+          = render Car::DayTimeline::Component.placeholder
   - else
     = render Ui::Message::Component.new do |c|
       - c.with_watermark do

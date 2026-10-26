@@ -72,9 +72,16 @@ describe 'Home' do
     # The car link keeps the topic of the chart
     context 'with the wallbox' do
       it 'links the car page to the page of the charging' do
+        get balance_home_path(sensor_name: 'wallbox_power', timeframe: '2024-09')
+
+        expect(response.body).to include('href="/cars/car_charging/2024-09"')
+      end
+
+      # A day of the car page has no charts (see Car::Section.charts?)
+      it 'links a day to the overview of the day' do
         get balance_home_path(sensor_name: 'wallbox_power', timeframe: '2024-09-07')
 
-        expect(response.body).to include('href="/cars/car_charging/2024-09-07"')
+        expect(response.body).to include('href="/cars/2024-09-07"')
       end
 
       it 'links the car page to the overview from another sensor' do

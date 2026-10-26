@@ -44,8 +44,8 @@ class Sensor::Chart::PowerSplitterBase < Sensor::Chart::Base
   # it is for a year (see Sensor::Definitions::Base#instantaneous? for what a
   # split genuinely cannot answer: a single instant). Showing the split on a
   # day needs a stacked-AREA rendering, which this chart does not have.
-  # Sensor::Chart::BatteryChargingPower and Sensor::Chart::CarChargingPower
-  # have one: a stacked y scale and `fill: '-1'` on the upper area.
+  # Sensor::Chart::BatteryChargingPower has one: a stacked y scale and
+  # `fill: '-1'` on the upper area.
   def stackable_presentation?
     type != 'line'
   end

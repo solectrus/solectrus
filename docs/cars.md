@@ -40,9 +40,10 @@ between charging and driving, because the car drives on energy of other days. A 
 | `Car::Driving`                      | the rates of each day from its window                                   |
 | `Car::Report`                       | the numbers of a timeframe, for the page and for its charts             |
 | `Car::Spans`                        | the lowest and the highest rate of the periods of one kind              |
+| `Car::DayTimeline`                  | the drives, the charging sessions and the state of charge of a day      |
 | `Car::Live`                         | the live values of the wallbox and of each car                          |
 | `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists         |
-| `Car::Section`                      | the two columns of the overview, charging and driving, and their charts |
+| `Car::Section`                      | the two columns of the overview, driving and charging, and their charts |
 | `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there                   |
 
 The car page and its charts read one `Car::Report`. A column of a chart and the tile of the
@@ -111,10 +112,9 @@ name, which says less than the default name "Car 2", so it shows the default nam
 The name and the short name of a car are personal data, so only the admin sees them. A
 guest sees "Car 2" in each place.
 
-The color of a car marks it where cars stand side by side: the badge of a charging session,
-the select of the car, the card of the live view and the ring of the driving. In the charts of all cars, it tints the parts of the distance
-and the driving cost (see [Charts](#charts)). The sensors of a car keep their own colors,
-because each sensor has its own meaning.
+The color of a car marks it where cars stand side by side, and in the charts of all cars
+(see [Charts](#charts)). The sensors of a car keep their own colors, because each sensor has
+its own meaning.
 
 ### The period of use
 
@@ -161,18 +161,14 @@ its history. The car management page says this.
 | `car_driving_costs`    | none, chart only                    | none                | driving cost                 |
 | `car_battery_soc`      | none, chart only                    | none                | state of charge of one car   |
 | `car_distance`         | none, chart only                    | none                | distance of the cars         |
-| `car_range`            | none, chart only                    | none                | range of one car             |
 | `car_max_range`        | none, chart only                    | none                | max. range of one car        |
 
 The registry makes the seven sensors of a car for each number up to `MAX`, and
 `Sensor::Config` removes a number without a configuration. These sensors hold the data.
-The car page shows only the chart-only sensors, which have no number. The select above the
-chart chooses the car, and the chart menu chooses the chart. The chart menu offers no chart
-that the selected cars cannot draw, like the distance of a car without an odometer, and an
-address of such a chart goes to the default chart. A column without a value, like a period
-without a charging session or without a drive, keeps its figures with 0 or "–". Its menu
-still offers each chart, and a chart without a value draws its empty axes. A phone shows
-the chart of the first column with a value, unless the address names a chart.
+The car page shows only the chart-only sensors, which have no number. The select of the car
+chooses the car, and the chart menu chooses the chart. The chart menu offers no chart that
+the selected cars cannot draw, like the distance of a car without an odometer, and an
+address of such a chart goes to the default chart.
 
 All car sensors need the permission `:car`. The rates and the driving cost exist when a car
 has an odometer, because the energy and the cost can come from the offsite sessions alone.
@@ -265,12 +261,12 @@ session that counts: each wallbox session, and each accepted offsite session. Ea
 of the numbers uses it.
 
 A session stores the state of charge of its car at its start and at its end (`soc_from`,
-`soc_to`). A change of the car in the form clears it, because it belongs to the car. The
-list shows both on the desktop, and dims a state of charge that contradicts the energy.
+`soc_to`). A change of the car in the form clears it, because it belongs to the car.
 
 A session belongs to the local date of its start. A charge at 23:30 therefore stays on the
 day of the distance beside it. The detection splits a wallbox session at midnight, so the
-energy of each day stays on its day.
+energy of each day stays on its day. An offsite session over midnight stays one session, but
+the timeline of each day shows its part (see [The day](#the-day)).
 
 ### The list
 
@@ -287,27 +283,20 @@ or the guest. A guest charges at the wallbox alone, so the list of the guest has
 and no button for a new session.
 
 The admin also sees the sessions to review in the list: the proposals of the offsite
-sessions, and the wallbox sessions that are not assigned. The sums leave them out. An amber
-link beside the sums names their number, for example "2 not assigned", and shows them
-alone, with a sentence about what to do. It is an amber button with an x then, which shows
-each session again. The sums stay, so the head keeps its layout. The proposals there go at
-once with "Dismiss all". A tiny amber dot marks each kind of the switch with sessions to
-review, and the link to the list on the car page. A wallbox session that is not assigned
-can be the charge of any car, so the list and the car page of a car or of the guest name
-it too, and the link opens the list of "all". A guest sees nothing to review, no address of
-an offsite session and no form, so a row of a guest opens nothing.
+sessions, and the wallbox sessions that are not assigned. The sums leave them out. A filter
+shows them alone, and the proposals there go at once with "Dismiss all". The car page marks
+a list with sessions to review. A wallbox session that is not assigned can be the charge of
+any car, so the list and the car page of a car or of the guest name it too, and the link
+opens the list of "all". A guest sees nothing to review, no address of an offsite session
+and no form.
 
 The list groups its rows by month, week or day, like the other lists (see `Timeframe::RowGroups`).
-Its next pages load into frames of the same address. The forms of the rows keep the address
-of the list, so a save renders the list again.
 
-The offsite sessions have a map that fills the window over their list. Only the admin sees
-it, and a button in the head of the list opens it. The close button or ESC closes it again.
-The map has no page of its own, so its address
-(`/cars/1/charging_sessions/offsite/2025/map`) alone leads to the list. The wallbox sessions have no map, because they all share one
-place. The sessions in one cell of about 100 m share a circle, and the area of the circle
-shows the share of the energy. A circle loads its tooltip when the pointer rests on it. A
-note on the map counts the sessions without a position.
+The offsite sessions have a map over their list, which only the admin sees. The map has no
+page of its own, so its address alone leads to the list. The wallbox sessions have no map,
+because they all share one place. The sessions in one cell of about 100 m share a circle,
+and the area of the circle shows the share of the energy. A note on the map counts the
+sessions without a position.
 
 The user changes the car, the guest mark and the note of a wallbox session. The detection
 writes its time, energy and cost, so the form shows them read-only. A new session is always
@@ -344,10 +333,9 @@ stay exact. The list has no hours view, like the car page.
 
 The detection writes the end of the latest bucket with power. So a charge that goes on gets
 an end and a state of charge at the end that change with each build. The list shows such a
-session as ongoing: its start alone ("since 12:20"), the state of charge at its start, a
-mark and no loss. A session is ongoing when it reaches the latest build of today within
-the gap of the detection, and the wallbox reports power now. The table does not store this
-state, like for an ongoing visit (see [Visits](#visits)).
+session as ongoing, without its end. A session is ongoing when it reaches the latest build
+of today within the gap of the detection, and the wallbox reports power now. The table does
+not store this state, like for an ongoing visit (see [Visits](#visits)).
 
 ### The detection
 
@@ -357,13 +345,12 @@ state, like for an ongoing visit (see [Visits](#visits)).
   A gap of 15 minutes or less does not end it, because load management and PV surplus
   control make such gaps.
 - `wallbox_car_connected` bridges a longer gap, but it never moves an end. Otherwise a
-  charge before the sensor reports the connection loses its energy.
+  charge before the sensor reports the connection loses its energy. The timeline of the day
+  shows such a gap as a pause (see [The day](#the-day)).
 - A 5-minute bucket without a reading is no data, not 0 W. A collector can fail for an
   hour while the car charges. Such a gap does not end a session. A session also reaches
   across a gap at each end, to the next bucket with data. The daily sum integrates across
   the gap from the last value to the next one, so the sessions keep the energy of the day.
-  The buckets without a reading come from a query of their own, because the curve holds
-  the buckets with power alone.
 - A session needs 0.1 kWh at least, because many wallboxes report a standby power.
 - The energy comes from the integral of the power, like the daily sum. The grid share comes
   from `wallbox_power_grid` in the same way. The power splitter writes one value in the
@@ -515,11 +502,8 @@ house number come from the user, because Nominatim does not know each house numb
 town can be a part of the town or a group of towns. A part that the user left out comes from
 Nominatim.
 
-The form checks a changed address when the field loses the focus. It then shows the address
-in its form and on the map, or the error. The form carries the position, so the save does
-not ask Nominatim again. The edit form opens without a request to Nominatim. For an address
-without a position, or a position without an address, it asks once it is shown. Without
-JavaScript, the save checks the address.
+The form checks a changed address before the save and carries its position, so the save
+does not ask Nominatim again.
 
 For a session without an address, the form offers the address at the position of the car. A
 save with this address keeps the position of the car, because it is more exact. A change of
@@ -528,11 +512,10 @@ form offered at it, unless the user moved the point. The build never changes the
 an address.
 
 The position of an address is often on the building and not at the charging station. So the
-user can move the point on the map of the form, with a drag or a tap, at most 300 m. Only the
-position of an address moves, because the build writes the other positions. If exactly one
-charging station of the map tiles stands within 150 m, a button moves the point onto it. The
-form does not do this by itself, because it cannot tell a position of the car from a
-position that the user set.
+user can move the point on the map of the form, at most 300 m. Only the position of an
+address moves, because the build writes the other positions. The form offers to move the
+point onto a charging station nearby, but it does not do this by itself, because it cannot
+tell a position of the car from a position that the user set.
 
 ### A change of a price
 
@@ -710,43 +693,24 @@ rate is not. The user interface must never add a rate.
 
 ## Charts
 
-| Chart                                                        | Class           | Columns                                                      |
-| ------------------------------------------------------------ | --------------- | ------------------------------------------------------------ |
-| `car_charging`, `car_charging_costs`                         | `CarSessions`   | PV, grid and offsite, of all selected cars together          |
-| `car_consumption_rate`, `car_cost_rate`, `car_driving_costs` | `CarDriving`    | sum of the days of the column, a rate ÷ the distance         |
-| `car_distance`                                               | `CarDistance`   | distance of the column, a part for each car, a line on a day |
-| `car_battery_soc`                                            | `CarBatterySoc` | min and max of the column, a line on a day, one car          |
-| `car_range`                                                  | `CarRange`      | a day only, one car                                          |
-| `car_max_range`                                              | `CarMaxRange`   | average of the column, one car                               |
+| Chart                                                        | Class           | Columns                                              |
+| ------------------------------------------------------------ | --------------- | ---------------------------------------------------- |
+| `car_charging`, `car_charging_costs`                         | `CarSessions`   | PV, grid and offsite, of all selected cars together  |
+| `car_consumption_rate`, `car_cost_rate`, `car_driving_costs` | `CarDriving`    | sum of the days of the column, a rate ÷ the distance |
+| `car_distance`                                               | `CarDistance`   | distance of the column, a part for each car          |
+| `car_battery_soc`                                            | `CarBatterySoc` | min and max of the column, one car                   |
+| `car_max_range`                                              | `CarMaxRange`   | average of the column, one car                       |
 
 A week and a month have a column for each day, a year for each month, and all for each
-year. The live view has no chart. Each chart belongs to a column of the overview, the
+year. The live view and a day have no chart. A day has the timeline of the day in the place
+of the charts (see [The day](#the-day)). Each chart belongs to a column of the overview, the
 charging or the driving (`Car::Section`). A chart that cannot draw the timeframe or the
 selection goes to the overview without a chart in the address.
 
 The values of two cars do not add up for the state of charge and the ranges, so these
 charts need one selected car (`Sensor::Chart::Concerns::OneCar`). The rates stay one
 column in "all", for the same reason. In "all" of several cars, the charts of the distance
-and the driving cost stack a part of each column for each car. Each part has the color of
-the chart with a tint of the color of the car, so the chart keeps the palette of the other
-charts in light and dark mode. The tooltip names the car and shows the sum.
-
-A session belongs to a full day, so a day shows other charts: the power curve of the
-wallbox (`CarChargingPower`) and its cost (`CarChargingCosts`). With the power splitter,
-the curve splits into PV and grid, like the columns. Without the power splitter, a day has
-no chart of the charging cost. The rates and the driving cost come from the daily
-summaries, so a day has none of their charts.
-
-A day stacks the offsite sessions of the selected cars on the curves of the power and of
-the cost of the wallbox. An offsite session has no power curve, so the state of charge and
-the plug of its car tell when it charged (`ChargingSession::OffsiteProfile`). Its price,
-the cost per kWh, gives the cost of each part.
-
-A day draws the distance since midnight as a line. The line holds each reading until the next
-one and steps at a change, like the daily summary (see [Distance](#distance)). The line
-therefore ends at the distance in the overview. Each car has a line of its own, and the
-tooltip shows the place of each car at that time from its visits. Between two visits it shows
-no place. Only the admin sees these places.
+and the driving cost stack a part of each column for each car.
 
 A rate column without a day with a rate has a gap. A column that the installation date,
 today or the edge of a range cuts is hatched.
@@ -757,15 +721,8 @@ value. A rate and the maximum range also name the best and the worst period of t
 kind, with a link to each (see `Car::Spans`). The overview shows only where the value lies
 between them, so the way to these periods is in the insights.
 
-These rules are decisions:
-
-- A day shows the curves of the power and of the cost of the wallbox without the wallbox
-  sessions that count for no selection: a session that is not assigned, a session of
-  another car, and a guest session outside the guest and "all". So the curves agree with
-  the charged energy and the charging cost of the day. A charge that the detection has not
-  found yet stays in the curves. The live view shows the full wallbox.
-- The distance has no split by energy source. The source of the energy belongs to the
-  charge, not to the drive.
+The distance has no split by energy source. The source of the energy belongs to the charge,
+not to the drive.
 
 ## The car page
 
@@ -786,10 +743,9 @@ timeframe goes to today.
 
 ### The selection of the car
 
-With more than one car, a select in the header chooses one car or "all". On a phone, the car
-page and the lists show each choice as a chip below the period (`Ui::Chips`). A tap on a chip
-selects it. Each chip shows the car in its color, the icon of "all" or the icon of the guest.
-The live view has no chips, because it shows each car in use with its name. The address has
+With more than one car, a select in the header chooses one car or "all". On a phone, chips
+below the period do this (`Ui::Chips`). The live view has no select, because it shows each
+car in use with its name. The address has
 the car in front of the page (`/cars/2/2025`, `/cars/2/car_charging/2025`). The lists do the
 same. Each link of the car page keeps the car, and a link to another page does not get it.
 Without the car in the address, the page shows "all".
@@ -818,39 +774,24 @@ its address redirects to `/cars/now`. When another timeframe has one car in use,
 from the live view to it selects that car, also when the timeframe has a guest session.
 Otherwise the link goes to "all". An installation without a select keeps "all".
 
-Each car has a section of its own (`Car::LiveCard::Component`), in the way of the grouped
-lists of iOS. A phone shows the sections one below the other, from the top, with white cards
-on the gray of the page. A wider screen shows them side by side. One car stands in the
-middle, at most 35rem wide. The desktop has gray cards on its white page. There a lone car
-is 64rem wide and has its list beside the card, as a panel of the same height. The section
-shows from top to bottom:
+Each car has a section of its own (`Car::LiveCard::Component`):
 
-- The name of the car with a dot in its color, and the time of its latest reading. The time
-  is necessary, because a car sensor holds its value at any age.
-- A card with the range, and the state of charge as a bar with the percent in the bar.
-  Below the bar, the scale from 0 to the maximum range.
-- A list with a cell for each detail:
-  - For the admin, the place (`Car::LocationRow::Component`), which opens the map.
-  - The plug of the car at the wallbox (`car_connected_<n>`). While the car charges, the
-    cell shows the charging power in green.
-  - The odometer.
-
-With more than one car, the card of a phone is a little smaller, so two cars fit with less
-scrolling.
+- The name of the car and the time of its latest reading. The time is necessary, because a
+  car sensor holds its value at any age.
+- The range, and the state of charge on the scale from 0 to the maximum range. A car
+  without a range and without an estimate shows its state of charge alone.
+- For the admin, the place (`Car::LocationRow::Component`), which opens the map.
+- The plug of the car (`car_connected_<n>`), with the charging power while the car charges.
+- The odometer.
 
 Only the car at the wallbox shows the power of the wallbox (`Car::Live`). When the wallbox
 charges and no car shows its power, the live view adds a card of the wallbox with the
 charging power. With the plugs of the cars, a guest charges, so the card names the guest.
-Without them, the card names the wallbox. While a car charges, the part of the bar that the
-charge fills next pulses.
+Without them, the card names the wallbox. Without a car in use today, the live view says
+so, and the admin gets a link to the settings of the cars.
 
-The fill of the bar has the color of the level of the state of charge: red, yellow, or the
-blue of the battery. A car without a range and without an estimate shows its state of
-charge as the large number. Without a car in use today, a card shows "No car is in use at
-the moment.", and the admin gets a link to the settings of the cars.
-
-A car without a range sensor gets an estimate of its range (`Car::RangeEstimate`). Its label
-says "Estimated range", and a tooltip names the source. The charged energy of a percentage
+A car without a range sensor gets an estimate of its range (`Car::RangeEstimate`), and the
+live view names it an estimate. The charged energy of a percentage
 point (`k`, see above) gives a distance at the energy per km of the last 14 days, or of up
 to 42 days without a charge in them (`Car::Driving#rate`). Both are energy at the charger,
 so the loss of a charge cancels out, and the estimate needs no capacity. The distance of 100
@@ -862,56 +803,54 @@ not correct this, because the energy that a car uses while it stands is not know
 
 ### The overview
 
-The overview of a period has two columns: the charging and the driving (`Car::Section`).
-Each column has its figures and below them the chart of one of them. A click on a figure
-loads its chart into its column, and the address keeps the chart. The overview has no
-insights. Each column links its list: the charging links the charging sessions, and the
-driving links the places.
+The overview of a period has two columns: the driving and the charging (`Car::Section`), in
+the order of the rows of the timeline of a day.
+Each column has three figures. A week, a month, a year and the whole time show the chart of
+one figure below them. A click on a figure loads its chart into its column, and the address
+keeps the chart.
+
+A day has no charts. It shows the timeline of the day below the figures (see
+[The day](#the-day)). The overview has no insights. Each column links its list: the charging
+links the charging sessions, and the driving links the places.
 
 The sensor of the chart in the address chooses the chart of its column, for example
 `/cars/2/car_cost_rate/2025`. The other column shows its first chart. Without a sensor
-(`/cars/2/2025`), each column shows its first chart.
+(`/cars/2/2025`), each column shows its first chart. The address of a day has no sensor. An
+address of a day with a sensor goes to the same day without it.
 
 - Charging: the charged energy, the charging cost and the state of charge.
 - Driving: the distance, the driving cost, the two rates, the maximum range and the range.
 
-A desktop shows the columns side by side, each in a box with its chart (see
-`Car::OverviewBox::Component`):
+The figures of each column (see `Car::OverviewBox::Component`):
 
-- Charging: a ring of the sources of the charged energy, PV, grid and offsite, with the PV
-  share in the center. Beside the ring, the charged energy. The tooltip of the head has the
-  energy of each source. Without the power splitter, the ring shows the wallbox and
-  offsite. A tile with the charging cost. Its tooltip has the cost of each source and, on
-  "all", the cost of the guest.
-- Driving: a ring of the share of each car in the distance, with the average distance of a
-  day in the center. Beside the ring, the distance. The tooltip of the head has the distance
-  of each car of "all". A tile each for the cost and the consumption per 100 km, each with a
-  bar of its place among the periods. The tooltip of a rate has the driving cost or the energy
-  used that gives it.
+- Charging: the charged energy, the share of PV and the charging cost. The tooltip of the
+  energy has the energy of each source. Below the share, a bar shows the sources side by
+  side: PV, grid and offsite. Without the power splitter, the share is the one of the
+  wallbox, and the bar shows the wallbox and offsite. The tooltip of the cost has the cost
+  of each source and, on "all", the cost of the guest.
+- Driving: the distance with the average distance of a day, and the cost and the
+  consumption per 100 km. On "all", a bar below the distance shows the share of each car,
+  and its tooltip has the distance of each car. Each rate has a bar of its place among the
+  periods. The tooltip of a rate has the driving cost or the energy used that gives it. An
+  info icon beside the title of the column names the window of the rates.
 
-A column of 35rem and more has the tiles on the right of the head, one below the other. A
-narrower column has them below the head, side by side.
+The chart menu of a desktop offers the charts of its column alone. A phone shows one chart
+below the figures of both columns: the chart of the column of the last tap. Its chart menu
+offers the charts of both columns.
 
-The chart menu of a desktop offers the charts of its column alone.
-
-A phone shows the figures of both columns as two rows of three tiles, and one chart below
-them. The chart is the chart of the column of the last tap. All of it fits on the screen
-without a scroll. The chart menu stands above the chart and offers the charts of both
-columns. A chart of the other column loads into that column. A tap on a tile loads its chart,
-and a long press opens its tooltip in a sheet.
-
-The bar places the value between the lowest and the highest value of the periods of the
-same kind (`Car::Spans`). A month stands between the months, and a day between the days. The
-good end is always on the right, so the bar of a rate runs from the highest value to the
-lowest. The bar shows only the place of the value. The best and the worst period stand in
-the insights of the chart.
+The bar of a rate places the value between the lowest and the highest value of the periods
+of the same kind (`Car::Spans`). A month stands between the months, and a day between the
+days. The good end is always on the right, so the bar of a rate runs from the highest value
+to the lowest. The best and the worst period stand in the insights of the chart.
 
 These rules are decisions:
 
 - The figures show no comparison with the previous month or year. Only the insights show
   them.
-- The values show no red, because red marks a low cost as bad. Only the bars show good and
-  bad, and each bar knows which end is good.
+- The values show no red, because red marks a low cost as bad. The bars of the rates show no
+  red either. The good end on the right and the numbers at the ends tell good and bad.
+- The overview has no ring. The ring of the distance of one car was always full and told
+  nothing. Three figures in a row read the same on a phone and on a desktop.
 - Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
   timeframe and a range of dates show no bars.
 - A period counts for a bar only when the cars were in use on each of its days. A month in
@@ -922,22 +861,145 @@ These rules are decisions:
   builds the missing daily summaries of the whole time.
 
 A selected car without an odometer has no driving, so the page shows the charging alone. The
-guest has no driving either. A car with an odometer and without a value in the period shows
-the driving with "–". A period without a car in use shows "No car was in use in the selected
-period.", and the admin gets a link to the settings of the cars.
+guest has no driving either. A column without a value in the period keeps its figures with 0
+or "–". A period without a car in use says so, and the admin gets a link to the settings of
+the cars.
+
+### The day
+
+The overview of a day shows the timeline of the day below the figures, in the place of the
+charts (`Car::DayTimeline::Component`). The timeline loads with the figures and refreshes
+with them. Its axis is the local day from 0:00 to 24:00, so a day of a change of the clock
+has 23 or 25 hours on the same width.
+
+The timeline of a car has three rows:
+
+- The drives, each from its start to its end.
+- The charging sessions, each from its start to its end, and the times in which the car was
+  plugged in but did not charge. The sources of the energy of a session stack from the
+  bottom up, each as high as its share, because parts side by side read as one after the
+  other in time.
+- The state of charge, as a line through its readings (see
+  [The line of the state of charge](#the-line-of-the-state-of-charge)).
+
+A car without an odometer has no row of the drives, and a car without a state of charge has
+no line. On "all", each car has a timeline of its own, without the color of the car. The
+guest has a timeline with its charging alone: for the guest, and on "all" when the day has a
+guest session. The running day ends at now. In the live view, the state of charge and the
+odometer of a car link to today with the car selected.
+
+The tooltip of a bar names what the car did, its time and its place, and its numbers. Only
+the admin sees the places: the start and the goal of a drive from the visits of the day (see
+[Visits](#visits)), and the address of an offsite session.
+
+The sessions with their start and their end come from the table. A running session charges
+until now. A session that charged over midnight shows on both days, each day with its part.
+Its bar is open at midnight, and on the next day a note says that it counts for the day on
+which it started, like in the figures above the timeline.
+
+An offsite session without an end has no time of its own, so the readings of its car give
+the signs (`Car::DayTimeline::OffsiteEstimate`). A rise of the state of charge comes first.
+Without a rise, the time in which the plug reads connected counts. Without both, the rest of
+the day counts, up to the start of the next session of the car. A drive and another session
+of the car give no sign, because the car does not charge there. Of all signs, the run with the most weight wins, so a small rise at
+another charger does not move the charge. The timeline marks this time as an estimate.
+
+The estimate reads the same readings as the line of the state of charge and the time
+plugged in, so the three fit together.
+
+A session at the wallbox can pause while the car stays plugged in, for example until the
+cheap tariff of the night. The detection joins the parts with power over such a pause only
+when the plug of the wallbox reads connected through it (see [The detection](#the-detection)).
+So the session stays one bar with its pause in it, and its energy and its cost stand once.
+
+The plug of a car (`car_connected`) tells the times in which it was plugged in: each time in
+which it reads plugged in, without the time of a session and of a drive. A reading holds
+until the next one. A car reports late that it was unplugged, so a drive ends the time
+plugged in. A rest of less than 5 minutes is the offset of a reading to its session, so it
+does not count. The plug of the wallbox does not tell which car is plugged in, so it gives
+no time plugged in.
+
+Driving never overlaps charging or a time plugged in. A drive gives way to a session that
+the car recorded, because the table holds its time. A session with an estimated time gives
+way to a drive, because the odometer tells the drive.
+
+The curves are those of the daily build (`ChargingSession::Curves`): the curves of the
+wallbox, and the odometer, the plug and the state of charge of each car, each from its last
+reading before the day. A state of charge of 0 or above 100 is no reading
+(`ChargingSession::Curves.soc_reading?`).
+
+#### The drives
+
+No table holds the drives, so `Car::DayTimeline::Drives` finds them in the readings of the
+odometer and of the state of charge. A car reports at a pace of its own, and the collectors
+differ too. Some write the odometer while the car drives. Others write the odometer of the
+start until the car stops, so its increase comes after the drive.
+
+These rules find the drives:
+
+- An increase of the odometer is a drive from the reading before it to the reading with it.
+- If the reading before the increase is more than 1 hour earlier, the start is not known.
+  Up to 3 hours, like a missed reading of a car that reports each hour, that reading is the
+  earliest start. The bar starts there with a jagged edge, and its tooltip says that the
+  start is an estimate. A drive that joins it keeps the estimate.
+- The state of charge falls while the car drives, also when the odometer stands still. So
+  the drive ends with the last fall before the increase. It starts where the state of
+  charge began to fall without a pause, but not before the car arrived at the place that
+  the drive leaves. A fall of one point over more than 30 minutes is noise and no drive,
+  like a cold battery while the car stands.
+- Drives that overlap are one drive.
+- A pause of up to 30 minutes joins two drives, because the state of charge can stand still
+  for a reading while the car drives.
+- A charging session or a visit of a place in the pause keeps the two drives apart, because
+  the car stood there.
+- A drive ends where a charging session or a visit starts in its last 15 minutes. A car
+  reports up to 15 minutes late, like for the choice of the car of a wallbox session (see
+  [Which car charged](#which-car-charged)). So the reading with the increase can come some
+  minutes after the car arrived and plugged in. The drive ends there before it joins
+  another one, so an arrival keeps two drives apart.
+
+A car reports its place late, so a visit can last until the car arrives at the next place,
+and only the start of a visit is sure. A drive therefore starts at the last place where the
+car arrived before it.
+
+A wrong reading of the odometer adds no drive, like in the distance of the day (see
+[Distance](#distance)).
+
+The distance of a drive must fit its time. Below 5 km/h on average for longer than 20
+minutes, the time is only the window between two readings, in which a short drive took
+place. Above 150 km/h, the start is too late. The bar of such a drive has a jagged edge,
+both edges for a window, and its tooltip says why. A drive without a start says so too.
+
+#### The line of the state of charge
+
+`Car::DayTimeline::SocLine` draws the line from the readings of the state of charge. The line
+starts with the value at the start of the day, which is the last reading before it.
+
+These rules draw the line:
+
+- If two readings are 1 hour apart or less, the line holds the first value and steps at the
+  second, like the chart of the state of charge.
+- If two readings are further apart, a step at the second reading comes too late. A car
+  that charged at noon and reported in the evening would rise in the evening. So a rise
+  follows the charging sessions between the two readings, and a fall follows the drives.
+- If no charging session and no drive explain the change, nothing tells when the value
+  changed. The line is then a slope from one reading to the next, marked as unknown.
+- A change of one percentage point steps at its reading, because it is the noise of the
+  reading.
+
+The state of charge before and after a drive comes from the line.
 
 ### The lists
 
 The list of the charging sessions and the list of the places are pages below the overview.
 Each has a timeframe and a select of the car, and its way back leads to the overview in the
-same timeframe and with the same car. A desktop shows both lists as pills in the head of
-the page. A phone has a title bar with the way back. On a phone, the overview opens both
-lists in a tall sheet, with their forms as pages of the sheet (see the section "Sheets with
-pages" in [docs/ui.md](ui.md)).
+same timeframe and with the same car. On a phone, the overview opens both lists in a sheet,
+with their forms as pages of the sheet (see the section "Sheets with pages" in
+[docs/ui.md](ui.md)).
 
 - The charging sessions (`/cars/2/charging_sessions/wallbox/2025`, see [The list](#the-list)).
-  The admin adds an offsite session with the button `+`. The link from the wallbox on the
-  power balance opens the list too.
+  The admin adds an offsite session there. The link from the wallbox on the power balance
+  opens the list too.
 - The places (`/cars/2/places/2025`) and the visits (`/cars/2/visits/2025`), see
   [Location](#location). Only a car with a location has places, so without one the overview
   has no link to them.
@@ -959,29 +1021,24 @@ until its next reading, so the two can also come from separate messages at diffe
 The live view shows the place of each car in a row. A car at a place shows the name of the
 place. A car at no place is on the road. Its row names the town near its latest
 position and how old the position is. A car that drove away from its latest position is on
-the road without a town. Home has the icon of a house. A click on the row opens the latest
-location on a map that fills the window. A map in the live view took too much space, and a
-place says enough at a glance.
+the road without a town. The row opens the latest location on a map. A map in the live view
+took too much space, and a place says enough at a glance.
 
 The list of the places shows the places of the selected cars: each place with its cars, the
-number of its visits and its latest visit, the most visited place first. A switch (destinations
-or visits) shows the visits instead, each visit in one row, the latest first. The names of
-the switch do not repeat the name of the page. A row of a place or a visit opens the place
-with its map and its name. The number of the visits of a place opens the list of the visits
-with the place as a filter (`/cars/places/2/visits/2025`). A pill in the head of the list
-names the place, and its x removes the filter.
+number of its visits and its latest visit, the most visited place first. A switch shows the
+visits instead, the latest first. A place or a visit opens the place with its map and its
+name. The number of the visits of a place opens the list of the visits with the place as a
+filter (`/cars/places/2/visits/2025`).
 
-The map of the places fills the window over the list. A button in the head of the list
-opens it with the timeframe and the car of the list, and the close button or ESC closes it.
-A chart beside the numbers of the car page was too small for a map, and a page of its own
+The map of the places lies over the list, with the timeframe and the car of the list. A
+chart beside the numbers of the car page was too small for a map, and a page of its own
 added a third level.
 
 The map shows a circle for each place of the selected cars. The area of a circle shows the
 share of the time that the cars spent at that place. Each point has one color, also for a
 single car, because the color of a car marks the car and not its places. One circle for
 each car and place was the other choice, but then the visits in the tooltip of a car did
-not match the list of the visits of all cars. The tooltip of a place links the visits of
-that place.
+not match the list of the visits of all cars.
 
 The map uses MapLibre and the vector tiles of OpenFreeMap. These tiles need no key, have a
 dark style and have the names in each language.

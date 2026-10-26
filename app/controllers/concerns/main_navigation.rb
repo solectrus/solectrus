@@ -184,18 +184,18 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       }
     end
 
-    # The live view of the car page has no sensor in its address (see
-    # Sensor::HomePage.live_chart?)
+    # A period of the car page without charts, the live view and a day, has
+    # no sensor in its address (see Car::Section.charts?)
     def car_item
       timeframe = computed_timeframe
-      live = timeframe.nil? || timeframe.try(:now?)
+      charts = timeframe.is_a?(Timeframe) && Car::Section.charts?(timeframe)
 
       {
         name: t('layout.car'),
         icon: 'car',
         icon_only: true,
         href:
-          cars_home_path(sensor_name: (car_sensor_name unless live), timeframe:, car: nil),
+          cars_home_path(sensor_name: (car_sensor_name if charts), timeframe:, car: nil),
         current: helpers.controller_namespace == 'cars',
       }
     end

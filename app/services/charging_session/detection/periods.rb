@@ -6,7 +6,9 @@
 # wallbox_car_connected bridges a longer gap, but it never moves an end: the
 # first bucket with power is the start, and the last is the end. Otherwise a
 # charge before the sensor reports the connection loses its energy, and the
-# balance of the day breaks.
+# balance of the day breaks. The period keeps the parts with power on both
+# sides of such a gap, so the timeline of the car page shows the pause (see
+# Car::DayTimeline).
 #
 # A bucket without a reading is no data, not 0 W: a collector can fail for
 # an hour while the car charges. Such a bucket does not end a period, so a
@@ -22,6 +24,27 @@ class ChargingSession::Detection::Periods
   GAP = 15.minutes
   public_constant :GAP
 
+  # A period with the parts in it where the wallbox had power, [[from, to],
+  # ...]. A connected car joins two parts over a longer pause, so a period
+  # can have more than one part.
+  Period = Data.define(:parts) do
+    def from = parts.first.first
+
+    def to = parts.last.last
+  end
+  public_constant :Period
+
+  # The periods of a day from the curves of the build (see
+  # ChargingSession::Curves)
+  def self.of(curves, date)
+    new(
+      date,
+      power: curves.wallbox.dig(date, :wallbox_power) || [],
+      connected: curves.wallbox.dig(date, :wallbox_car_connected) || [],
+      gaps: curves.wallbox_gaps.dig(date, :wallbox_power) || [],
+    )
+  end
+
   # `power`, `connected` and `gaps` are the curves of the day: [[Time,
   # value], ...], each Time the end of its bucket. `power` needs the buckets
   # with power alone, and `gaps` holds the buckets of the power without a
@@ -33,35 +56,38 @@ class ChargingSession::Detection::Periods
     @gaps = gaps.to_set { it.first.to_i }
   end
 
-  # [[from, to], ...]
+  # The periods of the day
   def call
-    periods =
-      power.each_with_object([]) do |(stamp, watt), result|
-        next unless watt.positive?
-
-        from = [stamp - BUCKET, day.beginning].max
-        to = [stamp, day.ending].min
-        last = result.last
-
-        if last && bridged?(last[1], from)
-          last[1] = to
-        else
-          result << [from, to]
-        end
-      end
-
-    periods.map { |from, to| [reach_back(from), reach_forward(to)] }
+    parts
+      .slice_when { |before, after| !connected_through?(before.last, after.first) }
+      .map { |run| Period.new(parts: reach(run)) }
   end
 
   private
 
   attr_reader :day, :power, :connected, :gaps
 
-  # Whether a gap does not end the period: it is short, it has no data, or
-  # it has a reading of the connection, and each of them reports a connected
-  # car
-  def bridged?(last_end, next_start)
-    next_start - last_end <= GAP || without_data?(last_end, next_start) || connected_through?(last_end, next_start)
+  # [[from, to], ...] of the times with power, joined over a short gap or a
+  # gap without data
+  def parts
+    power.each_with_object([]) do |(stamp, watt), result|
+      next unless watt.positive?
+
+      from = [stamp - BUCKET, day.beginning].max
+      to = [stamp, day.ending].min
+      last = result.last
+
+      if last && joined?(last[1], from)
+        last[1] = to
+      else
+        result << [from, to]
+      end
+    end
+  end
+
+  # Whether a gap does not end the part: it is short, or it has no data
+  def joined?(last_end, next_start)
+    next_start - last_end <= GAP || without_data?(last_end, next_start)
   end
 
   # Whether each bucket between the two periods has no reading
@@ -72,6 +98,15 @@ class ChargingSession::Detection::Periods
   def connected_through?(last_end, next_start)
     readings = connected.select { |time, _| time > last_end && time - BUCKET < next_start }
     readings.any? && readings.all? { it.last.positive? }
+  end
+
+  # The parts reach across the buckets without a reading at their ends. Two
+  # parts can reach to the same bucket with data, so a part ends where the
+  # next one starts at the latest.
+  def reach(run)
+    reached = run.map { |from, to| [reach_back(from), reach_forward(to)] }
+    reached.each_cons(2) { |before, after| before[1] = [before.last, after.first].min }
+    reached
   end
 
   # The start of a period after buckets without a reading: the start of the

@@ -4,7 +4,6 @@ class ChartDropdown::Car::Component < ViewComponent::Base
   # The titles of the menu that differ from the names of the sensors
   TITLES = {
     car_battery_soc: 'sensors.car_battery_soc_short',
-    car_range: 'sensors.car_range_short',
   }.freeze
   private_constant :TITLES
 
@@ -27,8 +26,8 @@ class ChartDropdown::Car::Component < ViewComponent::Base
   # The menu has the charts of the column of the chart, or of each column,
   # that the period has (see Cars::Selectable#section_charts) and that the
   # timeframe and the selected cars support (see ChartDropdown::Logic), a
-  # group per column. A rate needs buckets of a day at least, the range draws
-  # a day at most, and a chart of one car needs the selection of one car.
+  # group per column. A rate needs buckets of a day at least, and a chart of
+  # one car needs the selection of one car.
   def sensor_names = column_charts.flatten & super
 
   def menu_items = join_groups(*column_charts.map { it & sensor_names })

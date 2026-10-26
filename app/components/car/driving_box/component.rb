@@ -1,8 +1,9 @@
 # The driving of a period in the overview of the car page (see
-# Car::OverviewBox::Component): the distance, a ring of the share of each car
-# with the average distance of a day in the center, and the distance of each
-# car. Below, the cost and the consumption per 100 km, each with a bar of its
-# place between the periods of its kind (see Car::Spans).
+# Car::OverviewBox::Component): the distance with the average distance of a
+# day, and on "all" a bar of the share of each car. Beside it, the cost and
+# the consumption per 100 km, each with a bar of its place between the
+# periods of its kind (see Car::Spans), and below them the window that they
+# come from.
 class Car::DrivingBox::Component < ViewComponent::Base
   def initialize(report:)
     super()
@@ -16,22 +17,23 @@ class Car::DrivingBox::Component < ViewComponent::Base
   # A period without a drive has 0 km
   def distance_value = Sensor::Value::Component.new(distance || 0, :car_distance)
 
-  def value_label = "#{t('sensors.car_distance')} #{Sensor::ValueFormatter.new(distance || 0, unit: Sensor::Registry[:car_distance].unit)}"
-
-  # The distance of each car with a distance, the cars of "all" only. One car
-  # has the ring in the color of the chart of the distance.
+  # The distance of each car with a distance, the cars of "all" only
   def car_distances
     @car_distances ||= cars.many? ? report.distances.select { |_, km| km&.positive? } : {}
   end
 
+  # The color of a drive in the timeline of a day. A period without a drive
+  # has no color, like a period without charging.
+  def swatch
+    return [Car::OverviewBox::Component::NEUTRAL] unless driven?
+
+    [Car::OverviewBox::Component::Segment.new(percent: 100, color: Car::DayTimeline::Component::DRIVE_COLOR)]
+  end
+
+  # The share of each car in its color. One car has no bar, because its
+  # share is the whole.
   def segments
-    if car_distances.any?
-      car_distances.map { |car, km| Car::OverviewBox::Component::Segment.new(percent: km * 100 / distance, color: car.display_color) }
-    elsif distance&.positive?
-      [Car::OverviewBox::Component::Segment.new(percent: 100, color: "var(#{Sensor::Registry[:car_distance].color_variable})")]
-    else
-      []
-    end
+    car_distances.map { |car, km| Car::OverviewBox::Component::Segment.new(percent: km * 100 / distance, color: car.display_color) }
   end
 
   # Each car with its distance and its whole share, rounded so the shares
@@ -43,24 +45,24 @@ class Car::DrivingBox::Component < ViewComponent::Base
     end
   end
 
-  def center = report.km_per_day && Sensor::ValueFormatter.new(report.km_per_day, unit: Sensor::Registry[:car_distance].unit).to_s
+  # The average distance of a day, nil for a day
+  def per_day = report.km_per_day && Sensor::ValueFormatter.new(report.km_per_day, unit: Sensor::Registry[:car_distance].unit).to_s
 
-  def center_label = (t('car_breakdown.per_day') if center)
-
-  def head
-    Car::OverviewBox::Component::Head.new(sensor_name: :car_distance, label: value_label, value: render(distance_value), segments:, center:, center_label:, parts:)
+  # The distance with its average of a day below it, and the two rates. On a
+  # phone, their unit tells them apart, each "per 100 km". A low rate is
+  # good.
+  def figures
+    [
+      Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, label: per_day ? t('car_breakdown.per_day_note', distance: per_day) : t('car_breakdown.driven'), value: render(distance_value), segments:, parts:),
+      *rates,
+    ]
   end
 
-  # The cost and the consumption per 100 km. A low rate is good.
-  def figures = rates.map { |label, figure| figure.with(label: t("car_breakdown.#{label}")) }
-
-  # The tiles of a phone: the distance with its average of a day below it,
-  # and the two rates, whose unit tells them apart, each "per 100 km"
-  def tiles
-    [
-      Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, label: center ? t('car_breakdown.per_day_note', distance: center) : t('car_breakdown.driven'), value: render(distance_value)),
-      *rates.map { |_, figure| figure.with(label: t('car_breakdown.per_100km')) },
-    ]
+  # The window that the rates come from, in the info icon of the column. The
+  # figures of a day read like its own numbers, but the rates come from the
+  # days around it. Without a rate, its tooltip tells what is missing.
+  def note
+    t('.window', days: Car::Driving::MARGIN_DAYS) if driving.cost_per_100km || driving.consumption_per_100km
   end
 
   # The list of the places, which only a car with a location has, and a
@@ -73,28 +75,39 @@ class Car::DrivingBox::Component < ViewComponent::Base
 
   def driven? = distance&.positive?
 
-  # A new bar for each place, because a component renders once
+  # The rates with the precision of their unit
   def rates
     [
-      rate(:cost_rate, :car_cost_rate, driving.cost_per_100km, spans&.cost_per_100km, **cost_rate_tooltip) do
-        Sensor::Value::Component.new(it, :total_costs, precision: 2)
+      rate(:cost_rate, :car_cost_rate, driving.cost_per_100km, spans&.cost_per_100km, precision: 2, **cost_rate_tooltip) do |value|
+        Sensor::Value::Component.new(value, :total_costs, precision: 2)
       end,
-      rate(:consumption_rate, :car_consumption_rate, driving.consumption_per_100km, spans&.consumption_per_100km, **consumption_rate_tooltip) do
-        Sensor::Value::Component.new(it * 1000, :wallbox_power, context: :total, scaling: :kilo, precision: 1)
+      rate(:consumption_rate, :car_consumption_rate, driving.consumption_per_100km, spans&.consumption_per_100km, precision: 1, **consumption_rate_tooltip) do |value|
+        Sensor::Value::Component.new(value * 1000, :wallbox_power, context: :total, scaling: :kilo, precision: 1)
       end,
     ]
   end
 
   # A rate with the bar of its place among the periods. A day has no chart
-  # of a rate, so its figure loads nothing.
-  def rate(label, sensor_name, value, span, parts: [], notes: [])
-    bar = Car::SpanBar::Component.new(value:, span:, better: :lower) if value && span
-    [label, Car::OverviewBox::Component::Figure.new(sensor_name:, label: nil, value: value ? render(yield(value)) : '–', bar:, parts:, notes:)]
+  # of a rate, so its figure loads nothing. The ends of the bar have the
+  # numbers of the span alone, because the value above them has the unit.
+  # `precision` is the number of decimals of these ends, and `tooltip` has
+  # the parts and the notes of the figure.
+  def rate(label, sensor_name, value, span, precision:, **tooltip)
+    bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:) if value && span
+    Car::OverviewBox::Component::Figure.new(
+      sensor_name:,
+      label: t('car_breakdown.per_100km'),
+      wide_label: t("car_breakdown.#{label}"),
+      value: value ? render(yield(value)) : '–',
+      bar:,
+      **tooltip,
+    )
   end
 
   # The tooltip of a rate has the amount that it divides by the distance
-  # beside it, and what only this rate means. Without a rate it tells what
-  # is missing. With an energy rate but without a cost rate, a session
+  # beside it, and what only this rate means. The window of both rates stands
+  # in the info icon alone (see #note). Without a rate it tells what is
+  # missing. With an energy rate but without a cost rate, a session
   # around the trip has no price. Without a drive, nothing is missing.
   def cost_rate_tooltip
     return {} unless driven?
@@ -102,7 +115,7 @@ class Car::DrivingBox::Component < ViewComponent::Base
 
     {
       parts: [rate_part(t('sensors.car_driving_costs'), currency(driving.cost))],
-      notes: [t('.cost_reason', days: Car::Driving::MARGIN_DAYS), unrated_note(driving.cost_distance)].compact,
+      notes: [unrated_note(driving.cost_distance)].compact,
     }
   end
 
@@ -113,7 +126,7 @@ class Car::DrivingBox::Component < ViewComponent::Base
     energy = Sensor::ValueFormatter.new(driving.energy_wh, unit: Sensor::Registry[:wallbox_power].unit, context: :total, scaling: :kilo, precision: 0).to_s
     {
       parts: [rate_part(t('.energy'), energy)],
-      notes: [t('.consumption_reason', days: Car::Driving::MARGIN_DAYS), t('.consumption_losses'), unrated_note(driving.distance)].compact,
+      notes: [t('.consumption_losses'), unrated_note(driving.distance)].compact,
     }
   end
 

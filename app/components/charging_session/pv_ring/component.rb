@@ -15,9 +15,9 @@ class ChargingSession::PvRing::Component < ViewComponent::Base
 
   def ring_style
     if percent
-      "background: #{ConicGradient.css([['var(--color-sensor-pv)', percent], ['var(--color-sensor-grid)', 100 - percent]])}"
+      "background: #{ConicGradient.css([['var(--color-car-pv)', percent], ['var(--color-car-grid)', 100 - percent]])}"
     else
-      'background: var(--color-sensor-wallbox)'
+      'background: var(--color-car-wallbox)'
     end
   end
 end

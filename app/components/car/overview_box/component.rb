@@ -4,37 +4,33 @@
 # same column (see Car::ChartLink). The menu above the chart names it, so no
 # figure stands out.
 #
-# The desktop has the head with a ring, the main number and its parts, and the
-# further figures below it. A phone has no room for the ring, so it has a row
-# of three tiles, and one chart for both columns below them.
+# The figures stand in a row of three, in one box with a line between them.
+# The desktop has a longer caption where it has room.
 class Car::OverviewBox::Component < ViewComponent::Base
   include Car::ChartLink
 
-  # The soft box of the head and of a tile of the desktop, a step darker
-  # with a hover
-  BOX_CLASS = 'rounded-xl px-3 py-3 text-left bg-fill hover:bg-fill-strong focus-ring'.freeze
-  private_constant :BOX_CLASS
-
-  # A part of the main number with the color of its part of the ring, a CSS
-  # color like "var(--color-sensor-pv)", and its whole share in percent
+  # A part of a value with the color of its part of the bar of a figure, a CSS
+  # color like "var(--color-car-pv)", and its whole share in percent
   Part = Data.define(:label, :value, :color, :percent)
   public_constant :Part
 
-  # A part of the ring, in percent of the ring
+  # A part of the bar of a figure, in percent of the bar
   Segment = Data.define(:percent, :color)
   public_constant :Segment
 
-  # The main number of the head, with the chart that it loads. `label` names
-  # it for a screen reader.
-  Head = Data.define(:sensor_name, :label, :value, :segments, :center, :center_label, :parts)
-  public_constant :Head
+  # The swatch of a column without a color of its own, like a period without
+  # charging, and while the figures load
+  NEUTRAL = Segment.new(percent: 100, color: 'var(--color-fill-strong)')
+  public_constant :NEUTRAL
 
-  # A figure that loads its chart, with an optional bar of its span (see
-  # Car::SpanBar::Component). Its tooltip has the `parts` of the value, like
-  # the cost of each source, and the paragraphs of its `notes`, like how the
-  # value comes about.
-  Figure = Data.define(:sensor_name, :label, :value, :bar, :parts, :notes) do
-    def initialize(bar: nil, parts: [], notes: [], **) = super
+  # A figure that loads its chart. `wide_label` is the caption of the desktop,
+  # where it has room, `label` the one of a phone. It can have a bar of its
+  # span (see Car::SpanBar::Component), or a bar of its `segments`, like the
+  # sources of the charged energy. Its tooltip has the `parts` of the value,
+  # like the cost of each source, and the paragraphs of its `notes`, like how
+  # the value comes about.
+  Figure = Data.define(:sensor_name, :label, :wide_label, :value, :bar, :segments, :parts, :notes) do
+    def initialize(wide_label: nil, bar: nil, segments: [], parts: [], notes: [], **) = super
 
     def tooltip? = parts.any? || notes.any?
   end
@@ -44,33 +40,35 @@ class Car::OverviewBox::Component < ViewComponent::Base
   # list, like the sessions to review. The link has an amber dot then, and a
   # screen reader reads the notes. A list with `sheet_href` opens in a sheet
   # on a phone (see SheetPage).
-  List = Data.define(:label, :href, :icon, :notes, :sheet_href) do
+  List = Data.define(:label, :href, :notes, :sheet_href) do
     def initialize(notes: [], sheet_href: nil, **) = super
   end
   public_constant :List
 
-  # `list` links the list of the column, if any. `figures` stand below the
-  # head on the desktop, `tiles` in the row of a phone. A period without a
-  # value, like a day without a drive, keeps them with 0 or a dash.
-  def initialize(title:, list:, timeframe:, head:, figures: [], tiles: [])
+  # `list` links the list of the column, if any. A period without a value,
+  # like a day without a drive, keeps the figures with 0 or a dash. `note`
+  # explains the column in an info icon beside its title, like the window of
+  # the rates. `swatch` are the Segments of a small bar before the title, in
+  # the colors of the bars of the column in the timeline of a day, so the
+  # title tells what these bars show.
+  def initialize(title:, list:, timeframe:, figures:, note: nil, swatch: [NEUTRAL])
     super()
     @title = title
     @list = list
     @timeframe = timeframe
-    @head = head
     @figures = figures
-    @tiles = tiles
+    @note = note
+    @swatch = swatch
   end
 
-  attr_reader :title, :list, :timeframe, :head, :figures, :tiles
+  attr_reader :title, :list, :timeframe, :figures, :note, :swatch
 
-  # The box while its figures load: the title, an empty ring and a pulsing
-  # bar in the place of each number. It has the layout of the box, so the
-  # page keeps its height when the figures come (see the car page).
+  # The box while its figures load: the title and a pulsing bar in the place
+  # of each number. It has the layout of the box, so the page keeps its
+  # height when the figures come (see the car page).
   def self.placeholder(title:, timeframe:)
     figure = Figure.new(sensor_name: nil, label: "\u00a0", value: skeleton('w-16'))
-    head = Head.new(sensor_name: nil, label: nil, value: skeleton('w-40'), segments: [], center: nil, center_label: nil, parts: [])
-    new(title:, list: nil, timeframe:, head:, figures: [figure], tiles: [figure] * 3)
+    new(title:, list: nil, timeframe:, figures: [figure] * 3)
   end
 
   # A gray bar in the height of the text around it, like the location row of
@@ -82,39 +80,34 @@ class Car::OverviewBox::Component < ViewComponent::Base
 
   def heading_id = "overview-#{title.parameterize}"
 
-  # A part of the ring below this share would be a hairline
+  # A part of the bar below this share would be a hairline
   MIN_PERCENT = 0.3
   private_constant :MIN_PERCENT
 
-  def segments = head.segments.select { it.percent >= MIN_PERCENT }
+  def segments(figure) = figure.segments.select { it.percent >= MIN_PERCENT }
 
-  # The ring as a conic gradient, gray without a part (see #ring_classes)
-  def ring_style
-    "background: #{ConicGradient.css(segments.map { [it.color, it.percent] })}" if segments.any?
-  end
-
-  def ring_classes
-    class_names('relative flex shrink-0 items-center justify-center size-30 @min-[35rem]:size-28 rounded-full', 'bg-fill-strong' => segments.empty?)
-  end
-
-  # The tag and the options of a part that loads the chart of the sensor, or
-  # of a plain block where the chart cannot draw the timeframe or the
+  # The tag and the options of a figure that loads the chart of the sensor,
+  # or of a plain block where the chart cannot draw the timeframe or the
   # selection. With `tooltip`, it has a tooltip (see
-  # Car::OverviewBox::Tooltip::Component), below the part. A tap on a part
-  # with a chart loads the chart, so its tooltip needs a long press.
+  # Car::OverviewBox::Tooltip::Component), below the figure. A tap on a
+  # figure with a chart loads the chart, so its tooltip needs a long press.
   def figure_tag(sensor_name, tooltip: false, **, &)
     name = chart_sensor_name(sensor_name) if sensor_name
-    data = tooltip ? { controller: 'tooltip', tooltip_touch_value: tooltip_touch(name) } : {}
-    tag_name, attributes = chart_wrapper(name, link_class: 'cursor-pointer', data:, **)
+    touch = name ? 'long' : 'true'
+    data = tooltip ? { controller: 'tooltip', tooltip_touch_value: touch } : {}
+    tag_name, attributes = chart_wrapper(name, link_class: 'cursor-pointer active:bg-fill-strong lg:hover:bg-fill-strong', data:, **)
     content_tag(tag_name, **attributes, &)
   end
 
-  def tooltip_touch(sensor_name) = sensor_name ? 'long' : 'true'
-
-  # A tile of a phone. Where the timeframe has spans, a tile has the height
-  # of one with a bar, so a row keeps its height when its figures replace
-  # the placeholder (see Car::Spans).
-  def tile_classes
-    class_names('flex min-w-0 flex-col gap-1 rounded-xl px-2 py-2 text-left bg-fill active:bg-fill-strong', 'min-h-18.5' => Car::Spans.kind(timeframe))
+  # A part of the box with a line before it. Where the timeframe has spans, a
+  # figure has the height of one with a bar, so a row keeps its height when
+  # its figures replace the placeholder (see Car::Spans).
+  def figure_classes(index)
+    class_names(
+      'flex min-w-0 flex-col gap-1 text-left focus-ring',
+      'px-3 py-3 first:rounded-l-xl last:rounded-r-xl lg:px-5 lg:py-4',
+      'border-l border-surface' => index.positive?,
+      'min-h-18.5 lg:min-h-30' => Car::Spans.kind(timeframe),
+    )
   end
 end

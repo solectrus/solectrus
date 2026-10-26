@@ -1,0 +1,9 @@
+/ The segments stack from the bottom up, PV first. Side by side, they would
+  read as one after the other in time. A pause lies over them, in the time
+  in which the car stayed plugged in but did not charge.
+= tag.div(**attributes) do
+  - bar.segments.each do |segment|
+    span.basis-0 style="flex-grow: #{segment.last}; background: #{segment.first}"
+  - bar.pauses.each do |left, width|
+    span.absolute.inset-y-0.bg-car-plugged style="left: #{left}%; width: #{width}%"
+  = render tooltip

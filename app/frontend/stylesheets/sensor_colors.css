@@ -152,11 +152,6 @@
   --color-sensor-car-cost-rate: var(--palette-standard-light-car-cost-rate);
   --color-sensor-car-range: var(--palette-standard-light-car-range);
   --color-sensor-consumer-other: #d6dde7;
-  --color-sensor-offsite: color-mix(
-    in oklch,
-    var(--color-sensor-grid) 75%,
-    black
-  );
 
   /* Signal colors for positive/warning/negative indicators (autarky badge,
      trend arrows, signed values). Dark mode lightens them, so text/arc remain
@@ -169,6 +164,21 @@
      every palette, because the green of the standard battery reads as a
      state. Dark mode lightens it, so it stands apart from a grey track. */
   --color-car-battery: var(--palette-contrast-light-battery);
+
+  /* The colors of the car page: the sources of the charged energy and the
+     drives. The timeline of a day, the bars of the figures and the charts
+     share them (see Car::ChargingSource). Offsite charging is grid energy
+     too, so it is a darker red than the grid share of the wallbox. Dark
+     mode lightens the sources and mutes the drive (see the end of this
+     file). */
+  --color-car-pv: var(--color-sensor-pv);
+  --color-car-grid: var(--color-sensor-grid);
+  --color-car-wallbox: var(--color-sensor-wallbox);
+  --color-car-offsite: color-mix(in oklch, var(--color-car-grid) 70%, black);
+  --color-car-drive: var(--color-indigo-500);
+  /* A pause of a charge while the car stays plugged in: a grey that stands
+     apart from the sources and from the track */
+  --color-car-plugged: var(--color-slate-300);
 
   /* Standard inverter shades (hardcoded — non-linear hue bias
      can't be reproduced via color-mix) */
@@ -243,6 +253,7 @@
       var(--palette-contrast-dark-battery),
       white 20%
     );
+    --color-car-plugged: var(--color-slate-600);
 
     --color-sensor-inverter-1: #047857;
     --color-sensor-inverter-2: #056e52;
@@ -405,6 +416,33 @@
     .dark.palette-contrast {
       --color-signal-negative: oklch(from var(--color-sensor-grid) 0.72 0.16 h);
       --color-signal-positive: oklch(from var(--color-sensor-pv) 0.72 0.16 h);
+    }
+  }
+
+  /* The colors of the car page. The dark palette of a sensor is made for a
+     large surface with white text, so a small bar of the timeline in it
+     hardly stands apart from the grey track. Dark mode therefore lightens
+     each color by the same step, and raises its chroma a little. A grey
+     stays grey. Offsite charging keeps the hue and the chroma of the grid,
+     only darker, because a mix with black turns the red brown. A browser
+     without relative colors keeps the colors above. */
+  @supports (color: oklch(from red l c h)) {
+    :root {
+      --color-car-offsite: oklch(from var(--color-car-grid) calc(l * 0.72) c h);
+    }
+
+    .dark,
+    .dark.palette-contrast {
+      --color-car-pv: oklch(
+        from var(--color-sensor-pv) calc(l + 0.16) min(c * 1.15, 0.14) h
+      );
+      --color-car-grid: oklch(
+        from var(--color-sensor-grid) calc(l + 0.16) min(c * 1.15, 0.14) h
+      );
+      --color-car-wallbox: oklch(
+        from var(--color-sensor-wallbox) calc(l + 0.16) min(c * 1.15, 0.14) h
+      );
+      --color-car-drive: oklch(from var(--color-indigo-500) 0.5 0.11 h);
     }
   }
 }

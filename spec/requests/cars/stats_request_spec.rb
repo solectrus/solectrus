@@ -151,16 +151,28 @@ describe 'Car Stats' do
 
       after { Sensor::Config.setup(ENV) }
 
+      # A day has the timeline of the day below the figures, in place of the
+      # charts of the columns (see Car::DayTimeline::Component)
+      it 'shows the timeline of a day in place of the charts' do
+        get cars_home_path(timeframe: day.to_s)
+
+        expect(response.body).to include("id=\"cars-timeline-#{day}\"")
+        expect(response.body).not_to include('/cars/charts/')
+
+        get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
+        expect(response.body).to include("target=\"cars-timeline-#{day}\"", 'Course of the day')
+      end
+
       # A column without a charging session or without a drive shows the
       # state of the car first, and else its first chart with empty axes
-      context 'with a day without charging and driving' do
-        let(:idle_day) { day + 1 }
+      context 'with a period without charging and driving' do
+        let(:idle_month) { '2026-07' }
 
         it 'shows the first chart of each column without a sensor of the state' do
           allow(Sensor).to receive(:data?).and_return(true)
-          get cars_home_path(timeframe: idle_day.to_s)
+          get cars_home_path(timeframe: idle_month)
 
-          expect(response.body).to include("/cars/charts/car_charging/#{idle_day}", "/cars/charts/car_distance/#{idle_day}")
+          expect(response.body).to include("/cars/charts/car_charging/#{idle_month}", "/cars/charts/car_distance/#{idle_month}")
         end
 
         context 'with the state of charge and the range' do
@@ -168,26 +180,26 @@ describe 'Car Stats' do
             super().merge('INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'Trabant:soc', 'INFLUX_SENSOR_CAR_RANGE_1' => 'Trabant:range')
           end
 
-          # A link chose the chart on purpose, like the odometer of the live
-          # view, so the empty chart of the address shows
+          # A link chose the chart on purpose, so the empty chart of the
+          # address shows
           it 'shows the chart of the address, also without a value' do
             allow(Sensor).to receive(:data?).and_return(true)
-            get cars_home_path(sensor_name: 'car_distance', timeframe: idle_day.to_s, car: 1)
+            get cars_home_path(sensor_name: 'car_distance', timeframe: idle_month, car: 1)
 
-            expect(response.body).to include("/cars/1/charts/car_distance/#{idle_day}")
+            expect(response.body).to include("/cars/1/charts/car_distance/#{idle_month}")
           end
 
           # The menu offers each chart of the column, also an empty one, so a
           # pick can go back to it
           it 'offers the empty charts in the menu' do
-            get(cars_charts_path(sensor_name: 'car_max_range', timeframe: idle_day.to_s, car: 1), headers:)
+            get(cars_charts_path(sensor_name: 'car_max_range', timeframe: idle_month, car: 1), headers:)
 
-            expect(response.body).to include("/cars/1/car_distance/#{idle_day}")
+            expect(response.body).to include("/cars/1/car_distance/#{idle_month}")
           end
         end
 
         it 'keeps the figures, without the link to the sessions' do
-          get(cars_stats_path(sensor_name: 'car_charging', timeframe: idle_day.to_s), headers:)
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: idle_month), headers:)
 
           boxes = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).css('section[aria-labelledby^="overview-"]')
           expect(boxes.size).to eq(2)
@@ -199,26 +211,27 @@ describe 'Car Stats' do
 
       # The charging column shows its empty chart, and a phone shows the
       # driving, which has a value
-      context 'with a day with a drive but without charging' do
-        let(:drive_day) { day + 2 }
+      context 'with a period with a drive but without charging' do
+        let(:drive_day) { Date.new(2026, 8, 10) }
+        let(:drive_month) { '2026-08' }
 
         before { SummaryValue.create!(date: drive_day, field: :car_odometer_1, aggregation: :sum, value: 20) }
 
         it 'shows the first chart of each column, and the distance first on a phone' do
           allow(Sensor).to receive(:data?).and_return(true)
-          get cars_home_path(timeframe: drive_day.to_s, car: 1)
+          get cars_home_path(timeframe: drive_month, car: 1)
 
           html = response.parsed_body
           columns = html.css('[data-car-overview-target="column"]')
           expect(columns.size).to eq(2)
-          expect(response.body).to include("/cars/1/charts/car_charging/#{drive_day}", "/cars/1/charts/car_distance/#{drive_day}")
+          expect(response.body).to include("/cars/1/charts/car_charging/#{drive_month}", "/cars/1/charts/car_distance/#{drive_month}")
           expect(columns.find { it['data-active'] == 'true' }['data-car-overview-charts']).to start_with('car_distance')
         end
 
         it 'keeps the charging figures, which load their empty charts' do
-          get(cars_stats_path(sensor_name: 'car_charging', timeframe: drive_day.to_s, car: 1), headers:)
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: drive_month, car: 1), headers:)
 
-          charging = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby^="overview-"]')
+          charging = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"]')
           expect(charging.text).to include(I18n.t('sensors.car_charging_costs'))
           expect(charging.css('a[href*="/car_charging/"]')).not_to be_empty
         end
@@ -234,11 +247,13 @@ describe 'Car Stats' do
       end
 
       # The tooltip of a rate has the numbers that give it and what only
-      # this rate means, and without a rate what is missing
+      # this rate means, and without a rate what is missing. The window of
+      # the rates stands in the info icon alone.
       it 'explains the rates of the driving' do
         get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers:)
 
-        expect(response.body).to include('Driving cost', 'Energy used', 'counts the charging cost of the 14 days', 'includes the charging losses')
+        expect(response.body).to include('Driving cost', 'Energy used', 'includes the charging losses')
+        expect(response.body).not_to include('counts the charging cost of the 14 days')
         expect(response.body).not_to include('Prices are missing')
       end
 
@@ -270,21 +285,23 @@ describe 'Car Stats' do
         expect(response.body).to include("id=\"cars-car-select-chips-#{day}\"")
       end
 
+      # A day has no charts, so a month
       it 'keeps the car in each link of the overview' do
         wallbox(day, kwh: 10, kwh_grid: 5, cost: 2, car_id: 2, hour: 15)
+        month = day.strftime('%Y-%m')
 
-        get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2), headers:)
+        get(cars_stats_path(sensor_name: 'car_charging', timeframe: month, car: 2), headers:)
         expect(response.body).to include(
-          cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2),
-          cars_home_path(sensor_name: 'car_charging_costs', timeframe: day.to_s, car: 2),
+          cars_home_path(sensor_name: 'car_charging', timeframe: month, car: 2),
+          cars_home_path(sensor_name: 'car_charging_costs', timeframe: month, car: 2),
         )
 
-        get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 2), headers:)
-        expect(response.body).to include(cars_home_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 2))
+        get(cars_stats_path(sensor_name: 'car_distance', timeframe: month, car: 2), headers:)
+        expect(response.body).to include(cars_home_path(sensor_name: 'car_distance', timeframe: month, car: 2))
       end
 
       it 'keeps the car out of the links to other pages' do
-        get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2)
+        get cars_home_path(timeframe: day.to_s, car: 2)
 
         expect(response.body).to include('/cars/2/')
         expect(response.body).not_to match(%r{href="(?:https?://[^/"]+)?/(?!cars/)[^"]*car=2})
@@ -375,7 +392,7 @@ describe 'Car Stats' do
 
         # "all" adds the guest sessions to the one car
         it 'keeps the select with the one car of the timeframe and "all"' do
-          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
+          get cars_home_path(timeframe: day.to_s)
 
           expect(response.body).not_to match(/<select[^>]* disabled[ =>]/)
           expect(response.body).to match(/<option[^>]*selected[^>]*>All cars</)
@@ -522,22 +539,22 @@ describe 'Car Stats' do
         end
 
         it 'offers the guests in the select' do
-          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
+          get cars_home_path(timeframe: day.to_s)
 
-          expect(response.body).to include('Guest', '/cars/guest/car_charging')
+          expect(response.body).to include('Guest', "/cars/guest/#{day}")
         end
 
         # The guests have no car, so no driving and no sessions of a car
         it 'shows the charging of the guest alone, with the link to its page' do
-          get(cars_stats_path(timeframe: day.to_s, car: 'guest'), headers:)
+          get(cars_stats_path(timeframe: day.strftime('%Y-%m'), car: 'guest'), headers:)
 
-          expect(response.body).to include('>7</strong>', "/cars/guest/car_charging/#{day}")
+          expect(response.body).to include('>7</strong>', "/cars/guest/car_charging/#{day.strftime('%Y-%m')}")
           expect(response.body).not_to include(I18n.t('car_breakdown.driving'), I18n.t('data.car_none_in_use'))
         end
 
         # The charging cost of "all" holds the guest, which its tooltip names
         it 'names the cost of the guest in the tooltip of the charging cost of "all"' do
-          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.strftime('%Y-%m')), headers:)
 
           tooltip = Nokogiri::HTML4(response.body).at_css("a[href*='car_charging_costs'] [data-tooltip-target='html']").text # rubocop:disable Rails/ResponseParsedBody
           expect(tooltip).to include('of which guest', '2.10')
@@ -559,25 +576,27 @@ describe 'Car Stats' do
 
         # A chart loads in place, and each choice of the select keeps it
         it 'renders the select again with the chart that loads' do
-          get(cars_charts_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers:)
+          month = '2026-06'
+          get(cars_charts_path(sensor_name: 'car_distance', timeframe: month, car: 1), headers:)
 
-          expect(response.body).to include("target=\"cars-car-select-#{day}\"", "target=\"cars-car-select-chips-#{day}\"")
-          expect(response.body).to include("/cars/guest/car_distance/#{day}")
+          expect(response.body).to include("target=\"cars-car-select-#{month}\"", "target=\"cars-car-select-chips-#{month}\"")
+          expect(response.body).to include("/cars/guest/car_distance/#{month}")
         end
 
         # Each column loads its chart, but only the chart of the address
         # renders the navigation, so its links keep that chart
         it 'renders the navigation only for the chart of the address' do
-          referer = "http://www.example.com/cars/1/car_distance/#{day}"
+          month = '2026-06'
+          referer = "http://www.example.com/cars/1/car_distance/#{month}"
 
-          get(cars_charts_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 1), headers: headers.merge('Referer' => referer))
-          expect(response.body).not_to include("target=\"cars-car-select-#{day}\"")
+          get(cars_charts_path(sensor_name: 'car_charging', timeframe: month, car: 1), headers: headers.merge('Referer' => referer))
+          expect(response.body).not_to include("target=\"cars-car-select-#{month}\"")
 
-          get(cars_charts_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers: headers.merge('Referer' => referer))
-          expect(response.body).to include("target=\"cars-car-select-#{day}\"")
+          get(cars_charts_path(sensor_name: 'car_distance', timeframe: month, car: 1), headers: headers.merge('Referer' => referer))
+          expect(response.body).to include("target=\"cars-car-select-#{month}\"")
 
-          get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 1), headers: headers.merge('Referer' => referer))
-          expect(response.body).not_to include("target=\"cars-car-select-#{day}\"", "/cars/1/car_charging/#{day - 1}")
+          get(cars_stats_path(sensor_name: 'car_charging', timeframe: month, car: 1), headers: headers.merge('Referer' => referer))
+          expect(response.body).not_to include("target=\"cars-car-select-#{month}\"", '/cars/1/car_charging/2026-05')
         end
 
         it 'adds the guest to "all", but not to a car' do
@@ -590,7 +609,7 @@ describe 'Car Stats' do
 
         it 'offers the select also with one car in the installation' do
           Car.find(2).destroy!
-          get cars_home_path(sensor_name: 'car_charging', timeframe: day.to_s)
+          get cars_home_path(timeframe: day.to_s)
 
           expect(response.body).to include('name="car"', 'All cars', 'Trabant', 'Guest')
         end

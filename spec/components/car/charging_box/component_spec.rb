@@ -3,11 +3,17 @@ describe Car::ChargingBox::Component, type: :component do
 
   def sums(count: 0, **) = ChargingSession::Sums.empty.with(count:, rows: count, **)
 
-  # The value and the caption of each tile of a phone
-  def tiles = html.css('div.lg\:hidden.grid > *').map { |tile| tile.css('> span').first(2).map { it.text.squish } }
+  # The value and the caption of a phone of each figure
+  def tiles = html.css('section > div.grid > *').map { |tile| tile.css('> span').first(2).map { it.text.squish } }
 
-  # The text in the center of the ring
-  def center = html.css('.size-24 > span').map { it.text.squish }.join(' ').presence
+  # The caption of the desktop of each figure with one of its own
+  def wide_labels = html.css('section > div.grid > * > span.max-lg\:hidden').map { it.text.squish }
+
+  # The parts of the bar of the sources, in the order of the bar
+  def bar = html.css('section > div.grid span[style*="flex-grow"]').map { it['style'][/var\(--color-[\w-]+\)/] }
+
+  # The colors of the swatch before the title
+  def swatch = html.xpath('.//h2/preceding-sibling::span/span').map { it['style'][/var\(--color-[\w-]+\)/] }
 
   # The charts that a click on a figure loads
   def charts = html.css('[data-stats-with-chart--component-sensor-name-param]').pluck('data-stats-with-chart--component-sensor-name-param').uniq
@@ -31,11 +37,14 @@ describe Car::ChargingBox::Component, type: :component do
     allow(report).to receive(:sources) { Car::Report.sources_of(wallbox, offsite, split: report.split?) }
   end
 
-  it 'shows the share of PV in the center of the ring' do
-    expect(center).to eq("56 % #{I18n.t('car_breakdown.share_pv')}")
+  # Like a bar of a charge in the timeline of a day. The share of PV has no
+  # bar of its own.
+  it 'shows the sources in the swatch before the title' do
+    expect(bar).to be_empty
+    expect(swatch).to eq(%w[var(--color-car-pv) var(--color-car-grid) var(--color-car-offsite)])
   end
 
-  it 'shows the charged energy, the share of PV and the cost as tiles' do
+  it 'shows the charged energy, the share of PV and the cost' do
     expect(tiles).to eq(
       [
         ['2,078 kWh', 'charged'],
@@ -43,6 +52,10 @@ describe Car::ChargingBox::Component, type: :component do
         ['372 €', 'cost'],
       ],
     )
+  end
+
+  it 'names the cost in full on the desktop' do
+    expect(wide_labels).to eq([I18n.t('sensors.car_charging_costs')])
   end
 
   it 'loads the chart of the energy and of the cost' do
@@ -74,8 +87,9 @@ describe Car::ChargingBox::Component, type: :component do
       )
     end
 
-    it 'leaves the ring empty' do
-      expect(center).to be_nil
+    it 'has no bar of the sources' do
+      expect(bar).to be_empty
+      expect(swatch).to eq(%w[var(--color-fill-strong)])
     end
 
     it 'loads the empty charts, but links no list' do
@@ -90,15 +104,15 @@ describe Car::ChargingBox::Component, type: :component do
     before { allow(report).to receive(:split?).and_return(false) }
 
     it 'shows the share of the wallbox' do
-      expect(center).to eq("93 % #{I18n.t('car_breakdown.share_wallbox')}")
+      expect(tiles[1]).to eq(['93 %', I18n.t('car_breakdown.share_wallbox')])
     end
 
     context 'with the wallbox alone' do
       let(:offsite) { sums }
 
       it 'has no share' do
-        expect(center).to be_nil
         expect(tiles.size).to eq(2)
+        expect(bar).to be_empty
       end
     end
   end

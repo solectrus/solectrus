@@ -84,10 +84,10 @@ class ChargingSession::Detection
 
     curves.start
     found = dates.index_with { |date| periods(date) }
-    energies = integrals(found.values.flatten(1))
+    energies = integrals(found.values.flatten(1).map { [it.from, it.to] })
 
     found.to_h do |date, periods|
-      [date, periods.filter_map { |from, to| session(date, from, to, *energies[[from, to]]) }]
+      [date, periods.filter_map { session(date, it.from, it.to, *energies[[it.from, it.to]]) }]
     end
   end
 
@@ -120,15 +120,8 @@ class ChargingSession::Detection
     )
   end
 
-  # [[from, to], ...] of the day
-  def periods(date)
-    Periods.new(
-      date,
-      power: curve(date, :wallbox_power),
-      connected: curve(date, :wallbox_car_connected),
-      gaps: curves.wallbox_gaps.dig(date, :wallbox_power) || [],
-    ).call
-  end
+  # The periods of the day (see Periods::Period)
+  def periods(date) = Periods.of(curves, date).call
 
   # The curve of a wallbox sensor or of a car sensor on a day
   def curve(date, sensor_name)

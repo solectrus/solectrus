@@ -103,11 +103,12 @@ describe Sensor::Chart::CarSessions do
     expect(chart.data[:datasets].pluck(:tooltipNotes)).to all(be_nil)
   end
 
+  # A day has the timeline of the day instead
   context 'with a day' do
     let(:timeframe) { Timeframe.new('2026-06-10') }
 
-    it 'shows the cost of the wallbox' do
-      expect(chart.chart_sensor_names).to eq(%i[wallbox_costs_pv wallbox_costs_grid])
+    it 'has no chart' do
+      expect(chart).to be_nil
     end
   end
 
