@@ -19,6 +19,7 @@ describe Sensor::Definitions::CarMaxRange do # rubocop:disable RSpec/SpecFilePat
     let(:date) { Date.yesterday }
 
     before do
+      travel_to Time.zone.local(2026, 9, 23, 12)
       Sensor::Config.setup(
         ENV.to_h.merge('INFLUX_SENSOR_CAR_RANGE_1' => 'Trabant:range'),
       )

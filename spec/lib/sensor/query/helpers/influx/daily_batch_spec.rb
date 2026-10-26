@@ -14,6 +14,7 @@ describe Sensor::Query::Helpers::Influx::DailyBatch do
   let(:dates) { seeded_dates }
 
   before do
+    travel_to Time.zone.local(2026, 9, 23, 12)
     stub_feature(:heatpump)
 
     influx_batch do

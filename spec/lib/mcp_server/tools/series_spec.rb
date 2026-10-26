@@ -29,7 +29,9 @@ describe McpServer::Tools::Series do
     end
   end
 
-  before { freeze_time }
+  # A fixed day far from a daylight-saving switch: on the day after one,
+  # "yesterday" has 23 or 25 hours and every hourly count is off by one
+  before { travel_to Time.zone.local(2026, 9, 23, 12) }
 
   # The description enumerates the constraints that coarsen a request, and a
   # client acts on that enumeration: it decides whether to shorten a timeframe
@@ -429,8 +431,8 @@ describe McpServer::Tools::Series do
     # sits on ("05:00, 06:00, 06:44:29") - which a client reading the points as
     # a raster can only take for a bucket of its own.
     context 'with a window that opens and closes mid-bucket' do
-      # Half past the hour, because the outer freeze_time keeps whatever time
-      # the suite happens to run at: on the stroke of an hour a "P2H" window
+      # Half past the hour, because the outer travel_to stops at noon: on the
+      # stroke of an hour a "P2H" window
       # opens and closes ON a bucket edge, cuts nothing, and the context tests
       # the opposite of what it names. Once an hour, that made it fail.
       #
