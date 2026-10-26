@@ -674,6 +674,17 @@ describe 'Charging sessions' do
 
       expect(ChargingSession.order(:created_at).last).to have_attributes(kind: 'offsite', origin: 'user', car_id: car.id, kwh: 12)
     end
+
+    it 'names an end before the start in the form' do
+      expect do
+        post '/cars/charging_sessions',
+             params: { charging_session: { car_id: car.id, started_at: 1.day.ago, ended_at: 2.days.ago, kwh: 12, cost: 6 } },
+             as: :turbo_stream
+      end.not_to change(ChargingSession, :count)
+
+      expect(response).to have_http_status(:unprocessable_content)
+      expect(response.body).to include('must be after the start')
+    end
   end
 
   describe 'GET /cars/charging_sessions/:id/edit' do

@@ -669,6 +669,10 @@ de:
               inactive: ist zur Zeit des Ladevorgangs nicht in Gebrauch
             started_at:
               overlap: überschneidet sich mit einer anderen Auswärtsladung des Autos
+              in_future: darf nicht in der Zukunft liegen
+            ended_at:
+              in_future: darf nicht in der Zukunft liegen
+              not_after_start: muss nach dem Beginn liegen
             evse_id:
               invalid: darf nur A–Z, 0–9, *, + und - enthalten (höchstens 48 Zeichen)
             address:

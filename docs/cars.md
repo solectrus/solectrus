@@ -301,7 +301,9 @@ sessions without a position.
 The user changes the car, the guest mark and the note of a wallbox session. The detection
 writes its time, energy and cost, so the form shows them read-only. A new session is always
 `offsite`, because a guest charge that no wallbox measured has no energy and no cost. The
-list deletes only an offsite session.
+list deletes only an offsite session. An offsite session records a charge that took place,
+so the form refuses a start or an end after now, and an end that is not after the start
+(`ChargingSession::EnteredTime`).
 
 The list shows a proposal with its estimate, but its sums leave it out. A save in the form
 accepts a proposal, so the form needs the cost. The user can also dismiss a proposal. A

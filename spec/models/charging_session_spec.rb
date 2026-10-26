@@ -66,6 +66,35 @@ describe ChargingSession do
         expect(session.errors[:guest]).to be_present
       end
 
+      it 'starts in the past' do
+        session.started_at = 1.minute.from_now
+
+        expect(session).not_to be_valid
+        expect(session.errors.details[:started_at]).to include(error: :in_future)
+      end
+
+      it 'ends in the past' do
+        session.ended_at = 1.minute.from_now
+
+        expect(session).not_to be_valid
+        expect(session.errors.details[:ended_at]).to include(error: :in_future)
+      end
+
+      it 'ends after its start' do
+        session.ended_at = session.started_at
+
+        expect(session).not_to be_valid
+        expect(session.errors.details[:ended_at]).to include(error: :not_after_start)
+      end
+
+      # A session of the past stays valid, also when it is saved again
+      it 'keeps a time that does not change' do
+        session.save!
+        session.update_columns(started_at: 1.hour.from_now, ended_at: 2.hours.from_now) # rubocop:disable Rails/SkipsModelValidations
+
+        expect(session.reload).to be_valid
+      end
+
       describe 'the EVSE ID' do
         it 'takes the IDs that the stations show' do
           expect(session).to allow_values(

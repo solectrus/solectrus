@@ -56,6 +56,7 @@
 # dismissed proposal keeps its row with the mark, so the next build does not
 # make it again. Only the effective sessions count (see .effective).
 class ChargingSession < ApplicationRecord
+  include ChargingSession::EnteredTime
   include ChargingSession::Holder
   include ChargingSession::Location
   include ChargingSession::Ongoing
