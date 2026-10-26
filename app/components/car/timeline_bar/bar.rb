@@ -9,9 +9,9 @@
 #
 # Its tooltip has a title, `lines` below it, like the town and the street of
 # an address, `parts` and `notes`. A drive without a known start is a mark
-# at its end.
-Car::TimelineBar::Bar = Data.define(:from, :to, :segments, :pauses, :ends, :title, :lines, :parts, :notes) do
-  def initialize(segments: [], pauses: [], ends: %i[round round], parts: [], notes: [], **) = super
+# at its end. A bar with `href` opens its entry, on a phone at `sheet_href`.
+Car::TimelineBar::Bar = Data.define(:from, :to, :segments, :pauses, :ends, :title, :lines, :parts, :notes, :href, :sheet_href) do
+  def initialize(segments: [], pauses: [], ends: %i[round round], parts: [], notes: [], href: nil, sheet_href: nil, **) = super # rubocop:disable Metrics/ParameterLists
 
   # The text of the tooltip for a screen reader
   def label = [title, *lines, *parts.map { [it.label, it.value.presence, ("#{it.percent} %" if it.percent)].compact.join(' ') }, *notes].join(', ')

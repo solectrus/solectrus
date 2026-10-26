@@ -164,14 +164,30 @@ describe Car::DayTimeline::Component, type: :component do
 
   # The place of an offsite session is personal data, like in the list
   context 'with an offsite session' do
-    let(:session) { ChargingSession.new(kind: :offsite, car_id: 1, started_at: at(12), ended_at: at(13), kwh: 30, address: 'Hauptstraße 1, Bensheim') }
+    let(:session) { ChargingSession.new(id: 7, kind: :offsite, car_id: 1, started_at: at(12), ended_at: at(13), kwh: 30, address: 'Hauptstraße 1, Bensheim') }
 
     it 'names its place to the admin alone' do
       allow(vc_test_controller).to receive(:admin?).and_return(true)
-      expect(bars.last['aria-label']).to include('Hauptstraße 1, Bensheim')
+      expect(html.css('a[aria-label*="Hauptstraße 1, Bensheim"]')).to be_present
 
       allow(vc_test_controller).to receive(:admin?).and_return(false)
       expect(render_inline(described_class.new(timeline:)).text).not_to include('Hauptstraße')
+    end
+
+    # In the modal on the desktop, in a sheet on a phone
+    it 'opens its form for the admin with a click' do
+      allow(vc_test_controller).to receive(:admin?).and_return(true)
+
+      desktop, phone = html.css('a[href^="/cars/charging_sessions/7/edit"]').pluck('href')
+      expect(desktop).not_to include('sheet=1')
+      expect(phone).to include('sheet=1')
+      expect(html.css('a[data-turbo-frame="modal"][href^="/cars/charging_sessions/7/edit"]').size).to eq(2)
+    end
+
+    it 'opens nothing for a guest' do
+      allow(vc_test_controller).to receive(:admin?).and_return(false)
+
+      expect(html.css('a[href*="/edit"]')).to be_empty
     end
   end
 

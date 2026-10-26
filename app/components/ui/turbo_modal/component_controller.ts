@@ -8,10 +8,11 @@ import type ConfirmDialogController from '../confirm_dialog/component_controller
 // the frame once it is closed. Before a form with unsaved changes closes, it
 // asks in Ui::ConfirmDialog::Component, its outlet.
 //
-// A sheet with pages (Ui::SheetPage::Component) stays open after a save in
-// it. Once it closes, it announces the change (`changed` on the document), and
-// the stats and the charts of the page behind it load again (see
-// stats_with_chart).
+// A save closes the modal, but a sheet with pages (Ui::SheetPage::Component)
+// stays open after a save in it. Once it closes after a save, it announces
+// the change (`changed` on the document), and the stats and the charts of the
+// page behind it load again (see stats_with_chart), like the timeline of a
+// day on the car page.
 export default class extends Controller<HTMLElement> {
   static readonly targets = ['dialog'];
   static readonly outlets = ['ui--confirm-dialog--component'];
@@ -60,8 +61,8 @@ export default class extends Controller<HTMLElement> {
   submitEnd(event: CustomEvent): void {
     if (!event.detail.success) return;
 
-    if (isInSheetPage(event.target)) this.changed = true;
-    else this.closeDialog();
+    this.changed = true;
+    if (!isInSheetPage(event.target)) this.closeDialog();
   }
 }
 

@@ -18,8 +18,10 @@ class Car::TimelineBar::Component < ViewComponent::Base
   # keeps the width of a mark, so it stays visible on a day of 24 hours.
   def style = "right: #{(100 - bar.to).round(3)}%; width: max(#{(bar.to - bar.from).round(3)}%, 0.25rem)"
 
+  # A bar that opens its entry takes a tap for it, so its tooltip needs a
+  # long press, and its link names it for a screen reader
   def attributes
-    data = { controller: 'tooltip', tooltip_touch_value: 'true' }
+    data = { controller: 'tooltip', tooltip_touch_value: bar.href ? 'long' : 'true' }
     return { class: 'absolute inset-y-0 rounded-sm hover:bg-fill', style:, aria: { hidden: true }, data: } if bar.segments.empty?
 
     css_class = class_names(
@@ -28,7 +30,10 @@ class Car::TimelineBar::Component < ViewComponent::Base
       'rounded-r-none' => bar.ends.last == :square,
       'timeline-bar-estimated' => bar.ends.last == :jagged,
       'timeline-bar-estimated-start' => bar.ends.first == :jagged,
+      'cursor-pointer' => bar.href,
     )
+    return { class: css_class, style:, data: } if bar.href
+
     { class: css_class, style:, role: 'img', aria: { label: bar.label }, data: }
   end
 

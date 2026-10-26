@@ -18,6 +18,24 @@ describe 'Charging sessions' do
   # System tests are not transactional
   after { ChargingSession.delete_all }
 
+  # The bar of an offsite session in the timeline of a day opens its form
+  context 'with the timeline of a day' do
+    let!(:session) { offsite(Time.zone.local(2022, 6, 10, 18), 'June trip') }
+
+    it 'edits the session in the modal and renders the day again' do
+      visit "/cars/#{car.id}/2022-06-10"
+      find("a[href^='/cars/charging_sessions/#{session.id}/edit']", visible: :visible).click
+
+      within '#modal' do
+        fill_in 'charging_session_kwh', with: '33'
+        click_on 'Speichern'
+      end
+
+      expect(page).to have_no_css('#modal dialog')
+      expect(page).to have_css("a[href^='/cars/charging_sessions/#{session.id}/edit'][aria-label*='33,0 kWh']", visible: :all)
+    end
+  end
+
   context 'with a list of a timeframe' do
     before do
       offsite(Time.zone.local(2022, 6, 10, 18), 'June trip')

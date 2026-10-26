@@ -912,7 +912,9 @@ odometer of a car link to today with the car selected.
 
 The tooltip of a bar names what the car did, its time and its place, and its numbers. Only
 the admin sees the places: the start and the goal of a drive from the visits of the day (see
-[Visits](#visits)), and the address of an offsite session.
+[Visits](#visits)), and the address of an offsite session. The admin opens the form of an
+offsite session with a click on its bar: in the modal on the desktop, in a sheet on a phone.
+On a phone, the tooltip of such a bar then needs a long press.
 
 The sessions with their start and their end come from the table. A running session charges
 until now. A session that charged over midnight shows on both days, each day with its part.

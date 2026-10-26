@@ -6,4 +6,9 @@
     span.basis-0 style="flex-grow: #{segment.last}; background: #{segment.first}"
   - bar.pauses.each do |left, width|
     span.absolute.inset-y-0.bg-car-plugged style="left: #{left}%; width: #{width}%"
+  / A click opens the entry: in the modal on the desktop, in a sheet on a
+    phone
+  - if bar.href
+    = link_to '', bar.href, class: 'max-lg:hidden absolute inset-0 focus-ring', aria: { label: bar.label }, data: Ui::TurboModal::Component.link_data
+    = link_to '', bar.sheet_href || bar.href, class: 'lg:hidden absolute inset-0 focus-ring', aria: { label: bar.label }, data: Ui::TurboModal::Component.link_data
   = render tooltip

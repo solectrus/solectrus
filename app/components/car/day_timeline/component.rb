@@ -81,6 +81,7 @@ class Car::DayTimeline::Component < ViewComponent::Base
         lines: [time_text((from unless continued), (to unless open)), *offsite_place(session)].compact,
         parts: charge_parts(session),
         notes: charge_notes(charge),
+        **charge_links(session),
       )
     end
   end
@@ -228,6 +229,22 @@ class Car::DayTimeline::Component < ViewComponent::Base
   def pv_part(session)
     percent = session.pv_percent if session.wallbox?
     detail(t('.pv_share'), "#{percent} %") if percent
+  end
+
+  # The form of an offsite session, which the admin opens with a click: in
+  # the modal on the desktop, in a sheet on a phone. Its list of the day is
+  # where the form goes back to.
+  def charge_links(session)
+    return {} unless session.offsite? && helpers.admin?
+
+    {
+      href: helpers.edit_cars_charging_session_path(session, return_to: day_list_path(session)),
+      sheet_href: helpers.edit_cars_charging_session_path(session, sheet: 1, return_to: day_list_path(session, sheet: 1)),
+    }
+  end
+
+  def day_list_path(session, **params)
+    helpers.cars_charging_sessions_path(kind: 'offsite', timeframe: timeline.timeframe.to_param, car: session.car_id, **params)
   end
 
   # Where an offsite session charged, like on the map of the sessions (see
