@@ -249,13 +249,11 @@ en:
     guest_short: Guest
     offsite_short: Offsite
     unknown_place: Unknown place
-    cost_rate: Cost per 100 km
-    consumption_rate: Consumption per 100 km
     # The captions below the values of the tiles of a phone
     charged: charged
     driven: driven
     cost: cost
-    per_100km: per 100 km
+    used: used
     per_day_note: Ø %{distance}/day
     unconfirmed:
       one: 1 unconfirmed session

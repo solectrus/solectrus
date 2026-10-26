@@ -237,7 +237,7 @@ describe 'Car Stats' do
 
           boxes = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).css('section[aria-labelledby^="overview-"]')
           expect(boxes.size).to eq(2)
-          expect(boxes.text).to include(I18n.t('sensors.car_charging_costs'), I18n.t('car_breakdown.cost_rate'))
+          expect(boxes.text).to include(I18n.t('sensors.car_charging_costs'), I18n.t('sensors.car_driving_costs'))
           expect(boxes.css('a[href*="/charging_sessions/"]')).to be_empty
           expect(response.body).not_to include('The data is not enough')
         end
@@ -277,7 +277,7 @@ describe 'Car Stats' do
         expect(response.body).to include(I18n.t('sensors.car_charging_costs'))
 
         get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s), headers:)
-        expect(response.body).to include(I18n.t('car_breakdown.cost_rate'), I18n.t('car_breakdown.consumption_rate'))
+        expect(response.body).to include(I18n.t('sensors.car_cost_rate'), I18n.t('sensors.car_consumption_rate'))
       end
 
       # The tooltip of a rate has the numbers that give it and what only

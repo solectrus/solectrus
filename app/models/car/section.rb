@@ -7,7 +7,7 @@
 module Car::Section
   # The charts of each column, in the order of the menu, the first chart first
   CHARTS = {
-    driving: %i[car_distance car_driving_costs car_cost_rate car_consumption_rate car_max_range],
+    driving: %i[car_distance car_consumption_rate car_driving_costs car_cost_rate car_max_range],
     charging: %i[car_charging car_charging_costs car_battery_soc],
   }.freeze
   public_constant :CHARTS

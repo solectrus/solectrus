@@ -22,10 +22,15 @@
                 span.inline-block.w-14.text-right.font-normal.text-muted = "#{part.percent} %"
       - if details.any?
         .tooltip-group
+          / The bar places the last detail, the rate. Both form one row, so the
+            list of a sheet draws no line between them.
           - details.each do |part|
-            .label-value-row
-              span.tooltip-row-label = part.label
-              span.font-semibold.whitespace-nowrap = part.value
+            div
+              .label-value-row
+                span.tooltip-row-label = part.label
+                span.font-semibold.whitespace-nowrap = part.value
+              - if bar && part == details.last
+                .pt-3 = render bar
       / The notes wrap at the width of the rows above them, so a long note
         does not widen the tooltip
       - if notes.any?

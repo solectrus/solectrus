@@ -1,7 +1,10 @@
-/ The mark keeps half its width from each end, so it stays inside
-span class='mt-1 flex w-full max-w-36 flex-col gap-1' aria-hidden='true'
-  span class='relative block h-1 w-full rounded-full bg-fill-strong'
+/ The mark keeps half its width from each end, so it stays inside. The
+  period of an end stands below its number, at the same side.
+span class='flex w-full flex-col gap-1.5'
+  span class='relative block h-1 w-full rounded-full bg-fill-strong' aria-hidden='true'
     span class='absolute -top-1 w-1 h-3 -translate-x-1/2 rounded-sm bg-fg ring-2 ring-surface' style="left: clamp(0.125rem, #{position}%, 100% - 0.125rem)"
-  span class='flex justify-between text-xs leading-none tabular-nums text-muted'
-    - ends.each do |number|
-      span = number
+  span class='flex justify-between gap-4 text-xs leading-tight tabular-nums text-muted'
+    - ends.each do |number, period|
+      span class='flex flex-col last:text-right'
+        span.font-semibold.text-fg-secondary = number
+        span = period

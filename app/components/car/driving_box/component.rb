@@ -1,9 +1,9 @@
 # The driving of a period in the overview of the car page (see
 # Car::OverviewBox::Component): the distance with the average distance of a
-# day, and on "all" a bar of the share of each car. Beside it, the cost and
-# the consumption per 100 km, each with a bar of its place between the
-# periods of its kind (see Car::Spans), and below them the window that they
-# come from.
+# day, and on "all" a bar of the share of each car. Beside it, the driving
+# cost and the energy used. The tooltip of each has its rate per 100 km with
+# a bar of its place between the periods of its kind (see Car::Spans), and
+# the info icon of the title the window that the rates come from.
 class Car::DrivingBox::Component < ViewComponent::Base
   def initialize(report:)
     super()
@@ -48,13 +48,14 @@ class Car::DrivingBox::Component < ViewComponent::Base
   # The average distance of a day, nil for a day
   def per_day = report.km_per_day && Sensor::ValueFormatter.new(report.km_per_day, unit: Sensor::Registry[:car_distance].unit).to_s
 
-  # The distance with its average of a day below it, and the two rates. On a
-  # phone, their unit tells them apart, each "per 100 km". A low rate is
-  # good.
+  # The distance with its average of a day below it, the energy used and the
+  # driving cost. The cost comes last, like in the charging (see
+  # Car::ChargingBox::Component). The rates per 100 km stand in the tooltips.
   def figures
     [
       Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, label: per_day ? t('car_breakdown.per_day_note', distance: per_day) : t('car_breakdown.driven'), value: render(distance_value), segments:, parts:),
-      *rates,
+      energy_figure,
+      cost_figure,
     ]
   end
 
@@ -75,65 +76,64 @@ class Car::DrivingBox::Component < ViewComponent::Base
 
   def driven? = distance&.positive?
 
-  # The rates with the precision of their unit
-  def rates
-    [
-      rate(:cost_rate, :car_cost_rate, driving.cost_per_100km, spans&.cost_per_100km, precision: 2, **cost_rate_tooltip) do |value|
-        Sensor::Value::Component.new(value, :total_costs, precision: 2)
-      end,
-      rate(:consumption_rate, :car_consumption_rate, driving.consumption_per_100km, spans&.consumption_per_100km, precision: 1, **consumption_rate_tooltip) do |value|
-        Sensor::Value::Component.new(value * 1000, :wallbox_power, context: :total, scaling: :kilo, precision: 1)
-      end,
-    ]
-  end
-
-  # A rate with the bar of its place among the periods. A day has no chart
-  # of a rate, so its figure loads nothing. The ends of the bar have the
-  # numbers of the span alone, because the value above them has the unit.
-  # `precision` is the number of decimals of these ends, and `tooltip` has
-  # the parts and the notes of the figure.
-  def rate(label, sensor_name, value, span, precision:, **tooltip)
-    bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:) if value && span
+  # The driving cost loads its chart. Without a cost rate, the cost of the
+  # driven kilometers is unknown.
+  def cost_figure
+    cost = Sensor::Value::Component.new(driving.cost, :total_costs) if driving.cost_rated?
     Car::OverviewBox::Component::Figure.new(
-      sensor_name:,
-      label: t('car_breakdown.per_100km'),
-      wide_label: t("car_breakdown.#{label}"),
-      value: value ? render(yield(value)) : '–',
-      bar:,
-      **tooltip,
+      sensor_name: :car_driving_costs,
+      label: t('car_breakdown.cost'),
+      wide_label: t('sensors.car_driving_costs'),
+      value: cost ? render(cost) : '–',
+      **cost_tooltip,
     )
   end
 
-  # The tooltip of a rate has the amount that it divides by the distance
-  # beside it, and what only this rate means. The window of both rates stands
-  # in the info icon alone (see #note). Without a rate it tells what is
-  # missing. With an energy rate but without a cost rate, a session
-  # around the trip has no price. Without a drive, nothing is missing.
-  def cost_rate_tooltip
+  # The energy used has no chart of its own, so it loads the chart of the
+  # consumption per 100 km
+  def energy_figure
+    energy = Sensor::Value::Component.new(driving.energy_wh, :wallbox_power, context: :total, scaling: :kilo, precision: driving.energy_wh >= 100_000 ? 0 : 1) if driving.rated?
+    Car::OverviewBox::Component::Figure.new(
+      sensor_name: :car_consumption_rate,
+      label: t('car_breakdown.used'),
+      wide_label: t('.energy'),
+      value: energy ? render(energy) : '–',
+      **energy_tooltip,
+    )
+  end
+
+  # The tooltip of a figure has its rate per 100 km (see #rate_tooltip), and
+  # what only this figure means. The window of both rates stands in the info
+  # icon alone (see #note). Without a rate it tells what is missing. With an
+  # energy rate but without a cost rate, a session around the trip has no
+  # price. Without a drive, nothing is missing.
+  def cost_tooltip
     return {} unless driven?
     return { notes: [t(driving.rated? ? '.no_price' : '.no_rate')] } unless driving.cost_per_100km
 
-    {
-      parts: [rate_part(t('sensors.car_driving_costs'), currency(driving.cost))],
-      notes: [unrated_note(driving.cost_distance)].compact,
-    }
+    rate_tooltip(:car_cost_rate, driving.cost_per_100km, spans&.cost_per_100km, precision: 2, notes: [unrated_note(driving.cost_distance)]) do
+      Sensor::Value::Component.new(it, :total_costs, precision: 2)
+    end
   end
 
-  def consumption_rate_tooltip
+  def energy_tooltip
     return {} unless driven?
     return { notes: [t('.no_rate')] } unless driving.consumption_per_100km
 
-    energy = Sensor::ValueFormatter.new(driving.energy_wh, unit: Sensor::Registry[:wallbox_power].unit, context: :total, scaling: :kilo, precision: 0).to_s
-    {
-      parts: [rate_part(t('.energy'), energy)],
-      notes: [t('.consumption_losses'), unrated_note(driving.distance)].compact,
-    }
+    rate_tooltip(:car_consumption_rate, driving.consumption_per_100km, spans&.consumption_per_100km, precision: 1, notes: [t('.consumption_losses'), unrated_note(driving.distance)]) do
+      Sensor::Value::Component.new(it * 1000, :wallbox_power, context: :total, scaling: :kilo, precision: 1)
+    end
   end
 
-  def rate_part(label, value) = Car::OverviewBox::Component::Part.new(label:, value:, color: nil, percent: nil)
-
-  # Cents below 100, where they still count, whole amounts above
-  def currency(value) = Sensor::ValueFormatter.new(value, unit: Sensor::Registry[:total_costs].unit, precision: value >= 100 ? 0 : 2).to_s
+  # The rate with the bar of its place among the periods. A low rate is
+  # good. The ends of the bar have the numbers alone, because the rate above
+  # them has the unit. `precision` is the number of decimals of these ends.
+  # The block gives a rate with its unit.
+  def rate_tooltip(sensor_name, value, span, precision:, notes:)
+    part = Car::OverviewBox::Component::Part.new(label: t("sensors.#{sensor_name}"), value: render(yield(value)), color: nil, percent: nil)
+    bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:) if span
+    { parts: [part], bar:, notes: notes.compact }
+  end
 
   def kilometers(value) = Sensor::ValueFormatter.new(value.round, unit: Sensor::Registry[:car_distance].unit).to_s
 

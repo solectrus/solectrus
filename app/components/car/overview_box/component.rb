@@ -25,9 +25,9 @@ class Car::OverviewBox::Component < ViewComponent::Base
 
   # A figure that loads its chart. `wide_label` is the caption of the desktop,
   # where it has room, `label` the one of a phone. It can have a bar of its
-  # span (see Car::SpanBar::Component), or a bar of its `segments`, like the
-  # sources of the charged energy. Its tooltip has the `parts` of the value,
-  # like the cost of each source, and the paragraphs of its `notes`, like how
+  # `segments`, like the sources of the charged energy. Its tooltip has the
+  # `parts` of the value, like the cost of each source, the `bar` of a span
+  # (see Car::SpanBar::Component), and the paragraphs of its `notes`, like how
   # the value comes about.
   Figure = Data.define(:sensor_name, :label, :wide_label, :value, :bar, :segments, :parts, :notes) do
     def initialize(wide_label: nil, bar: nil, segments: [], parts: [], notes: [], **) = super
@@ -99,15 +99,12 @@ class Car::OverviewBox::Component < ViewComponent::Base
     content_tag(tag_name, **attributes, &)
   end
 
-  # A part of the box with a line before it. Where the timeframe has spans, a
-  # figure has the height of one with a bar, so a row keeps its height when
-  # its figures replace the placeholder (see Car::Spans).
+  # A part of the box with a line before it
   def figure_classes(index)
     class_names(
       'flex min-w-0 flex-col gap-1 text-left focus-ring',
       'px-3 py-3 first:rounded-l-xl last:rounded-r-xl lg:px-5 lg:py-4',
       'border-l border-surface' => index.positive?,
-      'min-h-18.5 lg:min-h-30' => Car::Spans.kind(timeframe),
     )
   end
 end

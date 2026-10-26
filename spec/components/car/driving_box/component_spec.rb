@@ -16,8 +16,8 @@ describe Car::DrivingBox::Component, type: :component do
   # The text of the info icon beside the title
   def info = html.at_css('h2 ~ [data-controller="tooltip"] [data-tooltip-target="html"]')&.text&.squish
 
-  # The numbers at the ends of each bar of a span
-  def span_ends = html.css('span.justify-between').map { it.css('span').map(&:text) }
+  # The number and the period of each end of each bar of a span
+  def span_ends = html.css('span.justify-between').map { |ends| ends.css('> span').map { it.css('span').map(&:text) } }
 
   let(:distance) { 9877 }
   let(:driving) { Car::Driving::Totals.new(distance: 9877, energy_wh: 2_092_000, cost_distance: 9877, cost: 372.8) }
@@ -40,22 +40,22 @@ describe Car::DrivingBox::Component, type: :component do
 
   after { Sensor::Config.setup(ENV) }
 
-  it 'shows the distance with its average of a day, and the two rates' do
+  it 'shows the distance with its average of a day, the energy used and the driving cost' do
     expect(tiles).to eq(
       [
         ['9,877 km', 'Ø 27 km/day'],
-        ['3.77 €', 'per 100 km'],
-        ['21.2 kWh', 'per 100 km'],
+        ['2,092 kWh', 'used'],
+        ['373 €', 'cost'],
       ],
     )
   end
 
-  it 'names the rates in full on the desktop' do
-    expect(wide_labels).to eq([I18n.t('car_breakdown.cost_rate'), I18n.t('car_breakdown.consumption_rate')])
+  it 'names the cost and the energy in full on the desktop' do
+    expect(wide_labels).to eq(['Energy used', I18n.t('sensors.car_driving_costs')])
   end
 
   it 'loads the chart of each figure' do
-    expect(charts).to eq(%w[car_distance car_cost_rate car_consumption_rate])
+    expect(charts).to eq(%w[car_distance car_consumption_rate car_driving_costs])
   end
 
   # Like a bar of a drive in the timeline of a day
@@ -70,14 +70,17 @@ describe Car::DrivingBox::Component, type: :component do
 
   # A low rate is good, so the good end is the lowest on the right
   context 'with the span of the periods' do
-    let(:span) { ->(min, max) { Car::Spans::Span.new(min:, max:, min_timeframe: nil, max_timeframe: nil) } }
+    let(:span) { ->(min, max, min_timeframe, max_timeframe) { Car::Spans::Span.new(min:, max:, min_timeframe: Timeframe.new(min_timeframe), max_timeframe: Timeframe.new(max_timeframe)) } }
 
     before do
-      allow(report).to receive(:spans).and_return(instance_double(Car::Spans, cost_per_100km: span.call(1.06, 10.67), consumption_per_100km: span.call(9.31, 38.92)))
+      allow(report).to receive(:spans).and_return(
+        instance_double(Car::Spans, cost_per_100km: span.call(1.06, 10.67, '2023', '2021'), consumption_per_100km: span.call(9.31, 38.92, '2024', '2022')),
+      )
     end
 
-    it 'shows the ends of each span, the good end on the right' do
-      expect(span_ends).to eq([%w[10.67 1.06], %w[38.9 9.3]])
+    it 'shows the ends of each span with their periods in the tooltips, the good end on the right' do
+      expect(span_ends).to eq([[%w[38.9 2022], %w[9.3 2024]], [%w[10.67 2021], %w[1.06 2023]]])
+      expect(html.css('[data-tooltip-target="html"] span.justify-between').size).to eq(2)
     end
   end
 
@@ -90,13 +93,12 @@ describe Car::DrivingBox::Component, type: :component do
     end
   end
 
-  # Each rate has the amount that it divides by the distance, and what only
-  # this rate means
-  it 'explains each rate in its own tooltip' do
-    cost, consumption = tooltips
+  # Each figure has its rate per 100 km, and what only this figure means
+  it 'shows the rate of each figure in its own tooltip' do
+    consumption, cost = tooltips
 
-    expect(cost).to include(I18n.t('sensors.car_driving_costs'), '373 €')
-    expect(consumption).to include('2,092 kWh', 'charging losses')
+    expect(cost).to include(I18n.t('sensors.car_cost_rate'), '3.77 €')
+    expect(consumption).to include(I18n.t('sensors.car_consumption_rate'), '21.2 kWh', 'charging losses')
   end
 
   # A rate needs the charging of the days around a drive
@@ -119,14 +121,14 @@ describe Car::DrivingBox::Component, type: :component do
       expect(tiles).to eq(
         [
           ['0 km', 'driven'],
-          ['–', 'per 100 km'],
-          ['–', 'per 100 km'],
+          ['–', 'used'],
+          ['–', 'cost'],
         ],
       )
     end
 
     it 'loads the empty charts, but explains nothing' do
-      expect(charts).to eq(%w[car_distance car_cost_rate car_consumption_rate])
+      expect(charts).to eq(%w[car_distance car_consumption_rate car_driving_costs])
       expect(tooltips).to be_empty
     end
 

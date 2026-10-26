@@ -31,11 +31,12 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-2 max-lg:shrink-0' 
 
   / The figures in a row: one box with a line between them. The value comes
     first, its caption below it says what it counts, since the title of the
-    group says the rest.
-  div class='grid rounded-xl bg-fill lg:flex-1' style="grid-template-columns: repeat(#{figures.size}, minmax(0, 1fr))"
+    group says the rest. The figures share the width equally, but a long
+    value, like 12.969 kWh, takes the width it needs from the others.
+  div class='grid rounded-xl bg-fill lg:flex-1' style="grid-template-columns: repeat(#{figures.size}, minmax(min-content, 1fr))"
     - figures.each_with_index do |figure, index|
       = figure_tag(figure.sensor_name, tooltip: figure.tooltip?, class: figure_classes(index)) do
-        span class='text-xl font-semibold leading-tight tabular-nums whitespace-nowrap text-fg @sm:text-2xl'
+        span class='text-lg font-semibold leading-tight tabular-nums whitespace-nowrap text-fg @min-[22rem]:text-xl @md:text-2xl'
           = figure.value
         - if figure.wide_label
           span.truncate.text-sm.text-muted.lg:hidden = figure.label
@@ -48,7 +49,5 @@ section class='@container flex flex-col lg:flex-1 max-lg:gap-2 max-lg:shrink-0' 
           span class='mt-1 flex h-1.5 w-full max-w-36 gap-0.5 overflow-hidden rounded-full' aria-hidden='true'
             - segments(figure).each do |segment|
               span style="flex-grow: #{segment.percent}; background: #{segment.color}"
-        - if figure.bar
-          = render figure.bar
         - if figure.tooltip?
-          = render Car::OverviewBox::Tooltip::Component.new(parts: figure.parts, notes: figure.notes)
+          = render Car::OverviewBox::Tooltip::Component.new(parts: figure.parts, notes: figure.notes, bar: figure.bar)
