@@ -23,5 +23,19 @@ describe 'Top 10 Chart' do
         expect(response).to have_http_status(:not_found)
       end
     end
+
+    # A car tells when it drove (see Car::AdminOnlyDays)
+    context 'with a sensor of a car' do
+      before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer')) }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'ends the ranking of a guest with the latest public day' do
+        allow(Sensor::Query::Ranking).to receive(:new).and_call_original
+        get '/top10-chart/day/car_odometer_1/sum/desc'
+
+        expect(response).to have_http_status(:success)
+        expect(Sensor::Query::Ranking).to have_received(:new).with(anything, hash_including(stop: Date.current - 2))
+      end
+    end
   end
 end

@@ -35,8 +35,10 @@ describe 'Car overview (mobile)' do
   # two load it, like the charged energy before the share of PV
   def tile(sensor_name) = first("section > div.grid a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
 
-  # The figures of a day load the timeline of the day below them
+  # The figures of a day load the timeline of the day below them. The day is
+  # yesterday, which only the admin sees (see Car::AdminOnlyDays).
   it 'shows the timeline of a day in place of the charts' do
+    login_as_admin
     visit "/cars/#{day}"
 
     expect(page).to have_css(%([role="img"][aria-label*="12:00\u202F–\u202F13:00"]))

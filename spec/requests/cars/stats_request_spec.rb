@@ -22,6 +22,40 @@ describe 'Car Stats' do
       end
     end
 
+    # The page shows a guest a note instead (see Car::AdminOnlyDays)
+    it 'refuses the figures of a day that only the admin sees to a guest' do
+      get cars_stats_path(sensor_name: 'car_charging', timeframe: Date.current.iso8601), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    # A period of a guest ends with the latest public day
+    context 'with a session of yesterday' do
+      before do
+        stub_feature(:car)
+        car = Car.create!(id: 1, active_from: Date.current - 10)
+        allow(Car::Report).to receive(:pending_days).and_return([])
+        [[Date.current - 2, 10], [Date.yesterday, 40]].each do |day, kwh|
+          ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: day.in_time_zone.change(hour: 12), kwh:, cost: 1)
+        end
+      end
+
+      def charged = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"] div.grid > *:first-child').text.squish
+
+      it 'leaves it out for a guest' do
+        get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
+
+        expect(charged).to start_with('10.0 kWh')
+      end
+
+      it 'counts it for the admin' do
+        login_as_admin
+        get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
+
+        expect(charged).to start_with('50.0 kWh')
+      end
+    end
+
     context 'with live values' do
       before do
         add_influx_point(

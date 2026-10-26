@@ -874,6 +874,26 @@ charts (`Car::DayTimeline::Component`). The timeline loads with the figures and 
 with them. Its axis is the local day from 0:00 to 24:00, so a day of a change of the clock
 has 23 or 25 hours on the same width.
 
+Only the admin sees today and yesterday (`Car::AdminOnlyDays`). Such a day shows when the cars
+drove and charged, so it tells when someone is away from home. A guest gets a note with the
+login, and the figures of such a day do not load for a guest. An older day stays public, so
+a visitor of the demo sees the page some days back. The live view stays public too, because
+it shows no time of a drive.
+
+A longer period, like a week, ends with the day before yesterday for a guest. Its figures,
+its charts and the spans of its rates leave out today and yesterday, because their amounts
+tell the same as their times. A note above the figures says so, with the login, so someone
+who only forgot to log in sees why the latest days are missing. The navigation keeps the
+periods as they are, so the tab of the day still leads to today. The insights of a chart of
+the car page and the Top 10 of a sensor of a car end with the same day. The state of charge
+of a car on the power balance stays public, like the live view.
+
+The list of the charging sessions leaves out the sessions of such a day for a guest, also in
+its sums. Its time and its energy would tell the same, and a large offsite charge tells that
+the car is far away. The list is split by kind, so a row without its details would still
+tell an offsite charge. A note names the hidden days whenever the list holds them, also
+without a session there, so the note tells nothing itself.
+
 The timeline of a car has three rows:
 
 - The drives, each from its start to its end.

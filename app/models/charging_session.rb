@@ -174,9 +174,12 @@ class ChargingSession < ApplicationRecord
   # review of the admin, and `review` lists them alone (see
   # ChargingSession::Review). The filter applies to them too, so a car has no
   # session that is not assigned. The list never shows a dismissed proposal.
+  # `public_only` leaves out the sessions of the days that only the admin
+  # sees (see Car::AdminOnlyDays).
   scope :listed,
-        lambda { |kind, timeframe: nil, filter: nil, open: false, review: false|
+        lambda { |kind, timeframe: nil, filter: nil, open: false, review: false, public_only: false|
           scope = where(kind:, dismissed: false)
+          scope = scope.where(started_at: ...Car::AdminOnlyDays.beginning) if public_only
           scope = scope.merge(to_review(kind)) if review
           scope = scope.in_timeframe(timeframe) if timeframe
           scope = scope.effective.assigned unless open || review
@@ -188,7 +191,7 @@ class ChargingSession < ApplicationRecord
         }
 
   # The list of the charges of a kind (see .joined), newest first
-  scope :list_for, ->(kind, timeframe: nil, filter: nil, open: false, review: false) { listed(kind, timeframe:, filter:, open:, review:).joined.order(started_at: :desc) }
+  scope :list_for, ->(kind, timeframe: nil, filter: nil, open: false, review: false, public_only: false) { listed(kind, timeframe:, filter:, open:, review:, public_only:).joined.order(started_at: :desc) }
 
   # The kinds that the list offers. Without a wallbox, the wallbox sessions
   # of an earlier wallbox stay as history, so their list stays too.

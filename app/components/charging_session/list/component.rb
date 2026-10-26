@@ -43,6 +43,14 @@ class ChargingSession::List::Component < ViewComponent::Base
 
   def review_only? = review&.on
 
+  # A guest sees no session of the days that only the admin sees (see
+  # Car::AdminOnlyDays), also not in the sums. A note says so whenever the
+  # list holds such a day, also without a session there, so the note itself
+  # tells nothing.
+  def public_only? = !helpers.admin?
+
+  def admin_only_note? = public_only? && (timeframe.nil? || Car::AdminOnlyDays.overlap?(timeframe))
+
   def sessions
     @sessions ||= charging_sessions.to_a
   end
@@ -50,7 +58,7 @@ class ChargingSession::List::Component < ViewComponent::Base
   # The Sums of the sessions that count, of the whole list and not only of
   # its first page
   def totals
-    @totals ||= ChargingSession.list_for(kind, timeframe:, filter: @selection.filter).reorder(nil).sums
+    @totals ||= ChargingSession.list_for(kind, timeframe:, filter: @selection.filter, public_only: public_only?).reorder(nil).sums
   end
 
   # The sums in one line: the sessions, the energy and the cost. They stay

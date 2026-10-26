@@ -5,6 +5,9 @@ class Cars::StatsController < ApplicationController
   include Cars::Selectable
   include Cars::FrameNavigation
 
+  # The page shows a guest a note instead of a day that only the admin sees,
+  # so its figures never load
+  before_action { head :forbidden if admin_only_day? }
   before_action :refresh_summaries_if_needed
 
   def index
@@ -37,7 +40,7 @@ class Cars::StatsController < ApplicationController
   # Sensor::HomePage.hours?).
   def data_now = Car::Live.new(car_selection.offered)
 
-  def data_range = Car::Report.new(timeframe, cars, guest: car_selection.with_guest?)
+  def data_range = Car::Report.new(data_timeframe, cars, guest: car_selection.with_guest?)
 
   # The timeline of a day, below its figures (see Car::DayTimeline)
   helper_method def day_timeline

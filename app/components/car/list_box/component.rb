@@ -44,6 +44,10 @@ class Car::ListBox::Component < ViewComponent::Base
   # A separated part of the card below its head, like a row above the list
   renders_many :notes
 
+  # A banner over the full width below the head, like the note of a guest
+  # that the list leaves out the latest days (see Car::AdminOnlyNotice)
+  renders_one :banner
+
   # A filter of the list, like the pill of a place (see Ui::FilterBar::Pill).
   # On a phone the switch, the filter and the sums each take a line of their
   # own, so a switch to a list without a filter moves none of them.

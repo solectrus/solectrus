@@ -29,6 +29,28 @@ module Cars::Selectable
     # The cars the page shows
     helper_method def cars = car_selection.cars
 
+    # Whether the day is one that a guest does not see (see Car::AdminOnlyDays)
+    helper_method def admin_only_day? = !admin? && timeframe.present? && Car::AdminOnlyDays.cover?(timeframe)
+
+    # Whether a longer period of a guest leaves out such days, because its
+    # data ends with the latest public day (see #data_timeframe)
+    helper_method def admin_only_days_left_out?
+      !admin? && timeframe.present? && !timeframe.now? && !timeframe.day? && Car::AdminOnlyDays.overlap?(timeframe)
+    end
+
+    # The timeframe of the data: the report, the charts and the spans. A
+    # guest sees the data of a period up to the latest public day (see
+    # Timeframe#max_date). The navigation keeps the timeframe of the address,
+    # so the day of a guest is still today, with its note.
+    helper_method def data_timeframe
+      @data_timeframe ||=
+        if admin? || timeframe.nil? || timeframe.now?
+          timeframe
+        else
+          Car::AdminOnlyDays.public_timeframe(timeframe)
+        end
+    end
+
     # The columns of the overview of the car page (see Car::Section). A
     # selected car with an odometer drives, and the guest only charges.
     helper_method def overview_sections
@@ -56,7 +78,7 @@ module Cars::Selectable
 
     # The report of the period that the columns ask before the figures load
     def section_report
-      @section_report ||= Car::Report.new(timeframe, cars, guest: car_selection.with_guest?)
+      @section_report ||= Car::Report.new(data_timeframe, cars, guest: car_selection.with_guest?)
     end
 
     # Each link of the car page keeps the car: the timeframe navigation, the

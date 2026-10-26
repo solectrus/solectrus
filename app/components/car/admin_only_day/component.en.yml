@@ -1,0 +1,3 @@
+en:
+  headline: Administrator only
+  reason: For data protection, today and yesterday are visible only after logging in, older days also without.

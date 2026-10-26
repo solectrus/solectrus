@@ -25,8 +25,13 @@ class Top10::Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
         period: period.to_sym,
         desc: sort.desc?,
         limit: 10,
+        stop:,
       )
   end
+
+  # A sensor of a car tells when it drove, so a guest sees its ranking up to
+  # the latest public day, like the car page (see Car::AdminOnlyDays)
+  def stop = (Car::AdminOnlyDays.last_public_date if sensor.category == :car && !helpers.admin?)
 
   def top10_for_period
     @top10_for_period ||= ranking.call

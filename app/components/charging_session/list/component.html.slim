@@ -9,6 +9,10 @@
         - if review.on
           = icon 'xmark', class: 'text-xs'
 
+  - if admin_only_note?
+    - box.with_banner do
+      = render Car::AdminOnlyNotice::Component.new(text: t('.admin_only_days'), banner: true)
+
   / The sessions to review alone say what to do with them. Their proposals
     go at once, for a time without receipts. The time of the list keeps a
     proposal of a later build, which the admin did not see.

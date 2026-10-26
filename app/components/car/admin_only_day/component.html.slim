@@ -1,0 +1,13 @@
+= render Ui::Message::Component.new do |c|
+  - c.with_icon do
+    .size-24.rounded-full.bg-indigo-100.dark:bg-indigo-900/60.flex.items-center.justify-center
+      = icon 'lock', class: 'text-4xl text-indigo-600 dark:text-indigo-400'
+
+  = c.with_title { t('.headline') }
+
+  = c.with_body { t('.reason') }
+
+  = c.with_footer do
+    = render Ui::Button::Component.new href: login_path,
+                                       label: t('layout.login'),
+                                       data: { turbo: false }

@@ -4,8 +4,10 @@
 # places the value of its period in this span, so a month compares with the
 # other months.
 #
-# Only a calendar period has periods of its kind. A period counts only when
-# the cars were in use on each of its days up to today, because a car that
+# Only a calendar period has periods of its kind. They end with the last day
+# with data of the shown timeframe, like the day before yesterday for a guest
+# (see Car::AdminOnlyDays). A period counts only when the cars were in use on
+# each of its days up to then, because a car that
 # started in the middle of a month gives a value of a few days. The shown
 # period always counts, so its value lies in the span. A span needs
 # MIN_PERIODS periods with a value, because fewer of them say nothing, and a
@@ -33,14 +35,15 @@ class Car::Spans
   # timeframe
   def self.for(timeframe, cars)
     kind = kind(timeframe)
-    new(cars, kind, shown: timeframe.effective_beginning_date) if kind
+    new(cars, kind, shown: timeframe.effective_beginning_date, max_date: timeframe.max_date) if kind
   end
 
-  # `shown` is a date of the shown period
-  def initialize(cars, kind, shown:)
+  # `shown` is a date of the shown period, `max_date` the last day with data
+  def initialize(cars, kind, shown:, max_date: Date.current)
     @cars = cars
     @kind = kind
     @shown = shown
+    @max_date = max_date
   end
 
   # The span of the consumption (kWh per 100 km), nil without a span
@@ -73,9 +76,9 @@ class Car::Spans
     }
   end
 
-  # The day is part of the key, because the periods end today
+  # The last day with data is part of the key, because the periods end there
   def cache_key
-    ['car_spans', cars.map(&:id), kind, timeframe_string(@shown), Date.current, version(Car.where(id: cars)), version(Summary), version(ChargingSession)]
+    ['car_spans', cars.map(&:id), kind, timeframe_string(@shown), @max_date, version(Car.where(id: cars)), version(Summary), version(ChargingSession)]
   end
 
   # The number of the rows and the time of the last update, in microseconds.
@@ -96,7 +99,7 @@ class Car::Spans
 
   # A report of the whole time reads the days of each period at once
   def report
-    @report ||= Car::Report.new(Timeframe.all, cars)
+    @report ||= Car::Report.new(Timeframe.new('all', max_date: @max_date), cars)
   end
 
   # The dates of each period of the kind in the whole time that counts
@@ -112,14 +115,16 @@ class Car::Spans
   # would be a range of times.
   def period_of(date) = kind == :day ? date..date : date.public_send(:"all_#{kind}")
 
-  # Whether the cars were in use on each day of the period up to today
+  # Whether the cars were in use on each day of the period up to the last day
+  # with data
   def in_use_throughout?(period)
-    period.begin >= in_use.begin && [period.end, Date.current].min <= in_use.end
+    period.begin >= in_use.begin && [period.end, @max_date].min <= in_use.end
   end
 
-  # The days from the first day of use of a car to the last one, or to today
+  # The days from the first day of use of a car to the last one, or to the
+  # last day with data
   def in_use
-    @in_use ||= cars.map(&:active_from).min..[cars.map { it.active_until || Date.current }.max, Date.current].min
+    @in_use ||= cars.map(&:active_from).min..[cars.map { it.active_until || @max_date }.max, @max_date].min
   end
 
   # The timeframe of the period that holds the date

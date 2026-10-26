@@ -11,4 +11,4 @@
         = render ChartDropdown::Car::Component.new(sensor_name:, timeframe:)
       div class='flex-1 min-h-0 flex flex-col relative'
         .flex-1.min-h-0.flex.flex-col.relative
-          = render ChartLoader::Component.new(sensor_name:, timeframe:, interval:)
+          = render ChartLoader::Component.new(sensor_name:, timeframe: data_timeframe, interval:)

@@ -1,0 +1,5 @@
+/ The link stands below the text on a phone, beside it on the desktop
+div class=classes role='note'
+  = icon 'lock', class: 'shrink-0'
+  p.flex-1 = text
+  = link_to t('layout.login'), login_path, data: { turbo: false }, class: 'shrink-0 max-lg:col-start-2 max-lg:justify-self-start font-semibold underline underline-offset-4 focus-ring'

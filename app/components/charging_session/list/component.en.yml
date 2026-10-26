@@ -1,5 +1,6 @@
 en:
   map: Map of the offsite sessions
+  admin_only_days: Only the administrator sees the charging sessions of today and yesterday.
   # The captions of the sums of a phone
   count:
     one: session

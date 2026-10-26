@@ -66,16 +66,22 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   # The day, week, month or year (see FORMAT) that holds the date
   def self.of(date, id) = new(date.strftime(FORMAT[id]))
 
-  def initialize(string, min_date: Rails.application.config.x.installation_date)
+  # `max_date` is the last day with data, today without it. A page can end
+  # the data earlier, like the car page for a guest (see Car::AdminOnlyDays).
+  def initialize(string, min_date: Rails.application.config.x.installation_date, max_date: nil)
     @original_string = string
     @string = normalized_string(string)
     @min_date = min_date
+    @max_date = max_date
 
     validate_string!
     validate_range_order!
   end
 
   attr_reader :original_string, :string, :min_date
+
+  # The last day with data, today unless the page ends the data earlier
+  def max_date = @max_date || Date.current
 
   delegate :to_s, to: :string
 
@@ -607,10 +613,6 @@ class Timeframe # rubocop:disable Metrics/ClassLength
     return unless range?
 
     @range ||= string.split('..').map { Date.parse(it) }
-  end
-
-  def max_date
-    Date.current
   end
 
   FORMAT = {

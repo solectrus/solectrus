@@ -1,5 +1,6 @@
 de:
   map: Karte der Auswärts-Ladungen
+  admin_only_days: Die Ladevorgänge von heute und gestern sieht nur der Administrator.
   # The captions of the sums of a phone
   count:
     one: Ladung

@@ -231,6 +231,7 @@ en:
   car_breakdown:
     home: Wallbox
     offsite_map: Map of the offsite sessions
+    admin_only_days_left_out: Only the administrator sees today and yesterday.
     places_map: Map of the places
     home_pv: Photovoltaics
     share_pv: from PV

@@ -1,6 +1,8 @@
 - turbo_exempts_page_from_cache
-/ A day grows with the timelines of its cars, so the window scrolls
-- content_for :full_height, true unless timeframe&.day?
+/ A day grows with the timelines of its cars, so the window scrolls. A
+  day that only the admin sees has a note in the middle instead (see
+  Car::AdminOnlyDays).
+- content_for :full_height, true unless timeframe&.day? && !admin_only_day?
 / The live view of a phone is a grouped list on gray (see Car::LiveCard)
 - content_for :grouped, true if timeframe&.now?
 
@@ -35,6 +37,12 @@
       - if admin?
         = turbo_frame_tag Car::MapOverlay::Component::FRAME_ID
 
+    / A recent day shows when the cars drove and charged, so a guest gets a
+      note in its place (see Car::AdminOnlyDays)
+    - elsif admin_only_day?
+      .flex-1.flex.items-center.justify-center.rounded-2xl.bg-surface.px-4
+        = render Car::AdminOnlyDay::Component.new
+
     - elsif cars.empty? && !car_selection.guest?
       .flex-1.flex.items-center.justify-center.rounded-2xl.bg-surface.px-4
         = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use'))
@@ -45,6 +53,12 @@
       car_overview_controller.ts). A day has no charts, but the timeline of
       the day below the figures.
     - else
+      / A period of a guest ends with the latest public day, which a note
+        above the figures says (see Car::AdminOnlyDays)
+      - if admin_only_days_left_out?
+        / The banner undoes the padding of the card (see the layout)
+        .-mx-4.-mt-4.sm:-mx-6.sm:-mt-5.mb-3.lg:mb-6
+          = render Car::AdminOnlyNotice::Component.new(text: t('car_breakdown.admin_only_days_left_out'), banner: true)
       div class=['flex flex-col gap-6 lg:grid lg:grid-rows-[auto_1fr] lg:gap-y-0', (timeframe.day? ? 'shrink-0' : 'flex-1 min-h-0'), (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
         - overview_sections.each_with_index do |section, index|
           - chart = column_charts[section]

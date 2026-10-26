@@ -45,6 +45,36 @@ describe 'Charging sessions' do
       get '/cars/1/charging_sessions/offsite/2025'
       expect(response.body).to include('href="/cars/1/2025"')
     end
+
+    # Today and yesterday tell where the car is (see Car::AdminOnlyDays)
+    context 'with a session of yesterday' do
+      before { ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: Date.yesterday.in_time_zone.change(hour: 12), kwh: 40, cost: 20) }
+
+      def note = 'Only the administrator sees the charging sessions of today and yesterday.'
+
+      it 'leaves it out for a guest, also in the sums, with a note' do
+        logout
+        get page('offsite')
+
+        expect(totals).to start_with('2 charging sessions · 30.0 kWh')
+        expect(response.body).to include(note)
+      end
+
+      it 'shows it to the admin' do
+        get page('offsite')
+
+        expect(totals).to start_with('3 charging sessions · 70.0 kWh')
+        expect(response.body).not_to include(note)
+      end
+
+      # The note does not tell whether such a day has a session
+      it 'has no note for a guest in a list without such a day' do
+        logout
+        get page('offsite', timeframe: (Date.current.year - 2).to_s)
+
+        expect(response.body).not_to include(note)
+      end
+    end
   end
 
   describe 'the list' do
