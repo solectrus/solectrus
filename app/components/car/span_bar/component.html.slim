@@ -1,5 +1,6 @@
 / The mark keeps half its width from each end, so it stays inside. The
-  period of an end stands below its number, at the same side.
+  period of an end stands below its number, at the same side. A sheet lists
+  the ends with their links instead, so it leaves out the periods.
 span class='flex w-full flex-col gap-1.5'
   span class='relative block h-1 w-full rounded-full bg-fill-strong' aria-hidden='true'
     span class='absolute -top-1 w-1 h-3 -translate-x-1/2 rounded-sm bg-fg ring-2 ring-surface' style="left: clamp(0.125rem, #{position}%, 100% - 0.125rem)"
@@ -7,4 +8,4 @@ span class='flex w-full flex-col gap-1.5'
     - ends.each do |number, period|
       span class='flex flex-col last:text-right'
         span.font-semibold.text-fg-secondary = number
-        span = period
+        span.tooltip-hover-only = period

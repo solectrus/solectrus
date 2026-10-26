@@ -5,7 +5,9 @@
 # The parts of its value are rows with the swatch of their color, and at
 # times their share. A part without a color, like the cost of the guest, is
 # a detail below them. The `bar` of a span (see Car::SpanBar::Component)
-# stands below the details, like below the rate it places.
+# stands below the details, like below the rate it places. Its rows, like
+# the lowest and the highest rate, lead to a page, so they show in a sheet
+# alone: a hover tooltip closes before the pointer reaches them.
 # The notes stand at the end, smaller than the rows. Without parts, the notes
 # are the whole tooltip.
 class Car::OverviewBox::Tooltip::Component < ViewComponent::Base

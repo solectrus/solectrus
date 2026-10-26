@@ -113,6 +113,21 @@
   @apply text-sm text-gray-400;
 }
 
+/* Rows with links, like the ends of a span, show in a sheet alone, because
+   a hover tooltip closes before the pointer reaches them. What they replace
+   shows in a hover tooltip alone. */
+.tooltip-sheet-only {
+  @apply hidden;
+}
+
+.bottom-sheet .tooltip-sheet-only {
+  @apply block;
+}
+
+.bottom-sheet .tooltip-hover-only {
+  @apply hidden;
+}
+
 .bottom-sheet .tooltip-layout {
   @apply items-stretch gap-5 p-0 text-left text-base;
 

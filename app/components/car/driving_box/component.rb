@@ -129,10 +129,24 @@ class Car::DrivingBox::Component < ViewComponent::Base
   # good. The ends of the bar have the numbers alone, because the rate above
   # them has the unit. `precision` is the number of decimals of these ends.
   # The block gives a rate with its unit.
-  def rate_tooltip(sensor_name, value, span, precision:, notes:)
+  def rate_tooltip(sensor_name, value, span, precision:, notes:, &)
     part = Car::OverviewBox::Component::Part.new(label: t("sensors.#{sensor_name}"), value: render(yield(value)), color: nil, percent: nil)
-    bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:) if span
+    bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:, rows: span_rows(span, sensor_name, &)) if span
     { parts: [part], bar:, notes: notes.compact }
+  end
+
+  # The lowest and the highest rate for a sheet, as rows with a link to their
+  # period, like in the insights
+  def span_rows(span, sensor_name)
+    { minimum: [span.min, span.min_timeframe], maximum: [span.max, span.max_timeframe] }.map do |key, (rate, period)|
+      Insights::Row::Component.new(label: t(".#{key}"), note: Car::SpanBar::Component.period(period), url: period_path(period, sensor_name)).with_content(render(yield(rate)))
+    end
+  end
+
+  # The car page of a period with the chart of the rate. A day has its
+  # timeline in place of the charts.
+  def period_path(period, sensor_name)
+    helpers.cars_home_path(sensor_name: (sensor_name if Car::Section.charts?(period)), timeframe: period.to_s, **helpers.selection_params)
   end
 
   def kilometers(value) = Sensor::ValueFormatter.new(value.round, unit: Sensor::Registry[:car_distance].unit).to_s

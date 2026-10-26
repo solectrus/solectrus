@@ -4,17 +4,22 @@
 # end its number and its period. `better` names the good end: a low
 # consumption is good, so its track runs from the highest value to the
 # lowest. The best and the worst period stand in the insights of the chart
-# too (see Car::Insights::Component).
+# too (see Car::Insights::Component). A sheet lists them as `rows` with a
+# link, like Insights::Row::Component, in place of the periods below the
+# bar.
 class Car::SpanBar::Component < ViewComponent::Base
   # `better` is :lower or :higher. `precision` is the number of decimals of
   # an end.
-  def initialize(value:, span:, better:, precision:)
+  def initialize(value:, span:, better:, precision:, rows: [])
     super()
     @value = value
     @span = span
     @better = better
     @precision = precision
+    @rows = rows
   end
+
+  attr_reader :rows
 
   # The name of a period, a day in short, because the long day has its
   # weekday too

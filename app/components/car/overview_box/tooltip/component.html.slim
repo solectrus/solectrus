@@ -1,4 +1,6 @@
-.hidden data-tooltip-target='html'
+/ A template, because the figure around it can be a link, and the rows of
+  a sheet with their links would nest in it
+template data-tooltip-target='html'
   - if title || parts.any?
     .tooltip-layout.tooltip-layout-table
       - if title
@@ -31,6 +33,11 @@
                 span.font-semibold.whitespace-nowrap = part.value
               - if bar && part == details.last
                 .pt-3 = render bar
+      / The rows of the bar with a link, like its ends, in a sheet alone
+      - if bar&.rows.present?
+        .tooltip-group.tooltip-sheet-only
+          - bar.rows.each do |row|
+            = render row
       / The notes wrap at the width of the rows above them, so a long note
         does not widen the tooltip
       - if notes.any?

@@ -82,6 +82,18 @@ describe Car::DrivingBox::Component, type: :component do
       expect(span_ends).to eq([[%w[38.9 2022], %w[9.3 2024]], [%w[10.67 2021], %w[1.06 2023]]])
       expect(html.css('[data-tooltip-target="html"] span.justify-between').size).to eq(2)
     end
+
+    # A sheet lists the lowest and the highest rate, each with a link to its
+    # period. The figure is a link itself, so the tooltip is a template.
+    it 'lists the lowest and the highest rate with a link to the period for a sheet' do
+      rows = html.css('template[data-tooltip-target="html"] .tooltip-sheet-only a.insights-row')
+
+      # The stylesheet sets the parentheses around the period
+      expect(rows.map { |row| [row.at_css('.insights-row-main'), row.at_css('.insights-row-value')].map { it.text.squish } }).to eq(
+        [['Minimum 2024', '9.3 kWh'], ['Maximum 2022', '38.9 kWh'], ['Minimum 2023', '1.06 €'], ['Maximum 2021', '10.67 €']],
+      )
+      expect(rows.pluck('href')).to eq(%w[/cars/car_consumption_rate/2024 /cars/car_consumption_rate/2022 /cars/car_cost_rate/2023 /cars/car_cost_rate/2021])
+    end
   end
 
   # A day has the timeline of the day in place of the charts

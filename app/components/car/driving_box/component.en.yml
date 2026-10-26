@@ -5,3 +5,5 @@ en:
   consumption_losses: The energy is measured at charging and includes the charging losses. The car itself therefore mostly shows less.
   unrated: Without %{distance} that lack charging data.
   window: The car drives on energy that it charged on other days. Per 100 km therefore counts the charging of the %{days} days before and after each day driven.
+  minimum: Minimum
+  maximum: Maximum

@@ -5,3 +5,5 @@ de:
   consumption_losses: Die Energie ist beim Laden gemessen und enthält die Ladeverluste. Das Auto selbst zeigt deshalb meist weniger an.
   unrated: Ohne %{distance}, für die Ladedaten fehlen.
   window: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen je 100 km die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag.
+  minimum: Minimum
+  maximum: Maximum
