@@ -135,12 +135,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     def root_item
       {
         name: t('layout.balance'),
-        href:
-          if (sensor_name = root_sensor_name)
-            balance_home_path(sensor_name:, timeframe: computed_timeframe)
-          else
-            balance_home_path
-          end,
+        href: balance_home_path(**root_params),
         current: helpers.controller_namespace == 'balance',
         data: {
           controller: 'tooltip force-reload',
@@ -149,8 +144,14 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       }
     end
 
-    def root_sensor_name
-      Sensor::HomePage.balance_sensor(helpers.controller_namespace.to_sym)
+    # From another view, the start page keeps the timeframe but shows its own
+    # default chart, because the view has shown the details already. From the
+    # start page itself and from the other pages, the link leads to the start.
+    def root_params
+      namespace = helpers.controller_namespace
+      return {} if namespace == 'balance' || Sensor::HomePage.all.exclude?(namespace.to_sym)
+
+      { sensor_name: Sensor::HomePage.balance_default_sensor, timeframe: computed_timeframe }
     end
 
     def inverter_item
@@ -201,8 +202,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     # From the wallbox on the start page, the car page shows the chart of the
-    # charging, so the topic stays. The reverse of
-    # Sensor::HomePage.balance_sensor. Else the first chart of each column.
+    # charging, so the topic stays. Else the first chart of each column.
     def car_sensor_name
       'car_charging' if helpers.controller_namespace == 'balance' && params[:sensor_name] == 'wallbox_power'
     end

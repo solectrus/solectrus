@@ -18,35 +18,30 @@
 module Sensor::HomePage
   # What holds a page back: the setting that switches it off, the condition
   # of the configuration, and the feature a sponsorship opens it with. The
-  # power balance is the start page and has none of them. The balance sensor
-  # stands for the page on the start page. A key is the prefix of the route
-  # helper of the page, so SensorPathHelper can build a path from it. The car
-  # page has no hours view, because its numbers come from full days, no chart
-  # in its live view, because its sensors report far less often, and no way
-  # forward into the PV forecast.
+  # power balance is the start page and has none of them. A key is the prefix
+  # of the route helper of the page, so SensorPathHelper can build a path from
+  # it. The car page has no hours view, because its numbers come from full
+  # days, no chart in its live view, because its sensors report far less
+  # often, and no way forward into the PV forecast.
   PAGES = {
     balance: {},
     heatpump: {
       setting: :enable_heatpump,
       feature: :heatpump,
-      balance_sensor: :heatpump_power,
     },
     inverter: {
       setting: :enable_multi_inverter,
       feature: :multi_inverter,
-      balance_sensor: :inverter_power,
     },
     house: {
       setting: :enable_custom_consumer,
       feature: :custom_consumer,
-      balance_sensor: :house_power,
     },
     cars: {
       setting: :enable_car,
       # Without a car, the page and its menu items stay away
       configured: -> { Sensor::Cars.configured_numbers.any? },
       feature: :car,
-      balance_sensor: :wallbox_power,
       hours: false,
       live_chart: false,
       forecast: false,
@@ -57,10 +52,16 @@ module Sensor::HomePage
   class << self
     def all = PAGES.keys
 
-    # The sensor the start page selects when the user comes from this page,
-    # so the topic stays. Nothing for the start page itself, and nothing for
-    # a page that is no home page: the navigation asks on every page.
-    def balance_sensor(key) = PAGES.dig(key, :balance_sensor)
+    # The chart the start page shows first: the power balance, if a
+    # sponsorship opens it. Else the current production, or the house
+    # consumption at night, when there is no production to show.
+    def balance_default_sensor
+      if ApplicationPolicy.power_balance_chart?
+        :power_balance
+      else
+        Sensor::Query::DayLight.active? ? :inverter_power : :house_power
+      end
+    end
 
     # Whether the settings switch this page on, and the configuration has
     # something for it.

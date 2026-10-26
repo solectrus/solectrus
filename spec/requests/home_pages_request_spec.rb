@@ -91,6 +91,22 @@ describe 'Home pages' do
     end
   end
 
+  # Another view has shown its details already, so the balance shows its own
+  # default chart. Only the timeframe stays.
+  describe 'the link to the balance' do
+    it 'keeps the timeframe of another view, but not its sensor' do
+      get house_home_path(sensor_name: 'house_power', timeframe: '2025')
+
+      expect(response.body).to include('href="/power_balance/2025"')
+    end
+
+    it 'leads to the start from the balance itself' do
+      get balance_home_path(sensor_name: 'house_power', timeframe: '2025')
+
+      expect(response.body).to include('href="/"')
+    end
+  end
+
   # Only the pages that can show a forecast hand a future day over to it. The
   # other two have nothing to show and go back to the present.
   describe 'a future timeframe' do

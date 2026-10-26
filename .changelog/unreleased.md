@@ -61,6 +61,7 @@ Keep every section, an empty one included.
 - Settings > Cash flows: a click on the arrow beside a date shows the cash flows of that year alone
 - Settings > Cash flows: each part of the filter has its own x that removes it
 - Escape now closes an open menu, like the options of the Top 10 or the selection of a chart
+- The link to the main page now shows the power balance from every page, in the same timeframe. Before, it kept the topic of the previous page, for example the house consumption (#6055)
 
 ## Fixes
 
