@@ -401,9 +401,9 @@ GEM
       rubocop (>= 1.89.0)
       rubydex
     ruby-progressbar (1.13.0)
-    rubydex (0.4.2-aarch64-linux)
-    rubydex (0.4.2-arm64-darwin)
-    rubydex (0.4.2-x86_64-linux)
+    rubydex (0.4.3-aarch64-linux)
+    rubydex (0.4.3-arm64-darwin)
+    rubydex (0.4.3-x86_64-linux)
     securerandom (0.4.1)
     shoulda-matchers (8.0.1)
       activesupport (>= 7.2)
