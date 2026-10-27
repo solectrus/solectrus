@@ -176,6 +176,31 @@ describe ChargingSession::Detection do
     end
   end
 
+  # The running day has no readings after now. Those buckets are not a gap,
+  # so a running charge ends at its running bucket, not at midnight.
+  context 'with a charge on the running day' do
+    subject(:detection) { described_class.new([today]) }
+
+    let(:today) { day + 3 }
+
+    before do
+      start = today.in_time_zone.change(hour: 13)
+      influx_batch do
+        (0..((15 * 60) + 2)).each do |minute|
+          time = today.in_time_zone + minute.minutes
+          add_influx_point(name: Sensor::Config.measurement(:wallbox_power), fields: { Sensor::Config.field(:wallbox_power) => time >= start ? 4_000 : 0 }, time:)
+        end
+      end
+      travel_to today.in_time_zone.change(hour: 15, min: 2, sec: 30)
+    end
+
+    it 'ends the session at its running bucket' do
+      session = detection.call[today].sole
+
+      expect([session.started_at, session.ended_at].map { it.in_time_zone.strftime('%H:%M') }).to eq(%w[13:00 15:05])
+    end
+  end
+
   context 'without a price' do
     before { Price.delete_all }
 

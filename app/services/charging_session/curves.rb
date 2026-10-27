@@ -41,7 +41,7 @@ class ChargingSession::Curves
     car = car_request(dates, cars, roles, margin)
 
     @wallbox = Concurrent::Promises.delay { query(dates, wallbox) }
-    @gaps = Concurrent::Promises.delay { query(dates, gap_requests) }
+    @gaps = Concurrent::Promises.delay { ended(query(dates, gap_requests)) }
     @cars = Concurrent::Promises.delay { query(dates, [car]) }
   end
 
@@ -61,7 +61,9 @@ class ChargingSession::Curves
   # { date => { sensor_name => [[Time, 0.0], ...] } }: the buckets of the
   # wallbox power without a reading, where its collector sent no data (see
   # Detection::Periods). They are few, so they need a program of their own
-  # and not each bucket of 0 W in the curve of the wallbox.
+  # and not each bucket of 0 W in the curve of the wallbox. A bucket that has
+  # not ended yet is no gap, so a charge on the running day does not reach
+  # to midnight.
   def wallbox_gaps = @gaps.value!
 
   # { date => { sensor_name => [[Time, value], ...] } } of the cars. A
@@ -73,6 +75,12 @@ class ChargingSession::Curves
 
   def query(dates, requests)
     Sensor::Query::Helpers::Influx::DailyCurves.new(dates, requests).call
+  end
+
+  # The curves without the buckets that end after now
+  def ended(curves)
+    now = Time.current
+    curves.transform_values { |by_sensor| by_sensor.transform_values { |points| points.select { |time, _| time <= now } } }
   end
 
   # The curves of the wallbox, when the detection runs. A period needs the
