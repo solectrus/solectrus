@@ -199,7 +199,7 @@ GEM
       net-smtp
     marcel (1.2.1)
     matrix (0.4.3)
-    mcp (1.8.1)
+    mcp (1.8.2)
       json_schemer (>= 2.4)
     mime-types (3.7.0)
       logger
