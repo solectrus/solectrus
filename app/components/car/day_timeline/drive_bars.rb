@@ -31,9 +31,11 @@ module Car::DayTimeline::DriveBars
     end
   end
 
+  # A window says already that the start is open, so it hides the note of
+  # an estimated start
   def drive_notes(drive)
     [
-      (t('.start_estimated') if drive.estimated_start?),
+      (t('.start_estimated') if drive.estimated_start? && !drive.window?),
       (t('.start_unknown') if drive.unknown_start?),
       (t('.window') if drive.window?),
       (t('.too_fast') if drive.too_fast?),

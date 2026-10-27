@@ -146,6 +146,15 @@ describe Car::DayTimeline::Component, type: :component do
       expect(bars.first['class']).to include('timeline-bar-estimated-start')
       expect(bars.first['aria-label']).to start_with("Driving, #{range('07:00', '09:00')}").and include('Readings with gaps, so the start is estimated')
     end
+
+    context 'when it is too slow for its time' do
+      let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: 1) }
+
+      it 'names only the window' do
+        expect(bars.first['aria-label']).to include('the drive took place at some time in this window')
+        expect(bars.first['aria-label']).not_to include('so the start is estimated')
+      end
+    end
   end
 
   # Only the admin gets the visits (see Car::DayTimeline)
