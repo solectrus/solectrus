@@ -90,7 +90,7 @@ describe Car::Report do
       described_class.pending_days(timeframe)
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Rails.configuration.x.installation_date, to: Date.new(2026, 9, 23),
+        from: Rails.configuration.x.installation_date, to: Date.new(2026, 9, 23), current_tolerance: 155,
       )
     end
 
@@ -100,7 +100,17 @@ describe Car::Report do
       described_class.pending_days(Timeframe.new('2026-01-01..2026-01-31'))
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Date.new(2025, 11, 19), to: Date.new(2026, 9, 23),
+        from: Date.new(2025, 11, 19), to: Date.new(2026, 9, 23), current_tolerance: 155,
+      )
+    end
+
+    # The days it reads reach far back, but the running day stays as fresh
+    # as on the other pages of a day
+    it 'keeps the tolerance of a single day' do
+      described_class.pending_days(Timeframe.new('2026-09-23'))
+
+      expect(Summary).to have_received(:missing_or_stale_days).with(
+        from: Rails.configuration.x.installation_date, to: Date.new(2026, 9, 23), current_tolerance: 5,
       )
     end
   end

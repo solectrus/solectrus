@@ -79,7 +79,7 @@ class Summary < ApplicationRecord
     )
   end
 
-  def self.missing_or_stale_days(from:, to:)
+  def self.missing_or_stale_days(from:, to:, current_tolerance: current_tolerance_minutes(from:, to:))
     find_by_sql(
       [
         <<~SQL.squish,
@@ -108,7 +108,7 @@ class Summary < ApplicationRecord
           to:,
           time_zone: Time.zone.name,
           threshold_date:,
-          current_tolerance_time: current_tolerance_minutes(from:, to:).minutes.ago,
+          current_tolerance_time: current_tolerance.minutes.ago,
           required_distance: "#{1.day.in_minutes + REQUIRED_DISTANCE} minutes",
         },
       ],
