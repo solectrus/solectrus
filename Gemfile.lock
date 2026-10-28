@@ -118,7 +118,7 @@ GEM
       addressable
       base64
       ssrf_filter (~> 1.5)
-    csv (3.3.6)
+    csv (3.3.7)
     date (3.6.0)
     diff-lcs (1.6.2)
     dotenv (3.2.0)
