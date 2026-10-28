@@ -18,6 +18,14 @@ class Car::TimelineBar::Component < ViewComponent::Base
   # keeps the width of a mark, so it stays visible on a day of 24 hours.
   def style = "right: #{(100 - bar.to).round(3)}%; width: max(#{(bar.to - bar.from).round(3)}%, 0.25rem)"
 
+  # The segments with their shares in percent of the height. A flex-grow sum
+  # below 1 fills only that part of the height, like the kWh of a short
+  # charge.
+  def segments
+    total = bar.segments.sum(&:last)
+    bar.segments.map { |color, share| [color, (share * 100.0 / total).round(3)] }
+  end
+
   # A bar that opens its entry takes a tap for it, so its tooltip needs a
   # long press, and its link names it for a screen reader
   def attributes

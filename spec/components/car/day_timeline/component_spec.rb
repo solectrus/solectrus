@@ -45,7 +45,18 @@ describe Car::DayTimeline::Component, type: :component do
     parts = bars.last.css('> span')
 
     expect(bars.last['class']).to include('flex-col-reverse')
-    expect(parts.pluck('style')).to eq(['flex-grow: 15.0; background: var(--color-car-pv)', 'flex-grow: 5.0; background: var(--color-car-grid)'])
+    expect(parts.pluck('style')).to eq(['flex-grow: 75.0; background: var(--color-car-pv)', 'flex-grow: 25.0; background: var(--color-car-grid)'])
+  end
+
+  context 'with a charge of less than 1 kWh' do
+    let(:session) { ChargingSession.new(kind: :wallbox, car_id: 1, started_at: at(12), ended_at: at(12, 10), kwh: 0.4, kwh_grid: 0.3) }
+
+    # A flex-grow sum below 1 would fill only that part of the height
+    it 'fills the whole height with the sources' do
+      parts = bars.last.css('> span')
+
+      expect(parts.pluck('style')).to eq(['flex-grow: 25.0; background: var(--color-car-pv)', 'flex-grow: 75.0; background: var(--color-car-grid)'])
+    end
   end
 
   it 'tells the numbers of each bar in its tooltip' do
