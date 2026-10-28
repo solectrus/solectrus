@@ -36,6 +36,10 @@ describe Car::Driving do
   before do
     travel_to today.in_time_zone.change(hour: 12)
 
+    # The odometer reads since December, so each window starts before the
+    # charges
+    summary(Date.new(2025, 12, 1), :car_odometer_1, :sum, 0)
+
     # January: 30 kWh for 9 EUR, and 150 km two days later
     charge(Date.new(2026, 1, 10), 30_000)
     summary(Date.new(2026, 1, 12), :car_odometer_1, :sum, 150)
@@ -134,6 +138,15 @@ describe Car::Driving do
 
       # The charge of January 10 belongs to the car before
       expect(january.distance).to eq(0)
+    end
+
+    # The charge of January 10 has no kilometers, because the odometer reads
+    # since January 12
+    it 'starts the windows at the first distance' do
+      SummaryValue.where(date: Date.new(2025, 12, 1)).delete_all
+      charge(Date.new(2026, 1, 12), 15_000, hour: 18)
+
+      expect(window_rate(Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(15_000.0 / 150)
     end
 
     # The window of January 12 runs from December 29 to January 26. Its

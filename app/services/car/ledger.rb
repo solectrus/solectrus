@@ -57,6 +57,13 @@ class Car::Ledger
     summaries.dig([car.id, :distance], date) || 0.0
   end
 
+  # The first date with a distance of a car, nil without one. The odometer
+  # gives each day from its first reading a distance, 0 too, so a day before
+  # it has no distance, not one of 0.
+  def distance_since(car)
+    sorted_summaries[[car.id, :distance]].first&.first
+  end
+
   # The state of charge (%) of a car at the end of a day, nil without a value
   def daily_soc(car, date)
     summaries.dig([car.id, :soc], date)

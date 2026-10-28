@@ -244,9 +244,11 @@ class Car::Driving
 
   # The days that a window of the car can hold: from the first date of the
   # installation to today, inside the period of use of the car. So the rate
-  # of a new car holds no energy of the car before it.
+  # of a new car holds no energy of the car before it. A window starts at
+  # the first distance too, because the charges before an odometer have no
+  # kilometers.
   def bounds(car)
-    (@bounds ||= {})[car.id] ||= [min_date, car.active_from].compact.max..[Date.current, car.active_until].compact.min
+    (@bounds ||= {})[car.id] ||= [min_date, car.active_from, ledger.distance_since(car)].compact.max..[Date.current, car.active_until].compact.min
   end
 
   def window(car, date, margin)

@@ -599,11 +599,13 @@ only to the change of the state of charge, not to all charged energy of the wind
 correction makes the rate of a day change less from the day before. The average state of
 charge of a day was not sufficient, because it is wrong on a day with a charge.
 
-A day in the past sits in the center of its window, so a winter day keeps winter data. Four
+A day in the past sits in the center of its window, so a winter day keeps winter data. Five
 rules limit a window:
 
 - It ends today. The rate of a recent day can change for 14 more days.
 - It starts at the installation date.
+- It starts at the first distance of the odometer. A charge before it has no kilometers, so
+  its energy would raise the rate.
 - It stays inside the period of use of the car, so the rate of a new car holds no energy of
   the car before it.
 - It needs 100 km and charged energy. Without them, the window widens by 14 days on each
