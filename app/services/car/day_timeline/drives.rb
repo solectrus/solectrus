@@ -36,6 +36,10 @@
 # charge starts and starts where the charge ends. A drive within a charge
 # keeps a mark at the end of the charge.
 #
+# A drive shorter than MIN_DISTANCE, like moving the car in front of the
+# house, is no drive: its distance shows as 0 km. It counts after the drives
+# are joined, so the short parts of a slow drive stay in it.
+#
 # A wrong reading of the odometer, like a 0 of an offline car, is left out
 # (see Sensor::MeterReadings). A reading that steps back within the rounding
 # of the meter adds no drive, because a drive counts from the highest
@@ -114,6 +118,10 @@ class Car::DayTimeline::Drives
   MAX_PAUSE = 30.minutes
   private_constant :MAX_PAUSE
 
+  # The distance (km) below which a drive rounds to 0 km
+  MIN_DISTANCE = 0.5
+  private_constant :MIN_DISTANCE
+
   # A change of one percentage point of the state of charge is the noise of
   # the reading, like a cold battery
   NOISE = 1
@@ -140,7 +148,7 @@ class Car::DayTimeline::Drives
   end
 
   def call
-    merge(increases.map { cut(refine(it)) }).map { clip(it) }
+    merge(increases.map { cut(refine(it)) }).select { it.distance >= MIN_DISTANCE }.map { clip(it) }
   end
 
   private

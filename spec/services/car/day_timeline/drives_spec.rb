@@ -66,6 +66,25 @@ describe Car::DayTimeline::Drives do
     end
   end
 
+  # The car moved in front of the house, and the state of charge fell by a
+  # point
+  context 'with a short move' do
+    let(:readings) { [[at(17), 1000], [at(17, 10), 1000.25], [at(18), 1000.25]] }
+    let(:soc) { [[at(17), 24], [at(17, 10), 23]] }
+
+    it 'adds no drive' do
+      expect(spans).to be_empty
+    end
+  end
+
+  context 'with a slow drive in short parts' do
+    let(:readings) { [[at(9), 100], [at(9, 5), 100.25], [at(9, 10), 100.5]] }
+
+    it 'joins the parts into one drive' do
+      expect(spans).to eq([['09:00', '09:10', 0.5]])
+    end
+  end
+
   # The odometer of some cars stands still while they drive, but the state of
   # charge falls
   context 'with an odometer that catches up after the drive' do
