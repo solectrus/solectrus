@@ -24,9 +24,12 @@ class Car::DayTimeline::Component < ViewComponent::Base
   PLUGGED_COLOR = 'var(--color-car-plugged)'.freeze
   private_constant :PLUGGED_COLOR
 
-  def initialize(timeline:)
+  # `named` names the car also on a single timeline, for "all" on a page that
+  # offers a select: the select names no car then
+  def initialize(timeline:, named: false)
     super()
     @timeline = timeline
+    @named = named
   end
 
   attr_reader :timeline
@@ -42,8 +45,8 @@ class Car::DayTimeline::Component < ViewComponent::Base
 
   def placeholder? = timeline.nil?
 
-  # Several timelines name their car or the guest
-  def named_lanes? = lanes.many?
+  # Several timelines name their car or the guest, and so does "all"
+  def named_lanes? = @named || lanes.many?
 
   def lane_name(lane) = lane.guest? ? t('.guest') : lane.car.display_name
 

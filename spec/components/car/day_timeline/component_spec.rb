@@ -234,6 +234,19 @@ describe Car::DayTimeline::Component, type: :component do
     end
   end
 
+  it 'names no car on a single timeline' do
+    expect(html.css('h2 span')).to be_empty
+  end
+
+  # "all" with a single car in use on the day
+  context 'when named' do
+    subject(:html) { render_inline(described_class.new(timeline:, named: true)) }
+
+    it 'names the car also on a single timeline' do
+      expect(html.css('h2 span').map { it.text.squish }).to eq([car.display_name])
+    end
+  end
+
   # The car stayed plugged in from 14:00 to 16:00 and after the charge
   context 'with a pause and a plug' do
     let(:lanes) do

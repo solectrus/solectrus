@@ -21,7 +21,7 @@
   / The timeline of a day, below the figures, refreshes with them
   - if day_timeline
     = turbo_stream.update scoped_frame_id('timeline'), method: :morph do
-      = render Car::DayTimeline::Component.new(timeline: day_timeline)
+      = render Car::DayTimeline::Component.new(timeline: day_timeline, named: car_select? && car.nil? && !car_selection.guest?)
 
   / The navigation of a period. The live view refreshes often and keeps it.
   = render 'cars/navigation_streams'
