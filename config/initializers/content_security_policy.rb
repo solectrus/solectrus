@@ -69,6 +69,9 @@ Rails.application.configure do
           Rails.configuration.x.plausible_url.presence,
           Rails.configuration.asset_host.presence,
           map_tiles_host,
+          # A click on the menu item asks HELIOS first (see the HELIOS
+          # controller). Without a controller, Rails runs this on the request.
+          -> { HeliosCheck.browser_url(try(:request) || self) },
           (
             if Rails.configuration.x.honeybadger.api_key
               'https://api.honeybadger.io'

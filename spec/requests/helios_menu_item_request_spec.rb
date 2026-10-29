@@ -51,5 +51,11 @@ describe 'HELIOS menu item' do
       expect(menu_buttons).to all(be_present)
       expect(menu_buttons).to all(satisfy { it.at_css(button_dot).nil? })
     end
+
+    # Only the browser knows whether it reaches HELIOS, so a click asks first
+    it 'lets the browser ask HELIOS on a click' do
+      expect(helios_links).to all(satisfy { it['data-action'] == 'helios#open' })
+      expect(response.headers['Content-Security-Policy']).to include('http://www.example.com:3999')
+    end
   end
 end

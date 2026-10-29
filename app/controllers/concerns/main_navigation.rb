@@ -384,6 +384,13 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
         name: t('layout.helios'),
         icon: 'sun',
         href: HeliosCheck.browser_url(request),
+        data: {
+          controller: 'helios',
+          action: 'helios#open',
+          helios_ui__confirm_dialog__component_outlet: Ui::ConfirmDialog::Component::SELECTOR,
+          helios_message_value: t('layout.helios_unreachable'),
+          helios_open_label_value: t('layout.helios_try_anyway'),
+        },
         dot: HeliosCheck.action_required?,
       }
     end

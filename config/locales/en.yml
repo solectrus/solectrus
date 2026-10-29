@@ -38,6 +38,8 @@ en:
     fullscreen_off: Exit Fullscreen
     theme: Theme
     helios: Configuration with HELIOS
+    helios_unreachable: HELIOS cannot be reached
+    helios_try_anyway: Try anyway
     settings: Settings
     more: More
     registration: Registration

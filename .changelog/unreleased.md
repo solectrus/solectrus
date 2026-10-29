@@ -65,6 +65,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The menu item HELIOS now opens a dialog when the browser cannot reach HELIOS, for example through a domain outside the home network. The dialog can try HELIOS anyway. Before, the menu item opened a page that never loaded (#6092)
 - A tooltip on a page that you scrolled down now opens next to its element. Before, it opened lower by the scroll distance
 - On a phone, the bar at the bottom now stays in view on a long page. Before, it scrolled away
 - On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page
