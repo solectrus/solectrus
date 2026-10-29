@@ -25,6 +25,18 @@ describe Car::DayTimeline::Drives do
     it 'knows the end of the drive, but not its start' do
       expect(spans).to eq([[nil, '12:30', 3]])
     end
+
+    it 'assumes the start from the distance' do
+      expect(drives.sole.assumed_at).to eq(at(12, 30) - 4.5.minutes)
+    end
+
+    context 'when the distance needs more time than the gap' do
+      let(:readings) { [[at(6), 100], [at(12), 400]] }
+
+      it 'starts the drive not before the reading before it' do
+        expect(drives.sole.assumed_at).to eq(at(6))
+      end
+    end
   end
 
   # A car that reports each hour missed a reading during a long drive

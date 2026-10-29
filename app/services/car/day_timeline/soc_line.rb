@@ -29,7 +29,7 @@ class Car::DayTimeline::SocLine
   # `points` are the [[Time, percent], ...] of the line: the value at the
   # start of the day and each reading after it. The line holds the last value
   # until `ends_at`. `drives` are the [from, to, distance] of the drives of
-  # the car, a drive without a start with its end twice. `charges` are the
+  # the car, a drive without a length with its end twice. `charges` are the
   # [from, to] of its charging sessions.
   def initialize(points, ends_at:, drives: [], charges: [])
     @points = points.sort_by(&:first)

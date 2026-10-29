@@ -7,7 +7,8 @@
 # while the car drives. Others write the odometer of the start until the car
 # stops, so the increase comes after the drive. A gap of more than MAX_GAP
 # before an increase gives no start: the drive ended by its reading, and
-# nothing tells when it began.
+# nothing tells when it began. Its distance at ASSUMED_SPEED then gives it
+# an assumed start, so a long drive does not show as short as a short one.
 #
 # The state of charge falls while the car drives, also where the odometer
 # stands still. So where it falls, it tells the drive better: the drive ends
@@ -48,14 +49,15 @@
 class Car::DayTimeline::Drives
   # `started_at` is nil when nothing tells the start. `earliest_at` is then
   # the earliest time at which it can have started, the reading before a gap
-  # in the readings (see #increases), or nil. `within_charge` marks a drive
-  # that lies within a recorded charge, at its end (see #clip).
-  Drive = Data.define(:started_at, :ended_at, :distance, :earliest_at, :within_charge) do
-    def initialize(earliest_at: nil, within_charge: false, **) = super
+  # in the readings (see #increases), or nil. `assumed_at` is the start
+  # where nothing tells it, from the distance (see #assume). `within_charge`
+  # marks a drive that lies within a recorded charge, at its end (see #clip).
+  Drive = Data.define(:started_at, :ended_at, :distance, :earliest_at, :assumed_at, :within_charge) do
+    def initialize(earliest_at: nil, assumed_at: nil, within_charge: false, **) = super
 
-    # The start, the earliest one where it is an estimate, or the end where
-    # nothing tells the start
-    def start = started_at || earliest_at || ended_at
+    # The start, the earliest one where it is an estimate, the assumed one
+    # where nothing tells the start, or the end
+    def start = started_at || earliest_at || assumed_at || ended_at
 
     def span = [start, ended_at]
 
@@ -63,7 +65,7 @@ class Car::DayTimeline::Drives
     # started
     def estimated_start? = started_at.nil? && !earliest_at.nil?
 
-    # Whether nothing tells the start, so the drive is a mark at its end
+    # Whether nothing tells the start, so the start is assumed
     def unknown_start? = started_at.nil? && earliest_at.nil? && !within_charge
 
     def duration = ended_at - start
@@ -118,6 +120,11 @@ class Car::DayTimeline::Drives
   MAX_PAUSE = 30.minutes
   private_constant :MAX_PAUSE
 
+  # The average speed (km/h) of a drive without a start, like a mix of town
+  # and country roads
+  ASSUMED_SPEED = 40
+  private_constant :ASSUMED_SPEED
+
   # The distance (km) below which a drive rounds to 0 km
   MIN_DISTANCE = 0.5
   private_constant :MIN_DISTANCE
@@ -148,10 +155,24 @@ class Car::DayTimeline::Drives
   end
 
   def call
-    merge(increases.map { cut(refine(it)) }).select { it.distance >= MIN_DISTANCE }.map { clip(it) }
+    drives = merge(increases.map { cut(refine(it)) }).select { it.distance >= MIN_DISTANCE }.map { clip(it) }
+    [nil, *drives].each_cons(2).map { |before, drive| drive.unknown_start? ? assume(drive, before) : drive }
   end
 
   private
+
+  # The drive without a start from its distance at ASSUMED_SPEED, not before
+  # what tells the car was elsewhere: the drive before it, the reading of the
+  # odometer before it, the end of a charge or an arrival
+  def assume(drive, before)
+    bounds = [
+      before&.ended_at,
+      @readings.map(&:first).select { it < drive.ended_at }.max,
+      *@charges.map(&:last).select { it <= drive.ended_at },
+      arrival_before(drive),
+    ]
+    drive.with(assumed_at: [drive.ended_at - (drive.distance.to_f / ASSUMED_SPEED).hours, *bounds.compact].max)
+  end
 
   # A drive for each increase of the odometer, from the reading before it.
   # After a longer gap, the reading before it is only the earliest start.

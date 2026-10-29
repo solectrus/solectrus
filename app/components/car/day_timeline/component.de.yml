@@ -19,7 +19,7 @@ de:
   gap: Wallbox sendete zeitweise keine Messwerte
   start_estimated: Messwerte lückenhaft, daher Beginn geschätzt
   soc_estimated: Messwerte lückenhaft, daher Verlauf geschätzt
-  start_unknown: Messwerte lückenhaft, daher Beginn unbekannt
+  start_assumed: Keine Messwerte in den Stunden davor, daher Beginn aus der Strecke geschätzt
   window: Messwerte lückenhaft, Fahrt lag irgendwann in diesem Zeitraum
   too_fast: Strecke passt nicht zur Dauer, daher Zeit ungenau
   started_before: Zählt zum Tag, an dem sie begann

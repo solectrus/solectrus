@@ -142,11 +142,12 @@ describe Car::DayTimeline::Component, type: :component do
 
   # The odometer tells only when the drive ended
   context 'with a drive without a start' do
-    let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: nil, ended_at: at(9), distance: 3) }
+    let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: nil, assumed_at: at(8, 30), ended_at: at(9), distance: 20) }
 
-    it 'marks its end and says so' do
-      expect(edges(bars.first)).to eq([62.5, 0.0])
-      expect(bars.first['aria-label']).to start_with('Driving, until 09:00').and include('so the start is unknown')
+    it 'starts at the assumed time with a jagged edge and says so' do
+      expect(edges(bars.first)).to eq([62.5, 2.083])
+      expect(bars.first['class']).to include('timeline-bar-estimated-start')
+      expect(bars.first['aria-label']).to start_with('Driving, until 09:00').and include('so the start is estimated from the distance')
     end
   end
 

@@ -19,7 +19,7 @@ en:
   gap: The wallbox sent no readings for a while
   start_estimated: Readings with gaps, so the start is estimated
   soc_estimated: Readings with gaps, so the course is estimated
-  start_unknown: Readings with gaps, so the start is unknown
+  start_assumed: No readings in the hours before, so the start is estimated from the distance
   window: Readings with gaps, the drive took place at some time in this window
   too_fast: The distance does not fit the duration, so the time is inexact
   started_before: Counts for the day on which it started
