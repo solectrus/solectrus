@@ -268,6 +268,19 @@ describe Car::DayTimeline::Component, type: :component do
     end
   end
 
+  # The wallbox sent no data from 15:00 to 16:30
+  context 'with a gap in the data of the wallbox' do
+    let(:lanes) do
+      charge = Car::DayTimeline::Charge.new(session:, spans: [[at(12), at(18)]], gaps: [[at(15), at(16, 30)]])
+      [Car::DayTimeline::Lane.new(car:, drives: [], charges: [charge], soc_line: [], visits: [])]
+    end
+
+    it 'dots the gap and says so' do
+      expect(bars.last.at_css('.timeline-bar-gap')['style']).to eq('left: 50.0%; width: 25.0%')
+      expect(bars.last['aria-label']).to end_with('The wallbox sent no readings for a while')
+    end
+  end
+
   # The car stayed plugged in from 14:00 to 16:00 and after the charge
   context 'with a pause and a plug' do
     let(:lanes) do

@@ -902,9 +902,13 @@ The timeline of a car has three rows:
 
 - The drives, each from its start to its end.
 - The charging sessions, each from its start to its end, and the times in which the car was
-  plugged in but did not charge. The sources of the energy of a session stack from the
-  bottom up, each as high as its share, because parts side by side read as one after the
-  other in time.
+  plugged in but did not charge. A session at the wallbox shows its power over time as
+  areas, with PV at the bottom and the grid on top. Power that the power splitter did not
+  split yet has the color of the wallbox. All sessions of a day use one scale, so a slow
+  charge stays low beside a fast one. An offsite session, or a session without the curve,
+  stacks the shares of its sources from the bottom up, because parts side by side read as
+  one after the other in time. A pause is grey. A time in which the wallbox sent no readings
+  is grey with dots, and the tooltip says so.
 - The state of charge, as a line through its readings (see
   [The line of the state of charge](#the-line-of-the-state-of-charge)).
 

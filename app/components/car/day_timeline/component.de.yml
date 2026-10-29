@@ -16,6 +16,7 @@ de:
   since: seit %{from}
   until: bis %{to}
   estimated: 'Zeit geschätzt, da ohne Ende erfasst'
+  gap: Wallbox sendete zeitweise keine Messwerte
   start_estimated: Messwerte lückenhaft, daher Beginn geschätzt
   soc_estimated: Messwerte lückenhaft, daher Verlauf geschätzt
   start_unknown: Messwerte lückenhaft, daher Beginn unbekannt

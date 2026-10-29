@@ -16,6 +16,7 @@ en:
   since: since %{from}
   until: until %{to}
   estimated: 'Time estimated, as recorded without an end'
+  gap: The wallbox sent no readings for a while
   start_estimated: Readings with gaps, so the start is estimated
   soc_estimated: Readings with gaps, so the course is estimated
   start_unknown: Readings with gaps, so the start is unknown

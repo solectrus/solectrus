@@ -32,3 +32,19 @@
     conic-gradient(from -135deg at right, #0000, #000 1deg 89deg, #0000 90deg)
       right / var(--tooth) calc(2 * var(--tooth)) repeat-y;
 }
+
+/*
+ * A time of a charge in which the wallbox sent no data: the car stayed
+ * plugged in, so the grey of a pause, with fine dots, because nobody knows
+ * whether it charged
+ */
+.timeline-bar-gap {
+  background:
+    radial-gradient(
+        circle,
+        color-mix(in oklab, var(--color-muted) 70%, transparent) 0.75px,
+        transparent 1.25px
+      )
+      center / 4px 4px,
+    var(--color-car-plugged);
+}

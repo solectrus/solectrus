@@ -9,7 +9,7 @@
 # day stays empty.
 class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   include Car::DayTimeline::DriveBars
-  include Car::DayTimeline::ChargeAreas
+  include Car::DayTimeline::ChargeFill
 
   Part = Car::OverviewBox::Component::Part
   private_constant :Part
@@ -63,12 +63,10 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
   def soc_height_class = fills? ? 'min-h-28 max-lg:flex-1 lg:h-36' : 'h-28 lg:h-36'
 
   # A bar for each charging session, from its start to its end, with the
-  # tooltip of the session. A charge at the wallbox draws its power inside
-  # the bar (see Car::DayTimeline::ChargeAreas). A pause in which the car
-  # stayed plugged in is a grey part of the bar, so the energy of the
-  # session stands once. Like the time plugged in, a charge that runs on at
-  # now or over midnight is open at that end, and a charge from before
-  # midnight is open at its start.
+  # tooltip of the session and its fill (see Car::DayTimeline::ChargeFill).
+  # Like the time plugged in, a charge that runs on at now or over midnight
+  # is open at that end, and a charge from before midnight is open at its
+  # start.
   def charge_bars(lane)
     lane.charges.map do |charge|
       session = charge.session
@@ -80,9 +78,7 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
       Bar.new(
         from: left,
         to: right,
-        segments: Car::ChargingSource.of(session).map { |key, weight| [Car::ChargingSource[key].color, weight] },
-        areas: charge_areas(charge),
-        pauses: charge.pauses.map { pause_in(it, charge.span) },
+        **charge_fill(charge),
         ends: ends(from, to, lane.plugged, jagged: charge.estimated?, open:, continued:),
         title: t(session.offsite? ? '.charge_offsite' : '.charge_wallbox'),
         lines: [time_text((from unless continued), (to unless open)), *offsite_place(session)].compact,
@@ -183,14 +179,16 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
     Bar.new(from: axis.position(from), to: axis.position(to), title: t('.soc_value', value:), lines:, notes: (estimated ? [t('.soc_estimated')] : []))
   end
 
-  # Why the time of a charge is an estimate, and where a charge from the day
-  # before counts, like in the figures above the timeline. A pause needs no
-  # note, because its grey part of the bar shows it.
-  def charge_notes(charge) = [(t('.estimated') if charge.estimated?), (t('.started_before') if charge.session.started_at < timeline.timeframe.beginning)].compact
-
-  # A pause as [left, width] in percent of the time of its charge
-  def pause_in((pause_from, pause_to), (from, to))
-    [pause_from - from, pause_to - pause_from].map { (it * 100.0 / (to - from)).round(3) }
+  # Why the time of a charge is an estimate, why a part of it is dotted, and
+  # where a charge from the day before counts, like in the figures above the
+  # timeline. A pause needs no note, because its grey part of the bar shows
+  # it.
+  def charge_notes(charge)
+    [
+      (t('.estimated') if charge.estimated?),
+      (t('.gap') if charge.gaps.any?),
+      (t('.started_before') if charge.session.started_at < timeline.timeframe.beginning),
+    ].compact
   end
 
   # The looks of the start and the end of a bar from `from` to `to`. An end

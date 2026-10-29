@@ -110,10 +110,12 @@ describe Car::DayTimeline do
 
     # The wallbox had power in the afternoon and at night, and its collector
     # sent no data before the power of the night
+    let(:gap_buckets) { [at(22, 55), at(23, 0), at(23, 5), at(23, 10)] }
+
     before do
       power = [*(45..70).step(5).map { at(14) + it.minutes }, at(23, 15), at(23, 20)].map { [it, 5000.0] }
       connected = (0..105).map { [at(14, 40) + (it * 5).minutes, 1.0] }
-      gaps = [at(22, 55), at(23, 0), at(23, 5), at(23, 10)].map { [it, 0.0] }
+      gaps = gap_buckets.map { [it, 0.0] }
       day = Date.new(2025, 12, 28)
       curves = instance_double(ChargingSession::Curves, start: nil, cars: {}, wallbox: { day => { wallbox_power: power, wallbox_car_connected: connected } }, wallbox_gaps: { day => { wallbox_power: gaps } })
       allow(ChargingSession::Curves).to receive(:new).and_return(curves)
@@ -123,6 +125,21 @@ describe Car::DayTimeline do
     # to the start of the bucket with data before them
     it 'charges where the wallbox had power or sent no data' do
       expect(spans(session)).to eq([[at(14, 40), at(15, 10)], [at(22, 45), at(23, 20)]])
+    end
+
+    # Each bucket without data covers the 5 minutes before its end. The
+    # bucket before them holds the last readings, without power.
+    it 'keeps the time without data as a gap, from the bucket before it' do
+      expect(timeline.lanes.sole.charges.sole.gaps).to eq([[at(22, 45), at(23, 10)]])
+    end
+
+    # The power of the afternoon stays in view
+    context 'with a gap after a bucket with power' do
+      let(:gap_buckets) { [at(15, 15), at(15, 20), at(22, 55), at(23, 0), at(23, 5), at(23, 10)] }
+
+      it 'starts the gap after it' do
+        expect(timeline.lanes.sole.charges.sole.gaps.first).to eq([at(15, 10), at(15, 20)])
+      end
     end
 
     it 'keeps the whole session as the time in which the car stood' do

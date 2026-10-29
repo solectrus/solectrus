@@ -14,9 +14,11 @@
 class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   # A charging session with the times in which the car charged (see
   # #charge_spans). `power` is the curve of a charge at the wallbox (see
-  # Car::DayTimeline::ChargePower), empty for any other charge.
-  Charge = Data.define(:session, :spans, :power) do
-    def initialize(power: [], **) = super
+  # Car::DayTimeline::ChargePower), empty for any other charge. `gaps` are
+  # the [from, to] within the spans in which the wallbox sent no data (see
+  # #gaps_of).
+  Charge = Data.define(:session, :spans, :power, :gaps) do
+    def initialize(power: [], gaps: [], **) = super
 
     # From the start to the end of the session, also over a pause
     def span = [spans.first.first, spans.last.last]
@@ -138,18 +140,47 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   def charges
     @charges ||= sessions.map do |session|
       spans = charge_spans(session)
-      Charge.new(session:, spans:, power: power_of(session, spans))
+      Charge.new(session:, spans:, power: power_of(session, spans), gaps: gaps_of(session, spans))
     end
   end
+
+  # The gaps of the wallbox within the spans of a session at the wallbox. The
+  # detection counts them to the charge (see
+  # ChargingSession::Detection::Periods), but the curve has no power there.
+  def gaps_of(session, spans)
+    return [] unless session.wallbox?
+
+    spans.flat_map { |from, to| wallbox_gaps.filter_map { |gap_from, gap_to| [[gap_from, from].max, [gap_to, to].min] if gap_from < to && gap_to > from } }
+  end
+
+  # [[from, to], ...] of the times of the day in which the collector of the
+  # wallbox sent no data, each bucket over the 5 minutes before its end. The
+  # bucket before a gap holds the last readings, and the time after them is
+  # unknown too. Without power, it has nothing to draw, so the gap starts
+  # with it, like a part of the detection.
+  def wallbox_gaps
+    @wallbox_gaps ||= begin
+      powered = wallbox_curve(curves.wallbox).to_set { it.first.to_i }
+      wallbox_curve(curves.wallbox_gaps)
+        .map { |time, _| [time - BUCKET, time] }
+        .chunk_while { |before, after| before.last >= after.first }
+        .map { |run| [run.first.first, run.last.last] }
+        .map { |from, to| [powered.include?(from.to_i) ? from : from - BUCKET, to] }
+    end
+  end
+
+  # [[Time, W], ...] of a sensor of the wallbox on the day, from its curves or
+  # its gaps. Without the grid share, each bucket stays unsplit (see
+  # ChargePower).
+  def wallbox_curve(source, name = :wallbox_power) = source.dig(timeframe.date, name) || []
 
   # The curve of the wallbox over the time of a session at the wallbox,
   # split where the power splitter split its energy
   def power_of(session, spans)
     return [] unless session.wallbox?
 
-    wallbox = curves.wallbox.fetch(timeframe.date, {})
-    grid = wallbox[:wallbox_power_grid] if session.kwh_grid
-    ChargePower.new(from: spans.first.first, to: spans.last.last, power: wallbox.fetch(:wallbox_power, []), grid:).call
+    grid = wallbox_curve(curves.wallbox, :wallbox_power_grid) if session.kwh_grid
+    ChargePower.new(from: spans.first.first, to: spans.last.last, power: wallbox_curve(curves.wallbox), grid:).call
   end
 
   # The charging sessions of the day, a running one marked (see

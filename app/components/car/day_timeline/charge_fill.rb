@@ -1,12 +1,26 @@
-# The curve of a charge at the wallbox inside its bar on the timeline of a
-# day (see Car::DayTimeline::Component): its power over its time as areas,
-# PV at the bottom, the grid above it, and the power without a split on top
-# (see Car::DayTimeline::ChargePower). All charges of the timeline share one
+# The fill of the bar of a charge on the timeline of a day (see
+# Car::DayTimeline::Component and Car::TimelineBar::Bar). A charge at the
+# wallbox draws the curve of its power over its time as areas, PV at the
+# bottom, the grid above it, and the power without a split on top (see
+# Car::DayTimeline::ChargePower). All charges of the timeline share one
 # scale, the highest power of the day, so a slow charge stays low beside a
-# fast one.
-module Car::DayTimeline::ChargeAreas
+# fast one. Any other charge keeps the shares of its sources.
+#
+# A pause in which the car stayed plugged in is grey, so the energy of the
+# session stands once. A gap in which the wallbox sent no data is grey with
+# dots.
+module Car::DayTimeline::ChargeFill
   LAYERS = { pv: :pv, grid: :grid, unsplit: :wallbox }.freeze
   private_constant :LAYERS
+
+  def charge_fill(charge)
+    {
+      segments: Car::ChargingSource.of(charge.session).map { |key, weight| [Car::ChargingSource[key].color, weight] },
+      areas: charge_areas(charge),
+      pauses: charge.pauses.map { part_of(it, charge.span) },
+      gaps: charge.gaps.map { part_of(it, charge.span) },
+    }
+  end
 
   # [[CSS color, SVG path], ...] in a box of 1000 x 100 over the bar of the
   # charge, a layer without power left out. Empty without a curve, so the
@@ -25,6 +39,11 @@ module Car::DayTimeline::ChargeAreas
   end
 
   private
+
+  # A pause or a gap as [left, width] in percent of the time of its charge
+  def part_of((part_from, part_to), (from, to))
+    [part_from - from, part_to - part_from].map { (it * 100.0 / (to - from)).round(3) }
+  end
 
   # The highest power of all charges on the timeline
   def peak_power

@@ -12,6 +12,9 @@
       span.basis-0 style="flex-grow: #{segment.last}; background: #{segment.first}"
   - bar.pauses.each do |left, width|
     span.absolute.inset-y-0.bg-car-plugged style="left: #{left}%; width: #{width}%"
+  / A gap, in which the wallbox sent no data, is grey with dots
+  - bar.gaps.each do |left, width|
+    span.absolute.inset-y-0.timeline-bar-gap style="left: #{left}%; width: #{width}%"
   / A click opens the entry: in the modal on the desktop, in a sheet on a
     phone
   - if bar.href
