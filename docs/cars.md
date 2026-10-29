@@ -867,9 +867,10 @@ These rules are decisions:
   builds the missing daily summaries of the whole time.
 
 A selected car without an odometer has no driving, so the page shows the charging alone. The
-guest has no driving either. A column without a value in the period keeps its figures with 0
-or "–". A period without a car in use says so, and the admin gets a link to the settings of
-the cars.
+guest has no driving either. A column without a value in the period says so in the place of
+its figures, for example "No drives". A column of the charging with sessions that the
+numbers leave out keeps its figures with 0, because its link names these sessions. A period
+without a car in use says so, and the admin gets a link to the settings of the cars.
 
 ### The day
 

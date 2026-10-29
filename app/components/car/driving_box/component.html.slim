@@ -1,1 +1,1 @@
-= render Car::OverviewBox::Component.new(title: t('car_breakdown.driving'), list: places_path&.then { Car::OverviewBox::Component::List.new(label: t('car_breakdown.places'), href: it, sheet_href: places_path(sheet: 1)) }, timeframe:, figures:, note:, swatch:)
+= render Car::OverviewBox::Component.new(title: t('car_breakdown.driving'), list: places_path&.then { Car::OverviewBox::Component::List.new(label: t('car_breakdown.places'), href: it, sheet_href: places_path(sheet: 1)) }, timeframe:, figures:, note:, swatch:, empty:)

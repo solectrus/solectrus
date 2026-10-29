@@ -59,6 +59,11 @@ class Car::DrivingBox::Component < ViewComponent::Base
     ]
   end
 
+  # A period without a drive says so in the place of the figures
+  def empty
+    Car::OverviewBox::Component::Empty.new(icon: 'car', text: t('.none')) unless driven?
+  end
+
   # The window that the rates come from, in the info icon of the column. The
   # figures of a day read like its own numbers, but the rates come from the
   # days around it. Without a rate, its tooltip tells what is missing.

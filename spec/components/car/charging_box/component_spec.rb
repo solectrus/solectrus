@@ -72,29 +72,35 @@ describe Car::ChargingBox::Component, type: :component do
     end
   end
 
-  # A period without charging keeps its tiles, which load no chart
+  # A period without charging says so in the place of the figures, which
+  # would be 0 and dashes
   context 'without charging' do
     let(:wallbox) { sums }
     let(:offsite) { sums }
 
-    it 'shows 0 and dashes in the same tiles' do
-      expect(tiles).to eq(
-        [
-          ['0 kWh', 'charged'],
-          ['–', 'from PV'],
-          ['–', 'cost'],
-        ],
-      )
+    it 'says so instead of the figures' do
+      expect(tiles).to be_empty
+      expect(html.css('section > div').last.text.squish).to eq('No charging sessions')
     end
 
-    it 'has no bar of the sources' do
-      expect(bar).to be_empty
+    it 'has no color in the swatch' do
       expect(swatch).to eq(%w[var(--color-fill-strong)])
     end
 
-    it 'loads the empty charts, but links no list' do
-      expect(charts).to eq(%w[car_charging car_charging_costs])
+    it 'loads no chart and links no list' do
+      expect(charts).to be_empty
       expect(html.css('a[href*="/charging_sessions/"]')).to be_empty
+    end
+
+    # The numbers leave them out, so the figures stay with 0 beside the link
+    # that names them
+    context 'with sessions without a car' do
+      before { allow(report).to receive(:unassigned_sessions).and_return(sums(count: 2)) }
+
+      it 'keeps the figures' do
+        expect(tiles.first).to eq(['0 kWh', 'charged'])
+        expect(html.text).not_to include('No charging sessions')
+      end
     end
   end
 

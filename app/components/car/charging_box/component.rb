@@ -76,11 +76,20 @@ class Car::ChargingBox::Component < ViewComponent::Base
   # sessions, whose list offers them alone. A period without charging and
   # without such sessions has none.
   def list
+    return @list if defined?(@list)
+
     notes = review_notes
-    return if sources.none? && notes.none?
+    return @list = nil if sources.none? && notes.none?
 
     kind = notes.keys.first || ChargingSession.listed_kinds.first
-    Car::OverviewBox::Component::List.new(label: t('charging_sessions.title'), href: sessions_path(kind), sheet_href: sessions_path(kind, sheet: 1), notes: notes.values)
+    @list = Car::OverviewBox::Component::List.new(label: t('charging_sessions.title'), href: sessions_path(kind), sheet_href: sessions_path(kind, sheet: 1), notes: notes.values)
+  end
+
+  # A period without charging says so in the place of the figures. Sessions
+  # that the numbers leave out keep the figures with 0, beside the link that
+  # names them.
+  def empty
+    Car::OverviewBox::Component::Empty.new(icon: 'charging-station', text: t('.none')) unless list
   end
 
   # The note of the sessions to review of each kind that has some

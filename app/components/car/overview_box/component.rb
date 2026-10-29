@@ -45,13 +45,18 @@ class Car::OverviewBox::Component < ViewComponent::Base
   end
   public_constant :List
 
-  # `list` links the list of the column, if any. A period without a value,
-  # like a day without a drive, keeps the figures with 0 or a dash. `note`
-  # explains the column in an info icon beside its title, like the window of
-  # the rates. `swatch` are the Segments of a small bar before the title, in
-  # the colors of the bars of the column in the timeline of a day, so the
-  # title tells what these bars show.
-  def initialize(title:, list:, timeframe:, figures:, note: nil, swatch: [NEUTRAL])
+  # The place of the figures of a period without a value, like a day without
+  # a drive: a crossed out icon and a text, in the height of a figure
+  Empty = Data.define(:icon, :text)
+  public_constant :Empty
+
+  # `list` links the list of the column, if any. A period without a value
+  # shows `empty` in the place of the figures, which would be 0 and dashes.
+  # `note` explains the column in an info icon beside its title, like the
+  # window of the rates. `swatch` are the Segments of a small bar before the
+  # title, in the colors of the bars of the column in the timeline of a day,
+  # so the title tells what these bars show.
+  def initialize(title:, list:, timeframe:, figures:, note: nil, swatch: [NEUTRAL], empty: nil) # rubocop:disable Metrics/ParameterLists
     super()
     @title = title
     @list = list
@@ -59,9 +64,10 @@ class Car::OverviewBox::Component < ViewComponent::Base
     @figures = figures
     @note = note
     @swatch = swatch
+    @empty = empty
   end
 
-  attr_reader :title, :list, :timeframe, :figures, :note, :swatch
+  attr_reader :title, :list, :timeframe, :figures, :note, :swatch, :empty
 
   # The box while its figures load: the title and a pulsing bar in the place
   # of each number. It has the layout of the box, so the page keeps its

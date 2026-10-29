@@ -6,3 +6,4 @@ de:
   window: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen je 100 km die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag.
   minimum: Minimum
   maximum: Maximum
+  none: Keine Fahrten

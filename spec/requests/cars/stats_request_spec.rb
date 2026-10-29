@@ -232,12 +232,12 @@ describe 'Car Stats' do
           end
         end
 
-        it 'keeps the figures, without the link to the sessions' do
+        it 'says so in each column, without the link to the sessions' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: idle_month), headers:)
 
           boxes = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).css('section[aria-labelledby^="overview-"]')
           expect(boxes.size).to eq(2)
-          expect(boxes.text).to include(I18n.t('sensors.car_charging_costs'), I18n.t('sensors.car_driving_costs'))
+          expect(boxes.text).to include('No charging sessions', 'No drives')
           expect(boxes.css('a[href*="/charging_sessions/"]')).to be_empty
           expect(response.body).not_to include('The data is not enough')
         end
@@ -262,12 +262,12 @@ describe 'Car Stats' do
           expect(columns.find { it['data-active'] == 'true' }['data-car-overview-charts']).to start_with('car_distance')
         end
 
-        it 'keeps the charging figures, which load their empty charts' do
+        it 'says so in the charging column, and keeps the driving figures' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: drive_month, car: 1), headers:)
 
-          charging = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"]')
-          expect(charging.text).to include(I18n.t('sensors.car_charging_costs'))
-          expect(charging.css('a[href*="/car_charging/"]')).not_to be_empty
+          fragment = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, ''))
+          expect(fragment.at_css('section[aria-labelledby="overview-charging"]').text).to include('No charging sessions')
+          expect(fragment.at_css('section[aria-labelledby="overview-driving"]').text).to include(I18n.t('sensors.car_driving_costs'))
         end
       end
 

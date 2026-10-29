@@ -123,24 +123,19 @@ describe Car::DrivingBox::Component, type: :component do
     end
   end
 
-  # A period without a drive keeps its tiles, which load no chart and
-  # explain nothing
+  # A period without a drive says so in the place of the figures, which
+  # would be 0 and dashes
   context 'without a drive' do
     let(:distance) { nil }
     let(:driving) { Car::Driving::Totals.empty }
 
-    it 'shows 0 and dashes in the same tiles' do
-      expect(tiles).to eq(
-        [
-          ['0 km', 'driven'],
-          ['–', 'used'],
-          ['–', 'cost'],
-        ],
-      )
+    it 'says so instead of the figures' do
+      expect(tiles).to be_empty
+      expect(html.css('section > div').last.text.squish).to eq('No drives')
     end
 
-    it 'loads the empty charts, but explains nothing' do
-      expect(charts).to eq(%w[car_distance car_driving_energy car_driving_costs])
+    it 'loads no chart and explains nothing' do
+      expect(charts).to be_empty
       expect(tooltips).to be_empty
     end
 
