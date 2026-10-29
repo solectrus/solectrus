@@ -97,7 +97,7 @@ describe Car::DayTimeline::Component, type: :component do
   end
 
   it 'says in the tooltip of an estimate that it is one' do
-    notes = html.css('[aria-hidden="true"][data-controller="tooltip"]').map { it.text.include?('Readings with gaps, so the course is estimated') }
+    notes = html.css('[aria-hidden="true"][data-controller="tooltip"]').map { it.text.include?('No readings in between, so the course is estimated') }
 
     expect(notes).to eq([false, true, false, true])
   end
@@ -177,7 +177,7 @@ describe Car::DayTimeline::Component, type: :component do
     it 'starts at the earliest time with a jagged edge and says so' do
       expect(edges(bars.first)).to eq([62.5, 8.333])
       expect(bars.first['class']).to include('timeline-bar-estimated-start')
-      expect(bars.first['aria-label']).to start_with("Driving, #{range('07:00', '09:00')}").and include('Readings with gaps, so the start is estimated')
+      expect(bars.first['aria-label']).to start_with("Driving, #{range('07:00', '09:00')}").and include('No readings in the hour before, so the start is estimated')
     end
 
     context 'when it is too slow for its time' do
