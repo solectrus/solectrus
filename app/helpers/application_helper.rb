@@ -35,10 +35,11 @@ module ApplicationHelper
     "#{controller_namespace}-#{prefix}-#{timeframe_identifier}"
   end
 
-  # The frame of the stats is permanent. A refresh of the page morphs it, and
-  # a morph keeps each permanent element. A page that shows another selection
-  # in the same timeframe therefore gives the stats and the frame around them
-  # an id of its own, so the morph replaces both.
+  # The frames of the stats and of the timeframe are permanent. A refresh of
+  # the page morphs them, and a morph keeps each permanent element. A page
+  # that shows another selection in the same timeframe therefore gives them
+  # an id of its own, so the morph replaces them and the links of the
+  # timeframe keep the selection.
   def scoped_frame_id(prefix)
     [frame_id(prefix), *selection_params.values.compact].join('-')
   end

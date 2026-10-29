@@ -61,7 +61,7 @@ module TurboStreamHelper
   end
 
   def turbo_stream_update_timeframe
-    turbo_stream.update(frame_id('timeframe')) do
+    turbo_stream.update(scoped_frame_id('timeframe')) do
       render Timeframe::Component.new(timeframe:)
     end
   end

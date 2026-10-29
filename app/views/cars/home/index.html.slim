@@ -8,7 +8,7 @@
 
 - if @missing_or_stale_summary_days.present?
   = render 'shared/home_sub_nav', status: false
-  = turbo_stream.update frame_id('timeframe') do
+  = turbo_stream.update scoped_frame_id('timeframe') do
     = render Timeframe::Component.new(timeframe:)
   = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
 

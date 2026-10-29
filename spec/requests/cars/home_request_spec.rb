@@ -87,6 +87,14 @@ describe 'Car Home' do
 
         expect(response).to have_http_status(:ok)
       end
+
+      # The frame of the timeframe is permanent, so another selection of the
+      # same timeframe replaces it and its links keep the selection
+      it 'gives the timeframe an id of the selection' do
+        get cars_home_path(timeframe: '2026-06-26', car: 1)
+
+        expect(response.parsed_body.at_css('turbo-frame#cars-timeframe-2026-06-26-1')).to be_present
+      end
     end
 
     # The overview says so instead of its columns
