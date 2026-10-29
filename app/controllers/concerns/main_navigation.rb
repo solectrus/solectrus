@@ -377,8 +377,10 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       }
     end
 
+    # Without HELIOS, the item leads the admin to its installation (see
+    # HeliosController). A guest cannot install it.
     def helios_item
-      return unless HeliosCheck.available?
+      return unless HeliosCheck.available? || admin?
 
       {
         name: t('layout.helios'),

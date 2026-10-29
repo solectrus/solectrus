@@ -4,16 +4,22 @@
 describe 'HELIOS menu item' do
   before do
     allow(HeliosCheck).to receive_messages(
-      available?: true,
+      available?: available,
       action_required?: action_required,
     )
+    login_as_admin if admin
     get '/power_balance/now'
   end
 
+  let(:available) { true }
+  let(:action_required) { false }
+  let(:admin) { false }
   let(:html) { response.parsed_body }
-  let(:amber_dot) { 'span[aria-hidden="true"].bg-attention-strong' }
+
+  def amber_dot = 'span[aria-hidden="true"].bg-attention-strong'
+
   # A button of the navigation sits on the color of the chrome, so its dot is light
-  let(:button_dot) { 'span[aria-hidden="true"].bg-amber-400' }
+  def button_dot = 'span[aria-hidden="true"].bg-amber-400'
 
   def helios_links
     html.css('a[href="http://www.example.com/helios"]')
@@ -54,6 +60,24 @@ describe 'HELIOS menu item' do
 
     it 'opens HELIOS in a new tab' do
       expect(helios_links).to all(satisfy { it['target'] == '_blank' })
+    end
+  end
+
+  # The item leads the admin to the installation of HELIOS (see
+  # HeliosController). A guest cannot install it.
+  context 'without HELIOS' do
+    let(:available) { false }
+
+    it 'hides the menu item from a guest' do
+      expect(helios_links).to be_empty
+    end
+
+    context 'when logged in as admin' do
+      let(:admin) { true }
+
+      it 'shows the menu item' do
+        expect(helios_links).to be_present
+      end
     end
   end
 end

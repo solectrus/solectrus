@@ -211,7 +211,7 @@ describe 'Settings Places' do
       login_as_admin
       get edit_settings_place_path(place, return_to: 'https://example.com/cars/visits')
 
-      expect(response.body).not_to include('example.com')
+      expect(response.body).not_to include('https://example.com/cars/visits')
     end
 
     it 'ignores a return_to with a scheme and a port, also on this host' do
