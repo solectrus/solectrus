@@ -33,6 +33,12 @@
 # The drive ends there before it joins another one, so two drives on both
 # sides of an arrival stay apart, also where their times touch.
 #
+# A reading is the mean of its bucket, so the last increase of a drive can
+# fall into two buckets. Its rest then comes after the arrival, while the
+# car stands at the place. An increase that ends in the ARRIVAL after the
+# start of a stop that still lasts is such a rest: its distance belongs to
+# the drive that arrived, and it adds no drive.
+#
 # A drive never overlaps a charge that the car recorded: it ends where the
 # charge starts and starts where the charge ends. A drive within a charge
 # keeps a mark at the end of the charge.
@@ -232,22 +238,32 @@ class Car::DayTimeline::Drives
 
   # Drives in the order of their end, one where they overlap or where a short
   # pause without a stop lies between them. An arrival between them keeps
-  # them apart, also where their times touch.
+  # them apart, also where their times touch. The rest of a drive after its
+  # arrival adds its distance alone.
   def merge(drives)
     drives.sort_by(&:ended_at).each_with_object([]) do |drive, merged|
-      if merged.last && !arrival?(merged.last, drive) && (merged.last.joins?(drive) || pause?(merged.last, drive))
-        merged[-1] = merged.last.merge(drive)
-      else
-        merged << drive
+      before = merged.last
+      if before && rest?(before, drive) then merged[-1] = before.with(distance: before.distance + drive.distance)
+      elsif before && one?(before, drive) then merged[-1] = before.merge(drive)
+      else merged << drive
       end
     end
   end
+
+  def one?(before, after) = !arrival?(before, after) && (before.joins?(after) || pause?(before, after))
 
   def pause?(before, after)
     before.joins?(after, pause: MAX_PAUSE) && @stops.none? { |from, to| from < after.start && to > before.ended_at }
   end
 
   def arrival?(before, after) = @stops.any? { |from, _| from.between?(before.ended_at, after.start) }
+
+  # Whether the drive after an arrival is the rest of the drive before it:
+  # it ends in the ARRIVAL after the start of the stop, and the car still
+  # stands there
+  def rest?(before, after)
+    @stops.any? { |from, to| from.between?(before.ended_at, after.start) && after.ended_at <= from + ARRIVAL && to >= after.ended_at }
+  end
 
   # The drive up to the first stop that starts in its last ARRIVAL, and
   # after its start

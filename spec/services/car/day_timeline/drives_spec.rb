@@ -172,6 +172,27 @@ describe Car::DayTimeline::Drives do
     end
   end
 
+  # The odometer reported the last kilometres at 15:07, so the mean of its
+  # bucket holds a part of them and the next bucket the rest. The car
+  # arrived at 15:06.
+  context 'with the rest of a drive in the bucket after the arrival' do
+    let(:readings) { [[at(14, 40), 100], [at(15, 10), 110], [at(15, 15), 111], [at(16), 111]] }
+    let(:stops) { [[at(15, 6), at(16, 30)]] }
+
+    it 'adds the rest to the drive that arrived' do
+      expect(spans).to eq([['14:40', '15:06', 11]])
+    end
+
+    # A drive later in the visit is no rest
+    context 'with a drive after the arrival' do
+      let(:readings) { [[at(14, 40), 100], [at(15, 10), 110], [at(15, 25), 110], [at(15, 40), 113], [at(16), 113]] }
+
+      it 'keeps it apart' do
+        expect(spans).to eq([['14:40', '15:06', 10], ['15:25', '15:40', 3]])
+      end
+    end
+  end
+
   # The state of charge read last before the arrival, so the fall of the next
   # drive reaches back over it
   context 'with a fall of the next drive from a reading before the arrival' do
