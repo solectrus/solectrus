@@ -7,6 +7,7 @@ import {
   arrow,
   autoUpdate,
   type Placement,
+  type ReferenceElement,
 } from '@floating-ui/dom';
 import { isTouchEnabled } from '@/utils/device';
 import { COMPACT_QUERY } from '@/utils/bottomSheet';
@@ -439,6 +440,19 @@ export default class TooltipController extends Controller {
     if (observeElement) this.observeContentChanges(observeElement);
   }
 
+  // Shows the tooltip as the floating box above `reference`, also on a phone,
+  // and moves it along on each call. A finger that moves over a row uses it
+  // (see Car::DayTimeline::Component): a sheet would cover the row, and the
+  // box keeps the finger free.
+  async follow(reference: ReferenceElement): Promise<void> {
+    if (this.isVisible) return this.updateTooltipPosition(reference, 'top');
+
+    TooltipController.setActiveTooltip(this);
+    this.updateTooltipContent(this.getContent());
+    this.isVisible = true;
+    await this.showTooltipAt(reference, 'top');
+  }
+
   readonly hide = (): void => {
     if (!this.isVisible) return;
 
@@ -571,7 +585,7 @@ export default class TooltipController extends Controller {
    * Shows the tooltip at the specified target element
    */
   private async showTooltipAt(
-    target: HTMLElement,
+    target: ReferenceElement,
     placement: Placement = 'bottom',
   ): Promise<void> {
     // Ensure tooltip is in correct container (dialog or root element)
@@ -623,7 +637,7 @@ export default class TooltipController extends Controller {
    * Computes and applies the tooltip position using Floating UI
    */
   private async updateTooltipPosition(
-    target: HTMLElement,
+    target: ReferenceElement,
     placement: Placement = 'bottom',
   ): Promise<void> {
     const {

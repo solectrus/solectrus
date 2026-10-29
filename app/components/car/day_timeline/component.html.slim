@@ -39,8 +39,17 @@ div class=['flex flex-col gap-6 lg:gap-8', fill_class]
           - if lane.soc?
             / The scale from 0 to 100 % on a lane like the rows above, with a
               dotted line at 50 %. The line of the state of charge has a soft
-              area below it.
-            div class=['relative rounded-lg bg-fill/50', soc_height_class] role='img' aria-label=soc_label(lane)
+              area below it. A finger that moves along the row shows the
+              tooltips one after the other, so a swipe there does not turn
+              the page.
+            div[
+              class=['relative touch-pan-y rounded-lg bg-fill/50', soc_height_class]
+              role='img'
+              aria-label=soc_label(lane)
+              data-swipe-ignore=true
+              data-controller='car--day-timeline--component'
+              data-action='pointerdown->car--day-timeline--component#start pointermove->car--day-timeline--component#move pointerup->car--day-timeline--component#end pointercancel->car--day-timeline--component#end click->car--day-timeline--component#click:capture'
+            ]
               div class='absolute inset-x-0 top-1/2 border-t border-dotted border-line'
               - known, unknown = soc_paths(lane)
               svg class='absolute inset-0 size-full overflow-visible text-fg' viewBox='0 0 1000 100' preserveAspectRatio='none' aria-hidden='true'

@@ -191,11 +191,12 @@ export default class extends Controller<HTMLElement> {
 
     // Chart canvases handle their own horizontal touch gestures (tooltip
     // crosshair). Leave them alone so dragging the tooltip does not also
-    // rubber-band the surrounding page. A sheet above the page (a dialog)
-    // has its own gestures, and the page below must not turn over.
+    // rubber-band the surrounding page. So do other elements that follow the
+    // finger to the side (`data-swipe-ignore`). A sheet above the page (a
+    // dialog) has its own gestures, and the page below must not turn over.
     if (
       event.target instanceof Element &&
-      event.target.closest('canvas, dialog')
+      event.target.closest('canvas, dialog, [data-swipe-ignore]')
     ) {
       this.dragTarget = null;
       return;
