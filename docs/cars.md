@@ -1009,6 +1009,17 @@ These rules find the drives:
   [Which car charged](#which-car-charged)). So the reading with the increase can come some
   minutes after the car arrived and plugged in. The drive ends there before it joins
   another one, so an arrival keeps two drives apart.
+- A reading of the odometer is the mean of 5 minutes. So the last increase of a drive can
+  fall into two readings, and the second one comes after the arrival. If this rest ends in
+  the 20 minutes after the arrival and the car still stands there, its distance belongs to
+  the drive that arrived. It adds no drive.
+- A car does not drive while it charges. So an increase within a charging session belongs to
+  the drive that arrived at the session, also after 20 minutes.
+- Without such a drive, an increase within a charging session is a mark at the end of the
+  session. A session that still charges has no end yet, so the mark stays at its start.
+- A drive below 0.5 km is no drive, like a move of the car in front of the house. Its
+  distance rounds to 0 km. This rule applies after the drives join, so the short parts of
+  a slow drive stay in it.
 
 A car reports its place late, so a visit can last until the car arrives at the next place,
 and only the start of a visit is sure. A drive therefore starts at the last place where the
