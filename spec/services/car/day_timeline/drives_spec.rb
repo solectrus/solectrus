@@ -238,6 +238,30 @@ describe Car::DayTimeline::Drives do
 
       expect([drive.started_at, drive.ended_at, drive.within_charge]).to eq([nil, at(10), true])
     end
+
+    # The charge runs until now, so its end is not known yet
+    it 'keeps the mark at the start of a charge that runs on' do
+      drive = described_class.new(readings, charges: [[at(9), at(10)]], ends_at: at(10)).call.sole
+
+      expect([drive.ended_at, drive.within_charge]).to eq([at(9), true])
+    end
+  end
+
+  # The odometer reported the last kilometres 35 minutes after the car
+  # plugged in
+  context 'with a late reading in the charge after the drive' do
+    let(:readings) { [[at(9, 5), 100], [at(9, 15), 103], [at(9, 55), 103], [at(10), 106]] }
+
+    def spans_with(charges) = described_class.new(readings, charges:).call.map { [it.ended_at.strftime('%H:%M'), it.distance, it.within_charge] }
+
+    it 'adds it to the drive that arrived at the charge' do
+      expect(spans_with([[at(9, 20), at(11)]])).to eq([['09:15', 6, false]])
+    end
+
+    # The drive before ended more than ARRIVAL before the charge
+    it 'keeps it apart from a drive that arrived elsewhere' do
+      expect(spans_with([[at(9, 38), at(11)]])).to eq([['09:15', 3, false], ['11:00', 3, true]])
+    end
   end
 
   context 'with a longer pause between two drives' do

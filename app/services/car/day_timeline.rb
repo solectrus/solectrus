@@ -269,7 +269,7 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
 
     before, readings = curve(car.sensor_name(:car_odometer)).partition { |time, _| time < beginning }
     stops = visits_of(car).map { [it.started_at, it.ended_at] }
-    Drives.new(readings, before: before.last, soc:, stops:, charges: charges.map(&:span)).call
+    Drives.new(readings, before: before.last, soc:, stops:, charges: charges.map(&:span), ends_at: stops_at).call
   end
 
   # The line from the value at the start of the day to now or the end of the

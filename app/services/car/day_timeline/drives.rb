@@ -37,11 +37,14 @@
 # fall into two buckets. Its rest then comes after the arrival, while the
 # car stands at the place. An increase that ends in the ARRIVAL after the
 # start of a stop that still lasts is such a rest: its distance belongs to
-# the drive that arrived, and it adds no drive.
+# the drive that arrived, and it adds no drive. A car does not drive while
+# it charges, so each increase within a charge is the rest of the drive
+# that arrived at the charge, also after ARRIVAL.
 #
 # A drive never overlaps a charge that the car recorded: it ends where the
 # charge starts and starts where the charge ends. A drive within a charge
-# keeps a mark at the end of the charge.
+# keeps a mark at the end of the charge. A charge that runs on, like until
+# now, has no end yet, so the mark stays at its start.
 #
 # A drive shorter than MIN_DISTANCE, like moving the car in front of the
 # house, is no drive: its distance shows as 0 km. It counts after the drives
@@ -57,7 +60,8 @@ class Car::DayTimeline::Drives
   # the earliest time at which it can have started, the reading before a gap
   # in the readings (see #increases), or nil. `assumed_at` is the start
   # where nothing tells it, from the distance (see #assume). `within_charge`
-  # marks a drive that lies within a recorded charge, at its end (see #clip).
+  # marks a drive that lies within a recorded charge, at its end, or at its
+  # start where it runs on (see #clip).
   Drive = Data.define(:started_at, :ended_at, :distance, :earliest_at, :assumed_at, :within_charge) do
     def initialize(earliest_at: nil, assumed_at: nil, within_charge: false, **) = super
 
@@ -152,12 +156,14 @@ class Car::DayTimeline::Drives
   # reading of the meter. `soc` are the readings of the state of charge on
   # the day, empty without the sensor. `stops` are the [from, to] where the
   # car stood, like its visits of places, and `charges` those of its
-  # recorded charging sessions.
-  def initialize(readings, before: nil, soc: [], stops: [], charges: [])
+  # recorded charging sessions. `ends_at` is the end of the data, where a
+  # charge runs on.
+  def initialize(readings, before: nil, soc: [], stops: [], charges: [], ends_at: nil)
     @readings = Sensor::MeterReadings.new([*([before] if before), *readings]).call
     @soc = soc.sort_by(&:first)
     @charges = charges.sort_by(&:first)
     @stops = [*stops, *charges]
+    @ends_at = ends_at
   end
 
   def call
@@ -260,9 +266,14 @@ class Car::DayTimeline::Drives
 
   # Whether the drive after an arrival is the rest of the drive before it:
   # it ends in the ARRIVAL after the start of the stop, and the car still
-  # stands there
+  # stands there. Within a charge, it can end later, where the drive before
+  # it arrived at the charge.
   def rest?(before, after)
-    @stops.any? { |from, to| from.between?(before.ended_at, after.start) && after.ended_at <= from + ARRIVAL && to >= after.ended_at }
+    @stops.any? do |stop|
+      from, to = stop
+      from.between?(before.ended_at, after.start) && to >= after.ended_at &&
+        (after.ended_at <= from + ARRIVAL || (@charges.include?(stop) && before.ended_at >= from - ARRIVAL))
+    end
   end
 
   # The drive up to the first stop that starts in its last ARRIVAL, and
@@ -279,8 +290,12 @@ class Car::DayTimeline::Drives
       if to <= clipped.start || from >= clipped.ended_at then clipped
       elsif from > clipped.start then clipped.with(ended_at: from)
       elsif to < clipped.ended_at then clipped.estimated_start? ? clipped.with(earliest_at: to) : clipped.with(started_at: to)
-      else clipped.with(started_at: nil, earliest_at: nil, ended_at: to, within_charge: true)
+      else clipped.with(started_at: nil, earliest_at: nil, ended_at: mark_at(from, to), within_charge: true)
       end
     end
   end
+
+  # The mark of a drive within a charge: at its end, or at its start where
+  # it runs on
+  def mark_at(from, to) = @ends_at && to >= @ends_at ? from : to
 end
