@@ -1,3 +1,10 @@
 en:
-  as_of: Latest reading of the car
+  as_of:
+    today: Latest reading at %{time}
+    yesterday: Latest reading yesterday at %{time}
+    day: Latest reading on %{day} at %{time}
   charging: Charging at %{power}
+  location: Location
+  plug: Plug
+  on_the_road: On the road
+  fold: Show less

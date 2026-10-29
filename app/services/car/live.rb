@@ -7,10 +7,11 @@ class Car::Live
   # latest reading of the car. A car sensor holds its value at any age (see
   # the DSL `state`), so the time tells how old the state is. `located_at` is
   # the reading of the position, which is the arrival for a source that sends
-  # a change alone.
+  # a change alone. `away` tells that the car reports a position outside the
+  # radius of home, so it cannot be at the wallbox.
   State =
-    Data.define(:car, :soc, :range, :max_range, :odometer, :connected, :charging_power, :latitude, :longitude, :time, :located_at) do
-      def initialize(time: nil, located_at: nil, **) = super
+    Data.define(:car, :soc, :range, :max_range, :odometer, :connected, :charging_power, :latitude, :longitude, :time, :located_at, :away) do
+      def initialize(time: nil, located_at: nil, away: false, **) = super
 
       # [latitude, longitude], or nil without both
       def location = ([latitude, longitude] if latitude && longitude)
@@ -75,7 +76,7 @@ class Car::Live
     in_use = car.in?(cars_in_use)
     state = State.new(car:, charging_power: nil, time: (time_of(car) if in_use), located_at: (data.time_for(car.sensor_name(:car_latitude)) if in_use), **ROLES.transform_values { value(car.sensor_name(it)) if in_use })
     state = state.with(latitude: nil, longitude: nil, located_at: nil) if left_location?(car, state)
-    state = estimated_range(car, state)
+    state = estimated_range(car, state).with(away: away?(state))
     state.with(connected: connected_of(car, state))
   end
 
@@ -96,9 +97,10 @@ class Car::Live
 
   # The plug of the car. One car in use without a plug of its own shows the
   # plug of the wallbox, because the live view has no other car to show it.
+  # A car away from home is not at the wallbox, so its plug stays unknown.
   def connected_of(car, state)
     connected = state.connected unless outdated_plug?(car, state)
-    connected.nil? && car.in?(cars_in_use) && cars_in_use.one? ? wallbox_car_connected : connected
+    connected.nil? && !state.away && car.in?(cars_in_use) && cars_in_use.one? ? wallbox_car_connected : connected
   end
 
   # Whether the plug of the car contradicts the plug of the wallbox, and the
@@ -155,12 +157,12 @@ class Car::Live
 
   # The cars in use that can be at the wallbox
   def candidates
-    own_states.select { it.car.in?(cars_in_use) && it.connected != false && !away?(it) }
+    own_states.select { it.car.in?(cars_in_use) && it.connected != false && !it.away }
   end
 
   # Whether the car reports a position outside the radius of home
   def away?(state)
-    home && state.location && !home.covers?(*state.location)
+    home.present? && state.location.present? && !home.covers?(*state.location)
   end
 
   # The latest reading of a sensor of the car

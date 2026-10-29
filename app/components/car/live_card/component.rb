@@ -1,14 +1,16 @@
 # The card of one car in the live view (see Car::LiveView::Component), in the
-# way of the grouped lists of iOS: its name with a car in its color and the
-# time of its latest reading, then a card with its range and its state of
-# charge as a bar with the scale from 0 to the maximum range. Below it, the
-# cells of a list: for the admin its place, the plug and the odometer. The
-# range, the bar and the odometer open the chart of today.
+# way of the grouped lists of iOS: its name with a car in its color, then a
+# card with its range, the time of its latest reading and its state of
+# charge as a bar with the scale from 0 to the maximum range. Below it, a
+# list: for the admin the map of its place, then the plug and the odometer.
+# The range, the bar and the odometer open the chart of today.
 #
 # A phone has white cards on the gray of the page, the desktop gray cards on
-# its white page. A lone car on the desktop has the list beside the card.
-# With more than one card, the card is a little smaller, so two cars fit on a
-# phone with less scrolling.
+# its white page. The list of the admin folds into one cell with the place
+# and the plug, and a tap on that cell unfolds it in its place (see
+# component_controller.ts). A lone card starts unfolded. With more than one
+# card, the card is a little smaller and starts folded, so several cars fit
+# on a phone without a scroll.
 class Car::LiveCard::Component < ViewComponent::Base
   include Car::BatteryDisplay
   include Car::TimeText
@@ -30,7 +32,7 @@ class Car::LiveCard::Component < ViewComponent::Base
   private_constant :INSIDE_MIN
 
   # `state` holds the values of one car (see Car::Live::State). `compact` is
-  # whether the phone shows more than one card.
+  # whether the live view shows more than one card.
   def initialize(state:, compact: false)
     super()
     @state = state
@@ -45,29 +47,129 @@ class Car::LiveCard::Component < ViewComponent::Base
   GROUND = 'bg-surface lg:bg-canvas dark:lg:bg-surface dark:lg:ring-1 dark:lg:ring-white/10'.freeze
   public_constant :GROUND
 
-  # A lone car on the desktop has the room for its list beside the card. The
-  # class names stay literal, so Tailwind finds them.
-  def body_classes = compact ? 'contents' : 'contents lg:grid lg:grid-cols-[3fr_2fr] lg:gap-6'
-
   # The class names stay literal, so Tailwind finds them
   def range_size_class = compact ? 'text-4xl lg:text-6xl' : 'text-5xl lg:text-6xl'
 
-  # The bar with its percent, the scale below it and the odometer, a step
-  # larger for a lone card, which has the room for it
+  # The bar with its percent, a step larger for a lone card, which has the
+  # room for it
   def bar_height_class = compact ? 'h-8' : 'h-10'
   def percent_size_class = compact ? 'text-sm' : 'text-lg'
-  def scale_size_class = compact ? 'text-xs' : 'text-sm'
 
   delegate :car, to: :state
 
-  def time = time_text(state.time)
+  # How long ago the latest reading came, with its time in the tooltip
+  def time_ago = time_ago_text(state.time)
+
+  # The time of the latest reading as a sentence: today the time alone, then
+  # "yesterday", the weekday within the last six days, or else the date
+  def time_title
+    time = state.time
+    at = l(time, format: :now)
+
+    case day_of(time)
+    when :today then t('.as_of.today', time: at)
+    when :yesterday then t('.as_of.yesterday', time: at)
+    when :weekday then t('.as_of.day', day: l(time, format: '%A'), time: at)
+    else t('.as_of.day', day: l(time.to_date, format: :short).strip, time: at)
+    end
+  end
 
   # The location is personal data, so only the admin sees it. A car with a
   # location sensor but without a position drove away from it, so its row
   # says that it is on the road.
-  def location? = helpers.admin? && car.located?
+  def location?
+    return @location if defined?(@location)
+
+    @location = helpers.admin? && car.located?
+  end
 
   def odometer? = sensor?(:car_odometer)
+
+  # The map of the place, for a car with a position
+  def map? = location? && state.location.present?
+
+  # Without a position, a cell in place of the map says that the car is on the
+  # road
+  def road_cell? = location? && !map?
+
+  # The cells below the map
+  def cells? = road_cell? || plug? || odometer?
+
+  # The list below the card: the map and the cells
+  def details? = map? || cells?
+
+  # A lone card on a wide screen has the room for its cells side by side. The
+  # class names stay literal, so Tailwind finds them.
+  def cells_classes = ['divide-y divide-line', ('lg:grid lg:grid-flow-col lg:auto-cols-fr lg:divide-x lg:divide-y-0' unless compact)]
+
+  # Side by side, a cell shows its value alone, in the middle: the icon tells
+  # it, and the odometer names itself in its tooltip
+  def cell_classes = [CELL, ('lg:justify-center' unless compact)]
+
+  def cell_label_class = ('lg:hidden' unless compact)
+
+  # A lone card on a phone gives the rest of the height of the window to its
+  # map, while its list is unfolded
+  def fill? = !compact && map?
+
+  # The class names stay literal, so Tailwind finds them
+  def map_classes = ['flex lg:h-80 border-fg/15 *:rounded-none', fill? ? 'min-h-56 max-lg:flex-1' : 'h-56']
+
+  # The map loads the location of the car. A move of the car changes the
+  # address, so the map loads again (see component_controller.ts).
+  def map_path = helpers.cars_location_path(car: car.id, at: state.location.join(','))
+
+  # The list of the admin folds into one cell with the place and the plug,
+  # when it holds more than that cell. A guest sees no place and no map, so
+  # the short list of a guest stays as it is.
+  def fold? = location? && (map? || plug? || odometer?)
+
+  def details_id = "car-live-details-#{car.id}"
+
+  # A lone card has the room for its list
+  def open_at_start? = !compact
+
+  # The refresh of the live view keeps the state of the card and its map
+  # (see component_controller.ts)
+  FOLD_ACTIONS = 'turbo:before-morph-attribute->car--live-card--component#keepState ' \
+                 'turbo:before-morph-element->car--live-card--component#keepMap'.freeze
+  private_constant :FOLD_ACTIONS
+
+  def fold_data = fold? ? { controller: 'car--live-card--component', action: FOLD_ACTIONS, open: open_at_start?.to_s } : {}
+
+  # The cell that unfolds the list, and the cell that folds it again. The class
+  # names stay literal, so Tailwind finds them.
+  TOGGLE_CLASSES = 'w-full text-left focus-ring-inset hover:bg-fill-strong active:bg-fill-strong'.freeze
+  private_constant :TOGGLE_CLASSES
+
+  def toggle_options
+    {
+      type: 'button',
+      'aria-expanded': open_at_start?.to_s,
+      'aria-controls': details_id,
+      data: { action: 'car--live-card--component#toggle', 'car--live-card--component-target': 'toggle' },
+    }
+  end
+
+  # A cell of the list: its name at the left, its value at the right
+  CELL = 'flex items-center justify-between gap-3 min-h-12 px-4 py-2.5 text-base text-fg lg:px-6'.freeze
+  private_constant :CELL
+
+  # The place at the position of the car, or nil on the road
+  def place
+    return @place if defined?(@place)
+
+    @place = (Place.near(*state.location) if state.location)
+  end
+
+  # The name of the place, or none for a place without a name yet
+  def place_name = place ? place.display_name : t('.on_the_road')
+
+  # The icon and the name of the place, in the folded cell and on the road
+  def place_tag(css_class = nil)
+    name = tag.span(place_name, class: 'truncate text-fg-secondary') if place_name
+    tag.span(safe_join([render(Place::Icon::Component.new(place:, round: true)), name]), class: ['flex min-w-0 items-center gap-2', css_class])
+  end
 
   # A value of the car opens today on the car page, with the car selected,
   # where the timeline of the day shows it (see Car::DayTimeline::Component):
@@ -109,6 +211,10 @@ class Car::LiveCard::Component < ViewComponent::Base
 
   # The plug of the car, or the charging power while it charges
   def plug? = charging? || !state.connected.nil?
+
+  # A car away from home is not at the wallbox, but can be connected to any
+  # other charger, so its cell names the plug alone
+  def plug_label = state.away ? t('.plug') : t('car_breakdown.wallbox_short')
 
   # The state of the plug as the value of its cell: the charging power in
   # green, or whether the car is connected

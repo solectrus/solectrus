@@ -1,7 +1,7 @@
 # The lists and the frames below the car page follow the car page: the
 # settings can switch it off, and a sponsorship opens it (see Cars::PageGate)
 describe 'Car page gate' do
-  let(:frame) { { 'Turbo-Frame' => Car::MapOverlay::Component::FRAME_ID } }
+  let(:frame) { { 'Turbo-Frame' => Car::Location::Component.frame_id(Car.new(id: 1)) } }
 
   before { login_as_admin }
 
@@ -38,7 +38,7 @@ describe 'Car page gate' do
     end
 
     it 'answers no frame' do
-      get(cars_place_path(car: 1), headers: frame)
+      get(cars_location_path(car: 1), headers: frame)
 
       expect(response).to have_http_status(:not_found)
     end

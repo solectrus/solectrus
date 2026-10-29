@@ -10,15 +10,16 @@ class Car::LiveShell::Component < ViewComponent::Base
   # The title of the head, like the name of a car in its color
   renders_one :title
 
-  # `label` names the card. `time` is the time of the latest reading, or nil,
-  # and `time_title` its tooltip. `css_class` adds to the card, like its width.
-  def initialize(label:, time: nil, time_title: nil, css_class: nil)
+  # `label` names the card. `time` is the time of the latest reading, or nil.
+  # A car shows the age of its reading in its card instead. `css_class` adds
+  # to the card, like its width, and `data` its data attributes.
+  def initialize(label:, time: nil, css_class: nil, data: {})
     super()
     @label = label
     @time = time
-    @time_title = time_title
     @css_class = css_class
+    @data = data
   end
 
-  attr_reader :label, :time, :time_title, :css_class
+  attr_reader :label, :time, :css_class, :data
 end

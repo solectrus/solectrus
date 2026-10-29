@@ -1,7 +1,7 @@
 # The icon of a place at the start of its row: home as a house on indigo, a
 # place with a name as a pin, and a place without a name as a pale pin. No
 # place, like for a car on the road, has a pale pin too. The pill of a car
-# in the live view has a small `round` icon (see Car::LocationRow::Component).
+# in the live view has a small `round` icon (see Car::LiveCard::Component).
 class Place::Icon::Component < ViewComponent::Base
   def initialize(place:, round: false)
     super()

@@ -17,8 +17,8 @@ describe Car::Live do
   it 'gives the state of each car' do
     expect(live.states.map(&:to_h)).to eq(
       [
-        { car: cars.first, soc: 80, range: 300, max_range: 375, odometer: 12_345, connected: true, charging_power: 11_000, latitude: 50.9, longitude: 6.4, time: nil, located_at: nil },
-        { car: cars.last, soc: 40, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil, located_at: nil },
+        { car: cars.first, soc: 80, range: 300, max_range: 375, odometer: 12_345, connected: true, charging_power: 11_000, latitude: 50.9, longitude: 6.4, time: nil, located_at: nil, away: false },
+        { car: cars.last, soc: 40, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil, located_at: nil, away: false },
       ],
     )
   end
@@ -27,7 +27,7 @@ describe Car::Live do
     cars.first.update!(active_until: Date.yesterday)
 
     expect(live.states.first.to_h).to eq(
-      car: cars.first, soc: nil, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil, located_at: nil,
+      car: cars.first, soc: nil, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: nil, longitude: nil, time: nil, located_at: nil, away: false,
     )
   end
 
@@ -123,15 +123,30 @@ describe Car::Live do
     let(:wallbox_connected) { true }
 
     it 'gives the charging power to the connected car at home' do
-      expect(live.states.first.charging_power).to eq(11_000)
+      expect(live.states.first).to have_attributes(charging_power: 11_000, away: false)
     end
 
     context 'when the car is away' do
       let(:latitude) { 51.0 }
 
       it 'gives the car zero next to its plug' do
-        expect(live.states.first.charging_power).to eq(0)
+        expect(live.states.first).to have_attributes(charging_power: 0, away: true)
         expect(live).not_to be_car_at_wallbox
+      end
+    end
+
+    # The plug of the wallbox tells nothing about a car away from home
+    context 'when the car is away without a plug of its own' do
+      let(:latitude) { 51.0 }
+      let(:data) do
+        Sensor::Data::Single.new(
+          { car_latitude_1: latitude, car_longitude_1: 6.4, wallbox_power: 0, wallbox_car_connected: true },
+          timeframe: Timeframe.now,
+        )
+      end
+
+      it 'does not show the plug of the wallbox' do
+        expect(live.states.first).to have_attributes(connected: nil, away: true)
       end
     end
 

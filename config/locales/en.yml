@@ -220,6 +220,12 @@ en:
     time:
       yesterday: Yesterday, %{time}
       weekday: '%{day}, %{time}'
+      just_now: just now
+      minutes_ago: '%{count} min ago'
+      hours_ago: '%{count} h ago'
+      days_ago:
+        one: 1 day ago
+        other: '%{count} days ago'
     # The battery of a car in the live view
     battery:
       stale: No current values
@@ -310,7 +316,6 @@ en:
     car_no_driving: No drives
     car_no_driving_yet: No drives yet
     car_no_charging_cost: No price for the charging sessions
-    car_no_location: No location
   chart:
     inverter_total: Combined
     inverter_split: Individual

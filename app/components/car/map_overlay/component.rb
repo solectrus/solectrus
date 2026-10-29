@@ -1,10 +1,9 @@
-# A map that fills the window over the page, like a zoomed chart: the latest
-# location of a car (see Car::Location::Component), and the map of a list
-# below the car page (see Car::ListBox::Component). A link loads it into its
-# frame, and the close button and ESC empty the frame again. So the map adds
-# no page of its own.
+# A map that fills the window over the page, like a zoomed chart: the map of
+# a list below the car page (see Car::ListBox::Component). A link loads it
+# into its frame, and the close button and ESC empty the frame again. So the
+# map adds no page of its own.
 class Car::MapOverlay::Component < ViewComponent::Base
-  # The frame of the map, over the live view or over a list
+  # The frame of the map, over a list
   FRAME_ID = 'car_map'.freeze
   public_constant :FRAME_ID
 

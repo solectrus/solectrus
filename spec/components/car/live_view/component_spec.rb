@@ -39,44 +39,60 @@ describe Car::LiveView::Component, type: :component do
   end
 
   # A car sensor holds its state at any age, so the live view always tells
-  # how old it is
-  context 'with a recent reading' do
-    let(:state) { state_at(5.minutes.ago) }
+  # how old it is, with the time of the reading in the tooltip
+  describe 'the age of the reading' do
+    def age = html.at_css("[data-controller='tooltip'][title^='Latest reading']")
 
-    it 'shows the time' do
-      expect(html.text).to include('15:35')
+    context 'with a reading of a few seconds ago' do
+      let(:state) { state_at(20.seconds.ago) }
+
+      it 'says just now' do
+        expect(age.text.strip).to eq('just now')
+      end
     end
-  end
 
-  context 'with a reading of today' do
-    let(:state) { state_at(Time.zone.local(2026, 10, 7, 12, 5)) }
+    context 'with a recent reading' do
+      let(:state) { state_at(5.minutes.ago) }
 
-    it 'shows the time, explained in its tooltip' do
-      expect(html.at_css("[data-controller='tooltip'][title='Latest reading of the car']").text.strip).to eq('12:05')
+      it 'shows the minutes, and the time in the tooltip' do
+        expect(age.text.strip).to eq('5 min ago')
+        expect(age['title']).to eq('Latest reading at 15:35')
+      end
     end
-  end
 
-  context 'with a reading of yesterday' do
-    let(:state) { state_at(Time.zone.local(2026, 10, 6, 17, 10)) }
+    context 'with a reading of today' do
+      let(:state) { state_at(Time.zone.local(2026, 10, 7, 12, 5)) }
 
-    it 'shows "Yesterday" and the time' do
-      expect(html.text).to include('Yesterday, 17:10')
+      it 'shows the hours' do
+        expect(age.text.strip).to eq('3 h ago')
+        expect(age['title']).to eq('Latest reading at 12:05')
+      end
     end
-  end
 
-  context 'with a reading of six days ago' do
-    let(:state) { state_at(Time.zone.local(2026, 10, 1, 18, 30)) }
+    context 'with a reading of yesterday' do
+      let(:state) { state_at(Time.zone.local(2026, 10, 6, 17, 10)) }
 
-    it 'shows the weekday and the time' do
-      expect(html.text).to include('Thursday, 18:30')
+      it 'shows "Yesterday" and the time in the tooltip' do
+        expect(age.text.strip).to eq('22 h ago')
+        expect(age['title']).to eq('Latest reading yesterday at 17:10')
+      end
     end
-  end
 
-  context 'with a reading of seven days ago' do
-    let(:state) { state_at(Time.zone.local(2026, 9, 30, 18, 30)) }
+    context 'with a reading of six days ago' do
+      let(:state) { state_at(Time.zone.local(2026, 10, 1, 18, 30)) }
 
-    it 'shows the date and the time' do
-      expect(html.text).to include('30 Sep 18:30')
+      it 'shows the days, and the weekday and the time in the tooltip' do
+        expect(age.text.strip).to eq('5 days ago')
+        expect(age['title']).to eq('Latest reading on Thursday at 18:30')
+      end
+    end
+
+    context 'with a reading of seven days ago' do
+      let(:state) { state_at(Time.zone.local(2026, 9, 30, 18, 30)) }
+
+      it 'shows the date and the time in the tooltip' do
+        expect(age['title']).to eq('Latest reading on Sep 30 at 18:30')
+      end
     end
   end
 
@@ -132,6 +148,81 @@ describe Car::LiveView::Component, type: :component do
 
       it 'shows the plug alone' do
         expect(plug_cell).to eq('Connected')
+      end
+    end
+
+    # A car away from home cannot be at the wallbox, but at any other charger
+    context 'when the car is away' do
+      let(:charging_power) { 0 }
+
+      def render_away(connected:)
+        render_inline(described_class.new(live: instance_double(Car::Live, states: [state.with(away: true, connected:)], wallbox_power: nil, car_at_wallbox?: false)))
+      end
+
+      it 'shows the plug without the wallbox' do
+        text = render_away(connected: true).text
+
+        expect(text).to include('Plug', 'Connected')
+        expect(text).not_to include('Wallbox')
+      end
+
+      it 'shows the plug without a connection' do
+        expect(render_away(connected: false).text).to include('Plug', 'Not connected')
+      end
+    end
+  end
+
+  # The list below each card folds into one cell with the place and the plug
+  describe 'the folded list' do
+    let(:live) { instance_double(Car::Live, states:, wallbox_power: nil, wallbox_car_connected: nil, car_at_wallbox?: false) }
+    let(:admin) { true }
+
+    def other_car = @other_car ||= Car.new(id: 2, active_from: Date.new(2020, 1, 1))
+
+    def state_of(each_car)
+      state_at(5.minutes.ago).with(car: each_car, connected: true, charging_power: 0, odometer: 12_345)
+    end
+
+    def toggles = html.css('section[data-controller="car--live-card--component"] button[aria-controls]')
+
+    before do
+      allow(vc_test_controller).to receive(:admin?).and_return(admin)
+      [car, other_car].each do |each_car|
+        allow(each_car).to receive_messages(located?: true)
+        allow(each_car).to receive(:sensor?).and_call_original
+        allow(each_car).to receive(:sensor?).with(:car_odometer).and_return(true)
+      end
+    end
+
+    context 'with two cars' do
+      let(:states) { [state_of(car), state_of(other_car)] }
+
+      it 'starts folded, with the place and the plug in the folded cell' do
+        expect(html.css('section[data-open="false"]').size).to eq(2)
+        expect(toggles.pluck('aria-expanded')).to eq(%w[false false false false])
+        expect(toggles.first.text).to include('On the road', 'Connected')
+        expect(html.css("##{toggles.first['aria-controls']}").text).to include('Odometer')
+      end
+    end
+
+    context 'with one car' do
+      let(:states) { [state_of(car)] }
+
+      it 'starts unfolded' do
+        expect(html.css('section[data-open="true"]').size).to eq(1)
+        expect(toggles.pluck('aria-expanded')).to eq(%w[true true])
+      end
+    end
+
+    # A guest sees no place and no map
+    context 'with a guest' do
+      let(:states) { [state_of(car), state_of(other_car)] }
+      let(:admin) { false }
+
+      it 'does not fold the list' do
+        expect(toggles).to be_empty
+        expect(html.css('section[data-open]')).to be_empty
+        expect(html.text).to include('Odometer')
       end
     end
   end

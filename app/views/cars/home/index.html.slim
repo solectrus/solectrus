@@ -1,8 +1,8 @@
 - turbo_exempts_page_from_cache
-/ A day grows with the timelines of its cars, so the window scrolls. A
-  day that only the admin sees has a note in the middle instead (see
-  Car::AdminOnlyDays).
-- content_for :full_height, true unless timeframe&.day? && !admin_only_day?
+/ A day grows with the timelines of its cars, and the live view with the
+  lists and maps of its cars, so the window scrolls. A day that only the
+  admin sees has a note in the middle instead (see Car::AdminOnlyDays).
+- content_for :full_height, true if !timeframe&.now? && (!timeframe&.day? || admin_only_day?)
 / The live view of a phone is a grouped list on gray (see Car::LiveCard)
 - content_for :grouped, true if timeframe&.now?
 
@@ -32,10 +32,6 @@
       house, so the live view has no chart and refreshes less often
     - if timeframe.now?
       = render StatsWithChart::Component.new(sensor_name:, timeframe:, chart: false, min_interval: 30.seconds)
-      / The map of the location of a car fills the window. Its frame is
-        outside the live view, so the refresh keeps it.
-      - if admin?
-        = turbo_frame_tag Car::MapOverlay::Component::FRAME_ID
 
     / A recent day shows when the cars drove and charged, so a guest gets a
       note in its place (see Car::AdminOnlyDays)

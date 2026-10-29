@@ -100,7 +100,6 @@
 #                          settings GET              /settings(.:format)                                                     settings/overviews#show
 #                              more GET              /more(.:format)                                                         more#show
 #                     cars_location GET              /cars/location/:car(.:format)                                           cars/locations#show {car: /\d+/}
-#                        cars_place GET              /cars/location/:car/place(.:format)                                     cars/places#show {car: /\d+/}
 #                cars_place_tooltip GET              /cars(/:car)/places/:place/tooltip/:timeframe(.:format)                 cars/place_tooltips#show {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                    cars_place_map GET              /cars(/:car)/places/map(/:timeframe)(.:format)                          cars/place_maps#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #               cars_visited_places GET              /cars(/:car)/places(/:timeframe)(.:format)                              cars/visited_places#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
@@ -325,16 +324,10 @@ Rails.application.routes.draw do
 
   # The pages of the car page beside its sensor pages
   scope :cars, module: :cars, as: :cars do
-    # The location of a car on a map that fills the window
+    # The location of a car on a map in the live view
     get 'location/:car',
         to: 'locations#show',
         as: :location,
-        constraints: { car: /\d+/ }
-
-    # The name of the place of a car, for the badge of the live view
-    get 'location/:car/place',
-        to: 'places#show',
-        as: :place,
         constraints: { car: /\d+/ }
 
     # The tooltip of a place on the map of the places, with the selected car.

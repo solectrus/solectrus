@@ -1,15 +1,16 @@
-= render Car::LiveShell::Component.new(label: car.display_name, time:, time_title: t('.as_of')) do |card|
+= render Car::LiveShell::Component.new(label: car.display_name, css_class: [('group/live-card' if fold?), ('flex-1' if fill?)], data: fold_data) do |card|
   / The name with a car in the color of the car
   - card.with_title do
     = helpers.car_icon(car.display_color)
     span.truncate = car.display_name
 
-  / A lone car on the desktop has its list beside the card, as a panel
-  div class=body_classes
-    div class=['flex flex-col gap-4 rounded-2xl p-4 lg:gap-5 lg:p-6', GROUND]
-      / The range, and without one the state of charge, with its name below
-      div
-        = value_tag(range? ? :range : :soc, class: 'inline-flex flex-col items-start gap-1 lg:gap-1.5 min-w-0 rounded-md') do
+  / The card of the range and the list below it form one box
+  div class=['flex flex-col rounded-2xl overflow-hidden', GROUND, ('max-lg:group-data-[open=true]/live-card:flex-1' if fill?)] data-car--live-card--component-target=('box' if fold?)
+    div class='flex flex-col gap-4 p-4 lg:gap-5 lg:p-6'
+      / The range, and without one the state of charge, with its name below.
+        At the right, the time of the latest reading of the car.
+      .flex.items-start.justify-between.gap-3
+        = value_tag(range? ? :range : :soc, class: 'inline-flex flex-col items-start gap-1 lg:gap-0 min-w-0 rounded-md') do
           span.font-semibold.leading-none.tabular-nums.whitespace-nowrap.text-fg class=range_size_class
             - if range?
               = render Sensor::Value::Component.new(range, sensor_name(:car_range))
@@ -18,11 +19,14 @@
             - else
               | –
           / An estimate names itself, and its tooltip tells where it comes from
-          span.truncate.text-subhead.text-muted title=(t('cars.battery.estimated_note') if estimated?) data-controller=('tooltip' if estimated?)
+          span.truncate.text-sm.lg:text-base.text-muted title=(t('cars.battery.estimated_note') if estimated?) data-controller=('tooltip' if estimated?)
             - if range?
               = estimated? ? t('cars.battery.estimated') : t('sensors.car_range_short')
             - else
               = t('sensors.car_battery_soc_short')
+        - if state.time
+          span.shrink-0.text-sm.lg:text-base.text-muted.tabular-nums title=time_title data-controller='tooltip' data-tooltip-touch-value='true'
+            = time_ago
 
       / The state of charge as a bar, gray without one, with the percent at the
         end of the fill. While the car charges, the part that the charge fills
@@ -40,7 +44,7 @@
               span.absolute.inset-y-0.flex.items-center.lg:text-lg.font-bold.tabular-nums class=[percent_classes, percent_size_class] style=percent_style aria-hidden='true'
                 = percent
         - if scale?
-          div class=['mt-1.5 lg:mt-2 flex justify-between gap-3 lg:text-lg lg:font-medium tabular-nums text-muted', scale_size_class]
+          div class='mt-1.5 lg:mt-2 flex justify-between gap-3 text-base tabular-nums text-muted'
             span = render Sensor::Value::Component.new(0, sensor_name(:car_range))
             - if max_range
               span title=t('sensors.car_max_range_short') data-controller='tooltip'
@@ -50,21 +54,49 @@
         div class='self-start rounded-full px-3 py-0.5 text-sm bg-fill text-muted'
           = t('cars.battery.stale')
 
-    / The place, the plug and the odometer as the cells of a grouped list.
-      Beside the card, the cells share its height.
-    - if location? || plug? || odometer?
-      div class=['rounded-2xl overflow-hidden divide-y divide-line lg:grid lg:auto-rows-fr', GROUND]
-        - if location?
-          = render Car::LocationRow::Component.new(state:)
+    / The map of the place, the plug and the odometer as the cells of a
+      grouped list. The list of the admin folds into one cell with the place
+      and the plug, which unfolds it in its place. The last cell folds it
+      again.
+    / The place stands next to the chevron, because the map is the most of
+      what unfolds
+    - if fold?
+      button class=[CELL, TOGGLE_CLASSES, 'border-t border-line group-data-[open=true]/live-card:hidden'] *toggle_options
         - if plug?
-          div class=Car::LocationRow::Component::CELL
-            span = t('car_breakdown.wallbox_short')
-            = plug_state
-        - if odometer?
-          div class=Car::LocationRow::Component::CELL
-            span = t('sensors.car_roles.car_odometer')
-            = value_tag(:odometer, class: 'rounded-md tabular-nums text-fg-secondary') do
-              - if state.odometer
-                = render Sensor::Value::Component.new(state.odometer, sensor_name(:car_odometer))
-              - else
-                | –
+          span.shrink-0 = plug_state
+        span.ml-auto.flex.min-w-0.items-center.gap-2
+          = place_tag
+          = helpers.icon 'chevron-down', class: 'shrink-0 text-xs text-faint'
+
+    - if details?
+      div id=details_id class=['flex flex-col divide-y divide-line border-t', (map? ? 'border-fg/15' : 'border-line'), ('max-lg:flex-1' if fill?), ('group-data-[open=false]/live-card:hidden' if fold?)]
+        / The map names the place, and loads once it shows, so a folded card
+          loads none. A car without a position is on the road.
+        - if map?
+          = helpers.turbo_frame_tag Car::Location::Component.frame_id(car), src: map_path, loading: :lazy, class: map_classes, data: { 'car--live-card--component-target': 'map' }
+        / The cells below the map. A lone card on a wide screen sets them
+          side by side.
+        - if cells?
+          div class=cells_classes
+            - if road_cell?
+              div class=cell_classes
+                span class=cell_label_class = t('.location')
+                = place_tag
+            - if plug?
+              div class=cell_classes
+                span class=cell_label_class = plug_label
+                = plug_state
+            - if odometer?
+              div class=cell_classes
+                span class=cell_label_class = t('sensors.car_roles.car_odometer')
+                = value_tag(:odometer, class: 'flex items-center gap-1.5 rounded-md tabular-nums text-fg-secondary', title: t('sensors.car_roles.car_odometer'), data: { controller: 'tooltip' }) do
+                  - unless compact
+                    = helpers.icon 'gauge', class: 'max-lg:hidden text-muted'
+                  - if state.odometer
+                    = render Sensor::Value::Component.new(state.odometer, sensor_name(:car_odometer))
+                  - else
+                    | –
+
+    - if fold?
+      button class=['hidden group-data-[open=true]/live-card:flex items-center justify-center min-h-11 border-t border-line', TOGGLE_CLASSES] aria-label=t('.fold') *toggle_options
+        = helpers.icon 'chevron-down', class: 'rotate-180 text-xs text-faint'

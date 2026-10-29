@@ -1,8 +1,0 @@
-de:
-  location: Standort
-  on_the_road: Unterwegs
-  near: bei %{town}
-  minutes_ago:
-    zero: gerade eben
-    one: vor 1 Minute
-    other: vor %{count} Minuten

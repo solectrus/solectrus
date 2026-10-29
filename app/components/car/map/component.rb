@@ -1,8 +1,8 @@
 # A map of the places of cars, drawn by MapLibre with the vector tiles of
 # OpenFreeMap. A period shows a circle for each place of the cars (see
-# Place::Map::Component). The live view shows the latest location of one car
-# (see Car::Location::Component). These two fill the window over their page
-# (see Car::MapOverlay::Component).
+# Place::Map::Component), and fills the window over its page (see
+# Car::MapOverlay::Component). The live view shows the latest location of one
+# car in its list (see Car::Location::Component).
 #
 # The location is personal data, so the caller gives the places to the admin
 # only.

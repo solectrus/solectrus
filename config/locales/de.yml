@@ -220,6 +220,12 @@ de:
     time:
       yesterday: Gestern, %{time}
       weekday: '%{day}, %{time}'
+      just_now: gerade eben
+      minutes_ago: vor %{count} Min.
+      hours_ago: vor %{count} Std.
+      days_ago:
+        one: vor 1 Tag
+        other: vor %{count} Tagen
     # The battery of a car in the live view
     battery:
       stale: Keine aktuellen Werte
@@ -310,7 +316,6 @@ de:
     car_no_driving: Keine Fahrten
     car_no_driving_yet: Noch keine Fahrten
     car_no_charging_cost: Kein Preis für die Ladevorgänge hinterlegt
-    car_no_location: Kein Standort
   chart:
     inverter_total: Kumuliert
     inverter_split: Einzeln

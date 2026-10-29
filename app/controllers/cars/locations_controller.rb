@@ -1,4 +1,4 @@
-# The location of one car on a map that fills the window (see
+# The location of one car on a map in the live view (see
 # Car::Location::Component). The location is personal data, so only the admin
 # gets it.
 #

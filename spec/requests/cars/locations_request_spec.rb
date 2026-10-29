@@ -1,6 +1,6 @@
 describe 'Car Locations' do
   describe 'GET /cars/location/:car' do
-    let(:headers) { { 'Turbo-Frame' => Car::MapOverlay::Component::FRAME_ID } }
+    let(:headers) { { 'Turbo-Frame' => 'car_location_1' } }
 
     before do
       Sensor::Config.setup(
@@ -15,12 +15,12 @@ describe 'Car Locations' do
 
     after { Sensor::Config.setup(ENV) }
 
-    it 'shows the location of the car on a map in its frame to the admin' do
+    it 'shows the location of the car on a map in the frame of its list to the admin' do
       login_as_admin
       get(cars_location_path(car: 1), headers:)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('<turbo-frame id="car_map"', 'Jülich', 'car--map--component', '50.92263')
+      expect(response.body).to include('<turbo-frame id="car_location_1"', 'Jülich', 'car--map--component', '50.92263')
     end
 
     # The car can be on the road, so only the daily build makes a place

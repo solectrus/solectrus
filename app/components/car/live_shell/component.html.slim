@@ -1,8 +1,10 @@
-section class=[CARD, css_class, 'sm:flex-1 gap-3 lg:gap-6 py-4 lg:py-7'] aria-label=label
-  .flex.items-center.justify-between.gap-3
-    span class='flex items-center gap-2 lg:gap-2.5 min-w-0 text-lg lg:text-2xl font-semibold text-fg'
+/ The head like the head of a box of a period (see Car::OverviewBox::Component),
+  so the content starts at the same height on each tab
+section class=[CARD, css_class, 'sm:flex-1 max-lg:gap-2 max-lg:py-4'] aria-label=label data=data
+  div class='box-content flex items-center justify-between gap-3 min-h-8 max-lg:px-1 lg:min-h-9 lg:pb-3'
+    span class='flex items-center gap-2 min-w-0 text-xl font-semibold text-fg'
       = title
     - if time
-      span.shrink-0.text-sm.lg:text-base.text-muted.tabular-nums title=time_title data-controller=('tooltip' if time_title)
+      span.shrink-0.text-sm.lg:text-base.text-muted.tabular-nums
         = time
   = content

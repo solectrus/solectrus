@@ -782,13 +782,32 @@ Otherwise the link goes to "all". An installation without a select keeps "all".
 
 Each car has a section of its own (`Car::LiveCard::Component`):
 
-- The name of the car and the time of its latest reading. The time is necessary, because a
-  car sensor holds its value at any age.
+- The name of the car above its box, and the age of its latest reading at the top right of
+  the box, like "5 min ago", with its time in the tooltip. The age is necessary, because a
+  car sensor holds its value at any age. The refresh of the live view keeps it current.
 - The range, and the state of charge on the scale from 0 to the maximum range. A car
   without a range and without an estimate shows its state of charge alone.
-- For the admin, the place (`Car::LocationRow::Component`), which opens the map.
+- For the admin, the latest position on a map (`Car::Location::Component`), which names the
+  place. A car without a position is on the road.
 - The plug of the car (`car_connected_<n>`), with the charging power while the car charges.
+  A car away from home is not at the wallbox, but can be connected to any other charger, so
+  its cell names the plug and not the wallbox. For a lone car without a plug of its own, the
+  plug of the wallbox counts only at home.
 - The odometer.
+
+The card of the range and the list below it form one box. For the admin, the list folds into
+one cell with the place and the plug. A tap on that cell unfolds the list in its place, and
+the last cell of the list folds it again. A lone car starts unfolded. With more than one car,
+each list starts folded, so the cars fit on a phone. A guest sees no place and no map, so the
+short list of a guest does not fold. The map loads when its list unfolds. The refresh of the
+live view keeps an unfolded list and its map, until the car moves.
+
+A lone car on the desktop sets the cells below the map side by side, without their names: the
+icon tells the plug, and the odometer has its name in the tooltip.
+
+The live view grows with its cars, so the window scrolls when they do not fit. A wider screen
+shows the cars side by side. On a phone, the unfolded map of a lone car takes the rest of the
+height of the window.
 
 Only the car at the wallbox shows the power of the wallbox (`Car::Live`). When the wallbox
 charges and no car shows its power, the live view adds a card of the wallbox with the

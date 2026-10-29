@@ -1,8 +1,3 @@
-= render Car::MapOverlay::Component.new do |overlay|
-  - overlay.with_head do
-    = render Car::Badge::Component.new(car:, prominent: true)
-
+= helpers.turbo_frame_tag self.class.frame_id(car) do
   - if location
     = render Car::Map::Component.new(cars: map_cars, live: true, name: name || t('.unknown'))
-  - else
-    = render Ui::EmptyState::Component.new(icon: 'location-dot', title: t('data.car_no_location'))

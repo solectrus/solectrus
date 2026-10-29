@@ -1,3 +1,10 @@
 de:
-  as_of: Letzte Meldung des Autos
+  as_of:
+    today: Letzte Meldung um %{time}
+    yesterday: Letzte Meldung gestern um %{time}
+    day: Letzte Meldung am %{day} um %{time}
   charging: Lädt mit %{power}
+  location: Standort
+  plug: Stecker
+  on_the_road: Unterwegs
+  fold: Weniger anzeigen

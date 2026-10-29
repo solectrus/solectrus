@@ -1,10 +1,9 @@
-# The latest location of one car on a map that fills the window (see
-# Car::MapOverlay::Component). A click on the place in the live view loads it
-# into the frame of the overlay.
-#
-# The frame is outside the live view, so the refresh of the live view keeps
-# the map (see the car page).
+# The latest location of one car on a map, in the list of the car in the live
+# view (see Car::LiveCard::Component). The list loads it into its frame once
+# the list shows, so a folded list loads no map.
 class Car::Location::Component < ViewComponent::Base
+  def self.frame_id(car) = "car_location_#{car.id}"
+
   # `location` is [latitude, longitude], or nil without one. `name` is the
   # name at the location (see Place.name_at), or nil without an answer of
   # Nominatim.

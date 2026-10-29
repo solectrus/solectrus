@@ -122,30 +122,20 @@ describe 'Car Stats' do
               }
         end
 
-        it 'shows the name of the place to the admin, with a link to the map' do
+        it 'shows the name of the place to the admin, with its map' do
           Place.create!(latitude: 50.92265, longitude: 6.4071, name: 'Home')
           login_as_admin
           request_live_view
 
           expect(response.body).to include('Home', cars_location_path(car: 1))
-          expect(response.body).not_to include(cars_place_path(car: 1))
         end
 
-        it 'loads the town of an unknown place into the row, without waiting for Nominatim' do
+        it 'shows the car on the road, without waiting for Nominatim' do
           login_as_admin
           request_live_view
 
-          expect(response.body).to include('animate-pulse', cars_place_path(car: 1))
+          expect(response.body).to include('On the road', cars_location_path(car: 1))
           expect(a_request(:get, /nominatim/)).not_to have_been_made
-        end
-
-        it 'shows the car on the road without Nominatim' do
-          allow(Rails.configuration.x).to receive(:nominatim_url).and_return(nil)
-          login_as_admin
-          request_live_view
-
-          expect(response.body).to include('On the road')
-          expect(response.body).not_to include(cars_place_path(car: 1))
         end
 
         it 'hides the location from a guest' do
