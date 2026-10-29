@@ -129,6 +129,16 @@ describe Car::DayTimeline do
       expect(timeline.lanes.sole.charges.sole.span).to eq([at(14, 40), at(23, 20)])
     end
 
+    # The session has no split of the power splitter, so the curves need no
+    # grid share
+    it 'draws the power of the wallbox over the session, unsplit' do
+      power = timeline.lanes.sole.charges.sole.power
+
+      expect(power.values_at(0, 1, -1).map(&:time)).to eq([at(14, 40), at(14, 42) + 30.seconds, at(23, 20)])
+      expect(power.map(&:unsplit).uniq).to eq([5000.0, 0.0])
+      expect(ChargingSession::Curves).to have_received(:new).with(anything, hash_including(split: false))
+    end
+
     # The build stored the session before the power of the night came
     context 'with an end before the last part' do
       let!(:session) { ChargingSession.create!(kind: :wallbox, origin: :detection, car:, started_at: at(14, 40), ended_at: at(15, 10), kwh: 2) }

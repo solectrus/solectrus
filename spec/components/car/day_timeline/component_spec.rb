@@ -59,6 +59,27 @@ describe Car::DayTimeline::Component, type: :component do
     end
   end
 
+  # The power splitter split the first hour, but not the second one yet
+  context 'with the curve of the wallbox' do
+    let(:lanes) do
+      point = Car::DayTimeline::ChargePower::Point
+      power = [point.new(time: at(12), pv: 3000.0, grid: 1000.0, unsplit: 0.0), point.new(time: at(15), pv: 0.0, grid: 0.0, unsplit: 2000.0), point.new(time: at(18), pv: 0.0, grid: 0.0, unsplit: 2000.0)]
+      charge = Car::DayTimeline::Charge.new(session:, spans: [[at(12), at(18)]], power:)
+      [Car::DayTimeline::Lane.new(car:, drives: [], charges: [charge], soc_line: [], visits: [])]
+    end
+
+    it 'draws the power over the time of the charge, PV at the bottom' do
+      areas = bars.last.css('svg path')
+
+      expect(bars.last['class']).to include('bg-fill')
+      expect(bars.last.css('> span')).to be_empty
+      expect(areas.pluck('style')).to eq(['fill: var(--color-car-pv)', 'fill: var(--color-car-grid)', 'fill: var(--color-car-wallbox)'])
+      # The highest power of the day fills the height
+      expect(areas.first['d']).to eq('M0.0 25.0 L500.0 100.0 L1000.0 100.0 L1000.0 100.0 L500.0 100.0 L0.0 100.0 Z')
+      expect(areas.last['d']).to eq('M0.0 0.0 L500.0 50.0 L1000.0 50.0 L1000.0 100.0 L500.0 100.0 L0.0 0.0 Z')
+    end
+  end
+
   it 'tells the numbers of each bar in its tooltip' do
     drive_bar, charge_bar = bars
 

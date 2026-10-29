@@ -35,9 +35,11 @@ class ChargingSession::Curves
   end
 
   # `roles` are the sensors of the cars that the curves read, `margin` how
-  # far they reach into the day before and the day after
-  def initialize(dates, cars: Car.configured, roles: CAR_ROLES, margin: MARGIN)
-    wallbox = wallbox_requests
+  # far they reach into the day before and the day after. `split` adds the
+  # grid share of the wallbox, which the detection does not need, for the
+  # timeline of a day (see Car::DayTimeline).
+  def initialize(dates, cars: Car.configured, roles: CAR_ROLES, margin: MARGIN, split: false)
+    wallbox = wallbox_requests(split:)
     car = car_request(dates, cars, roles, margin)
 
     @wallbox = Concurrent::Promises.delay { query(dates, wallbox) }
@@ -84,13 +86,16 @@ class ChargingSession::Curves
   end
 
   # The curves of the wallbox, when the detection runs. A period needs the
-  # buckets with power alone (see Detection::Periods).
-  def wallbox_requests
+  # buckets with power alone (see Detection::Periods). The grid share keeps
+  # its buckets of 0 W, so a bucket without it is one that the power
+  # splitter did not split yet.
+  def wallbox_requests(split:)
     return [] unless ChargingSession::Detection.enabled?
 
     [
       { sensor_names: [:wallbox_power], positive: true },
       { sensor_names: [:wallbox_car_connected].select { Sensor::Config.configured?(it) } },
+      *([{ sensor_names: [:wallbox_power_grid] }] if split && Sensor::Config.configured?(:wallbox_power_grid)),
     ]
   end
 

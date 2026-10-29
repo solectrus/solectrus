@@ -1,9 +1,10 @@
 # A bar of the timeline of a day (see Car::DayTimeline::Component): a drive or
 # a charge, its segments one above the other in the colors of their sources,
-# each as high as its share. A piece of the line of the state of charge is a
-# bar without segments, which shows only on a hover. A hover shows the
-# tooltip of the bar, a tap on a phone too. A screen reader reads the tooltip
-# of a drive or a charge as the label of its bar, and the label of the row of
+# each as high as its share, or the areas of its curve on a faint ground. A
+# piece of the line of the state of charge is a bar without segments, which
+# shows only on a hover. A hover shows the tooltip of the bar, a tap on a
+# phone too. A screen reader reads the tooltip of a drive or a charge as the
+# label of its bar, and the label of the row of
 # the line.
 class Car::TimelineBar::Component < ViewComponent::Base
   # `bar` is a Car::TimelineBar::Bar
@@ -34,6 +35,7 @@ class Car::TimelineBar::Component < ViewComponent::Base
 
     css_class = class_names(
       'absolute inset-y-0 flex flex-col-reverse gap-px overflow-hidden rounded-md',
+      'bg-fill' => bar.areas.any?,
       'rounded-l-none' => bar.ends.first == :square,
       'rounded-r-none' => bar.ends.last == :square,
       'timeline-bar-estimated' => bar.ends.last == :jagged,

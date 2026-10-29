@@ -1,9 +1,15 @@
 / The segments stack from the bottom up, PV first. Side by side, they would
-  read as one after the other in time. A pause lies over them, in the time
-  in which the car stayed plugged in but did not charge.
+  read as one after the other in time. The areas of a curve take their
+  place. A pause lies over them, in the time in which the car stayed
+  plugged in but did not charge.
 = tag.div(**attributes) do
-  - segments.each do |segment|
-    span.basis-0 style="flex-grow: #{segment.last}; background: #{segment.first}"
+  - if bar.areas.any?
+    svg.absolute.inset-0.size-full viewBox='0 0 1000 100' preserveAspectRatio='none' aria-hidden='true'
+      - bar.areas.each do |area|
+        path d=area.last style="fill: #{area.first}"
+  - else
+    - segments.each do |segment|
+      span.basis-0 style="flex-grow: #{segment.last}; background: #{segment.first}"
   - bar.pauses.each do |left, width|
     span.absolute.inset-y-0.bg-car-plugged style="left: #{left}%; width: #{width}%"
   / A click opens the entry: in the modal on the desktop, in a sheet on a

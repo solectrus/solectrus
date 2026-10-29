@@ -11,10 +11,13 @@
 # follows the rules of the detection. A car with a location has its visits
 # of places (see Place::VisitDetection), which the admin sees as the start
 # and the goal of each drive.
-class Car::DayTimeline
+class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   # A charging session with the times in which the car charged (see
-  # #charge_spans)
-  Charge = Data.define(:session, :spans) do
+  # #charge_spans). `power` is the curve of a charge at the wallbox (see
+  # Car::DayTimeline::ChargePower), empty for any other charge.
+  Charge = Data.define(:session, :spans, :power) do
+    def initialize(power: [], **) = super
+
     # From the start to the end of the session, also over a pause
     def span = [spans.first.first, spans.last.last]
 
@@ -133,7 +136,20 @@ class Car::DayTimeline
   def stops_at = @stops_at ||= [timeframe.beginning_of_next, Time.current].min
 
   def charges
-    @charges ||= sessions.map { Charge.new(session: it, spans: charge_spans(it)) }
+    @charges ||= sessions.map do |session|
+      spans = charge_spans(session)
+      Charge.new(session:, spans:, power: power_of(session, spans))
+    end
+  end
+
+  # The curve of the wallbox over the time of a session at the wallbox,
+  # split where the power splitter split its energy
+  def power_of(session, spans)
+    return [] unless session.wallbox?
+
+    wallbox = curves.wallbox.fetch(timeframe.date, {})
+    grid = wallbox[:wallbox_power_grid] if session.kwh_grid
+    ChargePower.new(from: spans.first.first, to: spans.last.last, power: wallbox.fetch(:wallbox_power, []), grid:).call
   end
 
   # The charging sessions of the day, a running one marked (see
@@ -292,8 +308,9 @@ class Car::DayTimeline
   # timeline first reads it, or all at once after #start. The places come
   # from the visits, so the timeline reads no position of a car. A curve of
   # a car starts with its last reading before the day, so the timeline needs
-  # no margin around the day.
+  # no margin around the day. A session that the power splitter split adds
+  # the grid share of the wallbox (see #power_of).
   def curves
-    @curves ||= ChargingSession::Curves.new([timeframe.date], cars: @cars, roles: %i[car_battery_soc car_odometer car_connected], margin: 0)
+    @curves ||= ChargingSession::Curves.new([timeframe.date], cars: @cars, roles: %i[car_battery_soc car_odometer car_connected], margin: 0, split: sessions.any?(&:kwh_grid))
   end
 end
