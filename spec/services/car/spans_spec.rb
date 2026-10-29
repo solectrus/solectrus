@@ -146,6 +146,19 @@ describe Car::Spans do
       expect(Car::Report).not_to have_received(:new)
     end
 
+    context 'with a car that started in the middle of a month' do
+      let!(:cars) { [Car.create!(id: 1, active_from: Date.new(2026, 1, 5))] }
+
+      # March has two months that count, too few for a span
+      it 'shares the entry with the other months, and still counts the shown one' do
+        span = described_class.for(Timeframe.new('2026-01'), selected_cars).max_range
+
+        expect(spans.max_range).to be_nil
+        expect(summary_of(span)).to eq([301, 303, '2026-01', '2026-03'])
+        expect(Car::Report).not_to have_received(:new)
+      end
+    end
+
     it 'computes them again after a change of a summary' do
       summary(Date.new(2026, 4, 10), 'car_max_range_1', 'avg', 310)
 

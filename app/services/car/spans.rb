@@ -14,8 +14,10 @@
 # lowest value below the highest.
 #
 # The spans read each day of the whole time, so the page asks for the
-# summaries of the whole time first (see Car::Report.pending_days), and the
-# spans are cached until a summary, a charging session or a car changes.
+# summaries of the whole time first (see Car::Report.pending_days). The
+# values of all periods are cached until a summary, a charging session or a
+# car changes. The shown period only picks from them, so all periods of a
+# kind share one entry.
 class Car::Spans
   # The lowest and the highest value, and the timeframes they come from
   Span = Data.define(:min, :max, :min_timeframe, :max_timeframe)
@@ -59,26 +61,24 @@ class Car::Spans
 
   attr_reader :cars, :kind
 
-  # The cache holds numbers and strings only, so an entry of an older
-  # version of the app reads without the classes of this one
+  # The cache holds numbers, strings and booleans only, so an entry of an
+  # older version of the app reads without the classes of this one
   def spans
-    @spans ||=
-      Rails.cache.fetch(cache_key, expires_in: 1.day) { compute }.transform_values do |min, max, min_timeframe, max_timeframe|
-        Span.new(min:, max:, min_timeframe: Timeframe.new(min_timeframe), max_timeframe: Timeframe.new(max_timeframe)) if min
-      end
+    @spans ||= Rails.cache.fetch(cache_key, expires_in: 1.day) { compute }.transform_values { span_of(it) if it }
   end
 
   def compute
     {
-      consumption_per_100km: span { report.driving(it).consumption_per_100km },
-      cost_per_100km: span { report.driving(it).cost_per_100km },
-      max_range: (span { report.max_range(it) } if report.car),
+      consumption_per_100km: values { report.driving(it).consumption_per_100km },
+      cost_per_100km: values { report.driving(it).cost_per_100km },
+      max_range: (values { report.max_range(it) } if report.car),
     }
   end
 
-  # The last day with data is part of the key, because the periods end there
+  # The last day with data is part of the key, because the periods end there.
+  # The shown period is not, because it only picks from the values.
   def cache_key
-    ['car_spans', cars.map(&:id), kind, timeframe_string(@shown), @max_date, version(Car.where(id: cars)), version(Summary), version(ChargingSession)]
+    ['car_span_values', cars.map(&:id), kind, @max_date, version(Car.where(id: cars)), version(Summary), version(ChargingSession)]
   end
 
   # The number of the rows and the time of the last update, in microseconds.
@@ -88,13 +88,22 @@ class Car::Spans
     "#{count}-#{updated_at&.to_fs(:usec)}"
   end
 
-  # [lowest value, highest value, their timeframes], nil without a span
-  def span
-    values = periods.filter_map { |dates| (value = yield dates) && [value, dates] }
+  # [[value, timeframe, in use throughout], ...] of each period with a value
+  def values
+    periods.filter_map do |dates|
+      (value = yield dates) && [value, timeframe_string(dates.begin), in_use_throughout?(period_of(dates.begin))]
+    end
+  end
+
+  # The span of the periods that count and of the shown one, nil without a
+  # span
+  def span_of(values)
+    shown = timeframe_string(@shown)
+    values = values.select { |_, timeframe, counts| counts || timeframe == shown }
     return if values.size < MIN_PERIODS
 
-    (min, min_dates), (max, max_dates) = values.minmax_by(&:first)
-    [min, max, timeframe_string(min_dates.begin), timeframe_string(max_dates.begin)] if min < max
+    (min, min_timeframe), (max, max_timeframe) = values.minmax_by(&:first)
+    Span.new(min:, max:, min_timeframe: Timeframe.new(min_timeframe), max_timeframe: Timeframe.new(max_timeframe)) if min < max
   end
 
   # A report of the whole time reads the days of each period at once
@@ -102,13 +111,9 @@ class Car::Spans
     @report ||= Car::Report.new(Timeframe.new('all', max_date: @max_date), cars)
   end
 
-  # The dates of each period of the kind in the whole time that counts
+  # The dates of each period of the kind in the whole time
   def periods
-    @periods ||=
-      report.dates.chunk { timeframe_string(it) }.filter_map do |_, dates|
-        dates = dates.first..dates.last
-        dates if dates.cover?(@shown) || in_use_throughout?(period_of(dates.begin))
-      end
+    @periods ||= report.dates.chunk { timeframe_string(it) }.map { |_, dates| dates.first..dates.last }
   end
 
   # The days of the period of the kind that holds the date. A day of a Date
