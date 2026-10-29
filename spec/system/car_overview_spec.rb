@@ -45,7 +45,9 @@ describe 'Car overview (mobile)' do
     expect(page).to have_no_css("turbo-frame[src*='/cars/charts/']", visible: :all)
   end
 
+  # A column without a value has no tiles, and only the admin sees the day
   it 'shows the chart of the column of a tapped tile' do
+    login_as_admin
     visit "/cars/car_distance/#{month}"
     expect(tile('car_distance')).to be_visible
     expect(active_column).to eq('car_distance')
@@ -62,6 +64,7 @@ describe 'Car overview (mobile)' do
   # comes as the referer of the chart. So a tap must change the address
   # before its chart loads (see Cars::FrameNavigation).
   it 'keeps the chart of the tap in the navigation' do
+    login_as_admin
     visit "/cars/car_distance/#{month}"
     expect(tile('car_distance')).to be_visible
     expect(page).to have_link(href: '/cars/car_distance/2022-05', visible: :all)
