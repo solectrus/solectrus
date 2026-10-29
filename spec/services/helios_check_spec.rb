@@ -190,4 +190,50 @@ describe HeliosCheck do
       it { is_expected.to be false }
     end
   end
+
+  # Behind a reverse proxy the host of the request names the domain, while
+  # HELIOS reports the URL it was opened at
+  describe '#browser_url' do
+    subject(:browser_url) { instance.browser_url(request) }
+
+    let(:request) do
+      instance_double(ActionDispatch::Request, protocol: 'https://', host: 'solectrus.example.com')
+    end
+
+    def helios_answers(headers)
+      stub_request(:get, 'http://helios:3000/up').to_return(status: 200, headers:)
+    end
+
+    it 'takes the URL that HELIOS reports' do
+      helios_answers('X-Browser-Url' => 'http://192.168.1.10:3999')
+
+      expect(browser_url).to eq('http://192.168.1.10:3999')
+    end
+
+    it 'takes the host of the request when HELIOS reports no URL' do
+      helios_answers('X-Version' => '2.5.1')
+
+      expect(browser_url).to eq('https://solectrus.example.com:3999')
+    end
+
+    it 'takes the host of the request when HELIOS does not answer' do
+      stub_request(:get, 'http://helios:3000/up').to_timeout
+
+      expect(browser_url).to eq('https://solectrus.example.com:3999')
+    end
+
+    it 'ignores a URL that is no web address' do
+      helios_answers('X-Browser-Url' => 'ftp://192.168.1.10')
+
+      expect(browser_url).to eq('https://solectrus.example.com:3999')
+    end
+
+    context 'when running in test/development' do
+      before { allow(described_class).to receive(:skip_http?).and_return(true) }
+
+      it 'takes the host of the request' do
+        expect(browser_url).to eq('https://solectrus.example.com:3999')
+      end
+    end
+  end
 end

@@ -158,6 +158,7 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get 'up' => 'health#show', :as => :health_check
   get 'skip-browser-check', to: 'application#skip_browser_check'
+  get 'helios', to: 'helios#show', as: :helios
 
   # Rendered by Rails, so the theme colors stay in one place (ThemeConfig).
   # format: false keeps the dot in the path instead of parsing an extension.

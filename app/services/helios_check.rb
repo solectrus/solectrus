@@ -11,6 +11,7 @@ class HeliosCheck
   HEALTH_PATH = '/up'.freeze
   VERSION_HEADER = 'X-Version'.freeze
   ACTION_REQUIRED_HEADER = 'X-Action-Required'.freeze
+  BROWSER_URL_HEADER = 'X-Browser-Url'.freeze
   CACHE_KEY = 'HeliosCheck:version'.freeze
   CACHE_DURATION = 24.hours
   ACTION_REQUIRED_CACHE_KEY = 'HeliosCheck:action_required'.freeze
@@ -24,6 +25,7 @@ class HeliosCheck
                    :HEALTH_PATH,
                    :VERSION_HEADER,
                    :ACTION_REQUIRED_HEADER,
+                   :BROWSER_URL_HEADER,
                    :CACHE_KEY,
                    :CACHE_DURATION,
                    :ACTION_REQUIRED_CACHE_KEY,
@@ -88,8 +90,20 @@ class HeliosCheck
     end
   end
 
+  # Where the menu item of HELIOS leads (see HeliosController): the URL HELIOS
+  # was opened at last, as HELIOS reports it. The host of the request is not
+  # enough: behind a reverse proxy it names the domain, where the port of
+  # HELIOS is often closed. An older HELIOS reports none, and the link then
+  # takes the host of the request.
   def browser_url(request)
-    "#{request.protocol}#{request.host}:#{BROWSER_PORT}"
+    reported = probe(BROWSER_URL_HEADER) unless self.class.skip_http?
+
+    # The browser goes to the URL as it is, so it must be a web address
+    if reported&.match?(%r{\Ahttps?://})
+      reported
+    else
+      "#{request.protocol}#{request.host}:#{BROWSER_PORT}"
+    end
   end
 
   def clear_cache!
