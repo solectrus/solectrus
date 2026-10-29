@@ -1,4 +1,4 @@
-# The save buttons of a page form on the desktop, like the general settings,
+# The save buttons of a page form on the desktop, like the system settings,
 # at the right of the tabs of the header. They show only while the form has
 # changes: a button that discards them and the save button. A phone has the
 # save button in the title bar instead (see Ui::TitleBar::Component), so the
@@ -9,7 +9,7 @@
 # the bar shows while the button is enabled. The discard button resets the
 # form to the values of the page.
 #
-#   = render Ui::SaveBar::Component.new(form: 'settings_general_form')
+#   = render Ui::SaveBar::Component.new(form: 'settings_system_form')
 class Ui::SaveBar::Component < ViewComponent::Base
   # The container of the tabs and the bar. While the form has changes, it
   # dims the other tabs and takes their clicks, so a tab does not leave the

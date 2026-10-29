@@ -13,7 +13,7 @@ class SummariesController < ApplicationController
   def reset
     Summary.reset!
 
-    flash.now[:notice] = t('settings.general.summaries.reset.flash')
+    flash.now[:notice] = t('settings.system.summaries.reset.flash')
 
     render turbo_stream: [
              turbo_stream.replace('summaries', Summary::Status::Component.new(completion_rate: nil)),

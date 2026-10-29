@@ -28,10 +28,10 @@ describe 'Settings::CashFlows' do
         expect(response.parsed_body.at_css('a.ui-title-bar-back')['href']).to eq('/amortization/details')
       end
 
-      it 'leads back to the settings for any other page' do
+      it 'leads back to the PV system for any other page' do
         get '/settings/cash_flows', params: { back: 'https://example.com' }
 
-        expect(response.parsed_body.at_css('a.ui-title-bar-back')['href']).to eq('/settings')
+        expect(response.parsed_body.at_css('a.ui-title-bar-back')['href']).to eq('/settings/plant')
       end
 
       context 'with drill-down filters' do
@@ -359,10 +359,10 @@ describe 'Settings::CashFlows' do
       end
     end
 
-    it 'marks the tab of the cash flows on its own page' do
+    it 'marks the tab of the PV system on its own page' do
       get "/settings/cash_flows/#{cash_flow.id}/edit"
 
-      expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/cash_flows'])
+      expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/plant'])
     end
 
     it 'groups the categories by their part in the amortization' do

@@ -27,7 +27,7 @@ A page has one of two grounds on a phone. A list or a form stands on the gray pa
 - `Ui::NavList`: A grouped list of the pages one level down, made from hashes with `:name`, `:href` and `:icon`.
 - `Ui::FormPage`: The form of one list entry: in a modal on the desktop, in a tall sheet on a phone, and on a page of its own without a frame. A form with unsaved changes asks before the sheet closes or a link leaves the page.
 - `Ui::SubmitButton`: The save button of a form on the desktop, with a check mark and a label. It shows only while the form has changes, next to a button that discards them. A phone has it in the `Ui::TitleBar`. Optional delete button and `label:`. `Ui::SubmitButton::Component.save_attributes` gives the attributes that every save button needs, also one outside the form.
-- `Ui::SaveBar`: The save buttons of a form that the desktop shows on the page, like the general settings. They show at the right of the tabs only while the form has changes, with a button that discards the changes. The other tabs then dim and take no clicks, and a link or a reload asks before it leaves the changes behind. The partial `settings/sub_nav` takes the id of the form as `save_bar:`. A phone has the save button in the `Ui::TitleBar` instead.
+- `Ui::SaveBar`: The save buttons of a form that the desktop shows on the page, like the system settings. They show at the right of the tabs only while the form has changes, with a button that discards the changes. The other tabs then dim and take no clicks, and a link or a reload asks before it leaves the changes behind. The partial `settings/sub_nav` takes the id of the form as `save_bar:`. A phone has the save button in the `Ui::TitleBar` instead.
 - `Ui::ConfirmDialog`: The question before an action, in the middle of the screen instead of the confirm of the browser. The layout renders it once. It answers each `data-turbo-confirm`, see `docs/conventions.md`. A controller asks it through an outlet, like `form-dirty` and the modal before unsaved changes are lost.
 - `Ui::AddButton`: The `+` button for a new entry of a list on the desktop. It stands at the right of the header, where a phone has the action of the `Ui::TitleBar`. It opens the form in the modal.
 
@@ -50,7 +50,6 @@ A page has one of two grounds on a phone. A list or a form stands on the gray pa
 - `Ui::GroupHeader`: The header of a group of rows, with a `title:` and an optional `href:` to the list of the group alone. On a phone it cuts the card into a card per group. `Timeframe::RowGroups`, outside the namespace, puts the rows of a list in groups of a month, a week or a day and gives the title of each group.
 - `Ui::OptimisticNav`: The data of a navigation whose marking moves to the tapped item at once, like `Ui::Chips` and `Ui::SegmentedControl`. With `slide: true`, the marking slides there.
 - `Ui::InfoIcon`: An info icon with a tooltip, for a sentence that explains a value.
-- `Ui::VerticalTabs`: Tabs at the left of their panels, from `md` up. On a smaller screen the tabs stand above the panels.
 
 Each component file starts with a comment that describes its parameters and slots.
 

@@ -15,20 +15,68 @@ describe 'Settings' do
 
         expect(response).to have_http_status(:success)
         expect(response.body).to include(
-          'href="/settings/general"',
+          'href="/settings/plant"',
+          'href="/settings/tariffs"',
           'href="/settings/sensors"',
-          'href="/settings/prices/electricity"',
-          'href="/settings/prices/feed_in"',
-          'href="/settings/cash_flows"',
+          'href="/settings/system"',
         )
       end
     end
   end
 
-  describe 'GET /settings/general' do
+  describe 'GET /settings/plant' do
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      # A phone lists the cash flows below the data of the PV system
+      it 'shows the data and links to the cash flows' do
+        get '/settings/plant'
+
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.css('main a').pluck('href')).to include('/settings/cash_flows')
+      end
+    end
+  end
+
+  describe 'PATCH /settings/plant' do
+    context 'when not logged in' do
+      it 'fails' do
+        patch '/settings/plant', params: { setting: { plant_name: 'Test' } }
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      it 'saves the name and the operator' do
+        patch '/settings/plant', params: { setting: { plant_name: ' Test ', operator_name: 'John' } }
+        expect(response).to redirect_to(edit_settings_plant_path)
+
+        expect(Setting.plant_name).to eq('Test')
+        expect(Setting.operator_name).to eq('John')
+      end
+    end
+  end
+
+  describe 'GET /settings/tariffs' do
+    context 'when logged in as admin' do
+      before { login_as_admin }
+
+      # A phone lists the tariffs, the desktop opens the first one
+      it 'lists the tariffs' do
+        get '/settings/tariffs'
+
+        expect(response).to have_http_status(:success)
+        expect(response.parsed_body.css('main a').pluck('href')).to include('/settings/prices/electricity', '/settings/prices/feed_in')
+      end
+    end
+  end
+
+  describe 'GET /settings/system' do
     context 'when not logged in' do
       it 'returns http forbidden' do
-        get '/settings/general'
+        get '/settings/system'
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -37,7 +85,7 @@ describe 'Settings' do
       before { login_as_admin }
 
       it 'returns http success' do
-        get '/settings/general'
+        get '/settings/system'
         expect(response).to have_http_status(:success)
       end
 
@@ -51,23 +99,23 @@ describe 'Settings' do
         end
 
         it 'counts a missing day' do
-          get '/settings/general'
+          get '/settings/system'
 
-          expect(response.body).to include(I18n.t('settings.general.summaries.fresh_percentage', value: 90))
+          expect(response.body).to include(I18n.t('settings.system.summaries.fresh_percentage', value: 90))
         end
       end
 
       it 'tells that no summary exists' do
-        get '/settings/general'
-        expect(response.body).to include(I18n.t('settings.general.summaries.zero'))
+        get '/settings/system'
+        expect(response.body).to include(I18n.t('settings.system.summaries.zero'))
       end
     end
   end
 
-  describe 'PATCH /settings/general' do
+  describe 'PATCH /settings/system' do
     context 'when not logged in' do
       it 'fails' do
-        patch '/settings/general', params: { setting: { plant_name: 'Test' } }
+        patch '/settings/system', params: { setting: { mcp_enabled: '1' } }
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -75,33 +123,19 @@ describe 'Settings' do
     context 'when logged in as admin' do
       before { login_as_admin }
 
-      it 'returns http success' do
-        patch '/settings/general',
-              params: {
-                setting: {
-                  plant_name: 'Test',
-                  operator_name: 'John',
-                },
-              }
-        expect(response).to redirect_to(edit_settings_general_path)
-
-        expect(Setting.plant_name).to eq('Test')
-        expect(Setting.operator_name).to eq('John')
-      end
-
       context 'when a sponsor' do
         before { allow(ApplicationPolicy).to receive(:mcp?).and_return(true) }
 
         it 'enables MCP without rotating the signing secret' do
           expect do
-            patch '/settings/general',
+            patch '/settings/system',
                   params: {
                     setting: {
                       mcp_enabled: '1',
                     },
                   }
           end.not_to change(Setting, :mcp_oauth_secret)
-          expect(response).to redirect_to(edit_settings_general_path)
+          expect(response).to redirect_to(edit_settings_system_path)
 
           expect(Setting.mcp_enabled).to be(true)
         end
@@ -110,13 +144,13 @@ describe 'Settings' do
           Setting.mcp_enabled = true
           token = McpOauth.encode_access_token(base_url: 'http://www.example.com')
 
-          patch '/settings/general',
+          patch '/settings/system',
                 params: {
                   setting: {
                     mcp_enabled: '0',
                   },
                 }
-          expect(response).to redirect_to(edit_settings_general_path)
+          expect(response).to redirect_to(edit_settings_system_path)
 
           expect(Setting.mcp_enabled).to be(false)
           # Rotating the signing secret invalidates every issued token.
@@ -130,8 +164,8 @@ describe 'Settings' do
         before { allow(ApplicationPolicy).to receive(:mcp?).and_return(false) }
 
         it 'refuses to enable MCP' do
-          patch '/settings/general', params: { setting: { mcp_enabled: '1' } }
-          expect(response).to redirect_to(edit_settings_general_path)
+          patch '/settings/system', params: { setting: { mcp_enabled: '1' } }
+          expect(response).to redirect_to(edit_settings_system_path)
 
           expect(Setting.mcp_enabled).to be(false)
         end
@@ -241,10 +275,11 @@ describe 'Settings' do
       end
     end
 
-    it 'marks the tab of the price name on its own page' do
+    # The desktop tab of the tariffs leads to the first one
+    it 'marks the tab of the tariffs on its own page' do
       get "/settings/prices/#{price.id}/edit"
 
-      expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/prices/feed_in'])
+      expect(response.parsed_body.css('a[aria-current=location]').pluck('href')).to eq(['/settings/prices/electricity'])
     end
 
     context 'when it is the only price of its name' do
@@ -293,14 +328,11 @@ describe 'Settings' do
         )
       end
 
-      it 'renders the fields of every group in a tab of the desktop' do
+      # The desktop skips the list and opens the first group
+      it 'links the desktop tab straight to the first group' do
         get '/settings/sensors'
 
-        panels = response.parsed_body.css('[role="tabpanel"]')
-        aggregate_failures do
-          expect(panels.size).to be > 1
-          expect(panels).to all(satisfy { it.at_css('input, select') })
-        end
+        expect(response.parsed_body.css('a[aria-current]').pluck('href')).to include('/settings/sensors/generators')
       end
     end
   end
@@ -325,6 +357,14 @@ describe 'Settings' do
         expect(html.at_css('input[name="sensor_names[custom_power_01]"]')).to be_present
         expect(html.at_css('input[name="sensor_names[inverter_power_1]"]')).to be_nil
         expect(html.at_css('.ui-title-bar')['data-parent']).to eq('/settings/sensors')
+      end
+
+      it 'shows the other groups as tabs at the side' do
+        get '/settings/sensors/consumers'
+
+        links = response.parsed_body.css('main nav.sticky a')
+        expect(links.pluck('href')).to include('/settings/sensors/generators', '/settings/sensors/consumers')
+        expect(links.find { it['aria-current'] }['href']).to eq('/settings/sensors/consumers')
       end
 
       it 'redirects for an unknown group' do

@@ -1,0 +1,31 @@
+= render 'settings/sub_nav', save: 'settings_system_form', save_bar: 'settings_system_form'
+
+= form_with(model: Setting.new, url: settings_system_path, method: :patch, id: 'settings_system_form', html: { class: 'ui-form relative px-2', data: page_form_data }) do |f|
+  / The same header as the summaries below (see Summary::Status::Component)
+  h2.mb-4.border-b.border-gray-500.pb-1.font-medium.max-lg:mb-0.max-lg:border-0.max-lg:px-4.max-lg:text-xs.max-lg:uppercase.max-lg:tracking-wide.max-lg:text-muted class='max-lg:pb-1.5'
+    = t('settings.system.mcp.title')
+  = f.group flush: true do
+    - if ApplicationPolicy.mcp?
+      = f.check_box :mcp_enabled,
+                    checked: Setting.mcp_enabled,
+                    label: t('settings.system.mcp.enable'),
+                    hint: t('settings.system.mcp.hint')
+
+      - if McpOauth.available?
+        p.ps-7.-mt-3.text-xs.text-gray-500.dark:text-gray-400
+          = t('settings.system.mcp.endpoint')
+          = ' '
+          = link_to mcp_url,
+                    mcp_url,
+                    class: 'font-mono text-indigo-600 dark:text-indigo-400 hover:underline break-all',
+                    target: '_blank',
+                    rel: 'noopener'
+    - else
+      = f.check_box :mcp_enabled,
+                    checked: false,
+                    disabled: true,
+                    label: t('settings.system.mcp.enable'),
+                    hint: t('premium.sponsors_only')
+
+.mt-8.lg:mt-10.px-2.max-lg:px-0
+  = render Summary::Status::Component.new(completion_rate: @summary_completion_rate)

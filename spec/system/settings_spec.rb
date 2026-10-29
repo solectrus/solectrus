@@ -15,8 +15,8 @@ describe 'Settings' do
       login_as_admin
     end
 
-    context 'when visiting general settings' do
-      before { visit '/settings/general' }
+    context 'when visiting the settings of the PV system' do
+      before { visit '/settings/plant' }
 
       it 'has no save bar initially' do
         expect(page).to have_no_button('Speichern')
@@ -75,7 +75,7 @@ describe 'Settings' do
       after { Setting.mcp_enabled = false }
 
       let(:endpoint_label) do
-        I18n.t('settings.general.mcp.endpoint', locale: :de)
+        I18n.t('settings.system.mcp.endpoint', locale: :de)
       end
       let(:save_button) { I18n.t('ui.save', locale: :de) }
       let(:success_message) { I18n.t('crud.success', locale: :de) }
@@ -83,7 +83,7 @@ describe 'Settings' do
       context 'when MCP is already enabled' do
         before do
           Setting.mcp_enabled = true
-          visit '/settings/general'
+          visit '/settings/system'
         end
 
         it 'shows the MCP endpoint linking to the info page' do
@@ -101,7 +101,7 @@ describe 'Settings' do
       end
 
       context 'when MCP is disabled' do
-        before { visit '/settings/general' }
+        before { visit '/settings/system' }
 
         it 'shows the endpoint after enabling and saving' do
           expect(page).to have_no_text(endpoint_label)

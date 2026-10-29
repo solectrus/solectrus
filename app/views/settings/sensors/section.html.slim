@@ -1,3 +1,5 @@
+/ One level below the sensors on a phone, a tab beside the other groups on
+  the desktop
 = render 'settings/sub_nav',
          title: @section[:name],
          back_href: settings_sensors_path,
@@ -5,5 +7,6 @@
          save: 'settings_sensors_form',
          save_bar: 'settings_sensors_form'
 
-= render layout: 'settings/sensors/form' do |f|
-  = render "settings/sensors/#{@section[:id]}", f:
+= render Nav::Side::Component.new(items: sensor_sections) do
+  = render layout: 'settings/sensors/form' do |f|
+    = render "settings/sensors/#{@section[:id]}", f:

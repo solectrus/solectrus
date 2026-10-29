@@ -65,13 +65,17 @@
 #                                   GET              /favicon.ico(.:format)                                                  redirect(301, /favicon-196.png)
 #                                   GET              /apple-touch-icon.png(.:format)                                         redirect(301, /apple-icon-180.png)
 #                                   GET              /apple-touch-icon-precomposed.png(.:format)                             redirect(301, /apple-icon-180.png)
-#             edit_settings_general GET              /settings/general(.:format)                                             settings/generals#edit
-#                  settings_general PATCH            /settings/general(.:format)                                             settings/generals#update
-#                                   PUT              /settings/general(.:format)                                             settings/generals#update
+#               edit_settings_plant GET              /settings/plant(.:format)                                               settings/plants#edit
+#                    settings_plant PATCH            /settings/plant(.:format)                                               settings/plants#update
+#                                   PUT              /settings/plant(.:format)                                               settings/plants#update
+#              edit_settings_system GET              /settings/system(.:format)                                              settings/systems#edit
+#                   settings_system PATCH            /settings/system(.:format)                                              settings/systems#update
+#                                   PUT              /settings/system(.:format)                                              settings/systems#update
 #          section_settings_sensors GET              /settings/sensors/:section(.:format)                                    settings/sensors#section
 #             edit_settings_sensors GET              /settings/sensors(.:format)                                             settings/sensors#edit
 #                  settings_sensors PATCH            /settings/sensors(.:format)                                             settings/sensors#update
 #                                   PUT              /settings/sensors(.:format)                                             settings/sensors#update
+#                  settings_tariffs GET              /settings/tariffs(.:format)                                             settings/tariffs#show
 #                   settings_prices GET              /settings/prices(/:name)(.:format)                                      settings/prices#index {name: /electricity|feed_in/}
 #                                   GET              /settings/prices(.:format)                                              settings/prices#index
 #                                   POST             /settings/prices(.:format)                                              settings/prices#create
@@ -303,11 +307,13 @@ Rails.application.routes.draw do
       to: redirect('/apple-icon-180.png')
 
   scope :settings, as: :settings, module: 'settings' do
-    resource :general, only: %i[edit update], path_names: { edit: '' }
+    resource :plant, only: %i[edit update], path_names: { edit: '' }
+    resource :system, only: %i[edit update], path_names: { edit: '' }
     resource :sensors, only: %i[edit update], path_names: { edit: '' } do
       get ':section', action: :section, as: :section
     end
 
+    resource :tariffs, only: :show
     resources :prices, constraints: { name: Regexp.union(Price.names.keys) } do
       get '(:name)', on: :collection, action: :index, as: ''
     end

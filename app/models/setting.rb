@@ -41,7 +41,7 @@ class Setting < RailsSettings::Base
   field :enable_forecast, type: :boolean, default: true
 
   # Read-only data access via Model Context Protocol (/mcp). Disabled by
-  # default; admins opt in via the general settings. When enabled, access is
+  # default; admins opt in via the system settings. When enabled, access is
   # protected by stateless OAuth (auth code + PKCE), authenticated with the
   # existing admin password - no token is stored. See McpOauth.
   field :mcp_enabled, type: :boolean, default: false

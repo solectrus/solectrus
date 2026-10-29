@@ -11,9 +11,9 @@ describe 'Settings prices (mobile)' do
 
   # The form opens in a sheet over the list. A save closes the sheet and
   # refreshes the list, and the history keeps no entry of the form, so the
-  # way back leads to the overview.
+  # way back leads to the tariffs.
   it 'saves in a sheet over the list' do
-    visit settings_path
+    visit settings_tariffs_path
     click_on 'Strompreis'
     expect(page).to have_current_path('/settings/prices/electricity')
 
@@ -29,18 +29,18 @@ describe 'Settings prices (mobile)' do
     expect(page).to have_text('New tariff')
 
     page.go_back
-    expect(page).to have_current_path('/settings')
+    expect(page).to have_current_path('/settings/tariffs')
   end
 
   # The back button goes back in the history, so the list becomes the entry
-  # after the overview, as after the back button of the browser
+  # after the tariffs, as after the back button of the browser
   it 'goes back in the history with the back button' do
-    visit settings_path
+    visit settings_tariffs_path
     click_on 'Strompreis'
     expect(page).to have_current_path('/settings/prices/electricity')
 
     find('.ui-title-bar-back').click
-    expect(page).to have_current_path('/settings')
+    expect(page).to have_current_path('/settings/tariffs')
 
     page.go_forward
     expect(page).to have_current_path('/settings/prices/electricity')
@@ -52,6 +52,7 @@ describe 'Settings prices (mobile)' do
     page.driver.with_playwright_page { it.emulate_media(reducedMotion: 'no-preference') }
     visit more_path
     click_on 'Einstellungen'
+    click_on 'Tarife'
     click_on 'Strompreis'
     expect(page).to have_current_path('/settings/prices/electricity')
 
@@ -60,10 +61,10 @@ describe 'Settings prices (mobile)' do
       back.click();
       setTimeout(() => back.click(), 50);
     JS
-    expect(page).to have_current_path('/settings')
+    expect(page).to have_current_path('/settings/tariffs')
 
     # A second step back would follow at the end of the slide
     sleep 1
-    expect(page).to have_current_path('/settings')
+    expect(page).to have_current_path('/settings/tariffs')
   end
 end

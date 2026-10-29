@@ -137,7 +137,7 @@ describe 'Administrator login' do
     end
 
     it 'returns to the homepage when logging out from an admin-only page' do
-      visit '/settings/general'
+      visit '/settings/system'
       page.execute_script(
         "document.querySelector('a[href^=\"/logout\"]').click()",
       )

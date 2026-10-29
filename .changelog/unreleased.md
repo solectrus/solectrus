@@ -57,9 +57,10 @@ Keep every section, an empty one included.
 - On a phone, a number field without negative values, like a price, opens the keypad of digits and the decimal separator
 - Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average
 - An empty list or chart shows the same note everywhere: an icon, a title and a short text
-- Settings > Cash flows: the form groups the categories by how they count in the amortization
-- Settings > Cash flows: a click on the arrow beside a date shows the cash flows of that year alone
-- Settings > Cash flows: each part of the filter has its own x that removes it
+- Settings > PV system > Cash flows: the form groups the categories by how they count in the amortization
+- Settings > PV system > Cash flows: a click on the arrow beside a date shows the cash flows of that year alone
+- Settings > PV system > Cash flows: each part of the filter has its own x that removes it
+- The settings group by what they set up: PV system, Tariffs, Sensors, Electric vehicles and System. PV system holds the name of the system and its cash flows, and Tariffs holds the electricity price and the feed-in tariff. General is now System
 - Escape now closes an open menu, like the options of the Top 10 or the selection of a chart
 - The link to the main page now shows the power balance from every page, in the same timeframe. Before, it kept the topic of the previous page, for example the house consumption (#6055)
 - Without HELIOS, the admin now also sees the menu item HELIOS. It opens the installation guide on the website

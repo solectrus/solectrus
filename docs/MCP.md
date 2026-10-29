@@ -6,7 +6,7 @@ natural-language questions about your PV system ("Which day this year had the
 highest solar production?", "How was my self-consumption last month?").
 
 AI access (MCP) is a **sponsor-only feature** and is **disabled by default**.
-Sponsors enable it under **Settings → General → AI access (MCP)**. The endpoint
+Sponsors enable it under **Settings → System → AI access (MCP)**. The endpoint
 is read-only and protected by OAuth 2.1 (authorization code + PKCE); the only
 credential is your existing **admin password** (`ADMIN_PASSWORD`), and the
 authorization page accepts ten attempts per three minutes from one address —
@@ -324,7 +324,7 @@ ways to end it sooner, and both drop **every** connected client at once:
 
 - **Change `ADMIN_PASSWORD`.** It is the only credential this flow checks, so
   changing it invalidates every access and refresh token ever issued.
-- **Switch AI access off** under Settings → General. This rotates the OAuth
+- **Switch AI access off** under Settings → System. This rotates the OAuth
   signing secret, so switching it back on does not bring old connections back.
 
 There is no per-client revocation: tokens are stateless and nothing is stored

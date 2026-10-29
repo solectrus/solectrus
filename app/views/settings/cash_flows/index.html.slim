@@ -1,29 +1,33 @@
+/ One level below the PV system on a phone, a tab beside its data on the
+  desktop. Opened from the amortization, the way back leads there.
 = render 'settings/sub_nav',
+         title:,
          action: { href: new_settings_cash_flow_path(return_to: list_address), icon: 'plus', label: t('settings.cash_flows.new'), sheet: true },
-         back_href: back_to_amortization,
-         back_label: (t('layout.amortization') if back_to_amortization)
+         back_href: back_to_amortization || edit_settings_plant_path,
+         back_label: back_to_amortization ? t('layout.amortization') : t('settings.plant.name')
 
-/! Who may see the amortization calculation: everyone, admins only, or nobody
-/! (the page disappears from the navigation entirely). The "all" option
-/! exposes the calculation to non-admins and is a sponsor feature, so it is
-/! disabled otherwise. On a phone the choice is a cell.
-.mb-8.px-2.max-lg:px-0
-  = form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'ui-form' }, data: { controller: 'auto-submit' } do |f|
-    - visibility_choices = AmortizationVisibility::LEVELS.map { |level| [t("settings.cash_flows.visibility_#{level}"), level] }
-    / On a phone the label is the header of the group. The label
-      of the field stays for a screen reader.
-    .ui-form-header.lg:hidden aria-hidden='true' = t('settings.cash_flows.visibility_label')
-    .ui-form-group.ui-form-stacked
-      = f.select :amortization_visibility,
-                 options_for_select(visibility_choices, selected: AmortizationVisibility.level, disabled: ('all' unless AmortizationVisibility.licensed?)),
-                 { label: t('settings.cash_flows.visibility_label'), label_class: 'max-lg:sr-only', hint: (t('premium.sponsors_only') unless AmortizationVisibility.licensed?) },
-                 { class: 'max-w-xs', data: { action: 'change->auto-submit#submit' } }
+= render Nav::Side::Component.new(items: plant_nav_items) do
+  /! Who may see the amortization calculation: everyone, admins only, or nobody
+  /! (the page disappears from the navigation entirely). The "all" option
+  /! exposes the calculation to non-admins and is a sponsor feature, so it is
+  /! disabled otherwise. On a phone the choice is a cell.
+  .mb-8.px-2.max-lg:px-0
+    = form_with model: Setting.new, url: visibility_settings_cash_flows_path, method: :patch, html: { class: 'ui-form' }, data: { controller: 'auto-submit' } do |f|
+      - visibility_choices = AmortizationVisibility::LEVELS.map { |level| [t("settings.cash_flows.visibility_#{level}"), level] }
+      / On a phone the label is the header of the group. The label
+        of the field stays for a screen reader.
+      .ui-form-header.lg:hidden aria-hidden='true' = t('settings.cash_flows.visibility_label')
+      .ui-form-group.ui-form-stacked
+        = f.select :amortization_visibility,
+                   options_for_select(visibility_choices, selected: AmortizationVisibility.level, disabled: ('all' unless AmortizationVisibility.licensed?)),
+                   { label: t('settings.cash_flows.visibility_label'), label_class: 'max-lg:sr-only', hint: (t('premium.sponsors_only') unless AmortizationVisibility.licensed?) },
+                   { class: 'max-w-xs', data: { action: 'change->auto-submit#submit' } }
 
-/! Interactive filter: narrow the list by category and/or date range (also the
-/! landing spot when drilling down from the amortization table). Kept outside the
-/! 'list' frame so a list refresh does not drop it.
-= render Ui::FilterBar::Component.new(filter:, category_pill: CashFlow::CategoryPill::Component)
+  /! Interactive filter: narrow the list by category and/or date range (also the
+  /! landing spot when drilling down from the amortization table). Kept outside the
+  /! 'list' frame so a list refresh does not drop it.
+  = render Ui::FilterBar::Component.new(filter:, category_pill: CashFlow::CategoryPill::Component)
 
-/ A stream refreshes the list. The link of a row on a phone leaves the frame.
-= tag.turbo_frame id: 'list', target: '_top' do
-  = render CashFlow::List::Component.new(cash_flows: @cash_flows, filter:)
+  / A stream refreshes the list. The link of a row on a phone leaves the frame.
+  = tag.turbo_frame id: 'list', target: '_top' do
+    = render CashFlow::List::Component.new(cash_flows: @cash_flows, filter:)

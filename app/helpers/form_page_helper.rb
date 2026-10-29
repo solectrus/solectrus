@@ -49,11 +49,11 @@ module FormPageHelper
     end
   end
 
-  # The data of a form on a page and not in the modal, like the general
+  # The data of a form on a page and not in the modal, like the system
   # settings. The form-dirty controller asks in
   # Ui::ConfirmDialog::Component before a visit leaves the changes behind.
   #
-  #   = form_with(url: settings_general_path, html: { data: page_form_data }) do |f|
+  #   = form_with(url: settings_system_path, html: { data: page_form_data }) do |f|
   def page_form_data
     {
       controller: 'form-dirty',

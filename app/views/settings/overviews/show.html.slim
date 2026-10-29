@@ -1,4 +1,8 @@
 / A phone reaches the overview from the page More, so its title bar leads back there
 = render 'settings/sub_nav', back_href: more_path, back_label: t('layout.more'), back_logo: more_logo
 
-= render Ui::NavList::Component.new(items: nav_items, label: t('layout.settings'))
+/ What the settings set up first, the sensors and the system below
+- technical, setup = nav_items.partition { it[:technical] }
+= render Ui::NavList::Component.new(items: setup, label: t('layout.settings'))
+.mt-8
+  = render Ui::NavList::Component.new(items: technical, label: t('layout.settings'))

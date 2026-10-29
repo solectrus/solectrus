@@ -1,4 +1,4 @@
-class Settings::GeneralsController < ApplicationController
+class Settings::SystemsController < ApplicationController
   include SettingsNavigation
 
   before_action :admin_required!
@@ -9,19 +9,12 @@ class Settings::GeneralsController < ApplicationController
   end
 
   def update
-    permitted_params.each do |key, value|
-      next if value.nil?
-
-      if key == 'mcp_enabled'
-        update_mcp_enabled(value)
-      else
-        Setting.public_send(:"#{key}=", value.strip)
-      end
-    end
+    value = permitted_params[:mcp_enabled]
+    update_mcp_enabled(value) unless value.nil?
 
     # Redirect (instead of an inline flash) so the page re-renders and the MCP
     # endpoint hint appears or disappears after toggling the checkbox.
-    redirect_to edit_settings_general_path, notice: t('crud.success')
+    redirect_to edit_settings_system_path, notice: t('crud.success')
   end
 
   private
@@ -38,10 +31,10 @@ class Settings::GeneralsController < ApplicationController
   end
 
   helper_method def title
-    t('layout.settings')
+    t('settings.system.name')
   end
 
   def permitted_params
-    params.expect(setting: %i[plant_name operator_name mcp_enabled])
+    params.expect(setting: %i[mcp_enabled])
   end
 end

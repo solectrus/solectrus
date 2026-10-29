@@ -1,13 +1,3 @@
-= render 'settings/sub_nav', save_bar: 'settings_sensors_form'
+= render 'settings/sub_nav'
 
-/! Phone: one row per sensor group, each opens a page of its own
-.lg:hidden
-  = render Ui::NavList::Component.new(items: sensor_sections, label: t('settings.sensors.name'))
-
-/! Desktop: every group in one form, as tabs
-.hidden.lg:block
-  = render layout: 'settings/sensors/form' do |f|
-    = render Ui::VerticalTabs::Component.new do |c|
-      - sensor_sections.each do |section|
-        = c.with_tab id: section[:id], label: section[:name] do
-          = render "settings/sensors/#{section[:id]}", f:
+= render Ui::NavList::Component.new(items: sensor_sections, label: t('settings.sensors.name'))

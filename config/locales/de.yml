@@ -459,13 +459,15 @@ de:
     deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
   settings:
-    general:
-      name: Allgemein
-      plant:
-        plant_name:
-          placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
-        operator_name:
-          placeholder: z.B. Max Mustermann in Musterstadt
+    plant:
+      name: PV-Anlage
+      data: Bezeichnung
+      plant_name:
+        placeholder: z.B. SENEC.Home V3, 28 Module auf dem Hausdach in Südausrichtung mit 9,24 kWp
+      operator_name:
+        placeholder: z.B. Max Mustermann in Musterstadt
+    system:
+      name: System
       mcp:
         title: Zugriff für KI
         enable: Model-Context-Protocol (MCP) aktivieren
@@ -480,6 +482,8 @@ de:
           title: Zurücksetzen
           confirmation: Das Neuberechnen der Zusammenfassungen wird einige Zeit dauern. Wirklich fortfahren?
           flash: Zusammenfassungen wurden zurückgesetzt.
+    tariffs:
+      name: Tarife
     prices:
       edit:
         electricity: Strompreis bearbeiten

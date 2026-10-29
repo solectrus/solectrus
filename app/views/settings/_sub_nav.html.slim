@@ -26,7 +26,7 @@ ruby:
     .hidden.lg:flex.items-center.justify-between.gap-4 class=(Ui::SaveBar::Component::TABS_CLASS if save_bar)
       .flex-1.min-w-0
         = render Nav::Sub::Component.new(abbreviate: false) do |c|
-          - c.with_items(nav_items.map { |item| item.slice(:name, :href, :current) })
+          - c.with_items(nav_items.map { |item| { name: item[:name], href: item[:desktop_href] || item[:href], current: item[:current] } })
       - if action
         = render Ui::AddButton::Component.new(href: action[:href], label: action[:label])
       - if save_bar

@@ -4,11 +4,13 @@ class Settings::SensorsController < ApplicationController
   before_action :admin_required!
   before_action :load_sensors, only: %i[edit section]
 
-  # Desktop: every group in one form, as tabs. Phone: a list of the groups.
+  # Phone: a list of the groups. The desktop links straight to the first one
+  # (see SettingsNavigation).
   def edit
   end
 
-  # Phone: the form of one group
+  # The form of one group, with the other groups as tabs at the side on the
+  # desktop
   def section
     @section = sensor_sections.find { |item| item[:id] == params[:section] }
     redirect_to settings_sensors_path unless @section

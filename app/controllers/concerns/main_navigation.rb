@@ -404,7 +404,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
       {
         name: t('layout.settings'),
         icon: 'gear',
-        href: settings_general_path,
+        href: edit_settings_plant_path,
         current: helpers.controller_namespace == 'settings',
       }
     end
