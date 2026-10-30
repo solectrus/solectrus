@@ -4,6 +4,7 @@
 #                            Prefix Verb             URI Pattern                                                             Controller#Action
 #                      health_check GET              /up(.:format)                                                           health#show
 #                skip_browser_check GET              /skip-browser-check(.:format)                                           application#skip_browser_check
+#                            helios GET              /helios(.:format)                                                       helios#show
 #                          manifest GET              /manifest.webmanifest                                                   manifest#show
 #                          lookbook                  /lookbook                                                               Lookbook::Engine
 #                     lockup_unlock GET              /lockup/unlock(.:format)                                                lockup#unlock
