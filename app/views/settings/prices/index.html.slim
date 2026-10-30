@@ -2,7 +2,7 @@
   the desktop
 = render 'settings/sub_nav', title:, back_href: settings_tariffs_path, back_label: t('settings.tariffs.name'), action: { href: new_settings_price_path(price: { name: }), icon: 'plus', label: t("settings.prices.new.#{name}"), sheet: true }
 
-= render Nav::Side::Component.new(items: tariff_nav_items) do
+= render Ui::SideNav::Component.new(items: tariff_nav_items) do
   / A stream refreshes the list. The link of a row on a phone leaves the frame.
   = tag.turbo_frame id: 'list', target: '_top' do
     = render Price::List::Component.new(prices: @prices, name:)

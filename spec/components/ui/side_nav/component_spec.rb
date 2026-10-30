@@ -1,4 +1,4 @@
-describe Nav::Side::Component, type: :component do
+describe Ui::SideNav::Component, type: :component do
   let(:items) { [{ name: 'Cars', href: '/settings/cars' }, { name: 'Places', href: '/settings/places' }] }
 
   it 'shows the pages beside the content' do

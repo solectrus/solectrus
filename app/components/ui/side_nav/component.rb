@@ -1,8 +1,8 @@
-# The navigation on the side of a settings page with pages of its own, for
-# example the cars and their places. Each item links to a URL of its own. The
+# The navigation on the side of a page with pages of its own, like the cars
+# and their places in the settings. Each item links to a URL of its own. The
 # navigation stays in view at the side while the page scrolls. A phone shows
 # no such navigation, and neither does a single page.
-class Nav::Side::Component < ViewComponent::Base
+class Ui::SideNav::Component < ViewComponent::Base
   # items: [{ name:, href: }]
   def initialize(items:)
     super()

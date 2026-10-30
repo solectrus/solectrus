@@ -6,7 +6,7 @@
          back_href: back_to_amortization || edit_settings_plant_path,
          back_label: back_to_amortization ? t('layout.amortization') : t('settings.plant.name')
 
-= render Nav::Side::Component.new(items: plant_nav_items) do
+= render Ui::SideNav::Component.new(items: plant_nav_items) do
   /! Who may see the amortization calculation: everyone, admins only, or nobody
   /! (the page disappears from the navigation entirely). The "all" option
   /! exposes the calculation to non-admins and is a sponsor feature, so it is

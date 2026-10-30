@@ -1,6 +1,6 @@
 = render 'settings/sub_nav'
 
-= render Nav::Side::Component.new(items: car_nav_items) do
+= render Ui::SideNav::Component.new(items: car_nav_items) do
   / A stream refreshes the list. The link of a row on a phone leaves the frame.
   = tag.turbo_frame id: 'list', target: '_top' do
     = render Car::List::Component.new(cars: @cars)

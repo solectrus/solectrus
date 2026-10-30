@@ -7,6 +7,6 @@
          save: 'settings_sensors_form',
          save_bar: 'settings_sensors_form'
 
-= render Nav::Side::Component.new(items: sensor_sections) do
+= render Ui::SideNav::Component.new(items: sensor_sections) do
   = render layout: 'settings/sensors/form' do |f|
     = render "settings/sensors/#{@section[:id]}", f:

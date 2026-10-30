@@ -1,6 +1,6 @@
 = render 'settings/sub_nav', save: 'settings_plant_form', save_bar: 'settings_plant_form'
 
-= render Nav::Side::Component.new(items: plant_nav_items) do
+= render Ui::SideNav::Component.new(items: plant_nav_items) do
   = form_with(model: Setting.new, url: settings_plant_path, method: :patch, id: 'settings_plant_form', html: { class: 'ui-form relative px-2', data: page_form_data }) do |f|
     / No autofocus: iOS would open the keyboard right at the slide
     = f.group do

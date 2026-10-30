@@ -1,7 +1,7 @@
 / One level below the cars on a phone, a tab beside them on the desktop
 = render 'settings/sub_nav', title:, back_href: settings_cars_path, back_label: t('settings.cars.name'), action: { href: new_settings_car_payment_path(return_to: list_address), icon: 'plus', label: t('settings.car_payments.new') }
 
-= render Nav::Side::Component.new(items: car_nav_items) do
+= render Ui::SideNav::Component.new(items: car_nav_items) do
   / The filter stands outside the frame, so a refresh of the list keeps it
   = render Ui::FilterBar::Component.new(filter:, category_pill: Car::PaymentCategoryPill::Component) do |bar|
     - if filter.car
