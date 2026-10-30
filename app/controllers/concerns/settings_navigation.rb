@@ -36,7 +36,7 @@ module SettingsNavigation
              name: t('settings.cars.name'),
              href: settings_cars_path,
              icon: 'car',
-             current: controller_name.in?(%w[cars places]),
+             current: controller_name.in?(%w[cars places car_payments]),
            }
          end),
         {
@@ -68,10 +68,14 @@ module SettingsNavigation
       ]
     end
 
-    # The side navigation of the cars: their names, and their places when the
-    # cars have a location. Each page has a URL of its own.
+    # The side navigation of the cars: their names, their payments when the
+    # comparison has fuel prices (see Car::Comparison.available?), and their
+    # places when the cars have a location. Each page has a URL of its own.
     helper_method def car_nav_items
-      items = [{ name: t('settings.cars.vehicles'), href: settings_cars_path }]
+      items = [
+        { name: t('settings.cars.vehicles'), href: settings_cars_path },
+        ({ name: t('settings.car_payments.name'), href: settings_car_payments_path } if Car::Comparison.available?),
+      ].compact
       # Without a sponsorship the places show the upsell (see
       # Settings::PlacesController)
       return items unless Sensor::Cars.configured_numbers.any? { Sensor::Cars.located?(it, check_policy: false) }

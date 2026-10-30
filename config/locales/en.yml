@@ -29,6 +29,7 @@ en:
     heatpump: Heat pump
     car: Electric vehicle
     charging_sessions: EV charging sessions
+    car_comparison: EV vs. combustion car
     amortization: Amortization
     essentials: Essentials
     forecast: Forecast
@@ -194,6 +195,15 @@ en:
     total: Power consumption
     costs_note:
       battery_charging_power: Grid electricity is attributed to the consumers.
+  car_comparison:
+    # The tab of the page beside the charging sessions and the places. The
+    # title bar has the name of the menu (layout.car_comparison).
+    tab: Savings
+    nav: Comparison
+    fuel_prices: Fuel prices
+    fuel_prices_of:
+      petrol: Petrol prices
+      diesel: Diesel prices
   visits:
     name: Visits
     count:
@@ -503,6 +513,16 @@ en:
       active_from_hint: The first day with this car.
       active_until_hint: Leave empty if the car is in use.
       battery_kwh_hint: The usable capacity. It estimates the energy of an unconfirmed offsite charge and gives the loss of a charge.
+      combustion: Fictional combustion car that the EV replaces
+      fuel_type_none: No comparison
+    car_payments:
+      name: Payments
+      new: New payment
+      edit: Edit payment
+      footer: The comparison with a combustion car counts the running costs. The GHG quota, the vehicle tax and the charging tariffs apply to the EV alone. The insurance, the maintenance and the other running costs count for the combustion car at the same amount, so they do not change the savings. The purchase, its financing, a subsidy and the sale do not count.
+      expenses: Expenses
+      incomes: Incomes
+      amount_hint: Enter a refund, for example of the insurance, as a negative amount in its category.
     places:
       name: Locations
       edit: Edit place
@@ -603,6 +623,32 @@ en:
         active_until: In use until
         color: Color
         battery_kwh: Battery capacity
+        fuel_type: Fuel
+        fuel_types:
+          petrol: Petrol
+          diesel: Diesel
+        fuel_consumption: Consumption
+        combustion_tax: Vehicle tax per year
+      car/payment:
+        car: Car
+        car_id: Car
+        category: Category
+        categories:
+          purchase: Purchase
+          leasing_down_payment: Down payment
+          leasing_rate: Lease rate
+          loan_rate: Loan rate
+          vehicle_tax: Vehicle tax
+          insurance: Insurance
+          maintenance: Maintenance
+          charging_fees: Charging tariffs
+          other_expense: Other
+          subsidy: Subsidy
+          ghg_quota: GHG quota
+          sale: Sale
+        date: Date
+        amount: Amount
+        note: Note
       place:
         name: Name
         town: Town according to OpenStreetMap
@@ -669,6 +715,13 @@ en:
           offsite_sessions_outside:
             one: The period leaves out 1 offsite charging session of the car.
             other: The period leaves out %{count} offsite charging sessions of the car.
+          payments_outside:
+            one: The period leaves out 1 payment of the car.
+            other: The period leaves out %{count} payments of the car.
+        car/payment:
+          attributes:
+            date:
+              inactive: is not in the period of use of the car
         charging_session:
           attributes:
             guest:

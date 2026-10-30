@@ -1,0 +1,25 @@
+/ A row of the grid from lg up, each cell in one line: the date, the car,
+  the category, the note and the amount. Below, the same cells form a cell
+  of a grouped list: the note over the date, the category and the car, the
+  amount at the right.
+= render Ui::TableRow::Component.new(href: edit_path, nav_title: t('settings.car_payments.edit'), css_class: 'group grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
+  .inline-flex.items-center.gap-1.5.whitespace-nowrap.lg:p-2.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:min-w-0.max-lg:text-subhead.max-lg:text-muted
+    = row.link css_class: 'max-lg:truncate' do
+      time datetime=payment.date.iso8601
+        = l payment.date
+      span.lg:hidden
+        = " · #{category_name}"
+        - if car_column?
+          = " · #{payment.car.display_name}"
+    span.max-lg:hidden = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_year(payment.date), label: t('.filter_by_year'))
+  - if car_column?
+    .inline-flex.items-center.gap-1.5.whitespace-nowrap.p-2.max-lg:hidden
+      = payment.car.display_name
+      = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_car(payment.car), label: t('.filter_by_car'))
+  .inline-flex.items-center.gap-1.5.whitespace-nowrap.p-2.max-lg:hidden
+    = render Car::PaymentCategoryPill::Component.new(category: payment.category)
+    = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_category(payment.category), label: t('.filter_by_category'))
+  .truncate.lg:p-2.lg:text-sm.lg:text-gray-500.max-lg:col-start-1.max-lg:row-start-1.max-lg:text-headline.max-lg:text-gray-800.dark:max-lg:text-slate-300
+    = payment.note || category_name
+  .tabular-nums.text-right.whitespace-nowrap.lg:p-2.max-lg:col-start-2.max-lg:row-span-2.max-lg:row-start-1 class=amount_color
+    = amount

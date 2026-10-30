@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_16_062620) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_18_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,6 +19,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_16_062620) do
   create_enum "aggregation_enum", ["sum", "max", "min", "avg", "last"]
   create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "battery_discharging_power_grid", "car_battery_soc_1", "car_battery_soc_2", "car_battery_soc_3", "car_battery_soc_4", "car_battery_soc_5", "car_odometer_1", "car_odometer_2", "car_odometer_3", "car_odometer_4", "car_odometer_5", "car_max_range_1", "car_max_range_2", "car_max_range_3", "car_max_range_4", "car_max_range_5", "car_range_1", "car_range_2", "car_range_3", "car_range_4", "car_range_5"]
 
+  create_table "car_payments", force: :cascade do |t|
+    t.integer "car_id", null: false
+    t.string "category", null: false
+    t.date "date", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["car_id"], name: "index_car_payments_on_car_id"
+    t.check_constraint "amount <> 0::numeric", name: "car_payments_amount"
+  end
+
   create_table "cars", id: :integer, default: nil, force: :cascade do |t|
     t.string "name"
     t.string "short_name", null: false
@@ -26,10 +38,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_16_062620) do
     t.date "active_until"
     t.string "color"
     t.decimal "battery_kwh", precision: 5, scale: 1
+    t.string "fuel_type"
+    t.decimal "fuel_consumption", precision: 4, scale: 1
+    t.decimal "combustion_tax", precision: 8, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.check_constraint "active_until IS NULL OR active_until >= active_from", name: "cars_period_order"
     t.check_constraint "battery_kwh IS NULL OR battery_kwh > 0::numeric", name: "cars_battery_kwh"
+    t.check_constraint "combustion_tax IS NULL OR combustion_tax >= 0::numeric", name: "cars_combustion_tax"
+    t.check_constraint "fuel_consumption IS NULL OR fuel_consumption > 0::numeric", name: "cars_fuel_consumption"
   end
 
   create_table "cash_flows", force: :cascade do |t|
@@ -150,6 +167,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_16_062620) do
     t.index ["field", "aggregation", "date"], name: "index_summary_values_on_field_and_aggregation_and_date"
   end
 
+  add_foreign_key "car_payments", "cars"
   add_foreign_key "charging_sessions", "cars", name: "charging_sessions_car_id_fkey"
   add_foreign_key "place_visits", "cars"
   add_foreign_key "place_visits", "places", on_delete: :cascade

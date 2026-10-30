@@ -5,6 +5,9 @@
 describe 'Page More' do
   let(:html) { response.parsed_body }
 
+  # The comparison needs the fuel prices, which the test InfluxDB lacks
+  before { allow(Car::Comparison).to receive(:available?).and_return(true) }
+
   def more_tab
     html.at_css('nav[aria-label="Main navigation"] a[href="/more"]')
   end
@@ -23,6 +26,10 @@ describe 'Page More' do
 
   def title_bar
     html.at_css('.ui-title-bar')
+  end
+
+  def car_comparison_link
+    html.at_css('main a[href^="/cars/savings"]')
   end
 
   describe 'the list' do
@@ -46,12 +53,20 @@ describe 'Page More' do
       expect(group_links('Other views').values.pluck('data-nav-title')).to all(be_nil)
     end
 
-    # The car page opens the charging sessions in a sheet (see SheetPage)
-    it 'has no charging sessions' do
+    # The car page opens the charging sessions in a sheet (see SheetPage).
+    # The comparison has a group of its own, after the views.
+    it 'lists the comparison, but no charging sessions' do
       aggregate_failures do
-        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq([nil, 'Other views', 'Appearance', 'System', 'SOLECTRUS', nil])
+        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq([nil, 'Other views', nil, 'Appearance', 'System', 'SOLECTRUS', nil])
+        expect(html.css('main section')[2].css('a').map { it.text.strip }).to eq(['EV vs. combustion car'])
+        expect(car_comparison_link['href']).to eq('/cars/savings')
         expect(html.at_css('main a[href*="/charging_sessions"]')).to be_nil
       end
+    end
+
+    # The comparison is open to everyone, so it slides for a visitor too
+    it 'slides into the comparison' do
+      expect(car_comparison_link['data-nav-title']).to eq('EV vs. combustion car')
     end
 
     it 'offers the language, the theme and the colors' do
@@ -70,10 +85,40 @@ describe 'Page More' do
       expect(form['data-turbo']).to be_nil
     end
 
-    it 'offers a guest the login, not in red' do
+    it 'offers a visitor the login, not in red' do
       link = html.at_css('main a[href="/login"]')
 
       expect(link.at_css('.text-signal-negative')).to be_nil
+    end
+  end
+
+  context 'without a car' do
+    before do
+      Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_CAR_BATTERY_SOC'))
+      get '/more'
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    it 'has no comparison and no empty group' do
+      aggregate_failures do
+        expect(car_comparison_link).to be_nil
+        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq([nil, 'Other views', 'Appearance', 'System', 'SOLECTRUS', nil])
+      end
+    end
+  end
+
+  context 'without fuel prices' do
+    before do
+      allow(Car::Comparison).to receive(:available?).and_return(false)
+      get '/more'
+    end
+
+    it 'has no comparison and no empty group' do
+      aggregate_failures do
+        expect(car_comparison_link).to be_nil
+        expect(html.css('main section').map { it.at_css('h2')&.text }).to eq([nil, 'Other views', 'Appearance', 'System', 'SOLECTRUS', nil])
+      end
     end
   end
 
@@ -230,6 +275,32 @@ describe 'Page More' do
 
       aggregate_failures do
         expect(back['href']).to eq('/cars/2026-06')
+        expect(back['data-nav-logo']).to be_blank
+        expect(more_tab['aria-current']).to be_nil
+        expect(tab('Electric vehicle')['aria-current']).to eq('page')
+      end
+    end
+  end
+
+  describe 'the comparison' do
+    before { allow(Car::Report).to receive(:pending_days).and_return([]) }
+
+    def visit(path)
+      get path
+      follow_redirect! while response.redirect?
+    end
+
+    def back
+      title_bar.at_css('a.ui-title-bar-back')
+    end
+
+    # Also from the page More, the way back leads to the car page, which has
+    # no title bar, so it does not slide
+    it 'is a page below the car page' do
+      visit '/cars/savings/2025'
+
+      aggregate_failures do
+        expect(back['href']).to eq('/cars/2025')
         expect(back['data-nav-logo']).to be_blank
         expect(more_tab['aria-current']).to be_nil
         expect(tab('Electric vehicle')['aria-current']).to eq('page')

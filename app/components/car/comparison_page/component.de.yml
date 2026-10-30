@@ -1,0 +1,29 @@
+de:
+  combustion: Verbrenner
+  none_title: Kein Verbrenner hinterlegt
+  none: Der Vergleich braucht den Kraftstoff und den Verbrauch eines Verbrenners aus den Einstellungen des Autos.
+  none_all: Der Vergleich aller Autos braucht den Kraftstoff und den Verbrauch eines Verbrenners in den Einstellungen jedes Autos.
+  to_settings: Zu den Einstellungen
+  no_prices_title: Noch keine Kraftstoffpreise
+  no_prices: Der Vergleich braucht die wöchentlichen Kraftstoffpreise. Daran wird noch gearbeitet. Ein späteres Update liefert sie, auch für die vergangenen Jahre.
+  no_distance_title: Keine Strecke zum Vergleichen
+  no_distance: Im Zeitraum gibt es keine Strecke mit Ladedaten und Kraftstoffpreis.
+  figures:
+    savings: Ersparnis
+    savings_without_pv: Ohne PV wären es
+    savings_per_100km: Pro 100 km
+  details:
+    show: Rechenweg anzeigen
+    hide: Rechenweg ausblenden
+  columns:
+    car: E-Auto (mit PV-Anlage)
+    without_pv: E-Auto (ohne PV-Anlage)
+  notes:
+    savings: Der Unterschied der laufenden Kosten von E-Auto und einem fiktiven Verbrenner.
+    data: |-
+      Berücksichtigte Daten:
+      - Fahrleistung des Autos
+      - Ladungen mit ihren Kosten
+      - Historische Kraftstoffpreise
+      - Kosten wie Versicherung oder Wartung
+      - Erlöse wie die THG-Quote

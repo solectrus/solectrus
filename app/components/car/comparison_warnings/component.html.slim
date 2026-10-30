@@ -1,0 +1,11 @@
+/ One box for all gaps, each with its icon, its text and its link at the
+  right. The page has no card on the desktop, so the box has a border of its
+  own.
+section.rounded-2xl.border.border-signal-warning/40.bg-signal-warning/10.px-4.py-3.md:px-5 role='status'
+  ul.space-y-2
+    - warnings.each do |warning|
+      li.flex.items-start.gap-3.text-sm.md:text-base
+        = icon 'triangle-exclamation', class: 'mt-1 shrink-0 text-signal-warning'
+        span.flex-1 = warning.text
+        - if warning.href
+          = link_to warning.link, warning.href, class: 'shrink-0 font-medium text-indigo-600 dark:text-indigo-400 hover:underline underline-offset-4 focus-ring rounded'

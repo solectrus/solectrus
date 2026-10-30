@@ -42,6 +42,14 @@ describe Car::Ledger do
     expect(ledger.unassigned_sessions(january).kwh).to eq(7.0)
   end
 
+  # The seed holds 0.2545 EUR/kWh since the installation
+  it 'gives the grid all the energy of the wallbox without PV' do
+    without_pv = ledger.without_pv
+
+    expect(without_pv.daily_sessions(car, Date.new(2026, 1, 10)).cost).to be_within(0.001).of(11 * 0.2545)
+    expect(without_pv.daily_sessions(car, Date.new(2026, 1, 14)).cost).to eq(4)
+  end
+
   it 'reads the distance of each day' do
     expect(ledger.distance(january)).to eq(42)
     expect(ledger.daily_distance(car, Date.new(2026, 1, 11))).to eq(0)

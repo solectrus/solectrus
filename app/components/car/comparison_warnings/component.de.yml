@@ -1,0 +1,12 @@
+de:
+  proposals:
+    one: Eine Ladung auswärts ist noch unbestätigt. Bis dahin fehlen ihre Kosten.
+    other: '%{count} Ladungen auswärts sind noch unbestätigt. Bis dahin fehlen ihre Kosten.'
+  unrated: 'Für %{distance} fehlen Ladedaten oder ein Kraftstoffpreis. Der Vergleich lässt diese Strecke auf allen Seiten weg.'
+  splitter: Ohne Power-Splitter ist unbekannt, wie viel PV-Strom das Auto lädt. Deshalb kostet aller Strom der Wallbox den Strompreis, und die Ersparnis durch die PV-Anlage fehlt.
+  payments: Es sind keine Zahlungen erfasst, etwa Versicherung, Wartung oder THG-Quote. Die laufenden Kosten enthalten nur Energie und Kfz-Steuer.
+  tax: Für den Verbrenner ist keine Kfz-Steuer hinterlegt. Ohne sie fehlt ein Kostenvorteil des E-Autos.
+  links:
+    proposals: Prüfen
+    payments: Zahlungen erfassen
+    tax: Einstellungen

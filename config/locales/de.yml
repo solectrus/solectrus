@@ -29,6 +29,7 @@ de:
     heatpump: Wärmepumpe
     car: E-Auto
     charging_sessions: Ladevorgänge für E-Auto
+    car_comparison: E-Auto vs. Verbrenner
     amortization: Amortisation
     essentials: Einzelwerte
     forecast: Prognose
@@ -194,6 +195,15 @@ de:
     total: Stromverbrauch
     costs_note:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
+  car_comparison:
+    # The tab of the page beside the charging sessions and the places. The
+    # title bar has the name of the menu (layout.car_comparison).
+    tab: Ersparnis
+    nav: Vergleich
+    fuel_prices: Kraftstoffpreise
+    fuel_prices_of:
+      petrol: Benzinpreise
+      diesel: Dieselpreise
   visits:
     name: Besuche
     count:
@@ -503,6 +513,16 @@ de:
       active_from_hint: Der erste Tag mit diesem Auto.
       active_until_hint: Leer lassen, wenn das Auto in Gebrauch ist.
       battery_kwh_hint: Die nutzbare Kapazität. Sie schätzt die Energie einer unbestätigten Auswärtsladung und ergibt den Ladeverlust.
+      combustion: Fiktiver Verbrenner, den das E-Auto ersetzt
+      fuel_type_none: Kein Vergleich
+    car_payments:
+      name: Zahlungen
+      new: Neue Zahlung
+      edit: Zahlung bearbeiten
+      footer: Der Vergleich mit einem Verbrenner zählt die laufenden Kosten. Die THG-Quote, die Kfz-Steuer und die Ladetarife gelten nur für das E-Auto. Versicherung, Wartung und die übrigen laufenden Kosten zählen für den Verbrenner in gleicher Höhe, sie ändern die Ersparnis also nicht. Kauf, Finanzierung, Förderung und Verkauf zählen nicht.
+      expenses: Ausgaben
+      incomes: Einnahmen
+      amount_hint: Eine Erstattung, etwa der Versicherung, als negativen Betrag in ihrer Kategorie eintragen.
     places:
       name: Orte
       edit: Ort bearbeiten
@@ -603,6 +623,32 @@ de:
         active_until: In Gebrauch bis
         color: Farbe
         battery_kwh: Akkukapazität
+        fuel_type: Kraftstoff
+        fuel_types:
+          petrol: Benzin
+          diesel: Diesel
+        fuel_consumption: Verbrauch
+        combustion_tax: Kfz-Steuer pro Jahr
+      car/payment:
+        car: Auto
+        car_id: Auto
+        category: Kategorie
+        categories:
+          purchase: Kauf
+          leasing_down_payment: Sonderzahlung
+          leasing_rate: Leasingrate
+          loan_rate: Kreditrate
+          vehicle_tax: Kfz-Steuer
+          insurance: Versicherung
+          maintenance: Wartung
+          charging_fees: Ladetarife
+          other_expense: Sonstiges
+          subsidy: Förderung
+          ghg_quota: THG-Quote
+          sale: Verkauf
+        date: Datum
+        amount: Betrag
+        note: Notiz
       place:
         name: Name
         town: Ort laut OpenStreetMap
@@ -669,6 +715,13 @@ de:
           offsite_sessions_outside:
             one: Der Zeitraum lässt 1 Auswärtsladung des Autos aus.
             other: Der Zeitraum lässt %{count} Auswärtsladungen des Autos aus.
+          payments_outside:
+            one: Der Zeitraum lässt 1 Zahlung des Autos aus.
+            other: Der Zeitraum lässt %{count} Zahlungen des Autos aus.
+        car/payment:
+          attributes:
+            date:
+              inactive: liegt nicht in der Nutzungszeit des Autos
         charging_session:
           attributes:
             guest:

@@ -219,9 +219,13 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     # the car and the kind of the current page.
     #
     # The page More does not list the charging sessions: a phone opens them
-    # from the car page. A guest sees the list without the open tasks and the
+    # from the car page. A visitor sees the list without the open tasks and the
     # forms. The link starts in the timeframe of the views, or in the whole
     # time from the live view.
+    #
+    # The page More lists the comparison, which slides in with its title bar.
+    # Like the car page, it is open to everyone, so it slides for a visitor too.
+    # Without fuel prices, there is no comparison (see Car::Comparison.available?).
     def car_pages
       return [] unless Sensor::HomePage.open?(:cars)
 
@@ -237,7 +241,18 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
             current: helpers.controller.is_a?(Cars::ChargingSessionsController),
           },
         },
-      ]
+        (if Car::Comparison.available?
+           {
+             item: {
+               name: t('layout.car_comparison'),
+               icon: 'scale-unbalanced',
+               href: cars_savings_path(car: nil, timeframe: nil),
+               current: helpers.controller.is_a?(Cars::SavingsController),
+             },
+             more: { slide: true },
+           }
+         end),
+      ].compact
     end
 
     def amortization_item
@@ -387,7 +402,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
     end
 
     # Without HELIOS, the item leads the admin to its installation (see
-    # HeliosController). A guest cannot install it.
+    # HeliosController). A visitor cannot install it.
     def helios_item
       return unless HeliosCheck.available? || admin?
 
@@ -445,7 +460,7 @@ module MainNavigation # rubocop:disable Metrics/ModuleLength
 
     # True when `admin_required!` ran for this action. Asking the callback
     # itself keeps its `only:` and `except:` conditions in the answer - a page
-    # a controller opens to guests is not an admin-only page.
+    # a controller opens to visitors is not an admin-only page.
     def admin_only_page?
       @admin_only_page.present?
     end

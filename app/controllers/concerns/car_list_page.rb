@@ -2,7 +2,8 @@
 # Only the admin sees it (see Cars::PageGate), unless the list allows a visitor, and
 # it has a timeframe that defaults to the whole time. The lists of the
 # charging sessions and of the places stand side by side as pills in the
-# header of the desktop (see #list_tabs).
+# header of the desktop, with the savings against a combustion car (see
+# #list_tabs).
 module CarListPage
   extend ActiveSupport::Concern
   include Cars::PageGate
@@ -36,15 +37,21 @@ module CarListPage
     @timeframe = Timeframe.new('all')
   end
 
-  # The lists of the charging sessions and of the places, in the timeframe
-  # and with the car of this list. Only a car with a location has places,
-  # whose address has no timeframe for the whole time. The controller names
-  # its own list with #list_tab.
+  # The lists of the charging sessions and of the places, and the savings
+  # against a combustion car, in the timeframe and with the car of this
+  # page. Only a car with a location has places. The places and the savings
+  # have no timeframe in the address for the whole time, and the savings
+  # take a shorter timeframe as its year (see Car::Comparison.timeframe).
+  # Without fuel prices, there are no savings (see
+  # Car::Comparison.available?).
+  # The controller names its own tab with #list_tab.
   def list_tabs
     car = car_selection.car&.id
+    savings_timeframe = Car::Comparison.timeframe(timeframe)
     [
       { name: t('charging_sessions.title'), href: cars_charging_sessions_path(timeframe: timeframe.to_param, car: car_selection.to_param), current: list_tab == :charging_sessions },
       ({ name: t('car_breakdown.places'), href: cars_visited_places_path(timeframe: (timeframe.to_param unless timeframe.all?), car:), current: list_tab == :places } if Car.configured.any?(&:located?)),
+      ({ name: t('car_comparison.tab'), href: cars_savings_path(timeframe: (savings_timeframe.to_param unless savings_timeframe.all?), car:), current: list_tab == :savings } if Car::Comparison.available?),
     ].compact
   end
 

@@ -27,6 +27,7 @@ describe Car::Driving do
       kwh:,
       kwh_grid: kwh,
       cost: (kwh * 0.30 if cost),
+      cost_grid: (kwh * 0.30 if cost),
       **attributes,
     )
   end
@@ -117,6 +118,20 @@ describe Car::Driving do
       expect(january.cost_per_100km).to be_within(0.001).of(11.0)
     end
 
+    # Beside the 30 kWh of the grid for 9 EUR: 20 kWh of PV for 6 EUR and
+    # 15 kWh offsite for 7.50 EUR. The sources add up to the day.
+    it 'splits a day by the sources of the charged energy' do
+      charge(Date.new(2026, 1, 11), 20_000, hour: 18, kwh_grid: 0, cost_grid: 0)
+      ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: Date.new(2026, 1, 11).in_time_zone.change(hour: 12), kwh: 15, cost: 7.5)
+
+      sources = driving.sources(car, Date.new(2026, 1, 12)).to_h
+      day = driving.days(car, Date.new(2026, 1, 12)..Date.new(2026, 1, 12)).sole.last
+
+      expect(sources.transform_values { [it.energy_wh.round, it.cost.round(2)] }).to eq(pv: [20_000, 6.0], grid: [30_000, 9.0], offsite: [15_000, 7.5])
+      expect(sources.values.sum(&:energy_wh)).to be_within(0.001).of(day.energy_wh)
+      expect(sources.values.sum(&:cost)).to be_within(0.001).of(day.cost)
+    end
+
     it 'counts no guest session, no session without a car and no session of another car' do
       charge(Date.new(2026, 1, 11), 5_000, car_record: nil, guest: true, hour: 18)
       charge(Date.new(2026, 1, 11), 6_000, car_record: nil, hour: 19)
@@ -204,6 +219,13 @@ describe Car::Driving do
         expect(january.energy_wh).to be_within(0.001).of(25_000)
         expect(january.cost).to be_within(0.001).of(7.5)
         expect(driving.totals(Date.new(2026, 1, 12)..Date.new(2026, 1, 12)).energy_wh).to be_within(0.001).of(25_000)
+      end
+
+      it 'scales the sources of a day like the day' do
+        sources = driving.sources(car, Date.new(2026, 1, 12)).to_h
+
+        expect(sources.values.sum(&:energy_wh)).to be_within(0.001).of(25_000)
+        expect(sources.values.sum(&:cost)).to be_within(0.001).of(7.5)
       end
 
       # January then joins the months of its year without the state of

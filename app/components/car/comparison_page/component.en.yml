@@ -1,0 +1,29 @@
+en:
+  combustion: combustion car
+  none_title: No combustion car set
+  none: The comparison needs the fuel and the consumption of a combustion car from the settings of the car.
+  none_all: The comparison of all cars needs the fuel and the consumption of a combustion car in the settings of each car.
+  to_settings: Go to the settings
+  no_prices_title: No fuel prices yet
+  no_prices: The comparison needs the weekly fuel prices. This is still in progress. A later update brings them, also for the past years.
+  no_distance_title: No distance to compare
+  no_distance: The timeframe has no distance with charging data and a fuel price.
+  figures:
+    savings: Savings
+    savings_without_pv: Without PV, it would be
+    savings_per_100km: Per 100 km
+  details:
+    show: Show the calculation
+    hide: Hide the calculation
+  columns:
+    car: EV (with PV system)
+    without_pv: EV (without PV system)
+  notes:
+    savings: The difference of the running costs of the EV and a fictional combustion car.
+    data: |-
+      Data included:
+      - Distance driven by the car
+      - Charging sessions with their cost
+      - Historical fuel prices
+      - Costs such as the insurance or the maintenance
+      - Income such as the GHG quota

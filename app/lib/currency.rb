@@ -16,6 +16,8 @@ module Currency
     Rails.configuration.x.currency
   end
 
+  def self.eur? = code == 'EUR'
+
   def self.symbol(currency_code = code)
     SYMBOLS.fetch(currency_code, currency_code)
   end

@@ -5,7 +5,11 @@
   = tag.turbo_frame id: 'list', target: '_top' do
     = render Car::List::Component.new(cars: @cars)
 
-  / The places are a group below the cars on a phone, a tab on the desktop
-  - if car_nav_items.many?
+  / The payments and the places are a group below the cars on a phone, tabs
+    on the desktop
+  ruby:
+    icons = { settings_car_payments_path => 'hand-holding-dollar', settings_places_path => 'location-dot' }
+    pages = car_nav_items.drop(1).map { it.merge(icon: icons[it[:href]]) }
+  - if pages.any?
     .mt-8.lg:hidden
-      = render Ui::NavList::Component.new(items: [{ name: t('settings.places.name'), href: settings_places_path, icon: 'location-dot' }], label: t('settings.places.name'))
+      = render Ui::NavList::Component.new(items: pages, label: t('settings.cars.name'))

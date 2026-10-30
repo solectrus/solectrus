@@ -2,15 +2,18 @@
 #
 # Table name: cars
 #
-#  id           :integer          not null, primary key
-#  active_from  :date             not null
-#  active_until :date
-#  battery_kwh  :decimal(5, 1)
-#  color        :string
-#  name         :string
-#  short_name   :string           not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id               :integer          not null, primary key
+#  active_from      :date             not null
+#  active_until     :date
+#  battery_kwh      :decimal(5, 1)
+#  color            :string
+#  combustion_tax   :decimal(8, 2)
+#  fuel_consumption :decimal(4, 1)
+#  fuel_type        :string
+#  name             :string
+#  short_name       :string           not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #
 describe Car do
   describe 'validations' do
@@ -71,6 +74,17 @@ describe Car do
       ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: Time.zone.local(2026, 4, 1, 0, 30), kwh: 10, cost: 5)
 
       expect(car.update(active_from: Date.new(2026, 4, 1))).to be(true)
+    end
+
+    # The purchase comes before the car, so it can lie outside
+    it 'refuses a period that leaves a payment outside, but not its purchase' do
+      car = described_class.create!(id: 1)
+      car.payments.create!(category: :purchase, date: Date.new(2026, 3, 1), amount: 30_000)
+      car.payments.create!(category: :insurance, date: Date.new(2026, 5, 1), amount: 500)
+
+      expect(car.update(active_from: Date.new(2026, 4, 1))).to be(true)
+      expect(car.update(active_until: Date.new(2026, 4, 30))).to be(false)
+      expect(car.errors[:base]).to eq(['The period leaves out 1 payment of the car.'])
     end
 
     it 'refuses a period without a first day' do

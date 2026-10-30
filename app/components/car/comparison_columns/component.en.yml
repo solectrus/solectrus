@@ -1,0 +1,32 @@
+en:
+  liters: liters
+  steps:
+    distance: Distance
+    energy_cost: Electricity cost
+    payments: Other costs
+    payments_less_ghg_quota: Other costs less GHG quota
+    total: Running costs
+    per_100km: Per 100 km
+    consumption: Consumption per 100 km
+    fuel: Fuel
+    energy: Energy
+    pv: PV energy
+    grid: Grid energy
+    offsite: Charged offsite
+    fuel_price: Price per liter
+    fuel_cost: Fuel cost
+    tax: Vehicle tax
+  notes:
+    car_intro: The real cost of the EV.
+    without_pv_intro: 'Fictional: the same EV without the PV system.'
+    combustion_intro: 'Fictional: a combustion car with the consumption and the vehicle tax from the settings of the car.'
+    car: Grid energy costs the electricity price, PV energy the lost feed-in tariff, an offsite charge its paid price.
+    without_pv: All energy of the wallbox costs the electricity price of the day, an offsite charge stays the same.
+    fuel: The fuel costs the current price on the day of the drive.
+    tax: The vehicle tax of %{yearly} per year counts for each day.
+    shared: Insurance, maintenance and more count as for the EV and do not change the savings. Charging tariffs and the GHG quota belong to the EV alone.
+    maintenance: A combustion car usually needs more maintenance. So the savings are rather too low.
+  parts:
+    shared: Insurance, maintenance and more
+    tax: Vehicle tax
+    tax_yearly: Vehicle tax (%{yearly} per year)

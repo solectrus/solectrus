@@ -1,0 +1,5 @@
+- if payments.any?
+  = render Ui::AmountTable::Component.new(headers:, grid_columns:, total:, unit: Currency.symbol) do
+    = render Car::PaymentList::Rows::Component.new(payments:, pagy:, car_column: car_column?, filter:)
+- else
+  = render empty_state

@@ -66,13 +66,6 @@ None of these changes the design above.
   that grows to a minimum distance, for example 1,000 km, gives a steadier rate but a
   smaller seasonal difference. Do this when users report rates that jump from day to day.
   Open: the minimum distance, and how the window grows near today.
-- The savings against a combustion car
-  ([#2407](https://github.com/solectrus/solectrus/issues/2407)), as a topic of its own.
-  The fuel prices come from the `oil_bulletin` provider of `public-data-collector`, which
-  writes `Fuel:price_petrol` and `Fuel:price_diesel` (EUR/l, weekly) to InfluxDB. The
-  comparison also needs the fuel type and the consumption (l/100 km) of the combustion car
-  as a configuration. Neither the car nor these savings count in the amortization
-  ([discussion #5796](https://github.com/orgs/solectrus/discussions/5796)).
 - The removal of `car_battery_soc` from the database. The migration
   [add_car_support](../db/migrate/20260927102209_add_car_support.rb) keeps the value in
   `field_enum`, so an older version still runs on the database. A build of a day writes

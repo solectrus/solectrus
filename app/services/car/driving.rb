@@ -31,7 +31,10 @@
 # the days still add up to them. Without the state of charge, the past
 # months of a year scale together to their charged energy and their
 # charging cost (see #year_factors).
-class Car::Driving
+#
+# On Car::Ledger#without_pv, the cost is the cost without the PV system. The
+# comparison with a combustion car shows it (see Car::Comparison).
+class Car::Driving # rubocop:disable Metrics/ClassLength
   # Long enough that the change of the battery content is a small error,
   # short enough to keep the season and to fix a recent rate soon
   MARGIN_DAYS = 14
@@ -75,32 +78,95 @@ class Car::Driving
   # The driving of the given cars of the ledger on the given dates. A car
   # drives only on the dates inside its bounds.
   def totals(dates, cars: ledger.cars)
-    Totals.sum(
-      cars.flat_map do |car|
-        from = [dates.begin, bounds(car).begin].max
-        to = [dates.end, bounds(car).end].min
-        from > to ? [] : (from..to).filter_map { day(car, it) }
-      end,
-    )
+    Totals.sum(cars.flat_map { |car| in_bounds(car, dates)&.filter_map { day(car, it) } || [] })
+  end
+
+  # [[date, Totals], ...] of a car: each of the given dates inside its bounds
+  # with a distance and a rate
+  def days(car, dates)
+    in_bounds(car, dates)&.filter_map { |date| day(car, date)&.then { [date, it] } } || []
+  end
+
+  # The distance (km) of a car on the given dates inside its bounds, also on
+  # the days without a rate
+  def distance(car, dates) = in_bounds(car, dates)&.then { sum(car, it, :distance) } || 0.0
+
+  # The given dates inside the bounds of a car, nil without one
+  def in_bounds(car, dates)
+    from = [dates.begin, bounds(car).begin].max
+    to = [dates.end, bounds(car).end].min
+    from..to if from <= to
+  end
+
+  # The given dates inside the period of use of a car, from the first date
+  # of the installation to today, nil without one. Unlike #in_bounds, they
+  # do not wait for the first distance, so they fit a cost that is due for
+  # the time, like a tax.
+  def in_use(car, dates)
+    from = [dates.begin, min_date, car.active_from].compact.max
+    to = [dates.end, Date.current, car.active_until].compact.min
+    from..to if from <= to
   end
 
   # The rates of a car per km at the window of a date: the energy (Wh), and
   # the cost, nil without a cost rate. Nil without an energy rate, also in
-  # the widest window.
-  Rate = Data.define(:energy_wh, :cost)
+  # the widest window. The window and the factor per km that turns its sums
+  # into the rates give the sources of a day (see #sources).
+  Rate = Data.define(:energy_wh, :cost, :window, :per_km)
   public_constant :Rate
 
   def rate(car, date)
-    MARGIN_DAYS.step(MAX_MARGIN_DAYS, MARGIN_DAYS) do |margin|
-      rate = rate_of(car, window(car, date, margin))
-      return rate if rate
+    memo(:rate, car.id, date) do
+      MARGIN_DAYS.step(MAX_MARGIN_DAYS, MARGIN_DAYS).lazy.filter_map { rate_of(car, window(car, date, it)) }.first
     end
-    nil
+  end
+
+  # The Car::EnergySources of a car on a date (see Car::Ledger#daily_sources),
+  # nil without a cost rate: the sums of each source in the window at the
+  # rate of the day, scaled like the day (see #day). So the sources add up
+  # to the energy and the cost of the day. Each day is computed once.
+  def sources(car, date)
+    memo(:sources, car.id, date) do
+      rate = rate(car, date)
+      next unless rate&.cost
+
+      share = ledger.daily_distance(car, date) * rate.per_km
+      energy, cost = month_factors(car, date.beginning_of_month)
+      sources = Car::EnergySources.members.index_with do |source|
+        Car::EnergySources::Source.new(
+          energy_wh: sum(car, rate.window, [source, :kwh]) * 1000.0 * share * energy,
+          cost: sum(car, rate.window, [source, :cost]) * share * cost,
+        )
+      end
+      Car::EnergySources.new(**sources)
+    end
   end
 
   private
 
   attr_reader :ledger, :min_date
+
+  # [energy, cost]: the factors that scale the days of a calendar month. A
+  # past month inside the bounds of the car scales to its balance with the
+  # state of charge at both ends (see #balance_factors), and without it
+  # together with the other such months of its year (see #year_factors).
+  # Otherwise both factors are 1.
+  def month_factors(car, month)
+    memo(:month_factors, car.id, month) do
+      dates = month.all_month
+      next NO_FACTORS unless anchored?(car, dates)
+
+      ends = battery_ends(car, dates)
+      ends ? balance_factors(car, dates, ends) : year_factors(car, month.year)[month]
+    end
+  end
+
+  # The sum of a daily value of a car over a range of the ledger (see
+  # Car::Driving::Sums)
+  def sum(car, range, key)
+    sums = (@sums ||= {})[car.id] ||= Sums.new(ledger, car)
+    sums.call(key, range)
+  end
 
   # The rates of a window, nil without enough distance or charged energy
   def rate_of(car, window)
@@ -108,8 +174,9 @@ class Car::Driving
     charged_wh = sum(car, window, :energy_wh)
     return if window_distance < MIN_DISTANCE || !charged_wh.positive?
 
-    share = driven_share(car, window, charged_wh) / window_distance
-    Rate.new(energy_wh: charged_wh * share, cost: (sum(car, window, :cost) * share if costed?(car, window)))
+    per_km = driven_share(car, window, charged_wh) / window_distance
+    cost = (sum(car, window, :cost) * per_km if costed?(car, window))
+    Rate.new(energy_wh: charged_wh * per_km, cost:, window:, per_km:)
   end
 
   # The driving of a car on a date, scaled to the balance of its month
@@ -147,21 +214,6 @@ class Car::Driving
 
     driven_wh = charged_wh - ((soc_end - soc_start) * wh_per_percent)
     driven_wh.positive? ? driven_wh / charged_wh : 1.0
-  end
-
-  # [energy, cost]: the factors that scale the days of a calendar month. A
-  # past month inside the bounds of the car scales to its balance with the
-  # state of charge at both ends (see #balance_factors), and without it
-  # together with the other such months of its year (see #year_factors).
-  # Otherwise both factors are 1.
-  def month_factors(car, month)
-    memo(:month_factors, car.id, month) do
-      dates = month.all_month
-      next NO_FACTORS unless anchored?(car, dates)
-
-      ends = battery_ends(car, dates)
-      ends ? balance_factors(car, dates, ends) : year_factors(car, month.year)[month]
-    end
   end
 
   # Whether a calendar month is past and inside the bounds of the car, with
@@ -258,19 +310,14 @@ class Car::Driving
   # Whether each session of a car on the dates has a cost
   def costed?(car, dates) = sum(car, dates, :uncosted).zero?
 
-  # The sum of a daily value of a car over a range of the ledger (see
-  # Car::Driving::Sums)
-  def sum(car, range, key)
-    sums = (@sums ||= {})[car.id] ||= Sums.new(ledger, car)
-    sums.call(key, range)
-  end
-
   # The days, the months and the years ask for the same values more than
-  # once, so each is computed once per key. A nil is kept, too.
-  def memo(*key)
-    @memo ||= {}
-    return @memo[key] if @memo.key?(key)
+  # once, so each is computed once per key. A nil is kept, too. The values
+  # nest by name and car, because a hash of an array key costs more, and
+  # each day asks for several values.
+  def memo(name, car_id, key)
+    values = ((@memo ||= {})[name] ||= {})[car_id] ||= {}
+    return values[key] if values.key?(key)
 
-    @memo[key] = yield
+    values[key] = yield
   end
 end

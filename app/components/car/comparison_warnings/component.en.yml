@@ -1,0 +1,12 @@
+en:
+  proposals:
+    one: One offsite charging session is not confirmed yet. Until then, its cost is missing.
+    other: '%{count} offsite charging sessions are not confirmed yet. Until then, their cost is missing.'
+  unrated: '%{distance} lack charging data or a fuel price. The comparison leaves this distance out on all sides.'
+  splitter: Without the power splitter, the share of PV energy in the charging is unknown. So all energy of the wallbox costs the electricity price, and the savings of the PV system are missing.
+  payments: No payments are recorded, such as the insurance, the maintenance or the GHG quota. The running costs hold only the energy and the vehicle tax.
+  tax: The combustion car has no vehicle tax. Without it, the EV lacks one of its cost advantages.
+  links:
+    proposals: Review
+    payments: Add payments
+    tax: Settings

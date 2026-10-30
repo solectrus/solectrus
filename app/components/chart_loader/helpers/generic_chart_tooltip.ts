@@ -66,7 +66,7 @@ export default class GenericChartTooltip {
 
   render(context: TooltipContext) {
     const { chart, tooltip } = context;
-    const tooltipEl = this.getTooltipElement();
+    const tooltipEl = this.getTooltipElement(chart);
 
     if (!tooltip || tooltip.opacity === 0) {
       return hideTooltip(tooltipEl);
@@ -83,10 +83,14 @@ export default class GenericChartTooltip {
     this.positionTooltip(tooltipEl, chart, tooltip);
   }
 
-  private getTooltipElement(): HTMLDivElement {
+  private getTooltipElement(chart: Chart): HTMLDivElement {
     if (this.tooltip) return this.tooltip;
 
     this.tooltip = createTooltipElement();
+    // An open dialog lies in the top layer and covers the body, so a chart in
+    // a modal keeps its tooltip inside the dialog. The dialog fills the
+    // viewport without a transform, so the fixed position stays the same.
+    chart.canvas.closest('dialog')?.append(this.tooltip);
     return this.tooltip;
   }
 

@@ -46,7 +46,7 @@ A page has one of two grounds on a phone. A list or a form stands on the gray pa
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
 - `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view. It shows a spinner, and its text is for a screen reader alone.
-- `Ui::AmountTable`: A list of amounts with their total, like the cash flows. On the desktop it is a grid with a header that stays at the top. On a phone it is a grouped list, and the total stands in a group of its own. The block gives the rows.
+- `Ui::AmountTable`: A list of amounts with their total, like the payments. On the desktop it is a grid with a header that stays at the top. On a phone it is a grouped list, and the total stands in a group of its own. The block gives the rows.
 - `Ui::GroupHeader`: The header of a group of rows, with a `title:` and an optional `href:` to the list of the group alone. On a phone it cuts the card into a card per group. `Timeframe::RowGroups`, outside the namespace, puts the rows of a list in groups of a month, a week or a day and gives the title of each group.
 - `Ui::OptimisticNav`: The data of a navigation whose marking moves to the tapped item at once, like `Ui::Chips` and `Ui::SegmentedControl`. With `slide: true`, the marking slides there.
 - `Ui::InfoIcon`: An info icon with a tooltip, for a sentence that explains a value.
@@ -160,9 +160,9 @@ If the record does not save, `respond_with_errors(record)` answers. A Turbo Stre
 
 ## Lists with a filter
 
-A filter narrows a list, for example the cash flows, to some categories and a range of dates. Three parts make it:
+A filter narrows a list, for example the cash flows or the payments, to some categories and a range of dates. Three parts make it:
 
-1. `ListFilter`: A `Data` with the members `categories`, `from` and `to` includes this module. It reads the filter from the query of the list, applies it to a scope and gives the filter with another value, like `with_year(date)` or `without_category(category)`. A filter can add members of its own.
+1. `ListFilter`: A `Data` with the members `categories`, `from` and `to` includes this module. It reads the filter from the query of the list, applies it to a scope and gives the filter with another value, like `with_year(date)` or `without_category(category)`. A filter can add members of its own, like the car of `Car::PaymentFilter`.
 2. `FilteredList`: The controller includes this concern and names the filter with `filters_with CashFlow::Filter`. The concern gives `filter` and `filter_path(other)`, the address of the list with another filter. A form takes the filter of the list that opened it, and the session remembers the filter of the index.
 3. `Ui::FilterBar` shows each part of the filter as a pill. The small x of a pill removes this part alone, and a link clears the whole filter. The bar takes the component of a category pill, and a member of its own adds a pill with `with_pill`. In a row, `Ui::FilterLink` is a chevron beside a value that narrows the list to it. It does not show when it would not change the filter.
 

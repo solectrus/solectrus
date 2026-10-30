@@ -3,7 +3,8 @@
 # (INFLUX_SENSOR_CAR_ODOMETER_2). The environment stays the source of the
 # sensor configuration, because Helios writes it. The table holds what the
 # environment cannot: the name, the short name, the period of use, the
-# color and the usable capacity of the battery.
+# color, the usable capacity of the battery and the combustion car that the
+# car compares with (see Car::Comparison).
 #
 # The number of a car never changes, because the daily values store its
 # history under the sensor name with the number. SOLECTRUS never removes a
@@ -12,15 +13,18 @@
 #
 # Table name: cars
 #
-#  id           :integer          not null, primary key
-#  active_from  :date             not null
-#  active_until :date
-#  battery_kwh  :decimal(5, 1)
-#  color        :string
-#  name         :string
-#  short_name   :string           not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
+#  id               :integer          not null, primary key
+#  active_from      :date             not null
+#  active_until     :date
+#  battery_kwh      :decimal(5, 1)
+#  color            :string
+#  combustion_tax   :decimal(8, 2)
+#  fuel_consumption :decimal(4, 1)
+#  fuel_type        :string
+#  name             :string
+#  short_name       :string           not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #
 class Car < ApplicationRecord
   # The color of a car without a color of its own. It stands out on the
@@ -41,17 +45,28 @@ class Car < ApplicationRecord
 
   has_many :charging_sessions, dependent: :restrict_with_error
   has_many :place_visits, dependent: :delete_all
+  has_many :payments, class_name: 'Car::Payment', dependent: :delete_all, inverse_of: :car
+
+  # The fuel of the combustion car that the car compares with, nil without a
+  # comparison. Its prices come from InfluxDB (see Car::FuelPrices).
+  enum :fuel_type, { petrol: 'petrol', diesel: 'diesel' }, prefix: :fuel, validate: { allow_nil: true }
 
   normalizes :name, :short_name, with: -> { it.strip.presence }
   normalizes :color, with: -> { it.strip.downcase.presence }
+  # An empty fuel in the form is no comparison
+  normalizes :fuel_type, with: -> { it.presence }
 
   validates :id, inclusion: { in: Sensor::Cars.numbers }
   validates :short_name, presence: true, length: { maximum: SHORT_NAME_MAX }
   validates :active_from, presence: true
   validates :color, format: { with: COLOR_FORMAT }, allow_nil: true
   validates :battery_kwh, numericality: { greater_than: 0, less_than: 10_000 }, allow_nil: true
+  validates :fuel_consumption, numericality: { greater_than: 0, less_than: 1000 }, allow_nil: true
+  validates :fuel_consumption, presence: true, if: :fuel_type
+  validates :combustion_tax, numericality: { greater_than_or_equal_to: 0, less_than: 1_000_000 }, allow_nil: true
   validate :period_in_order
   validate :offsite_sessions_in_period, if: -> { will_save_change_to_active_from? || will_save_change_to_active_until? }
+  validate :payments_in_period, if: -> { will_save_change_to_active_from? || will_save_change_to_active_until? }
 
   # A new car takes its number as short name, until the user gives it one
   before_validation -> { self.short_name ||= id&.to_s }, on: :create
@@ -151,6 +166,9 @@ class Car < ApplicationRecord
 
   def located? = Sensor::Cars.located?(id)
 
+  # Whether the car compares with a combustion car
+  def combustion? = fuel_type.present? && fuel_consumption.present?
+
   def active_on?(date)
     active_during?(date..date)
   end
@@ -184,6 +202,17 @@ class Car < ApplicationRecord
     return if outside.zero?
 
     errors.add(:base, :offsite_sessions_outside, count: outside)
+  end
+
+  # A payment falls in the period of use (see Car::Payment), so the period
+  # must hold each payment of the car. Buying and selling can lie outside.
+  def payments_in_period
+    return if new_record?
+
+    outside = payments.where.not(category: Car::Payment::ONE_OFF).where.not(date: active_from..active_until).count
+    return if outside.zero?
+
+    errors.add(:base, :payments_outside, count: outside)
   end
 
   def clear_current

@@ -69,9 +69,32 @@ class Car::Ledger
     summaries.dig([car.id, :soc], date)
   end
 
+  # The Sums of a day without a session. A day asks for it often, so it is
+  # one object.
+  NO_SESSIONS = ChargingSession::Sums.empty
+  private_constant :NO_SESSIONS
+
   # The Sums of the sessions of a car on a day
   def daily_sessions(car, date)
-    by_car_and_date.fetch([car.id, date], ChargingSession::Sums.empty)
+    by_car_and_date.fetch([car.id, date], NO_SESSIONS)
+  end
+
+  # The Sums of the sessions of a car of one kind on a day
+  def daily_kind_sessions(car, date, kind)
+    by_car_date_and_kind.fetch([car.id, date, kind], NO_SESSIONS)
+  end
+
+  # { source => [kWh, cost] } of the sessions of a car on a day, by the
+  # sources of Car::EnergySources. They add up to the energy and the cost of
+  # #daily_sessions.
+  def daily_sources(car, date)
+    wallbox = daily_kind_sessions(car, date, 'wallbox')
+    offsite = daily_kind_sessions(car, date, 'offsite')
+    {
+      pv: [wallbox.kwh - wallbox.kwh_grid, wallbox.cost - wallbox.cost_grid],
+      grid: [wallbox.kwh_grid, wallbox.cost_grid],
+      offsite: [offsite.kwh, offsite.cost],
+    }
   end
 
   # The charged energy (kWh) of a percentage point of a car, nil without
@@ -79,6 +102,10 @@ class Car::Ledger
   def kwh_per_percent(car)
     (@kwh_per_percent ||= ChargingSession.kwh_per_percent(cars))[car.id]
   end
+
+  # The same ledger as if the grid gave all the energy of the wallbox (see
+  # Car::Ledger::WithoutPv)
+  def without_pv = @without_pv ||= Car::Ledger::WithoutPv.new(self)
 
   private
 
@@ -114,6 +141,11 @@ class Car::Ledger
   def by_car_and_date
     @by_car_and_date ||=
       rows.select(&:car_id).group_by { [it.car_id, it.date] }.transform_values { ChargingSession::Sums.sum(it.map(&:sums)) }
+  end
+
+  def by_car_date_and_kind
+    @by_car_date_and_kind ||=
+      rows.select(&:car_id).group_by { [it.car_id, it.date, it.kind] }.transform_values { ChargingSession::Sums.sum(it.map(&:sums)) }
   end
 
   # The daily values of a car on the given dates. A binary search finds the

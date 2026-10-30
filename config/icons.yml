@@ -77,6 +77,7 @@ solid:
   - rotate-left
   - route
   - sack-dollar
+  - scale-unbalanced
   - slash
   - sliders
   - solar-panel

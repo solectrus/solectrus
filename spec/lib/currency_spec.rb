@@ -7,6 +7,18 @@ describe Currency do
     it { is_expected.to eq('CHF') }
   end
 
+  describe '.eur?' do
+    it 'is true with the default currency' do
+      expect(described_class).to be_eur
+    end
+
+    context 'with another currency' do
+      before { allow(Rails.configuration.x).to receive(:currency).and_return('CHF') }
+
+      it { expect(described_class).not_to be_eur }
+    end
+  end
+
   describe '.symbol' do
     subject { described_class.symbol }
 

@@ -8,8 +8,11 @@
 # `filter:` is the filter of the list. `category_pill:` is the component of
 # a category, which takes `category:` and `remove_path:`, like
 # CashFlow::CategoryPill::Component. A filter with members of its own adds
-# a pill for each of them before the categories, with
-# `bar.with_pill(icon:, remove_path:)` in the block.
+# a pill for each of them before the categories:
+#
+#   = render Ui::FilterBar::Component.new(filter:, category_pill: Car::PaymentCategoryPill::Component) do |bar|
+#     - if filter.car
+#       - bar.with_pill(icon: 'car', remove_path: filter_path(filter.without_car)) { filter.car.display_name }
 class Ui::FilterBar::Component < ViewComponent::Base
   renders_many :pills, Ui::FilterBar::Pill::Component
 

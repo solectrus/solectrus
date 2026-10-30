@@ -12,7 +12,7 @@
 # The driving cost and the two rates come from the window around each day
 # (see Car::Driving), so they read the days around the timeframe too. These
 # days need a summary (see .pending_days).
-class Car::Report
+class Car::Report # rubocop:disable Metrics/ClassLength
   # A source of the charged energy with its energy (kWh) and its cost
   Source = Data.define(:key, :kwh, :cost)
   public_constant :Source
@@ -177,6 +177,17 @@ class Car::Report
     driving.energy_wh if distance && driving.rated?
   end
 
+  # The comparison of the cars with their combustion cars (see
+  # Car::Comparison), nil unless each car has one. A comparison of only some
+  # of the cars would leave out the distance of the others.
+  def comparison
+    memo(:comparison) do
+      next if cars.empty? || !cars.all?(&:combustion?)
+
+      Car::Comparison.new(cars, dates, driving: rates, driving_without_pv: rates_without_pv)
+    end
+  end
+
   # The value of a chart of the car page for its insights and its trend (see
   # Car::Trend), nil without one. The energy is in Wh, like a column of the
   # chart. Sessions without a price have no cost.
@@ -244,9 +255,8 @@ class Car::Report
     days.max_by(&:last)
   end
 
-  def rates
-    @rates ||= Car::Driving.new(ledger, min_date: timeframe.min_date)
-  end
+  def rates = @rates ||= Car::Driving.new(ledger, min_date: timeframe.min_date)
+  def rates_without_pv = @rates_without_pv ||= Car::Driving.new(ledger.without_pv, min_date: timeframe.min_date)
 
   # The daily summary of the odometer of each car holds its distance
   def odometer_fields = cars.map { it.sensor_name(:car_odometer).to_s }

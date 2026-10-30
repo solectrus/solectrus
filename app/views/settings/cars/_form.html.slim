@@ -27,6 +27,15 @@
     .grid.grid-cols-1.md:grid-cols-2.gap-4.ui-form-contents
       = f.number_field :battery_kwh, in: 0.1..9999.9, step: '0.1', suffix: 'kWh', hint: t('settings.cars.battery_kwh_hint')
 
+  / The combustion car that the car compares with, only with fuel prices
+    (see Car::Comparison.available?)
+  - if Car::Comparison.available?
+    = f.group title: tag.strong(t('settings.cars.combustion'), class: 'max-lg:font-medium') do
+      .grid.grid-cols-1.md:grid-cols-3.gap-4.ui-form-contents
+        = f.select :fuel_type, Car.fuel_types.keys.map { [Car.human_enum_name(:fuel_type, it), it] }, include_blank: t('settings.cars.fuel_type_none')
+        = f.number_field :fuel_consumption, in: 0.1..999.9, step: '0.1', suffix: 'l/100 km'
+        = f.number_field :combustion_tax, step: '0.01', currency: true
+
   / The sensors come from the configuration, so the form only shows them
   = f.group title: tag.strong(t('settings.cars.active_sensors'), class: 'max-lg:font-medium') do
     dl.grid.gap-x-6.gap-y-2.text-sm class='grid-cols-[auto_1fr]'

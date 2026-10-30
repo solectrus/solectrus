@@ -22,6 +22,8 @@
 #                       oauth_token POST             /oauth/token(.:format)                                                  oauth/tokens#create
 #                          forecast GET              /forecast(.:format)                                                     forecast/home#index
 #                    forecast_chart GET              /forecast/:id(.:format)                                                 forecast/charts#show {id: /inverter_power|outdoor_temp/}
+#                  cars_fuel_prices GET              /cars(/:car)/savings/fuel_prices(/:timeframe)(.:format)                 cars/fuel_prices#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                      cars_savings GET              /cars(/:car)/savings(/:timeframe)(.:format)                             cars/savings#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                      balance_home GET              /(:sensor_name)(/:timeframe)(/:compare)(.:format)                       balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/, compare: /(?-mix:by_month|by_quarter|by_season)/}
 #                     balance_stats GET              /stats/:sensor_name(/:timeframe)(.:format)                              balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                    balance_charts GET              /charts/:sensor_name(/:timeframe)(/:compare)(.:format)                  balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/, compare: /(?-mix:by_month|by_quarter|by_season)/}
@@ -94,6 +96,13 @@
 #                    settings_place PATCH            /settings/places/:id(.:format)                                          settings/places#update
 #                                   PUT              /settings/places/:id(.:format)                                          settings/places#update
 #                                   DELETE           /settings/places/:id(.:format)                                          settings/places#destroy
+#             settings_car_payments GET              /settings/car_payments(.:format)                                        settings/car_payments#index
+#                                   POST             /settings/car_payments(.:format)                                        settings/car_payments#create
+#          new_settings_car_payment GET              /settings/car_payments/new(.:format)                                    settings/car_payments#new
+#         edit_settings_car_payment GET              /settings/car_payments/:id/edit(.:format)                               settings/car_payments#edit
+#              settings_car_payment PATCH            /settings/car_payments/:id(.:format)                                    settings/car_payments#update
+#                                   PUT              /settings/car_payments/:id(.:format)                                    settings/car_payments#update
+#                                   DELETE           /settings/car_payments/:id(.:format)                                    settings/car_payments#destroy
 #    visibility_settings_cash_flows PATCH            /settings/cash_flows/visibility(.:format)                               settings/cash_flows#visibility
 #               settings_cash_flows GET              /settings/cash_flows(.:format)                                          settings/cash_flows#index
 #                                   POST             /settings/cash_flows(.:format)                                          settings/cash_flows#create
@@ -192,6 +201,20 @@ Rails.application.routes.draw do
         constraints: {
           id: /inverter_power|outdoor_temp/,
         }
+  end
+
+  # The savings of the cars against a combustion car, with the selected car
+  # in front. Before the home pages, because the car page would take
+  # "savings" as the name of its sensor of the same name.
+  scope :cars, module: :cars, as: :cars do
+    get '(:car)/savings/fuel_prices(/:timeframe)',
+        to: 'fuel_prices#index',
+        as: :fuel_prices,
+        constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
+    get '(:car)/savings(/:timeframe)',
+        to: 'savings#index',
+        as: :savings,
+        constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
   end
 
   constraints SensorConstraint.new(:chart_enabled?) do
@@ -320,6 +343,7 @@ Rails.application.routes.draw do
 
     resources :cars, only: %i[index edit update]
     resources :places, only: %i[index edit update destroy]
+    resources :car_payments, except: :show
 
     resources :cash_flows, except: :show do
       patch :visibility, on: :collection

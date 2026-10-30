@@ -1,0 +1,11 @@
+/ The comparison, which the frame of the page asks for. Only the content of
+  the frame is replaced, so its classes stay with the frame in index.
+= turbo_frame_tag 'comparison' do
+  / A visitor without the admin login sees the data up to the latest public
+    day, like on the car page (see Car::AdminOnlyDays). The banner undoes
+    the padding of the card, like there. A phone has the period and the
+    cars above it, so it stays below them.
+  - if admin_only_days_left_out?
+    .-mx-4.sm:-mx-6.lg:-mt-5.mb-3.lg:mb-6
+      = render Car::AdminOnlyNotice::Component.new(text: t('car_breakdown.admin_only_days_left_out'), banner: true)
+  = render Car::ComparisonPage::Component.new(report:, car: car_selection.to_param, expanded: Car::ComparisonPage::Component.expanded?(cookies))

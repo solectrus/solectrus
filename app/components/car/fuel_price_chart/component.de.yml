@@ -1,0 +1,6 @@
+de:
+  lowest: Tiefster
+  highest: Höchster
+  price: Preis
+  month_format: '%b %Y'
+  day_format: '%-d. %b'

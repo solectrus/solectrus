@@ -4,10 +4,11 @@
 # or the filter that the list showed last. So a save renders the list with
 # its filter (see FormPageResponse).
 #
-# The controller names the class of the filter. A filter with members of
-# its own gets what they need from `filter_context`:
+# The controller names the class of the filter, and gives `filter_context`
+# for the members of its own, like the cars:
 #
-#   filters_with CashFlow::Filter
+#   filters_with Car::PaymentFilter
+#   def filter_context = { cars: }
 module FilteredList
   extend ActiveSupport::Concern
 
@@ -32,7 +33,7 @@ module FilteredList
   # The address of the list with another filter, like a narrower one
   def filter_path(other = filter) = url_for(controller: "/#{controller_path}", action: :index, only_path: true, **other.to_params)
 
-  # What the filter needs besides the query, for the members of its own
+  # What the filter needs besides the query, like the cars of a car filter
   def filter_context = {}
 
   # A form carries no filter, so it takes the one of the list that opened it

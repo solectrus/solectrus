@@ -1,0 +1,23 @@
+ruby:
+  # The categories in two groups, the expenses and the incomes
+  categories = { expenses: Car::Payment::EXPENSES, incomes: Car::Payment::INCOMES }.to_h do |group, keys|
+    [t("settings.car_payments.#{group}"), keys.map { [Car::Payment.human_enum_name(:category, it), it] }]
+  end
+  cars = Car.configured.map { [it.display_name, it.id] }
+
+= form_page_with(model: payment, url: payment.persisted? ? settings_car_payment_path(payment) : settings_car_payments_path) do |f|
+  = f.group footer: t('settings.car_payments.footer') do
+    / The car needs a choice with more than one car only. The first field
+      takes the focus, like in the other forms.
+    - if cars.many?
+      = f.select :car_id, cars, {}, autofocus: true
+    - else
+      = f.hidden_field :car_id
+    = f.select :category, categories, { include_blank: true }, autofocus: !cars.many?
+    = f.date_field :date
+    = f.number_field :amount, step: '0.01', currency: true, hint: t('settings.car_payments.amount_hint')
+
+  = f.group do
+    = f.text_field :note
+
+  = render Ui::SubmitButton::Component.new delete_path: (settings_car_payment_path(payment) if payment.persisted?)

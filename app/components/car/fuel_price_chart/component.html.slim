@@ -1,0 +1,14 @@
+- items = figures
+.grid.gap-2.text-center class=(items.many? ? 'grid-cols-2' : 'grid-cols-1')
+  - items.each do |label, value, date|
+    div
+      .text-xs.text-slate-500.dark:text-slate-400 = label
+      .font-semibold.tabular-nums.text-slate-800.dark:text-slate-200 = value
+      - if date
+        .text-xs.text-slate-500.dark:text-slate-400 = date
+
+/ The text color is the color of the line, the red of the combustion car
+.relative.mt-4.h-64.text-combustion data-controller='car--fuel-price-chart--component' data-car--fuel-price-chart--component-currency-value=Currency.code
+  script type='application/json' data-car--fuel-price-chart--component-target='data'
+    == chart_data.to_json
+  canvas.max-w-full data-car--fuel-price-chart--component-target='canvas'

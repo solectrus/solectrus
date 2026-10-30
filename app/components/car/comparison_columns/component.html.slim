@@ -1,0 +1,30 @@
+.grid.grid-cols-1.md:grid-cols-3.gap-4.md:gap-6.lg:gap-14
+  - columns.each do |column|
+    - steps = steps_of(column)
+    section.p-4.md:p-5.lg:p-0 class=CARD
+      / A bold line in the color of the column underlines its title
+      .flex.items-center.gap-2.pb-2
+        h3.font-semibold = column.title
+        = render info_icon(notes_of(column), position: 'ml-auto')
+      div class="h-1 mb-3 rounded-full #{COLORS[column.key]}"
+      / A result stands below a line, the top border of its cells. An empty
+        slot keeps the height of its row beside the other columns, and a
+        phone, which stacks the columns, leaves it out. The unit has a column
+        of its own, so the numbers align to the right and the units to the
+        left.
+      table.w-full.border-separate.border-spacing-y-1
+        - slots.each do |slot|
+          - step = steps[slot]
+          - line = cell_class(slot, step)
+          - if step
+            tr class=row_class(slot, step)
+              td.w-5.text-slate-500.dark:text-slate-400 class=line
+                span class=operator_class(slot) = step.operator
+              td.text-sm.md:text-base class=line = step.label
+              td.text-right.whitespace-nowrap.tabular-nums class=line = step.number
+              td.w-px.pl-1.whitespace-nowrap class=line
+                small.font-light = step.unit
+          - else
+            tr class=row_class(slot, step) aria-hidden='true'
+              td.text-sm.md:text-base colspan=4 class=line
+                | &nbsp;

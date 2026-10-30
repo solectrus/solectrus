@@ -1,7 +1,8 @@
 # The header of a page below the car page: the lists of the charging sessions
-# and of the places. The views render it into `content_for :sub_nav`.
+# and of the places, and the savings. The views render it into
+# `content_for :sub_nav`.
 #
-# The desktop starts with the way back, and then the lists as pills (`tabs`),
+# The desktop starts with the way back, and then the pages as pills (`tabs`),
 # or the title of the page. At the right stand the button for a new entry
 # (`add`), the select of the car and the timeframe. A phone has the title bar
 # with the way back (`back`, see Ui::TitleBar::Component) and the button for

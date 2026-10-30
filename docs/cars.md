@@ -42,6 +42,9 @@ between charging and driving, because the car drives on energy of other days. A 
 | `Car::Spans`                        | the lowest and the highest rate of the periods of one kind              |
 | `Car::DayTimeline`                  | the drives, the charging sessions and the state of charge of a day      |
 | `Car::Live`                         | the live values of the wallbox and of each car                          |
+| `Car::Comparison`                   | the cost of the cars against a combustion car, and its page             |
+| `Car::FuelPrices`                   | the weekly fuel prices, from InfluxDB                                   |
+| `Car::Payment`                      | an income or an expense of a car, for the comparison                    |
 | `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists         |
 | `Car::Section`                      | the two columns of the overview, driving and charging, and their charts |
 | `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there                   |
@@ -83,15 +86,18 @@ with a warning.
 
 The table `cars` holds what the environment cannot:
 
-| Column         | Meaning                            | NULL means                                     |
-| -------------- | ---------------------------------- | ---------------------------------------------- |
-| `id`           | the number, no sequence            | –                                              |
-| `name`         | the name of the car                | the name comes from I18n ("Car 2")             |
-| `short_name`   | at most five characters            | – (required, a new car takes its number)       |
-| `active_from`  | the first day of use               | – (required, by default the installation date) |
-| `active_until` | the last day of use                | the car is in use                              |
-| `color`        | a hex code like `#3b82f6`          | the default color (sky blue)                   |
-| `battery_kwh`  | the usable capacity of the battery | no capacity                                    |
+| Column             | Meaning                              | NULL means                                     |
+| ------------------ | ------------------------------------ | ---------------------------------------------- |
+| `id`               | the number, no sequence              | –                                              |
+| `name`             | the name of the car                  | the name comes from I18n ("Car 2")             |
+| `short_name`       | at most five characters              | – (required, a new car takes its number)       |
+| `active_from`      | the first day of use                 | – (required, by default the installation date) |
+| `active_until`     | the last day of use                  | the car is in use                              |
+| `color`            | a hex code like `#3b82f6`            | the default color (sky blue)                   |
+| `battery_kwh`      | the usable capacity of the battery   | no capacity                                    |
+| `fuel_type`        | `petrol` or `diesel`                 | no comparison with a combustion car            |
+| `fuel_consumption` | l/100 km of the combustion car       | – (required with a fuel)                       |
+| `combustion_tax`   | the yearly tax of the combustion car | no tax                                         |
 
 `Car.configured` gives the cars of the configured numbers. It creates a missing car on the
 first request that needs one, so a user with one car has nothing to do. It is not part of
@@ -696,6 +702,133 @@ An example: the car charges 50 kWh today for 10 EUR and drives 10 km. Its window
 the driving cost is 10 km ÷ 100 × 5 EUR/100 km = 0.50 EUR. The rest stays in the battery
 for the next days. Over a long period the two numbers come close. A cost is a sum, and a
 rate is not. The user interface must never add a rate.
+
+### Comparison with a combustion car
+
+The comparison answers [#2407](https://github.com/solectrus/solectrus/issues/2407): what
+did the car save against a combustion car that drives the same distance? A car compares
+only with a fuel in its settings. With "all", each car needs a fuel, because otherwise the
+comparison leaves out the distance of a car. `Car::Comparison` gives three columns:
+
+- The car: the driving cost of its days.
+- The car without the PV system: the same window, but each kWh of the wallbox costs the
+  electricity price of its day. An offsite session keeps its cost.
+- The combustion car: the distance × l/100 km × the fuel price of each day, and its tax.
+
+A day counts only when it has a cost in the two columns of the car and a fuel price. So
+the three columns drive the same distance. The tax counts for each day in the period of
+use, a 365th of the yearly tax, because a tax is due for the time.
+
+The payments of a car (table `car_payments`) hold everything that the car costs or earns,
+for example its purchase, the rates of its lease, its insurance, its maintenance or the GHG quota. Each payment has a
+category, which gives its direction, an income or an expense. The amount of an income is
+positive. The amount of an expense can be negative: it is a refund, for example of the
+insurance, and lowers the cost of its category. So a refund needs no category of its own. A category for the sale takes the price of the car when you give it away. A loss
+of value has no category, because it is known only after the sale.
+
+The comparison counts the payments without the purchase, its financing, a subsidy and the
+sale (`Car::Payment::COMPARED`). A combustion car has another price, so these payments
+stay out. The details show each counted category in a row of its own, in the order of the form. The GHG quota, the
+vehicle tax and the fees of the charging tariffs belong to the EV alone
+(`Car::Payment::ELECTRIC`). The other categories are shared costs, for example the
+insurance and the maintenance (`Car::Payment::SHARED`). The combustion car gets them at
+the same amount, and its tax stands in the row of the vehicle tax of the EV. So they change no saving, but the bars
+show the real sizes of the costs. Without the details, one row holds the payments of a column: "Other costs less GHG quota" for the EV with a GHG quota, else "Other costs". The row of the combustion car holds its tax too. With only one category, the row names it. The total of each column is "Running costs", because the purchase stays out.
+
+A payment falls in the period of use of its car, like an offsite session. The form refuses
+another date, and the car refuses a period that leaves a payment outside. The purchase, the
+down payment of a lease, a subsidy and the sale can lie outside, because the car is paid
+before it comes, and the subsidy and the sale come after. A rate of a lease or a loan falls
+in the period of use.
+
+A compared payment spreads evenly over the days of its year in the period of use of the
+car, like the tax, because these payments are due for a year. So each month of the year
+gets its part, and the month of the payment shows no peak. The current year has only the
+part up to today. The payments have a list of their own
+beside the cars in the settings (`/settings/car_payments`). They are not in `cash_flows`,
+because each cash flow counts in the amortization, and the car does not
+([discussion #5796](https://github.com/orgs/solectrus/discussions/5796)).
+
+The list loads more payments while it scrolls (`Ui::LazyRows`), and its total is the sum of
+all payments of the filter. A filter of a car, of categories and of a range of dates
+narrows it (`Car::PaymentFilter`). A chevron beside the date, the car and the category of
+a row narrows the list to its year, its car or its category, like the cash flows. The
+links of the comparison set a filter too. The session remembers the filter, a save keeps
+it, and a new payment takes its car and its single category. So the next rate of a lease
+needs the date and the amount alone.
+
+The fuel prices are in InfluxDB: one price for each week, in EUR/l.
+`Sensor::Query::FuelPrices` reads them directly from InfluxDB, because they are few, and
+`Car::FuelPrices` caches them. A price holds until the next one. The fields are
+`Fuel:price_petrol` and `Fuel:price_diesel`. They are fixed, so they need no
+configuration. The prices are in EUR, so the comparison needs `CURRENCY=EUR`. With another
+currency, the fuel prices count as missing.
+
+Without fuel prices, the comparison is not available (`Car::Comparison.available?`). The page
+More, the tabs of the car lists and the settings do not show it. The settings then hide the
+combustion car of each car and the payments. The address of the comparison leads to the car
+page, and the address of the payments leads to the cars in the settings. If a combustion car uses a fuel
+without prices, but another fuel has prices, the comparison page tells that the prices are
+missing.
+
+The menu of the desktop and the page More of a phone open the comparison page
+(`/cars/savings`). It has a timeframe and a car select like the lists below the car page
+(`Car::SubNav::Component`). The select offers a month, a year and the whole time. On the
+desktop, the page is the tab "Savings" beside the charging sessions and the places. Like the car page, the
+page is open to everyone. A visitor without the admin login sees the comparison up to the
+latest public day, like on the car page (see `Car::AdminOnlyDays`). Only the admin gets the
+links to the payments and to the settings of a car.
+
+Above the figures, warnings name what the data lacks (`Car::ComparisonGaps`): offsite
+sessions that wait for a confirmation, a distance without a cost or a fuel price, a
+wallbox without the power splitter, no payment in the timeframe and a combustion car without a
+tax. For the admin, a warning links to the place that fills its gap. The info tooltip of
+the savings lists the data that the comparison includes. Without a distance to compare, the
+page says so instead of the comparison.
+
+The page shows the savings first, and the total cost of the three columns as bars.
+The figures are the savings, the savings without PV and the savings per 100 km. The page
+shows no ratio of the costs, as a factor or a percentage. The comparison holds only a part
+of the costs of a car, without the purchase. A cost that both cars share does not change a
+difference, but it changes a ratio. When the EV costs
+almost nothing, a small change of its cost also makes a ratio jump. Below, each column shows its calculation step by step. At first, each column shows only its costs: the energy cost, the other costs less the GHG quota in one row and the total with its value per 100 km. A click shows the steps before them and each category of the other costs, and a cookie keeps the choice. Below its energy cost, each column shows the energy cost per 100 km, when other costs add to it. Below its total, each column shows its running costs per 100 km. Their difference is the savings per 100 km. A bar chart gives the years of the
+whole time or the months of a year (`Car::ComparisonChart`). Each period has three bars:
+the total cost of the car, of the car without PV and of the combustion car, in the colors
+of the columns. A period with fewer days has hatched bars: the period of use of the cars, today or the timeframe cuts it. The tooltip adds the distance. A click on a year opens the page for that
+year, with its months. A click on a month opens the page for that month, which has no chart. Below, a line chart gives the electricity
+cost of the car and the fuel cost of the combustion car per 100 km, with a point for each
+week with a distance (`Car::ComparisonRateChart`). The tax and the payments do not count
+there. They spread evenly over the days, so a week with a short distance would jump. The page does not list each payment,
+but adds them to the cost of the car.
+
+A number links to a drill-down only where the target shows the same number: a chart of
+the car page or the settings of the one car (`Car::ComparisonLinks`). The payments are the
+exception. They link to the list of the payments, filtered to the categories of their row, the
+car and the years of their dates. The row of the combustion car has no link, because it
+holds the tax too. A tooltip gives its two parts instead. The list shows each payment in full, also when the
+comparison has only a part of it. A title never links. The formats of the numbers are
+shared, too (`Car::ComparisonFormat`). The distance links only when the
+comparison leaves out no kilometer. The driving cost links only when the comparison holds
+the days of the driving cost, and the consumption only when it
+holds the days of the consumption.
+
+The column of the combustion car follows the calculation: the consumption × the distance
+gives the fuel, and the fuel at the price of each day gives the fuel cost. The price row
+shows the lowest and the highest price of the timeframe, not an average. An average beside
+the fuel would look like one price for the whole timeframe.
+
+The two columns of the EV follow the calculation too: the consumption × the distance gives
+the driven energy, with the charge losses. The cost of the energy is the sum of its
+sources: PV energy at the lost feed-in tariff, grid energy at the electricity price, and
+the offsite sessions at their paid price. Each day splits its energy and its cost by the
+sources of the charges in its window, at the rate of the window and with the factors of
+its month (`Car::Driving#sources`, `Car::EnergySources`). So the sources add up to the cost of the energy. Without the PV
+system, the grid gives the PV energy too, and the offsite sessions stay the same. The
+offsite sessions stand in the same row in both columns.
+
+The price range opens a modal with the weekly fuel prices as a stepped line
+(`Cars::FuelPricesController`, `/cars/savings/fuel_prices`). The same lowest and highest
+price stand above the chart. The modal shows no average either.
 
 ## Charts
 

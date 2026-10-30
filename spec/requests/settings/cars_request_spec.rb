@@ -40,6 +40,16 @@ describe 'Settings cars' do
           expect(response.parsed_body.css(".lg\\:hidden a[href='/settings/places'][data-nav-title]")).to be_present
         end
       end
+
+      # Only the comparison counts the payments, and it needs the fuel prices
+      it 'leads to the payments only with fuel prices' do
+        get settings_cars_path
+        expect(response.body).not_to include('href="/settings/car_payments"')
+
+        allow(Car::Comparison).to receive(:available?).and_return(true)
+        get settings_cars_path
+        expect(response.body).to include('href="/settings/car_payments"')
+      end
     end
 
     describe 'GET /settings/cars/:id/edit' do
@@ -48,6 +58,17 @@ describe 'Settings cars' do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(I18n.t('sensors.car_roles.car_battery_soc'), 'Trabant:soc')
+      end
+
+      # The combustion car is part of the comparison, which needs the fuel
+      # prices
+      it 'asks for the combustion car only with fuel prices' do
+        get edit_settings_car_path(1)
+        expect(response.parsed_body.at_css('select[name="car[fuel_type]"]')).to be_nil
+
+        allow(Car::Comparison).to receive(:available?).and_return(true)
+        get edit_settings_car_path(1)
+        expect(response.parsed_body.at_css('select[name="car[fuel_type]"]')).to be_present
       end
     end
 
@@ -72,6 +93,20 @@ describe 'Settings cars' do
         patch '/settings/cars/1', params: { car: { battery_kwh: '77.5' } }
 
         expect(Car.find(1).battery_kwh).to eq(77.5)
+      end
+
+      it 'saves the combustion car of the comparison' do
+        patch settings_car_path(1), params: { car: { fuel_type: 'diesel', fuel_consumption: '6.5', combustion_tax: '229' } }
+
+        expect(Car.find(1)).to have_attributes(fuel_type: 'diesel', fuel_consumption: 6.5, combustion_tax: 229, combustion?: true)
+      end
+
+      it 'stores no comparison for an empty fuel' do
+        Car.configured.first.update!(fuel_type: 'petrol', fuel_consumption: 8)
+
+        patch settings_car_path(1), params: { car: { fuel_type: '' } }
+
+        expect(Car.find(1)).to have_attributes(fuel_type: nil, combustion?: false)
       end
 
       it 'stores no color of its own for the default color' do

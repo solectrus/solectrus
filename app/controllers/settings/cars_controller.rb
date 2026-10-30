@@ -39,7 +39,19 @@ class Settings::CarsController < ApplicationController
 
   # The default color is no color of its own
   def permitted_params
-    attributes = params.expect(car: %i[name short_name active_from active_until color battery_kwh])
+    attributes = params.expect(
+      car: %i[
+        name
+        short_name
+        active_from
+        active_until
+        color
+        battery_kwh
+        fuel_type
+        fuel_consumption
+        combustion_tax
+      ],
+    )
     attributes[:color] = nil if attributes[:color]&.downcase == Car::DEFAULT_COLOR
     attributes
   end

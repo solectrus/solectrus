@@ -1,0 +1,12 @@
+/ One level below the cars on a phone, a tab beside them on the desktop
+= render 'settings/sub_nav', title:, back_href: settings_cars_path, back_label: t('settings.cars.name'), action: { href: new_settings_car_payment_path(return_to: list_address), icon: 'plus', label: t('settings.car_payments.new') }
+
+= render Nav::Side::Component.new(items: car_nav_items) do
+  / The filter stands outside the frame, so a refresh of the list keeps it
+  = render Ui::FilterBar::Component.new(filter:, category_pill: Car::PaymentCategoryPill::Component) do |bar|
+    - if filter.car
+      - bar.with_pill(icon: 'car', remove_path: filter_path(filter.without_car)) { filter.car.display_name }
+
+  / A stream refreshes the list. The link of a row on a phone leaves the frame.
+  = tag.turbo_frame id: 'list', target: '_top' do
+    = render list_component(@payments, @pagy)

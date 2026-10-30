@@ -1,0 +1,63 @@
+- case state
+- when :none
+  = render Ui::EmptyState::Component.new(icon: 'car', title: t('.none_title'), text: t(report.cars.many? ? '.none_all' : '.none')) do
+    - if settings_link?
+      = render Ui::Button::Component.new(path: helpers.settings_cars_path, title: t('.to_settings'), icon: 'pencil')
+- when :no_prices
+  = render Ui::EmptyState::Component.new(icon: 'car', title: t('.no_prices_title'), text: t('.no_prices'), slashed: true)
+- when :no_distance
+  = render Ui::EmptyState::Component.new(icon: 'car', title: t('.no_distance_title'), text: t('.no_distance'), slashed: true)
+- else
+  / A desktop shows the sections without a card, apart by space
+  .flex.flex-auto.flex-col.space-y-4.md:space-y-6.lg:space-y-14.text-slate-700.dark:text-slate-300
+    = render Car::ComparisonWarnings::Component.new(gaps:, timeframe:)
+
+    / The figures of the comparison beside the cost of the three columns as
+      bars, in the order of the columns. The savings lead, the savings without
+      PV stand smaller beside them, and the savings per 100 km below. The two
+      savings share the baseline of their last line, so each label stays
+      close above its number.
+    section.grid.grid-cols-1.lg:grid-cols-2.gap-6.md:gap-8.p-5.md:p-8.lg:p-0 class=CARD
+      - (label, value, color), side, per_100km = figures
+      .flex.flex-col.justify-center
+        .flex.flex-wrap.items-baseline-last.gap-x-10.gap-y-4
+          div
+            div class="flex items-center gap-2 #{FIGURE_LABEL} text-sm md:text-base"
+              = label
+              = render info_icon(savings_notes)
+            div class="mt-1 text-4xl md:text-5xl font-bold tabular-nums #{color}" = value
+          = small_figure(*side)
+        .mt-5 = small_figure(*per_100km)
+
+      .flex.flex-col.justify-center.gap-4
+        - columns.each do |column|
+          div
+            .flex.items-baseline.justify-between.gap-3.text-sm.md:text-base
+              span = column.title
+              span.font-semibold.tabular-nums = money(column.total)
+            .mt-1.h-3.rounded-full.bg-slate-200.dark:bg-slate-700
+              div class="h-3 rounded-full #{bar_color(column)}" style="width: #{bar_width(column)}%"
+
+    / The calculation of each column, step by step. Without the details, only
+      the costs show (see Car::ComparisonColumns::Component#row_class). The
+      button below separates it from the chart, so the gap to the chart is
+      smaller than between the other sections.
+    div class='group/details lg:mb-6' data-controller='car--comparison-page--component' data-expanded=expanded?
+      #comparison-columns data-car--comparison-page--component-target='columns'
+        = render calculation
+
+      / The label of the button follows the details, without JavaScript
+      .mt-3.md:mt-4.flex.justify-center
+        button.inline-flex.items-center.gap-2.cursor-pointer.rounded-full.border.border-slate-300.dark:border-slate-600.px-4.py-1.5.text-sm.font-medium.text-slate-600.dark:text-slate-300.hover:bg-slate-100.dark:hover:bg-slate-800.transition-colors.focus-ring[
+          type='button'
+          aria-controls='comparison-columns'
+          aria-expanded=expanded?.to_s
+          data-car--comparison-page--component-target='button'
+          data-action='car--comparison-page--component#toggle'
+        ]
+          span class='group-data-expanded/details:hidden' = t('.details.show')
+          span class='hidden group-data-expanded/details:inline' = t('.details.hide')
+          = icon 'chevron-down', class: 'text-xs transition-transform motion-reduce:transition-none group-data-expanded/details:rotate-180'
+
+    = render chart
+    = render Car::ComparisonRateChart::Component.new(comparison:, axis: chart.axis)

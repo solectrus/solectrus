@@ -1,0 +1,32 @@
+de:
+  liters: Liter
+  steps:
+    distance: Strecke
+    energy_cost: Stromkosten
+    payments: Weitere Kosten
+    payments_less_ghg_quota: Weitere Kosten abzgl. THG-Quote
+    total: Laufende Kosten
+    per_100km: Pro 100 km
+    consumption: Verbrauch pro 100 km
+    fuel: Kraftstoff
+    energy: Energie
+    pv: PV-Strom
+    grid: Netzstrom
+    offsite: Auswärts geladen
+    fuel_price: Preis pro Liter
+    fuel_cost: Kraftstoffkosten
+    tax: Kfz-Steuer
+  notes:
+    car_intro: Die tatsächlichen Kosten des E-Autos.
+    without_pv_intro: 'Fiktiv: dasselbe E-Auto ohne PV-Anlage.'
+    combustion_intro: 'Fiktiv: ein Verbrenner mit Verbrauch und Kfz-Steuer aus den Einstellungen des Autos.'
+    car: Netzstrom kostet den Strompreis, PV-Strom die entgangene Einspeisevergütung, eine Ladung auswärts ihren bezahlten Preis.
+    without_pv: Der gesamte Wallbox-Strom kostet den Strompreis des Tages, eine Ladung auswärts bleibt gleich.
+    fuel: Der Kraftstoff kostet den jeweils aktuellen Preis am Tag der Fahrt.
+    tax: Die Kfz-Steuer von %{yearly} pro Jahr zählt anteilig pro Tag.
+    shared: Versicherung, Wartung usw. zählen wie beim E-Auto und ändern die Ersparnis nicht. Ladetarife und THG-Quote gibt es nur beim E-Auto.
+    maintenance: Ein Verbrenner braucht meist mehr Wartung. Die Ersparnis ist also eher zu niedrig gerechnet.
+  parts:
+    shared: Versicherung, Wartung usw.
+    tax: Kfz-Steuer
+    tax_yearly: Kfz-Steuer (%{yearly} pro Jahr)
