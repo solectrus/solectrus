@@ -16,7 +16,7 @@ class InsightsController < ApplicationController
 
   private
 
-  # The insights of a chart of the car page show a guest its data up to the
+  # The insights of a chart of the car page show a visitor its data up to the
   # latest public day, like the chart (see Car::AdminOnlyDays)
   helper_method def timeframe
     return if permitted_params[:timeframe].blank?

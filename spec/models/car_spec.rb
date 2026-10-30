@@ -105,7 +105,7 @@ describe Car do
       expect(described_class.display_name_of(2)).to eq('Car 2')
     end
 
-    it 'gives a guest the default names, also as short name' do
+    it 'gives a visitor the default names, also as short name' do
       car = described_class.create!(id: 1, name: 'Model Y', short_name: 'MY')
       Current.car_names_hidden = true
 
@@ -127,7 +127,7 @@ describe Car do
       expect(described_class.display_name_of(1)).to eq('Car 1')
     end
 
-    it 'gives a guest the default name in place of the short name' do
+    it 'gives a visitor the default name in place of the short name' do
       car = described_class.create!(id: 1, short_name: 'ZOE')
       Current.car_names_hidden = true
 

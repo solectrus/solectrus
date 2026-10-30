@@ -1,7 +1,7 @@
 describe 'Admin-only sensors' do
   # Every page that takes the sensor from the URL. Only the admin sees an
   # admin-only sensor (see ParamsHandling), so a new page must refuse it to a
-  # guest, too. A route that does not take the sensor answers 404.
+  # visitor, too. A route that does not take the sensor answers 404.
   routes =
     Rails.application.routes.routes.select do |route|
       route.verb == 'GET' && route.parts.include?(:sensor_name)
@@ -19,7 +19,7 @@ describe 'Admin-only sensors' do
   after { Sensor::Config.setup(ENV) }
 
   routes.each do |route|
-    it "refuses the location of a car to a guest at #{route.path.spec}" do
+    it "refuses the location of a car to a visitor at #{route.path.spec}" do
       get route.format(
             sensor_name: 'car_latitude_1',
             timeframe: 'all',

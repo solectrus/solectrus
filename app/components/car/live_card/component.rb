@@ -120,8 +120,8 @@ class Car::LiveCard::Component < ViewComponent::Base
   def map_path = helpers.cars_location_path(car: car.id, at: state.location.join(','))
 
   # The list of the admin folds into one cell with the place and the plug,
-  # when it holds more than that cell. A guest sees no place and no map, so
-  # the short list of a guest stays as it is.
+  # when it holds more than that cell. A visitor sees no place and no map, so
+  # the short list of a visitor stays as it is.
   def fold? = location? && (map? || plug? || odometer?)
 
   def details_id = "car-live-details-#{car.id}"

@@ -5,7 +5,7 @@ class Current < ActiveSupport::CurrentAttributes
   # each sensor it shows, so the request reads them one time.
   attribute :car_names
 
-  # A guest sees the cars by their number, without their names (see
+  # A visitor sees the cars by their number, without their names (see
   # ApplicationController). The MCP server and the jobs see the names.
   attribute :car_names_hidden
 

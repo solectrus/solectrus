@@ -64,11 +64,11 @@ describe 'HELIOS menu item' do
   end
 
   # The item leads the admin to the installation of HELIOS (see
-  # HeliosController). A guest cannot install it.
+  # HeliosController). A visitor cannot install it.
   context 'without HELIOS' do
     let(:available) { false }
 
-    it 'hides the menu item from a guest' do
+    it 'hides the menu item from a visitor' do
       expect(helios_links).to be_empty
     end
 

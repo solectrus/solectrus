@@ -20,7 +20,7 @@ describe 'Notifications' do
       expect(page).to have_text('ForbiddenError')
     end
 
-    # The badge stays visible for guests on purpose: on a public instance it is
+    # The badge stays visible for visitors on purpose: on a public instance it is
     # the only hint that something is waiting, and the admin often browses from
     # a device where they are not signed in. Landing on a forbidden page would
     # never tell them why the red mark does not go away.

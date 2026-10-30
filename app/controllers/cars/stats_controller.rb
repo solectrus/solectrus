@@ -5,7 +5,7 @@ class Cars::StatsController < ApplicationController
   include Cars::Selectable
   include Cars::FrameNavigation
 
-  # The page shows a guest a note instead of a day that only the admin sees,
+  # The page shows a visitor a note instead of a day that only the admin sees,
   # so its figures never load
   before_action { head :forbidden if admin_only_day? }
   before_action :refresh_summaries_if_needed

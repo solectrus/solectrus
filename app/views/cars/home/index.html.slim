@@ -33,7 +33,7 @@
     - if timeframe.now?
       = render StatsWithChart::Component.new(sensor_name:, timeframe:, chart: false, min_interval: 30.seconds)
 
-    / A recent day shows when the cars drove and charged, so a guest gets a
+    / A recent day shows when the cars drove and charged, so a visitor gets a
       note in its place (see Car::AdminOnlyDays)
     - elsif admin_only_day?
       .flex-1.flex.items-center.justify-center.rounded-2xl.bg-surface.px-4
@@ -49,7 +49,7 @@
       car_overview_controller.ts). A day has no charts, but the timeline of
       the day below the figures.
     - else
-      / A period of a guest ends with the latest public day, which a note
+      / A period of a visitor ends with the latest public day, which a note
         above the figures says (see Car::AdminOnlyDays)
       - if admin_only_days_left_out?
         / The banner undoes the padding of the card (see the layout)

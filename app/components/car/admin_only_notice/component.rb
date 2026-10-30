@@ -1,4 +1,4 @@
-# A note for a guest that the page leaves out the days that only the admin
+# A note for a visitor that the page leaves out the days that only the admin
 # sees (see Car::AdminOnlyDays), with the login. It stands out, so someone who
 # only forgot to log in sees at once why the latest days are missing. A
 # `banner` has no corners, so the page can lay it across its full width.

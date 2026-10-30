@@ -20,9 +20,9 @@ describe 'Car Insights' do
 
   after { Sensor::Config.setup(ENV) }
 
-  # A guest sees the data up to the day before yesterday (see
+  # A visitor sees the data up to the day before yesterday (see
   # Car::AdminOnlyDays)
-  it 'ends the data of a guest with the latest public day' do
+  it 'ends the data of a visitor with the latest public day' do
     allow(Car::Insights::Component).to receive(:new).and_call_original
     get(insights_path(sensor_name: 'car_distance', timeframe: '2026-09', car: 1), headers:)
 

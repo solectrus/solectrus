@@ -22,7 +22,7 @@ class MoreController < ApplicationController
     car_pages.filter_map { it[:item].merge(plain: true, **it[:more]) if it[:more] }
   end
 
-  # A guest sees the settings too, and their page asks to log in. Only the
+  # A visitor sees the settings too, and their page asks to log in. Only the
   # overview of the admin has a title bar that leads back here, so only it
   # slides.
   helper_method def system_items

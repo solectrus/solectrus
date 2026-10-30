@@ -9,7 +9,7 @@ module Cars::ChargingSessionListing
   private
 
   # The sessions of the list. The admin also sees the sessions to review
-  # (see ChargingSession.listed), or them alone. A guest sees no session of
+  # (see ChargingSession.listed), or them alone. A visitor sees no session of
   # the days that only the admin sees (see Car::AdminOnlyDays).
   def listed_sessions(kind)
     ChargingSession.list_for(kind, timeframe:, filter: car_selection.filter, open: admin?, review: review_only?, public_only: !admin?).includes(:car)

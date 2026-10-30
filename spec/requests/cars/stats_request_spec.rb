@@ -22,14 +22,14 @@ describe 'Car Stats' do
       end
     end
 
-    # The page shows a guest a note instead (see Car::AdminOnlyDays)
-    it 'refuses the figures of a day that only the admin sees to a guest' do
+    # The page shows a visitor a note instead (see Car::AdminOnlyDays)
+    it 'refuses the figures of a day that only the admin sees to a visitor' do
       get cars_stats_path(sensor_name: 'car_charging', timeframe: Date.current.iso8601), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
 
       expect(response).to have_http_status(:forbidden)
     end
 
-    # A period of a guest ends with the latest public day
+    # A period of a visitor ends with the latest public day
     context 'with a session of yesterday' do
       before do
         stub_feature(:car)
@@ -42,7 +42,7 @@ describe 'Car Stats' do
 
       def charged = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"] div.grid > *:first-child').text.squish
 
-      it 'leaves it out for a guest' do
+      it 'leaves it out for a visitor' do
         get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
 
         expect(charged).to start_with('10.0 kWh')
@@ -138,7 +138,7 @@ describe 'Car Stats' do
           expect(a_request(:get, /nominatim/)).not_to have_been_made
         end
 
-        it 'hides the location from a guest' do
+        it 'hides the location from a visitor' do
           request_live_view
 
           expect(response.body).not_to include(cars_location_path(car: 1))
@@ -344,7 +344,7 @@ describe 'Car Stats' do
         expect(response.body).to include('aria-label="Trabant"', 'aria-label="Wartburg"')
       end
 
-      it 'shows a guest the cars by their number' do
+      it 'shows a visitor the cars by their number' do
         logout
         get(cars_stats_path(timeframe: 'now'), headers:)
 

@@ -8,7 +8,7 @@ class Notification::Badge::Component < ViewComponent::Base
 
   attr_reader :unread_count
 
-  # Guests see the badge too: on a publicly reachable instance it is the only
+  # Visitors see the badge too: on a publicly reachable instance it is the only
   # hint that something is waiting, and the admin often browses from a device
   # where they are not signed in. They go to the list, which explains that
   # reading needs the login. Only an admin goes straight into the message.

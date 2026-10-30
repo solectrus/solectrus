@@ -43,7 +43,7 @@ class ChargingSession::List::Component < ViewComponent::Base
 
   def review_only? = review&.on
 
-  # A guest sees no session of the days that only the admin sees (see
+  # A visitor sees no session of the days that only the admin sees (see
   # Car::AdminOnlyDays), also not in the sums. A note says so whenever the
   # list holds such a day, also without a session there, so the note itself
   # tells nothing.

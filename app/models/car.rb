@@ -101,7 +101,7 @@ class Car < ApplicationRecord
   end
 
   # { id => [name, short name] } of the cars. Without the table there is no
-  # name, and a guest gets none (see Current.car_names_hidden).
+  # name, and a visitor gets none (see Current.car_names_hidden).
   def self.names
     Current.car_names ||=
       if table_exists? && !Current.car_names_hidden
@@ -139,7 +139,7 @@ class Car < ApplicationRecord
     (self.class.given_name(id, name_in_database, short_name_in_database) unless Current.car_names_hidden) || self.class.default_name(id)
   end
 
-  # A guest sees the default name of the car: "Car 1"
+  # A visitor sees the default name of the car: "Car 1"
   def short_name = Current.car_names_hidden ? display_name : super
 
   def display_color = color || DEFAULT_COLOR

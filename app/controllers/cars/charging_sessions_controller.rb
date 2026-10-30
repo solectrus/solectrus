@@ -9,7 +9,7 @@ class Cars::ChargingSessionsController < ApplicationController
   include Cars::ChargingSessionListing
   include SheetPage
 
-  # A guest reads the list too, without its open tasks and its forms (see
+  # A visitor reads the list too, without its open tasks and its forms (see
   # Cars::ChargingSessionListing).
   skip_before_action :admin_required!, only: :index
 

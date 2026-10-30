@@ -29,19 +29,19 @@ module Cars::Selectable
     # The cars the page shows
     helper_method def cars = car_selection.cars
 
-    # Whether the day is one that a guest does not see (see Car::AdminOnlyDays)
+    # Whether the day is one that a visitor does not see (see Car::AdminOnlyDays)
     helper_method def admin_only_day? = !admin? && timeframe.present? && Car::AdminOnlyDays.cover?(timeframe)
 
-    # Whether a longer period of a guest leaves out such days, because its
+    # Whether a longer period of a visitor leaves out such days, because its
     # data ends with the latest public day (see #data_timeframe)
     helper_method def admin_only_days_left_out?
       !admin? && timeframe.present? && !timeframe.now? && !timeframe.day? && Car::AdminOnlyDays.overlap?(timeframe)
     end
 
     # The timeframe of the data: the report, the charts and the spans. A
-    # guest sees the data of a period up to the latest public day (see
+    # visitor sees the data of a period up to the latest public day (see
     # Timeframe#max_date). The navigation keeps the timeframe of the address,
-    # so the day of a guest is still today, with its note.
+    # so the day of a visitor is still today, with its note.
     helper_method def data_timeframe
       @data_timeframe ||=
         if admin? || timeframe.nil? || timeframe.now?

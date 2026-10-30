@@ -99,7 +99,7 @@ Rails.application.configure do
     # Use a per-session nonce (not per-request) for Turbo Drive compatibility,
     # as the document CSP persists across Turbo navigations.
     # Skip in local environments (development + test) to preserve unsafe_inline for Vite HMR.
-    # Guests have no session id, so the generator returns nil and Rails omits
+    # Visitors have no session id, so the generator returns nil and Rails omits
     # the nonce. It must not return an empty string - that lands in the header
     # as `nonce-`, which browsers reject as an invalid source.
     unless Rails.env.local?

@@ -67,7 +67,7 @@ class Timeframe # rubocop:disable Metrics/ClassLength
   def self.of(date, id) = new(date.strftime(FORMAT[id]))
 
   # `max_date` is the last day with data, today without it. A page can end
-  # the data earlier, like the car page for a guest (see Car::AdminOnlyDays).
+  # the data earlier, like the car page for a visitor (see Car::AdminOnlyDays).
   def initialize(string, min_date: Rails.application.config.x.installation_date, max_date: nil)
     @original_string = string
     @string = normalized_string(string)

@@ -1,4 +1,4 @@
-# Shown to a guest on the notifications page. Without the login they cannot read
+# Shown to a visitor on the notifications page. Without the login they cannot read
 # anything here, and the red mark would stay forever without telling them why.
 class Notification::LoginRequired::Component < ViewComponent::Base
   def initialize(unread_count:)

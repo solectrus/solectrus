@@ -144,7 +144,7 @@ module Sensor
         end
 
         # A sensor that only the admin sees, because it holds personal data,
-        # like the location of a car: a guest gets no value of it, and the MCP server does
+        # like the location of a car: a visitor gets no value of it, and the MCP server does
         # not offer it.
         def admin_only
           meta_data[:admin_only] = true

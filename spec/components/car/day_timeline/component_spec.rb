@@ -226,7 +226,7 @@ describe Car::DayTimeline::Component, type: :component do
       expect(html.css('a[data-turbo-frame="modal"][href^="/cars/charging_sessions/7/edit"]').size).to eq(2)
     end
 
-    it 'opens nothing for a guest' do
+    it 'opens nothing for a visitor' do
       allow(vc_test_controller).to receive(:admin?).and_return(false)
 
       expect(html.css('a[href*="/edit"]')).to be_empty

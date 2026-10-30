@@ -15,7 +15,7 @@ describe Notification::Badge::Component, type: :component do
     end
   end
 
-  # A guest cannot read notifications, so the badge leads to the list page,
+  # A visitor cannot read notifications, so the badge leads to the list page,
   # which explains why. It is the hint that makes the admin log in on a device
   # where they are not signed in.
   context 'when not logged in' do

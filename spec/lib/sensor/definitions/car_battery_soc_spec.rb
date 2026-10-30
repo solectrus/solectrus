@@ -21,7 +21,7 @@ describe Sensor::Definitions::CarBatterySoc do
       expect(sensor.display_name).to eq('EV SOC')
     end
 
-    it 'hides the name of the car from a guest' do
+    it 'hides the name of the car from a visitor' do
       Car.create!(id: 1, name: 'Renault Zoe', short_name: 'ZOE')
       Current.car_names_hidden = true
 

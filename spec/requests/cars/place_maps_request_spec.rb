@@ -21,7 +21,7 @@ describe 'Cars Place map' do
   after { Sensor::Config.setup(ENV) }
 
   describe 'GET /cars/places/map' do
-    it 'forbids the map to a guest' do
+    it 'forbids the map to a visitor' do
       get cars_place_map_path, headers: frame
 
       expect(response).to have_http_status(:forbidden)

@@ -20,7 +20,7 @@ describe 'Place tooltips' do
       PlaceVisit.create!(date: from.to_date, car:, place:, started_at: from, ended_at: from + hours.hours, seconds: hours * 3600)
     end
 
-    it 'forbids the tooltip to a guest' do
+    it 'forbids the tooltip to a visitor' do
       get cars_place_tooltip_path(place:, timeframe: 'all')
 
       expect(response).to have_http_status(:forbidden)

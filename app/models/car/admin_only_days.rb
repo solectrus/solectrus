@@ -1,8 +1,8 @@
 # The days of the car page that only the admin sees: today and yesterday. A
 # day shows when the cars drove and charged, so a recent day tells when
-# someone is away from home. An older day is public, so a guest, like a
-# visitor of the demo, sees the same page some days back. The live view stays
-# public, because it shows no time of a drive.
+# someone is away from home. An older day is public, so a visitor without
+# the admin login, like on the demo, sees the same page some days back.
+# The live view stays public, because it shows no time of a drive.
 module Car::AdminOnlyDays
   COUNT = 2
   public_constant :COUNT
@@ -14,11 +14,11 @@ module Car::AdminOnlyDays
   # this week
   def self.overlap?(timeframe) = timeframe.all? || timeframe.ending >= beginning
 
-  # The timeframe whose data a guest sees: the same period, with its data up
+  # The timeframe whose data a visitor sees: the same period, with its data up
   # to the latest public day (see Timeframe#max_date)
   def self.public_timeframe(timeframe) = Timeframe.new(timeframe.original_string, max_date: last_public_date)
 
-  # The latest day that a guest sees
+  # The latest day that a visitor sees
   def self.last_public_date = Date.current - COUNT
 
   # The start of the first such day

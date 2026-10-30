@@ -29,7 +29,7 @@ class Top10::Chart::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
       )
   end
 
-  # A sensor of a car tells when it drove, so a guest sees its ranking up to
+  # A sensor of a car tells when it drove, so a visitor sees its ranking up to
   # the latest public day, like the car page (see Car::AdminOnlyDays)
   def stop = (Car::AdminOnlyDays.last_public_date if sensor.category == :car && !helpers.admin?)
 

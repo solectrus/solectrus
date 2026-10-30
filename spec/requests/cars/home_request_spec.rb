@@ -147,7 +147,7 @@ describe 'Car Home' do
         allow(Sensor).to receive(:data?).and_return(true)
       end
 
-      it 'shows a guest a note with the login' do
+      it 'shows a visitor a note with the login' do
         get cars_home_path(timeframe: Date.yesterday.iso8601, car: 1)
 
         expect(response).to have_http_status(:ok)
@@ -163,14 +163,14 @@ describe 'Car Home' do
         expect(response.body).to include('stats-charging')
       end
 
-      it 'shows a guest an older day' do
+      it 'shows a visitor an older day' do
         get cars_home_path(timeframe: (Date.current - 2).iso8601, car: 1)
 
         expect(response.body).not_to include('Administrator only')
       end
 
       # The data of the period ends with the day before yesterday
-      it 'tells a guest that a period leaves out these days, with the login' do
+      it 'tells a visitor that a period leaves out these days, with the login' do
         get cars_home_path(timeframe: 'all', car: 1)
 
         notice = response.parsed_body.at_css('[role="note"]')

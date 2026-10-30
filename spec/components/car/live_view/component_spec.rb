@@ -28,7 +28,7 @@ describe Car::LiveView::Component, type: :component do
       expect(html.text).not_to include('Car 1')
     end
 
-    it 'shows a guest the default name' do
+    it 'shows a visitor the default name' do
       car.update!(name: 'Model Y', short_name: 'MY')
       Current.car_names_hidden = true
 
@@ -214,8 +214,8 @@ describe Car::LiveView::Component, type: :component do
       end
     end
 
-    # A guest sees no place and no map
-    context 'with a guest' do
+    # A visitor sees no place and no map
+    context 'with a visitor' do
       let(:states) { [state_of(car), state_of(other_car)] }
       let(:admin) { false }
 

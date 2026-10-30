@@ -24,7 +24,7 @@ describe 'Cars Visited places' do
   after { Sensor::Config.setup(ENV) }
 
   describe 'GET /cars/places' do
-    it 'forbids the list to a guest' do
+    it 'forbids the list to a visitor' do
       get cars_visited_places_path(timeframe: '2026-09')
 
       expect(response).to have_http_status(:forbidden)

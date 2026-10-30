@@ -7,7 +7,7 @@
 #
 # Tailwind writes the script inline. This one is a file, which the content
 # security policy already allows through `script-src 'self'`. Inline would need
-# a nonce, and the nonce of this app is the session id, which a guest does not
+# a nonce, and the nonce of this app is the session id, which a visitor does not
 # have, so the header would carry none and the browser would refuse the script.
 #
 # It renders for nobody else. A visitor who picked a theme gets the class from

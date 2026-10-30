@@ -25,7 +25,7 @@ describe 'Settings Places' do
 
     after { Sensor::Config.setup(ENV) }
 
-    it 'forbids the list to a guest' do
+    it 'forbids the list to a visitor' do
       get settings_places_path
 
       expect(response).to have_http_status(:forbidden)
@@ -98,7 +98,7 @@ describe 'Settings Places' do
   end
 
   describe 'GET /settings/places/:id/edit' do
-    it 'forbids the form to a guest' do
+    it 'forbids the form to a visitor' do
       get edit_settings_place_path(place)
 
       expect(response).to have_http_status(:forbidden)
@@ -285,7 +285,7 @@ describe 'Settings Places' do
   end
 
   describe 'DELETE /settings/places/:id' do
-      it 'forbids the deletion to a guest' do
+      it 'forbids the deletion to a visitor' do
         delete settings_place_path(place), as: :turbo_stream
 
         expect(response).to have_http_status(:forbidden)

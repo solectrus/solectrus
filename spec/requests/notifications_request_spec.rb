@@ -58,7 +58,7 @@ describe 'Notifications' do
           expect(response.body).to include('News about SOLECTRUS appears here')
         end
 
-        # No mark stands on the screen now, so naming one would send the guest
+        # No mark stands on the screen now, so naming one would send the visitor
         # looking for something that is not there.
         it 'does not mention a red mark' do
           get '/notifications'
@@ -107,7 +107,7 @@ describe 'Notifications' do
       end
 
       # The list page is public, so a logout here must stay here. It is the one
-      # page a fresh guest should see, and bouncing to the homepage would hide
+      # page a fresh visitor should see, and bouncing to the homepage would hide
       # the explanation the red mark points at.
       it 'lets a logout return to this page' do
         get '/notifications'

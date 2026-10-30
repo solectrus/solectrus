@@ -42,7 +42,7 @@ describe 'Car Locations' do
       expect(Place.count).to eq(1)
     end
 
-    it 'forbids the location to a guest' do
+    it 'forbids the location to a visitor' do
       get(cars_location_path(car: 1), headers:)
 
       expect(response).to have_http_status(:forbidden)

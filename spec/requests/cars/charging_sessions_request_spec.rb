@@ -52,7 +52,7 @@ describe 'Charging sessions' do
 
       def note = 'Only the administrator sees the charging sessions of today and yesterday.'
 
-      it 'leaves it out for a guest, also in the sums, with a note' do
+      it 'leaves it out for a visitor, also in the sums, with a note' do
         logout
         get page('offsite')
 
@@ -68,7 +68,7 @@ describe 'Charging sessions' do
       end
 
       # The note does not tell whether such a day has a session
-      it 'has no note for a guest in a list without such a day' do
+      it 'has no note for a visitor in a list without such a day' do
         logout
         get page('offsite', timeframe: (Date.current.year - 2).to_s)
 

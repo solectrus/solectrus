@@ -29,7 +29,7 @@ describe 'Top 10 Chart' do
       before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer')) }
       after { Sensor::Config.setup(ENV) }
 
-      it 'ends the ranking of a guest with the latest public day' do
+      it 'ends the ranking of a visitor with the latest public day' do
         allow(Sensor::Query::Ranking).to receive(:new).and_call_original
         get '/top10-chart/day/car_odometer_1/sum/desc'
 

@@ -15,7 +15,7 @@
 # themselves in the grid of the cell with max-lg: classes, see
 # ChargingSession::Row::Component.
 #
-# A row without `href` opens nothing, like a row that a guest may only read.
+# A row without `href` opens nothing, like a row that a visitor may only read.
 # It has no hover and no chevron, and `row.link` is its plain content.
 #
 #   = render Ui::TableRow::Component.new(href: edit_price_path(price), nav_title: 'Edit price') do |row|

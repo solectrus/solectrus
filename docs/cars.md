@@ -110,7 +110,7 @@ A car without a name shows its short name in each place. A new car has its numbe
 name, which says less than the default name "Car 2", so it shows the default name.
 
 The name and the short name of a car are personal data, so only the admin sees them. A
-guest sees "Car 2" in each place.
+visitor without the admin login sees "Car 2" in each place.
 
 The color of a car marks it where cars stand side by side, and in the charts of all cars
 (see [Charts](#charts)). The sensors of a car keep their own colors, because each sensor has
@@ -289,7 +289,7 @@ sessions, and the wallbox sessions that are not assigned. The sums leave them ou
 shows them alone, and the proposals there go at once with "Dismiss all". The car page marks
 a list with sessions to review. A wallbox session that is not assigned can be the charge of
 any car, so the list and the car page of a car or of the guest name it too, and the link
-opens the list of "all". A guest sees nothing to review, no address of an offsite session
+opens the list of "all". A visitor sees nothing to review, no address of an offsite session
 and no form.
 
 The list groups its rows by month, week or day, like the other lists (see `Timeframe::RowGroups`).
@@ -798,8 +798,8 @@ Each car has a section of its own (`Car::LiveCard::Component`):
 The card of the range and the list below it form one box. For the admin, the list folds into
 one cell with the place and the plug. A tap on that cell unfolds the list in its place, and
 the last cell of the list folds it again. A lone car starts unfolded. With more than one car,
-each list starts folded, so the cars fit on a phone. A guest sees no place and no map, so the
-short list of a guest does not fold. The map loads when its list unfolds. The refresh of the
+each list starts folded, so the cars fit on a phone. A visitor sees no place and no map, so the
+short list of a visitor does not fold. The map loads when its list unfolds. The refresh of the
 live view keeps an unfolded list and its map, until the car moves.
 
 A lone car on the desktop sets the cells below the map side by side, without their names: the
@@ -899,12 +899,12 @@ with them. Its axis is the local day from 0:00 to 24:00, so a day of a change of
 has 23 or 25 hours on the same width.
 
 Only the admin sees today and yesterday (`Car::AdminOnlyDays`). Such a day shows when the cars
-drove and charged, so it tells when someone is away from home. A guest gets a note with the
-login, and the figures of such a day do not load for a guest. An older day stays public, so
+drove and charged, so it tells when someone is away from home. A visitor gets a note with the
+login, and the figures of such a day do not load for a visitor. An older day stays public, so
 a visitor of the demo sees the page some days back. The live view stays public too, because
 it shows no time of a drive.
 
-A longer period, like a week, ends with the day before yesterday for a guest. Its figures,
+A longer period, like a week, ends with the day before yesterday for a visitor. Its figures,
 its charts and the spans of its rates leave out today and yesterday, because their amounts
 tell the same as their times. A note above the figures says so, with the login, so someone
 who only forgot to log in sees why the latest days are missing. The navigation keeps the
@@ -912,7 +912,7 @@ periods as they are, so the tab of the day still leads to today. The insights of
 the car page and the Top 10 of a sensor of a car end with the same day. The state of charge
 of a car on the power balance stays public, like the live view.
 
-The list of the charging sessions leaves out the sessions of such a day for a guest, also in
+The list of the charging sessions leaves out the sessions of such a day for a visitor, also in
 its sums. Its time and its energy would tell the same, and a large offsite charge tells that
 the car is far away. The list is split by kind, so a row without its details would still
 tell an offsite charge. A note names the hidden days whenever the list holds them, also
@@ -1074,9 +1074,9 @@ with their forms as pages of the sheet (see the section "Sheets with pages" in
 `car_latitude_<n>` and `car_longitude_<n>` give the location of a car. The location is
 personal data, so only the admin sees it. The definitions declare `admin_only`:
 
-- A guest gets no value of the sensors.
+- A visitor gets no value of the sensors.
 - The lists of the places and of the visits, the map of the places and the tooltips of the
-  places ask a guest to log in. The overview still shows a guest the link to the places.
+  places ask a visitor to log in. The overview still shows a visitor the link to the places.
 - The MCP server does not offer the sensors.
 
 A position needs the latitude and the longitude. InfluxDB has no type for a point, so a

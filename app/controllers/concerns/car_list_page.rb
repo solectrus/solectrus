@@ -1,5 +1,5 @@
 # A list below the car page: the charging sessions, the places and the visits.
-# Only the admin sees it (see Cars::PageGate), unless the list allows a guest, and
+# Only the admin sees it (see Cars::PageGate), unless the list allows a visitor, and
 # it has a timeframe that defaults to the whole time. The lists of the
 # charging sessions and of the places stand side by side as pills in the
 # header of the desktop (see #list_tabs).

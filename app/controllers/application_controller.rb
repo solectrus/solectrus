@@ -40,7 +40,7 @@ class ApplicationController < ActionController::Base
   helper_method def title
   end
 
-  # The names of the cars are personal, so a guest sees their numbers
+  # The names of the cars are personal, so a visitor sees their numbers
   before_action { Current.car_names_hidden = !admin? }
 
   before_action :check_for_registration

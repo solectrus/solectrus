@@ -31,7 +31,7 @@ module ChartDropdown::Logic
 
   # Which sensors a page shows is a decision of the sensors, not of the menu.
   # The menu offers a chart only where it can draw the timeframe and the
-  # selection of the page (see Sensor::Chart::Base.supports?). A guest gets
+  # selection of the page (see Sensor::Chart::Base.supports?). A visitor gets
   # the chart of an admin-only sensor without its data (see
   # ChartLoader::Component).
   def sensor_names

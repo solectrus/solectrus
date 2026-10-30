@@ -394,7 +394,7 @@ permitted { ApplicationPolicy.custom_check? }
 admin_only  # Only the admin sees the sensor
 ```
 
-An admin-only sensor holds personal data, for example the location of a car. A guest gets no
+An admin-only sensor holds personal data, for example the location of a car. A visitor gets no
 chart of it: a request with its name gets the status 403 (`ParamsHandling`). The MCP server
 does not offer it (`McpServer::Sensors`). A component that shows its value must ask
 `helpers.admin?` itself.

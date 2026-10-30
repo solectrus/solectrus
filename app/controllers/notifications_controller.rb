@@ -3,7 +3,7 @@ class NotificationsController < ApplicationController
   skip_before_action :check_for_sponsoring
 
   # Reading a notification and marking it as read stay with the admin. The list
-  # page is the one exception: a guest who followed the red mark lands here and
+  # page is the one exception: a visitor who followed the red mark lands here and
   # is told why they see nothing and why the mark does not go away.
   before_action :admin_required!, except: :index
 

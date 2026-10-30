@@ -44,7 +44,7 @@ class Car::ListBox::Component < ViewComponent::Base
   # A separated part of the card below its head, like a row above the list
   renders_many :notes
 
-  # A banner over the full width below the head, like the note of a guest
+  # A banner over the full width below the head, like the note of a visitor
   # that the list leaves out the latest days (see Car::AdminOnlyNotice)
   renders_one :banner
 

@@ -57,7 +57,7 @@ class Sensor::Definitions::CarBatterySoc < Sensor::Definitions::Base
 
   # Named like the home battery, which stands next to it on the power
   # balance, with the short name of the car: "Ladestand ZOE". Without a
-  # given name, as for a guest, the one car in use is just the car.
+  # given name, as for a visitor, the one car in use is just the car.
   def display_name(_format = :long)
     car = Car.given_short_name_of(car_number)
     return I18n.t('sensors.car_battery_soc') if car.nil? && Car.sole_in_use&.id == car_number

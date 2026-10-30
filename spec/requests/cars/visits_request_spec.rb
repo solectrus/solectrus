@@ -22,7 +22,7 @@ describe 'Cars Visits' do
   after { Sensor::Config.setup(ENV) }
 
   describe 'GET /cars/visits' do
-    it 'forbids the list to a guest' do
+    it 'forbids the list to a visitor' do
       get cars_visits_path
 
       expect(response).to have_http_status(:forbidden)
@@ -274,7 +274,7 @@ describe 'Cars Visits' do
       expect(response.body).to include('<turbo-frame id="modal"', %(data-timeframe--select--component-url-template-value="/cars/places/#{work.id}/visits/:timeframe"))
     end
 
-    it 'forbids the select to a guest' do
+    it 'forbids the select to a visitor' do
       get cars_visits_path(timeframe: '2026-09'), headers: { 'Turbo-Frame' => 'modal' }
 
       expect(response).to have_http_status(:forbidden)

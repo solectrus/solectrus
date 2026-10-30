@@ -1,7 +1,7 @@
 # A charging session in the list of the charging sessions (see
 # ChargingSession::List::Component): a row of the table from lg up, a cell of
 # a grouped list below. The admin opens its form with a click on the row. A
-# guest reads the row alone, without the place of an offsite session.
+# visitor reads the row alone, without the place of an offsite session.
 class ChargingSession::Row::Component < ViewComponent::Base
   include ChargingSession::Texts
 
@@ -16,7 +16,7 @@ class ChargingSession::Row::Component < ViewComponent::Base
 
   # Where the session charged: home for the wallbox, else its address, its
   # provider or its note. The place of an offsite session is personal data,
-  # so a guest reads "offsite".
+  # so a visitor reads "offsite".
   def place
     return t('places.labels.home') if charging_session.wallbox?
     return t('car_breakdown.offsite_short') unless admin?

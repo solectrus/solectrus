@@ -5,7 +5,7 @@
 # other months.
 #
 # Only a calendar period has periods of its kind. They end with the last day
-# with data of the shown timeframe, like the day before yesterday for a guest
+# with data of the shown timeframe, like the day before yesterday for a visitor
 # (see Car::AdminOnlyDays). A period counts only when the cars were in use on
 # each of its days up to then, because a car that
 # started in the middle of a month gives a value of a few days. The shown
