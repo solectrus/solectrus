@@ -27,10 +27,6 @@ class Car::PaymentList::Component < ViewComponent::Base
     car_column? ? 'grid-cols-[auto_auto_auto_minmax(0,1fr)_auto]' : 'grid-cols-[auto_auto_minmax(0,1fr)_auto]'
   end
 
-  def headers
-    [:date, (:car if car_column?), :category, :note, :amount].compact.map { Car::Payment.human_attribute_name(it) }
-  end
-
   # An empty list without a filter introduces the payments. With a filter, it
   # only says that nothing matches.
   def empty_state

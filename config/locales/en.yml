@@ -549,7 +549,6 @@ en:
       delete: Delete place
       make_home: Make it home …
       make_home_confirm: Make this place home? So far, “%{previous}” is home. Afterwards, all summaries are built again.
-      time: Time
     cash_flows:
       name: Cash flows
       new: Add cash flow

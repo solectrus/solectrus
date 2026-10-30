@@ -47,7 +47,7 @@ A page has one of two grounds on a phone. A list or a form stands on the gray pa
 - `Ui::Loading`: The animated spinner.
 - `Ui::LazyFrame`: A Turbo frame that loads its content in a request of its own and shows `Ui::Loading` until then.
 - `Ui::LazyRows`: The rows of one page of a list from Pagy, and a frame that loads the next page when it comes into view. It shows a spinner, and its text is for a screen reader alone.
-- `Ui::AmountTable`: A list of amounts with their total, like the payments. On the desktop it is a grid with a header that stays at the top. On a phone it is a grouped list, and the total stands in a group of its own. The block gives the rows.
+- `Ui::AmountTable`: A list of amounts with their total, like the payments. On the desktop it is a grid without column headers. On a phone it is a grouped list, and the total stands in a group of its own. The block gives the rows. `Ui::YearGroups` puts a `Ui::GroupHeader` above the rows of each year.
 - `Ui::GroupHeader`: The header of a group of rows, with a `title:` and an optional `href:` to the list of the group alone. On a phone it cuts the card into a card per group. `Timeframe::RowGroups`, outside the namespace, puts the rows of a list in groups of a month, a week or a day and gives the title of each group.
 - `Ui::SectionHeader`: The header of a section of a page, like "Access for AI" on the system page. The desktop shows the title over a line. A phone shows it as the header of a grouped list. `class:` adds the spacing of the caller. A group of rows in a list uses `Ui::GroupHeader` instead.
 - `Ui::OptimisticNav`: The data of a navigation whose marking moves to the tapped item at once, like `Ui::Chips` and `Ui::SegmentedControl`. With `slide: true`, the marking slides there.

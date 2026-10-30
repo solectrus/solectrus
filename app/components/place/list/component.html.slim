@@ -2,9 +2,4 @@
   = render Ui::EmptyState::Component.new(icon: 'location-dot', title: t('settings.places.empty_title'), text: t('settings.places.empty'))
 - else
   .grid.w-full.max-lg:block.max-lg:overflow-hidden.max-lg:rounded-xl.max-lg:bg-surface class="grid-cols-[auto_minmax(0,1fr)_auto]"
-    / The header sticks to the top while the list scrolls. It has the
-      background of the page, so no row shows through.
-    .col-span-full.grid.grid-cols-subgrid.sticky.top-0.z-10.bg-white.dark:bg-slate-900.text-gray-800.dark:text-gray-400.font-bold.max-lg:hidden
-      .p-2.col-span-2 = Place.human_attribute_name(:name)
-      .p-2.text-right = t('settings.places.time')
     = render Place::List::Rows::Component.new(places:, pagy:)

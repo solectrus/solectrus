@@ -81,6 +81,7 @@ describe 'Settings car payments' do
       expect(response.parsed_body.text.squish).to include('Insurance 2025')
       expect(response.parsed_body.text.squish).not_to include('Insurance 2024', 'Inspection 2025')
       expect(response.parsed_body.css('.text-signal-negative').map { it.text.squish }).to eq(['-€520.00', '-€520.00'])
+      expect(response.parsed_body.css('h3.ui-group-header')).to be_empty
     end
 
     it 'removes a single part of the filter with the x of its pill' do
@@ -131,6 +132,21 @@ describe 'Settings car payments' do
 
       expect(response.body).to include('<turbo-frame', 'id="car_payments_page_2"')
       expect(response.body).not_to include('car_payments_page_3')
+    end
+
+    # 25 payments of 2025 fill the first page, so 2024 starts the second one.
+    # A year that goes on from the page before has no second header.
+    it 'names each year once, also across the pages' do
+      26.times { car.payments.create!(category: :maintenance, date: Date.new(2025, 1, 1) + it, amount: 5) }
+      car.payments.create!(category: :maintenance, date: Date.new(2024, 12, 31), amount: 5)
+
+      get settings_car_payments_path
+
+      expect(response.parsed_body.css('h3.ui-group-header').map(&:text)).to eq(['2025'])
+
+      get settings_car_payments_path(page: 2), headers: { 'Turbo-Frame' => 'car_payments_page_2' }
+
+      expect(response.parsed_body.css('h3.ui-group-header').map(&:text)).to eq(['2024'])
     end
 
     it 'gives a new payment the category of the filter' do

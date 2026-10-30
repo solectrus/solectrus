@@ -1,6 +1,8 @@
 - if cash_flows.any?
-  = render Ui::AmountTable::Component.new(headers:, grid_columns: 'grid-cols-[auto_auto_minmax(0,1fr)_auto]', total:, unit: Currency.symbol) do
-    - cash_flows.each do |cash_flow|
+  = render Ui::AmountTable::Component.new(grid_columns: 'grid-cols-[auto_auto_minmax(0,1fr)_auto]', total:, unit: Currency.symbol) do
+    - groups.each do |cash_flow, year|
+      - if year && grouped?
+        = render Ui::GroupHeader::Component.new(title: year.to_s, href: year_path(year))
       = render CashFlow::List::Row::Component.new(cash_flow:, filter:)
 - else
   = render empty_state

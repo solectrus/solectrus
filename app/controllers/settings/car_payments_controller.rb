@@ -24,7 +24,7 @@ class Settings::CarPaymentsController < ApplicationController
 
   def index
     @pagy, @payments = paginated_payments
-    render(rows_component(@payments, @pagy, frame: true), layout: false) if Ui::LazyRows::Component.request?(request, Car::PaymentList::Rows::Component::FRAME_PREFIX)
+    render(rows_component(@payments, @pagy), layout: false) if Ui::LazyRows::Component.request?(request, Car::PaymentList::Rows::Component::FRAME_PREFIX)
   end
 
   def new
@@ -69,8 +69,11 @@ class Settings::CarPaymentsController < ApplicationController
 
   helper_method :list_component
 
-  def rows_component(payments, pagy, frame: false)
-    Car::PaymentList::Rows::Component.new(payments:, pagy:, car_column: cars.many?, filter:, frame:)
+  # A further page of the list. The date of the last payment of the page
+  # before tells whether its first payment goes on with that year.
+  def rows_component(payments, pagy)
+    previous_date = filtered_payments.offset(pagy.offset - 1).pick(:date)
+    Car::PaymentList::Rows::Component.new(payments:, pagy:, car_column: cars.many?, filter:, previous_date:, frame: true)
   end
 
   helper_method def title

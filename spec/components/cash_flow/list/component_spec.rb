@@ -27,7 +27,7 @@ describe CashFlow::List::Component, type: :component do
     end
 
     before do
-      CashFlow.create!(date: Date.new(2021, 5, 1), amount: 800, category: 'subsidy', note: 'Grant')
+      CashFlow.create!(date: Date.new(2022, 5, 1), amount: 800, category: 'subsidy', note: 'Grant')
 
       render_inline(component)
     end
@@ -39,6 +39,19 @@ describe CashFlow::List::Component, type: :component do
         expect(row['data-ui--table-row--component-form-sheet-value']).to eq('true')
         expect(row.text).to include('Panels', '2021-03-01 · Investment')
       end
+    end
+
+    it 'names the year above its cash flows, with a link that narrows the list to it' do
+      headers = page.all('h3.ui-group-header')
+
+      expect(headers.map(&:text)).to eq(%w[2022 2021])
+      expect(headers.last).to have_link(href: '/settings/cash_flows?from=2021-01-01&to=2021-12-31')
+    end
+
+    it 'needs no header of a year in the list of a single year' do
+      render_inline(described_class.new(cash_flows: CashFlow.ordered, filter: CashFlow::Filter.new.with_year(Date.new(2021))))
+
+      expect(page).to have_no_css('h3.ui-group-header')
     end
 
     it 'renders the total' do

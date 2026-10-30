@@ -549,7 +549,6 @@ de:
       delete: Ort löschen
       make_home: Als Zuhause festlegen …
       make_home_confirm: Diesen Ort als Zuhause festlegen? Bisher ist „%{previous}“ das Zuhause. Danach werden alle Zusammenfassungen neu berechnet.
-      time: Zeit
     cash_flows:
       name: Zahlungen
       new: Neue Zahlung
