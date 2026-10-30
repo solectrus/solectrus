@@ -119,17 +119,14 @@ module LlmTest
       abort e.message
     end
 
-    # Creates the test database on first use and loads the current schema into
-    # it, the way `db:prepare` would.
+    # Prepares the database like the test database (see maintain_test_schema):
+    # created on first use, loaded again from db/schema.rb after a migration,
+    # else only emptied. The seeding fills it again on each run.
     def connect_to_own_database!
       config = ActiveRecord::Base.connection_db_config.configuration_hash.merge(database: DATABASE)
-      ActiveRecord::Base.establish_connection(config)
-      ActiveRecord::Base.connection.tables
-    rescue ActiveRecord::NoDatabaseError
-      puts "Creating #{DATABASE} ..."
-      ActiveRecord::Tasks::DatabaseTasks.create(config) # rubocop:disable Rails/SaveBang
-      ActiveRecord::Base.establish_connection(config)
-      load Rails.root.join('db', 'schema.rb')
+      db_config = ActiveRecord::DatabaseConfigurations::HashConfig.new('test', 'primary', config)
+      ActiveRecord::Tasks::DatabaseTasks.reconstruct_from_schema(db_config)
+      ActiveRecord::Base.establish_connection(db_config)
     end
 
     def finish(report)
