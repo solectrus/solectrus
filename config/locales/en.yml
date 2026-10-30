@@ -248,7 +248,7 @@ en:
   car_breakdown:
     home: Wallbox
     offsite_map: Map of the offsite sessions
-    admin_only_days_left_out: Without logging in, today and yesterday are left out for data protection.
+    admin_only_days_left_out: Without logging in, today and yesterday are left out.
     places_map: Map of the places
     home_pv: Photovoltaics
     share_pv: from PV
