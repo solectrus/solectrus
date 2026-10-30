@@ -5,18 +5,20 @@
   the rows keep one height.
 .contents id=dom_id(place)
   = render Ui::TableRow::Component.new(href: edit_path, form_sheet: true, css_class: 'grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
-    .flex.items-center.gap-2.min-w-0.lg:p-2.max-lg:col-start-1.max-lg:row-start-1
-      = row.link css_class: ['truncate max-lg:text-headline', (place.name ? 'max-lg:text-gray-800 dark:max-lg:text-slate-300' : 'italic text-gray-500 max-lg:text-muted')] do
+    .min-w-0.lg:p-2.max-lg:col-start-1.max-lg:row-start-1
+      = row.link css_class: ['block truncate max-lg:text-headline', (place.name ? 'max-lg:text-gray-800 dark:max-lg:text-slate-300' : 'italic text-gray-500 max-lg:text-muted')] do
         = name
-      = render Place::Labels::Component.new(place:)
     / Also empty before an answer of Nominatim, with the height of a line
     .truncate.text-gray-500.lg:p-2.max-lg:col-start-1.max-lg:row-start-2.max-lg:text-subhead.max-lg:leading-normal.max-lg:text-muted class='min-h-[1lh]'
       = place.locality
     .whitespace-nowrap.tabular-nums.lg:p-2.lg:text-right.max-lg:col-start-2.max-lg:row-span-full.max-lg:text-muted
       / The time links to the visits that make it up. On a phone a tap opens
         the place. A place without a visit says so, so the user finds it to
-        delete it (see Place#deletable?).
-      - if duration
+        delete it (see Place#deletable?). Home shows its label instead, as
+        the sum of its time tells nothing.
+      - if place.home?
+        = render Place::Labels::Component.new(place:)
+      - elsif duration
         = link_to duration,
                   helpers.cars_visits_path(place: place.id),
                   class: 'hover:underline underline-offset-4 max-lg:pointer-events-none',

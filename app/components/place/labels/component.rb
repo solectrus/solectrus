@@ -1,5 +1,5 @@
-# The icons of the labels of a place, for example a house for home. The name
-# of each label is there for a screen reader and as a tooltip.
+# The labels of a place, each as a Ui::Badge with its icon and its name, for
+# example a house for home.
 class Place::Labels::Component < ViewComponent::Base
   def initialize(place:)
     super()
@@ -7,15 +7,12 @@ class Place::Labels::Component < ViewComponent::Base
   end
 
   def call
-    safe_join(@place.labels.map { label_icon(it) })
+    safe_join(@place.labels.map { label_badge(it) })
   end
 
   private
 
-  def label_icon(label)
-    name = Place.human_label(label)
-    tag.span(class: 'shrink-0 text-muted', title: name, data: { controller: 'tooltip' }) do
-      icon(Place::LABELS[label]) + tag.span(name, class: 'sr-only')
-    end
+  def label_badge(label)
+    render Ui::Badge::Component.new(color: :indigo).with_content(icon(Place::LABELS[label]) + Place.human_label(label))
   end
 end

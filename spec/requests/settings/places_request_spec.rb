@@ -54,6 +54,16 @@ describe 'Settings Places' do
       expect(a_request(:get, /nominatim/)).not_to have_been_made
     end
 
+    it 'shows the label of home instead of its time' do
+      place.update!(name: 'W15', home: true)
+      visit!
+      login_as_admin
+      get settings_places_path
+
+      expect(response.parsed_body.css('.rounded-full').map { it.text.squish }).to include(Place.human_label('home'))
+      expect(response.body).not_to include(cars_visits_path(place: place.id), I18n.t('settings.places.no_visits'))
+    end
+
     it 'says that a place was never visited' do
       place
       login_as_admin

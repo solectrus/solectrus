@@ -2,7 +2,7 @@ describe Place::Labels::Component, type: :component do
   it 'names each label of the place' do
     render_inline(described_class.new(place: Place.new(labels: %w[home])))
 
-    expect(page).to have_css("span[title='#{Place.human_label('home')}'] svg")
+    expect(page).to have_css('span.rounded-full', text: Place.human_label('home')) { it.has_css?('svg') }
   end
 
   it 'renders nothing without a label' do

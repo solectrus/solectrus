@@ -10,11 +10,11 @@
       span.lg:hidden
         = " · #{category_name}"
         - if car_column?
-          = " · #{payment.car.display_name}"
+          = " · #{payment.car.short_name}"
     span.max-lg:hidden = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_year(payment.date), label: t('.filter_by_year'))
   - if car_column?
     .inline-flex.items-center.gap-1.5.whitespace-nowrap.p-2.max-lg:hidden
-      = payment.car.display_name
+      = render Car::Badge::Component.new(car: payment.car, short: true)
       = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_car(payment.car), label: t('.filter_by_car'))
   .inline-flex.items-center.gap-1.5.whitespace-nowrap.p-2.max-lg:hidden
     = render Car::PaymentCategoryPill::Component.new(category: payment.category)
