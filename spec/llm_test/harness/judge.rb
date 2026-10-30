@@ -14,7 +14,7 @@ module LlmTest
     DEFAULT_MODEL = 'haiku'.freeze
     public_constant :DEFAULT_MODEL
 
-    Verdict = Struct.new(:pass, :reason, :cost_usd)
+    Verdict = Struct.new(:pass, :reason, :cost_usd, :model)
     public_constant :Verdict
 
     def initialize(model: DEFAULT_MODEL)
@@ -24,7 +24,7 @@ module LlmTest
     def call(test_case, result)
       answer = ClaudeCli.new(model: @model).call(prompt(test_case, result), system: SYSTEM)
 
-      parse(answer.answer, answer.cost_usd)
+      parse(answer.answer, answer.cost_usd).tap { _1.model = answer.model }
     end
 
     SYSTEM = <<~TEXT.strip

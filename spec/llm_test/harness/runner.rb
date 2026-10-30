@@ -77,6 +77,8 @@ module LlmTest
         case: test_case.id,
         prompt: test_case.prompt,
         model:,
+        model_id: result.model,
+        judge_model: verdict&.model,
         run:,
         passed: failures.empty?,
         failures:,

@@ -51,6 +51,11 @@ Haiku too, so it never costs more than the run it grades. Every run writes a res
 `spec/llm_test/results/`, with the tool calls, the arguments and the answer of
 each single run.
 
+A model name like `haiku` is an alias. The `claude` CLI moves it to the next
+version of the model. The report therefore names the version that ran behind
+each alias and behind the judge, for example `claude-haiku-5-5`. The result file
+keeps these versions too.
+
 ## A red case is a finding
 
 Every case has to pass in every run. A case states a rule the server enforces,
@@ -85,7 +90,8 @@ bin/llm-test --runs 5 --baseline spec/llm_test/baselines/before.json
 
 The diff shows the pass rate, the average number of tool calls and the context
 size, for each case and model, before and after. A `!` marks a case that got
-worse.
+worse. If the baseline ran other model versions, the diff says so first. Such a
+diff measures the model, not the server.
 
 ## Ablation: does a sentence still earn its bytes?
 

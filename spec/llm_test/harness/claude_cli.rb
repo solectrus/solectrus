@@ -32,6 +32,7 @@ module LlmTest
         :rate_limit,
         :turns,
         :truncated,
+        :model,
       ) do
         def tool_names = tool_calls.map(&:name)
       end
@@ -141,6 +142,7 @@ module LlmTest
           rate_limit: rate_limit,
           turns: assistant_messages.size,
           truncated: final.nil? || final['is_error'] == true,
+          model: model,
         )
       end
 
@@ -149,6 +151,13 @@ module LlmTest
       def final = @final ||= @events.find { _1['type'] == 'result' }
 
       def answer = final&.dig('result').to_s.strip
+
+      # The model that the CLI ran, like claude-haiku-5-5. The command names an
+      # alias like haiku, which moves to the next version of the model.
+      def model
+        @events.find { _1['type'] == 'system' && _1['subtype'] == 'init' }&.dig('model') ||
+          assistant_messages.first&.dig('model')
+      end
 
       def assistant_messages
         @assistant_messages ||=

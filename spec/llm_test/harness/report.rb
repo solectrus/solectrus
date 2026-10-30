@@ -59,6 +59,7 @@ module LlmTest
              "#{format('$%.2f', @records.sum { _1[:cost_usd].to_f })} spent, " \
              "#{thousands(@records.sum { _1[:context_tokens].to_i })} tokens read, " \
              "#{thousands(@records.sum { _1[:output_tokens].to_i })} written."
+      puts "Models: #{describe(versions)}." if versions.any?
       print_usage
       print_failures
     end
@@ -91,6 +92,7 @@ module LlmTest
     # Every case+model the two runs share, with the numbers that moved.
     def show_diff(baseline)
       before = baseline['summary']
+      print_version_change(baseline['versions'])
 
       puts
       puts format(ROW, 'CASE', 'MODEL', 'PASS', 'CALLS', 'CONTEXT', '')
@@ -120,12 +122,39 @@ module LlmTest
         'recorded_at' => Time.current.iso8601,
         **(@ablated ? { 'ablated' => @ablated } : {}),
         'commit' => `git rev-parse --short HEAD`.strip,
+        'versions' => versions,
         'summary' => summary.transform_keys { _1.join(' / ') },
         'records' => @records.map { _1.except(:rate_limit) },
       }
     end
 
+    # The versions that ran behind each model alias, and behind the judge,
+    # like { "haiku" => ["claude-haiku-5-5"] }. An alias moves to the next
+    # version of a model, so a saved run keeps them.
+    def versions
+      @versions ||=
+        @records
+          .group_by { _1[:model] }
+          .transform_values { versions_of(_1, :model_id) }
+          .merge('judge' => versions_of(@records, :judge_model))
+          .reject { |_name, ids| ids.empty? }
+    end
+
     private
+
+    # A diff across two versions of a model measures the model, not the
+    # server, so the diff says so first
+    def print_version_change(before)
+      if before.nil?
+        puts "\nThe baseline names no model versions."
+      elsif before != versions
+        puts "\nThe models differ: #{describe(before)} in the baseline, #{describe(versions)} now."
+      end
+    end
+
+    def versions_of(runs, key) = runs.filter_map { _1[key] }.uniq.sort
+
+    def describe(versions) = versions.map { |name, ids| "#{name} = #{ids.join(', ')}" }.join('; ')
 
     def passed = @records.count { _1[:passed] }
 
