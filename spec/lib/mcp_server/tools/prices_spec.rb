@@ -149,16 +149,39 @@ describe McpServer::Tools::Prices do
         expect(entry[:history].pluck(:value)).to include(entry[:effective])
       end
 
-      it 'lists a tariff starting after the date as upcoming, not as history' do
+      # The tariff of today is a change after the date, but no scheduled one
+      it 'lists a change after the date that is in force by today as later' do
         entry = electricity(date: '2024-06-15')
 
         expect(entry[:history].pluck(:starts_at)).not_to include('2025-01-01')
-        expect(entry[:upcoming].pluck(:starts_at)).to eq(%w[2025-01-01])
+        expect(entry[:later].pluck(:starts_at)).to eq(%w[2025-01-01])
+        expect(entry).not_to have_key(:upcoming)
       end
 
-      it 'omits `upcoming` where nothing is pending' do
+      context 'with a change after today' do
+        let(:scheduled) { Date.current.next_month.beginning_of_month }
+
+        before { Price.create!(name: 'electricity', starts_at: scheduled, amount_per_kwh: 0.40) }
+
+        it 'lists it as upcoming, also for a past date' do
+          entry = electricity(date: '2024-06-15')
+
+          expect(entry[:later].pluck(:starts_at)).to eq(%w[2025-01-01])
+          expect(entry[:upcoming].pluck(:starts_at)).to eq([scheduled.iso8601])
+        end
+
+        it 'lists nothing as later for today' do
+          entry = electricity
+
+          expect(entry).not_to have_key(:later)
+          expect(entry[:upcoming].pluck(:starts_at)).to eq([scheduled.iso8601])
+        end
+      end
+
+      it 'omits `later` and `upcoming` where nothing changed' do
         entry = electricity(date: '2025-06-15')
 
+        expect(entry).not_to have_key(:later)
         expect(entry).not_to have_key(:upcoming)
       end
 

@@ -35,7 +35,8 @@ setup guide instead, for the admin alone.)
   delivering?" check)
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent);
   per price type the value `effective` on the requested date, the change
-  `history` up to that date, and any change scheduled after it under `upcoming`
+  `history` up to that date. For a past date, the changes up to today follow
+  under `later`. A change after today is scheduled and comes under `upcoming`
 - `get_current_values` — current live readings, each with freshness metadata
   (`last_seen_at` and `age_seconds`, on every entry — a reported value carries
   them as much as a null one)

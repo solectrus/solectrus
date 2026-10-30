@@ -22,10 +22,12 @@ module McpServer
 
         `history` covers the changes UP TO `date`, so the entry `effective` was
         read from is always in it — the newest one under the default
-        order="desc". A change that only takes effect AFTER `date` is not
-        history yet and is listed separately under `upcoming`, oldest first;
-        the field is absent when nothing is pending. Never quote an `upcoming`
-        value as the current price.
+        order="desc". A change AFTER `date` is not history yet. For a past
+        `date`, the changes up to today are listed under `later`, oldest first:
+        the newest of them is the tariff of today. A change after today is
+        scheduled and listed under `upcoming`, oldest first. Each field is
+        absent when empty. Never quote an `upcoming` value as the current
+        price.
 
         Every rate is per kWh in the system currency (see get_system_info).
 
@@ -108,29 +110,34 @@ module McpServer
                 Precision.round(effective&.amount_per_kwh, :money_per_kwh),
               **base_fee_of(effective, key: :effective_base_fee_per_month),
               history: sort_history(records.map { serialize(it) }, sort:, order:),
-              **upcoming_for(name, on:, limit: capped),
+              **changes_after(name, on:, limit: capped),
             }
           end
 
         { date: on.iso8601, currency:, sort:, order:, limit: capped, prices: }
       end
 
-      # Changes that only take effect after `on`. Their own field rather than a
-      # flag inside the history: a scheduled tariff sitting in a list called
-      # "history" reads as the current one, and a client quoting it is wrong by
-      # however long it is until it starts.
-      def self.upcoming_for(name, on:, limit:)
-        entries =
-          Price
-            .where(name:)
-            .where(starts_at: (on + 1)..)
-            .order(starts_at: :asc)
-            .limit(limit)
-            .map { serialize(it) }
+      # The changes after `on`, in fields of their own rather than as a flag
+      # inside the history: a scheduled tariff sitting in a list called
+      # "history" reads as the current one. `later` holds the changes in force
+      # by today, so a past `date` still shows that its tariff changed since.
+      # `upcoming` holds the ones after today, which are scheduled. One field
+      # for both made the tariff of today look like a future one, and a client
+      # concluded that the old price still holds.
+      def self.changes_after(name, on:, limit:)
+        today = Date.current
 
-        entries.any? ? { upcoming: entries } : {}
+        {
+          later: changes_in(name, (on + 1)..today, limit:),
+          upcoming: changes_in(name, ([on, today].max + 1).., limit:),
+        }.compact_blank
       end
-      private_class_method :upcoming_for
+      private_class_method :changes_after
+
+      def self.changes_in(name, dates, limit:)
+        Price.where(name:, starts_at: dates).order(starts_at: :asc).limit(limit).map { serialize(it) }
+      end
+      private_class_method :changes_in
 
       def self.sort_history(entries, sort:, order:)
         ascending = order.to_s == 'asc'

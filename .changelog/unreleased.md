@@ -66,6 +66,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- AI access: a question about a past price now also gets the later changes of the tariff up to today. Before, they came as scheduled changes, and an assistant could claim that the old price still holds
 - The menu item HELIOS now opens HELIOS at the address that HELIOS was last opened at, like the IP address in the home network. This needs the next version of HELIOS. Before, the menu item took the domain of the dashboard and opened a page that never loaded (#6092)
 - A tooltip on a page that you scrolled down now opens next to its element. Before, it opened lower by the scroll distance
 - On a phone, the bar at the bottom now stays in view on a long page. Before, it scrolled away

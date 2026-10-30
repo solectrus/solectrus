@@ -40,7 +40,8 @@
   expect_facts: [electricity_price_2021]
   judge: >
     Gives the price per kWh as the one in force in June 2021. Presenting it as
-    the price of today fails. The tariff carries no name in SOLECTRUS, so do
+    the price of today fails, and so does saying that it still holds today:
+    the tariff changed later. The tariff carries no name in SOLECTRUS, so do
     not ask for one.
 
 - id: cash_flow_single_entry
