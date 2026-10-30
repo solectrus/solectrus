@@ -767,17 +767,24 @@ currency, the fuel prices count as missing.
 Without fuel prices, the comparison is not available (`Car::Comparison.available?`). The page
 More, the tabs of the car lists and the settings do not show it. The settings then hide the
 combustion car of each car and the payments. The address of the comparison leads to the car
-page, and the address of the payments leads to the cars in the settings. If a combustion car uses a fuel
-without prices, but another fuel has prices, the comparison page tells that the prices are
-missing.
+page, and the address of the payments leads to the cars in the settings. The car page shows
+no savings. If a combustion car uses a fuel without prices, but another fuel has prices, the
+comparison page tells that the prices are missing.
+
+The car page shows the savings for a month, a year and the whole time. They set the charging
+against the driving, so they stand in a row over both columns, between the figures and the
+charts. The row links to the comparison of the same timeframe. Another timeframe, for example
+a week or the last 12 months, has no row. The row needs a drive and the fuel prices of each
+combustion car. Without a compared distance, it shows a dash, and the comparison page tells
+why. A visitor without the admin login sees the savings up to the latest public day, on the
+car page and on the comparison page (see `Car::AdminOnlyDays`).
 
 The menu of the desktop and the page More of a phone open the comparison page
 (`/cars/savings`). It has a timeframe and a car select like the lists below the car page
 (`Car::SubNav::Component`). The select offers a month, a year and the whole time. On the
 desktop, the page is the tab "Savings" beside the charging sessions and the places. Like the car page, the
-page is open to everyone. A visitor without the admin login sees the comparison up to the
-latest public day, like on the car page (see `Car::AdminOnlyDays`). Only the admin gets the
-links to the payments and to the settings of a car.
+page is open to everyone. Only the admin gets the links to the payments and to the settings
+of a car.
 
 Above the figures, warnings name what the data lacks (`Car::ComparisonGaps`): offsite
 sessions that wait for a confirmation, a distance without a cost or a fuel price, a

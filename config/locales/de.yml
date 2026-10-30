@@ -258,6 +258,8 @@ de:
     charging: Laden
     driving: Fahren
     places: Orte
+    # The row below the driving figures that links to the comparison
+    savings: Ersparnis gegenüber Verbrenner
     # The switch between the list of the places and the list of the visits
     place_lists:
       places: Ziele

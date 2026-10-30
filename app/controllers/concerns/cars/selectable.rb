@@ -76,6 +76,10 @@ module Cars::Selectable
     # Whether the column has no value in the period
     helper_method def idle_section?(section) = !Car::Section.value?(section, section_report)
 
+    # Whether the driving shows the savings against a combustion car, so its
+    # placeholder keeps their place (see Car::Report#savings?)
+    helper_method def driving_savings? = section_report.savings?
+
     # The report of the period that the columns ask before the figures load
     def section_report
       @section_report ||= Car::Report.new(data_timeframe, cars, guest: car_selection.with_guest?)

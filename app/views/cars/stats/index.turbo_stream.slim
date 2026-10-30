@@ -18,6 +18,11 @@
         - else
           = render Car::ChargingBox::Component.new(report: data, all: car.nil? && !car_selection.guest?)
 
+  / The savings below the figures of both columns refresh with them
+  - if data.savings?
+    = turbo_stream.update scoped_frame_id('savings'), method: :morph do
+      = render Car::SavingsRow::Component.new(report: data)
+
   / The timeline of a day, below the figures, refreshes with them
   - if day_timeline
     = turbo_stream.update scoped_frame_id('timeline'), method: :morph do

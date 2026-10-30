@@ -55,15 +55,17 @@
         / The banner undoes the padding of the card (see the layout)
         .-mx-4.-mt-4.sm:-mx-6.sm:-mt-5.mb-3.lg:mb-6
           = render Car::AdminOnlyNotice::Component.new(text: t('car_breakdown.admin_only_days_left_out'), banner: true)
-      div class=['flex flex-col gap-6 lg:grid lg:grid-rows-[auto_1fr] lg:gap-y-0', (timeframe.day? ? 'shrink-0' : 'flex-1 min-h-0'), (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
+      div class=['flex flex-col gap-6 lg:grid lg:grid-rows-[auto_auto_1fr] lg:gap-y-0', (timeframe.day? ? 'shrink-0' : 'flex-1 min-h-0'), (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
         - overview_sections.each_with_index do |section, index|
           - chart = column_charts[section]
           = render StatsWithChart::Component.new(sensor_name: chart || Car::Section::CHARTS[section].first, timeframe:, chart: chart.present?, scope: section) do |column|
             / A card on the desktop. The columns share the rows of the figures
               and of the chart, so their boxes have one height and their charts
-              one top. A phone puts the figures of both columns first, and below
-              them the chart of the active column.
-            = tag.div class: 'group/column max-lg:contents lg:row-span-2 lg:grid lg:grid-rows-subgrid lg:min-h-0',
+              one top. The row between them holds the savings over the width of
+              both columns. Each column has its place in the grid, so the row of
+              the savings may lie over it. A phone puts the figures of both columns first, and
+              below them the chart of the active column.
+            = tag.div class: ['group/column max-lg:contents lg:row-span-3 lg:row-start-1 lg:grid lg:grid-rows-subgrid lg:min-h-0', (index.zero? ? 'lg:col-start-1' : 'lg:col-start-2')],
                       data: column.refresh_options.merge(car_overview_target: 'column', car_overview_charts: Car::Section::CHARTS[section].join(' '), active: section == phone_section) do
               / The first column loads the figures of each column. Until they
                 come, a placeholder in the layout of the box keeps their place,
@@ -72,7 +74,16 @@
                 = render Car::OverviewBox::Component.placeholder(title: t("car_breakdown.#{section}"), timeframe:)
               - if column.chart?
                 / A phone hides the chart of the other column, so it loads once it shows
-                = column.chart_frame('max-lg:order-3 flex-1 min-h-48 flex relative lg:pt-3 max-lg:group-data-[active=false]/column:hidden', lazy: section != phone_section)
+                = column.chart_frame('max-lg:order-3 flex-1 min-h-48 flex relative lg:row-start-3 lg:pt-3 max-lg:group-data-[active=false]/column:hidden', lazy: section != phone_section)
+
+        / The savings against a combustion car set the charging against the
+          driving, so they stand over the width of both columns, in the row
+          between the figures and the charts, which the columns leave empty. A
+          phone has them below the figures of both columns. They come with the figures, so until then a
+          placeholder keeps their place, permanent like the figures.
+        - if driving_savings?
+          div id=scoped_frame_id('savings') class='max-lg:order-2 lg:col-span-full lg:row-start-2 lg:mt-3' data-turbo-permanent=true
+            = render Car::SavingsRow::Component.new
 
       / The figures load the timeline with them (see the stats of the cars).
         Until it comes, a placeholder keeps its place. Like the figures, it is

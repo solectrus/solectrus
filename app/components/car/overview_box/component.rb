@@ -78,11 +78,11 @@ class Car::OverviewBox::Component < ViewComponent::Base
   end
 
   # A gray bar in the height of the text around it, like the location row of
-  # the live view while its name loads
+  # the live view while its name loads, or the savings while they load (see
+  # Car::SavingsRow::Component)
   def self.skeleton(width)
     ActionController::Base.helpers.tag.span(class: ['inline-block align-middle h-[0.8em] rounded-full bg-fill-strong animate-pulse motion-reduce:animate-none', width], aria: { hidden: true })
   end
-  private_class_method :skeleton
 
   def heading_id = "overview-#{title.parameterize}"
 

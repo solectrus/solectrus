@@ -1,0 +1,11 @@
+/ Without an address, the row keeps its place while the figures load. The
+  value follows its label, and the chevron the value. All three stand in
+  the middle, so they stay together over the width of both columns. A tap
+  colors the row like a figure, because a row this wide would shrink too
+  far with the click animation.
+= content_tag (href ? :a : :div), href:, class: ['flex min-h-12 items-center justify-center gap-3 rounded-xl bg-fill px-4 py-3 text-fg-secondary', ('active:bg-fill-strong lg:hover:bg-fill-strong focus-ring' if href)] do
+  span.truncate.text-sm.font-medium => t('car_breakdown.savings')
+  span.flex.shrink-0.items-center.gap-2.font-semibold.tabular-nums.text-fg
+    = value
+    - if href
+      = icon 'chevron-right', class: 'text-sm text-faint'

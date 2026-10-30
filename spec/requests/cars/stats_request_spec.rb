@@ -54,6 +54,19 @@ describe 'Car Stats' do
 
         expect(charged).to start_with('50.0 kWh')
       end
+
+      # The savings stand in a row of their own over both columns, which the
+      # figures fill too (see Car::SavingsRow::Component)
+      it 'fills the row of the savings with the figures' do
+        allow(Car::Report).to receive(:new).and_wrap_original do |original, *args, **options|
+          original.call(*args, **options).tap { allow(it).to receive_messages(savings?: true, comparison: instance_double(Car::Comparison, ready?: false)) }
+        end
+
+        get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
+
+        stream = Nokogiri::HTML5.fragment(response.body).at_css('turbo-stream[target^="cars-savings"]')
+        expect(stream.inner_html).to include('Savings against a combustion car', 'href="/cars/1/savings"')
+      end
     end
 
     context 'with live values' do

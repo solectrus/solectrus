@@ -135,6 +135,20 @@ describe 'Car Home' do
           expect(frames.size).to eq(2)
           expect(frames.count { it['src'] }).to eq(1)
         end
+
+        # The savings come with the figures, so a placeholder keeps their
+        # place over the width of both columns (see Car::Report#savings?)
+        it 'keeps the place of the savings while the figures load' do
+          allow(Car::Report).to receive(:new).and_wrap_original do |original, *args, **options|
+            original.call(*args, **options).tap { allow(it).to receive(:savings?).and_return(true) }
+          end
+
+          get cars_home_path(timeframe: Date.current.year.to_s)
+
+          row = response.parsed_body.css('[data-turbo-permanent]').find { it.text.include?('Savings against a combustion car') }
+          expect(row['class']).to include('lg:col-span-full')
+          expect(response.parsed_body.css('section[aria-labelledby^="overview-"]').map(&:text).join).not_to include('Savings')
+        end
       end
     end
 

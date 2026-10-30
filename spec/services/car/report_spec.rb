@@ -82,6 +82,56 @@ describe Car::Report do
     end
   end
 
+  describe '#savings?' do
+    let(:selected_cars) { [cars.first] }
+    let(:fuel_prices) { instance_double(Car::FuelPrices, any?: true) }
+
+    before do
+      cars.first.update!(fuel_type: 'petrol', fuel_consumption: 8)
+      allow(Car::FuelPrices).to receive(:new).with('petrol').and_return(fuel_prices)
+    end
+
+    it 'is true for a month with a drive and fuel prices' do
+      expect(report.savings?).to be(true)
+    end
+
+    # A week gives no meaningful savings, so it asks for no fuel prices
+    context 'with a week' do
+      let(:timeframe) { Timeframe.new('2026-W03') }
+
+      it 'is false' do
+        expect(report.savings?).to be(false)
+        expect(Car::FuelPrices).not_to have_received(:new)
+      end
+    end
+
+    context 'with a month without a drive' do
+      let(:timeframe) { Timeframe.new('2026-02') }
+
+      it 'is false' do
+        expect(report.savings?).to be(false)
+      end
+    end
+
+    context 'without fuel prices' do
+      let(:fuel_prices) { instance_double(Car::FuelPrices, any?: false) }
+
+      it 'is false' do
+        expect(report.savings?).to be(false)
+      end
+    end
+
+    # A comparison of only some of the cars would leave out the distance of
+    # the others
+    context 'with a car without a combustion car' do
+      let(:selected_cars) { cars }
+
+      it 'is false' do
+        expect(report.savings?).to be(false)
+      end
+    end
+  end
+
   describe '.pending_days' do
     before { allow(Summary).to receive(:missing_or_stale_days).and_return([]) }
 

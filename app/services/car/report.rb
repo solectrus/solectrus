@@ -188,6 +188,14 @@ class Car::Report # rubocop:disable Metrics/ClassLength
     end
   end
 
+  # Whether the car page shows the savings against a combustion car: a
+  # timeframe of the comparison (see Car::Comparison.timeframe?) with a
+  # drive, and fuel prices for each car. It reads no sums, so the page can
+  # ask it before the report loads and keep the place of the savings.
+  def savings?
+    Car::Comparison.timeframe?(timeframe) && driven? && comparison.present? && comparison.possible?
+  end
+
   # The value of a chart of the car page for its insights and its trend (see
   # Car::Trend), nil without one. The energy is in Wh, like a column of the
   # chart. Sessions without a price have no cost.

@@ -258,6 +258,8 @@ en:
     charging: Charging
     driving: Driving
     places: Locations
+    # The row below the driving figures that links to the comparison
+    savings: Savings against a combustion car
     # The switch between the list of the places and the list of the visits
     place_lists:
       places: Destinations
