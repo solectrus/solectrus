@@ -34,6 +34,11 @@ module LlmTest
     SCALES = [1, 1000, 0.001].freeze
     public_constant :SCALES
 
+    # A space, also a non-breaking or a thin one, between a digit and a group
+    # of exactly three digits (see .numbers_in)
+    THOUSANDS_SPACE = /(?<=\d)[ \u00A0\u202F\u2009](?=\d{3}(?!\d))/
+    private_constant :THOUSANDS_SPACE
+
     def self.load_all(path)
       Dir[File.join(path, '*.yml')].flat_map do |file|
         YAML.safe_load_file(file).map { new(_1) }
@@ -65,9 +70,13 @@ module LlmTest
 
     # Every number in a text, in both the German and the English notation. The
     # separators are told apart by position, not by locale: the last one is the
-    # decimal point when what follows it is one or two digits.
+    # decimal point when what follows it is one or two digits. A space before a
+    # group of three digits separates the thousands, like in "1 277,1 kWh".
     def self.numbers_in(text)
-      text.scan(/\d[\d.,]*\d|\d/).filter_map { |raw| parse_number(raw) }
+      text
+        .gsub(THOUSANDS_SPACE, '')
+        .scan(/\d[\d.,]*\d|\d/)
+        .filter_map { |raw| parse_number(raw) }
     end
 
     def self.parse_number(raw)
