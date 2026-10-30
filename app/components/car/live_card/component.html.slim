@@ -33,7 +33,7 @@
         next pulses. Below the bar, the scale from 0 to the maximum range.
       div
         = value_tag(:soc, class: 'block rounded-full') do
-          .relative.lg:h-11.rounded-full.overflow-hidden.bg-fill-strong class=bar_height_class role='img' aria-label=bar_label
+          .relative.lg:h-12.rounded-full.overflow-hidden.bg-fill-strong class=bar_height_class role='img' aria-label=bar_label
             / The pulse lies below the fill and reaches further, so it ends
               round like the fill
             - if charging_percent
@@ -41,7 +41,7 @@
             - if soc&.positive?
               .absolute.inset-y-0.left-0.rounded-full class=fill_classes style="width: #{fill_percent}%"
             - if soc
-              span.absolute.inset-y-0.flex.items-center.lg:text-lg.font-bold.tabular-nums class=[percent_classes, percent_size_class] style=percent_style aria-hidden='true'
+              span.absolute.inset-y-0.flex.items-center.lg:text-2xl.font-bold.tabular-nums class=[percent_classes, percent_size_class] style=percent_style aria-hidden='true'
                 = percent
         - if scale?
           div class='mt-1.5 lg:mt-2 flex justify-between gap-3 text-base tabular-nums text-muted'

@@ -48,12 +48,12 @@ class Car::LiveCard::Component < ViewComponent::Base
   public_constant :GROUND
 
   # The class names stay literal, so Tailwind finds them
-  def range_size_class = compact ? 'text-4xl lg:text-6xl' : 'text-5xl lg:text-6xl'
+  def range_size_class = compact ? 'text-3xl lg:text-5xl' : 'text-4xl lg:text-5xl'
 
   # The bar with its percent, a step larger for a lone card, which has the
   # room for it
-  def bar_height_class = compact ? 'h-8' : 'h-10'
-  def percent_size_class = compact ? 'text-sm' : 'text-lg'
+  def bar_height_class = compact ? 'h-9' : 'h-10'
+  def percent_size_class = compact ? 'text-base' : 'text-xl'
 
   delegate :car, to: :state
 
