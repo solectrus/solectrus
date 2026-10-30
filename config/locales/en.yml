@@ -471,6 +471,18 @@ en:
     deleted: Deleted
     error: An error occurred
   settings:
+    # The longer title above the content of a page with a side navigation
+    titles:
+      plant_data: System and operator
+      cash_flows: Cash flows for the amortization
+      electricity: Price of the electricity from the grid
+      feed_in: Compensation for the feed-in
+      generators: Generation and forecast
+      consumers: Consumers in the house
+      battery: Home battery
+      vehicles: Your electric vehicles
+      car_payments: Running costs and incomes of the electric vehicles
+      places: Places visited by the electric vehicles
     plant:
       name: PV system
       data: Name

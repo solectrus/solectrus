@@ -54,8 +54,8 @@ module SettingsNavigation
     # amortization
     helper_method def plant_nav_items
       [
-        { name: t('settings.plant.data'), href: edit_settings_plant_path, icon: 'solar-panel' },
-        { name: t('settings.cash_flows.name'), href: settings_cash_flows_path, icon: 'piggy-bank' },
+        { name: t('settings.plant.data'), title: t('settings.titles.plant_data'), href: edit_settings_plant_path, icon: 'solar-panel' },
+        { name: t('settings.cash_flows.name'), title: t('settings.titles.cash_flows'), href: settings_cash_flows_path, icon: 'piggy-bank' },
       ]
     end
 
@@ -63,8 +63,8 @@ module SettingsNavigation
     # feed-in
     helper_method def tariff_nav_items
       [
-        { name: Price.human_enum_name(:name, :electricity), href: settings_prices_path(name: 'electricity'), icon: 'bolt' },
-        { name: Price.human_enum_name(:name, :feed_in), href: settings_prices_path(name: 'feed_in'), icon: 'hand-holding-dollar' },
+        { name: Price.human_enum_name(:name, :electricity), title: t('settings.titles.electricity'), href: settings_prices_path(name: 'electricity'), icon: 'bolt' },
+        { name: Price.human_enum_name(:name, :feed_in), title: t('settings.titles.feed_in'), href: settings_prices_path(name: 'feed_in'), icon: 'hand-holding-dollar' },
       ]
     end
 
@@ -73,14 +73,14 @@ module SettingsNavigation
     # places when the cars have a location. Each page has a URL of its own.
     helper_method def car_nav_items
       items = [
-        { name: t('settings.cars.vehicles'), href: settings_cars_path },
-        ({ name: t('settings.car_payments.name'), href: settings_car_payments_path } if Car::Comparison.available?),
+        { name: t('settings.cars.vehicles'), title: t('settings.titles.vehicles'), href: settings_cars_path },
+        ({ name: t('settings.car_payments.name'), title: t('settings.titles.car_payments'), href: settings_car_payments_path } if Car::Comparison.available?),
       ].compact
       # Without a sponsorship the places show the upsell (see
       # Settings::PlacesController)
       return items unless Sensor::Cars.configured_numbers.any? { Sensor::Cars.located?(it, check_policy: false) }
 
-      items + [{ name: t('settings.places.name'), href: settings_places_path }]
+      items + [{ name: t('settings.places.name'), title: t('settings.titles.places'), href: settings_places_path }]
     end
   end
 end

@@ -1,9 +1,7 @@
 = render 'settings/sub_nav', save: 'settings_system_form', save_bar: 'settings_system_form'
 
 = form_with(model: Setting.new, url: settings_system_path, method: :patch, id: 'settings_system_form', html: { class: 'ui-form relative px-2', data: page_form_data }) do |f|
-  / The same header as the summaries below (see Summary::Status::Component)
-  h2.mb-4.border-b.border-gray-500.pb-1.font-medium.max-lg:mb-0.max-lg:border-0.max-lg:px-4.max-lg:text-xs.max-lg:uppercase.max-lg:tracking-wide.max-lg:text-muted class='max-lg:pb-1.5'
-    = t('settings.system.mcp.title')
+  = render Ui::SectionHeader::Component.new(title: t('settings.system.mcp.title'), class: 'mb-4 max-lg:mb-0')
   = f.group flush: true do
     - if ApplicationPolicy.mcp?
       = f.check_box :mcp_enabled,

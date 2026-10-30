@@ -10,6 +10,17 @@ describe Ui::SideNav::Component, type: :component do
     end
   end
 
+  it 'marks the current page and heads the content with its title' do
+    items.last[:title] = 'Visited places'
+
+    with_request_url('/settings/places') { render_inline(described_class.new(items:)) { 'Content' } }
+
+    aggregate_failures do
+      expect(page).to have_link('Places', href: '/settings/places') { it['aria-current'] == 'page' }
+      expect(page).to have_css('h2', text: 'Visited places')
+    end
+  end
+
   it 'shows the content alone for a single page' do
     render_inline(described_class.new(items: items.first(1))) { 'Content' }
 

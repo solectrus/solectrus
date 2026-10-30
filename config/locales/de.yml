@@ -471,6 +471,18 @@ de:
     deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
   settings:
+    # The longer title above the content of a page with a side navigation
+    titles:
+      plant_data: Anlage und Betreiber
+      cash_flows: Zahlungen für die Amortisation
+      electricity: Preis für den Strom aus dem Netz
+      feed_in: Vergütung für die Einspeisung
+      generators: Erzeugung und Prognose
+      consumers: Verbraucher im Haus
+      battery: Batteriespeicher
+      vehicles: Deine Elektroautos
+      car_payments: Laufende Kosten und Einnahmen der Elektroautos
+      places: Von den Elektroautos besuchte Orte
     plant:
       name: PV-Anlage
       data: Bezeichnung

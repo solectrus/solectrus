@@ -1,14 +1,17 @@
-.flex.flex-col.lg:flex-row.lg:pt-4
+.flex.flex-col.lg:flex-row.lg:flex-1
   / From lg up only, and only with more than one page. A phone reaches each
-    page by a drill-down instead, see Ui::TitleBar::Component. The column
-    keeps its border over the full height and the list in it sticks.
+    page by a drill-down instead, see Ui::TitleBar::Component. The tinted
+    column reaches to the edges of the card: its negative margins match the
+    padding of the card (#inner in the layout). The list in it sticks.
   - if items.many?
-    .hidden.lg:block.mr-8.pr-5.border-r
+    .hidden.lg:block.w-60.shrink-0.-my-5.-ml-6.mr-10.pl-4.py-7.rounded-l-lg.border-r.border-gray-200.bg-gray-100.dark:border-slate-800.dark:bg-slate-950/70
       nav.sticky.top-6
-        ul.flex.flex-col.space-y-1.text-base.font-medium.uppercase.tracking-wider
+        ul.flex.flex-col.gap-0.5
           - items.each do |item|
             li
               = link_to item[:name], item[:href], class: link_class(item), 'aria-current': ('page' if current?(item))
 
-  .flex-1.min-w-0
+  .flex-1.min-w-0.lg:pt-4
+    - if items.many? && current_item
+      = render Ui::SectionHeader::Component.new(title: current_item[:title] || current_item[:name], class: 'hidden lg:block mx-2 mb-4')
     = content

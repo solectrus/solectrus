@@ -78,6 +78,7 @@ class Settings::SensorsController < ApplicationController
     ].compact.map do |section|
       section.merge(
         name: t("settings.sensors.#{section[:id]}"),
+        title: t("settings.titles.#{section[:id]}"),
         href: section_settings_sensors_path(section[:id]),
       )
     end
