@@ -248,7 +248,7 @@ de:
   car_breakdown:
     home: Wallbox
     offsite_map: Karte der Auswärts-Ladungen
-    admin_only_days_left_out: Heute und gestern sieht nur der Administrator.
+    admin_only_days_left_out: Ohne Anmeldung fehlen aus Datenschutzgründen heute und gestern.
     places_map: Karte der Orte
     home_pv: Photovoltaik
     share_pv: aus PV

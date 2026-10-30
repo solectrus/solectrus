@@ -80,12 +80,12 @@ describe 'Cars Savings' do
 
       get_comparison cars_savings_path(timeframe: '2026-01')
 
-      expect(response.body).to include('Only the administrator sees today and yesterday.', 'No distance to compare')
+      expect(response.body).to include('Without logging in, today and yesterday are left out for data protection.', 'No distance to compare')
 
       login_as_admin
       get_comparison cars_savings_path(timeframe: '2026-01')
 
-      expect(response.body).not_to include('Only the administrator sees today and yesterday.', 'No distance to compare')
+      expect(response.body).not_to include('Without logging in, today and yesterday are left out for data protection.', 'No distance to compare')
     end
 
     it 'warns of a gap without a link' do
