@@ -69,11 +69,13 @@
           = helpers.icon 'chevron-down', class: 'shrink-0 text-xs text-faint'
 
     - if details?
-      div id=details_id class=['flex flex-col divide-y divide-line border-t', (map? ? 'border-fg/15' : 'border-line'), ('max-lg:flex-1' if fill?), ('group-data-[open=false]/live-card:hidden' if fold?)]
+      div id=details_id class=['flex flex-col divide-y divide-line border-t', ((map? || teaser?) ? 'border-fg/15' : 'border-line'), ('max-lg:flex-1' if fill?), ('group-data-[open=false]/live-card:hidden' if fold?)]
         / The map names the place, and loads once it shows, so a folded card
           loads none. A car without a position is on the road.
         - if map?
           = helpers.turbo_frame_tag Car::Location::Component.frame_id(car), src: map_path, loading: :lazy, class: map_classes, data: { 'car--live-card--component-target': 'map' }
+        - elsif teaser?
+          = render Car::LocationTeaser::Component.new(css_class: map_classes)
         / The cells below the map. A lone card on a wide screen sets them
           side by side.
         - if cells?

@@ -2,7 +2,8 @@
 # way of the grouped lists of iOS: its name with a car in its color, then a
 # card with its range, the time of its latest reading and its state of
 # charge as a bar with the scale from 0 to the maximum range. Below it, a
-# list: for the admin the map of its place, then the plug and the odometer.
+# list: for the admin the map of its place, for a visitor a sample map, then
+# the plug and the odometer.
 # The range, the bar and the odometer open the chart of today.
 #
 # A phone has white cards on the gray of the page, the desktop gray cards on
@@ -92,11 +93,15 @@ class Car::LiveCard::Component < ViewComponent::Base
   # road
   def road_cell? = location? && !map?
 
+  # A visitor sees a sample map in place of the map, which tells that the
+  # admin sees the place of the car (see Car::LocationTeaser::Component)
+  def teaser? = !helpers.admin? && car.located?
+
   # The cells below the map
   def cells? = road_cell? || plug? || odometer?
 
   # The list below the card: the map and the cells
-  def details? = map? || cells?
+  def details? = map? || teaser? || cells?
 
   # A lone card on a wide screen has the room for its cells side by side. The
   # class names stay literal, so Tailwind finds them.

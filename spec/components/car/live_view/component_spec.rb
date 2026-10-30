@@ -214,15 +214,32 @@ describe Car::LiveView::Component, type: :component do
       end
     end
 
-    # A visitor sees no place and no map
+    # A visitor sees no place, and a sample map in place of the map
     context 'with a visitor' do
       let(:states) { [state_of(car), state_of(other_car)] }
       let(:admin) { false }
+
+      def teasers = html.css('[data-controller="car--location-teaser--component"]')
 
       it 'does not fold the list' do
         expect(toggles).to be_empty
         expect(html.css('section[data-open]')).to be_empty
         expect(html.text).to include('Odometer')
+      end
+
+      it 'shows a sample map with the login' do
+        expect(teasers.size).to eq(2)
+        expect(teasers.first.text).to include('Real location for the admin only', 'Log in')
+        expect(teasers.first.at_css('[data-car--map--component-name-value="Sample location"]')).to be_present
+        expect(html.css('turbo-frame[id^="car_location_"]')).to be_empty
+      end
+    end
+
+    context 'with the admin' do
+      let(:states) { [state_of(car)] }
+
+      it 'shows no sample map' do
+        expect(html.css('[data-controller="car--location-teaser--component"]')).to be_empty
       end
     end
   end

@@ -1,0 +1,11 @@
+/ The morph of the live view would empty the map, so the map stays as it is
+  (see component_controller.ts). Gray, pale and hatched, the map looks like a
+  sample. The note lies in the top left corner, in one line with the login,
+  which returns to the page of the link.
+div class=['relative [&_canvas]:grayscale [&_canvas]:opacity-60', css_class] data-controller='car--location-teaser--component' data-action='turbo:before-morph-element->car--location-teaser--component#keep'
+  = render Car::Map::Component.new(cars: map_cars, live: true, name: t('.place')) do
+    div class='pointer-events-none absolute inset-0 bg-[repeating-linear-gradient(-45deg,transparent_0_10px,rgb(148_163_184/0.15)_10px_12px)]'
+    div class='absolute top-2 left-2 flex max-w-[calc(100%-1rem)] items-center gap-1.5 whitespace-nowrap rounded-md bg-white/85 px-2.5 py-1.5 text-xs text-fg-secondary backdrop-blur-sm dark:bg-slate-900/80' role='note'
+      = helpers.icon 'lock', class: 'shrink-0'
+      p.truncate = t('.note')
+      = link_to t('.login'), helpers.new_session_path, data: { turbo: false }, class: 'ml-1 shrink-0 font-semibold underline underline-offset-4 focus-ring'
