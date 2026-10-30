@@ -22,8 +22,8 @@
 #  fk_rails_...  (place_id => places.id) ON DELETE => cascade
 #
 describe PlaceVisit do
-  let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706) }
-  let(:work) { Place.create!(latitude: 50.906, longitude: 6.407) }
+  let(:home) { Place.create!(latitude: 50.92263, longitude: 1.40706) }
+  let(:work) { Place.create!(latitude: 50.906, longitude: 1.407) }
   let(:car) { Car.configured.first }
 
   def visit(place, from, to)

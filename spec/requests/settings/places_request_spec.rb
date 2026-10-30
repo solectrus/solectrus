@@ -1,5 +1,5 @@
 describe 'Settings Places' do
-  let(:place) { Place.create!(latitude: 50.92263, longitude: 6.40706) }
+  let(:place) { Place.create!(latitude: 50.92263, longitude: 1.40706) }
 
   # A place without a visit offers its deletion alone (see Place#deletable?)
   def visit!
@@ -8,7 +8,7 @@ describe 'Settings Places' do
   end
 
   before do
-    stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Jülich' } }.to_json)
+    stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Springfield' } }.to_json)
   end
 
   describe 'GET /settings/places' do
@@ -55,7 +55,7 @@ describe 'Settings Places' do
     end
 
     it 'shows the label of home instead of its time' do
-      place.update!(name: 'W15', home: true)
+      place.update!(name: 'Nest', home: true)
       visit!
       login_as_admin
       get settings_places_path
@@ -73,7 +73,7 @@ describe 'Settings Places' do
     end
 
     it 'loads the next page into its frame' do
-      26.times { Place.create!(latitude: (it / 100.0) + 50, longitude: 6.4) }
+      26.times { Place.create!(latitude: (it / 100.0) + 50, longitude: 1.4) }
       login_as_admin
       get settings_places_path
 
@@ -119,13 +119,13 @@ describe 'Settings Places' do
       login_as_admin
       get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
 
-      expect(response.body).to include('id="modal-sheet-title">Jülich</h1>')
+      expect(response.body).to include('id="modal-sheet-title">Springfield</h1>')
       expect(response.body).not_to include('placeholder=')
       expect(response.body).to include('id="place_home"', I18n.t('places.labels.home'))
     end
 
     it 'offers home with a switch while no other place is home' do
-      Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
+      Place.create!(latitude: 50.906, longitude: 1.407, name: 'Old', labels: ['home'])
       place.update!(labels: ['home'])
       login_as_admin
       get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
@@ -135,7 +135,7 @@ describe 'Settings Places' do
     end
 
     it 'moves home here only with an action that asks first, while another place is home' do
-      Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
+      Place.create!(latitude: 50.906, longitude: 1.407, name: 'Old', labels: ['home'])
       visit!
       login_as_admin
       get edit_settings_place_path(place), headers: { 'Turbo-Frame' => 'modal' }
@@ -244,7 +244,7 @@ describe 'Settings Places' do
     end
 
     it 'moves home to the place, and replaces the row of the old home' do
-      old_home = Place.create!(latitude: 50.906, longitude: 6.407, name: 'Old', labels: ['home'])
+      old_home = Place.create!(latitude: 50.906, longitude: 1.407, name: 'Old', labels: ['home'])
       login_as_admin
       patch settings_place_path(place), params: { place: { home: '1' } }, headers: { 'Turbo-Frame' => 'modal' }, as: :turbo_stream
 
@@ -282,7 +282,7 @@ describe 'Settings Places' do
 
       page = response.parsed_body.at_css('turbo-frame#sheet-page')
       expect(page.at_css('header h2').text.squish).to eq('Edit place')
-      expect(page.at_css('header p').text.squish).to eq('Jülich')
+      expect(page.at_css('header p').text.squish).to eq('Springfield')
       expect(page.at_css('form.ui-form')['data-turbo-frame']).to eq('sheet-page')
     end
 

@@ -1,6 +1,6 @@
 describe 'Cars Visits' do
-  let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Home') }
-  let(:work) { Place.create!(latitude: 50.906, longitude: 6.407, name: 'Work') }
+  let(:home) { Place.create!(latitude: 50.92263, longitude: 1.40706, name: 'Home') }
+  let(:work) { Place.create!(latitude: 50.906, longitude: 1.407, name: 'Work') }
   # Each day has a fresh summary, unless a spec says so
   let(:pending_days) { [] }
 

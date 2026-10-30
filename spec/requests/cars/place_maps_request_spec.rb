@@ -1,6 +1,6 @@
 describe 'Cars Place map' do
-  let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Home') }
-  let(:work) { Place.create!(latitude: 50.906, longitude: 6.407, name: 'Work') }
+  let(:home) { Place.create!(latitude: 50.92263, longitude: 1.40706, name: 'Home') }
+  let(:work) { Place.create!(latitude: 50.906, longitude: 1.407, name: 'Work') }
   # The map loads into its frame over the list (see Car::MapOverlay::Component)
   let(:frame) { { 'Turbo-Frame' => Car::MapOverlay::Component::FRAME_ID } }
 
@@ -47,7 +47,7 @@ describe 'Cars Place map' do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include('<turbo-frame id="car_map"', 'car--map-overlay--component', ">#{I18n.t('car_breakdown.places_map')}</h2>")
-        expect(response.body).to include('car--map--component', "[[50.92263,6.40706,0.6084,#{home.id}],[50.906,6.407,0.3916,#{work.id}]]")
+        expect(response.body).to include('car--map--component', "[[50.92263,1.40706,0.6084,#{home.id}],[50.906,1.407,0.3916,#{work.id}]]")
         expect(response.body).not_to include('Home')
         expect(response.body).to include(%(data-car--map--component-tooltip-url-value="/cars/places/:id/tooltip/2026-09"), %(data-car--map--component-target="loading"))
       end

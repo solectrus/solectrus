@@ -172,6 +172,35 @@ describe Car::DayTimeline::Drives do
     end
   end
 
+  # The car drove to a friend and back after a long stay. The state of charge
+  # fell only on the way there, in the bucket of the first increase. The car
+  # reports only when it parks, so the odometer reported the way back after
+  # a gap in which the car stood there.
+  context 'with a drive back after a long stay without a fall' do
+    let(:readings) { [[at(13, 15), 100], [at(13, 25), 103], [at(15, 5), 107]] }
+    let(:soc) { [[at(13, 5), 70], [at(13, 20), 72], [at(13, 25), 71], [at(15, 5), 71]] }
+    let(:stops) { [[at(0), at(13, 21)], [at(13, 21), at(15, 3)], [at(15, 3), at(23)]] }
+
+    it 'keeps the drive there and the drive back apart' do
+      expect(drives.map { [it.start.strftime('%H:%M'), it.ended_at.strftime('%H:%M'), it.distance] }).to eq(
+        [['13:20', '13:21', 3], ['14:57', '15:03', 4]],
+      )
+    end
+
+    it 'assumes the start of the drive back from the distance' do
+      expect(drives.last).to have_attributes(started_at: nil, earliest_at: nil, assumed_at: at(14, 57))
+    end
+  end
+
+  # The car drove within a gap of the readings, without a stop
+  context 'with a short drive in a gap without a stop' do
+    let(:readings) { [[at(13, 25), 100], [at(15, 5), 104]] }
+
+    it 'keeps the window of the readings' do
+      expect(drives.sole).to have_attributes(earliest_at: at(13, 25), ended_at: at(15, 5))
+    end
+  end
+
   # The odometer reported the last kilometres at 15:07, so the mean of its
   # bucket holds a part of them and the next bucket the rest. The car
   # arrived at 15:06.

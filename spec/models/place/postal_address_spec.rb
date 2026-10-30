@@ -11,7 +11,7 @@ describe Place::PostalAddress do
     end
 
     it 'takes a street and a postcode without a comma' do
-      expect(parse('Karl-Heinz-Beckurts-Straße 13 52428 Jülich')).to include(postcode: '52428', town: 'Jülich', street: 'Karl-Heinz-Beckurts-Straße', house_number: '13')
+      expect(parse('Hans-Peter-Muster-Straße 13 12345 Springfield')).to include(postcode: '12345', town: 'Springfield', street: 'Hans-Peter-Muster-Straße', house_number: '13')
     end
 
     it 'takes a postcode of the Netherlands' do

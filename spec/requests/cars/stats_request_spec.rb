@@ -122,7 +122,7 @@ describe 'Car Stats' do
               'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
             ),
           )
-          add_influx_point(name: 'Trabant', fields: { 'latitude' => 50.92263, 'longitude' => 6.40706 })
+          add_influx_point(name: 'Trabant', fields: { 'latitude' => 50.92263, 'longitude' => 1.40706 })
           stub_request(:get, /nominatim/)
         end
 
@@ -136,7 +136,7 @@ describe 'Car Stats' do
         end
 
         it 'shows the name of the place to the admin, with its map' do
-          Place.create!(latitude: 50.92265, longitude: 6.4071, name: 'Home')
+          Place.create!(latitude: 50.92265, longitude: 1.4071, name: 'Home')
           login_as_admin
           request_live_view
 

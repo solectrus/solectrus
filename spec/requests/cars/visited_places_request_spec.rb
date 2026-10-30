@@ -1,6 +1,6 @@
 describe 'Cars Visited places' do
-  let(:home) { Place.create!(latitude: 50.92263, longitude: 6.40706, name: 'Home', labels: ['home']) }
-  let(:work) { Place.create!(latitude: 50.906, longitude: 6.407) }
+  let(:home) { Place.create!(latitude: 50.92263, longitude: 1.40706, name: 'Home', labels: ['home']) }
+  let(:work) { Place.create!(latitude: 50.906, longitude: 1.407) }
 
   def visit_at(place, from, to)
     started_at = Time.zone.parse(from)

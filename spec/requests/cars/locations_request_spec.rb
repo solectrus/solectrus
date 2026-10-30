@@ -9,8 +9,8 @@ describe 'Car Locations' do
           'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
         ),
       )
-      add_influx_point(name: 'Trabant', fields: { 'latitude' => 50.92263, 'longitude' => 6.40706 })
-      stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Jülich' } }.to_json)
+      add_influx_point(name: 'Trabant', fields: { 'latitude' => 50.92263, 'longitude' => 1.40706 })
+      stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Springfield' } }.to_json)
     end
 
     after { Sensor::Config.setup(ENV) }
@@ -20,7 +20,7 @@ describe 'Car Locations' do
       get(cars_location_path(car: 1), headers:)
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include('<turbo-frame id="car_location_1"', 'Jülich', 'car--map--component', '50.92263')
+      expect(response.body).to include('<turbo-frame id="car_location_1"', 'Springfield', 'car--map--component', '50.92263')
     end
 
     # The car can be on the road, so only the daily build makes a place
@@ -34,7 +34,7 @@ describe 'Car Locations' do
     end
 
     it 'names the place at the location' do
-      Place.create!(latitude: 50.92265, longitude: 6.4071, name: 'Home')
+      Place.create!(latitude: 50.92265, longitude: 1.4071, name: 'Home')
       login_as_admin
       get(cars_location_path(car: 1), headers:)
 

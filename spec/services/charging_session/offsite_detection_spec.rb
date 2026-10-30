@@ -186,8 +186,8 @@ describe ChargingSession::OffsiteDetection do
     # The position of the morning ends with the drive, so the car is not at
     # home anymore
     it 'ends a position when the car drives away' do
-      Place.create!(latitude: 50.9226, longitude: 6.4070, labels: ['home'])
-      write_position(at(6), 50.9226, 6.4070)
+      Place.create!(latitude: 50.9226, longitude: 1.4070, labels: ['home'])
+      write_position(at(6), 50.9226, 1.4070)
       write(:car_odometer_1, [[at(6), 1000], [at(9), 1050]])
 
       run
@@ -196,10 +196,10 @@ describe ChargingSession::OffsiteDetection do
     end
 
     context 'with a home' do
-      before { Place.create!(latitude: 50.9226, longitude: 6.4070, labels: ['home']) }
+      before { Place.create!(latitude: 50.9226, longitude: 1.4070, labels: ['home']) }
 
       context 'when the car is at home' do
-        before { write_position(at(7), 50.9226, 6.4070) }
+        before { write_position(at(7), 50.9226, 1.4070) }
 
         it 'makes no proposal' do
           run

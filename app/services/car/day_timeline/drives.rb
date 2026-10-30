@@ -9,6 +9,9 @@
 # before an increase gives no start: the drive ended by its reading, and
 # nothing tells when it began. Its distance at ASSUMED_SPEED then gives it
 # an assumed start, so a long drive does not show as short as a short one.
+# The same holds after a shorter gap in which the car stood at a place, like
+# a car that reports only when it parks: the drive away from the place took
+# the end of the gap, not all of it.
 #
 # The state of charge falls while the car drives, also where the odometer
 # stands still. So where it falls, it tells the drive better: the drive ends
@@ -167,7 +170,8 @@ class Car::DayTimeline::Drives
   end
 
   def call
-    drives = merge(increases.map { cut(refine(it)) }).select { it.distance >= MIN_DISTANCE }.map { clip(it) }
+    refined = [nil, *increases].each_cons(2).map { |before, increase| cut(refine(increase, after: before&.ended_at)) }
+    drives = merge(refined).select { it.distance >= MIN_DISTANCE }.map { stood(clip(it)) }
     [nil, *drives].each_cons(2).map { |before, drive| drive.unknown_start? ? assume(drive, before) : drive }
   end
 
@@ -211,10 +215,12 @@ class Car::DayTimeline::Drives
   # The drive as the state of charge tells it, where it fell before the
   # increase. A fall that ends the drive lies at most MAX_GAP before the
   # reading before the increase, so a fall of an earlier drive stays there.
-  def refine(drive)
+  # A fall up to the end of the increase before, `after`, belongs to that
+  # increase: the odometer counted that drive already.
+  def refine(drive, after: nil)
     arrival = arrival_before(drive)
     from = [drive.start - MAX_GAP, arrival].compact.max
-    last = falls.rfind { (from..drive.ended_at).cover?(@soc[it].first) }
+    last = falls.rfind { (from..drive.ended_at).cover?(@soc[it].first) && (after.nil? || @soc[it].first > after) }
     return drive unless last
 
     # The falls one after the other, back to the reading before the first,
@@ -282,6 +288,15 @@ class Car::DayTimeline::Drives
     from = [drive.started_at, drive.ended_at - ARRIVAL].compact.max
     stop = @stops.map(&:first).select { it > from && it < drive.ended_at }.min
     stop ? drive.with(ended_at: stop) : drive
+  end
+
+  # A drive whose estimated start lies within a stop that lasts up to its
+  # end, like a stay at a place: the car stood there, so the earliest start
+  # tells nothing. The start is then assumed from the distance (see #assume).
+  def stood(drive)
+    return drive unless drive.estimated_start? && @stops.any? { |from, to| from <= drive.earliest_at && to >= drive.ended_at }
+
+    drive.with(earliest_at: nil)
   end
 
   # The drive without the time of a charge

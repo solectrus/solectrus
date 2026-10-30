@@ -15,8 +15,8 @@ describe Sensor::Query::Positions do
     }
   end
 
-  def home = [50.92263, 6.40706]
-  def work = [50.90600, 6.40700]
+  def home = [50.92263, 1.40706]
+  def work = [50.90600, 1.40700]
 
   before do
     Sensor::Config.setup(

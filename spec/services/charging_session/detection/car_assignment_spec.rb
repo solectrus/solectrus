@@ -142,7 +142,7 @@ describe ChargingSession::Detection::CarAssignment do
   describe 'with home' do
     subject(:assignment) { described_class.new(cars, curves: ->(_date, name) { curves.fetch(name, []) }, home:) }
 
-    let(:home) { Place.new(latitude: 50.92263, longitude: 6.40706) }
+    let(:home) { Place.new(latitude: 50.92263, longitude: 1.40706) }
 
     def position(name, time, latitude, longitude)
       curves[:"car_latitude_#{name}"] = [*curves[:"car_latitude_#{name}"], [time, latitude]]
@@ -150,7 +150,7 @@ describe ChargingSession::Detection::CarAssignment do
     end
 
     it 'excludes a car away from home during the session' do
-      position(1, at(9), 50.906, 6.407)
+      position(1, at(9), 50.906, 1.407)
 
       expect(assignment.car_for(day, from, to)).to eq(other_car)
     end
@@ -158,13 +158,13 @@ describe ChargingSession::Detection::CarAssignment do
     # The coordinates of one position fell into neighboring buckets
     it 'excludes a car away from home with the coordinates at different times' do
       curves[:car_latitude_1] = [[at(9), 50.906]]
-      curves[:car_longitude_1] = [[at(9) + 5.minutes, 6.407]]
+      curves[:car_longitude_1] = [[at(9) + 5.minutes, 1.407]]
 
       expect(assignment.car_for(day, from, to)).to eq(other_car)
     end
 
     it 'excludes a car away from home also with a connection' do
-      position(1, at(9), 50.906, 6.407)
+      position(1, at(9), 50.906, 1.407)
       curves[:car_connected_1] = [[at(9), 1]]
 
       expect(assignment.car_for(day, from, to)).to eq(other_car)
@@ -172,27 +172,27 @@ describe ChargingSession::Detection::CarAssignment do
 
     it 'leaves the session open when the one car is away' do
       other_car.active_until = day - 1
-      position(1, at(9), 50.906, 6.407)
+      position(1, at(9), 50.906, 1.407)
 
       expect(assignment.car_for(day, from, to)).to be_nil
     end
 
     it 'gives no sign for a car at home' do
-      position(1, at(9), 50.92270, 6.40710)
+      position(1, at(9), 50.92270, 1.40710)
 
       expect(assignment.car_for(day, from, to)).to be_nil
     end
 
     it 'takes a car that reports home shortly after the session' do
       other_car.active_until = day - 1
-      position(1, at(9), 50.906, 6.407)
-      position(1, to + 10.minutes, 50.92270, 6.40710)
+      position(1, at(9), 50.906, 1.407)
+      position(1, to + 10.minutes, 50.92270, 1.40710)
 
       expect(assignment.car_for(day, from, to)).to eq(car)
     end
 
     it 'ignores the position before the session, from the drive home' do
-      position(1, at(8), 50.906, 6.407)
+      position(1, at(8), 50.906, 1.407)
 
       expect(assignment.car_for(day, from, to)).to be_nil
     end

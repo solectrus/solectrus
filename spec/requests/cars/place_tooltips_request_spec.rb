@@ -1,6 +1,6 @@
 describe 'Place tooltips' do
   describe 'GET /cars/places/:place/tooltip/:timeframe' do
-    let(:place) { Place.create!(latitude: 50.92263, longitude: 6.40706) }
+    let(:place) { Place.create!(latitude: 50.92263, longitude: 1.40706) }
     let(:day) { 2.days.ago.beginning_of_day }
 
     before do
@@ -11,7 +11,7 @@ describe 'Place tooltips' do
         ),
       )
       stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse})
-        .to_return(body: { name: '', address: { town: 'Jülich' } }.to_json)
+        .to_return(body: { name: '', address: { town: 'Springfield' } }.to_json)
     end
 
     after { Sensor::Config.setup(ENV) }
@@ -31,7 +31,7 @@ describe 'Place tooltips' do
       login_as_admin
       2.times { get cars_place_tooltip_path(place:, timeframe: 'all') }
 
-      expect(response.body).to include('Jülich')
+      expect(response.body).to include('Springfield')
       expect(a_request(:get, /nominatim/)).to have_been_made.once
     end
 

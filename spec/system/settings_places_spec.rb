@@ -9,7 +9,7 @@ describe 'Settings places (mobile)' do
       ),
     )
     allow(Summary).to receive(:missing_or_stale_days_for).and_return([])
-    stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Jülich' } }.to_json)
+    stub_request(:get, %r{\Ahttps://nominatim\.openstreetmap\.org/reverse}).to_return(body: { name: '', address: { town: 'Springfield' } }.to_json)
 
     # One more place than a page holds, so the last one loads into a frame
     26.times { Place.create!(latitude: (it / 100.0) + 50, longitude: 6.4) }
