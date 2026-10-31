@@ -10,7 +10,8 @@ class Sensor::Definitions::CarDistanceChart < Sensor::Definitions::Base
 
   value unit: :kilometer, category: :car
 
-  color background: 'bg-sensor-wallbox', text: 'text-white dark:text-slate-400'
+  # The color of a drive, like in the timeline of a day
+  color background: 'bg-car-drive', text: 'text-white dark:text-slate-400'
 
   chart { |timeframe, cars: nil, **| Sensor::Chart::CarDistance.new(timeframe:, cars:) }
 

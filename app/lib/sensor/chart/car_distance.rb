@@ -29,6 +29,10 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
 
   def blank_icon = 'road'
 
+  # A part has the color of the distance, not of the odometer that gives its
+  # values. It stays public, like in Sensor::Chart::Base.
+  def color_class(_sensor) = Sensor::Registry[:car_distance].color_background
+
   private
 
   # A timeframe without a car in use has no distance
