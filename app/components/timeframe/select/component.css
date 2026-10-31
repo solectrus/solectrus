@@ -1,0 +1,13 @@
+/*
+ * Timeframe::Select::Component. An open picker covers the sheet and takes its
+ * height. With few fields, the sheet grows to the height it has with all of
+ * them, so the cells of a picker keep their size. On a phone, the weeks stand
+ * in a row for each month and need more room.
+ */
+.timeframe-select:has(details[open]) {
+  @apply min-h-116 lg:landscape:min-h-88;
+}
+
+.timeframe-select:has(details[open] .timeframe-select-weeks) {
+  @apply max-md:min-h-148;
+}

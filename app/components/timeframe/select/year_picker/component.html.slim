@@ -26,9 +26,11 @@ div(
             div class='text-lg font-medium text-gray-900 dark:text-white text-center'
               = t('.select_year')
 
-          / Content area with year grid
-          .flex-1.min-h-0.p-4
-            .grid.grid-cols-3.auto-rows-fr.gap-3.h-full
+          / Content area with year grid. A year is as high as a month: at
+            least the 4 rows of the month picker, and below them the room of
+            its year navigation.
+          .flex-1.min-h-0.p-4.pb-18
+            .grid.grid-cols-3.grid-rows-4.auto-rows-fr.gap-3.h-full
               - (min_year..max_year).each do |year|
                 button.text-base.rounded-lg.text-center.hover:bg-indigo-100.dark:hover:bg-indigo-900.focus:outline-none.focus:ring-2.focus:ring-indigo-500.cursor-pointer type="button" data-action="timeframe--select--year-picker--component#selectYear" data-timeframe--select--year-picker--component-target="yearCell" data-year=year = year
 

@@ -50,6 +50,7 @@
 @import '../../components/tooltip/row/component.css' layer(base);
 @import '../../components/ui/group_header/component.css' layer(base);
 @import '../../components/car/timeline_bar/component.css' layer(base);
+@import '../../components/timeframe/select/component.css' layer(base);
 /* No layer(): its fullscreen sizes must beat the utilities of the badge */
 @import '../../components/balance/soc_badge/component.css';
 
