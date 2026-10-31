@@ -41,7 +41,8 @@ module CarListPage
   # against a combustion car, in the timeframe and with the car of this
   # page. Only a car with a location has places. The places and the savings
   # have no timeframe in the address for the whole time, and the savings
-  # take a shorter timeframe as its year (see Car::Comparison.timeframe).
+  # take the live view and the last hours as today (see
+  # Car::Comparison.timeframe).
   # Without fuel prices, there are no savings (see
   # Car::Comparison.available?).
   # The controller names its own tab with #list_tab.

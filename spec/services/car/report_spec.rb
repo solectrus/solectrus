@@ -95,9 +95,17 @@ describe Car::Report do
       expect(report.savings?).to be(true)
     end
 
-    # A week gives no meaningful savings, so it asks for no fuel prices
-    context 'with a week' do
-      let(:timeframe) { Timeframe.new('2026-W03') }
+    context 'with the last days' do
+      let(:timeframe) { Timeframe.new('P365D') }
+
+      it 'is true' do
+        expect(report.savings?).to be(true)
+      end
+    end
+
+    # The live view has no comparison, so it asks for no fuel prices
+    context 'with the live view' do
+      let(:timeframe) { Timeframe.new('now') }
 
       it 'is false' do
         expect(report.savings?).to be(false)

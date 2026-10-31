@@ -15,9 +15,8 @@ class Car::ComparisonRateChart::Component < ViewComponent::Base
 
   # `columns` are the columns of the page in the order of the lines, so the
   # tooltip names them the same. `axis` gives the bar groups of the chart of
-  # the periods above, nil without that chart (see
-  # Car::ComparisonChart::Component#axis).
-  def initialize(comparison:, columns:, axis: nil)
+  # the periods above (see Car::ComparisonChart::Component#axis).
+  def initialize(comparison:, columns:, axis:)
     super()
     @comparison = comparison
     @columns = columns
@@ -29,16 +28,16 @@ class Car::ComparisonRateChart::Component < ViewComponent::Base
   # The color classes of the lines
   def colors = column_colors(@columns)
 
-  # The data of the chart: a point gives the cost of a week per 100 km. With
-  # the bar groups above, the axis takes their labels, and each week has its
+  # The data of the chart: a point gives the cost of a week per 100 km. The
+  # axis takes the labels of the bar groups above, and each week has its
   # position on it.
   def chart_data
     {
       weeks: weeks.map { { from: it.dates.begin.iso8601, to: it.dates.end.iso8601, distance: Sensor::ValueFormatter.new(it.distance.round, unit: :kilometer).to_s } },
-      labels: @axis&.map(&:first),
-      positions: (weeks.map { position(it.dates.begin) } if @axis),
+      labels: @axis.map(&:first),
+      positions: weeks.map { position(it.dates.begin) },
       series: column_series(@columns) { |key| weeks.map { it.per_100km(it.public_send(COSTS[key])).round(2) } },
-    }.compact
+    }
   end
 
   private

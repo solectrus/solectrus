@@ -1,12 +1,14 @@
 # The periods of the comparison with a combustion car as a chart: the years
-# of the whole time, the months of a year (see Car::ComparisonPage::Component).
+# of the whole time, the months of a year, the months or years of another
+# timeframe (see Car::ComparisonPage::Component).
 # Each period has a bar for the total cost of each column: the car, the car
 # without PV and the combustion car, in the colors of the columns. The bar
 # of the car without PV shows only with the button of the page, which adds
 # its column. The cards above name the columns, so the chart has no legend.
 # The tooltip gives the period with its distance and the costs. A period
 # with fewer days has hatched bars. A click on a year or a month opens its
-# own comparison. A month, or a single period, has no chart.
+# own comparison. A month, or fewer than three periods, has no chart: the
+# figures above say as much.
 class Car::ComparisonChart::Component < ViewComponent::Base
   include Car::ComparisonFormat
 
@@ -28,7 +30,10 @@ class Car::ComparisonChart::Component < ViewComponent::Base
 
   delegate :comparison, :timeframe, to: :report
 
-  def render? = periods.many?
+  MIN_PERIODS = 3
+  private_constant :MIN_PERIODS
+
+  def render? = periods.size >= MIN_PERIODS
 
   # [[whole dates, comparison], ...] of the periods (see
   # Car::Comparison#split). A period without a distance, a tax and a payment
@@ -41,10 +46,8 @@ class Car::ComparisonChart::Component < ViewComponent::Base
 
   # The bar groups, which the chart of the weeks shares (see
   # Car::ComparisonRateChart::Component): the label and the whole calendar
-  # period of each group, nil without a chart
-  def axis
-    periods.map { |dates, _| [label(dates.begin), dates] } if render?
-  end
+  # period of each group
+  def axis = periods.map { |dates, _| [label(dates.begin), dates] }
 
   # The title names the period of a bar group
   def title = t(".title.#{by}")
@@ -74,14 +77,15 @@ class Car::ComparisonChart::Component < ViewComponent::Base
     periods.map { |dates, _| helpers.cars_savings_path(car: @car, timeframe: Timeframe.of(dates.begin, by).to_param) }
   end
 
-  # The whole time has a bar group for each year, a year for each month,
-  # another timeframe none
+  # The whole time has a bar group for each year, a year for each month, a
+  # month none. Another timeframe has a group for each month up to a year,
+  # and for each year beyond.
   def by
-    if timeframe.all?
-      :year
-    elsif timeframe.year?
-      :month
-    end
+    return :year if timeframe.all?
+    return :month if timeframe.year?
+    return if timeframe.month?
+
+    comparison.dates.count > 366 ? :year : :month
   end
 
   # Whether the cars drove on fewer days of a period than it has: the

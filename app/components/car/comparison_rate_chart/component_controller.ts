@@ -8,12 +8,10 @@ import {
   LineElement,
   PointElement,
   LinearScale,
-  TimeScale,
   Title,
   Tooltip,
   type Scale,
 } from 'chart.js';
-import 'chartjs-adapter-luxon';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
 import {
@@ -36,7 +34,6 @@ Chart.register(
   LineElement,
   PointElement,
   LinearScale,
-  TimeScale,
   Title,
   Tooltip,
   CrosshairPlugin,
@@ -51,32 +48,22 @@ interface RateData {
   // Each week with a distance: its first and its last date as ISO dates,
   // and its distance as text
   weeks: { from: string; to: string; distance: string }[];
-  // With the chart of the periods above, the labels of its bar groups and
-  // the position of each week on them: the index of its group plus its
-  // share of the period
-  labels?: string[];
-  positions?: number[];
+  // The labels of the bar groups of the chart of the periods above, and the
+  // position of each week on them: the index of its group plus its share of
+  // the period
+  labels: string[];
+  positions: number[];
   // A line for each column with the cost of each week per 100 km
   series: ColumnSeries[];
 }
 
-// The position of each week on the x axis: on the bar groups above, or its
-// first date
-const positions = (data: RateData): number[] =>
-  data.positions ?? data.weeks.map((week) => Date.parse(week.from));
-
 // The points of a line. Until the page shows the car without PV, its line
 // lies under the line of the car, with no area between them.
-const points = (
-  data: RateData,
-  series: ColumnSeries,
-  withoutPv: boolean,
-  xs: number[],
-) => {
+const points = (data: RateData, series: ColumnSeries, withoutPv: boolean) => {
   const values = seriesHidden(series, withoutPv)
     ? (data.series[0]?.values ?? [])
     : series.values;
-  return values.map((y, week) => ({ x: xs[week] ?? 0, y }));
+  return values.map((y, week) => ({ x: data.positions[week] ?? 0, y }));
 };
 
 // The electricity cost of the cars and the fuel cost of the combustion car
@@ -111,7 +98,6 @@ export default class extends ComparisonChartBase<RateData, 'line'> {
     // The car comes first, the combustion car last
     const combustion = data.series.length - 1;
     const weeks = data.weeks.length;
-    const xs = positions(data);
 
     const context = chartContext(this.canvasTarget) ?? this.canvasTarget;
     this.chart = new Chart(context, {
@@ -119,7 +105,7 @@ export default class extends ComparisonChartBase<RateData, 'line'> {
       data: {
         datasets: data.series.map((series, index) => ({
           label: seriesLabel(series, withoutPv),
-          data: points(data, series, withoutPv, xs),
+          data: points(data, series, withoutPv),
           // The background colors the dots and the swatch of the tooltip
           borderColor: colors[index],
           backgroundColor: colors[index],
@@ -136,21 +122,9 @@ export default class extends ComparisonChartBase<RateData, 'line'> {
         interaction: { mode: 'index', intersect: false },
         animation: this.animation(animate),
         // Under the bars, no padding for the line moves the plot area
-        layout: { autoPadding: !data.labels },
+        layout: { autoPadding: false },
         scales: {
-          x: data.labels
-            ? this.groupScale(data.labels, axisColor, gridColor)
-            : {
-                type: 'time',
-                adapters: { date: { locale: appLocale() } },
-                grid: { display: false },
-                border: { color: gridColor },
-                ticks: {
-                  color: axisColor,
-                  maxRotation: 0,
-                  autoSkipPadding: 16,
-                },
-              },
+          x: this.groupScale(data.labels, axisColor, gridColor),
           y: {
             // An energy has no income, so the axis starts at 0. Like the
             // chart of the periods, it ends just beyond the highest line,
@@ -225,14 +199,13 @@ export default class extends ComparisonChartBase<RateData, 'line'> {
     if (!this.chart || !data) return;
 
     const withoutPv = showsWithoutPv(this.element);
-    const xs = positions(data);
     data.series.forEach((series, index) => {
       const dataset = this.chart?.data.datasets[index];
       if (!dataset) return;
 
       dataset.label = seriesLabel(series, withoutPv);
       if (series.key === 'without_pv')
-        dataset.data = points(data, series, withoutPv, xs);
+        dataset.data = points(data, series, withoutPv);
     });
     this.chart.update();
   }

@@ -20,7 +20,7 @@ class Cars::SavingsController < ApplicationController
   def index
     # A car that the page does not offer goes to "all", like on the car page
     return redirect_to(page_path_with(car: nil)) unless car_selection.valid?
-    # A timeframe shorter than a month goes to its year
+    # The live view and the last hours go to today
     return redirect_to(page_path_with) unless Car::Comparison.timeframe?(timeframe)
     return render(:comparison) if turbo_frame_request?
 
@@ -62,7 +62,7 @@ class Cars::SavingsController < ApplicationController
   # The page with the changes, for a link to the page in another timeframe or
   # with another car. The car stays also as nil for "all", because Rails
   # takes a missing car from the current address. The comparison takes a
-  # timeframe shorter than a month as its year (see Car::Comparison.timeframe),
+  # live view and the last hours as today (see Car::Comparison.timeframe),
   # and the whole time has no timeframe in the address.
   helper_method def page_path_with(**changes)
     timeframe = Car::Comparison.timeframe(self.timeframe)
@@ -70,7 +70,7 @@ class Cars::SavingsController < ApplicationController
     cars_savings_path(timeframe: (timeframe.to_param unless timeframe.all?), **query)
   end
 
-  # The select offers whole years and the whole time
+  # The select offers the timeframes of whole days
   helper_method def timeframe_page
     TimeframePage::List.new(route: :cars_savings_path, params: { car: car_selection.to_param }, kinds: Car::Comparison::TIMEFRAME_KINDS)
   end

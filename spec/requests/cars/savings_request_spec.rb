@@ -99,21 +99,25 @@ describe 'Cars Savings' do
   context 'with the admin' do
     before { login_as_admin }
 
-    # A month is a meaningful comparison period. A relative timeframe ends
-    # before today and goes to its year.
-    it 'keeps a month and sends a relative timeframe to its year' do
-      get cars_savings_path(timeframe: '2025-06')
-      expect(response).to have_http_status(:ok)
+    # The comparison takes each timeframe of whole days. The live view and
+    # the last hours go to today.
+    it 'keeps a timeframe of whole days and sends the last hours to today' do
+      %w[2026-01-10 2026-W03 2025-06 P7D P12M 2026-01-01..2026-01-18].each do |timeframe|
+        get cars_savings_path(timeframe:)
+        expect(response).to have_http_status(:ok)
+      end
 
-      get cars_savings_path(timeframe: 'P30D')
-      expect(response).to redirect_to('/cars/savings/2026')
+      get cars_savings_path(timeframe: 'P24H')
+      expect(response).to redirect_to('/cars/savings/2026-09-23')
     end
 
-    it 'offers only the months, the years and the whole time in the timeframe select' do
+    it 'offers each timeframe but the last hours in the timeframe select' do
       get cars_savings_path(timeframe: '2026', select: 1), headers: { 'Turbo-Frame' => 'modal' }
 
-      expect(response.parsed_body.css('[id$="-picker-input-button-label"]').pluck('id')).to eq(%w[month-picker-input-button-label year-picker-input-button-label])
-      expect(response.parsed_body.css('button[data-value]').pluck('data-value').uniq).to eq(%w[all])
+      expect(response.parsed_body.css('[id$="-picker-input-button-label"]').pluck('id')).to eq(
+        %w[day week month year range].map { "#{it}-picker-input-button-label" },
+      )
+      expect(response.parsed_body.css('button[data-value]').pluck('data-value')).not_to include(a_string_ending_with('H'))
     end
 
     # The desktop has the savings as a tab beside the lists of the cars
@@ -127,9 +131,9 @@ describe 'Cars Savings' do
       expect(response.parsed_body.at_css('title').text).to include('EV vs. combustion car')
     end
 
-    # A shorter timeframe goes to its year, and the selection of the guest
+    # The week stays, and the selection of the guest
     # charges has no car to compare
-    it 'links the tab of the charging sessions to the savings of the year, without the guest' do
+    it 'links the tab of the charging sessions to the savings of the week, without the guest' do
       start = Date.new(2026, 1, 14).in_time_zone.change(hour: 12)
       ChargingSession.create!(kind: :wallbox, origin: :detection, guest: true, started_at: start, ended_at: start + 1.hour, kwh: 5)
 
@@ -137,7 +141,7 @@ describe 'Cars Savings' do
 
       expect(response).to have_http_status(:ok)
 
-      expect(response.parsed_body.css('nav[aria-label="Tabs"] a').pluck('href')).to include('/cars/savings/2026')
+      expect(response.parsed_body.css('nav[aria-label="Tabs"] a').pluck('href')).to include('/cars/savings/2026-W03')
     end
 
     # The comparison takes the time, so the page comes without it first
@@ -357,25 +361,37 @@ describe 'Cars Savings' do
         end
       end
 
+      # The chart needs three years
       it 'shows the years of the whole time as a chart with a title, each with a path to its comparison' do
+        car.update!(active_from: Date.new(2024, 1, 1))
         get_comparison cars_savings_path
 
-        expect(chart_data).to include('labels' => %w[2025 2026], 'paths' => %w[/cars/savings/2025 /cars/savings/2026])
-        expect(chart_data['titles']).to eq(['2025 · 0 km', '2026 · 150 km'])
+        expect(chart_data).to include('labels' => %w[2024 2025 2026], 'paths' => %w[/cars/savings/2024 /cars/savings/2025 /cars/savings/2026])
+        expect(chart_data['titles']).to eq(['2024 · 0 km', '2025 · 0 km', '2026 · 150 km'])
         expect(chart_title).to eq('Running costs per year')
       end
 
-      # 2026 holds today. A car that came on 2025-03-01 drove on a part of
-      # 2025 alone.
+      # 2026 holds today. A car that came on 2024-03-01 drove on a part of
+      # 2024 alone.
       it 'marks the years with fewer days' do
+        car.update!(active_from: Date.new(2024, 1, 1))
         get_comparison cars_savings_path
 
-        expect(chart_data['partial']).to eq([false, true])
+        expect(chart_data['partial']).to eq([false, false, true])
 
-        car.update!(active_from: Date.new(2025, 3, 1))
+        car.update!(active_from: Date.new(2024, 3, 1))
         get_comparison cars_savings_path
 
-        expect(chart_data['partial']).to eq([true, true])
+        expect(chart_data['partial']).to eq([true, false, true])
+      end
+
+      # Two months are two bar groups, too few for the charts
+      it 'shows a timeframe with fewer than three periods without the charts' do
+        get_comparison cars_savings_path(timeframe: '2026-01-01..2026-02-18')
+
+        expect(response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')).to be_present
+        expect(chart_data).to be_nil
+        expect(chart_data('comparison-rate-chart')).to be_nil
       end
 
       it 'shows the months of a year with a title and a path to each month' do
@@ -460,18 +476,19 @@ describe 'Cars Savings' do
         expect(table_rows.flat_map { it.css('a').pluck('href') }.grep(%r{\A/settings/car_payments})).to have_attributes(size: 3)
       end
 
-      # The tax of 2025 counts, but the car drove in 2026 alone. 2026 has 266
-      # days of tax and of the income up to today. The car costs 4.60 EUR -
-      # 266 EUR, the combustion car 24 EUR + 266 EUR.
+      # The tax of 2024 and 2025 counts, but the car drove in 2026 alone.
+      # 2026 has 266 days of tax and of the income up to today. The car costs
+      # 4.60 EUR - 266 EUR, the combustion car 24 EUR + 266 EUR.
       it 'gives the cost of each column for each year' do
+        car.update!(active_from: Date.new(2024, 1, 1))
         car.payments.create!(category: :ghg_quota, date: Date.new(2026, 1, 20), amount: 365)
 
         get_comparison cars_savings_path
 
         car_series, without_pv_series, combustion_series = chart_data['series']
-        expect(car_series).to eq('key' => 'car', 'label' => 'EV', 'suffix' => '(with PV)', 'values' => [0, -261])
-        expect(without_pv_series['values'].map(&:round)).to eq([0, -258])
-        expect(combustion_series).to eq('key' => 'combustion', 'label' => 'Combustion car', 'values' => [365, 290])
+        expect(car_series).to eq('key' => 'car', 'label' => 'EV', 'suffix' => '(with PV)', 'values' => [0, 0, -261])
+        expect(without_pv_series['values'].map(&:round)).to eq([0, 0, -258])
+        expect(combustion_series).to eq('key' => 'combustion', 'label' => 'Combustion car', 'values' => [365, 365, 290])
       end
 
       # The whole time holds the whole income of 2025

@@ -41,21 +41,22 @@ class Car::Comparison # rubocop:disable Metrics/ClassLength
   ComparedDay = Data.define(:date, :driving, :without_pv, :price)
   private_constant :ComparedDay
 
-  # The comparison needs at least a month to give meaningful savings. So it
-  # compares a month, a year or the whole time, and the timeframe select
-  # offers only these kinds (see Timeframe::Select::Component::KINDS).
-  TIMEFRAME_KINDS = %i[month year all].freeze
+  # The comparison takes each timeframe of whole days, so the timeframe
+  # select offers all kinds but the last hours (see
+  # Timeframe::Select::Component::KINDS). The live view has no comparison
+  # either.
+  TIMEFRAME_KINDS = %i[day week month year range days months all].freeze
   public_constant :TIMEFRAME_KINDS
 
-  def self.timeframe?(timeframe) = TIMEFRAME_KINDS.any? { timeframe.public_send(:"#{it}?") }
+  def self.timeframe?(timeframe) = !(timeframe.now? || timeframe.hours?)
 
   # The comparison needs the fuel prices, which a collector writes. Without
   # them, the comparison and its settings stay out of sight.
   def self.available? = Car::FuelPrices.any?
 
-  # The timeframe of the comparison: a month, a year or the whole time as
-  # they are, another timeframe as the year of its last day
-  def self.timeframe(timeframe) = timeframe?(timeframe) ? timeframe : Timeframe.of(timeframe.effective_ending_date, :year)
+  # The timeframe of the comparison: a timeframe of the comparison (see
+  # .timeframe?) as it is, the live view and the last hours as today
+  def self.timeframe(timeframe) = timeframe?(timeframe) ? timeframe : Timeframe.of(timeframe.effective_ending_date, :day)
 
   # The comparisons of the periods of a timeframe share the drivings, the
   # fuel prices, the payments and the compared days (see #for)

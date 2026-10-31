@@ -4,9 +4,10 @@
 # the cost of the columns as bars, then the calculation of each column (see
 # Car::ComparisonColumns::Component). Below, a chart shows the periods of the
 # timeframe (see Car::ComparisonChart), and another the energy cost of each
-# week per 100 km (see Car::ComparisonRateChart). The page has no headings to
-# save height, and each section explains itself in an info tooltip beside its
-# title.
+# week per 100 km (see Car::ComparisonRateChart), only below the chart of
+# the periods. So a short timeframe has no charts. The page has no headings
+# to save height, and each section explains itself in an info tooltip
+# beside its title.
 #
 # Without a car with a combustion car, without fuel prices, or without a
 # distance to compare, the page says why there is no comparison.
@@ -75,6 +76,9 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   def chart = @chart ||= Car::ComparisonChart::Component.new(report:, car: @car, columns:)
 
   def rate_chart = Car::ComparisonRateChart::Component.new(comparison:, columns:, axis: chart.axis)
+
+  # The chart of the weeks shows only below the chart of the periods
+  def charts? = chart.render?
 
   # :no_prices without fuel prices, :none without a combustion car,
   # :no_distance without a day with a cost and a fuel price. The prices come

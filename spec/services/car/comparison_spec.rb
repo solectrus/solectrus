@@ -245,4 +245,26 @@ describe Car::Comparison do
       expect(comparison).to be_nil
     end
   end
+
+  describe '.timeframe?' do
+    it 'takes a timeframe of whole days' do
+      %w[2026-01-10 2026-W03 2026-02 2026 P7D P1M P2Y all 2026-01-01..2026-01-02].each do
+        expect(described_class.timeframe?(Timeframe.new(it))).to be(true), it
+      end
+    end
+
+    it 'rejects the live view and the last hours' do
+      %w[now P24H].each do
+        expect(described_class.timeframe?(Timeframe.new(it))).to be(false), it
+      end
+    end
+  end
+
+  describe '.timeframe' do
+    it 'takes the live view and the last hours as today' do
+      %w[now P24H].each do
+        expect(described_class.timeframe(Timeframe.new(it)).to_param).to eq(Date.current.iso8601), it
+      end
+    end
+  end
 end
