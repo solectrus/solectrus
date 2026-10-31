@@ -26,7 +26,11 @@ import {
 import ComparisonChartBase, {
   crosshair,
   fixYAxisWidth,
+  seriesHidden,
+  seriesLabel,
+  showsWithoutPv,
   swatchColors,
+  type ColumnSeries,
   Y_AXIS_WIDTH,
 } from '../comparison_chart_base';
 
@@ -54,10 +58,10 @@ interface ComparisonData {
   // Whether a period has fewer days than a whole one, so its bars are hatched
   partial: boolean[];
   // A bar for each column of the comparison, with its total cost
-  series: { label: string; values: number[] }[];
+  series: ColumnSeries[];
 }
 
-// The cost of the three columns of the comparison with a combustion car for
+// The cost of the columns of the comparison with a combustion car for
 // each period, as bars that overlap (see Car::ComparisonChart::Component).
 // Chart.js draws the last dataset first, so the combustion car stands at the
 // back and the car in front. A border in the color of the background parts
@@ -92,14 +96,20 @@ export default class extends ComparisonChartBase<ComparisonData, 'bar'> {
     const data = this.getData();
     if (!data?.labels.length) return;
 
+    const withoutPv = showsWithoutPv(this.element);
+    const colors = this.cachedColor('swatches', () =>
+      swatchColors(this.swatchTargets),
+    );
+
     const {
       tick: axisColor,
       grid: gridColor,
       zeroLine: zeroLineColor,
     } = this.axisColors();
-    const colors = swatchColors(this.swatchTargets);
-    const background = this.backgroundColor();
-    const categoryPercentage = this.categoryPercentage(data);
+    const background = this.cachedColor('background', () =>
+      this.backgroundColor(),
+    );
+    const categoryPercentage = this.categoryPercentage(data, withoutPv);
 
     const context = chartContext(this.canvasTarget) ?? this.canvasTarget;
     this.chart = new Chart(context, {
@@ -107,12 +117,15 @@ export default class extends ComparisonChartBase<ComparisonData, 'bar'> {
       data: {
         labels: data.labels,
         datasets: data.series.map((series, index) => {
-          const hatch = this.hatchPattern(colors[index], background);
+          const hatch = this.cachedColor(`hatch-${index}`, () =>
+            this.hatchPattern(colors[index], background),
+          );
           const fill = data.partial.map((partial) =>
             partial ? hatch : colors[index],
           );
           return {
-            label: series.label,
+            label: seriesLabel(series, withoutPv),
+            hidden: seriesHidden(series, withoutPv),
             data: series.values,
             backgroundColor: fill,
             hoverBackgroundColor: fill,
@@ -128,7 +141,7 @@ export default class extends ComparisonChartBase<ComparisonData, 'bar'> {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        // The tooltip shows the three bars of a period wherever the pointer
+        // The tooltip shows the bars of a period wherever the pointer
         // stands in it
         interaction: { mode: 'index', intersect: false },
         animation: this.animation(animate),
@@ -204,13 +217,39 @@ export default class extends ComparisonChartBase<ComparisonData, 'bar'> {
   // (see BAR_OVERLAP), so it reaches over the next one. A cap with
   // maxBarThickness would keep the slots and open gaps, so the share shrinks
   // instead, until a bar is MAX_BAR_WIDTH wide. The chart builds again on a
-  // new width, so the width of the box is enough.
-  private categoryPercentage(data: ComparisonData): number {
+  // new width, so the width of the box is enough. Only the bars that show
+  // count.
+  private categoryPercentage(data: ComparisonData, withoutPv: boolean): number {
     this.width = this.boxWidth();
+    const bars = data.series.filter((item) => !seriesHidden(item, withoutPv));
     const period = (this.width - Y_AXIS_WIDTH) / data.labels.length;
-    const groupWidth = (MAX_BAR_WIDTH / BAR_OVERLAP) * data.series.length;
+    const groupWidth = (MAX_BAR_WIDTH / BAR_OVERLAP) * bars.length;
 
     return period > 0 ? Math.min(0.75, groupWidth / period) : 0.75;
+  }
+
+  // The page adds the car without PV or takes it away: its bars show or
+  // hide, the other bars move to the width of the group, and the car changes
+  // its label
+  redraw() {
+    const data = this.getData();
+    if (!this.chart || !data) return;
+
+    const withoutPv = showsWithoutPv(this.element);
+    const categoryPercentage = this.categoryPercentage(data, withoutPv);
+    data.series.forEach((series, index) => {
+      const dataset = this.chart?.data.datasets[index];
+      if (!dataset) return;
+
+      dataset.label = seriesLabel(series, withoutPv);
+      dataset.categoryPercentage = categoryPercentage;
+    });
+
+    const index = data.series.findIndex(
+      (series) => series.key === 'without_pv',
+    );
+    if (withoutPv) this.chart.show(index);
+    else this.chart.hide(index);
   }
 
   private boxWidth(): number {

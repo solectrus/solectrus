@@ -210,8 +210,38 @@ describe 'Cars Savings' do
         expect(rows.count('Per 100 km 3.07 €')).to eq(1)
       end
 
+      describe 'the car without PV' do
+        def page = response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')
+
+        def pressed = page.at_css('button[aria-pressed]')['aria-pressed']
+
+        it 'hides it without the cookie' do
+          get_comparison cars_savings_path
+
+          expect(page['data-without-pv']).to be_nil
+          expect(pressed).to eq('false')
+        end
+
+        it 'shows it with the cookie' do
+          cookies[Car::ComparisonPage::Component::WITHOUT_PV_COOKIE] = 'true'
+
+          get_comparison cars_savings_path
+
+          expect(page['data-without-pv']).not_to be_nil
+          expect(pressed).to eq('true')
+        end
+
+        # CSS shows the column, so the button needs no request
+        it 'renders its column, hidden until a button adds it' do
+          get_comparison cars_savings_path(timeframe: '2026')
+
+          hidden = page.css('#comparison-columns section').map { it.ancestors('.invisible').any? }
+          expect(hidden).to eq([false, true, false])
+        end
+      end
+
       describe 'the details of the calculation' do
-        def details = response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')
+        def details = response.parsed_body.at_css('[data-car--comparison-page--component-target="details"]')
 
         def row(text) = table_rows.find { row_text(it) == text }
 
@@ -374,9 +404,10 @@ describe 'Cars Savings' do
         # week starts on the 12th and on the 19th of January
         expect(data['labels']).to eq(chart_data['labels'])
         expect(data['positions']).to eq([(11 / 31.0).round(4), (18 / 31.0).round(4)])
-        car_series, combustion_series = data['series']
-        expect(car_series['label']).to eq('EV')
-        expect(combustion_series['label']).to eq('Combustion car')
+        car_series, without_pv_series, combustion_series = data['series']
+        expect(car_series).to include('key' => 'car', 'label' => 'EV')
+        expect(without_pv_series).to include('key' => 'without_pv', 'label' => 'EV (without PV)')
+        expect(combustion_series).to include('key' => 'combustion', 'label' => 'Combustion car')
         expect(combustion_series['values']).to all(eq((car.fuel_consumption * 2).round(2)))
       end
 
@@ -438,9 +469,9 @@ describe 'Cars Savings' do
         get_comparison cars_savings_path
 
         car_series, without_pv_series, combustion_series = chart_data['series']
-        expect(car_series).to eq('label' => 'EV (with PV system)', 'values' => [0, -261])
+        expect(car_series).to eq('key' => 'car', 'label' => 'EV', 'suffix' => '(with PV)', 'values' => [0, -261])
         expect(without_pv_series['values'].map(&:round)).to eq([0, -258])
-        expect(combustion_series).to eq('label' => 'Combustion car', 'values' => [365, 290])
+        expect(combustion_series).to eq('key' => 'combustion', 'label' => 'Combustion car', 'values' => [365, 290])
       end
 
       # The whole time holds the whole income of 2025
@@ -461,7 +492,7 @@ describe 'Cars Savings' do
       it 'links no title' do
         get_comparison cars_savings_path
 
-        expect(response.parsed_body.css('a').map { it.text.squish }).not_to include('EV (with PV system)', 'Combustion car')
+        expect(response.parsed_body.css('a').map { it.text.squish }).not_to include('EV', 'Combustion car')
       end
 
       # A second trip on a day without a fuel price: the car page shows its

@@ -3,12 +3,12 @@
 # something to say stays out. The component has the comparison and its
 # amounts (see Car::ComparisonAmounts).
 module Car::ComparisonNotes
-  # The info tooltip of each column: what it is, and how its energy costs.
-  # The combustion car adds the costs that it shares with the car, and its
-  # tax.
-  def car_notes = [t('.notes.car_intro'), t('.notes.car')]
-  def without_pv_notes = [t('.notes.without_pv_intro'), t('.notes.without_pv')]
-  def combustion_notes = [t('.notes.combustion_intro'), t('.notes.fuel'), *shared_notes, tax_note].compact
+  # The info tooltip of each column: what it is, how its energy costs, and
+  # which payments add to it. The combustion car adds its tax and the costs
+  # that it shares with the car.
+  def car_notes = [t('.notes.car_intro'), t('.notes.car'), t('.notes.car_payments')]
+  def without_pv_notes = [t('.notes.without_pv_intro'), t('.notes.without_pv'), t('.notes.without_pv_payments')]
+  def combustion_notes = [t('.notes.combustion_intro'), t('.notes.fuel'), tax_note, *shared_notes].compact
 
   private
 
@@ -18,8 +18,5 @@ module Car::ComparisonNotes
     [t('.notes.shared'), t('.notes.maintenance')] if amounts.shared_cost.nonzero?
   end
 
-  def tax_note
-    yearly = comparison.yearly_tax
-    t('.notes.tax', yearly: currency(yearly)) if yearly&.positive?
-  end
+  def tax_note = (t('.notes.tax') if comparison.yearly_tax&.positive?)
 end

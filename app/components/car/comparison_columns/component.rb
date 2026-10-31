@@ -9,6 +9,21 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
   include Car::ComparisonLinks
   include Car::ComparisonNotes
 
+  # The columns side by side, from a tablet up. The middle track, the car
+  # without PV, opens from no width while the others narrow, so nothing
+  # jumps. Half the gap stands on each side of the closed track, so the gap
+  # between the other two stays the same. The variable --gap holds the gap
+  # of the open grid, which the width of the column without PV needs too.
+  GRID = "@container grid grid-cols-1 [--gap:1.5rem] lg:[--gap:3.5rem] md:grid-cols-[minmax(0,1fr)_minmax(0,0fr)_minmax(0,1fr)] md:gap-x-[calc(var(--gap)/2)] md:transition-[grid-template-columns,column-gap] #{MOTION} md:group-data-without-pv/comparison:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:group-data-without-pv/comparison:gap-x-(--gap)".freeze
+
+  # The track of the car without PV. A phone stacks the columns, and the
+  # track opens from no height there. Inside, the column fades and keeps its
+  # final width, a third of the grid without its gaps, so its text does not
+  # wrap while it opens.
+  WITHOUT_PV_TRACK = "grid min-w-0 overflow-hidden transition-[grid-template-rows] #{MOTION} max-md:grid-rows-[0fr] max-md:group-data-without-pv/comparison:grid-rows-[1fr]".freeze
+  WITHOUT_PV_WIDTH = 'md:w-[calc((100cqw-2*var(--gap))/3)]'.freeze
+  private_constant :GRID, :WITHOUT_PV_TRACK, :WITHOUT_PV_WIDTH
+
   # A step of a calculation: its operator (nil for the first), its label,
   # its number as HTML with its link (see Car::ComparisonLinks) and its unit
   # apart, so the numbers align to the right and the units to the left. A
@@ -77,18 +92,23 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
   # The slots that a column fills
   def slots = SLOTS.select { |slot| columns.any? { steps_of(it)[slot] } }
 
-  # The classes of the row of a slot. A detail shows only with the details,
-  # the other costs in one row only without them. The energy cost is a
+  # When the row of a slot shows: :detail only with the details, :summary
+  # only without them (the other costs in one row), :always in both. The
+  # page fades a row out before it hides (see
+  # car/comparison_page/component_controller.ts).
+  def visibility(slot)
+    if DETAIL_SLOTS.include?(slot) then :detail
+    elsif slot == :other_costs then :summary
+    else :always
+    end
+  end
+
+  # The classes of the row of a slot (see #visibility). The energy cost is a
   # result of the details and, without them, the first row.
   def row_class(slot, step)
-    visibility =
-      if DETAIL_SLOTS.include?(slot) then :detail
-      elsif slot == :other_costs then :summary
-      else :always
-      end
     weight = slot == :energy_cost ? 'group-data-expanded/details:font-semibold' : ('font-semibold' if step&.result)
 
-    helpers.class_names(ROW_CLASSES[visibility][step ? 0 : 1], weight)
+    helpers.class_names(ROW_CLASSES[visibility(slot)][step ? 0 : 1], weight)
   end
 
   # The classes of the operator of a slot. The energy cost has its operator

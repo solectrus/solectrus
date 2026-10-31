@@ -1,7 +1,14 @@
 / Like the chart of the periods, the chart grows into the free height of
   the page, and the hidden dots give the lines the colors of the columns.
   The chart draws its title itself.
-section.flex.flex-auto.flex-col.p-4.md:p-5.lg:p-0 class=CARD data-controller='car--comparison-rate-chart--component' data-car--comparison-rate-chart--component-currency-value=Currency.code data-car--comparison-rate-chart--component-title-value=t('.title') data-car--comparison-rate-chart--component-savings-label-value=t('.savings')
+section.flex.flex-auto.flex-col.p-4.md:p-5.lg:p-0[
+  class=CARD
+  data-controller='car--comparison-rate-chart--component'
+  data-car--comparison-rate-chart--component-currency-value=Currency.code
+  data-action='car--comparison-page--component:without-pv@document->car--comparison-rate-chart--component#redraw'
+  data-car--comparison-rate-chart--component-title-value=t('.title')
+  data-car--comparison-rate-chart--component-savings-label-value=t('.savings')
+]
   - colors.each do |color|
     span.hidden class=color data-car--comparison-rate-chart--component-target='swatch'
   script type='application/json' data-car--comparison-rate-chart--component-target='data'

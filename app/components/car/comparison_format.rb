@@ -13,13 +13,40 @@ module Car::ComparisonFormat
 
   # The color of each column of the comparison: the car, the car without PV
   # and the combustion car. The green is the signal color of the savings
-  # above. The combustion car has a muted red of its own (sensor_colors.css).
+  # above, and the car without PV has a dark green beside it. The combustion
+  # car has a muted red of its own (sensor_colors.css).
   COLORS = {
     car: 'bg-signal-positive',
-    without_pv: 'bg-slate-400 dark:bg-slate-500',
+    without_pv: 'bg-ev-without-pv',
     combustion: 'bg-combustion',
   }.freeze
   public_constant :COLORS
+
+  # The motion of the parts of the car without PV, when a button of the page
+  # adds the car or takes it away (see Car::ComparisonPage::Component). CSS
+  # animates them alone.
+  MOTION = 'duration-300 ease-glide motion-reduce:transition-none'.freeze
+  public_constant :MOTION
+
+  # A part of the car without PV keeps its place and fades
+  WITHOUT_PV_FADE = "invisible opacity-0 transition-[opacity,visibility] #{MOTION} group-data-without-pv/comparison:visible group-data-without-pv/comparison:opacity-100".freeze
+  public_constant :WITHOUT_PV_FADE
+
+  # The title of a column. Beside the car without PV, the car names its PV
+  # system with a suffix.
+  def column_title(column)
+    return column.title unless column.suffix
+
+    helpers.safe_join([column.title, helpers.tag.span(" #{column.suffix}", class: 'hidden group-data-without-pv/comparison:inline')])
+  end
+
+  # The series of a chart of the columns (see
+  # Car::ComparisonPage::Component::Column), in their order and colors: the
+  # key names the column, the label and its suffix come from its title, and
+  # the block gives the values of a key
+  def column_series(columns) = columns.map { { key: it.key, label: it.title, suffix: it.suffix, values: yield(it.key) }.compact }
+
+  def column_colors(columns) = columns.map { COLORS[it.key] }
 
   # An amount in whole units, also below 10, so a column of amounts has no
   # decimals. A rate or a price asks for its precision.

@@ -8,4 +8,4 @@
   - if admin_only_days_left_out?
     .-mx-4.sm:-mx-6.lg:-mt-5.mb-3.lg:mb-6
       = render Car::AdminOnlyNotice::Component.new(text: t('car_breakdown.admin_only_days_left_out'), banner: true)
-  = render Car::ComparisonPage::Component.new(report:, car: car_selection.to_param, expanded: Car::ComparisonPage::Component.expanded?(cookies))
+  = render Car::ComparisonPage::Component.new(report:, car: car_selection.to_param, expanded: Car::ComparisonPage::Component.expanded?(cookies), without_pv: Car::ComparisonPage::Component.without_pv?(cookies))

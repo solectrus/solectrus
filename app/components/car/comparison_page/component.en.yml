@@ -9,15 +9,18 @@ en:
   no_distance_title: No distance to compare
   no_distance: The timeframe has no distance with charging data and a fuel price.
   figures:
-    savings: Savings
+    savings: Saved running costs
     savings_without_pv: Without PV, it would be
     savings_per_100km: Per 100 km
+  without_pv:
+    show: Compare the variant without PV
+    hide: Hide the variant without PV
   details:
     show: Show the calculation
     hide: Hide the calculation
-  columns:
-    car: EV (with PV system)
-    without_pv: EV (without PV system)
+  ev: EV
+  with_pv: (with PV)
+  ev_without_pv: EV (without PV)
   notes:
     savings: The difference of the running costs of the EV and a fictional combustion car.
     data: |-

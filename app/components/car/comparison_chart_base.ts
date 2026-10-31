@@ -28,10 +28,36 @@ export const crosshair = (options: unknown) =>
 export const swatchColors = (swatches: HTMLElement[]): string[] =>
   swatches.map((swatch) => window.getComputedStyle(swatch).backgroundColor);
 
+// A series of a chart of the columns (see Car::ComparisonFormat#column_series):
+// the key names the column, and the suffix follows the label of the car
+// beside the car without PV
+export interface ColumnSeries {
+  key: string;
+  label: string;
+  suffix?: string;
+  values: number[];
+}
+
+// Whether the page shows the car without PV (see
+// car/comparison_page/component_controller.ts)
+export const showsWithoutPv = (element: HTMLElement): boolean =>
+  element.closest('[data-without-pv]') !== null;
+
+// The car without PV hides until the page shows it
+export const seriesHidden = (series: ColumnSeries, withoutPv: boolean) =>
+  !withoutPv && series.key === 'without_pv';
+
+// Beside the car without PV, the car adds the suffix of its title
+export const seriesLabel = (series: ColumnSeries, withoutPv: boolean) =>
+  withoutPv && series.suffix
+    ? `${series.label} ${series.suffix}`
+    : series.label;
+
 // The charts of the comparison with a combustion car (see
 // Car::ComparisonChart, Car::ComparisonRateChart and Car::FuelPriceChart).
 // Each reads its data from a JSON script and builds its chart in #process.
-// The colors come from CSS, so a new theme needs a new chart.
+// The colors come from CSS. The chart keeps them until a new theme, which
+// builds a new chart.
 export default abstract class ComparisonChartBase<
   TData,
   TType extends ChartType,
@@ -43,7 +69,11 @@ export default abstract class ComparisonChartBase<
   protected chart?: Chart<TType>;
   private tooltip?: GenericChartTooltip;
   private moneyFormatters: Record<number, Intl.NumberFormat> = {};
-  private boundRebuild = () => this.rebuild();
+  private colorCache = new Map<string, unknown>();
+  private boundRebuild = () => {
+    this.colorCache.clear();
+    this.rebuild();
+  };
 
   connect() {
     this.process();
@@ -65,6 +95,12 @@ export default abstract class ComparisonChartBase<
     this.process({ animate: false });
   }
 
+  // A color from CSS, read once until a new theme
+  protected cachedColor<T>(key: string, read: () => T): T {
+    if (!this.colorCache.has(key)) this.colorCache.set(key, read());
+    return this.colorCache.get(key) as T;
+  }
+
   protected getData(): TData | undefined {
     if (this.dataTarget.textContent)
       return JSON.parse(this.dataTarget.textContent);
@@ -76,8 +112,10 @@ export default abstract class ComparisonChartBase<
   }
 
   protected axisColors(): AxisColors {
-    const rootStyle = window.getComputedStyle(document.documentElement);
-    return getAxisColors((name) => rootStyle.getPropertyValue(name).trim());
+    return this.cachedColor('axis', () => {
+      const rootStyle = window.getComputedStyle(document.documentElement);
+      return getAxisColors((name) => rootStyle.getPropertyValue(name).trim());
+    });
   }
 
   protected animation(animate: boolean) {
@@ -93,7 +131,10 @@ export default abstract class ComparisonChartBase<
       display: true,
       text,
       align: 'start' as const,
-      color: window.getComputedStyle(this.element).color,
+      color: this.cachedColor(
+        'title',
+        () => window.getComputedStyle(this.element).color,
+      ),
       font: { size: 16, weight: 600 },
       padding: { bottom: 4 },
     };

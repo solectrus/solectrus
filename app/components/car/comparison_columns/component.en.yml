@@ -17,15 +17,17 @@ en:
     fuel_cost: Fuel cost
     tax: Vehicle tax
   notes:
-    car_intro: The real cost of the EV.
+    car_intro: The running costs of the EV, without the purchase and its financing.
     without_pv_intro: 'Fictional: the same EV without the PV system.'
     combustion_intro: 'Fictional: a combustion car with the consumption and the vehicle tax from the settings of the car.'
     car: Grid energy costs the electricity price, PV energy the lost feed-in tariff, an offsite charge its paid price.
+    car_payments: The recorded costs add to it, for example insurance, maintenance, vehicle tax and charging tariffs, less the GHG quota.
     without_pv: All energy of the wallbox costs the electricity price of the day, an offsite charge stays the same.
-    fuel: The fuel costs the current price on the day of the drive.
-    tax: The vehicle tax of %{yearly} per year counts for each day.
-    shared: Insurance, maintenance and more count as for the EV and do not change the savings. Charging tariffs and the GHG quota belong to the EV alone.
-    maintenance: A combustion car usually needs more maintenance. So the savings are rather too low.
+    without_pv_payments: All other costs and the GHG quota stay the same.
+    fuel: The fuel costs the price of the week of the drive.
+    tax: The vehicle tax counts in part for each day.
+    shared: Insurance, maintenance and other costs count at the same amount as for the EV. Charging tariffs and the GHG quota belong to the EV alone.
+    maintenance: A combustion car usually needs more maintenance. So the saved costs are rather too low.
   parts:
     shared: Insurance, maintenance and more
     tax: Vehicle tax

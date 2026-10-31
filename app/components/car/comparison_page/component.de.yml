@@ -9,15 +9,18 @@ de:
   no_distance_title: Keine Strecke zum Vergleichen
   no_distance: Im Zeitraum gibt es keine Strecke mit Ladedaten und Kraftstoffpreis.
   figures:
-    savings: Ersparnis
+    savings: Eingesparte laufende Kosten
     savings_without_pv: Ohne PV wären es
     savings_per_100km: Pro 100 km
+  without_pv:
+    show: Variante ohne PV vergleichen
+    hide: Variante ohne PV ausblenden
   details:
     show: Rechenweg anzeigen
     hide: Rechenweg ausblenden
-  columns:
-    car: E-Auto (mit PV-Anlage)
-    without_pv: E-Auto (ohne PV-Anlage)
+  ev: E-Auto
+  with_pv: (mit PV)
+  ev_without_pv: E-Auto (ohne PV)
   notes:
     savings: Der Unterschied der laufenden Kosten von E-Auto und einem fiktiven Verbrenner.
     data: |-

@@ -17,15 +17,17 @@ de:
     fuel_cost: Kraftstoffkosten
     tax: Kfz-Steuer
   notes:
-    car_intro: Die tatsächlichen Kosten des E-Autos.
+    car_intro: Die laufenden Kosten des E-Autos, ohne Kaufpreis und Finanzierung.
     without_pv_intro: 'Fiktiv: dasselbe E-Auto ohne PV-Anlage.'
     combustion_intro: 'Fiktiv: ein Verbrenner mit Verbrauch und Kfz-Steuer aus den Einstellungen des Autos.'
     car: Netzstrom kostet den Strompreis, PV-Strom die entgangene Einspeisevergütung, eine Ladung auswärts ihren bezahlten Preis.
+    car_payments: Dazu kommen die erfassten Kosten wie Versicherung, Wartung, Kfz-Steuer und Ladetarife, abzüglich der THG-Quote.
     without_pv: Der gesamte Wallbox-Strom kostet den Strompreis des Tages, eine Ladung auswärts bleibt gleich.
-    fuel: Der Kraftstoff kostet den jeweils aktuellen Preis am Tag der Fahrt.
-    tax: Die Kfz-Steuer von %{yearly} pro Jahr zählt anteilig pro Tag.
-    shared: Versicherung, Wartung usw. zählen wie beim E-Auto und ändern die Ersparnis nicht. Ladetarife und THG-Quote gibt es nur beim E-Auto.
-    maintenance: Ein Verbrenner braucht meist mehr Wartung. Die Ersparnis ist also eher zu niedrig gerechnet.
+    without_pv_payments: Alle weiteren Kosten und die THG-Quote bleiben gleich.
+    fuel: Der Kraftstoff kostet den Preis aus der Woche der Fahrt.
+    tax: Die Kfz-Steuer zählt anteilig für jeden Tag.
+    shared: Versicherung, Wartung und sonstige Kosten zählen in gleicher Höhe wie beim E-Auto. Ladetarife und THG-Quote gibt es nur beim E-Auto.
+    maintenance: Ein Verbrenner braucht meist mehr Wartung. Die eingesparten Kosten sind also eher zu niedrig gerechnet.
   parts:
     shared: Versicherung, Wartung usw.
     tax: Kfz-Steuer

@@ -1,6 +1,3 @@
 en:
   title: Energy cost per 100 km
   savings: Savings
-  series:
-    car: EV
-    combustion: Combustion car

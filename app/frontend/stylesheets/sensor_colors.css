@@ -164,6 +164,10 @@
      every mode and palette, apart from the red of the grid import */
   --color-combustion: oklch(0.6 0.12 22);
 
+  /* The car without the PV system in the car comparison: a dark green, so
+     it belongs to the green car and still stands apart from it */
+  --color-ev-without-pv: oklch(0.5 0.11 160);
+
   /* The battery and the plug of a car: the blue of the contrast palette in
      every palette, because the green of the standard battery reads as a
      state. Dark mode lightens it, so it stands apart from a grey track. */

@@ -2,7 +2,13 @@
   the footer. The canvas lies above its box, so a smaller window can shrink
   the box again. The hidden dots give the bars the colors of the columns.
   The chart draws its title itself.
-section.flex.flex-auto.flex-col.p-4.md:p-5.lg:p-0 class=CARD data-controller='car--comparison-chart--component' data-car--comparison-chart--component-currency-value=Currency.code data-car--comparison-chart--component-title-value=title
+section.flex.flex-auto.flex-col.p-4.md:p-5.lg:p-0[
+  class=CARD
+  data-controller='car--comparison-chart--component'
+  data-car--comparison-chart--component-currency-value=Currency.code
+  data-action='car--comparison-page--component:without-pv@document->car--comparison-chart--component#redraw'
+  data-car--comparison-chart--component-title-value=title
+]
   - colors.each do |color|
     span.hidden class=color data-car--comparison-chart--component-target='swatch'
   script type='application/json' data-car--comparison-chart--component-target='data'
