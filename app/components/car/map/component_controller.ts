@@ -9,6 +9,7 @@ import type {
 
 import * as Turbo from '@hotwired/turbo';
 
+import { isReducedMotion } from '@/utils/device';
 import { openModal } from '@/utils/modal';
 import MovablePoint, { type MovablePointTexts } from './movable_point';
 
@@ -203,6 +204,7 @@ export default class extends Controller<HTMLElement> {
       bounds: DEFAULT_BOUNDS,
     });
     this.fit();
+    this.fadeIn();
 
     // The styles of OpenFreeMap name icons that their sprite does not have,
     // for example "circle-11". An empty image hides them without a warning.
@@ -261,6 +263,28 @@ export default class extends Controller<HTMLElement> {
     this.movable = undefined;
     this.map?.remove();
     this.map = undefined;
+  }
+
+  // While MapLibre loads, its box shows an empty canvas, then the background
+  // of the style, then the tiles. The map stays hidden over the background
+  // of its box until it shows the tiles, and then it fades in. A style that
+  // fails shows the map all the same.
+  private fadeIn() {
+    const container = this.containerTarget;
+    container.style.opacity = '0';
+
+    const show = () => {
+      if (container.style.opacity !== '0') return;
+
+      container.style.removeProperty('opacity');
+      if (!isReducedMotion())
+        container.animate([{ opacity: 0 }, { opacity: 1 }], {
+          duration: 200,
+          easing: 'ease-out',
+        });
+    };
+    this.map?.once('load', show);
+    this.map?.once('error', show);
   }
 
   // The attribution is a <details> element, and MapLibre keeps it `open`

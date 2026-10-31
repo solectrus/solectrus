@@ -38,11 +38,12 @@ class Car::Map::Component < ViewComponent::Base
   end
 
   # A map of a period fills the window (see Car::MapOverlay::Component), with
-  # a minimum for a short window. A live map stands inside its box.
+  # a minimum for a short window, and a gray area while it loads. A live map
+  # stands inside its box and fades in from the background of the box.
   def root_classes
     class_names(
-      'flex flex-1 flex-col overflow-hidden rounded-lg bg-fill',
-      live? ? 'size-full min-h-20' : 'relative min-h-80',
+      'flex flex-1 flex-col overflow-hidden rounded-lg',
+      live? ? 'size-full min-h-20' : 'relative min-h-80 bg-fill',
     )
   end
 end
