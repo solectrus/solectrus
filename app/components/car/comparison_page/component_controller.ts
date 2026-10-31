@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import { writeCookie } from '@/utils/cookie';
 import { isReducedMotion } from '@/utils/device';
+import { EASE_GLIDE } from '@/utils/motion';
 
 // Shows or hides the details of the calculation in the three columns. The
 // server renders the choice from a cookie, also when a refresh morphs the
@@ -31,7 +32,7 @@ export default class extends Controller<HTMLElement> {
         { height: `${from}px`, overflow: 'clip', opacity: 0.4 },
         { height: `${to}px`, overflow: 'clip', opacity: 1 },
       ],
-      { duration: 300, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' },
+      { duration: 300, easing: EASE_GLIDE },
     );
   }
 }

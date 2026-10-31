@@ -138,7 +138,7 @@ html:has(.ui-title-bar)::view-transition-new(root) {
 ::view-transition-group(nav-bar) {
   @apply overflow-clip;
   animation-duration: 350ms;
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-timing-function: var(--ease-glide);
 }
 
 /* The bar keeps its color, so it does not fade: the bar of the next page lies
@@ -169,7 +169,7 @@ html:has(.ui-title-bar)::view-transition-new(root) {
 ::view-transition-new(nav-page) {
   @apply mix-blend-normal;
   animation-duration: 350ms;
-  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  animation-timing-function: var(--ease-glide);
   animation-fill-mode: both;
 }
 

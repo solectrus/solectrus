@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 
 import { isReducedMotion } from '@/utils/device';
+import { EASE_QUICK } from '@/utils/motion';
 
 // A card of the live view that folds its list (see Car::LiveCard::Component):
 // a tap on the folded cell unfolds the list in its place, and a tap on the
@@ -82,7 +83,7 @@ export default class extends Controller<HTMLElement> {
         { height: `${from}px`, flex: '0 0 auto' },
         { height: `${to}px`, flex: '0 0 auto' },
       ],
-      { duration: 250, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+      { duration: 250, easing: EASE_QUICK },
     );
     if (map)
       this.resize.finished.then(

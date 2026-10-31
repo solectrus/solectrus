@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { isReducedMotion } from '@/utils/device';
+import { EASE_GLIDE } from '@/utils/motion';
 
 // Slides the marking of a segmented control from the selected segment to the
 // tapped one, as the tab bar does (see optimistic_nav_controller).
@@ -20,7 +21,6 @@ import { isReducedMotion } from '@/utils/device';
 // The element needs `relative isolate`, so the marking lies inside it and
 // below its content.
 const DURATION = 250;
-const EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 const SELECTED = ':has(> input:checked), input:checked ~ *, :disabled';
 
 type BeforeFetchRequestEvent = CustomEvent<{ resume: () => void }>;
@@ -130,7 +130,7 @@ export default class extends Controller<HTMLElement> {
           { left: `${start.left}px`, width: `${start.width}px` },
           { left: `${target.left}px`, width: `${target.width}px` },
         ],
-        { duration: DURATION, easing: EASING, fill: 'forwards' },
+        { duration: DURATION, easing: EASE_GLIDE, fill: 'forwards' },
       )
       .finished.then(end, end);
   }

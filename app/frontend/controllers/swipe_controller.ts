@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { isReducedMotion, isTouchEnabled } from '@/utils/device';
+import { EASE_GLIDE, EASE_QUICK } from '@/utils/motion';
 
 // Turns the page to the period before or after with a horizontal swipe, as a
 // pager of a phone does: the content follows the finger, a committed swipe
@@ -30,8 +31,8 @@ const EDGE_MARGIN = 20;
 // in eases like a sheet of iOS
 const OUT_DURATION = { min: 120, max: 260 };
 const IN_DURATION = 320;
-const EASE_OUT = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
-const EASE_IN = 'cubic-bezier(0.32, 0.72, 0, 1)';
+const EASE_OUT = EASE_QUICK;
+const EASE_IN = EASE_GLIDE;
 const SPRING_BACK = `transform 250ms ${EASE_IN}`;
 const DRAG_TARGET = '#inner';
 

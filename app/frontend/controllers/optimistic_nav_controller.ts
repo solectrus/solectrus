@@ -1,5 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { isReducedMotion } from '@/utils/device';
+import { EASE_GLIDE } from '@/utils/motion';
 
 // Moves the "current" marking of a navigation to the tapped item at once,
 // instead of waiting for the page it points to.
@@ -34,7 +35,6 @@ const pills = window.matchMedia(
 );
 
 const DURATION = 250;
-const EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 
 export default class extends Controller<HTMLElement> {
   static values = { slide: Boolean };
@@ -251,7 +251,7 @@ export default class extends Controller<HTMLElement> {
     // than jump to its end
     const items = this.items();
     items.forEach((element) => {
-      element.style.transition = `color ${DURATION}ms ${EASING}, font-weight ${DURATION}ms ${EASING}, opacity ${DURATION}ms ${EASING}`;
+      element.style.transition = `color ${DURATION}ms ${EASE_GLIDE}, font-weight ${DURATION}ms ${EASE_GLIDE}, opacity ${DURATION}ms ${EASE_GLIDE}`;
     });
     // The transition starts from the look the labels have now
     items.forEach((element) => getComputedStyle(element).color);
@@ -277,7 +277,7 @@ export default class extends Controller<HTMLElement> {
           { left: `${from.left}px`, width: `${from.width}px` },
           { left: `${target.left}px`, width: `${target.width}px` },
         ],
-        { duration: DURATION, easing: EASING, fill: 'forwards' },
+        { duration: DURATION, easing: EASE_GLIDE, fill: 'forwards' },
       )
       .finished.then(() => source === to && end(), end);
   }

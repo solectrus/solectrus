@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { isReducedMotion } from '@/utils/device';
+import { EASE_GLIDE } from '@/utils/motion';
 import { hasUnsavedChanges } from '@/utils/unsavedChanges';
 import type ConfirmDialogController from '../confirm_dialog/component_controller';
 
@@ -23,7 +24,6 @@ import type ConfirmDialogController from '../confirm_dialog/component_controller
 // Ui::ConfirmDialog::Component, its outlet.
 
 const DURATION = 350;
-const EASING = 'cubic-bezier(0.32, 0.72, 0, 1)';
 // The page below moves this far while the page above covers it
 const PARALLAX = '-30%';
 // The skeleton or the copy fades out this fast over the page that rendered
@@ -276,7 +276,7 @@ function move(
   page: HTMLElement,
   kind: 'push' | 'pop',
 ): Promise<void> {
-  const options = { duration: DURATION, easing: EASING };
+  const options = { duration: DURATION, easing: EASE_GLIDE };
   // Both pages cover what lies below them, in the color of the sheet
   const background = getComputedStyle(
     next.closest('.bottom-sheet-panel') ?? next,
