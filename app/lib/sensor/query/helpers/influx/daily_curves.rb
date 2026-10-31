@@ -28,15 +28,18 @@ module Sensor
           private_constant :BEFORE
 
           # `curves` is a list of { sensor_names:, margin:, positive:, empty:,
-          # state: }. The margin widens each day on both sides: a car reports
-          # its state only while it is online, so a reading before midnight
-          # can belong to a session after it. `positive` keeps the buckets
-          # above 0 alone, so a wallbox that is idle most of the day sends few
-          # rows. `empty` gives the buckets without a reading instead, each
-          # with 0, where a collector sent no data. `state`
+          # state:, reading_time: }. The margin widens each day on both sides:
+          # a car reports its state only while it is online, so a reading
+          # before midnight can belong to a session after it. `positive` keeps
+          # the buckets above 0 alone, so a wallbox that is idle most of the
+          # day sends few rows. `empty` gives the buckets without a reading
+          # instead, each with 0, where a collector sent no data. `state`
           # starts the curve of each day with the last reading before it, at
           # any age, because a state holds until its next reading (see the DSL
-          # `state`).
+          # `state`). `reading_time` gives the last reading of each bucket at
+          # its own time instead of the mean at the end of the bucket, so a
+          # car that reports when it leaves and when it arrives keeps these
+          # times (see Car::DayTimeline::Drives).
           def initialize(dates, curves)
             @dates = dates
             @curves = curves.flat_map { split(it) }
@@ -72,12 +75,20 @@ module Sensor
           # the value with the rules of Sensor::Units::Boolean (see #parse). A
           # conversion in Flux reads each row and was many times slower.
           def aggregate(curve)
+            return reading_aggregate(curve) if curve[:reading_time]
             return '|> aggregateWindow(every: 5m, fn: last, createEmpty: false)' if curve[:boolean]
             return "|> aggregateWindow(every: 5m, fn: count, createEmpty: true)\n  |> filter(fn: (r) => r._value == 0)" if curve[:empty]
 
             # The mean of an integer is a float as well
             mean = '|> aggregateWindow(every: 5m, fn: mean, createEmpty: false)'
             curve[:positive] ? "#{mean}\n  |> filter(fn: (r) => r._value > 0.0)" : mean
+          end
+
+          # The last reading of each bucket, which keeps its own time. A
+          # number becomes a float like a mean, so an integer does not collide
+          # with it in the union.
+          def reading_aggregate(curve)
+            "|> window(every: 5m)\n  |> last()#{"\n  |> toFloat()" unless curve[:boolean]}\n  |> window(every: inf)"
           end
 
           def build_flux
@@ -169,11 +180,12 @@ module Sensor
           end
 
           # [[day, time], ...] of the days whose window holds the bucket that
-          # ends at the time. A margin gives a bucket to two days. The window of
-          # a day ends a second before midnight (see #window_stop), so the
-          # bucket at midnight ends there for the day before.
+          # ends at the time, or the reading at its own time (see
+          # #reading_aggregate). A margin gives a bucket to two days. The
+          # window of a day ends a second before midnight (see #window_stop),
+          # so the bucket at midnight ends there for the day before.
           def days_of(name, time)
-            start = time - BUCKET
+            start = reading_time_names.include?(name) ? time : time - BUCKET
             windows[margins[name]].filter_map do |day, from, to|
               [day, [time, to].min] if start >= from && start < to
             end
@@ -228,6 +240,10 @@ module Sensor
 
           def boolean_names
             @boolean_names ||= curves.select { it[:boolean] }.flat_map { it[:sensor_names] }.to_set
+          end
+
+          def reading_time_names
+            @reading_time_names ||= curves.select { it[:reading_time] }.flat_map { it[:sensor_names] }.to_set
           end
         end
       end

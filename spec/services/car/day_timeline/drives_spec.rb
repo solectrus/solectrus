@@ -160,6 +160,43 @@ describe Car::DayTimeline::Drives do
     end
   end
 
+  # A car that reports the odometer when it leaves and when it arrives. The
+  # state of charge reports once while it drives, and next after the
+  # arrival, so nothing shows that the car stood before the increase.
+  context 'with a fall of the state of charge while the car drives' do
+    let(:readings) { [[at(11, 13), 100], [at(11, 43), 100], [at(11, 54), 109]] }
+    let(:soc) { [[at(11, 13), 57], [at(11, 47), 55], [at(11, 59), 54]] }
+    let(:stops) { [[at(11, 13), at(11, 54)]] }
+
+    it 'ends the drive with the increase of the odometer' do
+      expect(spans).to eq([['11:43', '11:54', 9]])
+    end
+  end
+
+  # The state of charge of each arrival comes a minute after the odometer.
+  # The car reports no odometer when it leaves the shop, only its state of
+  # charge.
+  context 'with the state of charge of an arrival after the odometer' do
+    let(:readings) { [[at(8, 58), 100], [at(9, 6), 104], [at(10, 18), 108]] }
+    let(:soc) { [[at(8, 58), 43], [at(9, 7), 42], [at(10, 8), 41], [at(10, 19), 39]] }
+    let(:stops) { [[at(0), at(9, 6)], [at(9, 6), at(10, 18)], [at(10, 18), at(23)]] }
+
+    it 'gives the fall to the drive that arrived' do
+      expect(spans).to eq([['08:58', '09:06', 4], ['10:08', '10:18', 4]])
+    end
+  end
+
+  # The state of charge reads twice after the arrival, and falls by a point
+  # between both readings
+  context 'with a fall of the state of charge after the arrival' do
+    let(:readings) { [[at(9), 100], [at(9, 30), 110]] }
+    let(:soc) { [[at(9), 80], [at(9, 20), 76], [at(9, 31), 76], [at(9, 33), 75]] }
+
+    it 'keeps the start before the end' do
+      expect(spans).to eq([['09:00', '09:30', 10]])
+    end
+  end
+
   # A car on the way to school and on to work. Both drives touch, but the car
   # arrived at the school between them.
   context 'with an arrival between two drives that touch' do
@@ -223,14 +260,16 @@ describe Car::DayTimeline::Drives do
   end
 
   # The state of charge read last before the arrival, so the fall of the next
-  # drive reaches back over it
+  # drive reaches back over it. Nothing shows that the car stood before the
+  # first increase, so it ends the first drive. The state of charge stood
+  # before the second increase, so its fall ends the second drive.
   context 'with a fall of the next drive from a reading before the arrival' do
     let(:readings) { [[at(9, 30), 100], [at(9, 55), 110], [at(10, 45), 115]] }
     let(:soc) { [[at(9, 30), 80], [at(9, 50), 78], [at(10, 40), 76], [at(10, 45), 76]] }
     let(:stops) { [[at(10), at(10, 35)], [at(10, 50), at(23)]] }
 
     it 'starts the next drive at the arrival and keeps both apart' do
-      expect(spans).to eq([['09:30', '09:50', 10], ['10:00', '10:40', 5]])
+      expect(spans).to eq([['09:30', '09:55', 10], ['10:00', '10:40', 5]])
     end
   end
 

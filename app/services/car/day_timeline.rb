@@ -6,9 +6,10 @@
 # The sessions come from the table, like the figures above (see
 # Car::Report). The drives come from the odometer and the state of charge
 # (see Car::DayTimeline::Drives), the line from the readings of the state of
-# charge (see Car::DayTimeline::SocLine). The curves of the day are those of
-# the daily build (see ChargingSession::Curves), so a pause of a charge
-# follows the rules of the detection. A car with a location has its visits
+# charge (see Car::DayTimeline::SocLine). The curves of the wallbox are
+# those of the daily build (see ChargingSession::Curves), so a pause of a
+# charge follows the rules of the detection. The readings of the cars keep
+# their own time (see #curves). A car with a location has its visits
 # of places (see Place::VisitDetection), which the admin sees as the start
 # and the goal of each drive.
 class Car::DayTimeline # rubocop:disable Metrics/ClassLength
@@ -350,10 +351,10 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   end
 
   # [[Time, value], ...] of a sensor of a car up to the end of the data, from
-  # its readings before the day, in the time zone of the page. A bucket
-  # carries the end of its 5 minutes, so the running bucket ends now.
+  # its reading before the day, in the time zone of the page. A collector
+  # whose clock runs ahead can write a reading after now, which shows at now.
   def curve(name)
-    (curves.cars.dig(timeframe.date, name) || []).filter_map { |time, value| [[time, stops_at].min.in_time_zone, value] if time - BUCKET < stops_at }
+    (curves.cars.dig(timeframe.date, name) || []).map { |time, value| [[time, stops_at].min.in_time_zone, value] }
   end
 
   # The curves of the daily build on the day. Each one loads when the
@@ -362,8 +363,17 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   # (see #current_place for the latest one). A curve of
   # a car starts with its last reading before the day, so the timeline needs
   # no margin around the day. A session that the power splitter split adds
-  # the grid share of the wallbox (see #power_of).
+  # the grid share of the wallbox (see #power_of). The readings of a car keep
+  # their own time, because a bucket carries the end of its 5 minutes: a car
+  # that reports when it leaves would start its drive up to 5 minutes late.
   def curves
-    @curves ||= ChargingSession::Curves.new([timeframe.date], cars: @cars, roles: %i[car_battery_soc car_odometer car_connected], margin: 0, split: sessions.any?(&:kwh_grid))
+    @curves ||= ChargingSession::Curves.new(
+      [timeframe.date],
+      cars: @cars,
+      roles: %i[car_battery_soc car_odometer car_connected],
+      margin: 0,
+      split: sessions.any?(&:kwh_grid),
+      reading_time: true,
+    )
   end
 end

@@ -100,6 +100,22 @@ describe Sensor::Query::Helpers::Influx::DailyCurves do
     end
   end
 
+  # A car that reports when it leaves keeps the time of that reading
+  context 'with the readings at their own time' do
+    subject(:curves) { described_class.new([day], [{ sensor_names: %i[car_battery_soc_1], reading_time: true }]).call[day] }
+
+    it 'gives the last reading of each bucket at its time, also in the first bucket of the day' do
+      start = day.in_time_zone
+      influx_batch do
+        [[1, 60], [3, 59], [12, 57]].each do |minutes, soc|
+          add_influx_point(name: Sensor::Config.measurement(:car_battery_soc_1), fields: { Sensor::Config.field(:car_battery_soc_1) => soc }, time: start + minutes.minutes)
+        end
+      end
+
+      expect(curves[:car_battery_soc_1]).to eq([[start + 3.minutes, 59.0], [start + 12.minutes, 57.0]])
+    end
+  end
+
   # One stream reads the run of days, and each day gets the buckets of its
   # window, as if it had a stream of its own
   context 'with a run of days' do

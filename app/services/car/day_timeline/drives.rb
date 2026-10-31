@@ -14,10 +14,13 @@
 # the end of the gap, not all of it.
 #
 # The state of charge falls while the car drives, also where the odometer
-# stands still. So where it falls, it tells the drive better: the drive ends
-# with the last fall before the increase of the odometer, and it starts where
-# the state of charge began to fall without a pause. Drives that overlap
-# then, like the parts of a long drive that the odometer split, are one
+# stands still. So where it falls, it tells the start better: the drive
+# starts where the state of charge began to fall without a pause. The
+# increase of the odometer ends the drive, because a fall can also come
+# while the car still drives. Only where the state of charge stood still
+# after its last fall, before the increase, the car stood there and the
+# odometer caught up late: the drive then ends with that fall. Drives that
+# overlap then, like the parts of a long drive that the odometer split, are one
 # drive. A fall of one point within a stop, like a visit of a place, is no
 # drive. A fall over a long gap tells only that the drive lay in it. Where
 # the odometer still stood within the first fall, the drive started after
@@ -34,13 +37,13 @@
 # of the wallbox sessions (see
 # ChargingSession::Detection::CarAssignment::REPORT_LAG), so the reading with
 # the increase can come some minutes after the car arrived and plugged in.
-# A reading carries the end of its bucket, which can lie a bucket later.
-# The drive ends there before it joins another one, so two drives on both
-# sides of an arrival stay apart, also where their times touch.
+# A charge starts at the start of its bucket, which can lie a bucket before
+# the car plugged in. The drive ends there before it joins another one, so
+# two drives on both sides of an arrival stay apart, also where their times
+# touch.
 #
-# A reading is the mean of its bucket, so the last increase of a drive can
-# fall into two buckets. Its rest then comes after the arrival, while the
-# car stands at the place. An increase that ends in the ARRIVAL after the
+# A car can report the last part of a drive after the arrival, while it
+# stands at the place. An increase that ends in the ARRIVAL after the
 # start of a stop that still lasts is such a rest: its distance belongs to
 # the drive that arrived, and it adds no drive. A car does not drive while
 # it charges, so each increase within a charge is the rest of the drive
@@ -91,7 +94,8 @@ class Car::DayTimeline::Drives
     def window? = duration > MIN_WINDOW && distance / (duration / 1.hour) < MIN_SPEED
 
     # Whether the drive is faster than a car drives, so its start lies too
-    # late. The readings come in buckets, so the time can be a bucket short.
+    # late. A charge starts at the start of its bucket, so a drive that ends
+    # there can be a bucket short.
     def too_fast? = duration.positive? && distance / ((duration + BUCKET) / 1.hour) > MAX_SPEED
 
     # Whether the other drive, which ends later, starts within `pause` after
@@ -134,6 +138,11 @@ class Car::DayTimeline::Drives
 
   MAX_PAUSE = 30.minutes
   private_constant :MAX_PAUSE
+
+  # A car can report the state of charge of an arrival some time after the
+  # odometer, so a fall up to this after an increase belongs to its drive
+  SOC_LAG = BUCKET
+  private_constant :SOC_LAG
 
   # The average speed (km/h) of a drive without a start, like a mix of town
   # and country roads
@@ -217,12 +226,14 @@ class Car::DayTimeline::Drives
   # The drive as the state of charge tells it, where it fell before the
   # increase. A fall that ends the drive lies at most MAX_GAP before the
   # reading before the increase, so a fall of an earlier drive stays there.
-  # A fall up to the end of the increase before, `after`, belongs to that
-  # increase: the odometer counted that drive already.
+  # A fall up to SOC_LAG after the end of the increase before, `after`,
+  # belongs to that increase: the odometer counted that drive already. A
+  # fall after the increase belongs to it only where its step starts before
+  # the increase, so the drive does not start after its end.
   def refine(drive, after: nil)
     arrival = arrival_before(drive)
     from = [drive.start - MAX_GAP, arrival].compact.max
-    last = falls.rfind { (from..drive.ended_at).cover?(@soc[it].first) && (after.nil? || @soc[it].first > after) }
+    last = falls.rfind { fall_of?(it, drive, from, after) }
     return drive unless last
 
     # The falls one after the other, back to the reading before the first,
@@ -230,7 +241,22 @@ class Car::DayTimeline::Drives
     first = last
     first -= 1 while falls.include?(first - 1) && (arrival.nil? || @soc[first - 2].first >= arrival)
 
-    drive.with(started_at: [@soc[first - 1].first, arrival, odometer_start_within(drive, @soc[first].first)].compact.max, ended_at: @soc[last].first)
+    drive.with(started_at: [@soc[first - 1].first, arrival, odometer_start_within(drive, @soc[first].first)].compact.max, ended_at: end_at(drive, last))
+  end
+
+  # Whether the fall at the index belongs to the drive: it lies from `from`
+  # up to SOC_LAG after the increase, its step starts before the increase,
+  # and it lies more than SOC_LAG after the increase before, `after`
+  def fall_of?(index, drive, from, after) = (from..(drive.ended_at + SOC_LAG)).cover?(@soc[index].first) && @soc[index - 1].first <= drive.ended_at && (after.nil? || @soc[index].first > after + SOC_LAG)
+
+  # The last fall where the state of charge stood still after it up to the
+  # increase of the odometer: the car stood, and the odometer caught up
+  # late. Without such a reading, a fall can come while the car still
+  # drives, so the increase ends the drive.
+  def end_at(drive, last)
+    fall_at, value = @soc[last]
+    stood = @soc[(last + 1)..].take_while { |time, _| time <= drive.ended_at }.any? { it.last >= value }
+    stood ? fall_at : drive.ended_at
   end
 
   # The reading of the odometer before the increase, where it lies before

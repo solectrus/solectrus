@@ -97,9 +97,9 @@ describe Car::DayTimeline do
 
     after { Sensor::Config.setup(ENV) }
 
-    # A reading carries the end of its bucket, like the time plugged in
+    # A reading of the car keeps its own time, like the time plugged in
     it 'leaves out the time of the other session' do
-      expect(spans(session)).to eq([[at(18, 5), at(20, 5)]])
+      expect(spans(session)).to eq([[at(18), at(20)]])
     end
   end
 
@@ -166,9 +166,8 @@ describe Car::DayTimeline do
     end
   end
 
-  # The bucket of a reading carries the end of its 5 minutes, which on the
-  # running day lies after now
-  context 'with a reading in the running bucket' do
+  # A collector whose clock runs ahead writes a reading after now
+  context 'with a reading after now' do
     subject(:timeline) { described_class.new(Timeframe.new('day'), [car]) }
 
     before do

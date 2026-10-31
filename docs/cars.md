@@ -1120,7 +1120,9 @@ way to a drive, because the odometer tells the drive.
 The curves are those of the daily build (`ChargingSession::Curves`): the curves of the
 wallbox, and the odometer, the plug and the state of charge of each car, each from its last
 reading before the day. A state of charge of 0 or above 100 is no reading
-(`ChargingSession::Curves.soc_reading?`).
+(`ChargingSession::Curves.soc_reading?`). The timeline takes the last reading of a car in
+each 5 minutes at its own time, and not the mean at the end of the 5 minutes. Otherwise a
+car that reports when it leaves would start its drive up to 5 minutes late.
 
 #### The drives
 
@@ -1137,10 +1139,17 @@ These rules find the drives:
   earliest start. The bar starts there with a jagged edge, and its tooltip says that the
   start is an estimate. A drive that joins it keeps the estimate.
 - The state of charge falls while the car drives, also when the odometer stands still. So
-  the drive ends with the last fall before the increase. It starts where the state of
-  charge began to fall without a pause, but not before the car arrived at the place that
-  the drive leaves. A fall of one point over more than 30 minutes is noise and no drive,
-  like a cold battery while the car stands.
+  the drive starts where the state of charge began to fall without a pause, but not before
+  the car arrived at the place that the drive leaves. A fall of one point over more than 30
+  minutes is noise and no drive, like a cold battery while the car stands.
+- The increase of the odometer ends the drive, because a car can report its state of charge
+  while it drives. If the state of charge stands still after its last fall and before the
+  increase, the car stood there and the odometer came late. The drive then ends with the
+  last fall.
+- A car can report the state of charge of an arrival up to 5 minutes after the odometer. So
+  a fall in these 5 minutes belongs to the drive that arrived, and not to the next one. This
+  applies only if the reading before the fall lies before the arrival, so that the drive
+  does not start after its end.
 - Drives that overlap are one drive.
 - A pause of up to 30 minutes joins two drives, because the state of charge can stand still
   for a reading while the car drives.
@@ -1151,10 +1160,9 @@ These rules find the drives:
   [Which car charged](#which-car-charged)). So the reading with the increase can come some
   minutes after the car arrived and plugged in. The drive ends there before it joins
   another one, so an arrival keeps two drives apart.
-- A reading of the odometer is the mean of 5 minutes. So the last increase of a drive can
-  fall into two readings, and the second one comes after the arrival. If this rest ends in
-  the 20 minutes after the arrival and the car still stands there, its distance belongs to
-  the drive that arrived. It adds no drive.
+- A car can report the last part of a drive after the arrival. If this rest ends in the 20
+  minutes after the arrival and the car still stands there, its distance belongs to the
+  drive that arrived. It adds no drive.
 - A car does not drive while it charges. So an increase within a charging session belongs to
   the drive that arrived at the session, also after 20 minutes.
 - Without such a drive, an increase within a charging session is a mark at the end of the
