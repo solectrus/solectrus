@@ -43,8 +43,9 @@
 #
 # A car can report the last part of a drive after the arrival, while it
 # stands at the place. An increase that ends in the ARRIVAL after the
-# start of a stop that still lasts is such a rest: its distance belongs to
-# the drive that arrived, and it adds no drive. A car does not drive while
+# start of a stop that still lasts is such a rest, where the stop starts in
+# the ARRIVAL after the drive before it: its distance belongs to the drive
+# that arrived, and it adds no drive. A car does not drive while
 # it charges, so each increase within a charge is the rest of the drive
 # that arrived at the charge, also after ARRIVAL.
 #
@@ -307,14 +308,16 @@ class Car::DayTimeline::Drives
   def arrival?(before, after) = @stops.any? { |from, _| from.between?(before.ended_at, after.start) }
 
   # Whether the drive after an arrival is the rest of the drive before it:
-  # it ends in the ARRIVAL after the start of the stop, and the car still
-  # stands there. Within a charge, it can end later, where the drive before
-  # it arrived at the charge.
+  # the drive before arrived at the stop, which starts in the ARRIVAL after
+  # its end, and the car still stands there. The rest ends in the ARRIVAL
+  # after the start of the stop, or later within a charge. A stop that
+  # starts later is where the drive after it arrived, like a drive without
+  # a start after a long stay.
   def rest?(before, after)
     @stops.any? do |stop|
       from, to = stop
-      from.between?(before.ended_at, after.start) && to >= after.ended_at &&
-        (after.ended_at <= from + ARRIVAL || (@charges.include?(stop) && before.ended_at >= from - ARRIVAL))
+      from.between?(before.ended_at, [after.start, before.ended_at + ARRIVAL].min) && to >= after.ended_at &&
+        (after.ended_at <= from + ARRIVAL || @charges.include?(stop))
     end
   end
 

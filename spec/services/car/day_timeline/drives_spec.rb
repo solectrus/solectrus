@@ -257,6 +257,17 @@ describe Car::DayTimeline::Drives do
         expect(spans).to eq([['14:40', '15:06', 10], ['15:25', '15:40', 3]])
       end
     end
+
+    # The car stood at home for three hours without a reading, then drove to
+    # the next place. The odometer reported the drive when the car arrived.
+    context 'with a drive after a long stay that ends at the next arrival' do
+      let(:readings) { [[at(11, 43), 100], [at(11, 54), 109], [at(14, 58), 112]] }
+      let(:stops) { [[at(11, 54), at(14, 58)], [at(14, 58), at(16)]] }
+
+      it 'keeps it apart' do
+        expect(spans).to eq([['11:43', '11:54', 9], [nil, '14:58', 3]])
+      end
+    end
   end
 
   # The state of charge read last before the arrival, so the fall of the next
