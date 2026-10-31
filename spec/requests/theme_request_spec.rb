@@ -15,8 +15,10 @@ describe 'Theme of the first response' do
   # The root redirects, so ask for the page it redirects to.
   let(:page) { '/power_balance/now' }
 
+  # Only the theme classes, without the scroll padding of the layout.
   def html_class
-    response.body[/<html[^>]*class="([^"]*)"/, 1]
+    classes = response.body[/<html[^>]*class="([^"]*)"/, 1].to_s.split
+    classes.grep_v(/\Ascroll-/).join(' ').presence
   end
 
   # Painted before the stylesheet arrives, so the page does not start white.

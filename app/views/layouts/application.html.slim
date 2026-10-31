@@ -1,5 +1,5 @@
 doctype html
-html class= html_theme_classes lang= I18n.locale style= chrome_background_style
+html.scroll-pt-4.scroll-pb-20 class= html_theme_classes lang= I18n.locale style= chrome_background_style
   head
     meta charset="utf-8"
 
@@ -96,13 +96,17 @@ html class= html_theme_classes lang= I18n.locale style= chrome_background_style
         - if flash.present?
           = render Ui::Flash::Component.new(notice:, alert:)
 
-      / A page with a fixed navigation fills the window, so the card and the
-        footer keep their place between its tabs. On a phone, the navigation
-        stays and main scrolls below it. On a computer, the window scrolls,
-        so the scroll bar stays at its edge, and the card grows with its
-        content. The scroll padding keeps a focused element off the edge, so
-        the keyboard shows it with its ring and the rest of its row.
-      main.relative.flex.flex-auto.min-h-0 class= [fixed_nav ? 'max-lg:overflow-y-auto scroll-pt-4 scroll-pb-20 lg:[html:has(&)]:scroll-pt-4 lg:[html:has(&)]:scroll-pb-20 max-lg:bg-white max-lg:dark:bg-slate-900 lg:-mt-32' : '-mt-32', ('lg:landscape:max-h-[700px]' if full_height), ('lg:landscape:flex-initial' unless fixed_nav || full_height)]
+      / On desktop, every card is as high as the window, at most 700px for a
+        page of full height and 480px for any other page. Longer content
+        makes it higher (min height wins over max height).
+        A page with a fixed navigation fills the window on a phone, where
+        main scrolls below the navigation. The scroll padding of main and
+        html keeps a focused element off the edge, so the keyboard shows it
+        with its ring and the rest of its row.
+      main.relative.flex.flex-auto.min-h-0.-mt-32.scroll-pt-4.scroll-pb-20.lg:landscape:min-h-fit[
+        class=(full_height ? 'lg:landscape:max-h-175' : 'lg:landscape:max-h-120')
+        class=('max-lg:mt-0 max-lg:overflow-y-auto max-lg:bg-white max-lg:dark:bg-slate-900' if fixed_nav)
+      ]
         .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0.min-w-0
           / On a phone, a page with `content_for :grouped` puts white cards on
             the gray of a grouped list, like the Top 10
