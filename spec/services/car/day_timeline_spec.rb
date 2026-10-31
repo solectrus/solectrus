@@ -225,6 +225,29 @@ describe Car::DayTimeline do
 
       expect([lane.origin(drive), lane.goal(drive)].map(&:name)).to eq(%w[School Work])
     end
+
+    # The car stands at the shop for less than Place::MIN_DURATION, so the
+    # build wrote no visit there yet
+    context 'with the place where the car stands now' do
+      let(:drives) do
+        [
+          Car::DayTimeline::Drives::Drive.new(started_at: at(7, 45), ended_at: at(8, 15), distance: 11),
+          Car::DayTimeline::Drives::Drive.new(started_at: at(17, 5), ended_at: at(17, 15), distance: 8),
+        ]
+      end
+      let(:lane) do
+        visits = [visit('School', at(7, 41), at(8, 15)), visit('Work', at(8, 15), at(17, 12))]
+        described_class.new(car: nil, drives:, charges: [], soc_line: [], visits:, current_place: Place.new(name: 'Shop'))
+      end
+
+      it 'ends the last drive there' do
+        expect([lane.origin(drives.last), lane.goal(drives.last)].map(&:name)).to eq(%w[Work Shop])
+      end
+
+      it 'keeps the goal of an earlier drive' do
+        expect(lane.goal(drives.first).name).to eq('Work')
+      end
+    end
   end
 
   describe '.without' do

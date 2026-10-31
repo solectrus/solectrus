@@ -1080,7 +1080,9 @@ odometer of a car link to today with the car selected.
 
 The tooltip of a bar names what the car did, its time and its place, and its numbers. Only
 the admin sees the places: the start and the goal of a drive from the visits of the day (see
-[Visits](#visits)), and the address of an offsite session. The admin opens the form of an
+[Visits](#visits)), and the address of an offsite session. A stop becomes a visit only after
+some time. So on the running day, the last drive without a visit at its goal ends at the place
+where the car stands now, like in the live view. The admin opens the form of an
 offsite session with a click on its bar: in the modal on the desktop, in a sheet on a phone.
 On a phone, the tooltip of such a bar then needs a long press.
 

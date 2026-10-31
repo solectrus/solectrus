@@ -37,9 +37,11 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   # Charges, `soc_line` is the line of the state of charge, empty without the
   # sensor. `visits` are the visits of places that the page may show, in the
   # order of time. `plugged` are the [from, to] in which the car was plugged
-  # in but did not charge (see Car::DayTimeline::Plugged).
-  Lane = Data.define(:car, :drives, :charges, :soc_line, :visits, :plugged) do
-    def initialize(plugged: [], **) = super
+  # in but did not charge (see Car::DayTimeline::Plugged). `current_place`
+  # is the place where the car stands now, like in the live view, or nil
+  # (see Car::DayTimeline#current_place).
+  Lane = Data.define(:car, :drives, :charges, :soc_line, :visits, :plugged, :current_place) do
+    def initialize(plugged: [], current_place: nil, **) = super
 
     def guest? = car.nil?
 
@@ -68,16 +70,23 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
     # started that starts closest to its end, an hour away at most. A visit
     # that lasts past the end by more than the late report of an arrival
     # (see Car::DayTimeline::Drives::ARRIVAL) saw the car back after the
-    # drive: a round trip, whose stop was too short for a visit.
-    def goal(drive)
+    # drive: a round trip, whose stop was too short for a visit. The last
+    # drive without such a visit ends where the car stands now: a stop
+    # counts as a visit only after Place::MIN_DURATION.
+    def goal(drive) = visit_goal(drive) || (current_place if drive == drives.last)
+
+    # Whether the last drive has no visit at its goal
+    def open_goal? = drives.any? && visit_goal(drives.last).nil?
+
+    private
+
+    def visit_goal(drive)
       origin = origin_visit(drive)
       return origin.place if origin && origin.ended_at > drive.ended_at + Car::DayTimeline::Drives::ARRIVAL
 
       visit = visits.select { origin.nil? || it.started_at > origin.started_at }.min_by { (it.started_at - drive.ended_at).abs }
       visit.place if visit && (visit.started_at - drive.ended_at).abs <= 1.hour
     end
-
-    private
 
     def origin_visit(drive)
       start = drive.start
@@ -235,7 +244,19 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
     drives = drives_of(car, soc, recorded)
     charges = [*recorded, *estimated.map { estimate(it, soc:, plug:, drives:, recorded:) }].sort_by { it.span.first }
 
-    Lane.new(car:, drives:, charges:, soc_line: soc_line(soc, drives, charges), visits: (@admin ? visits_of(car) : []), plugged: plugged_of(plug, charges, drives))
+    lane = Lane.new(car:, drives:, charges:, soc_line: soc_line(soc, drives, charges), visits: (@admin ? visits_of(car) : []), plugged: plugged_of(plug, charges, drives))
+    @admin && today? && lane.open_goal? ? lane.with(current_place: current_place(car)) : lane
+  end
+
+  # The place at the latest position of the car, like in the live view (see
+  # Car::Live), or nil on the road. The build writes a visit only after
+  # Place::MIN_DURATION, so on the running day the last drive can end at a
+  # place that has no visit yet.
+  def current_place(car)
+    return unless Sensor::Cars.located?(car.id)
+
+    location = Car::Live.new([car]).states.sole.location
+    Place.near(*location) if location
   end
 
   # The charge of an offsite session without an end where the signs of its
@@ -337,7 +358,8 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
 
   # The curves of the daily build on the day. Each one loads when the
   # timeline first reads it, or all at once after #start. The places come
-  # from the visits, so the timeline reads no position of a car. A curve of
+  # from the visits, so the timeline reads no curve of the position of a car
+  # (see #current_place for the latest one). A curve of
   # a car starts with its last reading before the day, so the timeline needs
   # no margin around the day. A session that the power splitter split adds
   # the grid share of the wallbox (see #power_of).
