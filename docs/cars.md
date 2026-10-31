@@ -339,11 +339,12 @@ The state of charge does not always fit the energy (`ChargingSession::StateOfCha
 
 The list shows a charge over midnight in one row (`ChargingSession.joined`), and a count
 counts it once. The data keeps a session for each day, so the daily sums and the charts
-stay exact. The list has no hours view, like the car page.
+stay exact. The list has no hours view, like the car page. Two sessions are one charge when
+the gap between the buckets of their edges does not end a period of the detection.
 
-The detection writes the end of the latest bucket with power. So a charge that goes on gets
-an end and a state of charge at the end that change with each build. The list shows such a
-session as ongoing, without its end. A session is ongoing when it reaches the latest build
+While a charge goes on, the detection writes the end of its latest bucket with power. So it
+gets an end and a state of charge at the end that change with each build. The list shows
+such a session as ongoing, without its end. A session is ongoing when it reaches the latest build
 of today within the gap of the detection, and the wallbox reports power now. The table does
 not store this state, like for an ongoing visit (see [Visits](#visits)).
 
@@ -361,6 +362,14 @@ not store this state, like for an ongoing visit (see [Visits](#visits)).
   hour while the car charges. Such a gap does not end a session. A session also reaches
   across a gap at each end, to the next bucket with data. The daily sum integrates across
   the gap from the last value to the next one, so the sessions keep the energy of the day.
+- A session stores the times of the readings at its edges (`Detection::Edges`). The
+  5-minute means put a start up to 5 minutes before the power, and an end up to 5 minutes
+  after it. So a session starts with the first reading with power in its first bucket. It
+  ends with the first reading without power after the last reading with power in its last
+  bucket. Without such a reading, the end stays at the end of the bucket, because nothing
+  tells that the power stopped earlier. The energy, the car and the state of charge still
+  read the buckets. A session at midnight with power before it continues the charge of the
+  day before, so it keeps the start of the day.
 - A session needs 0.1 kWh at least, because many wallboxes report a standby power.
 - The energy comes from the integral of the power, like the daily sum. The grid share comes
   from `wallbox_power_grid` in the same way. The power splitter writes one value in the
@@ -1105,6 +1114,8 @@ A session at the wallbox can pause while the car stays plugged in, for example u
 cheap tariff of the night. The detection joins the parts with power over such a pause only
 when the plug of the wallbox reads connected through it (see [The detection](#the-detection)).
 So the session stays one bar with its pause in it, and its energy and its cost stand once.
+The bar starts and ends at the times of the session, and the pause lies on the edges of the
+5-minute buckets.
 
 The plug of a car (`car_connected`) tells the times in which it was plugged in: each time in
 which it reads plugged in, without the time of a session and of a drive. A reading holds

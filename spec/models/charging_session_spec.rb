@@ -622,6 +622,15 @@ describe ChargingSession do
       expect(described_class.sums).to have_attributes(count: 1, rows: 2)
     end
 
+    # The detection stores the readings at the edges, within their buckets.
+    # The buckets lie 15 minutes apart, from 23:50 to 00:05.
+    it 'joins a gap between the buckets of the edges that does not end a period' do
+      evening.update!(ended_at: midnight - 13.minutes - 30.seconds)
+      morning.update!(started_at: midnight + 8.minutes + 20.seconds)
+
+      expect(described_class.sums).to have_attributes(count: 1, rows: 2)
+    end
+
     it 'joins no sessions of one day' do
       evening.update!(ended_at: midnight - 1.hour)
       morning.update!(started_at: midnight - 50.minutes, ended_at: midnight - 30.minutes)

@@ -5,7 +5,8 @@
 #
 # The period of a session comes from the 5-minute means that
 # Sensor::Query::Series builds for the charts (see
-# ChargingSession::Detection::Periods).
+# ChargingSession::Detection::Periods). The session stores the times of the
+# readings at its edges (see ChargingSession::Detection::Edges).
 #
 # The energy comes from integral(unit: 1h) over the raw series, the function
 # of the daily sum, and not from the 5-minute means, which lose the shape
@@ -31,7 +32,7 @@ class ChargingSession::Detection
   public_constant :KEY
 
   # Bump to build each day again (see Summary::Steps)
-  VERSION = 1
+  VERSION = 2
   public_constant :VERSION
 
   # The sessions keep the changes of the user, so a reset of the summaries
@@ -84,10 +85,13 @@ class ChargingSession::Detection
 
     curves.start
     found = dates.index_with { |date| periods(date) }
-    energies = integrals(found.values.flatten(1).map { [it.from, it.to] })
+    spans = found.values.flatten(1).map { [it.from, it.to] }
+    reading_edges = Concurrent::Promises.future { Edges.new(spans).call }
+    energies = integrals(spans)
+    edges = reading_edges.value!
 
     found.to_h do |date, periods|
-      [date, periods.filter_map { session(date, it.from, it.to, *energies[[it.from, it.to]]) }]
+      [date, periods.filter_map { session(date, it.from, it.to, *energies[[it.from, it.to]], edges: edges[[it.from, it.to]]) }]
     end
   end
 
@@ -100,7 +104,9 @@ class ChargingSession::Detection
 
   attr_reader :cars, :cost, :assignment, :state_of_charge, :curves
 
-  def session(date, from, to, kwh, kwh_grid)
+  # The car and its state of charge read the buckets of the period, and the
+  # session stores the times of the readings at its edges
+  def session(date, from, to, kwh, kwh_grid, edges: nil)
     return unless kwh && kwh >= MIN_KWH
 
     # The cost comes from the stored energy, so a change of a price gives the
@@ -108,9 +114,10 @@ class ChargingSession::Detection
     kwh = kwh.round(3)
     kwh_grid = kwh_grid&.clamp(0, kwh)&.round(3)
     session_cost, cost_grid = cost.call(date, kwh, kwh_grid)
+    started_at, ended_at = edges || [from, to]
     Session.new(
-      started_at: from,
-      ended_at: to,
+      started_at:,
+      ended_at:,
       kwh:,
       kwh_grid:,
       cost: session_cost,

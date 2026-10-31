@@ -1,8 +1,8 @@
-# Whether a wallbox session still goes on. The detection writes the end of
-# the latest bucket with power, so a running charge gets an end and a state
-# of charge at the end that change with each build. The table does not know
-# whether the charge goes on, so .mark_ongoing sets it when a page reads the
-# sessions, like PlaceVisit.mark_ongoing.
+# Whether a wallbox session still goes on. While a charge goes on, the
+# detection writes the end of its latest bucket with power, so it gets an
+# end and a state of charge at the end that change with each build. The
+# table does not know whether the charge goes on, so .mark_ongoing sets it
+# when a page reads the sessions, like PlaceVisit.mark_ongoing.
 module ChargingSession::Ongoing
   extend ActiveSupport::Concern
 

@@ -37,10 +37,9 @@
 # of the wallbox sessions (see
 # ChargingSession::Detection::CarAssignment::REPORT_LAG), so the reading with
 # the increase can come some minutes after the car arrived and plugged in.
-# A charge starts at the start of its bucket, which can lie a bucket before
-# the car plugged in. The drive ends there before it joins another one, so
-# two drives on both sides of an arrival stay apart, also where their times
-# touch.
+# ARRIVAL adds a bucket to this lag as a margin. The drive ends there before
+# it joins another one, so two drives on both sides of an arrival stay
+# apart, also where their times touch.
 #
 # A car can report the last part of a drive after the arrival, while it
 # stands at the place. An increase that ends in the ARRIVAL after the
@@ -94,8 +93,8 @@ class Car::DayTimeline::Drives
     def window? = duration > MIN_WINDOW && distance / (duration / 1.hour) < MIN_SPEED
 
     # Whether the drive is faster than a car drives, so its start lies too
-    # late. A charge starts at the start of its bucket, so a drive that ends
-    # there can be a bucket short.
+    # late. The check adds a bucket as a margin, so a drive that is some
+    # minutes short does not count as too fast.
     def too_fast? = duration.positive? && distance / ((duration + BUCKET) / 1.hour) > MAX_SPEED
 
     # Whether the other drive, which ends later, starts within `pause` after

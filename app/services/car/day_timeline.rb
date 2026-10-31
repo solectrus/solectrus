@@ -212,14 +212,19 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   # while the car stays plugged in, like until the cheap tariff of the night.
   # Its parts with power follow the rules of the detection (see
   # ChargingSession::Detection::Periods), up to the end of the session: the
-  # curves can hold a part that the build did not store yet. Any other
-  # session charged over its whole span. The spans end at the edges of the
-  # day.
+  # curves can hold a part that the build did not store yet. The session
+  # stores the readings at its edges, which lie within the first and the
+  # last bucket (see ChargingSession::Detection::Edges), so its pauses alone
+  # stay on the edges of the buckets. Any other session charged over its
+  # whole span. The spans end at the edges of the day.
   def charge_spans(session)
     from, to = span_of(session)
-    parts = (wallbox_parts[session.started_at.to_i]&.select { |start, _| start < to } if session.wallbox?).presence || [[from, to]]
-    [*parts[...-1], [parts.last.first, to]].map { |start, stop| [[start, beginning].max, [stop, timeframe.beginning_of_next].min] }
+    parts = (wallbox_parts[bucket_start(session.started_at)]&.select { |start, _| start < to } if session.wallbox?).presence || [[from, to]]
+    [from, *parts.flatten[1...-1], to].each_slice(2).map { |start, stop| [[start, beginning].max, [stop, timeframe.beginning_of_next].min] }
   end
+
+  # The start of the bucket that holds the time, in seconds
+  def bucket_start(time) = time.to_i - (time.to_i % BUCKET.to_i)
 
   # The start and the end of a session. A running session charges until now.
   # An offsite session without an end can have charged over the rest of its
