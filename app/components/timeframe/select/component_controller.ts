@@ -1,5 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
+import { isReducedMotion } from '@/utils/device';
+import { EASE_GLIDE } from '@/utils/motion';
+
+// The sheet glides to its new height when a picker opens or closes
+const RESIZE_DURATION = 350;
 
 // Connects to data-controller="timeframe--select--component"
 export default class extends Controller<HTMLElement> {
@@ -23,8 +28,21 @@ export default class extends Controller<HTMLElement> {
     range: 'range-picker-input-button',
   };
 
+  // The height of the sheet before the last change, and the glide from it
+  #height?: number;
+  #glide?: Animation;
+  #sizes?: ResizeObserver;
+  #toggles?: MutationObserver;
+
   connect(): void {
+    this.observeHeight();
     this.autoOpenPicker();
+  }
+
+  disconnect(): void {
+    this.#sizes?.disconnect();
+    this.#toggles?.disconnect();
+    this.#glide?.cancel();
   }
 
   handlePickerSelected(event: CustomEvent): void {
@@ -42,6 +60,45 @@ export default class extends Controller<HTMLElement> {
 
   private visit(timeframe: string): void {
     Turbo.visit(this.urlTemplateValue.replace(':timeframe', timeframe));
+  }
+
+  // An open picker gives the sheet another height (see component.css). The
+  // mutation observer answers before the next paint, so the sheet glides
+  // from the old height, which the resize observer keeps. The picker that
+  // opens at connect has no old height yet and does not glide.
+  private observeHeight(): void {
+    const panel = this.element.closest<HTMLElement>('.bottom-sheet-panel');
+    if (!panel) return;
+
+    this.#sizes = new ResizeObserver(() => {
+      if (!this.gliding) this.#height = panel.offsetHeight;
+    });
+    this.#sizes.observe(panel);
+
+    this.#toggles = new MutationObserver(() => this.glide(panel));
+    this.#toggles.observe(this.element, {
+      attributeFilter: ['open'],
+      subtree: true,
+    });
+  }
+
+  private get gliding(): boolean {
+    return this.#glide?.playState === 'running';
+  }
+
+  // A glide that runs starts the next one from where it is
+  private glide(panel: HTMLElement): void {
+    const from = this.gliding ? panel.offsetHeight : this.#height;
+    this.#glide?.cancel();
+
+    const to = panel.offsetHeight;
+    this.#height = to;
+    if (from === undefined || from === to || isReducedMotion()) return;
+
+    this.#glide = panel.animate(
+      { height: [`${from}px`, `${to}px`] },
+      { duration: RESIZE_DURATION, easing: EASE_GLIDE },
+    );
   }
 
   // The picker of the period opens at once. Its way back leads to the fields.
