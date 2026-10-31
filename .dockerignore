@@ -43,6 +43,7 @@ screenshot.webp
 
 # Development, test and CI tooling
 bin/brakeman
+bin/bun-audit
 bin/bundler-audit
 bin/ci
 bin/dev
