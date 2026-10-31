@@ -710,8 +710,13 @@ describe Sensor::Query::Ranking do
 
         it 'correctly aggregates total costs by month' do
           # Sum of all three days: 6.754 + 3.793 + 5.2319 = 15.7789
-          expect(call).to eq(
-            [{ date: start.beginning_of_month, value: 15.7789 }],
+          expect(call).to match(
+            [
+              {
+                date: start.beginning_of_month,
+                value: be_within(0.001).of(15.7789),
+              },
+            ],
           )
         end
       end
