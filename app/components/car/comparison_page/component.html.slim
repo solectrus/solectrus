@@ -12,7 +12,7 @@
     renders the car without PV too, and a button shows it. The charts read
     the attribute, too.
   div[
-    class='group/comparison flex flex-auto flex-col space-y-4 md:space-y-6 lg:space-y-14 text-slate-700 dark:text-slate-300'
+    class='group/comparison flex flex-auto flex-col space-y-4 md:space-y-6 lg:space-y-10 text-slate-700 dark:text-slate-300'
     data-controller='car--comparison-page--component'
     data-without-pv=without_pv?
   ]
@@ -35,7 +35,7 @@
             div class="mt-1 text-4xl md:text-5xl font-bold tabular-nums #{color}" = value
           div class=WITHOUT_PV_FADE
             = small_figure(*side)
-        .mt-5 = small_figure(*per_100km)
+        .mt-3 = small_figure(*per_100km)
 
       - car, without_pv, combustion = columns
       div
