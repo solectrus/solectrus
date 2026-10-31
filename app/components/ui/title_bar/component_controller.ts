@@ -47,6 +47,29 @@ addEventListener('turbo:visit', (event) => {
   if (action !== 'restore') browserAnimated = false;
 });
 
+// A page can render while the document is hidden, like the reload of a tab in
+// the background once its summaries are built. The browser aborts a view
+// transition there with an InvalidStateError, which Turbo leaves unhandled.
+// So the tag goes away while the document is hidden, also after such a render
+// brought it back, and returns when the document shows again.
+let hiddenTag: HTMLMetaElement | undefined;
+
+const syncTagWithVisibility = () => {
+  const tag = document.head.querySelector<HTMLMetaElement>(
+    'meta[name="view-transition"]',
+  );
+
+  if (document.hidden) {
+    hiddenTag = tag ?? undefined;
+    hiddenTag?.remove();
+  } else if (hiddenTag) {
+    if (!tag) document.head.append(hiddenTag);
+    hiddenTag = undefined;
+  }
+};
+document.addEventListener('visibilitychange', syncTagWithVisibility);
+addEventListener('turbo:load', syncTagWithVisibility);
+
 export default class extends Controller<HTMLElement> {
   #slide?: Promise<void>;
   #skeleton?: HTMLElement;
