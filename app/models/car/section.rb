@@ -25,4 +25,10 @@ module Car::Section
   # Whether the column has a value in the period of the report (see
   # Car::Report): a charging session, or a drive
   def self.value?(section, report) = section == :charging ? report.charged? : report.driven?
+
+  # Whether the box of the column has a bar below its figures: the sources
+  # of the charging, or the savings of the driving against a combustion car
+  # (see Car::Report#savings?). The report needs no sums for it, so the
+  # placeholder of the box keeps the place of the bar.
+  def self.bar?(section, report) = section == :charging || report.savings?
 end

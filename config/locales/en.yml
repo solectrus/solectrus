@@ -106,12 +106,12 @@ en:
     car_charging: Charged energy
     car_charging_short: Charged energy
     wallbox_costs_short: Costs
-    car_charging_costs: Charging costs
+    car_charging_costs: Energy cost
     car_charging_costs_short: Costs
     car_consumption_rate: Usage per 100 km
-    car_cost_rate: Driving cost per 100 km
+    car_cost_rate: Energy cost per 100 km
     car_driving_energy: Energy used
-    car_driving_costs: Driving costs
+    car_driving_costs: Energy cost
     grid_import_power: Grid import
     grid_export_power: Grid export
     grid_power: Grid import and export
@@ -251,14 +251,12 @@ en:
     admin_only_days_left_out: Only the admin sees the latest days.
     places_map: Map of the places
     home_pv: Photovoltaics
-    share_pv: from PV
-    share_wallbox: at the wallbox
     home_grid: Grid
     offsite: Offsite charging
     charging: Charging
     driving: Driving
     places: Locations
-    # The row below the driving figures that links to the comparison
+    # The savings against a combustion car, in the tooltip of their bar
     savings: Savings against a combustion car
     # The switch between the list of the places and the list of the visits
     place_lists:
@@ -268,12 +266,6 @@ en:
     guest_short: Guest
     offsite_short: Offsite
     unknown_place: Unknown place
-    # The captions below the values of the tiles of a phone
-    charged: charged
-    driven: driven
-    cost: cost
-    used: used
-    per_day_note: Ø %{distance}/day
     unconfirmed:
       one: 1 unconfirmed session
       other: '%{count} unconfirmed sessions'
@@ -794,12 +786,12 @@ en:
     car_latitude: 'Latitude of the current location of the electric vehicle.'
     car_longitude: 'Longitude of the current location of the electric vehicle.'
     car_distance: 'Distance driven by the electric vehicle in the period.'
-    car_charging_costs: 'Charging costs of the electric vehicle (wallbox and offsite charging).'
+    car_charging_costs: 'Energy cost of the electric vehicle for the charged electricity (wallbox and offsite charging).'
     car_charging: 'Energy charged into the electric vehicle (wallbox and offsite charging combined).'
     car_consumption_rate: 'Consumption of the electric vehicle in kWh per 100 km. Each day takes the rate of the 28 days around it.'
     car_cost_rate: 'Cost of the electric vehicle per 100 km. Each day takes the rate of the 28 days around it.'
     car_driving_energy: 'Energy used by the electric vehicle: the distance of each day times the consumption per 100 km of the days around it.'
-    car_driving_costs: 'Driving costs of the electric vehicle: the distance of each day times the cost per 100 km of the days around it.'
+    car_driving_costs: 'Energy cost of the electric vehicle for the distance driven: the distance of each day times the cost per 100 km of the days around it.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'
     outdoor_temp_forecast: 'Forecasted outdoor air temperature.'

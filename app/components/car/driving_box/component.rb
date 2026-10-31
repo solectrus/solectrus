@@ -1,10 +1,14 @@
 # The driving of a period in the overview of the car page (see
-# Car::OverviewBox::Component): the distance with the average distance of a
-# day, and on "all" a bar of the share of each car. Beside it, the driving
-# cost and the energy used. The tooltip of each has its rate per 100 km with
-# a bar of its place between the periods of its kind (see Car::Spans), and
-# the info icon of the title the window that the rates come from.
+# Car::OverviewBox::Component): the distance, with the average distance of a
+# day and on "all" the distance of each car in its tooltip. Beside it, the
+# energy used and the energy cost. The tooltip of each has its rate per 100
+# km with a bar of its place between the periods of its kind (see
+# Car::Spans), and the info icon of the title the window that the rates come
+# from. With a comparison with a combustion car, the savings stand below
+# them, and open the comparison.
 class Car::DrivingBox::Component < ViewComponent::Base
+  include Car::ComparisonFormat
+
   def initialize(report:)
     super()
     @report = report
@@ -22,23 +26,13 @@ class Car::DrivingBox::Component < ViewComponent::Base
     @car_distances ||= cars.many? ? report.distances.select { |_, km| km&.positive? } : {}
   end
 
-  # The color of a drive in the timeline of a day. A period without a drive
-  # has no color, like a period without charging.
-  def swatch
-    return [Car::OverviewBox::Component::NEUTRAL] unless driven?
-
-    [Car::OverviewBox::Component::Segment.new(percent: 100, color: Car::DayTimeline::Component::DRIVE_COLOR)]
+  # The average distance of a day, then each car with its distance and its
+  # whole share, rounded so the shares add up to 100
+  def distance_parts
+    [per_day_part, *car_parts].compact
   end
 
-  # The share of each car in its color. One car has no bar, because its
-  # share is the whole.
-  def segments
-    car_distances.map { |car, km| Car::OverviewBox::Component::Segment.new(percent: km * 100 / distance, color: car.display_color) }
-  end
-
-  # Each car with its distance and its whole share, rounded so the shares
-  # add up to 100
-  def parts
+  def car_parts
     shares = LargestRemainder.round(car_distances.values.map { it * 100 / distance })
     car_distances.zip(shares).map do |(car, km), percent|
       Car::OverviewBox::Component::Part.new(label: car.display_name, value: render(Sensor::Value::Component.new(km, :car_distance)), color: car.display_color, percent:)
@@ -46,17 +40,32 @@ class Car::DrivingBox::Component < ViewComponent::Base
   end
 
   # The average distance of a day, nil for a day
-  def per_day = report.km_per_day && Sensor::ValueFormatter.new(report.km_per_day, unit: Sensor::Registry[:car_distance].unit).to_s
+  def per_day_part
+    return unless report.km_per_day
 
-  # The distance with its average of a day below it, the energy used and the
-  # driving cost. The cost comes last, like in the charging (see
-  # Car::ChargingBox::Component). The rates per 100 km stand in the tooltips.
+    Car::OverviewBox::Component::Part.new(label: t('.per_day'), value: Sensor::ValueFormatter.new(report.km_per_day, unit: Sensor::Registry[:car_distance].unit).to_s)
+  end
+
+  # The distance with its average of a day and the distance of each car in
+  # its tooltip, the energy used and the energy cost. The cost comes last,
+  # like in the charging (see Car::ChargingBox::Component). The rates per 100
+  # km stand in the tooltips.
   def figures
     [
-      Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, label: per_day ? t('car_breakdown.per_day_note', distance: per_day) : t('car_breakdown.driven'), value: render(distance_value), segments:, parts:),
+      Car::OverviewBox::Component::Figure.new(sensor_name: :car_distance, value: render(distance_value), title: t('sensors.car_distance'), parts: distance_parts),
       energy_figure,
       cost_figure,
     ]
+  end
+
+  # The bar of the savings against a combustion car, or nil without a
+  # comparison. The page knows the place of the bar before the figures load
+  # (see Car::Report#savings?), so the bar stays also without a compared
+  # distance. It is an empty track then, and the comparison tells why.
+  def bar
+    return unless Car::Section.bar?(:driving, report)
+
+    Car::OverviewBox::Component::Figure.new(sensor_name: nil, href: savings_path, value: savings_bar, title: t('car_breakdown.savings'), **savings_tooltip)
   end
 
   # A period without a drive says so in the place of the figures
@@ -81,14 +90,69 @@ class Car::DrivingBox::Component < ViewComponent::Base
 
   def driven? = distance&.positive?
 
-  # The driving cost loads its chart. Without a cost rate, the cost of the
-  # driven kilometers is unknown.
+  # The comparison of the cars as the comparison page shows it, nil without
+  # a compared distance
+  def amounts
+    return @amounts if defined?(@amounts)
+
+    @amounts = (Car::ComparisonAmounts.new(report.comparison) if report.comparison.ready?)
+  end
+
+  def savings_path
+    helpers.cars_savings_path(timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id)
+  end
+
+  # The savings as an amount, in the place and the height of a bar, so the
+  # boxes of both columns end on one line. It shows no ratio: the amount
+  # matters, and the tooltip names the costs of each column. A loss is red.
+  def savings_bar
+    return Car::ShareBar::Component.new(segments: []) unless amounts
+
+    Car::ShareBar::Component.new(
+      segments: [savings_segment],
+      label: [[t('.ev'), amounts.car_cost], [t('.combustion'), amounts.combustion_cost], [t('.savings'), amounts.savings]].map { |name, value| "#{name} #{amount(value)}" }.join(', '),
+    )
+  end
+
+  def savings_segment
+    savings = amount(amounts.savings.abs)
+    gain = !amounts.savings.negative?
+    Car::ShareBar::Component::Segment.new(
+      value: 1,
+      css: ['px-3 text-base', gain ? 'bg-signal-positive-soft text-signal-positive-strong' : 'bg-signal-negative-soft text-signal-negative-strong'],
+      labels: [safe_join([icon(gain ? 'piggy-bank' : 'circle-exclamation'), t(gain ? '.saved' : '.extra', amount: savings)], ' '), savings],
+    )
+  end
+
+  # The car and the combustion car, each in the color of its column on the
+  # comparison page (see Car::ComparisonFormat::COLORS), and the savings
+  # below them
+  def savings_parts
+    savings = amounts.savings
+    [
+      Car::OverviewBox::Component::Part.new(label: t('.ev'), value: money(amounts.car_cost, precision: amounts.precision), color: 'var(--color-signal-positive)'),
+      Car::OverviewBox::Component::Part.new(label: t('.combustion'), value: money(amounts.combustion_cost, precision: amounts.precision), color: 'var(--color-combustion)'),
+      Car::OverviewBox::Component::Part.new(label: t('.savings'), value: helpers.tag.span(money(savings, precision: amounts.precision), class: savings_color_of(savings))),
+    ]
+  end
+
+  def savings_tooltip
+    amounts ? { parts: savings_parts, notes: [t('.savings_note')] } : {}
+  end
+
+  # An amount as plain text, for the bar and its label
+  def amount(value) = Sensor::ValueFormatter.new(value, unit: Sensor::Registry[:total_costs].unit, precision: amounts.precision).to_s
+
+  # The energy cost loads the chart of the driving cost. Without a cost rate,
+  # the cost of the driven kilometers is unknown. The figures of the driving
+  # have no caption, so the three of them fit in one line. Their tooltips
+  # name them.
   def cost_figure
     cost = Sensor::Value::Component.new(driving.cost, :total_costs) if driving.cost_rated?
     Car::OverviewBox::Component::Figure.new(
       sensor_name: :car_driving_costs,
-      label: t('car_breakdown.cost'),
-      wide_label: t('sensors.car_driving_costs'),
+      title: t('sensors.car_driving_costs'),
+      description: t('.cost_description'),
       value: cost ? render(cost) : '–',
       **cost_tooltip,
     )
@@ -100,8 +164,8 @@ class Car::DrivingBox::Component < ViewComponent::Base
     energy = Sensor::Value::Component.new(driving.energy_wh, :wallbox_power, context: :total, scaling: :kilo, precision: driving.energy_wh >= 100_000 ? 0 : 1) if driving.rated?
     Car::OverviewBox::Component::Figure.new(
       sensor_name: :car_driving_energy,
-      label: t('car_breakdown.used'),
-      wide_label: t('sensors.car_driving_energy'),
+      title: t('sensors.car_driving_energy'),
+      description: t('.energy_description'),
       value: energy ? render(energy) : '–',
       **energy_tooltip,
     )
@@ -135,7 +199,7 @@ class Car::DrivingBox::Component < ViewComponent::Base
   # them has the unit. `precision` is the number of decimals of these ends.
   # The block gives a rate with its unit.
   def rate_tooltip(sensor_name, value, span, precision:, notes:, &)
-    part = Car::OverviewBox::Component::Part.new(label: t("sensors.#{sensor_name}"), value: render(yield(value)), color: nil, percent: nil)
+    part = Car::OverviewBox::Component::Part.new(label: t("sensors.#{sensor_name}"), value: render(yield(value)))
     bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:, rows: span_rows(span, sensor_name, &)) if span
     { parts: [part], bar:, notes: notes.compact }
   end

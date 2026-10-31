@@ -160,6 +160,33 @@
   --color-signal-warning: var(--palette-standard-light-autarky-mid);
   --color-signal-positive: var(--color-sensor-pv);
 
+  /* A soft ground of a signal color, like the savings on the car page. It
+     mixes with the surface, so it follows the signal color and the mode. */
+  --color-signal-positive-soft: color-mix(
+    in oklab,
+    var(--color-signal-positive) 18%,
+    var(--color-surface)
+  );
+  --color-signal-negative-soft: color-mix(
+    in oklab,
+    var(--color-signal-negative) 18%,
+    var(--color-surface)
+  );
+
+  /* The text on a soft ground. Light mode darkens the signal color, so the
+     text keeps a contrast of 4.5:1 at least. Dark mode lightens the signal
+     color, so there it is the text itself (see the dark palettes). */
+  --color-signal-positive-strong: color-mix(
+    in oklab,
+    var(--color-signal-positive) 75%,
+    black
+  );
+  --color-signal-negative-strong: color-mix(
+    in oklab,
+    var(--color-signal-negative) 75%,
+    black
+  );
+
   /* The combustion car of the car comparison: a muted red of its own in
      every mode and palette, apart from the red of the grid import */
   --color-combustion: oklch(0.6 0.12 22);
@@ -255,6 +282,8 @@
     --color-signal-negative: var(--palette-standard-light-grid);
     --color-signal-warning: var(--palette-standard-dark-autarky-mid);
     --color-signal-positive: var(--palette-standard-light-pv);
+    --color-signal-positive-strong: var(--color-signal-positive);
+    --color-signal-negative-strong: var(--color-signal-negative);
 
     --color-car-battery: color-mix(
       in oklch,
@@ -387,6 +416,8 @@
     --color-signal-negative: var(--palette-contrast-light-grid);
     --color-signal-warning: var(--palette-contrast-dark-autarky-mid);
     --color-signal-positive: var(--palette-contrast-light-pv);
+    --color-signal-positive-strong: var(--color-signal-positive);
+    --color-signal-negative-strong: var(--color-signal-negative);
 
     --color-sensor-inverter-1: var(--color-sensor-pv);
     --color-sensor-inverter-2: color-mix(

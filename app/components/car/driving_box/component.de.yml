@@ -7,3 +7,12 @@ de:
   minimum: Minimum
   maximum: Maximum
   none: Keine Fahrten
+  per_day: Ø pro Tag
+  ev: E-Auto
+  combustion: Verbrenner
+  saved: '%{amount} gespart'
+  extra: '%{amount} mehr'
+  savings_note: Der Unterschied der laufenden Kosten von E-Auto und einem fiktiven Verbrenner, mit Kosten wie Versicherung und Wartung. Die Energiekosten oben zählen nur den Strom.
+  energy_description: Der Strom, den die gefahrene Strecke gebraucht hat.
+  cost_description: Was der Strom für die gefahrene Strecke gekostet hat.
+  savings: Ersparnis

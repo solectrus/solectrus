@@ -17,8 +17,7 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
   Bar = Car::TimelineBar::Bar
   private_constant :Bar
 
-  # The color of a drive, also in the swatch of the driving (see
-  # Car::DrivingBox::Component)
+  # The color of a drive, like the chart of the distance
   DRIVE_COLOR = 'var(--color-car-drive)'.freeze
   public_constant :DRIVE_COLOR
 

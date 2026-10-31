@@ -704,7 +704,9 @@ year for the factors of its months, and the windows of its days.
 
 The charging cost is the money for the energy that went into the car in the period. The
 driving cost is the money for the kilometers of the period. I18n keeps the terms apart:
-`sensors.car_charging_costs` and `sensors.car_driving_costs`.
+`sensors.car_charging_costs` and `sensors.car_driving_costs`. The chart of the driving cost
+and the overview call it "energy cost", because it counts the electricity alone. The
+tooltips of the overview tell the two energy costs apart.
 
 An example: the car charges 50 kWh today for 10 EUR and drives 10 km. Its window holds
 600 km and 30 EUR, so the rate is 5 EUR/100 km. The charging cost of today is 10 EUR, and
@@ -780,13 +782,15 @@ page, and the address of the payments leads to the cars in the settings. The car
 no savings. If a combustion car uses a fuel without prices, but another fuel has prices, the
 comparison page tells that the prices are missing.
 
-The car page shows the savings for a month, a year and the whole time. They set the charging
-against the driving, so they stand in a row over both columns, between the figures and the
-charts. The row links to the comparison of the same timeframe. Another timeframe, for example
-a week or the last 12 months, has no row. The row needs a drive and the fuel prices of each
-combustion car. Without a compared distance, it shows a dash, and the comparison page tells
-why. A visitor without the admin login sees the savings up to the latest public day, on the
-car page and on the comparison page (see `Car::AdminOnlyDays`).
+The car page shows the savings for each timeframe but the live view, below the figures of the
+driving. They stand as an amount in a pale green bar, in the place and the height of the bar of
+the charging, so the boxes of both columns end on one line. The bar shows no ratio, because
+the amount matters. A loss is red. The tooltip names the costs of both cars and the savings.
+
+The bar links to the comparison of the same timeframe. It needs a drive and the fuel prices
+of each combustion car. Without a compared distance, the bar is an empty track, and the
+comparison page tells why. A visitor without the admin login sees the savings up to the
+latest public day, on the car page and on the comparison page (see `Car::AdminOnlyDays`).
 
 The menu of the desktop and the page More of a phone open the comparison page
 (`/cars/savings`). It has a timeframe and a car select like the lists below the car page
@@ -979,8 +983,8 @@ not correct this, because the energy that a car uses while it stands is not know
 
 The overview of a period has two columns: the driving and the charging (`Car::Section`), in
 the order of the rows of the timeline of a day.
-Each column has three figures. A week, a month, a year and the whole time show the chart of
-one figure below them. A click on a figure loads its chart into its column, and the address
+Each column has one figure that leads, other figures beside it and a bar below them. A
+week, a month, a year and the whole time show the chart of one figure below the column. A click on a figure loads its chart into its column, and the address
 keeps the chart.
 
 A day has no charts. It shows the timeline of the day below the figures (see
@@ -997,16 +1001,28 @@ address of a day with a sensor goes to the same day without it.
 
 The figures of each column (see `Car::OverviewBox::Component`):
 
-- Charging: the charged energy, the share of PV and the charging cost. The tooltip of the
-  energy has the energy of each source. Below the share, a bar shows the sources side by
-  side: PV, grid and offsite. Without the power splitter, the share is the one of the
-  wallbox, and the bar shows the wallbox and offsite. The tooltip of the cost has the cost
-  of each source and, on "all", the cost of the guest.
-- Driving: the distance with the average distance of a day, and the cost and the
-  consumption per 100 km. On "all", a bar below the distance shows the share of each car,
-  and its tooltip has the distance of each car. Each rate has a bar of its place among the
-  periods. The tooltip of a rate has the driving cost or the energy used that gives it. An
-  info icon beside the title of the column names the window of the rates.
+- Charging: the charged energy leads, and the energy cost stands beside it. The bar shows
+  the sources side by side: PV, grid and offsite. Only PV has its share as a number in the
+  bar. The other sources show their icon. The tooltip of the bar has the energy and the
+  share of each source. Without the power splitter, the bar shows the wallbox and offsite,
+  and the share is the one of the wallbox. The tooltip of the cost has the cost of each
+  source and, on "all", the cost of the guest.
+- Driving: the distance leads, and the energy used and the energy cost stand beside it. The
+  bar shows the savings against a combustion car (see above). Without a comparison, the
+  driving has no bar. The tooltip of the distance has the average distance of a day and, on
+  "all", the distance of each car. The tooltips of the energy and of the cost have their
+  rate per 100 km, with a bar of its place among the periods. An info icon beside the title
+  of the column names the window of the rates.
+
+The lead has no caption, because the title of the column names it. The figures beside it
+have no caption either, so the three numbers of the driving fit in one line also for the
+whole time. A screen reader reads the captions. Each tooltip names its figure and tells what
+the value counts. Both energy costs count the electricity alone. The running
+costs in the bar of the savings also count payments like the insurance, so they are higher.
+
+A part of a bar shows the longest form of its label that fits its width, or no label. Where
+the line of the figures is too narrow, the figures beside the lead stand one below the
+other.
 
 The chart menu of a desktop offers the charts of its column alone. A phone shows one chart
 below the figures of both columns: the chart of the column of the last tap. Its chart menu
@@ -1022,9 +1038,10 @@ These rules are decisions:
 - The figures show no comparison with the previous month or year. Only the insights show
   them.
 - The values show no red, because red marks a low cost as bad. The bars of the rates show no
-  red either. The good end on the right and the numbers at the ends tell good and bad.
+  red either. The good end on the right and the numbers at the ends tell good and bad. Only
+  a loss against a combustion car is red, because it is a real loss.
 - The overview has no ring. The ring of the distance of one car was always full and told
-  nothing. Three figures in a row read the same on a phone and on a desktop.
+  nothing. One figure that leads and a bar read the same on a phone and on a desktop.
 - Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
   timeframe and a range of dates show no bars.
 - A period counts for a bar only when the cars were in use on each of its days. A month in

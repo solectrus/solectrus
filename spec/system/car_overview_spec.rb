@@ -31,9 +31,9 @@ describe 'Car overview (mobile)' do
 
   def chart(sensor_name) = find("turbo-frame[src*='/cars/charts/#{sensor_name}/']", visible: :all)
 
-  # The tile of a phone that loads the chart of the sensor, the first one where
-  # two load it, like the charged energy before the share of PV
-  def tile(sensor_name) = first("section > div.grid a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
+  # The figure of a phone that loads the chart of the sensor, the first one
+  # where two load it, like the charged energy above the bar of the sources
+  def tile(sensor_name) = first("section a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
 
   # The figures of a day load the timeline of the day below them. The day is
   # yesterday, which only the admin sees (see Car::AdminOnlyDays).

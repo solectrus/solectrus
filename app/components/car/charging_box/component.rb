@@ -1,10 +1,10 @@
 # The charging of a period in the overview of the car page (see
-# Car::OverviewBox::Component): the charged energy with the energy of each
-# source in its tooltip, the share of PV, and the charging cost. The swatch
-# before the title shows the shares of the sources. Without the power
-# splitter, the wallbox has no PV and grid, so the swatch has the wallbox and
-# the offsite sessions. The numbers are the charging sessions of the selected
-# cars (see Car::Report).
+# Car::OverviewBox::Component): the charged energy and the energy cost, and
+# below them a bar of the sources. The bar has the share of PV, and its
+# tooltip the energy and the share of each source. Without the power
+# splitter, the wallbox has no PV and grid, so the bar has the wallbox and
+# the offsite sessions. The numbers are the charging sessions of the
+# selected cars (see Car::Report).
 #
 # The link to the sessions names the sessions that the numbers leave out: on
 # "all" the wallbox sessions that are not assigned, which count for no car,
@@ -34,16 +34,8 @@ class Car::ChargingBox::Component < ViewComponent::Base
     @sources ||= total_kwh.positive? ? report.sources.select { it.kwh.positive? } : []
   end
 
-  # The shares of the sources of the period, like a bar of a charge in the
-  # timeline of a day. A period without charging has no color.
-  def swatch
-    return [Car::OverviewBox::Component::NEUTRAL] if sources.none?
-
-    sources.map { Car::OverviewBox::Component::Segment.new(percent: it.kwh * 100 / total_kwh, color: Car::ChargingSource[it.key].color) }
-  end
-
   def parts
-    sources.map do |source|
+    @parts ||= sources.map do |source|
       Car::OverviewBox::Component::Part.new(label: t(Car::ChargingSource[source.key].label_key), value: render(energy_value(source.kwh)), color: Car::ChargingSource[source.key].color, percent: share_of(source.key))
     end
   end
@@ -59,16 +51,20 @@ class Car::ChargingBox::Component < ViewComponent::Base
     end
   end
 
-  # The charged energy with the energy of each source in its tooltip, the
-  # share of PV or of the wallbox, and the charging cost. The title of the
-  # group says "charging", so the caption of the cost on a phone leaves it
-  # out.
+  # The charged energy and the energy cost, without a caption like the
+  # driving. The tooltip of the cost names it.
   def figures
     [
-      Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging, label: t('car_breakdown.charged'), value: render(energy_value(total_kwh)), parts:),
-      share_figure,
+      Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging, value: render(energy_value(total_kwh)), title: t('sensors.car_charging')),
       cost_figure,
-    ].compact
+    ]
+  end
+
+  # The bar of the sources, which loads the chart of the charged energy like
+  # the energy above it. A period without charging keeps its place (see
+  # Car::OverviewBox::Component).
+  def bar
+    Car::OverviewBox::Component::Figure.new(sensor_name: (:car_charging if sources.any?), value: sources_bar, title: (t('.sources') if sources.any?), parts:)
   end
 
   # The link to the list of the sessions, with the sessions that the numbers
@@ -120,7 +116,7 @@ class Car::ChargingBox::Component < ViewComponent::Base
   def cost_figure
     sessions = report.sessions
     cost = (safe_join([('≥ ' unless sessions.costed?), render(Sensor::Value::Component.new(sessions.cost, :total_costs))]) if sessions.cost?)
-    Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging_costs, label: t('car_breakdown.cost'), wide_label: t('sensors.car_charging_costs'), value: cost || '–', parts: cost_parts, notes: cost_notes(sessions))
+    Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging_costs, title: t('sensors.car_charging_costs'), description: t('.cost_description'), value: cost || '–', parts: cost_parts, notes: cost_notes(sessions))
   end
 
   # What the cost of PV means, beside the parts, and why the cost is a minimum
@@ -139,7 +135,7 @@ class Car::ChargingBox::Component < ViewComponent::Base
       if report.sessions.cost? && (sources.many? || guest_cost)
         [
           *sources.map { source_part(it) },
-          (Car::OverviewBox::Component::Part.new(label: t('.guest'), value: currency(guest_cost), color: nil, percent: nil) if guest_cost),
+          (Car::OverviewBox::Component::Part.new(label: t('.guest'), value: currency(guest_cost)) if guest_cost),
         ].compact
       else
         []
@@ -147,7 +143,7 @@ class Car::ChargingBox::Component < ViewComponent::Base
   end
 
   def source_part(source)
-    Car::OverviewBox::Component::Part.new(label: t(Car::ChargingSource[source.key].label_key), value: currency(source.cost), color: Car::ChargingSource[source.key].color, percent: nil)
+    Car::OverviewBox::Component::Part.new(label: t(Car::ChargingSource[source.key].label_key), value: currency(source.cost), color: Car::ChargingSource[source.key].color)
   end
 
   # The cost of the guest sessions, which "all" holds, or nil
@@ -160,15 +156,29 @@ class Car::ChargingBox::Component < ViewComponent::Base
 
   def currency(value) = Sensor::ValueFormatter.new(value, unit: Sensor::Registry[:total_costs].unit).to_s
 
-  # The share of the source. The swatch shows the shares of all sources, and
-  # the tooltip of the energy beside it the energy of each source.
-  def share_figure
-    return unless share_key
-
-    Car::OverviewBox::Component::Figure.new(sensor_name: :car_charging, label: t("car_breakdown.share_#{share_key}"), value: share_text(share_key))
+  # The sources like a bar of a charge in the timeline of a day, each with its
+  # icon. The source whose share counts has its share too (see #share_key).
+  def sources_bar
+    segments = sources.map do |source|
+      style = Car::ChargingSource[source.key]
+      Car::ShareBar::Component::Segment.new(value: source.kwh, color: style.color, labels: source_labels(source.key, icon(style.icon)))
+    end
+    label = sources.map { "#{t(Car::ChargingSource[it.key].label_key)} #{energy_text(it.kwh)}, #{share_of(it.key)} %" }.join(', ')
+    Car::ShareBar::Component.new(segments:, label: label.presence)
   end
 
-  def share_text(key) = sources.any? ? "#{share_of(key)} %" : '–'
+  # The energy as plain text, for the label of the bar
+  def energy_text(kwh)
+    Sensor::ValueFormatter.new(kwh * 1000, unit: Sensor::Registry[:wallbox_power].unit, context: :total, scaling: :kilo, precision: total_kwh >= 100 ? 0 : 1).to_s
+  end
+
+  # The forms of the label of a source from long to short
+  def source_labels(key, symbol)
+    return [symbol] unless key == share_key
+
+    share = "#{share_of(key)} %"
+    [safe_join([symbol, share], ' '), share, symbol]
+  end
 
   # The wallbox sessions that are not assigned. "all" names them, because its
   # numbers leave them out. They can be the charge of any car or of the guest,

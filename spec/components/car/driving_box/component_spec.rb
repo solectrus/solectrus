@@ -1,17 +1,26 @@
 describe Car::DrivingBox::Component, type: :component do
   subject(:html) { render_inline(described_class.new(report:)) }
 
-  # The value and the caption of a phone of each figure
-  def tiles = html.css('section > div.grid > *').map { |tile| tile.css('> span').first(2).map { it.text.squish } }
+  # The row of the figures above the bar
+  def row = html.at_css('section > div.rounded-xl > div:first-child')
 
-  # The caption of the desktop of each figure with one of its own
-  def wide_labels = html.css('section > div.grid > * > span.max-lg\:hidden').map { it.text.squish }
+  # The lead, without a caption
+  def lead = row.at_css('> :first-child > span').text.squish
+
+  # The value and the caption of a phone of each figure beside the lead
+  def tiles = row.css('> div > *').map { |tile| tile.css('> span').first(2).map { it.text.squish } }
 
   # The charts that a click on a figure loads
   def charts = html.css('[data-stats-with-chart--component-sensor-name-param]').pluck('data-stats-with-chart--component-sensor-name-param').uniq
 
   # The text of each tooltip of a figure
-  def tooltips = html.css('section > div.grid [data-tooltip-target="html"]').map { it.text.squish }
+  def tooltips = row ? row.css('[data-tooltip-target="html"]').map { it.text.squish } : []
+
+  # The bar of the savings, which links to the comparison
+  def savings_bar = html.at_css('section > div.rounded-xl > a[href*="/savings"]')
+
+  # The forms of the label of each part of the bar of the savings
+  def bar_labels = savings_bar.css('[role="img"] > span').map { |part| part.css('> span').map { it.text.squish } }
 
   # The text of the info icon beside the title
   def info = html.at_css('h2 ~ [data-controller="tooltip"] [data-tooltip-target="html"]')&.text&.squish
@@ -32,6 +41,7 @@ describe Car::DrivingBox::Component, type: :component do
       km_per_day: (27.1 if distance),
       driving:,
       spans: nil,
+      savings?: false,
     )
   end
 
@@ -40,27 +50,62 @@ describe Car::DrivingBox::Component, type: :component do
 
   after { Sensor::Config.setup(ENV) }
 
-  it 'shows the distance with its average of a day, the energy used and the driving cost' do
-    expect(tiles).to eq(
-      [
-        ['9,877 km', 'Ø 27 km/day'],
-        ['2,092 kWh', 'used'],
-        ['373 €', 'cost'],
-      ],
-    )
+  it 'leads with the distance, beside it the energy used and the energy cost' do
+    expect(lead).to eq('9,877 km')
+    expect(tiles).to eq([['2,092 kWh', 'Energy used'], ['373 €', 'Energy cost']])
   end
 
-  it 'names the cost and the energy in full on the desktop' do
-    expect(wide_labels).to eq([I18n.t('sensors.car_driving_energy'), I18n.t('sensors.car_driving_costs')])
+  it 'shows the average distance of a day in the tooltip of the distance' do
+    expect(tooltips.first).to eq('Distance drivenØ per day27 km')
   end
 
   it 'loads the chart of each figure' do
     expect(charts).to eq(%w[car_distance car_driving_energy car_driving_costs])
   end
 
-  # Like a bar of a drive in the timeline of a day
-  it 'shows the color of a drive in the swatch before the title' do
-    expect(html.xpath('.//h2/preceding-sibling::span/span').pluck('style')).to eq(['flex-grow: 100; background: var(--color-car-drive)'])
+  # Without fuel prices or a combustion car, there is nothing to compare
+  it 'has no bar without a comparison' do
+    expect(html.css('[data-controller="car--share-bar--component"]')).to be_empty
+  end
+
+  context 'with a comparison' do
+    let(:comparison) { instance_double(Car::Comparison, ready?: true) }
+    let(:amounts) { instance_double(Car::ComparisonAmounts, car_cost: 25, combustion_cost: 100, savings: 75, precision: 0) }
+
+    before do
+      allow(report).to receive_messages(savings?: true, comparison:)
+      allow(Car::ComparisonAmounts).to receive(:new).with(comparison).and_return(amounts)
+    end
+
+    # The amount matters, so the bar shows no ratio
+    it 'shows the savings in a bar of its own, which links to the comparison' do
+      expect(savings_bar['href']).to eq('/cars/savings/2025')
+      expect(bar_labels).to eq([['75 € saved', '75 €']])
+    end
+
+    it 'names both cars and the savings in the tooltip' do
+      tooltip = savings_bar.at_css('[data-tooltip-target="html"]').text.squish
+
+      expect(tooltip).to include('Savings against a combustion car', 'EV25 €', 'Combustion car100 €', 'Savings75 €')
+    end
+
+    context 'with a loss' do
+      let(:amounts) { instance_double(Car::ComparisonAmounts, car_cost: 112, combustion_cost: 100, savings: -12, precision: 0) }
+
+      it 'shows the loss in red' do
+        expect(bar_labels).to eq([['12 € more', '12 €']])
+        expect(savings_bar.at_css('.text-signal-negative')).to be_present
+      end
+    end
+
+    # The comparison page says what it lacks
+    context 'without a compared distance' do
+      let(:comparison) { instance_double(Car::Comparison, ready?: false) }
+
+      it 'keeps the bar as an empty track' do
+        expect(savings_bar.css('[data-car--share-bar--component-target]')).to be_empty
+      end
+    end
   end
 
   # The rates come from the days around each day driven
@@ -80,7 +125,6 @@ describe Car::DrivingBox::Component, type: :component do
 
     it 'shows the ends of each span with their periods in the tooltips, the good end on the right' do
       expect(span_ends).to eq([[%w[38.9 2022], %w[9.3 2024]], [%w[10.67 2021], %w[1.06 2023]]])
-      expect(html.css('[data-tooltip-target="html"] span.justify-between').size).to eq(2)
     end
 
     # A sheet lists the lowest and the highest rate, each with a link to its
@@ -107,10 +151,10 @@ describe Car::DrivingBox::Component, type: :component do
 
   # Each figure has its rate per 100 km, and what only this figure means
   it 'shows the rate of each figure in its own tooltip' do
-    consumption, cost = tooltips
+    _distance, consumption, cost = tooltips
 
-    expect(cost).to include(I18n.t('sensors.car_cost_rate'), '3.77 €')
-    expect(consumption).to include(I18n.t('sensors.car_consumption_rate'), '21.2 kWh', 'charging losses')
+    expect(cost).to include('Energy cost', I18n.t('sensors.car_cost_rate'), '3.77 €')
+    expect(consumption).to include('Energy used', I18n.t('sensors.car_consumption_rate'), '21.2 kWh', 'charging losses')
   end
 
   # A rate needs the charging of the days around a drive
@@ -118,8 +162,8 @@ describe Car::DrivingBox::Component, type: :component do
     let(:driving) { Car::Driving::Totals.empty }
 
     it 'tells what is missing' do
-      expect(tiles.drop(1).map(&:first)).to eq(%w[– –])
-      expect(tooltips).to all(include('The data is not enough'))
+      expect(tiles.map(&:first)).to eq(%w[– –])
+      expect(tooltips.drop(1)).to all(include('The data is not enough'))
     end
   end
 
@@ -130,17 +174,12 @@ describe Car::DrivingBox::Component, type: :component do
     let(:driving) { Car::Driving::Totals.empty }
 
     it 'says so instead of the figures' do
-      expect(tiles).to be_empty
       expect(html.css('section > div').last.text.squish).to eq('No drives')
     end
 
-    it 'loads no chart and explains nothing' do
+    it 'loads no chart and names no window of the rates' do
       expect(charts).to be_empty
-      expect(tooltips).to be_empty
-    end
-
-    it 'has no color in the swatch' do
-      expect(html.xpath('.//h2/preceding-sibling::span/span').pluck('style')).to eq(['flex-grow: 100; background: var(--color-fill-strong)'])
+      expect(info).to be_nil
     end
   end
 end

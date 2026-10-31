@@ -4,35 +4,31 @@
 # same column (see Car::ChartLink). The menu above the chart names it, so no
 # figure stands out.
 #
-# The figures stand in a row of three, in one box with a line between them.
-# The desktop has a longer caption where it has room.
+# The box has one figure that leads, large and without a caption, because
+# the title of the column says what it counts. The other figures stand
+# beside it, without a caption: their tooltips name them. Below them, a bar
+# shows the parts of a whole, like the sources of the charged energy (see
+# Car::ShareBar::Component).
 class Car::OverviewBox::Component < ViewComponent::Base
   include Car::ChartLink
 
-  # A part of a value with the color of its part of the bar of a figure, a CSS
-  # color like "var(--color-car-pv)", and its whole share in percent
-  Part = Data.define(:label, :value, :color, :percent)
+  # A part of a value with the color of its part of a bar, a CSS color like
+  # "var(--color-car-pv)", and its whole share in percent
+  Part = Data.define(:label, :value, :color, :percent) do
+    def initialize(color: nil, percent: nil, **) = super
+  end
   public_constant :Part
 
-  # A part of the bar of a figure, in percent of the bar
-  Segment = Data.define(:percent, :color)
-  public_constant :Segment
+  # A figure that loads its chart, or with `href` opens a page, like the
+  # comparison with a combustion car. The tooltip names the figure with its
+  # `title`, which a screen reader reads beside the value, and says in its
+  # `description` what the value counts. It has the `parts` of the value, like the cost of each source,
+  # the `bar` of a span (see Car::SpanBar::Component), and the paragraphs of
+  # its `notes`, like how the value comes about.
+  Figure = Data.define(:sensor_name, :value, :href, :title, :description, :bar, :parts, :notes) do
+    def initialize(href: nil, title: nil, description: nil, bar: nil, parts: [], notes: [], **) = super # rubocop:disable Metrics/ParameterLists
 
-  # The swatch of a column without a color of its own, like a period without
-  # charging, and while the figures load
-  NEUTRAL = Segment.new(percent: 100, color: 'var(--color-fill-strong)')
-  public_constant :NEUTRAL
-
-  # A figure that loads its chart. `wide_label` is the caption of the desktop,
-  # where it has room, `label` the one of a phone. It can have a bar of its
-  # `segments`, like the sources of the charged energy. Its tooltip has the
-  # `parts` of the value, like the cost of each source, the `bar` of a span
-  # (see Car::SpanBar::Component), and the paragraphs of its `notes`, like how
-  # the value comes about.
-  Figure = Data.define(:sensor_name, :label, :wide_label, :value, :bar, :segments, :parts, :notes) do
-    def initialize(wide_label: nil, bar: nil, segments: [], parts: [], notes: [], **) = super
-
-    def tooltip? = parts.any? || notes.any?
+    def tooltip? = title.present? || parts.any? || notes.any?
   end
   public_constant :Figure
 
@@ -46,71 +42,72 @@ class Car::OverviewBox::Component < ViewComponent::Base
   public_constant :List
 
   # The place of the figures of a period without a value, like a day without
-  # a drive: a crossed out icon and a text, in the height of a figure
+  # a drive: a crossed out icon and a text, in the height of the figures
   Empty = Data.define(:icon, :text)
   public_constant :Empty
 
-  # `list` links the list of the column, if any. A period without a value
-  # shows `empty` in the place of the figures, which would be 0 and dashes.
-  # `note` explains the column in an info icon beside its title, like the
-  # window of the rates. `swatch` are the Segments of a small bar before the
-  # title, in the colors of the bars of the column in the timeline of a day,
-  # so the title tells what these bars show.
-  def initialize(title:, list:, timeframe:, figures:, note: nil, swatch: [NEUTRAL], empty: nil) # rubocop:disable Metrics/ParameterLists
+  # `list` links the list of the column, if any. The first of the `figures`
+  # leads. `bar` is a Figure whose value is a Car::ShareBar::Component. A
+  # period without a value shows `empty` in the place of the figures, which
+  # would be 0 and dashes. It keeps the place of the bar, if any. `note`
+  # explains the column in an info icon beside its title, like the window of
+  # the rates.
+  def initialize(title:, list:, timeframe:, figures:, bar: nil, note: nil, empty: nil) # rubocop:disable Metrics/ParameterLists
     super()
     @title = title
     @list = list
     @timeframe = timeframe
     @figures = figures
+    @bar = bar
     @note = note
-    @swatch = swatch
     @empty = empty
   end
 
-  attr_reader :title, :list, :timeframe, :figures, :note, :swatch, :empty
+  attr_reader :title, :list, :timeframe, :figures, :bar, :note, :empty
 
   # The box while its figures load: the title and a pulsing bar in the place
-  # of each number. It has the layout of the box, so the page keeps its
-  # height when the figures come (see the car page).
-  def self.placeholder(title:, timeframe:)
-    figure = Figure.new(sensor_name: nil, label: "\u00a0", value: skeleton('w-16'))
-    new(title:, list: nil, timeframe:, figures: [figure] * 3)
+  # of each number, and with `bar` a pulsing track. It has the layout of the
+  # box, so the page keeps its height when the figures come (see the car
+  # page).
+  def self.placeholder(title:, timeframe:, bar: false)
+    lead = Figure.new(sensor_name: nil, value: skeleton('w-24'))
+    side = Figure.new(sensor_name: nil, value: skeleton('w-14'))
+    track = Figure.new(sensor_name: nil, value: Car::ShareBar::Component.new(segments: [], pulse: true)) if bar
+    new(title:, list: nil, timeframe:, figures: [lead, side, side], bar: track)
   end
 
-  # A gray bar in the height of the text around it, like the location row of
-  # the live view while its name loads, or the savings while they load (see
-  # Car::SavingsRow::Component)
+  # A gray bar in the height of the text around it
   def self.skeleton(width)
     ActionController::Base.helpers.tag.span(class: ['inline-block align-middle h-[0.8em] rounded-full bg-fill-strong animate-pulse motion-reduce:animate-none', width], aria: { hidden: true })
   end
+  private_class_method :skeleton
 
   def heading_id = "overview-#{title.parameterize}"
 
-  # A part of the bar below this share would be a hairline
-  MIN_PERCENT = 0.3
-  private_constant :MIN_PERCENT
+  def lead = figures.first
 
-  def segments(figure) = figure.segments.select { it.percent >= MIN_PERCENT }
+  def side_figures = figures.drop(1)
 
-  # The tag and the options of a figure that loads the chart of the sensor,
-  # or of a plain block where the chart cannot draw the timeframe or the
-  # selection. With `tooltip`, it has a tooltip (see
-  # Car::OverviewBox::Tooltip::Component), below the figure. A tap on a
-  # figure with a chart loads the chart, so its tooltip needs a long press.
-  def figure_tag(sensor_name, tooltip: false, **, &)
-    name = chart_sensor_name(sensor_name) if sensor_name
-    touch = name ? 'long' : 'true'
-    data = tooltip ? { controller: 'tooltip', tooltip_touch_value: touch } : {}
-    tag_name, attributes = chart_wrapper(name, link_class: 'cursor-pointer active:bg-fill-strong lg:hover:bg-fill-strong', data:, **)
+  # The tag and the options of a figure that loads the chart of its sensor
+  # or opens its page, or of a plain block where the chart cannot draw the
+  # timeframe or the selection. A figure with a tooltip has it below (see
+  # Car::OverviewBox::Tooltip::Component). A tap on a link opens it, so its
+  # tooltip needs a long press. `link_class` applies to a link alone, and
+  # `placement` places the tooltip, like beside the lead.
+  def figure_tag(figure, link_class: 'cursor-pointer active:bg-fill-strong lg:hover:bg-fill-strong', placement: nil, **options, &)
+    name = figure.sensor_name && chart_sensor_name(figure.sensor_name)
+    touch = figure.href || name ? 'long' : 'true'
+    data = figure.tooltip? ? { controller: 'tooltip', tooltip_touch_value: touch, tooltip_placement_value: placement }.compact : {}
+    tag_name, attributes =
+      if figure.href
+        [:a, { **options, href: figure.href, class: [*options[:class], link_class], data: }]
+      else
+        chart_wrapper(name, link_class:, data:, **options)
+      end
     content_tag(tag_name, **attributes, &)
   end
 
-  # A part of the box with a line before it
-  def figure_classes(index)
-    class_names(
-      'flex min-w-0 flex-col gap-1 text-left focus-ring',
-      'px-3 py-3 first:rounded-l-xl last:rounded-r-xl lg:px-5 lg:py-4',
-      'border-l border-surface' => index.positive?,
-    )
+  def tooltip(figure)
+    Car::OverviewBox::Tooltip::Component.new(title: figure.title, lines: [figure.description].compact, parts: figure.parts, notes: figure.notes, bar: figure.bar)
   end
 end

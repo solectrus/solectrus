@@ -106,12 +106,12 @@ de:
     car_charging: Geladene Energie
     car_charging_short: Geladene Energie
     wallbox_costs_short: Kosten
-    car_charging_costs: Ladekosten
+    car_charging_costs: Energiekosten
     car_charging_costs_short: Kosten
     car_consumption_rate: Verbrauch je 100 km
-    car_cost_rate: Fahrkosten je 100 km
+    car_cost_rate: Energiekosten je 100 km
     car_driving_energy: Verbrauchte Energie
-    car_driving_costs: Fahrkosten
+    car_driving_costs: Energiekosten
     grid_import_power: Netzbezug
     grid_export_power: Einspeisung
     grid_power: Netzbezug und -einspeisung
@@ -251,14 +251,12 @@ de:
     admin_only_days_left_out: Die neuesten Tage sieht nur der Admin.
     places_map: Karte der Orte
     home_pv: Photovoltaik
-    share_pv: aus PV
-    share_wallbox: an der Wallbox
     home_grid: Netzbezug
     offsite: Auswärtsladung
     charging: Laden
     driving: Fahren
     places: Orte
-    # The row below the driving figures that links to the comparison
+    # The savings against a combustion car, in the tooltip of their bar
     savings: Ersparnis gegenüber Verbrenner
     # The switch between the list of the places and the list of the visits
     place_lists:
@@ -268,12 +266,6 @@ de:
     guest_short: Gast
     offsite_short: Auswärts
     unknown_place: Unbekannter Ort
-    # The captions below the values of the tiles of a phone
-    charged: geladen
-    driven: gefahren
-    cost: Kosten
-    used: verbraucht
-    per_day_note: Ø %{distance}/Tag
     unconfirmed:
       one: 1 unbestätigte Ladung
       other: '%{count} unbestätigte Ladungen'
@@ -794,12 +786,12 @@ de:
     car_latitude: 'Breitengrad des aktuellen Standorts des E-Autos.'
     car_longitude: 'Längengrad des aktuellen Standorts des E-Autos.'
     car_distance: 'Gefahrene Strecke des E-Autos im Zeitraum.'
-    car_charging_costs: 'Ladekosten des E-Autos (Wallbox und auswärtiges Laden).'
+    car_charging_costs: 'Energiekosten des E-Autos für den geladenen Strom (Wallbox und auswärtiges Laden).'
     car_charging: 'In das E-Auto geladene Energie (Wallbox und auswärtiges Laden zusammen).'
     car_consumption_rate: 'Verbrauch des E-Autos in kWh pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
     car_cost_rate: 'Kosten des E-Autos pro 100 km. Jeder Tag bekommt die Rate der 28 Tage um ihn herum.'
     car_driving_energy: 'Verbrauchte Energie des E-Autos: die gefahrenen Kilometer jedes Tages mal der Verbrauch pro 100 km der Tage um ihn herum.'
-    car_driving_costs: 'Fahrkosten des E-Autos: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
+    car_driving_costs: 'Energiekosten des E-Autos für die gefahrene Strecke: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
     wallbox_car_connected: 'Ob aktuell ein E-Auto an der Wallbox angeschlossen ist.'
     outdoor_temp: 'Außenlufttemperatur.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'

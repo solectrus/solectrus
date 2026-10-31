@@ -267,7 +267,7 @@ describe 'Charging sessions' do
       expect(page).to have_text('Gespeichert')
 
       visit '/cars/2022-06'
-      expect(page).to have_text('Ladekosten')
+      expect(page).to have_text('Energiekosten')
       expect(page).to have_no_text('nicht zugeordnet')
       expect(ChargingSession.wallbox.sole).to have_attributes(guest: true, car_id: nil)
     end

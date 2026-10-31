@@ -7,3 +7,12 @@ en:
   minimum: Minimum
   maximum: Maximum
   none: No drives
+  per_day: Ø per day
+  ev: EV
+  combustion: Combustion car
+  saved: '%{amount} saved'
+  extra: '%{amount} more'
+  savings_note: The difference of the running costs of the EV and a fictional combustion car, with costs such as the insurance and the maintenance. The energy cost above counts the electricity alone.
+  energy_description: The electricity that the distance driven took.
+  cost_description: What the electricity for the distance driven cost.
+  savings: Savings

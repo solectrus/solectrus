@@ -40,7 +40,7 @@ describe 'Car Stats' do
         end
       end
 
-      def charged = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"] div.grid > *:first-child').text.squish
+      def charged = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"] div.rounded-xl > div:first-child > :first-child').text.squish
 
       it 'leaves it out for a visitor' do
         get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
@@ -53,19 +53,6 @@ describe 'Car Stats' do
         get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
 
         expect(charged).to start_with('50.0 kWh')
-      end
-
-      # The savings stand in a row of their own over both columns, which the
-      # figures fill too (see Car::SavingsRow::Component)
-      it 'fills the row of the savings with the figures' do
-        allow(Car::Report).to receive(:new).and_wrap_original do |original, *args, **options|
-          original.call(*args, **options).tap { allow(it).to receive_messages(savings?: true, comparison: instance_double(Car::Comparison, ready?: false)) }
-        end
-
-        get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
-
-        stream = Nokogiri::HTML5.fragment(response.body).at_css('turbo-stream[target^="cars-savings"]')
-        expect(stream.inner_html).to include('Savings against a combustion car', 'href="/cars/1/savings"')
       end
     end
 
@@ -289,7 +276,7 @@ describe 'Car Stats' do
       it 'explains the rates of the driving' do
         get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers:)
 
-        expect(response.body).to include('Driving cost', 'Energy used', 'includes the charging losses')
+        expect(response.body).to include('Energy cost', 'Energy used', 'includes the charging losses')
         expect(response.body).not_to include('counts the charging cost of the 14 days')
         expect(response.body).not_to include('Prices are missing')
       end
