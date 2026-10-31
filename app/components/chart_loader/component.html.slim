@@ -61,7 +61,10 @@
     div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
       = render Ui::Loading::Component.new
 
-    .flex-1.min-h-20.w-full.max-w-full.overflow-hidden.box-border.relative data-chart-loader--component-target= 'container'
+    / The chart follows the height of its container and never sets it. On
+      desktop, the card grows with its content (see application.html.slim),
+      so a canvas drawn in a higher card would otherwise keep it high.
+    .flex-1.min-h-20.w-full.max-w-full.overflow-hidden.box-border.relative.contain-size data-chart-loader--component-target= 'container'
       = tag.canvas id: "chart-#{timeframe.id}",
                    class: 'max-w-full flex-1',
                    data: { \

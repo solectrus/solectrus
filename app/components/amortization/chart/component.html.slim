@@ -40,5 +40,7 @@
   div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
     = render Ui::Loading::Component.new
 
-  div class='relative mt-2 flex-1 min-h-52'
+  / The chart follows the height of its container and never sets it (see
+    ChartLoader::Component)
+  div class='relative mt-2 flex-1 min-h-52 contain-size'
     canvas.max-w-full data-amortization--chart--component-target='canvas'
