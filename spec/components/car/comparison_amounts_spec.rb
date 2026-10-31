@@ -20,12 +20,24 @@ describe Car::ComparisonAmounts do
 
   before { allow(comparison).to receive(:per_100km) { |value| value * 100.0 / 65_047 } }
 
-  # 629.6 + 1238.6 + 507.4 is 2375.6, so the parts add up to 2376: the last
-  # part takes the rest
+  # 629.6 + 1238.6 + 507.4 is 2375.6, so the parts add up to 2376: the grid
+  # takes the rest
   it 'rounds the costs of the sources to the rounded cost of the energy' do
     expect(amounts.source_costs).to eq(pv: 630, grid: 1239, offsite: 507)
     expect(amounts.energy_cost).to eq(2376)
     expect(amounts.energy_cost_without_pv).to eq(4086)
+  end
+
+  # 0.4 + 36.3 + 6.7 is 43.4 and 36.5 + 6.7 is 43.2. If the offsite cost took
+  # the rest, it would be 7 with PV and 6 without.
+  it 'rounds the offsite cost alike in both columns of the car' do
+    allow(comparison).to receive_messages(
+      sources: { pv: source(0.4), grid: source(36.3), offsite: source(6.7) },
+      sources_without_pv: { grid: source(36.5), offsite: source(6.7) },
+    )
+
+    expect(amounts.source_costs).to eq(pv: 0, grid: 36, offsite: 7)
+    expect(amounts.source_costs_without_pv).to eq(grid: 36, offsite: 7)
   end
 
   # -919.8 + 5300.6 is 4380.8, so the categories add up to 4381

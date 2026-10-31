@@ -7,6 +7,13 @@ describe RoundedSum do
     expect(rounded.precision).to eq(2)
   end
 
+  it 'lets the given part take the rest' do
+    rounded = described_class.new([2.323, 3.504], rest: 0, unit: :money)
+
+    expect(rounded.parts).to eq([2.33, 3.5])
+    expect(rounded.sum).to eq(5.83)
+  end
+
   it 'keeps the cents of a small amount' do
     rounded = described_class.new([4.83, 10.2], unit: :money)
 

@@ -1,7 +1,8 @@
 # The parts of a sum and the sum itself, rounded the way a tooltip shows them:
 # all to the same digits, so the parts add up to the sum as shown (2,32 + 3,51
-# = 5,83, not 2,32 + 3,50). The sum and all parts but the last round as usual.
-# The last part is what the others leave of the sum.
+# = 5,83, not 2,32 + 3,50). The sum and all parts but one round as usual. That
+# part, the last one unless `rest:` gives its index, is what the others leave
+# of the sum.
 #
 # The digits are the finest that any of the values needs, so a small amount
 # keeps its cents: in whole euros, 3,47 - 0,89 = 2,58 could only show as
@@ -16,6 +17,8 @@
 #   costs.options   # => { precision: 2 }, or {} when a part is missing
 #
 #   Sensor::Value::Component.new(costs.sum, :total_costs, **costs.options)
+#
+#   RoundedSum.new([2.323, 3.504], rest: 0, unit: :money).parts # => [2.33, 3.5]
 #
 # A part that goes the other way comes negated. A sum that its sensor clamps
 # takes the sensor's range, and its parts then round on their own:
@@ -34,9 +37,10 @@ class RoundedSum
       .max_by(&:precision)
   end
 
-  def initialize(parts, range: nil, **format)
+  def initialize(parts, range: nil, rest: nil, **format)
     @raw_parts = parts
     @range = range
+    @rest = rest
     @format = format
   end
 
@@ -83,8 +87,12 @@ class RoundedSum
   end
 
   def parts_taking_the_rest
-    others = @raw_parts[..-2].map { round(it) }
-    others + [round(sum - others.sum)]
+    parts = @raw_parts.map { round(it) }
+    return parts if parts.empty?
+
+    rest = @rest || (parts.size - 1)
+    parts[rest] = round(sum - (parts.sum - parts[rest]))
+    parts
   end
 
   # Rounds as printed: 12 345 Wh to 12,3 kWh, which is 12 300 Wh

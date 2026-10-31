@@ -12,8 +12,8 @@ class Car::ComparisonAmounts
   # { source => cost } of the sources of the energy, with and without the PV
   # system (see Car::Comparison#sources). They add up to the rounded cost of
   # the energy, which the car page shows too (see RoundedSum).
-  def source_costs = @source_costs ||= rounded_costs(comparison.sources.transform_values(&:cost))
-  def source_costs_without_pv = @source_costs_without_pv ||= rounded_costs(comparison.sources_without_pv.transform_values(&:cost))
+  def source_costs = @source_costs ||= rounded_sources(comparison.sources)
+  def source_costs_without_pv = @source_costs_without_pv ||= rounded_sources(comparison.sources_without_pv)
 
   def energy_cost = source_costs.values.sum
   def energy_cost_without_pv = source_costs_without_pv.values.sum
@@ -53,10 +53,19 @@ class Car::ComparisonAmounts
 
   attr_reader :comparison
 
-  # { key => cost } in whole units, which add up to the rounded sum
-  def rounded_costs(costs)
+  # The offsite cost is the same in both columns of the car, so it rounds on
+  # its own, and another source takes the rest of the rounded sum (see
+  # RoundedSum): the grid, or the PV system without it.
+  def rounded_sources(sources)
+    costs = sources.transform_values(&:cost)
+    rounded_costs(costs, rest: costs.keys.rindex { it != :offsite })
+  end
+
+  # { key => cost } in whole units, which add up to the rounded sum. The
+  # part at the index `rest` takes the rest, the last one without it.
+  def rounded_costs(costs, rest: nil)
     return {} if costs.empty?
 
-    costs.keys.zip(RoundedSum.new(costs.values, unit: :money, precision: 0).parts).to_h
+    costs.keys.zip(RoundedSum.new(costs.values, rest:, unit: :money, precision: 0).parts).to_h
   end
 end
