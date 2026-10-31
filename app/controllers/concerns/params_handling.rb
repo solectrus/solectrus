@@ -24,10 +24,11 @@ module ParamsHandling
     # The car is no parameter of the page itself. The car selection reads it
     # (see Cars::Selectable), and each link adds it from there. It is named here,
     # because selection_params reads the timeframe, which reads these
-    # parameters.
+    # parameters. The same holds for the parameter of the timeframe select
+    # (see TimeframeSelectModal).
     helper_method def permitted_params
       @permitted_params ||=
-        params.except(:car).permit(
+        params.except(:car, TimeframeSelectModal::PARAM).permit(
           :sensor_name,
           :timeframe,
           :period,
