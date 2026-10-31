@@ -19,7 +19,9 @@
 # the state of charge began to fall without a pause. Drives that overlap
 # then, like the parts of a long drive that the odometer split, are one
 # drive. A fall of one point within a stop, like a visit of a place, is no
-# drive.
+# drive. A fall over a long gap tells only that the drive lay in it. Where
+# the odometer still stood within the first fall, the drive started after
+# that reading.
 #
 # The state of charge reports at a pace of its own too, so it can stand
 # still for a reading while the car drives. A pause of up to MAX_PAUSE
@@ -228,7 +230,16 @@ class Car::DayTimeline::Drives
     first = last
     first -= 1 while falls.include?(first - 1) && (arrival.nil? || @soc[first - 2].first >= arrival)
 
-    drive.with(started_at: [@soc[first - 1].first, arrival].compact.max, ended_at: @soc[last].first)
+    drive.with(started_at: [@soc[first - 1].first, arrival, odometer_start_within(drive, @soc[first].first)].compact.max, ended_at: @soc[last].first)
+  end
+
+  # The reading of the odometer before the increase, where it lies before
+  # the end of the first fall: the car still stood there, so the drive
+  # started after it. A reading after the first fall can repeat the value
+  # of the start while the car drives, like an odometer that catches up
+  # after the drive, so it tells nothing.
+  def odometer_start_within(drive, fall_at)
+    drive.started_at if drive.started_at && drive.started_at < fall_at
   end
 
   # The indexes of the readings of the state of charge below the reading

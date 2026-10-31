@@ -225,12 +225,25 @@ describe Car::DayTimeline::Drives do
   # The state of charge read last before the arrival, so the fall of the next
   # drive reaches back over it
   context 'with a fall of the next drive from a reading before the arrival' do
-    let(:readings) { [[at(9, 30), 100], [at(10, 5), 110], [at(10, 30), 110], [at(10, 45), 115]] }
+    let(:readings) { [[at(9, 30), 100], [at(9, 55), 110], [at(10, 45), 115]] }
     let(:soc) { [[at(9, 30), 80], [at(9, 50), 78], [at(10, 40), 76], [at(10, 45), 76]] }
     let(:stops) { [[at(10), at(10, 35)], [at(10, 50), at(23)]] }
 
     it 'starts the next drive at the arrival and keeps both apart' do
       expect(spans).to eq([['09:30', '09:50', 10], ['10:00', '10:40', 5]])
+    end
+  end
+
+  # The car drove to a shop and back. The state of charge read only before
+  # and after the stay, so its fall spans the stay. The odometer still stood
+  # shortly before the drive back.
+  context 'with a long fall of the state of charge over a stay' do
+    let(:readings) { [[at(7, 45), 100], [at(7, 50), 104], [at(8, 35), 104], [at(8, 45), 108]] }
+    let(:soc) { [[at(7, 45), 70], [at(7, 50), 70], [at(8, 40), 68], [at(8, 45), 68]] }
+    let(:stops) { [[at(0), at(7, 48)], [at(7, 48), at(8, 40)], [at(8, 40), at(23)]] }
+
+    it 'starts the drive back after the last reading of the odometer before it' do
+      expect(spans).to eq([['07:45', '07:48', 4], ['08:35', '08:40', 4]])
     end
   end
 
