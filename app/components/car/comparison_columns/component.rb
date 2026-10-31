@@ -144,7 +144,7 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
     {
       per_100km: step(nil, :consumption, energy_cell(comparison.per_100km(comparison.energy_wh), (consumption_path if linked), precision: 1)),
       **distance_step,
-      quantity: step('=', :energy, energy_cell(comparison.energy_wh, precision: 0), result: true),
+      quantity: step('=', :energy, energy_quantity_cell(comparison.energy_wh), result: true),
       **source_steps(source_costs),
       energy_cost: step('=', :energy_cost, money_cell(source_costs.values.sum, (driving_cost_path if linked)), result: true),
       **energy_per_100km_step(cost, additions, (cost_rate_path if linked)),
@@ -192,7 +192,7 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
     {
       per_100km: step(nil, :consumption, text_cell(decimal_number(comparison.consumption, precision: 1), t('.liters'), settings_path)),
       **distance_step,
-      quantity: step('=', :fuel, text_cell(decimal_number(comparison.liters, precision: 0), t('.liters')), result: true),
+      quantity: step('=', :fuel, text_cell(decimal_number(comparison.liters, precision: quantity_precision(comparison.liters)), t('.liters')), result: true),
       part_0: step(nil, :fuel_price, price_range_cell(comparison.fuel_price_range, fuel_prices_path)),
       energy_cost: step('=', :fuel_cost, money_cell(amounts.fuel_cost), result: true),
       **energy_per_100km_step(:combustion_cost, additions),
@@ -271,10 +271,18 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
   # An energy in kWh, like the consumption of the car page. Its unit is Wh.
   def energy_cell(value_wh, href = nil, precision:) = sensor_cell(value_wh, :wallbox_power, href, context: :total, scaling: :kilo, precision:)
 
-  # An amount in whole units, like #money
-  def money_cell(value, href = nil, precision: 0, **) = sensor_cell(value, :total_costs, href, precision:, **)
+  # The driven energy, with the decimals of a quantity
+  def energy_quantity_cell(value_wh) = energy_cell(value_wh, precision: quantity_precision(value_wh / 1000.0))
+
+  # An amount with the decimals of the page, like #money
+  def money_cell(value, href = nil, precision: amounts.precision, **) = sensor_cell(value, :total_costs, href, precision:, **)
 
   def text_cell(number, unit, href = nil) = [linked(number, href), unit]
+
+  # The decimals of the energy (in kWh) or the fuel (in liters): one below
+  # 10, so a small quantity, for example of a day, keeps its size, else
+  # whole units
+  def quantity_precision(value) = value.abs < 10 ? 1 : 0
 
   # [number, unit] of the lowest and the highest price per liter, one price
   # if they are the same. The range opens the modal of the prices.

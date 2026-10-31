@@ -8,7 +8,7 @@ describe Car::SavingsRow::Component, type: :component do
   # The row, which links to the comparison of the month
   def link = html.at_css('a[href="/cars/savings/2026-10"]')
 
-  before { allow(Car::ComparisonAmounts).to receive(:new).with(comparison).and_return(instance_double(Car::ComparisonAmounts, savings:)) }
+  before { allow(Car::ComparisonAmounts).to receive(:new).with(comparison).and_return(instance_double(Car::ComparisonAmounts, savings:, precision: 0)) }
 
   it 'shows the savings in green and links to the comparison of the month' do
     expect(link.text.squish).to eq('Savings against a combustion car 75 €')

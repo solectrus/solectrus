@@ -48,8 +48,9 @@ module Car::ComparisonFormat
 
   def column_colors(columns) = columns.map { COLORS[it.key] }
 
-  # An amount in whole units, also below 10, so a column of amounts has no
-  # decimals. A rate or a price asks for its precision.
+  # An amount in whole units, also below 10, unless it asks for its
+  # precision: an amount of the comparison has the decimals of the page (see
+  # Car::ComparisonAmounts#precision), a rate or a price its own.
   def money(value, precision: 0, **) = render(Sensor::Value::Component.new(value, :total_costs, precision:, **))
 
   def currency(value, precision: 0) = helpers.number_to_currency(value, precision:, unit: Currency.symbol)

@@ -1,12 +1,22 @@
 # The amounts of a comparison with a combustion car (see Car::Comparison) as
-# the page shows them: each part in whole units, and each sum of the rounded
-# parts. So the steps of a column add up on the page, and the savings are
-# the difference of the shown totals. The costs per 100 km round to two
-# decimals, and the savings per 100 km are their difference. The comparison
-# itself stays exact.
+# the page shows them: each part rounded to the decimals of the page (see
+# #precision), and each sum of the rounded parts. So the steps of a column
+# add up on the page, and the savings are the difference of the shown
+# totals. The costs per 100 km round to two decimals, and the savings per
+# 100 km are their difference. The comparison itself stays exact.
 class Car::ComparisonAmounts
   def initialize(comparison)
     @comparison = comparison
+  end
+
+  # The decimals of all amounts: those of the highest total cost as a
+  # single amount (see Sensor::Units::Money), so cents when each total is
+  # small, for example of a day. A day has a small part of each yearly
+  # payment, and in whole units a tax of 0.63 and an insurance of 1.11
+  # would both be 1. All amounts share the decimals, so the columns have one
+  # format and add up.
+  def precision
+    @precision ||= Sensor::ValueFormatter.new([comparison.car_cost, comparison.car_cost_without_pv, comparison.combustion_cost].max_by(&:abs), unit: :money).precision
   end
 
   # { source => cost } of the sources of the energy, with and without the PV
@@ -27,8 +37,8 @@ class Car::ComparisonAmounts
   def payments = payment_costs.values.sum
   def shared_cost = payment_costs.slice(*Car::Payment::SHARED).values.sum
 
-  def fuel_cost = comparison.fuel_cost.round
-  def tax = comparison.tax.round
+  def fuel_cost = comparison.fuel_cost.round(precision)
+  def tax = comparison.tax.round(precision)
 
   # The total cost of each column
   def car_cost = energy_cost + payments
@@ -61,11 +71,11 @@ class Car::ComparisonAmounts
     rounded_costs(costs, rest: costs.keys.rindex { it != :offsite })
   end
 
-  # { key => cost } in whole units, which add up to the rounded sum. The
-  # part at the index `rest` takes the rest, the last one without it.
+  # { key => cost } rounded to #precision, which add up to the rounded sum.
+  # The part at the index `rest` takes the rest, the last one without it.
   def rounded_costs(costs, rest: nil)
     return {} if costs.empty?
 
-    costs.keys.zip(RoundedSum.new(costs.values, rest:, unit: :money, precision: 0).parts).to_h
+    costs.keys.zip(RoundedSum.new(costs.values, rest:, unit: :money, precision:).parts).to_h
   end
 end

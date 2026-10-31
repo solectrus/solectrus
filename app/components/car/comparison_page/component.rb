@@ -110,8 +110,8 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   def figures
     per_100km = amounts.savings_per_100km
     [
-      [t('.figures.savings'), money(amounts.savings), savings_color_of(amounts.savings)],
-      [t('.figures.savings_without_pv'), money(amounts.savings_without_pv), savings_color_of(amounts.savings_without_pv)],
+      [t('.figures.savings'), money(amounts.savings, precision: amounts.precision), savings_color_of(amounts.savings)],
+      [t('.figures.savings_without_pv'), money(amounts.savings_without_pv, precision: amounts.precision), savings_color_of(amounts.savings_without_pv)],
       [t('.figures.savings_per_100km'), money(per_100km, precision: 2), (savings_color_of(per_100km) if per_100km)],
     ]
   end
@@ -152,7 +152,7 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   def bar(column)
     tag = helpers.tag
     head = tag.div(class: 'flex items-baseline justify-between gap-3 text-sm md:text-base') do
-      tag.span(column_title(column)) + tag.span(money(column.total), class: 'font-semibold tabular-nums')
+      tag.span(column_title(column)) + tag.span(money(column.total, precision: amounts.precision), class: 'font-semibold tabular-nums')
     end
     track = tag.div(class: 'mt-1 h-3 rounded-full bg-slate-200 dark:bg-slate-700') do
       tag.div(class: "h-3 rounded-full #{COLORS[column.key]}", style: "width: #{bar_width(column)}%")

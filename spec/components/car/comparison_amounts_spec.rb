@@ -14,6 +14,7 @@ describe Car::ComparisonAmounts do
       fuel_cost: 9460.4,
       tax: 1345.4,
       car_cost: 6756.4,
+      car_cost_without_pv: 8466.8,
       combustion_cost: 16_106.4,
     )
   end
@@ -64,6 +65,34 @@ describe Car::ComparisonAmounts do
     expect(amounts.per_100km(:combustion_cost)).to eq(24.76)
     expect(amounts.per_100km(:car_cost)).to eq(10.39)
     expect(amounts.savings_per_100km).to be_within(0.001).of(14.37)
+  end
+
+  it 'has whole units for large totals' do
+    expect(amounts.precision).to eq(0)
+  end
+
+  # A day has 229 / 365 = 0.627 of the tax and 405 / 365 = 1.110 of the
+  # insurance. In whole units, both would be 1.
+  context 'with a small total' do
+    before do
+      allow(comparison).to receive_messages(
+        sources: { pv: source(0.0), grid: source(0.83) },
+        sources_without_pv: { grid: source(1.21) },
+        payment_costs: { 'insurance' => 1.1096 },
+        fuel_cost: 5.374,
+        tax: 0.6274,
+        car_cost: 1.9396,
+        car_cost_without_pv: 2.3196,
+        combustion_cost: 7.111,
+      )
+    end
+
+    it 'keeps the cents of each amount' do
+      expect(amounts.precision).to eq(2)
+      expect([amounts.tax, amounts.shared_cost, amounts.fuel_cost]).to eq([0.63, 1.11, 5.37])
+      expect(amounts.combustion_cost).to be_within(0.001).of(7.11)
+      expect(amounts.car_cost).to be_within(0.001).of(1.94)
+    end
   end
 
   context 'without a distance' do

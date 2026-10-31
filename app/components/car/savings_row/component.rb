@@ -29,7 +29,8 @@ class Car::SavingsRow::Component < ViewComponent::Base
     return Car::OverviewBox::Component.skeleton('w-12') unless report
     return '–' unless report.comparison.ready?
 
-    savings = Car::ComparisonAmounts.new(report.comparison).savings
-    helpers.tag.span(money(savings), class: savings_color_of(savings))
+    amounts = Car::ComparisonAmounts.new(report.comparison)
+    savings = amounts.savings
+    helpers.tag.span(money(savings, precision: amounts.precision), class: savings_color_of(savings))
   end
 end

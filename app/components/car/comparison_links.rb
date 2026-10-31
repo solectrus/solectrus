@@ -79,7 +79,7 @@ module Car::ComparisonLinks
   # with its label and its amount. A touch opens it too.
   def explained(value, parts)
     tag = helpers.tag
-    rows = parts.map { |label, amount| tag.div(class: 'flex justify-between gap-4') { tag.span(label) + tag.span(currency(amount), class: 'tabular-nums whitespace-nowrap') } }
+    rows = parts.map { |label, amount| tag.div(class: 'flex justify-between gap-4') { tag.span(label) + tag.span(currency(amount, precision: amounts.precision), class: 'tabular-nums whitespace-nowrap') } }
     tag.span(class: "#{LINK} cursor-help", data: { controller: 'tooltip', tooltip_touch_value: true }) do
       value + tag.span(helpers.safe_join(rows), class: 'hidden', data: { tooltip_target: 'html' })
     end
