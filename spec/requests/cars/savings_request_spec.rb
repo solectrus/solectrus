@@ -214,6 +214,19 @@ describe 'Cars Savings' do
         expect(rows.count('Per 100 km 3.07 €')).to eq(1)
       end
 
+      it 'links the fuel price to the course of the prices' do
+        get_comparison cars_savings_path(timeframe: '2026')
+
+        expect(hrefs).to include('/cars/savings/fuel_prices/2026')
+      end
+
+      # A day has one price, so there is no course to show
+      it 'shows the fuel price of a day without a link' do
+        get_comparison cars_savings_path(timeframe: '2026-01-12')
+
+        expect(hrefs).not_to include(a_string_starting_with('/cars/savings/fuel_prices'))
+      end
+
       describe 'the car without PV' do
         def page = response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')
 

@@ -50,9 +50,12 @@ module Car::ComparisonLinks
   end
 
   # The prices of the fuel in the modal (see Car::FuelPriceChart::Component),
-  # which shows the same lowest and highest price
+  # which shows the same lowest and highest price. A single day has one
+  # price and no course, so its price stays without a link.
   def fuel_prices_path
-    helpers.cars_fuel_prices_path(car: @car, timeframe: timeframe.to_param) if comparison.fuel_price_range
+    return if comparison.dates.one? || !comparison.fuel_price_range
+
+    helpers.cars_fuel_prices_path(car: @car, timeframe: timeframe.to_param)
   end
 
   # The list of the payments of the comparison, filtered to the payments
