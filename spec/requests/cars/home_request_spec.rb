@@ -188,7 +188,7 @@ describe 'Car Home' do
         get cars_home_path(timeframe: 'all', car: 1)
 
         notice = response.parsed_body.at_css('[role="note"]')
-        expect(notice.text).to include('Without logging in, today and yesterday are left out.')
+        expect(notice.text).to include('Only the admin sees the latest days.')
         expect(notice.at_css('a')['href']).to start_with('/login')
       end
 
@@ -196,7 +196,7 @@ describe 'Car Home' do
         login_as_admin
         get cars_home_path(timeframe: 'all', car: 1)
 
-        expect(response.body).not_to include('Without logging in, today and yesterday are left out.')
+        expect(response.body).not_to include('Only the admin sees the latest days.')
       end
     end
 

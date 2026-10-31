@@ -50,7 +50,7 @@ describe 'Charging sessions' do
     context 'with a session of yesterday' do
       before { ChargingSession.create!(kind: :offsite, origin: :user, car:, started_at: Date.yesterday.in_time_zone.change(hour: 12), kwh: 40, cost: 20) }
 
-      def note = 'Only the administrator sees the charging sessions of today and yesterday.'
+      def note = 'Only the admin sees the latest charging sessions.'
 
       it 'leaves it out for a visitor, also in the sums, with a note' do
         logout
