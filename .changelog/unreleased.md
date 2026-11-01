@@ -70,6 +70,7 @@ Keep every section, an empty one included.
 - A chart or a figure over a long timeframe, like the amortization, now calculates in about half the time
 - Amortization: a new interest rate shows its figures at once
 - In the live view, the bars of the power balance and of the tables of the house and the inverters glide to a new value in 0.3 instead of 1 second. This takes the device a third of the work
+- In the live chart, the dot on the newest value shows and goes at once, without a fade. This saves the device about 50 redraws of the chart at each update
 
 ## Fixes
 

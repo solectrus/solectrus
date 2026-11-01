@@ -131,6 +131,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
         easing: 'easeOutQuad',
         duration: 300,
       },
+      transitions: live_transitions,
       interaction: {
         intersect: !timeframe.short?,
         mode: 'index',
@@ -163,6 +164,14 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
 
   def layout_options
     { padding: { right: FLASH_DOT_HEADROOM } } if timeframe.now?
+  end
+
+  # The live chart flashes its newest point at each tick through the hover
+  # state (see stats_with_chart's flashLatestPoint). The default hover
+  # transition of 400 ms redrew the whole chart about 24 times for it, twice
+  # per tick, so the point shows and goes without a transition.
+  def live_transitions
+    { active: { animation: { duration: 0 } } } if timeframe.now?
   end
 
   # Standard legend for stacked charts that show several named segments.
