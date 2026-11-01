@@ -119,26 +119,30 @@ module Sensor
           private_constant :DATE_HASH
 
           def parse_date_from_row(row)
-            # Extract date from grouped result
-            date_column = DATE_HASH[group_by]
-
-            Date.parse(row[date_column].to_s)
+            # Extract date from grouped result. PG decodes a date column to a
+            # Date already, so parse only what arrives as a string.
+            value = row[DATE_HASH[group_by]]
+            value.is_a?(Date) ? value : Date.parse(value.to_s)
           end
 
           # Shared transformation logic for both single and series results
           # Yields sensor key and column name for each valid sensor spec
-          def transform_sensor_data
-            sensor_requests.filter_map do |(sensor_name, meta_agg, base_agg)|
-              sensor = Sensor::Registry[sensor_name]
+          def transform_sensor_data(&)
+            stored_columns.filter_map(&)
+          end
 
-              # Skip calculated sensors that don't have their own database field
-              next if sensor.calculated? && sensor.summary_aggregations.empty?
+          # The key and the column of each sensor that has a database field.
+          # Built once, as a series maps every row with them.
+          def stored_columns
+            @stored_columns ||=
+              sensor_requests.filter_map do |(sensor_name, meta_agg, base_agg)|
+                sensor = Sensor::Registry[sensor_name]
 
-              key = [sensor_name, meta_agg, base_agg]
-              column_name = "#{sensor_name}_#{meta_agg}_#{base_agg}"
+                # Skip calculated sensors that don't have their own database field
+                next if sensor.calculated? && sensor.summary_aggregations.empty?
 
-              yield(key, column_name)
-            end
+                [[sensor_name, meta_agg, base_agg], "#{sensor_name}_#{meta_agg}_#{base_agg}"]
+              end
           end
 
           # Fills complete periods for time series data to ensure no gaps
