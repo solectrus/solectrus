@@ -158,10 +158,13 @@ describe 'Cars Savings' do
       expect(response.parsed_body.at_css('turbo-frame#comparison')).to be_present
     end
 
-    it 'asks for a combustion car without one' do
+    it 'asks for a combustion car without one, with a link to the settings' do
       get_comparison cars_savings_path
 
-      expect(response.body).to include('No combustion car set')
+      aggregate_failures do
+        expect(response.body).to include('No combustion car set')
+        expect(response.parsed_body.at_css('a[title="Go to the settings"]')&.[]('href')).to eq(settings_cars_path)
+      end
     end
 
     # Without fuel prices, there is no comparison
