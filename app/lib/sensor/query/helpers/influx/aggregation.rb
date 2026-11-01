@@ -26,23 +26,23 @@ module Sensor
 
           def build_flux_query
             <<~FLUX
-              commonQuery = () =>
+              commonQuery =
                 #{from_bucket}
                 |> #{range(start: timeframe.beginning, stop: timeframe.ending)}
                 |> #{filter}
                 |> aggregateWindow(every: 5m, fn: mean)
 
-              minQuery = commonQuery()
+              minQuery = commonQuery
                 |> min()
                 |> set(key: "operation", value: "min")
                 |> keep(columns: ["_value", "operation", "_field", "_measurement"])
 
-              maxQuery = commonQuery()
+              maxQuery = commonQuery
                 |> max()
                 |> set(key: "operation", value: "max")
                 |> keep(columns: ["_value", "operation", "_field", "_measurement"])
 
-              avgQuery = commonQuery()
+              avgQuery = commonQuery
                 |> mean()
                 |> set(key: "operation", value: "avg")
                 |> keep(columns: ["_value", "operation", "_field", "_measurement"])
