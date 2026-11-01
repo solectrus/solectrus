@@ -87,5 +87,6 @@ Keep every section, an empty one included.
 - Screen readers: the GitHub link in the footer now has a name, and the author link reads a real dash. Before, it read "&mdash;"
 - Screen readers now read a message after an action, like "Saved", and say which tab of the sensor settings is selected. Before, they kept silent
 - A click with Cmd or Ctrl on a link that opens a dialog, like the timeframe, now only opens a new tab. Before, the page stayed dimmed
+- The live chart now animates only when a new point appears, so a device that shows it all day, like a wall display, has less work. Before, it animated at each update, and after a change of the window size each animation took a full second
 
 ## Maintenance

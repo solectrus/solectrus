@@ -281,6 +281,7 @@ export default class extends Controller<HTMLCanvasElement> {
       : CHART_FONT_SIZE;
 
     // Disable animation when user prefers reduced motion or during resize
+    const serverAnimation = options.animation;
     if (
       isReducedMotion() ||
       document.body.classList.contains('transition-stopper')
@@ -366,10 +367,11 @@ export default class extends Controller<HTMLCanvasElement> {
       plugins,
     });
 
-    // Re-enable animation for subsequent updates (e.g. addPointToChart)
-    if (suppressedAnimation && this.chart) {
-      delete (this.chart.options as Record<string, unknown>).animation;
-    }
+    // Re-enable animation for subsequent updates (e.g. addPointToChart). Restore
+    // the server's options: without them, Chart.js animates for its default
+    // 1000 ms instead of 300 ms.
+    if (suppressedAnimation && this.chart)
+      this.chart.options.animation = serverAnimation;
   }
 
   private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {

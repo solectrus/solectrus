@@ -304,9 +304,11 @@ export default class extends Controller {
 
     this.absorbPartialLastPoint(chart, bucketEndMs, lastLabelMs);
     this.removeOutdatedPoints(currentTime);
-    this.upsertLiveBucket(chart, bucketEndMs);
+    const opened = this.upsertLiveBucket(chart, bucketEndMs);
     this.slideXAxisWindow(currentTime);
-    chart.update();
+    // Most ticks only refine the mean of the open bucket. Animating that
+    // redraws the chart for 300 ms on every tick, so animate a new bucket only.
+    chart.update(opened ? undefined : 'none');
     this.flashLatestPoint();
   }
 
@@ -426,9 +428,10 @@ export default class extends Controller {
 
   // Pushes exactly one entry per dataset every tick — null when the value is
   // missing — so labels and dataset.data stay aligned.
-  private upsertLiveBucket(chart: Chart, bucketEndMs: number) {
+  // Returns true when the sample opened a new bucket
+  private upsertLiveBucket(chart: Chart, bucketEndMs: number): boolean {
     const labels = chart.data.labels;
-    if (!labels) return;
+    if (!labels) return false;
 
     const datasets = chart.data.datasets as LineDatasetWithId[];
     const targets = this.currentTargets;
@@ -458,6 +461,8 @@ export default class extends Controller {
       if (isUpdate) dataset.data[dataset.data.length - 1] = value;
       else dataset.data.push(value);
     }
+
+    return !isUpdate;
   }
 
   // Cap the electrical share of the live "generated heat" chart so the stacked
