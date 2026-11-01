@@ -3,6 +3,11 @@
   @apply glass-panel pointer-events-none fixed z-50 max-w-[320px] px-3 py-2 text-sm;
   @apply invisible opacity-0;
 
+  /* No blur: the tooltip moves with the pointer over a canvas that redraws,
+     so the GPU would blur its area again at each frame. At 95% opacity the
+     blur is hardly to see. */
+  @apply backdrop-filter-none;
+
   transform: none;
   transition:
     opacity 120ms ease-out,
