@@ -52,8 +52,9 @@
       / A period of a visitor ends with the latest public day, which a note
         above the figures says (see Car::AdminOnlyDays)
       - if admin_only_days_left_out?
-        / The banner undoes the padding of the card (see the layout)
-        .-mx-4.-mt-4.sm:-mx-6.sm:-mt-5.mb-3.lg:mb-6
+        / On the desktop the banner undoes the padding of the card (see the
+          layout)
+        .mb-4.lg:-mx-6.lg:-mt-5.lg:mb-6
           = render Car::AdminOnlyNotice::Component.new(text: t('car_breakdown.admin_only_days_left_out'), banner: true)
       div class=['flex flex-col gap-6 lg:grid lg:grid-rows-[auto_1fr] lg:gap-y-0', (timeframe.day? ? 'shrink-0' : 'flex-1 min-h-0'), (overview_sections.many? ? 'lg:grid-cols-2' : 'lg:grid-cols-1')] data-controller='car-overview' data-action='stats-with-chart--component:chart->car-overview#shown' data-car-overview-stats-with-chart--component-outlet='[data-controller~="stats-with-chart--component"]'
         - overview_sections.each_with_index do |section, index|
