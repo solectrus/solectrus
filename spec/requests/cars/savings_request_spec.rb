@@ -158,12 +158,51 @@ describe 'Cars Savings' do
       expect(response.parsed_body.at_css('turbo-frame#comparison')).to be_present
     end
 
-    it 'asks for a combustion car without one, with a link to the settings' do
-      get_comparison cars_savings_path
+    # [[href, turbo frame], ...] of the links with the label
+    def settings_links(label)
+      response.parsed_body.css('a').select { it.text.squish == label }.map { [it['href'], it['data-turbo-frame']] }
+    end
+
+    it 'asks for a combustion car without one, with the form of the car in the modal or a sheet' do
+      get_comparison cars_savings_path(timeframe: '2026')
 
       aggregate_failures do
         expect(response.body).to include('No combustion car set')
-        expect(response.parsed_body.at_css('a[title="Go to the settings"]')&.[]('href')).to eq(settings_cars_path)
+        expect(settings_links('Edit Car 1')).to eq(
+          [
+            [edit_settings_car_path(car), 'modal'],
+            [edit_settings_car_path(car, form_sheet: 1), 'modal'],
+          ],
+        )
+      end
+    end
+
+    it 'loads the comparison again after a save in the modal' do
+      get cars_savings_path(timeframe: '2026')
+
+      expect(response.parsed_body.at_css('turbo-frame#comparison')['data-action']).to eq('ui--turbo-modal--component:changed@document->frame-reload#reload')
+    end
+
+    context 'with a second car' do
+      before do
+        Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_2' => 'Wartburg:odometer'))
+        Car.create!(id: 2, name: 'Wartburg', active_from: Date.new(2025, 1, 1))
+      end
+
+      after { Sensor::Config.setup(ENV) }
+
+      it 'opens the form of the one car without a combustion car for all cars' do
+        car.update!(fuel_type: 'petrol', fuel_consumption: 8)
+
+        get_comparison cars_savings_path(timeframe: '2026')
+
+        expect(settings_links('Edit Wartburg').map(&:first)).to eq([edit_settings_car_path(2), edit_settings_car_path(2, form_sheet: 1)])
+      end
+
+      it 'links all cars to the list when more than one car lacks a combustion car' do
+        get_comparison cars_savings_path(timeframe: '2026')
+
+        expect(settings_links('Go to the settings')).to eq([[settings_cars_path, nil]])
       end
     end
 

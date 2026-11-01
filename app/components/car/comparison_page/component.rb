@@ -165,5 +165,22 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   # (see Car::ComparisonWarnings::Component).
   def savings_notes = [t('.notes.savings'), t('.notes.data')]
 
-  def settings_link? = helpers.admin?
+  # The buttons of the admin to the settings. The car that lacks the
+  # combustion car opens its form, in the modal on the desktop and in a
+  # sheet on a phone. After a save, the comparison loads again (see
+  # savings/index.html.slim). With more than one such car, the list of the
+  # cars.
+  def settings_buttons
+    return [] unless helpers.admin?
+
+    missing = report.cars.reject(&:combustion?)
+    return [Ui::Button::Component.new(href: helpers.settings_cars_path, label: t('.to_settings'), icon: 'pencil')] unless missing.one?
+
+    href = helpers.edit_settings_car_path(missing.sole)
+    options = { label: t('.edit', car: missing.sole.display_name), icon: 'pencil', data: Ui::TurboModal::Component.link_data }
+    [
+      Ui::Button::Component.new(href:, class: 'max-lg:hidden', **options),
+      Ui::Button::Component.new(href: Ui::FormPage::Component.sheet_path(href), class: 'lg:hidden', **options),
+    ]
+  end
 end

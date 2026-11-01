@@ -22,5 +22,6 @@
   = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @pending_days)
 - else
   / The comparison comes in a request of its own (see comparison.html.slim).
-    A link in it leaves the frame and opens its page.
-  = render Ui::LazyFrame::Component.new id: 'comparison', src: request.fullpath, target: '_top', class: 'flex flex-auto flex-col'
+    A link in it leaves the frame and opens its page. A save in the modal,
+    like the settings of a car, loads it again.
+  = render Ui::LazyFrame::Component.new id: 'comparison', src: request.fullpath, target: '_top', class: 'flex flex-auto flex-col', data: { controller: 'frame-reload', action: 'ui--turbo-modal--component:changed@document->frame-reload#reload' }

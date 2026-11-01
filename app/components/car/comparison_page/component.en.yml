@@ -4,6 +4,7 @@ en:
   none: The comparison needs the fuel and the consumption of a combustion car from the settings of the car.
   none_all: The comparison of all cars needs the fuel and the consumption of a combustion car in the settings of each car.
   to_settings: Go to the settings
+  edit: Edit %{car}
   no_prices_title: No fuel prices yet
   no_prices: The comparison needs the weekly fuel prices. This is still in progress. A later update brings them, also for the past years.
   no_distance_title: No distance to compare

@@ -1,8 +1,8 @@
 - case state
 - when :none
   = render Ui::EmptyState::Component.new(icon: 'car', title: t('.none_title'), text: t(report.cars.many? ? '.none_all' : '.none')) do
-    - if settings_link?
-      = render Ui::Button::Component.new(href: helpers.settings_cars_path, title: t('.to_settings'), icon: 'pencil')
+    - settings_buttons.each do |button|
+      = render button
 - when :no_prices
   = render Ui::EmptyState::Component.new(icon: 'car', title: t('.no_prices_title'), text: t('.no_prices'), slashed: true)
 - when :no_distance
