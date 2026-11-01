@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { debounce } from 'throttle-debounce';
+import { debounce, type Debounced } from '@/utils/debounce';
 import { isReducedMotion, isTouchEnabled } from '@/utils/device';
 import { appLocale } from '@/utils/locale';
 import * as Turbo from '@hotwired/turbo';
@@ -160,11 +160,11 @@ export default class extends Controller<HTMLCanvasElement> {
   declare usageLabelValue: string;
   declare readonly hasUsageLabelValue: boolean;
 
-  private boundHandleResize?: debounce<() => void>;
+  private boundHandleResize?: Debounced<[]>;
   private boundHandleDblClick?: (event: MouseEvent) => void;
   private boundHandleThemeChange?: () => void;
   private containerObserver?: ResizeObserver;
-  private debouncedChartResize?: debounce<() => void>;
+  private debouncedChartResize?: Debounced<[]>;
   private chart?: Chart;
   private readonly colorManager = new ColorManager((datasets) =>
     isOverlapping(datasets),

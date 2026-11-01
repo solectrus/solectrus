@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { debounce } from 'throttle-debounce';
+import { debounce } from '@/utils/debounce';
 import { isReducedMotion } from '@/utils/device';
 import { appLocale } from '@/utils/locale';
 import * as Turbo from '@hotwired/turbo';

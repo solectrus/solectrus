@@ -1,5 +1,5 @@
 import * as Turbo from '@hotwired/turbo';
-import { debounce } from 'throttle-debounce';
+import { debounce } from '@/utils/debounce';
 import { isTouchEnabled } from '@/utils/device';
 import { colorToRgba } from '@/utils/color';
 
