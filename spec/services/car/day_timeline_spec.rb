@@ -197,14 +197,14 @@ describe Car::DayTimeline do
     end
 
     it 'starts a drive at the last place where the car arrived before it' do
-      drive = Car::DayTimeline::Drives::Drive.new(started_at: at(7, 45), ended_at: at(8, 15), distance: 11)
+      drive = Car::DayTimeline::Drive.new(started_at: at(7, 45), ended_at: at(8, 15), distance: 11)
 
       expect([lane.origin(drive), lane.goal(drive)].map(&:name)).to eq(%w[School Work])
     end
 
     # The stop between was too short for a visit, so the visit at work goes on
     it 'ends a round trip at the place where it started' do
-      drive = Car::DayTimeline::Drives::Drive.new(started_at: at(12), ended_at: at(13), distance: 33)
+      drive = Car::DayTimeline::Drive.new(started_at: at(12), ended_at: at(13), distance: 33)
 
       expect([lane.origin(drive), lane.goal(drive)].map(&:name)).to eq(%w[Work Work])
     end
@@ -212,7 +212,7 @@ describe Car::DayTimeline do
     # The car reports its arrival late, so the visit of the school lasts
     # some minutes past the end of a drive to a place without a visit
     it 'takes no goal from a visit that ends after the drive within the late report' do
-      drive = Car::DayTimeline::Drives::Drive.new(started_at: at(7, 45), ended_at: at(8, 10), distance: 11)
+      drive = Car::DayTimeline::Drive.new(started_at: at(7, 45), ended_at: at(8, 10), distance: 11)
       lane = described_class.new(car: nil, drives: [], charges: [], soc_line: [], visits: [visit('School', at(7, 41), at(8, 26))])
 
       expect([lane.origin(drive)&.name, lane.goal(drive)]).to eq(['School', nil])
@@ -220,7 +220,7 @@ describe Car::DayTimeline do
 
     # The drive ends at the arrival (see Car::DayTimeline::Drives#cut)
     it 'ends a drive without a start at the place where it arrived' do
-      drive = Car::DayTimeline::Drives::Drive.new(started_at: nil, ended_at: at(8, 26), distance: 11)
+      drive = Car::DayTimeline::Drive.new(started_at: nil, ended_at: at(8, 26), distance: 11)
 
       expect([lane.origin(drive), lane.goal(drive)].map(&:name)).to eq(%w[School Work])
     end
@@ -230,8 +230,8 @@ describe Car::DayTimeline do
     context 'with the place where the car stands now' do
       let(:drives) do
         [
-          Car::DayTimeline::Drives::Drive.new(started_at: at(7, 45), ended_at: at(8, 15), distance: 11),
-          Car::DayTimeline::Drives::Drive.new(started_at: at(17, 5), ended_at: at(17, 15), distance: 8),
+          Car::DayTimeline::Drive.new(started_at: at(7, 45), ended_at: at(8, 15), distance: 11),
+          Car::DayTimeline::Drive.new(started_at: at(17, 5), ended_at: at(17, 15), distance: 8),
         ]
       end
       let(:lane) do

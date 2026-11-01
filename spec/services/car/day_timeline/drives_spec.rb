@@ -20,18 +20,28 @@ describe Car::DayTimeline::Drives do
 
   # The odometer tells only that the car drove since the reading before
   context 'with a long gap before an increase' do
-    let(:readings) { [[at(6), 100], [at(12, 30), 103]] }
+    let(:readings) { [[at(6), 100], [at(12, 30), 125]] }
 
     it 'knows the end of the drive, but not its start' do
-      expect(spans).to eq([[nil, '12:30', 3]])
+      expect(spans).to eq([[nil, '12:30', 25]])
     end
 
+    # 40 km/h for 25 km
     it 'assumes the start from the distance' do
-      expect(drives.sole.assumed_at).to eq(at(12, 30) - 4.5.minutes)
+      expect(drives.sole.assumed_at).to eq(at(12, 30) - 37.5.minutes)
+    end
+
+    # 16 km/h for 1 km
+    context 'with a short drive' do
+      let(:readings) { [[at(6), 100], [at(12, 30), 101]] }
+
+      it 'assumes a lower speed' do
+        expect(drives.sole.assumed_at).to eq(at(12, 30) - 3.75.minutes)
+      end
     end
 
     context 'when the distance needs more time than the gap' do
-      let(:readings) { [[at(6), 100], [at(12), 400]] }
+      let(:readings) { [[at(6), 100], [at(12), 700]] }
 
       it 'starts the drive not before the reading before it' do
         expect(drives.sole.assumed_at).to eq(at(6))
@@ -220,12 +230,46 @@ describe Car::DayTimeline::Drives do
 
     it 'keeps the drive there and the drive back apart' do
       expect(drives.map { [it.start.strftime('%H:%M'), it.ended_at.strftime('%H:%M'), it.distance] }).to eq(
-        [['13:20', '13:21', 3], ['14:57', '15:03', 4]],
+        [['13:20', '13:21', 3], ['14:52', '15:03', 4]],
       )
     end
 
+    # 22 km/h for 4 km
     it 'assumes the start of the drive back from the distance' do
-      expect(drives.last).to have_attributes(started_at: nil, earliest_at: nil, assumed_at: at(14, 57))
+      expect(drives.last).to have_attributes(started_at: nil, earliest_at: nil)
+      expect(drives.last.assumed_at).to be_within(1.second).of(at(15, 3) - 654.seconds)
+    end
+  end
+
+  # A car that reports only when it parks or wakes up. It woke up at 10:15
+  # and reported the drive when it parked at 11:00.
+  context 'with no reading while the car drives' do
+    let(:readings) { [[at(9), 100], [at(11), 125]] }
+    let(:soc) { [[at(9), 80], [at(10, 15), 80], [at(11, 1), 74]] }
+
+    # 40 km/h for 25 km
+    it 'assumes the start from the distance, within the window of the readings' do
+      drive = drives.sole
+
+      expect(drive).to have_attributes(started_at: at(10, 15), assumed_at: at(11) - 37.5.minutes, ended_at: at(11))
+      expect(drive.start).to eq(drive.assumed_at)
+      expect(drive).to be_assumed_start
+    end
+
+    context 'when the distance needs more time than the window' do
+      let(:soc) { [[at(9), 80], [at(10, 35), 80], [at(11, 1), 74]] }
+
+      it 'keeps the window' do
+        expect(drives.sole).to have_attributes(started_at: at(10, 35), assumed_at: nil)
+      end
+    end
+
+    context 'with a reading while the car drives' do
+      let(:soc) { [[at(9), 80], [at(10, 15), 80], [at(10, 40), 77], [at(11, 1), 74]] }
+
+      it 'keeps the start of the readings' do
+        expect(drives.sole).to have_attributes(started_at: at(10, 15), assumed_at: nil)
+      end
     end
   end
 

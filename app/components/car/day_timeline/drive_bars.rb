@@ -3,8 +3,8 @@
 module Car::DayTimeline::DriveBars
   # A bar for each drive. A time that the readings leave open has a jagged
   # edge and a note: an estimated start after a gap in the readings (see
-  # Car::DayTimeline::Drives::Drive#earliest_at), a time that does not fit
-  # the distance, or a start assumed from the distance.
+  # Car::DayTimeline::Drive#earliest_at), a time that does not fit
+  # the distance, or a start assumed from the distance, which names no time.
   def drive_bars(lane)
     lane.drives.map do |drive|
       Car::TimelineBar::Bar.new(
@@ -13,7 +13,7 @@ module Car::DayTimeline::DriveBars
         segments: [[Car::DayTimeline::Component::DRIVE_COLOR, 1]],
         ends: drive_ends(drive),
         title: t('.drive'),
-        lines: [time_text(drive.started_at || drive.earliest_at, drive.ended_at), *route(lane, drive)],
+        lines: [time_text((drive.started_at || drive.earliest_at unless drive.assumed_start?), drive.ended_at), *route(lane, drive)],
         parts: drive_parts(lane, drive),
         notes: drive_notes(drive),
       )
@@ -26,7 +26,7 @@ module Car::DayTimeline::DriveBars
   # or an estimated or assumed one at its start
   def drive_ends(drive)
     if drive.window? then %i[jagged jagged]
-    elsif drive.estimated_start? || drive.unknown_start? || drive.too_fast? then %i[jagged round]
+    elsif drive.estimated_start? || drive.assumed_start? || drive.too_fast? then %i[jagged round]
     else %i[round round]
     end
   end
@@ -36,7 +36,7 @@ module Car::DayTimeline::DriveBars
   def drive_notes(drive)
     [
       (t('.start_estimated') if drive.estimated_start? && !drive.window?),
-      (t('.start_assumed') if drive.unknown_start?),
+      (t('.start_assumed') if drive.assumed_start?),
       (t('.window') if drive.window?),
       (t('.too_fast') if drive.too_fast?),
     ].compact

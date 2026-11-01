@@ -13,7 +13,7 @@ describe Car::DayTimeline::Component, type: :component do
   # The line of the readings, its fall on the drive and its rise on the charge
   def soc_line = Car::DayTimeline::SocLine.new(soc, ends_at: at(18), drives: [[drive.started_at || drive.ended_at, drive.ended_at]], charges: [[at(12), at(18)]]).call
 
-  let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: at(6), ended_at: at(9), distance: 120) }
+  let(:drive) { Car::DayTimeline::Drive.new(started_at: at(6), ended_at: at(9), distance: 120) }
   let(:session) { ChargingSession.new(kind: :wallbox, car_id: 1, started_at: at(12), ended_at: at(18), kwh: 20, kwh_grid: 5, cost: 3.5, soc_from: 40, soc_to: 90) }
   let(:visits) { [] }
   let(:lanes) { [Car::DayTimeline::Lane.new(car:, drives: [drive], charges: [charge(session)], soc_line:, visits:)] }
@@ -142,18 +142,30 @@ describe Car::DayTimeline::Component, type: :component do
 
   # The odometer tells only when the drive ended
   context 'with a drive without a start' do
-    let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: nil, assumed_at: at(8, 30), ended_at: at(9), distance: 20) }
+    let(:drive) { Car::DayTimeline::Drive.new(started_at: nil, assumed_at: at(8, 30), ended_at: at(9), distance: 20) }
 
     it 'starts at the assumed time with a jagged edge and says so' do
       expect(edges(bars.first)).to eq([62.5, 2.083])
       expect(bars.first['class']).to include('timeline-bar-estimated-start')
       expect(bars.first['aria-label']).to start_with('Driving, until 09:00').and include('so the start is estimated from the distance')
     end
+
+    # The car reported nothing while it drove, so the window of the readings
+    # is longer than the drive
+    context 'with a longer window of the readings' do
+      let(:drive) { Car::DayTimeline::Drive.new(started_at: nil, earliest_at: at(7), assumed_at: at(8, 30), ended_at: at(9), distance: 20) }
+
+      it 'names neither the window nor its estimated start' do
+        expect(edges(bars.first)).to eq([62.5, 2.083])
+        expect(bars.first['aria-label']).to start_with('Driving, until 09:00')
+        expect(bars.first['aria-label']).not_to include('No readings in the hour before')
+      end
+    end
   end
 
   # A car that reports each hour: a short drive at some time in the hour
   context 'with a drive too slow for its time' do
-    let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: at(8, 15), ended_at: at(9), distance: 1) }
+    let(:drive) { Car::DayTimeline::Drive.new(started_at: at(8, 15), ended_at: at(9), distance: 1) }
 
     it 'shows the window with jagged edges and says so' do
       expect(bars.first['class']).to include('timeline-bar-estimated', 'timeline-bar-estimated-start')
@@ -162,7 +174,7 @@ describe Car::DayTimeline::Component, type: :component do
   end
 
   context 'with a drive too fast for its time' do
-    let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: at(8), ended_at: at(9), distance: 255) }
+    let(:drive) { Car::DayTimeline::Drive.new(started_at: at(8), ended_at: at(9), distance: 255) }
 
     it 'marks its start and says so' do
       expect(bars.first['class']).to include('timeline-bar-estimated-start')
@@ -172,7 +184,7 @@ describe Car::DayTimeline::Component, type: :component do
 
   # A gap in the readings before the drive
   context 'with a drive with an estimated start' do
-    let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: 120) }
+    let(:drive) { Car::DayTimeline::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: 120) }
 
     it 'starts at the earliest time with a jagged edge and says so' do
       expect(edges(bars.first)).to eq([62.5, 8.333])
@@ -181,7 +193,7 @@ describe Car::DayTimeline::Component, type: :component do
     end
 
     context 'when it is too slow for its time' do
-      let(:drive) { Car::DayTimeline::Drives::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: 1) }
+      let(:drive) { Car::DayTimeline::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: 1) }
 
       it 'names only the window' do
         expect(bars.first['aria-label']).to include('the drive took place at some time in this window')
