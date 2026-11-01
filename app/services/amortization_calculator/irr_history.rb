@@ -59,7 +59,7 @@ class AmortizationCalculator
     end
 
     def measured
-      @measured ||= MeasuredSavings.new(savings.measured_by_day)
+      savings.measured_savings
     end
 
     def installation_date

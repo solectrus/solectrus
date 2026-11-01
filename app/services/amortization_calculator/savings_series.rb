@@ -87,11 +87,17 @@ class AmortizationCalculator
       daily_projection_rate * 365
     end
 
-    # Measured savings per day since installation. Also the raw basis the IRR
-    # history reads, so replaying the calculation on dozens of past dates costs
-    # no further query.
+    # Measured savings per day since installation - the only query of the
+    # series. The months, the rolling year and the IRR history all derive from
+    # it, so replaying the calculation on dozens of past dates costs no further
+    # query.
     def measured_by_day
       @measured_by_day ||= query_savings(measured_timeframe, group_by: :day)
+    end
+
+    # The daily savings summed up to any day, see MeasuredSavings
+    def measured_savings
+      @measured_savings ||= MeasuredSavings.new(measured_by_day)
     end
 
     private
@@ -108,8 +114,15 @@ class AmortizationCalculator
       @current_month ||= today.beginning_of_month
     end
 
+    # A month without any measured day has no entry
     def measured_by_month
-      @measured_by_month ||= query_savings(measured_timeframe, group_by: :month)
+      @measured_by_month ||=
+        measured_by_day.each_with_object({}) do |(day, value), months|
+          next if value.nil?
+
+          month = day.beginning_of_month
+          months[month] = months.fetch(month, 0.0) + value
+        end
     end
 
     # Cumulative measured savings from installation up to (and including) the
@@ -124,7 +137,7 @@ class AmortizationCalculator
     end
 
     def measured_until(date)
-      measured_by_day.sum { |day, value| day <= date ? value.to_f : 0.0 }
+      measured_savings.total_until(date)
     end
 
     # Timeframe spanning installation up to today. With only a single day of
@@ -142,9 +155,17 @@ class AmortizationCalculator
     # timeframe of the savings balance page, so the "annual benefit" tile can
     # link to a page showing the same figure. Excluding the partial current day
     # also keeps it from skewing the projection rate.
+    #
+    # Read only with a full year of data, so the window lies within the days
+    # of measured_by_day. nil when none of its days has a value.
     def rolling_year_savings
       @rolling_year_savings ||=
-        query_savings(Timeframe.new("#{today - 365.days}..#{today - 1.day}"))
+        begin
+          from = today - 365.days
+          to = today - 1.day
+          values = measured_by_day.filter_map { |day, value| value if day.between?(from, to) }
+          values.sum if values.any?
+        end
     end
 
     def query_savings(timeframe, group_by: nil)

@@ -712,7 +712,7 @@ describe AmortizationCalculator do
       end
     end
 
-    it 'loads measured savings with grouped queries, one per resolution' do
+    it 'loads measured savings with a single daily query' do
       13.times do |index|
         seed_savings_day(Date.new(2023, 6, 10) + index.months, 10_000)
       end
@@ -722,10 +722,10 @@ describe AmortizationCalculator do
 
       result
 
-      # Three grouped queries, each issued once: monthly savings (balance
-      # series), the rolling year (projection rate, full year of data here) and
-      # daily savings (the day-accurate table). None fan out per month or year.
-      expect(Sensor::Query::Total).to have_received(:new).exactly(3).times
+      # The months (balance series) and the rolling year (projection rate, full
+      # year of data here) derive from the daily savings (the day-accurate
+      # table). Nothing fans out per month or year.
+      expect(Sensor::Query::Total).to have_received(:new).once
     end
   end
 
@@ -786,17 +786,16 @@ describe AmortizationCalculator do
     it 'serves the class-level result from cache until an input changes' do
       allow(Sensor::Query::Total).to receive(:new).and_call_original
 
-      # With less than a full year of data the rolling-year query is skipped, so
-      # one computation issues two savings queries (monthly + daily). The second
-      # call must hit the cache and query nothing.
+      # One computation issues a single savings query (daily). The second call
+      # must hit the cache and query nothing.
       described_class.result
       described_class.result
-      expect(Sensor::Query::Total).to have_received(:new).twice
+      expect(Sensor::Query::Total).to have_received(:new).once
 
       # Editing the register changes the key, so the next call recomputes.
       CashFlow.create!(date: Date.new(2024, 1, 15), amount: -10, note: 'Extra')
       described_class.result
-      expect(Sensor::Query::Total).to have_received(:new).exactly(4).times
+      expect(Sensor::Query::Total).to have_received(:new).twice
     end
 
     it 'recomputes when a parameter changes' do
