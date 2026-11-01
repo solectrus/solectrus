@@ -204,6 +204,7 @@ en:
     fuel_prices_of:
       petrol: Petrol prices
       diesel: Diesel prices
+      lpg: LPG prices
   visits:
     name: Visits
     count:
@@ -632,6 +633,7 @@ en:
         fuel_types:
           petrol: Petrol
           diesel: Diesel
+          lpg: LPG
         fuel_consumption: Consumption
         combustion_tax: Vehicle tax per year
       car/payment:

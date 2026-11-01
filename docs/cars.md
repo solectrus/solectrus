@@ -95,7 +95,7 @@ The table `cars` holds what the environment cannot:
 | `active_until`     | the last day of use                  | the car is in use                              |
 | `color`            | a hex code like `#3b82f6`            | the default color (sky blue)                   |
 | `battery_kwh`      | the usable capacity of the battery   | no capacity                                    |
-| `fuel_type`        | `petrol` or `diesel`                 | no comparison with a combustion car            |
+| `fuel_type`        | `petrol`, `diesel` or `lpg`          | no comparison with a combustion car            |
 | `fuel_consumption` | l/100 km of the combustion car       | – (required with a fuel)                       |
 | `combustion_tax`   | the yearly tax of the combustion car | no tax                                         |
 
@@ -771,7 +771,7 @@ needs the date and the amount alone.
 The fuel prices are in InfluxDB: one price for each week, in EUR/l.
 `Sensor::Query::FuelPrices` reads them directly from InfluxDB, because they are few, and
 `Car::FuelPrices` caches them. A price holds until the next one. The fields are
-`Fuel:price_petrol` and `Fuel:price_diesel`. They are fixed, so they need no
+`Fuel:price_petrol`, `Fuel:price_diesel` and `Fuel:price_lpg`. They are fixed, so they need no
 configuration. The prices are in EUR, so the comparison needs `CURRENCY=EUR`. With another
 currency, the fuel prices count as missing.
 

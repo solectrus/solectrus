@@ -7,7 +7,7 @@ module Sensor
       MEASUREMENT = 'Fuel'.freeze
       private_constant :MEASUREMENT
 
-      FIELDS = { 'petrol' => 'price_petrol', 'diesel' => 'price_diesel' }.freeze
+      FIELDS = { 'petrol' => 'price_petrol', 'diesel' => 'price_diesel', 'lpg' => 'price_lpg' }.freeze
       private_constant :FIELDS
 
       def initialize(fuel_type)

@@ -35,9 +35,9 @@ describe Car::FuelPrices do
   end
 
   describe '.any?' do
-    let(:diesel) { instance_double(Sensor::Query::FuelPrices, call: []) }
+    let(:other) { instance_double(Sensor::Query::FuelPrices, call: []) }
 
-    before { allow(Sensor::Query::FuelPrices).to receive(:new).with('diesel').and_return(diesel) }
+    before { %w[diesel lpg].each { allow(Sensor::Query::FuelPrices).to receive(:new).with(it).and_return(other) } }
 
     it 'is true with the prices of one fuel' do
       expect(described_class).to be_any

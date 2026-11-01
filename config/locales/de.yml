@@ -204,6 +204,7 @@ de:
     fuel_prices_of:
       petrol: Benzinpreise
       diesel: Dieselpreise
+      lpg: Autogaspreise
   visits:
     name: Besuche
     count:
@@ -632,6 +633,7 @@ de:
         fuel_types:
           petrol: Benzin
           diesel: Diesel
+          lpg: Autogas (LPG)
         fuel_consumption: Verbrauch
         combustion_tax: Kfz-Steuer pro Jahr
       car/payment:

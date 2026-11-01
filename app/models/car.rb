@@ -49,7 +49,7 @@ class Car < ApplicationRecord
 
   # The fuel of the combustion car that the car compares with, nil without a
   # comparison. Its prices come from InfluxDB (see Car::FuelPrices).
-  enum :fuel_type, { petrol: 'petrol', diesel: 'diesel' }, prefix: :fuel, validate: { allow_nil: true }
+  enum :fuel_type, { petrol: 'petrol', diesel: 'diesel', lpg: 'lpg' }, prefix: :fuel, validate: { allow_nil: true }
 
   normalizes :name, :short_name, with: -> { it.strip.presence }
   normalizes :color, with: -> { it.strip.downcase.presence }
