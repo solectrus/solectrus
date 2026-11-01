@@ -22,7 +22,10 @@ module AutoLocale
     end
 
     def locale_from_browser
-      http_accept_language.compatible_language_from(I18n.available_locales)
+      AcceptLanguage.locale_from(
+        request.headers['Accept-Language'],
+        I18n.available_locales,
+      )
     end
   end
 end
