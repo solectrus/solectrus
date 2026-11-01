@@ -67,6 +67,7 @@ Keep every section, an empty one included.
 - Escape now closes an open menu, like the options of the Top 10 or the selection of a chart
 - The link to the main page now shows the power balance from every page, in the same timeframe. Before, it kept the topic of the previous page, for example the house consumption (#6055)
 - Without HELIOS, the admin now also sees the menu item HELIOS. It opens the installation guide on the website
+- A chart or a figure over a long timeframe, like the amortization, now calculates in about half the time
 
 ## Fixes
 
