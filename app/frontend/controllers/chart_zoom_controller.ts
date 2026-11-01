@@ -86,8 +86,11 @@ export default class extends Controller {
     );
   }
 
+  // The overlay is display: none while hidden, not only invisible: its spinner
+  // animates by SVG, which goes on in an invisible element and costs a layout
+  // at each frame
   private showLoadingOverlay() {
-    this.loadingTarget.classList.remove('invisible');
+    this.loadingTarget.classList.replace('hidden', 'flex');
   }
 
   private resizeWithOverlay() {
@@ -95,7 +98,7 @@ export default class extends Controller {
     this.triggerResize();
     requestAnimationFrame(() =>
       requestAnimationFrame(() =>
-        this.loadingTarget.classList.add('invisible'),
+        this.loadingTarget.classList.replace('flex', 'hidden'),
       ),
     );
   }

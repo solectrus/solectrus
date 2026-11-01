@@ -40,7 +40,7 @@
     script type='application/json' data-amortization--return-chart--component-target='data'
       == chart_data.to_json
 
-    div class='invisible flex absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
+    div class='hidden absolute inset-0 items-center justify-center bg-white dark:bg-slate-900 z-5 [&_.delayed-fade-in]:opacity-100 [&_.delayed-fade-in]:animate-none' data-chart-zoom-target='loading'
       = render Ui::Loading::Component.new
 
     / The chart follows the height of its container and never sets it (see
