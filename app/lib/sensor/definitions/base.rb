@@ -16,11 +16,14 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     validate_unit!
   end
 
+  # Memoized: a query asks for the name of a sensor at each data point, and
+  # deriving it from the class name allocates five strings every time
   def name
-    class_name = self.class.name
-    return :anonymous if class_name.nil?
-
-    class_name.demodulize.underscore.to_sym
+    @name ||=
+      begin
+        class_name = self.class.name
+        class_name.nil? ? :anonymous : class_name.demodulize.underscore.to_sym
+      end
   end
 
   def unit
