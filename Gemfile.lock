@@ -234,7 +234,7 @@ GEM
       uri
       yaml
     parallel (2.3.0)
-    parallel_tests (5.8.0)
+    parallel_tests (5.9.0)
       parallel
     parser (3.3.13.0)
       ast (~> 2.4.1)
