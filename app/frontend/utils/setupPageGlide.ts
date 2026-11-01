@@ -14,8 +14,13 @@ type Glide = { move?: Animation; size?: Animation; end: Box };
 //
 // A page that still loads a frame keeps at least the height of the old
 // page, so the card does not shrink to the empty page first and grow again.
+// A page of full height does not wait: its frames do not change its height.
 // While the card glides or waits, it follows each change of its content,
 // from a frame or a stream, from where it is.
+//
+// A card that shrinks gives its content the end height at once. The padding
+// below the content takes the difference, so a chart draws at its own size
+// and does not shrink with the card.
 //
 // The move and the height are two glides. A change that keeps the end of
 // one lets that glide go on at its own pace: the frames of a page often
@@ -41,7 +46,9 @@ export function setupPageGlide() {
     const to = measureWithout(glide);
     if (!from || !to) return stop();
 
-    const loading = to.card.querySelector('turbo-frame[busy]') !== null;
+    const loading =
+      !to.card.closest('.page-full-height') &&
+      to.card.querySelector('turbo-frame[busy]') !== null;
     if (loading) to.height = Math.max(to.height, from.height);
     const fill = loading ? 'forwards' : 'none';
 
@@ -68,16 +75,19 @@ export function setupPageGlide() {
       size?.effect?.updateTiming({ fill });
     } else {
       size?.cancel();
+      const keyframes: PropertyIndexedKeyframes = {
+        height: [`${from.height}px`, `${to.height}px`],
+        overflow: ['clip', 'clip'],
+      };
+      if (from.height > to.height)
+        keyframes.paddingBottom = [
+          `${to.padding + from.height - to.height}px`,
+          `${to.padding}px`,
+        ];
       size =
         from.height === to.height && !loading
           ? undefined
-          : to.card.animate(
-              {
-                height: [`${from.height}px`, `${to.height}px`],
-                overflow: ['clip', 'clip'],
-              },
-              { ...timing, fill },
-            );
+          : to.card.animate(keyframes, { ...timing, fill });
     }
 
     glide = { move, size, end: to };
@@ -121,7 +131,12 @@ function measure() {
   if (!card) return;
 
   const { top, height } = card.getBoundingClientRect();
-  return { card, top: Math.round(top + scrollY), height: Math.round(height) };
+  return {
+    card,
+    top: Math.round(top + scrollY),
+    height: Math.round(height),
+    padding: parseFloat(getComputedStyle(card).paddingBottom),
+  };
 }
 
 // The card without its glides gives the end of its content. The glides leave
