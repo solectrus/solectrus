@@ -47,7 +47,6 @@
     "sinon": "^22.1.0",
     "size-limit": "^14.3.0",
     "tailwindcss": "^4.3.3",
-    "tailwindcss-displaymodes": "^1.0.8",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5",
