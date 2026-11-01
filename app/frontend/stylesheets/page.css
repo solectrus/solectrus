@@ -1,0 +1,45 @@
+/*
+ * The content area of the layout: main (.page) holds a column of the width
+ * of the header (.page-body), and that holds the card with the content of
+ * the page (.page-card). A page chooses its kind in the layout, as
+ * a class on .page.
+ *
+ * On desktop, every card is as high as the window, at most 480px. Longer
+ * content makes it higher (min height wins over max height). The scroll
+ * padding keeps a focused element off the edge, so the keyboard shows it
+ * with its ring and the rest of its row.
+ */
+.page {
+  @apply relative -mt-32 flex min-h-0 flex-auto scroll-pt-4 scroll-pb-20 lg:landscape:max-h-120 lg:landscape:min-h-fit;
+}
+
+.page-body {
+  @apply 3xl:max-w-screen-2xl mx-auto flex min-h-0 max-w-screen-xl min-w-0 flex-auto lg:px-8;
+}
+
+.page-card {
+  @apply flex min-h-0 min-w-0 flex-auto flex-col overflow-hidden bg-white p-4 pb-3 text-gray-700 sm:p-5 sm:px-6 lg:rounded-lg lg:shadow-sm dark:bg-slate-900 dark:text-slate-400;
+}
+
+/* A page of full height, like a chart, takes the window up to 700px. Its
+   height comes from the window, not from its content (see
+   setupPageGlide.ts). */
+.page-full-height {
+  @apply lg:landscape:max-h-175;
+}
+
+/* A page with a fixed navigation fills the window on a phone, where main
+   scrolls below the navigation */
+.page-fixed-nav {
+  @apply max-lg:mt-0 max-lg:overflow-y-auto max-lg:bg-white max-lg:dark:bg-slate-900;
+
+  & .page-card {
+    @apply min-h-auto overflow-visible max-lg:min-h-full max-lg:self-start;
+  }
+}
+
+/* On a phone, a grouped page puts white cards on the gray of a grouped list,
+   like the Top 10 */
+.page-grouped .page-card {
+  @apply max-lg:bg-canvas;
+}

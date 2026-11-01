@@ -34,7 +34,7 @@ const IN_DURATION = 320;
 const EASE_OUT = EASE_QUICK;
 const EASE_IN = EASE_GLIDE;
 const SPRING_BACK = `transform 250ms ${EASE_IN}`;
-const DRAG_TARGET = '#inner';
+const DRAG_TARGET = '.page-card';
 
 // A committed swipe while its page loads. Turbo replaces the body, and with
 // it this controller, so the turn lives here. `direction` is the side the old
@@ -148,7 +148,7 @@ export default class extends Controller<HTMLElement> {
     if (!isTouchEnabled()) return;
 
     // Fire any pending spring-back cleanup so its transitionend listener does
-    // not outlive the controller on a morph-surviving #inner element
+    // not outlive the controller on a morph-surviving card (.page-card)
     this.pendingSpringBackCleanup?.();
 
     if (this.boundHandleTouchStart) {

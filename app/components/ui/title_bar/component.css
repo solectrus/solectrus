@@ -70,9 +70,9 @@ html:has(> .ui-title-bar-skeleton) body .ui-title-bar {
 
 /* The background of a grouped list: a gray page behind the white cards of the
    lists and forms. Important, because the layout gives main and its inner box
-   a white background as utilities. A plain page keeps its own background,
+   a white background (see page.css). A plain page keeps its own background,
    and so does the skeleton on the way to it. */
-html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, #inner),
+html:has(.ui-title-bar:not(.ui-title-bar-plain)) :is(main, .page-card),
 .ui-title-bar-skeleton-page {
   @apply max-lg:bg-canvas!;
 }

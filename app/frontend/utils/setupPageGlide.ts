@@ -117,7 +117,7 @@ export function setupPageGlide() {
 // The top in the document, so a scroll to the top of the new page does not
 // count as a move
 function measure() {
-  const card = document.getElementById('inner');
+  const card = document.querySelector<HTMLElement>('.page-card');
   if (!card) return;
 
   const { top, height } = card.getBoundingClientRect();

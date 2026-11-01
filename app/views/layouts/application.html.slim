@@ -96,21 +96,14 @@ html.scroll-pt-4.scroll-pb-20 class= html_theme_classes lang= I18n.locale style=
         - if flash.present?
           = render Ui::Flash::Component.new(notice:, alert:)
 
-      / On desktop, every card is as high as the window, at most 700px for a
-        page of full height and 480px for any other page. Longer content
-        makes it higher (min height wins over max height).
-        A page with a fixed navigation fills the window on a phone, where
-        main scrolls below the navigation. The scroll padding of main and
-        html keeps a focused element off the edge, so the keyboard shows it
-        with its ring and the rest of its row.
-      main.relative.flex.flex-auto.min-h-0.-mt-32.scroll-pt-4.scroll-pb-20.lg:landscape:min-h-fit[
-        class=(full_height ? 'lg:landscape:max-h-175' : 'lg:landscape:max-h-120')
-        class=('max-lg:mt-0 max-lg:overflow-y-auto max-lg:bg-white max-lg:dark:bg-slate-900' if fixed_nav)
+      / The kinds of a page are classes of main (see page.css)
+      main.page[
+        class=('page-full-height' if full_height)
+        class=('page-fixed-nav' if fixed_nav)
+        class=('page-grouped' if content_for?(:grouped))
       ]
-        .max-w-screen-xl.3xl:max-w-screen-2xl.mx-auto.lg:px-8.flex-auto.flex.min-h-0.min-w-0
-          / On a phone, a page with `content_for :grouped` puts white cards on
-            the gray of a grouped list, like the Top 10
-          .bg-white.dark:bg-slate-900.text-gray-700.dark:text-slate-400.lg:rounded-lg.lg:shadow-sm.p-4.pb-3.sm:p-5.sm:px-6.flex-auto.flex.flex-col.min-w-0#inner class=[(fixed_nav ? 'max-lg:self-start max-lg:min-h-full' : 'lg:rounded-t-lg overflow-hidden min-h-0'), ('max-lg:bg-canvas' if content_for?(:grouped))]
+        .page-body
+          .page-card
             = yield
 
         / Shown while a page loads on a phone (see application.css)

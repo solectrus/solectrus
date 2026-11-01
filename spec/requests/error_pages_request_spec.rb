@@ -82,7 +82,7 @@ describe 'Error pages' do
       expect(response.content_type).to include('turbo-stream')
       expect(response.body).to include('<turbo-stream')
       expect(response.body).to include('action="update"')
-      expect(response.body).to include('target="inner"')
+      expect(response.body).to include('targets=".page-card"')
       expect(response.body).to include(I18n.t('errors.500.title'))
     end
   end

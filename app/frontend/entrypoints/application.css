@@ -31,6 +31,7 @@
 @import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 /* Import app specific styles */
+@import '../stylesheets/page.css' layer(base);
 @import '../stylesheets/floating_tooltip.css' layer(base);
 @import '../stylesheets/label_value.css' layer(base);
 @import '../stylesheets/tooltip_content.css' layer(base);
@@ -250,15 +251,16 @@ html[data-fullscreen-api] [data-fullscreen-btn='switch'] {
       max-width: none;
     }
 
-    & main {
+    & .page {
       max-height: none;
     }
 
-    & main > div {
+    & .page-body {
+      max-width: none;
       padding-inline: 0;
     }
 
-    & #inner {
+    & .page-card {
       border-radius: 0;
       box-shadow: none;
     }
@@ -410,11 +412,11 @@ html[aria-busy='true']:not(
     [data-nav-rendering],
     [data-nav-same-page]
   ) {
-  #inner > * {
+  .page-card > * {
     @apply max-lg:invisible;
   }
 
-  #inner .ui-keep-lit {
+  .page-card .ui-keep-lit {
     @apply max-lg:visible;
   }
 
