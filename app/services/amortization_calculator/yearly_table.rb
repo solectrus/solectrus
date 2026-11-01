@@ -121,7 +121,7 @@ class AmortizationCalculator
     # Present value of a single PV year's cash flows, each discounted by its
     # exact date.
     def flows_present_value_of(year, rate)
-      year[:entries].sum { |date, amount, _category| discount_flow(amount, date, rate) }
+      year[:timed_flows].sum { |amount, years| amount / Discounting.factor(rate, years * 12) }
     end
 
     def annuity_factor(rate)
@@ -136,12 +136,16 @@ class AmortizationCalculator
       savings / Discounting.factor(rate, (elapsed - 0.5) * 12)
     end
 
-    # A cash flow is discounted by its exact date. Anything dated on or before
-    # the operating start sits at t=0 (factor 1) - a down payment is not
-    # compounded forward.
-    def discount_flow(amount, date, rate)
-      years = [(date - installation_date).to_f / 365.25, 0.0].max
-      amount / Discounting.factor(rate, years * 12)
+    # A cash flow is discounted by its exact date: each entry with its years
+    # after the operating start. Anything dated on or before the operating
+    # start sits at t=0 (factor 1) - a down payment is not compounded forward.
+    #
+    # Computed once per row, as the IRR bisection discounts every flow at
+    # dozens of rates.
+    def timed_flows(entries)
+      entries.map do |date, amount, _category|
+        [amount, [(date - installation_date).to_f / 365.25, 0.0].max]
+      end
     end
 
     # Rate-independent per-year figures: the savings, the raw cash flow entries
@@ -180,7 +184,7 @@ class AmortizationCalculator
             {
               elapsed:,
               savings: year_savings,
-              entries:,
+              timed_flows: timed_flows(entries),
               flows:,
               nominal: balance,
               degree: degree(operating, net_investment),
