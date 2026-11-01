@@ -23,7 +23,7 @@ const ignoredMessages = [...networkErrorMessages, ...resizeObserverMessages];
 
 const honeybadgerApiKey = metaContent('honeybadger-api-key');
 if (honeybadgerApiKey) {
-  const gitCommitVersion = metaContent('git-commit-version');
+  const gitCommitVersion = metaContent('version');
 
   Honeybadger.configure({
     apiKey: honeybadgerApiKey,
