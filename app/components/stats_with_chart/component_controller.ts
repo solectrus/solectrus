@@ -26,6 +26,9 @@ const ONE_HOUR_MS = 60 * 60 * 1000;
 // Sensor::Chart::Base.
 const LIVE_BUCKET_MS = 30 * 1000;
 
+// The longest a tick waits for the reload before it (see `reload`)
+const RELOAD_WAIT_LIMIT_MS = 30 * 1000;
+
 // Sensor names that aggregate two underlying directional sensors. Used by
 // `matchesSensor` to pick the right current-value element for the tile.
 const SPLIT_SENSORS: Record<string, readonly string[]> = {
@@ -83,6 +86,7 @@ export default class extends Controller {
   private selectedSensor?: string;
   private boundHandleVisibilityChange?: () => void;
   private shouldStopRequests = false;
+  private reloadPending = false;
   private liveBucketChart?: Chart;
   private liveBucketEndMs?: number;
   private liveBucketSamples = new Map<string, BucketStats>();
@@ -127,7 +131,25 @@ export default class extends Controller {
   }
 
   private async reload() {
-    await this.reloadFrames({ chart: this.reloadChartValue });
+    // A slow server can answer after the next tick. A reload then would cancel
+    // the request in flight, while the server computes it in vain, so the tick
+    // waits for it. The wait has a limit: a reload from elsewhere can cancel
+    // the request, and its promise then never settles.
+    if (this.reloadPending) return;
+
+    this.reloadPending = true;
+    let limit: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        this.reloadFrames({ chart: this.reloadChartValue }),
+        new Promise((resolve) => {
+          limit = setTimeout(resolve, RELOAD_WAIT_LIMIT_MS);
+        }),
+      ]);
+    } finally {
+      clearTimeout(limit);
+      this.reloadPending = false;
+    }
 
     if (this.reloadChartValue) return;
 
