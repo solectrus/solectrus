@@ -62,7 +62,7 @@ class Breakdown::Inverter::TableRow::Component < ViewComponent::Base
     # A translucent tint of the sensor's own color, so the bar echoes the
     # segment view for the same string while staying light enough for dark text
     # on top (opacity comes from --table-bar-opacity, stronger in dark mode).
-    tag.div class: 'absolute inset-x-0 inset-y-1 rounded-r-sm transition-[width] motion-safe:duration-1000 motion-reduce:duration-100',
+    tag.div class: 'absolute inset-x-0 inset-y-1 rounded-r-sm transition-[width] motion-safe:duration-300 motion-reduce:duration-100',
             style: "background-color: color-mix(in srgb, var(#{sensor.color_variable}) var(--table-bar-opacity), transparent); width: max(1px, #{percent.round}%)"
   end
 

@@ -52,7 +52,7 @@ class Breakdown::House::TableRow::Component < ViewComponent::Base
   end
 
   def bar_background
-    tag.div class: 'absolute inset-x-0 inset-y-1 bg-(--table-bar-color) rounded-r-sm transition-[width] motion-safe:duration-1000 motion-reduce:duration-100',
+    tag.div class: 'absolute inset-x-0 inset-y-1 bg-(--table-bar-color) rounded-r-sm transition-[width] motion-safe:duration-300 motion-reduce:duration-100',
             style: "width: max(1px, #{percent.round}%)"
   end
 

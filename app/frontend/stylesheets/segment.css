@@ -21,7 +21,7 @@
 }
 
 .segment {
-  @apply flex items-center justify-center overflow-hidden px-2 text-center leading-none transition-[font-size,height] motion-safe:duration-1000 motion-reduce:duration-100 sm:px-4;
+  @apply flex items-center justify-center overflow-hidden px-2 text-center leading-none transition-[font-size,height] motion-safe:duration-300 motion-reduce:duration-100 sm:px-4;
 
   container-type: size;
 
