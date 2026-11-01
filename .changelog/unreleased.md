@@ -28,48 +28,48 @@ Keep every section, an empty one included.
 
 ## Improvements
 
-- A page that must calculate the daily summary of today or yesterday again shows its data sooner, without a spinner first
 - The menu no longer has "Documentation". "About SOLECTRUS" opens the website, which links to it
+- Without HELIOS, the admin now also sees the menu item HELIOS. It opens the installation guide on the website
+- The link to the main page now shows the power balance from every page, in the same timeframe. Before, it kept the topic of the previous page, for example the house consumption (#6055)
+- The timeframe in the header is shorter. It no longer shows the years since commissioning or the first and last date of a week
+- In the date selection, a tap on the day, week, month or year selects it. The arrow beside it opens the calendar for another one. On a phone, the date selection is shorter and fits without scrolling. The day, week, month, year, custom range and forecast are tiles in two columns. The hours, days and months back from now are one group, each with its unit. "All years" and "All months" stand under "Overall", above the year comparison
+- The Top 10 has two buttons: one for the sensor, and one for the car, the calculation and the order
+- Escape now closes an open menu, like the options of the Top 10 or the selection of a chart
+- The loading bar shows only when a page takes longer than half a second
+- On desktop, a page is as high as its content, with a minimum height, so a short page has no empty area down to the bottom of the window. When you change the page, it glides to its new height and place
 - On a phone, small controls are easier to tap, and the labels of the key figures are larger
+- On a phone, a tap on a link clears the content at once, so you see that the tap works
+- On a phone, "More" opens a page of its own, as on an iPhone. Language, theme, color palette and fullscreen are switches there
+- On a phone, the date with its arrows stands at the top of the page, below the tabs. A tap on it opens the calendar of its day, week, month or year, and the arrow back leads to the date selection. The lists of the car and the forecast have the same row. The arrows and a swipe change the page to the period before or after. On Now and Today, a swipe leads to yesterday and to the forecast. When you swipe, the page follows the finger and slides to the side, as on an iPhone
+- On a phone, the notifications show as a list, as on an iPhone. A dot marks an unread notification. "Understood" spans the width of the panel
 - On a phone, an info opens in a panel from the bottom. A long press on a bar of the balance opens its insights. Tooltips on desktop look lighter
+- On a phone, the car page opens the charging sessions and the places in a tall sheet. A tap on an entry opens its form in the same sheet. After a save, the sheet shows the list again. A link that leaves a form with unsaved changes asks first
 - The insights (the light bulb next to the chart) show as lists, as on an iPhone, and contain all values of the tooltip. On a phone, the heatmap opens as a page of its own
 - Without a sponsorship, the light bulb shows the total and the values of the tooltip
-- On a phone, the settings open on a list of all sections, as on an iPhone. Before, a dropdown switched between them
-- AI access: the price tool gives the unit for the rate per kWh alone, so an assistant does not read the base fee in that unit
-- AI access: the charge level of the first car is now `car_battery_soc_1`. The old name `car_battery_soc` gets an error that names the new one
+- A tooltip of a live value stays open while the values refresh
+- An empty list or chart shows the same note everywhere: an icon, a title and a short text
 - Grid costs: the tooltip and the cost chart show the energy costs and the base fee separately (#2560)
+- Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average
+- With more than one car in use, the power balance shows only the charge level of the home battery. With one car, it stays as before (#6020)
+- The settings group by what they set up: PV system, Tariffs, Sensors, Electric vehicles and System. PV system holds the name of the system and its cash flows, and Tariffs holds the electricity price and the feed-in tariff. General is now System
 - Settings on desktop: a click on a row opens the entry, and the "+" stands at the right of the tabs. The save button shows only after a change, with an "×" that discards it
 - Settings: the prices and the payments no longer show an explanation above the list
-- A form asks before you leave it with unsaved changes, by a link, a reload or by closing its dialog
-- A question before an action, like a delete, shows in a dialog of the app instead of the box of the browser
-- With more than one car in use, the power balance shows only the charge level of the home battery. With one car, it stays as before (#6020)
-- The timeframe in the header is shorter. It no longer shows the years since commissioning or the first and last date of a week
-- A tooltip of a live value stays open while the values refresh
-- On a phone, the prices and the payments in the settings show as a list, as on an iPhone. An entry opens in a sheet over the list, as do the cars and the places
+- On a phone, the settings open on a list of all sections, as on an iPhone. Before, a dropdown switched between them
 - On a phone, the forms of the settings look like the settings of an iPhone, with a switch for each option
-- The loading bar shows only when a page takes longer than half a second
-- The Top 10 has two buttons: one for the sensor, and one for the car, the calculation and the order
-- On a phone, "More" opens a page of its own, as on an iPhone. Language, theme, color palette and fullscreen are switches there
-- On a phone, a tap on a link clears the content at once, so you see that the tap works
-- On a phone, the notifications show as a list, as on an iPhone. A dot marks an unread notification. "Understood" spans the width of the panel
-- On a phone, the date with its arrows stands at the top of the page, below the tabs. A tap on it opens the calendar of its day, week, month or year, and the arrow back leads to the date selection. The lists of the car and the forecast have the same row. The arrows and a swipe change the page to the period before or after. On Now and Today, a swipe leads to yesterday and to the forecast. When you swipe, the page follows the finger and slides to the side, as on an iPhone
-- On a phone, the car page opens the charging sessions and the places in a tall sheet. A tap on an entry opens its form in the same sheet. After a save, the sheet shows the list again. A link that leaves a form with unsaved changes asks first
-- In the date selection, a tap on the day, week, month or year selects it. The arrow beside it opens the calendar for another one. On a phone, the date selection is shorter and fits without scrolling. The day, week, month, year, custom range and forecast are tiles in two columns. The hours, days and months back from now are one group, each with its unit. "All years" and "All months" stand under "Overall", above the year comparison
-- Forms show an amount of money with at least two decimals, for example 13.90
-- On desktop, a page is as high as its content, with a minimum height, so a short page has no empty area down to the bottom of the window. When you change the page, it glides to its new height and place
-- On a phone, a number field without negative values, like a price, opens the keypad of digits and the decimal separator
-- Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average
-- An empty list or chart shows the same note everywhere: an icon, a title and a short text
+- On a phone, the prices and the payments in the settings show as a list, as on an iPhone. An entry opens in a sheet over the list, as do the cars and the places
 - Settings > PV system > Cash flows: the form groups the categories by how they count in the amortization
 - Settings > PV system > Cash flows: the list groups the cash flows by year, without column headers. A click on a year, or on the arrow beside a date, shows the cash flows of that year alone
 - Settings > PV system > Cash flows: each part of the filter has its own x that removes it
-- The settings group by what they set up: PV system, Tariffs, Sensors, Electric vehicles and System. PV system holds the name of the system and its cash flows, and Tariffs holds the electricity price and the feed-in tariff. General is now System
-- Escape now closes an open menu, like the options of the Top 10 or the selection of a chart
-- The link to the main page now shows the power balance from every page, in the same timeframe. Before, it kept the topic of the previous page, for example the house consumption (#6055)
-- Without HELIOS, the admin now also sees the menu item HELIOS. It opens the installation guide on the website
+- A form asks before you leave it with unsaved changes, by a link, a reload or by closing its dialog
+- A question before an action, like a delete, shows in a dialog of the app instead of the box of the browser
+- Forms show an amount of money with at least two decimals, for example 13.90
+- On a phone, a number field without negative values, like a price, opens the keypad of digits and the decimal separator
+- AI access: the price tool gives the unit for the rate per kWh alone, so an assistant does not read the base fee in that unit
+- AI access: the charge level of the first car is now `car_battery_soc_1`. The old name `car_battery_soc` gets an error that names the new one
+- A page that must calculate the daily summary of today or yesterday again shows its data sooner, without a spinner first
+- The calculation of the daily summaries, like after an update, takes about a fifth less time
 - A chart or a figure over a long timeframe, like the amortization, now calculates in about half the time
 - Amortization: a new interest rate shows its figures at once
-- The calculation of the daily summaries, like after an update, takes about a fifth less time
 - In the live view, the bars of the power balance and of the tables of the house and the inverters glide to a new value in 0.3 instead of 1 second. This takes the device a third of the work
 - In the live chart, the dot on the newest value shows and goes at once, without a fade. This saves the device about 50 redraws of the chart at each update
 
@@ -77,21 +77,21 @@ Keep every section, an empty one included.
 
 - AI access: a question about a past price now also gets the later changes of the tariff up to today. Before, they came as scheduled changes, and an assistant could claim that the old price still holds
 - The menu item HELIOS now opens HELIOS at the address that HELIOS was last opened at, like the IP address in the home network. This needs the next version of HELIOS. Before, the menu item took the domain of the dashboard and opened a page that never loaded (#6092)
-- A tooltip on a page that you scrolled down now opens next to its element. Before, it opened lower by the scroll distance
 - On a phone, the bar at the bottom now stays in view on a long page. Before, it scrolled away
 - On an iPhone, a tap on the selection of a chart or of the Top 10 no longer zooms into the page
 - On a phone, two quick taps, like on an arrow of the timeframe, now count as two taps. Before, they could zoom into the page
-- A sensor that tells whether a car is connected now reads "False", "OFF" and a negative number as not connected. Before, they counted as connected
-- A browser tab that stays open for a long time now keeps its memory use low. Before, it grew with each page
-- Settings: after a delete, the message now says "Deleted". Before, it said "Saved"
-- Amortization: a payment of 100 million or more now shows an error at the amount. Before, the save failed with an error page
-- Settings: an empty price or amount now shows one error. Before, it also said that the value is not a number
+- A tooltip on a page that you scrolled down now opens next to its element. Before, it opened lower by the scroll distance
 - On desktop, a page like the settings now scrolls as a whole, with the scroll bar at the edge of the window. Before, only the content below the header scrolled
 - On desktop, a long page like the Top 10 now shows all of its content while you scroll. Before, a band at the top edge covered it
+- A click with Cmd or Ctrl on a link that opens a dialog, like the timeframe, now only opens a new tab. Before, the page stayed dimmed
 - Keyboard: the bar at the bottom of a phone screen now shows the focus. Before, the focus was invisible
 - Screen readers: the GitHub link in the footer now has a name, and the author link reads a real dash. Before, it read "&mdash;"
 - Screen readers now read a message after an action, like "Saved", and say which tab of the sensor settings is selected. Before, they kept silent
-- A click with Cmd or Ctrl on a link that opens a dialog, like the timeframe, now only opens a new tab. Before, the page stayed dimmed
+- A sensor that tells whether a car is connected now reads "False", "OFF" and a negative number as not connected. Before, they counted as connected
+- Settings: after a delete, the message now says "Deleted". Before, it said "Saved"
+- Settings: an empty price or amount now shows one error. Before, it also said that the value is not a number
+- Amortization: a payment of 100 million or more now shows an error at the amount. Before, the save failed with an error page
+- A browser tab that stays open for a long time now keeps its memory use low. Before, it grew with each page
 - The live chart now animates only when a new point appears, so a device that shows it all day, like a wall display, has less work. Before, it animated at each update, and after a change of the window size each animation took a full second
 - On a slow system, the live values now wait for the last answer before they ask again. Before, each update canceled the last one, and when the answers took longer than the update interval, the values stopped changing
 - A page with a chart now lets the browser rest while nothing changes, which saves battery on a phone. Before, a hidden loading animation made the browser compute the page at each frame
