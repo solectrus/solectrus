@@ -62,7 +62,8 @@
       "gzip": true,
       "path": [
         "public/vite/assets/*.js",
-        "!public/vite/assets/maplibre-*.js"
+        "!public/vite/assets/maplibre-*.js",
+        "!public/vite/assets/honeybadger-*.js"
       ]
     },
     {

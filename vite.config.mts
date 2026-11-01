@@ -46,6 +46,11 @@ export default defineConfig(({ mode }) => ({
               name: 'maplibre',
               test: /node_modules\/maplibre-gl/,
             },
+            // Imported on demand, only with an API key (see setupHoneyBadger)
+            {
+              name: 'honeybadger',
+              test: /node_modules\/@honeybadger-io/,
+            },
             {
               name: 'other-vendor',
               test: /node_modules/,

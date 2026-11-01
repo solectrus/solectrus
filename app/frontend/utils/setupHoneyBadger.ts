@@ -1,4 +1,3 @@
-import Honeybadger from '@honeybadger-io/js';
 import { metaContent } from './metaContent';
 
 // Messages browsers use when a fetch dies mid-flight: the user locked the
@@ -21,23 +20,26 @@ const resizeObserverMessages = [
 
 const ignoredMessages = [...networkErrorMessages, ...resizeObserverMessages];
 
+// Most installations have no API key, so the library loads only with one. The
+// import does not wait: the app starts at once, and the errors of its first
+// moments go unreported.
 const honeybadgerApiKey = metaContent('honeybadger-api-key');
 if (honeybadgerApiKey) {
-  const gitCommitVersion = metaContent('version');
+  import('@honeybadger-io/js').then(({ default: Honeybadger }) => {
+    Honeybadger.configure({
+      apiKey: honeybadgerApiKey,
+      environment: 'production',
+      revision: metaContent('version'),
+    });
 
-  Honeybadger.configure({
-    apiKey: honeybadgerApiKey,
-    environment: 'production',
-    revision: gitCommitVersion,
-  });
+    Honeybadger.beforeNotify((notice) => {
+      // Ignore AbortError - these occur when users navigate away before
+      // a fetch request completes, which is normal browser behavior
+      if (notice?.name === 'AbortError') return false;
 
-  Honeybadger.beforeNotify((notice) => {
-    // Ignore AbortError - these occur when users navigate away before
-    // a fetch request completes, which is normal browser behavior
-    if (notice?.name === 'AbortError') return false;
-
-    const message = notice?.message ?? '';
-    if (ignoredMessages.some((needle) => message.includes(needle)))
-      return false;
+      const message = notice?.message ?? '';
+      if (ignoredMessages.some((needle) => message.includes(needle)))
+        return false;
+    });
   });
 }
