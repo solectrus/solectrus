@@ -806,6 +806,20 @@ describe AmortizationCalculator do
       expect(second.npv).not_to eq(first.npv)
     end
 
+    it 'reuses the savings and the IRR history for a new interest rate' do
+      first = described_class.result
+      allow(Sensor::Query::Total).to receive(:new).and_call_original
+      allow(AmortizationCalculator::IrrHistory).to receive(:new).and_call_original
+
+      second = described_class.result(interest_rate: 5.0)
+
+      aggregate_failures do
+        expect(Sensor::Query::Total).not_to have_received(:new)
+        expect(AmortizationCalculator::IrrHistory).not_to have_received(:new)
+        expect(second.irr_history).to eq(first.irr_history)
+      end
+    end
+
     it 'recomputes when a price changes' do
       # No summary stores a money value: the savings sensor is computed per day
       # from the price valid on that day, joined fresh on every query. Editing a

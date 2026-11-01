@@ -91,8 +91,13 @@ class AmortizationCalculator
     # series. The months, the rolling year and the IRR history all derive from
     # it, so replaying the calculation on dozens of past dates costs no further
     # query.
+    #
+    # It depends on neither slider, so it is cached on its own.
     def measured_by_day
-      @measured_by_day ||= query_savings(measured_timeframe, group_by: :day)
+      @measured_by_day ||=
+        AmortizationCalculator.fetch_part('amortization_savings_by_day') do
+          query_savings(measured_timeframe, group_by: :day)
+        end
     end
 
     # The daily savings summed up to any day, see MeasuredSavings

@@ -55,14 +55,23 @@ class AmortizationCalculator
   # retroactively - without this, the page would keep showing yesterday's
   # figures until midnight.
   def self.cache_key(period_years:, interest_rate:)
+    inputs_key('amortization_calculator', period_years, interest_rate)
+  end
+
+  # The same inputs, for a part of the result that needs fewer parameters. A
+  # move of a slider then computes only what depends on it.
+  def self.inputs_key(name, *parameters)
     [
-      'amortization_calculator',
+      name,
       Date.current,
       CashFlow.all.cache_key_with_version,
       Price.all.cache_key_with_version,
-      period_years,
-      interest_rate,
+      *parameters,
     ].join('/')
+  end
+
+  def self.fetch_part(name, *parameters, &)
+    Rails.cache.fetch(inputs_key(name, *parameters), expires_in: 1.day, &)
   end
 
   def initialize(
@@ -200,8 +209,12 @@ class AmortizationCalculator
   # How the internal rate of return has moved over time: the same figure
   # recomputed for a series of past evaluation dates, so the headline rate can
   # be read as the current end of a curve instead of a number without history.
+  #
+  # It does not depend on the interest rate, so it is cached on its own.
   def irr_history
-    IrrHistory.new(savings:, cash_flows:, period_years:, today:).to_a
+    self.class.fetch_part('amortization_irr_history', period_years) do
+      IrrHistory.new(savings:, cash_flows:, period_years:, today:).to_a
+    end
   end
 
   # The day-accurate engine, memoized: the single source of the per-year figures
