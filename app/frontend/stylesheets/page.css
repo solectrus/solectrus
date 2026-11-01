@@ -4,13 +4,14 @@
  * the page (.page-card). A page chooses its kind in the layout, as
  * a class on .page.
  *
- * On desktop, every card is as high as the window, at most 480px. Longer
- * content makes it higher (min height wins over max height). The scroll
- * padding keeps a focused element off the edge, so the keyboard shows it
- * with its ring and the rest of its row.
+ * On desktop, every card is at least 480px high and grows with its content.
+ * A max height with min-height: fit-content would let it fit a short window,
+ * but Firefox reads fit-content as auto there and caps the card at the max.
+ * The scroll padding keeps a focused element off the edge, so the keyboard
+ * shows it with its ring and the rest of its row.
  */
 .page {
-  @apply relative -mt-32 flex min-h-0 flex-auto scroll-pt-4 scroll-pb-20 lg:landscape:max-h-120 lg:landscape:min-h-fit;
+  @apply relative -mt-32 flex min-h-0 flex-auto scroll-pt-4 scroll-pb-20 lg:landscape:min-h-120 lg:landscape:flex-none;
 }
 
 .page-body {
@@ -25,7 +26,7 @@
    height comes from the window, not from its content (see
    setupPageGlide.ts). */
 .page-full-height {
-  @apply lg:landscape:max-h-175;
+  @apply lg:landscape:max-h-175 lg:landscape:min-h-fit lg:landscape:flex-auto;
 }
 
 /* A page with a fixed navigation fills the window on a phone, where main
