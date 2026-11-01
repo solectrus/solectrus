@@ -1,5 +1,4 @@
-import { Application } from '@hotwired/stimulus';
-import { registerControllers } from 'stimulus-vite-helpers';
+import { Application, type ControllerConstructor } from '@hotwired/stimulus';
 import type {
   TurboBeforeFetchResponseEvent,
   TurboFrameMissingEvent,
@@ -12,16 +11,35 @@ export const application = Application.start();
 // Configure Stimulus development experience
 application.debug = false; // process.env.NODE_ENV === 'development';
 
+// The identifier of a controller follows from its path below `controllers/` or
+// `components/`: ui/title_bar/component_controller.ts gives
+// "ui--title-bar--component", like stimulus-rails names them.
+const registerControllers = (modules: Record<string, ControllerConstructor>) =>
+  application.load(
+    Object.entries(modules).map(([path, controllerConstructor]) => ({
+      identifier: path
+        .replace(/^.*?(?:controllers|components)\//, '')
+        .replace(/_controller\.ts$/, '')
+        .replace(/_/g, '-')
+        .replace(/\//g, '--'),
+      controllerConstructor,
+    })),
+  );
+
 // Load and register global controllers
 registerControllers(
-  application,
-  import.meta.glob('../controllers/*_controller.{js,ts}', { eager: true }),
+  import.meta.glob('../controllers/*_controller.ts', {
+    eager: true,
+    import: 'default',
+  }),
 );
 
 // Load and register view_components controllers
 registerControllers(
-  application,
-  import.meta.glob('../../components/**/*_controller.{js,ts}', { eager: true }),
+  import.meta.glob('../../components/**/*_controller.ts', {
+    eager: true,
+    import: 'default',
+  }),
 );
 
 // A morph refresh (turbo_refreshes_with :morph) to the same URL - e.g. after a
