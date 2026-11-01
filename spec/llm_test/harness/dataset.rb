@@ -375,18 +375,11 @@ module LlmTest
     module_function
 
     def write!(points)
-      Influx.client.create_write_api.write(
-        data: points,
-        bucket: Rails.configuration.x.influx.bucket,
-        org: Rails.configuration.x.influx.org,
-      )
+      InfluxClient.write(points)
     end
 
     def delete_all!
-      Influx
-        .client
-        .create_delete_api
-        .delete(Time.zone.at(0), Time.zone.at((2**63) / 1_000_000_000))
+      InfluxClient.delete(Time.zone.at(0), Time.zone.at((2**63) / 1_000_000_000))
     end
   end
 end

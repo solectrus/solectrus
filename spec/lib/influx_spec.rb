@@ -1,7 +1,23 @@
 describe Influx do
-  describe '.client' do
-    it 'returns an InfluxDB2 client' do
-      expect(described_class.client).to be_a(InfluxDB2::Client)
+  describe '.ping?' do
+    it 'answers for a running InfluxDB' do
+      expect(described_class.ping?).to be true
+    end
+
+    it 'answers while the queries hold every pooled connection' do
+      pool = described_class.query_api.__send__(:pool)
+      allow(pool).to receive(:with).and_raise(ConnectionPool::TimeoutError)
+
+      aggregate_failures do
+        expect(described_class.ping?).to be true
+        expect(described_class.version).to be_present
+      end
+    end
+  end
+
+  describe '.version' do
+    it 'returns the version that InfluxDB reports' do
+      expect(described_class.version).to match(/\Av?\d+\.\d+/)
     end
   end
 

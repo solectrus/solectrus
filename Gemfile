@@ -44,8 +44,9 @@ gem 'rack-brotli'
 # Tame Rails' multi-line logging into a single line per request (https://github.com/roidrage/lograge)
 gem 'lograge'
 
-# Ruby library for InfluxDB 2. (https://github.com/influxdata/influxdb-client-ruby)
-gem 'influxdb-client', '>= 2.9.0'
+# CSV Reading and Writing (https://github.com/ruby/csv)
+# Influx::CsvParser reads the answers of InfluxDB with it. It is no default gem.
+gem 'csv'
 
 # A framework for building reusable, testable & encapsulated view components in Ruby on Rails. (https://viewcomponent.org)
 gem 'view_component'

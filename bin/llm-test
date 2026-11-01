@@ -12,6 +12,7 @@ warn 'Booting Rails (test) ...'
 require_relative '../config/environment'
 require 'active_support/testing/time_helpers'
 
+require_relative '../spec/support/influx_client'
 Dir[File.expand_path('../spec/llm_test/harness/*.rb', __dir__)].each { require _1 }
 
 LlmTest::Cli.call(ARGV)

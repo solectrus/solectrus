@@ -2,8 +2,8 @@
 #
 # spec/rails_helper.rb gives every worker its own bucket name. Only the base
 # bucket exists in the container that bin/influxdb-restart.sh starts, so the
-# numbered ones have to be created here. The Ruby client has no buckets API,
-# hence the two plain HTTP calls.
+# numbered ones have to be created here, with two plain HTTP calls like the
+# writes of the tests (see influx_client.rb).
 module InfluxBucket
   class Error < StandardError
   end

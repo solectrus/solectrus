@@ -146,8 +146,6 @@ GEM
     htmlentities (4.4.2)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
-    influxdb-client (3.2.0)
-      csv
     io-console (0.9.5)
     irb (1.18.0)
       pp (>= 0.6.0)
@@ -475,10 +473,10 @@ DEPENDENCIES
   bundler-audit
   capybara (>= 3.26)
   capybara-playwright-driver
+  csv
   dotenv
   foreman
   honeybadger
-  influxdb-client (>= 2.9.0)
   jwt
   listen
   lograge

@@ -6,14 +6,16 @@ class Influx
 
   # Runs Flux queries over a pool of kept-alive connections.
   #
-  # The gem opens a fresh connection for every request and closes it again in
-  # an ensure block (InfluxDB2::DefaultApi#_request), with no option to keep it
-  # alive. Against a remote InfluxDB that handshake dominates: a trivial Flux
-  # query cost ~250 ms, of which ~130 ms was connection setup, while the same
-  # query against a local instance takes 3 ms.
+  # The former influxdb-client gem opened a fresh connection for every request
+  # and closed it again in an ensure block (InfluxDB2::DefaultApi#_request),
+  # with no option to keep it alive. Against a remote InfluxDB that handshake
+  # dominates: a trivial Flux query cost ~250 ms, of which ~130 ms was
+  # connection setup, while the same query against a local instance takes
+  # 3 ms.
   #
-  # Request payloads still come from the gem, as do writes, health and version
-  # checks; responses are parsed by Influx::CsvParser.
+  # The app only reads, so it needs no client gem: Influx::CsvParser parses
+  # the responses. The tests write over plain HTTP as well (see
+  # spec/support/influx_client.rb).
   class QueryApi
     MAX_RETRIES = 2
     private_constant :MAX_RETRIES
@@ -32,7 +34,20 @@ class Influx
     private_constant :CONNECTION_ERRORS
 
     QUERY_PATH = '/api/v2/query'.freeze
-    private_constant :QUERY_PATH
+    PING_PATH = '/ping'.freeze
+    HEALTH_PATH = '/health'.freeze
+    USER_AGENT = 'SOLECTRUS'.freeze
+    private_constant :QUERY_PATH, :PING_PATH, :HEALTH_PATH, :USER_AGENT
+
+    # The annotated CSV that Influx::CsvParser reads
+    DIALECT = {
+      header: true,
+      delimiter: ',',
+      annotations: %w[datatype group default],
+      commentPrefix: '#',
+      dateTimeFormat: 'RFC3339',
+    }.freeze
+    private_constant :DIALECT
 
     # How long a thread waits for a free connection before giving up. Only
     # reached when every connection is busy, which the pool size is chosen to
@@ -50,6 +65,17 @@ class Influx
       CsvParser.call(post(flux))
     end
 
+    # Whether InfluxDB answers. Raises when it cannot be reached.
+    def ping?
+      get(PING_PATH)
+      true
+    end
+
+    # The version that InfluxDB reports, for example "v2.9.1"
+    def version
+      JSON.parse(get(HEALTH_PATH))['version']
+    end
+
     # The pool stays the same object and opens fresh connections on the next
     # checkout.
     def reset!
@@ -61,42 +87,49 @@ class Influx
     attr_reader :pool
 
     def post(flux)
-      pool.with { |http| execute(http, build_request(flux), flux) }
+      perform(build_request(flux), "Flux: #{flux}")
+    end
+
+    # A connection of its own, outside the pool: the health check must answer
+    # also while the queries of a summary build hold every pooled connection
+    def get(path)
+      request = Net::HTTP::Get.new(path)
+      request['User-Agent'] = USER_AGENT
+      build_connection.start do |http|
+        check_response(http.request(request), "Path: #{path}")
+      end
+    end
+
+    def perform(request, context)
+      pool.with { |http| execute(http, request, context) }
     rescue ConnectionPool::TimeoutError => e
       raise QueryError,
-            "InfluxDB connection pool exhausted: #{e.message}\nFlux: #{flux}"
+            "InfluxDB connection pool exhausted: #{e.message}\n#{context}"
     end
 
     def build_request(flux)
-      payload =
-        InfluxDB2::Query.new(
-          query: flux,
-          dialect: InfluxDB2::QueryApi::DEFAULT_DIALECT,
-          type: nil,
-        )
-
       request =
         Net::HTTP::Post.new(
           "#{QUERY_PATH}?#{URI.encode_www_form(org: config.org)}",
         )
       request['Authorization'] = "Token #{config.token}"
       request['Content-Type'] = 'application/json'
-      request['User-Agent'] = "influxdb-client-ruby/#{InfluxDB2::VERSION}"
-      request.body = payload.to_body.to_json
+      request['User-Agent'] = USER_AGENT
+      request.body = { query: flux, dialect: DIALECT }.to_json
       request
     end
 
-    def execute(http, request, flux)
+    def execute(http, request, context)
       attempts = 0
 
       begin
         http.start unless http.started?
-        check_response(http.request(request), flux)
+        check_response(http.request(request), context)
       rescue *CONNECTION_ERRORS => e
         attempts += 1
         if attempts > MAX_RETRIES
           raise QueryError,
-                "InfluxDB query failed after #{MAX_RETRIES} retries: #{e.message}\nFlux: #{flux}"
+                "InfluxDB query failed after #{MAX_RETRIES} retries: #{e.message}\n#{context}"
         end
 
         # Re-establish in place so the pool keeps handing out a usable object
@@ -105,11 +138,11 @@ class Influx
       end
     end
 
-    def check_response(response, flux)
+    def check_response(response, context)
       unless response.is_a?(Net::HTTPSuccess)
         raise QueryError,
               "InfluxDB query failed: #{response.code} #{response.message}\n" \
-                "#{response.body}\nFlux: #{flux}"
+                "#{response.body}\n#{context}"
       end
 
       response.body
@@ -157,25 +190,12 @@ class Influx
     end
   end
 
-  config = Rails.configuration.x.influx
-  @client =
-    InfluxDB2::Client.new(
-      "#{config.schema}://#{config.host}:#{config.port}",
-      config.token,
-      bucket: config.bucket,
-      org: config.org,
-      precision: InfluxDB2::WritePrecision::SECOND,
-      use_ssl: config.schema == 'https',
-      read_timeout: 30,
-    )
-
   # Create query API once at initialization for thread-safety and performance
   @query_api = QueryApi.new
 
   class << self
-    attr_reader :client, :query_api
+    attr_reader :query_api
 
-    delegate :ping, :health, to: :client
-    delegate :query, to: :query_api
+    delegate :query, :ping?, :version, to: :query_api
   end
 end

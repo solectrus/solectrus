@@ -3,7 +3,7 @@ module ServiceVersions
   private_constant :RECOMMENDED_INFLUXDB_VERSION
 
   def self.fetch_influxdb
-    raw = Influx.health.version
+    raw = Influx.version
     version = Gem::Version.new(raw.delete_prefix('v'))
 
     if version < RECOMMENDED_INFLUXDB_VERSION

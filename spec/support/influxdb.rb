@@ -1,11 +1,5 @@
 module InfluxHelper
   @in_batch = false
-  @write_api = Influx.client.create_write_api
-  @delete_api = Influx.client.create_delete_api
-
-  class << self
-    attr_reader :write_api, :delete_api
-  end
 
   # Whether this example put points into InfluxDB. The helper is mixed into
   # every example, so the flag starts out nil for each one and the after hook
@@ -35,11 +29,7 @@ module InfluxHelper
   def add_influx_points(points)
     @influx_written = true
 
-    InfluxHelper.write_api.write(
-      data: points,
-      bucket: Rails.configuration.x.influx.bucket,
-      org: Rails.configuration.x.influx.org,
-    )
+    InfluxClient.write(points)
   end
 
   # InfluxDB pins a field to the type it was first written with, so an example
@@ -58,7 +48,7 @@ module InfluxHelper
     stop: Time.zone.at((2**63) / 1_000_000_000)
   )
     @influx_written = false
-    InfluxHelper.delete_api.delete(start, stop)
+    InfluxClient.delete(start, stop)
   end
 end
 

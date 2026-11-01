@@ -256,13 +256,11 @@ describe Sensor::Query::Helpers::Influx::Total do
 
       before do
         # Clear all data
-        InfluxHelper.delete_api.delete(
+        InfluxClient.delete(
           Time.zone.at(0),
           Time.current,
           predicate:
             "_measurement=\"#{Sensor::Config.measurement(:inverter_power_1)}\"",
-          bucket: Rails.configuration.x.influx.bucket,
-          org: Rails.configuration.x.influx.org,
         )
       end
 

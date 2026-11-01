@@ -2,9 +2,7 @@ describe ServiceVersions do
   describe '.fetch_influxdb' do
     subject(:fetch_influxdb) { described_class.fetch_influxdb }
 
-    let(:health) { instance_double(InfluxDB2::HealthCheck, version: raw_version) }
-
-    before { allow(Influx).to receive(:health).and_return(health) }
+    before { allow(Influx).to receive(:version).and_return(raw_version) }
 
     context 'when Influx reports a recent version' do
       let(:raw_version) { 'v2.8.0' }
@@ -32,7 +30,7 @@ describe ServiceVersions do
       let(:raw_version) { nil }
 
       before do
-        allow(Influx).to receive(:health).and_raise(StandardError, 'boom')
+        allow(Influx).to receive(:version).and_raise(StandardError, 'boom')
         allow(Rails.logger).to receive(:error)
       end
 
