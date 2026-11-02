@@ -12,7 +12,7 @@
 class Timeframe::Pager::Component < ViewComponent::Base
   # The place of the row, which the status of the live view takes as well, so
   # the content does not move between the tabs (see shared/_home_sub_nav)
-  ROW_CLASS = '-mt-4 mb-2 h-11'.freeze
+  ROW_CLASS = '-mt-3 mb-1 h-11'.freeze
   public_constant :ROW_CLASS
 
   def initialize(period:, arrows:)
