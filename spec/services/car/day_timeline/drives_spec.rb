@@ -407,4 +407,60 @@ describe Car::DayTimeline::Drives do
       expect(spans).to eq([['09:00', '09:30', 10], ['10:15', '10:30', 10]])
     end
   end
+
+  # A car that reports nothing while it stands. It stood at a place from
+  # 10:00 and drove on at 15:30. The state of charge reads again at 15:45,
+  # already lower, and falls while the car drives.
+  context 'with a fall of the state of charge over a gap in the readings' do
+    let(:soc) { [[at(10), 70], [at(15, 45), 66], [at(15, 50), 64], [at(15, 55), 62], [at(16, 5), 58]] }
+    let(:stops) { [[at(10), at(16, 10)]] }
+
+    def drives_with(readings, ends_at: at(16, 10), running: true) = described_class.new(readings, soc:, stops:, ends_at:, running:).call
+
+    def times(drive) = [drive.start, drive.ended_at, drive.distance, drive.estimated_start?, drive.ongoing]
+
+    # The odometer reports when the car leaves and when it stops
+    context 'with a reading of the odometer before the gap ends' do
+      let(:readings) { [[at(10), 500], [at(15, 30), 500], [at(16, 45), 530]] }
+
+      it 'starts the drive at that reading, so the car stood until then' do
+        expect(times(drives_with(readings).sole)).to eq([at(15, 30), at(16, 45), 30, false, false])
+      end
+    end
+
+    # The car wakes up only some minutes after it left
+    context 'without a reading in the gap' do
+      let(:readings) { [[at(10), 500], [at(16, 45), 530]] }
+
+      it 'starts the drive at the reading of the state of charge after the gap' do
+        expect(drives_with(readings).sole.start).to eq(at(15, 45))
+      end
+    end
+
+    # The odometer did not report the drive yet
+    context 'with a drive that still runs' do
+      let(:readings) { [[at(10), 500], [at(15, 30), 500]] }
+
+      it 'runs until now, without a distance' do
+        expect(times(drives_with(readings).sole)).to eq([at(15, 30), at(16, 10), nil, false, true])
+      end
+
+      it 'adds no drive after the state of charge stopped to fall' do
+        expect(drives_with(readings, ends_at: at(16, 40))).to be_empty
+      end
+
+      it 'adds no drive on a day before' do
+        expect(drives_with(readings, running: false)).to be_empty
+      end
+    end
+
+    # The odometer reports less often than the state of charge
+    context 'with a drive that still runs after an increase' do
+      let(:readings) { [[at(10), 500], [at(15, 30), 500], [at(15, 55), 515]] }
+
+      it 'lets the drive run on with the distance so far' do
+        expect(times(drives_with(readings).sole)).to eq([at(15, 30), at(16, 10), 15, false, true])
+      end
+    end
+  end
 end

@@ -202,6 +202,17 @@ describe Car::DayTimeline::Component, type: :component do
     end
   end
 
+  # The odometer did not tell the drive yet (see Car::DayTimeline::Drives)
+  context 'with a drive that runs at now' do
+    let(:drive) { Car::DayTimeline::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: nil, ongoing: true) }
+
+    it 'is open at its end and names no end and no distance' do
+      expect(bars.first['class']).to include('timeline-bar-estimated-start', 'rounded-r-none')
+      expect(bars.first['aria-label']).to start_with('Driving, since 07:00')
+      expect(bars.first['aria-label']).not_to include('Distance')
+    end
+  end
+
   # Only the admin gets the visits (see Car::DayTimeline)
   context 'with the visits of places' do
     let(:visits) do

@@ -30,7 +30,16 @@
 # drive. A fall of one point within a stop, like a visit of a place, is no
 # drive. A fall over a long gap tells only that the drive lay in it. Where
 # the odometer still stood within the first fall, the drive started after
-# that reading.
+# that reading. Where the state of charge fell already over a gap in the
+# readings before the first fall, the drive started in the gap. A reading of
+# the odometer shortly before, without a rise, tells that the car still stood
+# then, so the drive starts there. Thus the line of the state
+# of charge stays flat while the car stood.
+#
+# A car that reports its odometer only when it stops tells nothing of a
+# drive that still runs. On the running day, a fall of the state of charge
+# up to now without an increase of the odometer is therefore a drive up to
+# now, without a distance.
 #
 # The state of charge reports at a pace of its own too, so it can stand
 # still for a reading while the car drives. A pause of up to MAX_PAUSE
@@ -69,7 +78,7 @@
 # of the meter adds no drive, because a drive counts from the highest
 # reading before it. A larger step back that stays is a new source of the
 # meter, so the drives count from there.
-class Car::DayTimeline::Drives
+class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
   MAX_GAP = 1.hour
   public_constant :MAX_GAP
 
@@ -117,19 +126,21 @@ class Car::DayTimeline::Drives
   # the day, empty without the sensor. `stops` are the [from, to] where the
   # car stood, like its visits of places, and `charges` those of its
   # recorded charging sessions. `ends_at` is the end of the data, where a
-  # charge runs on.
-  def initialize(readings, before: nil, soc: [], stops: [], charges: [], ends_at: nil)
+  # charge runs on. On the `running` day, it is now, where a drive can run
+  # on (see #ongoing).
+  def initialize(readings, before: nil, soc: [], stops: [], charges: [], ends_at: nil, running: false) # rubocop:disable Metrics/ParameterLists
     @readings = Sensor::MeterReadings.new([*([before] if before), *readings]).call
     @soc = soc.sort_by(&:first)
     @charges = charges.sort_by(&:first)
     @stops = [*stops, *charges]
     @ends_at = ends_at
+    @running = running
   end
 
   def call
     refined = [nil, *increases].each_cons(2).map { |before, increase| cut(refine(increase, after: before&.ended_at)) }
     drives = merge(refined).select { it.distance >= MIN_DISTANCE }.map { stood(clip(it)) }
-    [nil, *drives].each_cons(2).map { |before, drive| drive.unknown_start? ? assume(drive, before) : shorten(drive) }
+    ongoing([nil, *drives].each_cons(2).map { |before, drive| drive.unknown_start? ? assume(drive, before) : shorten(drive) })
   end
 
   private
@@ -208,7 +219,68 @@ class Car::DayTimeline::Drives
     first = last
     first -= 1 while falls.include?(first - 1) && (arrival.nil? || @soc[first - 2].first >= arrival)
 
-    drive.with(started_at: [@soc[first - 1].first, arrival, odometer_start_within(drive, @soc[first].first)].compact.max, ended_at: end_at(drive, last))
+    drive.with(started_at: fall_start(first, arrival, odometer_start_within(drive, @soc[first].first)), ended_at: end_at(drive, last))
+  end
+
+  # The start of the falls from the index of the first one: the reading
+  # before it, or the reading of the odometer before a fall over a gap (see
+  # #gap_start), not before the `bounds`
+  def fall_start(first, *bounds)
+    [[gap_start(first - 1), @soc[first - 1].first].compact.min, *bounds].compact.max
+  end
+
+  # The start of a drive in the gap before the reading at the index, where
+  # the state of charge fell there by more than NOISE over more than
+  # MAX_GAP: the last reading of the odometer in the gap, up to MAX_GAP
+  # before the reading. The odometer did not rise there, so the car still
+  # stood, like the reading before an increase (see #increase). Without such
+  # a reading, the gap says too little, like a car that wakes up only some
+  # minutes after it left.
+  def gap_start(index)
+    return unless index.positive?
+
+    (before_time, before_value), (time, value) = @soc[index - 1], @soc[index]
+    return if time - before_time <= MAX_GAP || before_value - value <= NOISE
+
+    @readings.map(&:first).select { it > before_time && it < time && time - it <= MAX_GAP }.max
+  end
+
+  # The drive that runs at now on the running day: the state of charge falls
+  # up to MAX_PAUSE before now, but the odometer did not rise since, like an
+  # odometer that reports only when the car stops. The drive runs until now,
+  # without a distance. A fall up to SOC_LAG after the last drive belongs to
+  # that drive, and the drive starts after the end of a charge. Where it
+  # joins the last drive, like an odometer that reports less often than the
+  # state of charge, that drive runs on with the distance so far.
+  def ongoing(drives)
+    drive = ongoing_after(drives.last&.ended_at) if @running && falling_at_end?
+    return drives unless drive
+    return [*drives, drive] unless drives.any? && one?(drives.last, drive)
+
+    [*drives[...-1], drives.last.with(ended_at: @ends_at, ongoing: true)]
+  end
+
+  # The drive that runs at now after the end of the last drive, or nil
+  def ongoing_after(before)
+    first = first_of_last_falls(after: before&.+(SOC_LAG))
+    return unless first
+
+    charged = @charges.map(&:last).select { it <= @soc[first].first }.max
+    Car::DayTimeline::Drive.new(started_at: fall_start(first, before, charged), ended_at: @ends_at, distance: nil, ongoing: true)
+  end
+
+  # Whether the last fall lies up to MAX_PAUSE before the end of the data
+  def falling_at_end? = @ends_at && falls.any? && @ends_at - @soc[falls.last].first <= MAX_PAUSE
+
+  # The index of the first of the last falls one after the other, all of
+  # them after `after`, or nil where the last one lies before
+  def first_of_last_falls(after:)
+    later = ->(index) { after.nil? || @soc[index].first > after }
+    return unless later.call(falls.last)
+
+    first = falls.last
+    first -= 1 while falls.include?(first - 1) && later.call(first - 1)
+    first
   end
 
   # Whether the fall at the index belongs to the drive: it lies from `from`

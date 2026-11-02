@@ -73,11 +73,16 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
     # (see Car::DayTimeline::Drives::ARRIVAL) saw the car back after the
     # drive: a round trip, whose stop was too short for a visit. The last
     # drive without such a visit ends where the car stands now: a stop
-    # counts as a visit only after Place::MIN_DURATION.
-    def goal(drive) = visit_goal(drive) || (current_place if drive == drives.last)
+    # counts as a visit only after Place::MIN_DURATION. A drive that runs
+    # at now has no goal yet.
+    def goal(drive)
+      return if drive.ongoing
+
+      visit_goal(drive) || (current_place if drive == drives.last)
+    end
 
     # Whether the last drive has no visit at its goal
-    def open_goal? = drives.any? && visit_goal(drives.last).nil?
+    def open_goal? = drives.any? && !drives.last.ongoing && visit_goal(drives.last).nil?
 
     private
 
@@ -307,7 +312,7 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
 
     before, readings = curve(car.sensor_name(:car_odometer)).partition { |time, _| time < beginning }
     stops = visits_of(car).map { [it.started_at, it.ended_at] }
-    Drives.new(readings, before: before.last, soc:, stops:, charges: charges.map(&:span), ends_at: stops_at).call
+    Drives.new(readings, before: before.last, soc:, stops:, charges: charges.map(&:span), ends_at: stops_at, running: today?).call
   end
 
   # The line from the value at the start of the day to now or the end of the

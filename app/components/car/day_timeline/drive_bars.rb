@@ -13,7 +13,7 @@ module Car::DayTimeline::DriveBars
         segments: [[Car::DayTimeline::Component::DRIVE_COLOR, 1]],
         ends: drive_ends(drive),
         title: t('.drive'),
-        lines: [time_text((drive.started_at || drive.earliest_at unless drive.assumed_start?), drive.ended_at), *route(lane, drive)],
+        lines: [time_text((drive.started_at || drive.earliest_at unless drive.assumed_start?), (drive.ended_at unless drive.ongoing)), *route(lane, drive)],
         parts: drive_parts(lane, drive),
         notes: drive_notes(drive),
       )
@@ -23,12 +23,12 @@ module Car::DayTimeline::DriveBars
   private
 
   # A window of the readings is open at both ends, a start that is too late
-  # or an estimated or assumed one at its start
+  # or an estimated or assumed one at its start. A drive that runs at now is
+  # square at its end, like a charge that runs on.
   def drive_ends(drive)
-    if drive.window? then %i[jagged jagged]
-    elsif drive.estimated_start? || drive.assumed_start? || drive.too_fast? then %i[jagged round]
-    else %i[round round]
-    end
+    return %i[jagged jagged] if drive.window?
+
+    [drive.estimated_start? || drive.assumed_start? || drive.too_fast? ? :jagged : :round, drive.ongoing ? :square : :round]
   end
 
   # A window says already that the start is open, so it hides the note of
@@ -44,13 +44,13 @@ module Car::DayTimeline::DriveBars
 
   # The state of charge before and after the drive. An estimated or assumed
   # start stands in, and a drive without a length takes the value before its
-  # reading.
+  # reading. A drive that runs at now has no distance yet.
   def drive_parts(lane, drive)
     before = lane.soc_at(drive.start < drive.ended_at ? drive.start : drive.ended_at - 1.second)
     after = lane.soc_at(drive.ended_at)
 
     [
-      detail(t('.distance'), Sensor::ValueFormatter.new(drive.distance, unit: Sensor::Registry[:car_distance].unit).to_s),
+      (detail(t('.distance'), Sensor::ValueFormatter.new(drive.distance, unit: Sensor::Registry[:car_distance].unit).to_s) if drive.distance),
       soc_part(before, after),
     ].compact
   end
