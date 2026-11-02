@@ -185,6 +185,45 @@ describe Car::DayTimeline do
     end
   end
 
+  # The car arrived less than Place::MIN_DURATION ago, so the build made
+  # neither a visit nor a place there
+  context 'with a drive to a location without a place' do
+    subject(:timeline) { described_class.new(Timeframe.new('day'), [car], admin: true) }
+
+    let(:lane) { timeline.lanes.sole }
+
+    before do
+      travel_to at(10, 2)
+      Sensor::Config.setup(
+        ENV.to_h.merge(
+          'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer',
+          'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+          'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+        ),
+      )
+      odometer = [[at(8, 15), 100.0], [at(9, 50), 193.0]]
+      curves = instance_double(ChargingSession::Curves, start: nil, cars: { at(0).to_date => { car_odometer_1: odometer } }, wallbox: {}, wallbox_gaps: {})
+      allow(ChargingSession::Curves).to receive(:new).and_return(curves)
+      state = Car::Live::State.new(car:, soc: nil, range: nil, max_range: nil, odometer: nil, connected: nil, charging_power: nil, latitude: 50.92263, longitude: 1.40706)
+      allow(Car::Live).to receive(:new).and_return(instance_double(Car::Live, states: [state]))
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    it 'ends the drive in the town that the live view found there' do
+      allow(Place).to receive(:known_name_at).with(50.92263, 1.40706).and_return('Springfield')
+
+      expect(lane.goal(lane.drives.sole).display_name).to eq('Springfield')
+      expect(Place.count).to eq(0)
+    end
+
+    it 'leaves the goal open before the live view found a town' do
+      allow(Place).to receive(:known_name_at).and_return(nil)
+
+      expect(lane.goal(lane.drives.sole)).to be_nil
+    end
+  end
+
   # The visits follow each other without a gap, because the car reports its
   # place after the drive: the visit of the school lasts until the car
   # arrives at work

@@ -257,12 +257,23 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   # The place at the latest position of the car, like in the live view (see
   # Car::Live), or nil on the road. The build writes a visit only after
   # Place::MIN_DURATION, so on the running day the last drive can end at a
-  # place that has no visit yet.
+  # place that has no visit yet. The build also makes the place itself, so
+  # a new position takes the town that the live view found there, as a place
+  # that is not saved.
   def current_place(car)
     return unless Sensor::Cars.located?(car.id)
 
     location = Car::Live.new([car]).states.sole.location
-    Place.near(*location) if location
+    return unless location
+
+    Place.near(*location) || town_at(*location)
+  end
+
+  # An unsaved place with the town at a location, from the cache of the live
+  # view (see Place.known_name_at), or nil before its first answer
+  def town_at(latitude, longitude)
+    name = Place.known_name_at(latitude, longitude)
+    Place.new(latitude:, longitude:, name:) if name
   end
 
   # The charge of an offsite session without an end where the signs of its
