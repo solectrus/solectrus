@@ -1,3 +1,7 @@
 de:
-  title: Tageszusammenfassungen berechnen...
-  remaining: Noch
+  title: Tageszusammenfassungen berechnen…
+  remaining:
+    less_than_a_minute: Weniger als eine Minute
+    minute: Etwa eine Minute
+    minutes: Etwa %{count} Minuten
+    hours: Etwa %{count} Stunden

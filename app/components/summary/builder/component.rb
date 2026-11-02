@@ -9,46 +9,31 @@ class Summary::Builder::Component < ViewComponent::Base
 
   # One request per day would spend most of its time on the request itself, so
   # a batch of days is built at once (see Sensor::Summarizer::CHUNK_SIZE) and
-  # each chunk gets one frame and one step of the progress bar.
+  # each chunk gets one frame. The frames only carry the requests, the bar
+  # shows the days they have built (see sequential_frames_controller.ts).
   def chunks
     @chunks ||=
       missing_or_stale_days.each_slice(Sensor::Summarizer::CHUNK_SIZE).to_a
   end
 
   class ChunkComponent < ViewComponent::Base
-    def initialize(from:, to:, size: 1, completed: false)
+    def initialize(from:, to:, size: 1)
       super()
       @from = from
       @to = to
       @size = size
-      @completed = completed
     end
 
-    attr_reader :from, :to, :size, :completed
+    attr_reader :from, :to, :size
 
     def call
-      helpers.turbo_frame_tag(dom_id, **turbo_frame_tag_options) do
-        tag.div class: css_classes
-      end
+      helpers.turbo_frame_tag(dom_id, 'data-src': summary_path(date: from, to:), 'data-days': size)
     end
 
     private
 
     def dom_id
       "d_#{from}_#{to}"
-    end
-
-    def turbo_frame_tag_options
-      {
-        'data-src': summary_path(date: from, to:),
-        # A trailing chunk covers fewer days than the others, so the bar shows
-        # what it is really worth
-        style: "flex: #{size}",
-      }
-    end
-
-    def css_classes
-      "h-10#{' bg-indigo-600 dark:bg-indigo-500 scale-pop' if completed}"
     end
   end
 end

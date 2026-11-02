@@ -1,3 +1,7 @@
 en:
-  title: Calculating daily summaries...
-  remaining: Remaining
+  title: Calculating daily summaries…
+  remaining:
+    less_than_a_minute: Less than a minute
+    minute: About one minute
+    minutes: About %{count} minutes
+    hours: About %{count} hours

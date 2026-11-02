@@ -1,35 +1,52 @@
 import { Controller } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
+import { appLocale } from '@/utils/locale';
 
+// A guess for the days of the first frame, before their pace is known
+const FIRST_DAY_MS = 150;
+const FINAL_MS = 250;
+
+// Loads the frames of the Summary::Builder one after the other. Each frame
+// builds a chunk of days, and the bar, the percentage and the time left follow
+// the days already built. The page loads again when the last frame is done.
 export default class extends Controller {
-  static readonly targets = ['timeEstimate', 'remaining'];
+  static readonly targets = ['bar', 'fill', 'percent', 'remaining'];
 
-  declare readonly timeEstimateTarget: HTMLElement;
+  declare readonly barTarget: HTMLElement;
+  declare readonly fillTarget: HTMLElement;
+  declare readonly percentTarget: HTMLElement;
   declare readonly remainingTarget: HTMLElement;
-  declare readonly hasTimeEstimateTarget: boolean;
+  declare readonly hasPercentTarget: boolean;
 
   static readonly values = {
     reloadOnComplete: {
       type: Boolean,
       default: false,
     },
-    minutesOne: { type: String, default: '' },
-    minutesOther: { type: String, default: '' },
-    secondsOne: { type: String, default: '' },
-    secondsOther: { type: String, default: '' },
+    total: { type: Number, default: 0 },
+    texts: { type: Object, default: {} },
   };
 
   declare readonly reloadOnCompleteValue: boolean;
-  declare readonly minutesOneValue: string;
-  declare readonly minutesOtherValue: string;
-  declare readonly secondsOneValue: string;
-  declare readonly secondsOtherValue: string;
+  declare readonly totalValue: number;
+  declare readonly textsValue: Record<
+    'less_than_a_minute' | 'minute' | 'minutes' | 'hours',
+    string
+  >;
 
-  startTime: number = 0;
+  private startTime = 0;
+  private done = 0;
+  private shownSeconds = Infinity;
   private frameCache: Turbo.FrameElement[] | null = null;
+  private readonly percentFormat = new Intl.NumberFormat(appLocale(), {
+    style: 'percent',
+  });
 
   connect() {
     this.startTime = Date.now();
+    this.done = 0;
+    this.shownSeconds = Infinity;
+    this.showProgress();
     this.loadNextFrame(0);
   }
 
@@ -49,24 +66,41 @@ export default class extends Controller {
 
   loadNextFrame(index: number) {
     const frame = this.frameElements[index];
+    if (!frame) return this.complete();
 
-    if (frame) {
-      // Load the next frame and prepare to load the following one
-      frame.addEventListener(
-        'turbo:frame-load',
-        () => this.loadNextFrame(index + 1),
-        { once: true },
-      );
-      this.retryOnError(frame);
-      frame.src = frame.dataset.src;
+    const days = Number(frame.dataset.days);
 
-      this.updateTimeEstimate(index);
-    } else {
-      // All frames have been loaded, reload the page
-      if (this.reloadOnCompleteValue) {
-        Turbo.visit(window.location.href, { action: 'replace' });
-      }
-    }
+    // Load the frame, then the one after it
+    frame.addEventListener(
+      'turbo:frame-load',
+      () => {
+        this.done += days;
+        this.showProgress();
+        this.loadNextFrame(index + 1);
+      },
+      { once: true },
+    );
+    this.retryOnError(frame);
+    frame.src = frame.dataset.src;
+
+    // While the frame builds, the bar moves on at the pace of the days before,
+    // but only to 90 % of the step of the frame. So it moves without stops,
+    // even with a single frame, and it does not run ahead of the days built.
+    const pace = this.done
+      ? (Date.now() - this.startTime) / this.done
+      : FIRST_DAY_MS;
+    this.glide((this.done + days * 0.9) / this.totalValue, days * pace);
+  }
+
+  // The bar runs to its end before the page loads again
+  async complete() {
+    this.glide(1, FINAL_MS);
+    await Promise.allSettled(
+      this.fillTarget.getAnimations().map((animation) => animation.finished),
+    );
+
+    if (this.reloadOnCompleteValue)
+      Turbo.visit(window.location.href, { action: 'replace' });
   }
 
   // A frame request can fail when connectivity is briefly unavailable (e.g.
@@ -83,68 +117,47 @@ export default class extends Controller {
     );
   }
 
-  updateTimeEstimate(index: number) {
-    // Skip if the time estimate is not enabled
-    if (!this.hasTimeEstimateTarget) return;
-
-    // Needs at least one finished frame to average over. A frame covers a
-    // batch of days, so one of them is already a usable sample.
-    if (index < 1) return;
-
-    // Calculate the estimated remaining time and render it
-    const estimatedRemainingSeconds = this.estimateRemainingTimeSeconds(index);
-    this.renderRemainingTime(estimatedRemainingSeconds);
+  glide(share: number, ms: number) {
+    this.fillTarget.style.transitionDuration = `${ms}ms`;
+    this.fillTarget.style.translate = `${(share - 1) * 100}% 0`;
   }
 
-  renderRemainingTime(estimatedRemainingSeconds: number) {
-    if (estimatedRemainingSeconds === 0) {
-      // Avoid "0 seconds remaining" message
-      this.hideTimeEstimate();
-      return;
-    }
+  // Rounded down, so the page shows 100 % only when it is done. A single frame
+  // has no figures below the bar.
+  showProgress() {
+    const share = this.done / this.totalValue;
+    const percent = Math.floor(share * 100);
+    this.barTarget.setAttribute('aria-valuenow', String(percent));
+    if (!this.hasPercentTarget) return;
 
-    if (estimatedRemainingSeconds > 60) {
-      // Show remaining time in minutes
-      const estimatedMinutes = Math.ceil(estimatedRemainingSeconds / 60);
-      const minutesText =
-        estimatedMinutes === 1
-          ? this.minutesOneValue
-          : this.minutesOtherValue.replace(
-              '%{count}',
-              estimatedMinutes.toString(),
-            );
-      this.remainingTarget.textContent = minutesText;
-    } else {
-      // Show remaining time in seconds
-      const estimatedSeconds = Math.ceil(estimatedRemainingSeconds);
-      const secondsText =
-        estimatedSeconds === 1
-          ? this.secondsOneValue
-          : this.secondsOtherValue.replace(
-              '%{count}',
-              estimatedSeconds.toString(),
-            );
-      this.remainingTarget.textContent = secondsText;
-    }
-
-    this.showTimeEstimate();
+    this.percentTarget.textContent = this.percentFormat.format(percent / 100);
+    if (this.done)
+      this.showRemaining(
+        ((Date.now() - this.startTime) * (1 / share - 1)) / 1000,
+      );
   }
 
-  // Calculate the average time per frame and estimate remaining time.
-  // `index` is the frame about to start, so exactly `index` of them are done.
-  estimateRemainingTimeSeconds(index: number) {
-    const elapsedTime = Date.now() - this.startTime;
-    const averageTimePerFrame = elapsedTime / index;
-    const remainingFrames = this.frameElements.length - index;
+  // The days of one frame take more or less time than the days before, so
+  // the estimate goes up only with a clear change. Otherwise it would go up
+  // and down from frame to frame.
+  showRemaining(seconds: number) {
+    if (seconds > this.shownSeconds && seconds < this.shownSeconds * 1.25)
+      seconds = this.shownSeconds;
+    this.shownSeconds = seconds;
 
-    return Math.ceil((remainingFrames * averageTimePerFrame) / 1000);
+    this.remainingTarget.textContent = this.remainingText(seconds);
   }
 
-  showTimeEstimate() {
-    this.timeEstimateTarget.classList.remove('invisible');
-  }
+  remainingText(seconds: number) {
+    const texts = this.textsValue;
+    if (seconds <= 0) return '';
+    if (seconds < 45) return texts.less_than_a_minute;
 
-  hideTimeEstimate() {
-    this.timeEstimateTarget.classList.add('invisible');
+    const minutes = Math.round(seconds / 60);
+    if (minutes === 1) return texts.minute;
+    if (minutes < 120)
+      return texts.minutes.replace('%{count}', String(minutes));
+
+    return texts.hours.replace('%{count}', String(Math.round(minutes / 60)));
   }
 }

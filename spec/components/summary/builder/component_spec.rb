@@ -1,8 +1,10 @@
 describe Summary::Builder::Component, type: :component do
-  subject(:frames) do
+  subject(:frames) { rendered.css('turbo-frame') }
+
+  let(:rendered) do
     render_inline(
       described_class.new(timeframe: Timeframe.new('2024'), missing_or_stale_days: days),
-    ).css('turbo-frame')
+    )
   end
 
   let(:days) { (Date.new(2024, 1, 1)..Date.new(2024, 1, 31)).to_a }
@@ -24,13 +26,27 @@ describe Summary::Builder::Component, type: :component do
     expect(covered).to eq(days)
   end
 
-  # A trailing chunk covers fewer days, so the bar must not claim a full share
-  it 'weights each frame by the days it covers' do
+  # A trailing chunk covers fewer days, so it must not claim a full share
+  it 'counts the days of each frame' do
     size = Sensor::Summarizer::CHUNK_SIZE
     full, rest = days.size.divmod(size)
 
-    expect(frames.pluck('style')).to eq(
-      (["flex: #{size}"] * full) + (rest.zero? ? [] : ["flex: #{rest}"]),
+    expect(frames.pluck('data-days')).to eq(
+      ([size.to_s] * full) + (rest.zero? ? [] : [rest.to_s]),
     )
+  end
+
+  it 'shows the percentage and the time left below the bar' do
+    expect(rendered.css('[data-sequential-frames-target=percent]')).to be_present
+  end
+
+  # A single frame goes from nothing to all at once
+  context 'with a single frame' do
+    let(:days) { (Date.new(2024, 1, 1)..Date.new(2024, 1, 7)).to_a }
+
+    it 'shows the bar alone' do
+      expect(rendered.css('[role=progressbar]')).to be_present
+      expect(rendered.css('[data-sequential-frames-target=percent]')).to be_empty
+    end
   end
 end
