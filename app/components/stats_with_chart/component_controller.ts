@@ -284,11 +284,11 @@ export default class extends Controller {
       return;
     }
 
-    this.reloadFrames({ chart: true }).then(() => {
-      // The tab may have flipped back to hidden while reloadFrames was in
-      // flight; don't kick off polling in the background.
-      if (!document.hidden) this.startLoop();
-    });
+    // The loop starts at once. Started after the reload, it would stay off for
+    // good when a click cancels the reload, because the promise of a cancelled
+    // reload never settles (see `reload`).
+    this.startLoop();
+    this.reloadFrames({ chart: true });
   }
 
   private addPointToChart() {
