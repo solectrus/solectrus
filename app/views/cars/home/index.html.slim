@@ -2,7 +2,9 @@
 / A day grows with the timelines of its cars, and the live view with the
   lists and maps of its cars, so the window scrolls. A day that only the
   admin sees has a note in the middle instead (see Car::AdminOnlyDays).
-- content_for :full_height, true if !timeframe&.now? && (!timeframe&.day? || admin_only_day?)
+  While the daily summaries build, a day has the progress bar in the middle
+  as well, so the card does not wait for the frames of the progress bar.
+- content_for :full_height, true if !timeframe&.now? && (!timeframe&.day? || admin_only_day? || @missing_or_stale_summary_days.present?)
 / The live view of a phone is a grouped list on gray (see Car::LiveCard)
 - content_for :grouped, true if timeframe&.now?
 
