@@ -77,6 +77,65 @@ describe Car::Live do
     end
   end
 
+  # The car sends neither the position nor the odometer during a drive, but
+  # the state of charge
+  context 'with a state of charge that fell since the latest position' do
+    let(:plug) { { car_connected_1: false } }
+    let(:data) do
+      Sensor::Data::Single.new(
+        { car_battery_soc_1: 90, car_latitude_1: 50.9, car_longitude_1: 6.4, **plug },
+        timeframe: Timeframe.now,
+        times: { car_battery_soc_1: 5.minutes.ago, car_latitude_1: 1.day.ago, car_longitude_1: 1.day.ago },
+      )
+    end
+
+    before do
+      allow(Sensor::Query::Highest).to receive(:new).and_return(instance_double(Sensor::Query::Highest, call: highest))
+    end
+
+    context 'when the car drives' do
+      let(:highest) { 99 }
+
+      it 'gives no location' do
+        expect(live.states.first.location).to be_nil
+      end
+
+      it 'looks for the highest state of charge in the hour before the reading' do
+        live.states
+
+        soc_time = data.time_for(:car_battery_soc_1)
+        expect(Sensor::Query::Highest).to have_received(:new).with(:car_battery_soc_1, from: soc_time - 1.hour, to: soc_time)
+      end
+    end
+
+    context 'when the car heats while parked' do
+      let(:highest) { 92 }
+
+      it 'keeps the location' do
+        expect(live.states.first.location).to eq([50.9, 6.4])
+      end
+    end
+
+    context 'when the car has a plug' do
+      let(:plug) { { car_connected_1: true } }
+      let(:highest) { 99 }
+
+      it 'keeps the location' do
+        expect(live.states.first.location).to eq([50.9, 6.4])
+      end
+    end
+
+    # The car can feed the house
+    context 'when a car without a plug of its own is at the wallbox' do
+      let(:plug) { { wallbox_car_connected: true } }
+      let(:highest) { 99 }
+
+      it 'keeps the location' do
+        expect(live.states.first.location).to eq([50.9, 6.4])
+      end
+    end
+  end
+
   # The second car has no range sensor
   context 'with an estimate of the range' do
     before do

@@ -50,6 +50,7 @@ Keep every section, an empty one included.
 - An empty list or chart shows the same note everywhere: an icon, a title and a short text
 - Grid costs: the tooltip and the cost chart show the energy costs and the base fee separately (#2560)
 - Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average
+- Electric vehicles: the live view shows "On the road" as soon as the charge level falls during a drive, also for a car that sends its location only after the drive
 - With more than one car in use, the power balance shows only the charge level of the home battery. With one car, it stays as before (#6020)
 - The settings group by what they set up: PV system, Tariffs, Sensors, Electric vehicles and System. PV system holds the name of the system and its cash flows, and Tariffs holds the electricity price and the feed-in tariff. General is now System
 - Settings on desktop: a click on a row opens the entry, and the "+" stands at the right of the tabs. The save button shows only after a change, with an "×" that discards it

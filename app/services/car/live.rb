@@ -32,6 +32,15 @@ class Car::Live
   WALLBOX_SENSORS = %i[wallbox_power wallbox_car_connected].freeze
   private_constant :WALLBOX_SENSORS
 
+  # The fall of the state of charge (percent) within a time that tells that an
+  # unplugged car drives. A short drive stays below it. A parked car loses
+  # less than a percent in an hour, but one that heats or cools can lose more.
+  DRIVE_DRAIN = 3
+  private_constant :DRIVE_DRAIN
+
+  DRIVE_DRAIN_TIME = 1.hour
+  private_constant :DRIVE_DRAIN_TIME
+
   # `home` is the place of the wallbox, or nil (see Place.home)
   def initialize(cars, home: Place.home)
     @cars = cars
@@ -116,18 +125,43 @@ class Car::Live
     time.present? && Sensor::Query::ChangedSince.new(:wallbox_car_connected, since: time).call
   end
 
-  # Whether the car drove away from its latest position: its odometer rose
-  # by more than Sensor::Query::Positions::MOVE since then. A position holds
-  # at any age, so a source that stopped to send it would else show a place
+  # Whether the car drove away from its latest position. A position holds at
+  # any age, so a source that stopped to send it would else show a place
   # where the car is no more.
   def left_location?(car, state)
-    odometer = car.sensor_name(:car_odometer)
     position_time = data.time_for(car.sensor_name(:car_latitude))
+    return false unless state.location && position_time
+
+    odometer_rose?(car, state, position_time) || drained?(car, state, position_time)
+  end
+
+  # Whether the odometer rose by more than Sensor::Query::Positions::MOVE
+  # since the position
+  def odometer_rose?(car, state, position_time)
+    odometer = car.sensor_name(:car_odometer)
     odometer_time = data.time_for(odometer)
-    return false unless state.location && state.odometer && position_time && odometer_time && odometer_time > position_time
+    return false unless state.odometer && odometer_time && odometer_time > position_time
 
     at_position = Sensor::Query::Positions.odometer_at(odometer, position_time)
     at_position.present? && Sensor::Query::Positions.left?(at_position, state.odometer)
+  end
+
+  # Whether the state of charge of an unplugged car fell by more than
+  # DRIVE_DRAIN since the position, within DRIVE_DRAIN_TIME. For a car that
+  # sends neither position nor odometer during a drive.
+  def drained?(car, state, position_time)
+    soc = car.sensor_name(:car_battery_soc)
+    soc_time = data.time_for(soc)
+    return false unless state.soc && !plugged?(state) && soc_time && soc_time > position_time
+
+    highest = Sensor::Query::Highest.new(soc, from: [position_time, soc_time - DRIVE_DRAIN_TIME].max, to: soc_time).call
+    highest.present? && highest - state.soc > DRIVE_DRAIN
+  end
+
+  # The own plug of the car, or else the plug of the wallbox. A car at the
+  # wallbox can lose charge there, for example when it feeds the house.
+  def plugged?(state)
+    (state.connected.nil? ? wallbox_car_connected : state.connected) == true
   end
 
   def charging_power_of(state)
