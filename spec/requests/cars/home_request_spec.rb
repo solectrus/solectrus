@@ -128,25 +128,22 @@ describe 'Car Home' do
         before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER' => 'Trabant:odometer')) }
         after { Sensor::Config.setup(ENV) }
 
-        it 'loads the figures of both columns with one request' do
+        # A period has one overview of both columns (see Car::PeriodOverview::Component)
+        it 'loads the overview of a period with one request' do
           get cars_home_path(sensor_name: 'car_charging', timeframe: Date.current.year.to_s)
 
           frames = response.parsed_body.css('[data-stats-with-chart--component-target=stats]')
-          expect(frames.size).to eq(2)
-          expect(frames.count { it['src'] }).to eq(1)
+          expect(frames.size).to eq(1)
+          expect(frames.first['src']).to be_present
         end
 
-        # The savings come with the figures, so the placeholder of the driving
-        # keeps the place of their bar (see Car::Report#savings?)
-        it 'keeps the place of the bar of the savings while the figures load' do
-          allow(Car::Report).to receive(:new).and_wrap_original do |original, *args, **options|
-            original.call(*args, **options).tap { allow(it).to receive(:savings?).and_return(true) }
-          end
-
+        # The placeholder has the layout of the overview, with the comparison
+        # below both cards, so the chart beside it does not move
+        it 'keeps the place of the comparison while the figures load' do
           get cars_home_path(timeframe: Date.current.year.to_s)
 
-          driving = response.parsed_body.at_css('section[aria-labelledby="overview-driving"]')
-          expect(driving.css('[data-controller="car--share-bar--component"].animate-pulse').size).to eq(1)
+          frame = response.parsed_body.at_css('[data-stats-with-chart--component-target=stats]')
+          expect(frame.css('[data-controller="car--share-bar--component"].animate-pulse').size).to eq(1)
         end
       end
     end
@@ -165,15 +162,16 @@ describe 'Car Home' do
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to include('Administrator only', '/login?return_to=')
-        expect(response.body).not_to include('stats-charging')
+        expect(response.body).not_to include('id="cars-stats-')
       end
 
       it 'shows the admin the day' do
         login_as_admin
+        allow(Sensor).to receive(:data?).and_return(true)
         get cars_home_path(timeframe: Date.yesterday.iso8601, car: 1)
 
         expect(response.body).not_to include('Administrator only')
-        expect(response.body).to include('stats-charging')
+        expect(response.body).to include('id="cars-stats-')
       end
 
       it 'shows a visitor an older day' do

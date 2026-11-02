@@ -57,6 +57,10 @@ module Cars::Selectable
       cars.any? { it.sensor?(:car_odometer) } ? Car::Section.all : [:charging]
     end
 
+    # Whether the overview has the card of the driving beside the card of the
+    # charging (see Car::PeriodOverview::Component). The guest only charges.
+    helper_method def driving? = overview_sections.include?(:driving)
+
     # The charts of each column (see Car::Section::CHARTS) that draw the
     # timeframe and the selection, none for a period without charts (see
     # Car::Section.charts?)
@@ -75,10 +79,6 @@ module Cars::Selectable
 
     # Whether the column has no value in the period
     helper_method def idle_section?(section) = !Car::Section.value?(section, section_report)
-
-    # Whether the box of the column has a bar, so its placeholder keeps its
-    # place
-    helper_method def section_bar?(section) = Car::Section.bar?(section, section_report)
 
     # The report of the period that the columns ask before the figures load
     def section_report

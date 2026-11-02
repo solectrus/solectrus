@@ -201,16 +201,25 @@
   --color-car-battery: var(--palette-contrast-light-battery);
 
   /* The colors of the car page: the sources of the charged energy and the
-     drives. The timeline of a day, the bars of the figures and the charts
-     share them (see Car::ChargingSource). Offsite charging is grid energy
-     too, so it is a darker red than the grid share of the wallbox. Dark
-     mode lightens the sources and mutes the drive (see the end of this
-     file). */
+     drives. The timeline of a day and the charts share them (see
+     Car::ChargingSource). Offsite charging is grid energy too, so it is a
+     darker red than the grid share of the wallbox. Dark mode lightens the
+     sources and mutes the drive (see the end of this file). */
   --color-car-pv: var(--color-sensor-pv);
   --color-car-grid: var(--color-sensor-grid);
   --color-car-wallbox: var(--color-sensor-wallbox);
   --color-car-offsite: color-mix(in oklch, var(--color-car-grid) 70%, black);
   --color-car-drive: var(--color-indigo-500);
+
+  /* The same colors as the large areas of the cards of the car page (see
+     Car::PeriodOverview::Card::Component). Light mode keeps the colors
+     above. Dark mode takes the dark palette instead, like the balance of
+     the home page, because the lightened colors glare on a large area. */
+  --color-car-pv-card: var(--color-car-pv);
+  --color-car-grid-card: var(--color-car-grid);
+  --color-car-wallbox-card: var(--color-car-wallbox);
+  --color-car-offsite-card: var(--color-car-offsite);
+  --color-car-drive-card: var(--color-car-drive);
   /* A pause of a charge while the car stays plugged in: a grey that stands
      apart from the sources and from the track */
   --color-car-plugged: var(--color-slate-300);
@@ -482,6 +491,16 @@
         from var(--color-sensor-wallbox) calc(l + 0.16) min(c * 1.15, 0.14) h
       );
       --color-car-drive: oklch(from var(--color-indigo-500) 0.5 0.11 h);
+
+      /* The large areas of the cards keep the dark palette, and offsite
+         charging a darker red beside it */
+      --color-car-pv-card: var(--color-sensor-pv);
+      --color-car-grid-card: var(--color-sensor-grid);
+      --color-car-wallbox-card: var(--color-sensor-wallbox);
+      --color-car-offsite-card: oklch(
+        from var(--color-sensor-grid) calc(l * 0.8) c h
+      );
+      --color-car-drive-card: oklch(from var(--color-indigo-500) 0.42 0.09 h);
     }
   }
 }

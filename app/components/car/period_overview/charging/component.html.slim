@@ -1,0 +1,4 @@
+/ The charging is a card of the overview: the charged energy, the bar of its
+  sources, and its cost with the link to the sessions. A period without
+  charging says so in the place of the bar.
+= render Car::PeriodOverview::Card::Component.new(title: t('car_breakdown.charging'), timeframe:, main: energy_figure, caption: t('.charged'), segments:, empty:, cells:, css_class: 'bg-slate-600 dark:bg-slate-700')

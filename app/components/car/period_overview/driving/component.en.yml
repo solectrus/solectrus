@@ -4,15 +4,19 @@ en:
   consumption_losses: The energy is measured at charging and includes the charging losses. The car itself therefore mostly shows less.
   unrated: Without %{distance} that lack charging data.
   window: The car drives on energy that it charged on other days. Per 100 km therefore counts the charging of the %{days} days before and after each day driven.
+  none: No drives
   minimum: Minimum
   maximum: Maximum
-  none: No drives
   per_day: Ø per day
   ev: EV
   combustion: Combustion car
   saved: '%{amount} saved'
   extra: '%{amount} more'
-  savings_note: The difference of the running costs of the EV and a fictional combustion car, with costs such as the insurance and the maintenance. The energy cost above counts the electricity alone.
-  energy_description: The electricity that the distance driven took.
-  cost_description: What the electricity for the distance driven cost.
+  savings_note: The difference of the running costs of the EV and a fictional combustion car, with costs such as the insurance and the maintenance.
+  no_savings:
+    drive: Without a drive, there is nothing to compare.
+    comparison: The comparison needs a combustion car in the settings of the car, and the fuel prices.
+    distance: The distance driven lacks charging data or a fuel price. The comparison page names the gaps.
   savings: Savings
+  per_100km: per 100 km
+  cost_title: Energy cost of driving

@@ -22,7 +22,11 @@ describe Car::DayTimeline::Component, type: :component do
   def charge(session) = Car::DayTimeline::Charge.new(session:, spans: [[session.started_at, session.ended_at]])
 
   # The left and the right edge of each bar, in percent of the day
-  def bars = html.css('[role="img"][data-controller="tooltip"]')
+  # The bars of the drives first, then the bars of the charging, each row in
+  # the order of time. The row of the charging comes first on the page.
+  def bars
+    html.css('[role="img"][data-controller="tooltip"]').partition { it['aria-label'].start_with?('Driving') }.flatten
+  end
 
   def edges(bar) = bar['style'].scan(/[\d.]+%/).map(&:to_f)
 
@@ -94,6 +98,27 @@ describe Car::DayTimeline::Component, type: :component do
 
     expect(known.sole['d']).to eq('M0.0 20.0 L250.0 20.0 M375.0 60.0 L500.0 60.0')
     expect(estimated.sole['d']).to eq('M250.0 20.0 L375.0 60.0 M500.0 60.0 L750.0 10.0')
+  end
+
+  # A car reports whole percent, so a charge is a stair of small steps. The
+  # line runs through the middle of each step, and holds where the car
+  # holds its value for longer.
+  context 'with a charge in steps of 1 %' do
+    def soc = [[at(11, 30), 40], [at(12), 41], [at(12, 10), 42], [at(12, 20), 43]]
+
+    def soc_line = Car::DayTimeline::SocLine.new(soc, ends_at: at(18)).call
+
+    it 'draws a slope in place of the stair' do
+      line = html.at_css('svg path[fill="none"]')
+
+      expect(line['d']).to eq('M479.17 60.0 L500.0 60.0 L500.0 59.5 L506.94 58.5 L513.89 57.5 L513.89 57.0 L750.0 57.0')
+    end
+
+    it 'keeps the readings in the tooltips' do
+      titles = html.css('[aria-hidden="true"][data-controller="tooltip"] .tooltip-title').map { it.text.squish }
+
+      expect(titles).to eq(['SOC 40 %', 'SOC 41 %', 'SOC 42 %', 'SOC 43 %'])
+    end
   end
 
   it 'says in the tooltip of an estimate that it is one' do
@@ -275,20 +300,39 @@ describe Car::DayTimeline::Component, type: :component do
 
     it 'draws a timeline for each car and for the guest, each with its name' do
       expect(html.css('section').size).to eq(2)
-      expect(html.css('h2 span').map { it.text.squish }).to eq([car.display_name, 'Guest'])
+      expect(html.css('h2').map { it.text.squish }).to eq([car.display_name, 'Guest'])
     end
   end
 
-  it 'names no car on a single timeline' do
-    expect(html.css('h2 span')).to be_empty
+  # Beside the cards of a day, in the place of the chart of a period
+  it 'has no title and names no car on a single timeline' do
+    expect(html.css('h2')).to be_empty
+    expect(html.at_css('section')['aria-label']).to eq('Course of the day')
+  end
+
+  it 'has the charging first, like the cards, in higher rows' do
+    first = html.at_css('[role="img"][data-controller="tooltip"]')
+
+    expect(first['aria-label']).not_to start_with('Driving')
+    expect(html.css('.h-10.lg\:h-12').size).to eq(2)
   end
 
   # "all" with a single car in use on the day
   context 'when named' do
     subject(:html) { render_inline(described_class.new(timeline:, named: true)) }
 
-    it 'names the car also on a single timeline' do
-      expect(html.css('h2 span').map { it.text.squish }).to eq([car.display_name])
+    it 'names the car alone also on a single timeline' do
+      expect(html.css('h2').map { it.text.squish }).to eq([car.display_name])
+    end
+  end
+
+  # A timeline that only charges has no other row to fill the height
+  context 'with the guest alone' do
+    let(:lanes) { [Car::DayTimeline::Lane.new(car: nil, drives: [], charges: [charge(session)], soc_line: [], visits: [])] }
+
+    it 'lets the row of the charging fill the height' do
+      expect(html.css('.h-10.lg\:h-12')).to be_empty
+      expect(html.css('.min-h-28.flex-1').size).to eq(1)
     end
   end
 

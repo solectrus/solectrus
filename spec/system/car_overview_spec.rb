@@ -26,16 +26,14 @@ describe 'Car overview (mobile)' do
     Sensor::Config.setup(ENV)
   end
 
-  # The first chart of the column that a phone shows
-  def active_column = find('[data-car-overview-target=column][data-active=true]', visible: :all)['data-car-overview-charts'].split.first
+  # The one chart of the page
+  def chart(sensor_name) = find("turbo-frame[src*='/cars/charts/#{sensor_name}/']")
 
-  def chart(sensor_name) = find("turbo-frame[src*='/cars/charts/#{sensor_name}/']", visible: :all)
-
-  # The figure of a phone that loads the chart of the sensor, the first one
-  # where two load it, like the charged energy above the bar of the sources
+  # The figure of the overview that loads the chart of the sensor, the first
+  # one where two load it, like the charged energy above its sources
   def tile(sensor_name) = first("section a[data-stats-with-chart--component-sensor-name-param='#{sensor_name}']")
 
-  # The figures of a day load the timeline of the day below them. The day is
+  # The figures of a day load the timeline of the day beside them. The day is
   # yesterday, which only the admin sees (see Car::AdminOnlyDays).
   it 'shows the timeline of a day in place of the charts' do
     login_as_admin
@@ -45,19 +43,16 @@ describe 'Car overview (mobile)' do
     expect(page).to have_no_css("turbo-frame[src*='/cars/charts/']", visible: :all)
   end
 
-  # A column without a value has no tiles, and only the admin sees the day
-  it 'shows the chart of the column of a tapped tile' do
+  # Only the admin sees the day
+  it 'shows the chart of a tapped tile' do
     login_as_admin
     visit "/cars/car_distance/#{month}"
-    expect(tile('car_distance')).to be_visible
-    expect(active_column).to eq('car_distance')
+    expect(chart('car_distance')).to be_visible
 
     tile('car_charging').click
 
     expect(page).to have_current_path("/cars/car_charging/#{month}")
-    expect(active_column).to eq('car_charging')
     expect(chart('car_charging')).to be_visible
-    expect(chart('car_distance')).not_to be_visible
   end
 
   # Only the chart of the address renders the navigation, and the address
@@ -76,13 +71,12 @@ describe 'Car overview (mobile)' do
   end
 
   # The menu of a chart offers the charts of both columns
-  it 'shows the column of a chart from the menu' do
+  it 'shows a chart of the other column from the menu' do
     visit "/cars/car_distance/#{month}"
-    expect(active_column).to eq('car_distance')
+    expect(chart('car_distance')).to be_visible
 
     find('select[name="sensor-selector"] option[value*="/car_charging/"]', visible: :all).select_option
 
-    expect(active_column).to eq('car_charging')
     expect(chart('car_charging')).to be_visible
   end
 end

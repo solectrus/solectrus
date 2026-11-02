@@ -4,7 +4,10 @@ template data-tooltip-target='html'
   - if title || parts.any?
     .tooltip-layout.tooltip-layout-table
       - if title
-        = render Tooltip::Header::Component.new(title:) do
+        = render Tooltip::Header::Component.new(title:) do |header|
+          - if icon
+            - header.with_icon do
+              = helpers.icon icon, class: 'tooltip-icon fa-2xl'
           / The lines stand close below the title. The first one, like the
             time of a bar, stands on its own line, apart from the others, like
             an address.
@@ -33,6 +36,10 @@ template data-tooltip-target='html'
                 span.font-semibold.whitespace-nowrap = part.value
               - if bar && part == details.last
                 .pt-3 = render bar
+      / Without a detail, the bar stands alone below the title, like the span
+        of a rate whose figure shows the rate already
+      - elsif bar
+        .tooltip-group = render bar
       / The rows of the bar with a link, like its ends, in a sheet alone
       - if bar&.rows.present?
         .tooltip-group.tooltip-sheet-only

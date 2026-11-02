@@ -40,7 +40,7 @@ describe 'Car Stats' do
         end
       end
 
-      def charged = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-labelledby="overview-charging"] div.rounded-xl > div:first-child > :first-child').text.squish
+      def charged = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('section[aria-label="Charging"]').text.squish
 
       it 'leaves it out for a visitor' do
         get cars_stats_path(sensor_name: 'car_charging', timeframe: 'all', car: 1), headers: { 'Turbo-Frame' => 'random-turbo-frame' }
@@ -175,16 +175,18 @@ describe 'Car Stats' do
 
       after { Sensor::Config.setup(ENV) }
 
-      # A day has the timeline of the day below the figures, in place of the
+      # A day has the timeline of the day beside its cards, in place of the
       # charts of the columns (see Car::DayTimeline::Component)
       it 'shows the timeline of a day in place of the charts' do
+        allow(Sensor).to receive(:data?).and_return(true)
         get cars_home_path(timeframe: day.to_s)
 
         expect(response.body).to include("id=\"cars-timeline-#{day}\"")
         expect(response.body).not_to include('/cars/charts/')
 
         get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s), headers:)
-        expect(response.body).to include("target=\"cars-timeline-#{day}\"", 'Course of the day')
+        expect(response.body).to include("target=\"cars-timeline-#{day}\"", "target=\"cars-stats-#{day}\"")
+        expect(response.body).not_to include('Course of the day')
       end
 
       # A column without a charging session or without a drive shows the
@@ -192,11 +194,12 @@ describe 'Car Stats' do
       context 'with a period without charging and driving' do
         let(:idle_month) { '2026-07' }
 
-        it 'shows the first chart of each column without a sensor of the state' do
+        it 'shows the first chart of the driving without a sensor of the state' do
           allow(Sensor).to receive(:data?).and_return(true)
           get cars_home_path(timeframe: idle_month)
 
-          expect(response.body).to include("/cars/charts/car_charging/#{idle_month}", "/cars/charts/car_distance/#{idle_month}")
+          expect(response.body).to include("/cars/charts/car_distance/#{idle_month}")
+          expect(response.body).not_to include('/cars/charts/car_charging/')
         end
 
         context 'with the state of charge and the range' do
@@ -222,42 +225,41 @@ describe 'Car Stats' do
           end
         end
 
-        it 'says so in each column, without the link to the sessions' do
+        # The overview of a period has a card of each column (see
+        # Car::PeriodOverview::Component). A card without a value says so
+        # alone.
+        it 'says so in each card, without the link to the sessions' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: idle_month), headers:)
 
-          boxes = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).css('section[aria-labelledby^="overview-"]')
-          expect(boxes.size).to eq(2)
-          expect(boxes.text).to include('No charging sessions', 'No drives')
-          expect(boxes.css('a[href*="/charging_sessions/"]')).to be_empty
+          cards = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).css('section[aria-label]')
+          expect(cards.pluck('aria-label')).to eq([I18n.t('car_breakdown.charging'), I18n.t('car_breakdown.driving')])
+          expect(cards.map { it.text.squish }).to eq(['No charging sessions', 'No drives'])
+          expect(cards.css('a[href*="/charging_sessions/"]')).to be_empty
           expect(response.body).not_to include('The data is not enough')
         end
       end
 
-      # The charging column shows its empty chart, and a phone shows the
-      # driving, which has a value
+      # The page shows the chart of the driving, which has a value
       context 'with a period with a drive but without charging' do
         let(:drive_day) { Date.new(2026, 8, 10) }
         let(:drive_month) { '2026-08' }
 
         before { SummaryValue.create!(date: drive_day, field: :car_odometer_1, aggregation: :sum, value: 20) }
 
-        it 'shows the first chart of each column, and the distance first on a phone' do
+        it 'shows the distance' do
           allow(Sensor).to receive(:data?).and_return(true)
           get cars_home_path(timeframe: drive_month, car: 1)
 
-          html = response.parsed_body
-          columns = html.css('[data-car-overview-target="column"]')
-          expect(columns.size).to eq(2)
-          expect(response.body).to include("/cars/1/charts/car_charging/#{drive_month}", "/cars/1/charts/car_distance/#{drive_month}")
-          expect(columns.find { it['data-active'] == 'true' }['data-car-overview-charts']).to start_with('car_distance')
+          expect(response.body).to include("/cars/1/charts/car_distance/#{drive_month}")
+          expect(response.body).not_to include('/cars/1/charts/car_charging/')
         end
 
-        it 'says so in the charging column, and keeps the driving figures' do
+        it 'says so in the charging card, and keeps the driving figures' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: drive_month, car: 1), headers:)
 
           fragment = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, ''))
-          expect(fragment.at_css('section[aria-labelledby="overview-charging"]').text).to include('No charging sessions')
-          expect(fragment.at_css('section[aria-labelledby="overview-driving"]').text).to include(I18n.t('sensors.car_driving_costs'))
+          expect(fragment.at_css(%(section[aria-label="#{I18n.t('car_breakdown.charging')}"])).text).to include('No charging sessions')
+          expect(fragment.at_css(%(section[aria-label="#{I18n.t('car_breakdown.driving')}"])).text).to include(I18n.t('sensors.car_driving_costs'))
         end
       end
 
@@ -271,13 +273,11 @@ describe 'Car Stats' do
       end
 
       # The tooltip of a rate has the numbers that give it and what only
-      # this rate means, and without a rate what is missing. The window of
-      # the rates stands in the info icon alone.
+      # this rate means, and without a rate what is missing
       it 'explains the rates of the driving' do
         get(cars_stats_path(sensor_name: 'car_distance', timeframe: day.to_s, car: 1), headers:)
 
-        expect(response.body).to include('Energy cost', 'Energy used', 'includes the charging losses')
-        expect(response.body).not_to include('counts the charging cost of the 14 days')
+        expect(response.body).to include('Energy cost', I18n.t('sensors.car_consumption_rate'), 'includes the charging losses')
         expect(response.body).not_to include('Prices are missing')
       end
 
@@ -487,33 +487,28 @@ describe 'Car Stats' do
         end
       end
 
-      # The stats frame is permanent, so each column and each car needs a
-      # frame of its own. One request fills the frames of both columns.
-      it 'updates the stats frame of each column and the car' do
+      # The stats frame is permanent, so each car needs a frame of its own
+      it 'updates the stats frame of the car' do
         get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.to_s, car: 2), headers:)
 
-        expect(response.body).to include(%(target="cars-stats-charging-#{day}-2"), %(target="cars-stats-driving-#{day}-2"))
+        expect(response.body).to include(%(target="cars-stats-#{day}-2"))
       end
 
-      # The texts of the chart menu of a desktop, or of a phone. The menu sits
-      # in the template of a Turbo stream, which the HTML5 parser of
-      # #parsed_body keeps out of the tree.
-      def menu_items(device = :desktop)
-        wrapper = device == :desktop ? 'max-lg:hidden' : 'lg:hidden'
-        Nokogiri::HTML4(response.body).css(%(div[class="#{wrapper}"] select[name=sensor-selector] option)).map { it.text.strip } # rubocop:disable Rails/ResponseParsedBody
+      # The texts of the chart menu. The menu sits in the template of a Turbo
+      # stream, which the HTML5 parser of #parsed_body keeps out of the tree.
+      def menu_items
+        Nokogiri::HTML4(response.body).css('select[name=sensor-selector] option').map { it.text.strip } # rubocop:disable Rails/ResponseParsedBody
       end
 
       # The car select above the chart menu selects the car, so the menu
       # names no car. The distance shows each car, and the state of charge
       # needs one car.
-      # The menu of a desktop offers the charts of the column of the chart (see
-      # Car::Section). A phone shows one chart, so its menu offers the charts
-      # of both columns.
-      it 'offers the charts of the column on a desktop, and of both on a phone' do
+      # The overview shows one chart, so its menu offers the charts of both
+      # columns (see Car::Section)
+      it 'offers the charts of both columns' do
         get(cars_charts_path(sensor_name: 'car_charging', timeframe: '2026-06'), headers:)
 
-        expect(menu_items).to contain_exactly(I18n.t('sensors.car_charging'), I18n.t('sensors.car_charging_costs'))
-        expect(menu_items(:phone)).to include(I18n.t('sensors.car_charging'), I18n.t('sensors.car_distance_short'))
+        expect(menu_items).to include(I18n.t('sensors.car_charging'), I18n.t('sensors.car_charging_costs'), I18n.t('sensors.car_distance_short'))
       end
 
       it 'offers the distance and no state of charge in the selection "all"' do
@@ -540,7 +535,7 @@ describe 'Car Stats' do
       it 'draws the distance of the selected car alone' do
         get(cars_charts_path(sensor_name: 'car_distance', timeframe: '2026-06', car: 2), headers:)
         # The select beside it names each car
-        chart = response.body[%r{<turbo-stream action="update" target="cars-chart-driving-2026-06">.*?</turbo-stream>}m]
+        chart = response.body[%r{<turbo-stream action="update" target="cars-chart-2026-06">.*?</turbo-stream>}m]
 
         expect(chart).to include('Wartburg')
         expect(chart).not_to include('Trabant')

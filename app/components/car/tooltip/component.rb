@@ -1,4 +1,4 @@
-# The tooltip of a figure of the overview (see Car::OverviewBox::Component),
+# The tooltip of a figure of the overview (see Car::PeriodOverview::Component),
 # like the charged energy or the charging cost, and of a bar of the timeline
 # of a day (see Car::TimelineBar::Component). A bar has a title, and below it
 # its `lines`: first its time, then like the address of an offsite session.
@@ -10,18 +10,27 @@
 # alone: a hover tooltip closes before the pointer reaches them.
 # The notes stand at the end, smaller than the rows. Without parts, the notes
 # are the whole tooltip.
-class Car::OverviewBox::Tooltip::Component < ViewComponent::Base
-  # `parts` are Car::OverviewBox::Component::Part
-  def initialize(title: nil, lines: [], parts: [], notes: [], bar: nil)
+class Car::Tooltip::Component < ViewComponent::Base
+  # A part of a value with the color of its part of a bar, a CSS color like
+  # "var(--color-car-pv)", and its whole share in percent
+  Part = Data.define(:label, :value, :color, :percent) do
+    def initialize(color: nil, percent: nil, **) = super
+  end
+  public_constant :Part
+
+  # `parts` are Parts. `icon` stands above the title, like the source of a
+  # charge.
+  def initialize(title: nil, icon: nil, lines: [], parts: [], notes: [], bar: nil)
     super()
     @title = title
+    @icon = icon
     @lines = lines
     @parts = parts
     @notes = notes
     @bar = bar
   end
 
-  attr_reader :title, :lines, :parts, :notes, :bar
+  attr_reader :title, :icon, :lines, :parts, :notes, :bar
 
   def colored = parts.select(&:color)
 

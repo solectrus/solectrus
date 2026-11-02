@@ -4,15 +4,19 @@ de:
   consumption_losses: Die Energie ist beim Laden gemessen und enthält die Ladeverluste. Das Auto selbst zeigt deshalb meist weniger an.
   unrated: Ohne %{distance}, für die Ladedaten fehlen.
   window: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen je 100 km die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag.
+  none: Keine Fahrten
   minimum: Minimum
   maximum: Maximum
-  none: Keine Fahrten
   per_day: Ø pro Tag
   ev: E-Auto
   combustion: Verbrenner
   saved: '%{amount} gespart'
   extra: '%{amount} mehr'
-  savings_note: Der Unterschied der laufenden Kosten von E-Auto und einem fiktiven Verbrenner, mit Kosten wie Versicherung und Wartung. Die Energiekosten oben zählen nur den Strom.
-  energy_description: Der Strom, den die gefahrene Strecke gebraucht hat.
-  cost_description: Was der Strom für die gefahrene Strecke gekostet hat.
+  savings_note: Der Unterschied der laufenden Kosten von E-Auto und einem fiktiven Verbrenner, mit Kosten wie Versicherung und Wartung.
+  no_savings:
+    drive: Ohne Fahrt gibt es nichts zu vergleichen.
+    comparison: Für den Vergleich braucht das Auto einen Verbrenner in seinen Einstellungen und die Kraftstoffpreise.
+    distance: Für die gefahrene Strecke fehlen Ladedaten oder ein Kraftstoffpreis. Die Vergleichsseite nennt die Lücken.
   savings: Ersparnis
+  per_100km: je 100 km
+  cost_title: Energiekosten für Fahren

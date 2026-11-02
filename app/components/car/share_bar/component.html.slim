@@ -1,5 +1,5 @@
 / Each form of a label is hidden until the controller shows the one that fits
-div[class=['flex h-9 gap-0.5 overflow-hidden rounded-lg bg-fill-strong', ('animate-pulse motion-reduce:animate-none' if pulse)]
+div[class=['flex h-10 shrink-0 gap-0.5 overflow-hidden rounded-xl bg-fill-strong lg:h-12', ('animate-pulse motion-reduce:animate-none' if pulse)]
     role=('img' if label)
     aria-label=label
     aria-hidden=('true' unless label)
@@ -7,4 +7,4 @@ div[class=['flex h-9 gap-0.5 overflow-hidden rounded-lg bg-fill-strong', ('anima
   - segments.each do |segment|
     span class=segment_classes(segment) style=segment_style(segment) data-car--share-bar--component-target='segment'
       - segment.labels.each do |form|
-        span.flex.items-center.gap-1.5 hidden=true = form
+        span class=label_classes hidden=true = form

@@ -29,6 +29,7 @@ module Car::ChartLink
     helpers.cars_home_path(sensor_name:, timeframe:, **helpers.selection_params)
   end
 
+  # The pair of stats and chart around the link loads the chart
   def chart_link_data(sensor_name)
     {
       turbo_prefetch: 'false',

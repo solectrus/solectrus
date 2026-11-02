@@ -84,7 +84,7 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   # :no_distance without a day with a cost and a fuel price. The prices come
   # first, so the page does not ask for settings that give no comparison.
   # The car page shows the savings when the comparison is ready, too (see
-  # Car::DrivingBox::Component).
+  # Car::PeriodOverview::Driving::Component).
   def state
     return :no_prices unless prices?
     return :none unless comparison

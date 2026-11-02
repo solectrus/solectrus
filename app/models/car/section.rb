@@ -1,9 +1,7 @@
 # The two columns of the overview of the car page: the driving and the
-# charging, in the order of the timeline of a day. Each column shows its
-# figures and the chart of one of them. The sensor of the chart in the
-# address chooses the chart of its column (/cars/2/car_cost_rate/2025), and
-# the other column shows its first chart. A chart without a value draws its
-# empty axes.
+# charging. Each has its figures and its charts, which the menu of the one
+# chart of the page groups (see Cars::HomeController#chart_name). A chart
+# without a value draws its empty axes.
 module Car::Section
   # The charts of each column, in the order of the menu, the first chart first
   CHARTS = {
@@ -14,9 +12,8 @@ module Car::Section
 
   def self.all = CHARTS.keys
 
-  # Whether a period shows the charts of its columns. The live view has none,
-  # and a day has the timeline of the day in their place (see
-  # Car::DayTimeline::Component).
+  # Whether a period shows a chart. The live view has none, and a day has
+  # the timeline of the day in its place (see Car::DayTimeline::Component).
   def self.charts?(timeframe) = !(timeframe.now? || timeframe.day?)
 
   # The column of the chart, or nil
@@ -25,10 +22,4 @@ module Car::Section
   # Whether the column has a value in the period of the report (see
   # Car::Report): a charging session, or a drive
   def self.value?(section, report) = section == :charging ? report.charged? : report.driven?
-
-  # Whether the box of the column has a bar below its figures: the sources
-  # of the charging, or the savings of the driving against a combustion car
-  # (see Car::Report#savings?). The report needs no sums for it, so the
-  # placeholder of the box keeps the place of the bar.
-  def self.bar?(section, report) = section == :charging || report.savings?
 end

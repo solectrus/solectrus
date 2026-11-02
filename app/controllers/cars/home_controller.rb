@@ -1,8 +1,8 @@
-# The car page. Its live view shows each car, and a period shows the charging
-# and the driving side by side, each with its figures and its chart (see
-# Car::Section). A click on a figure loads its chart in its column. The sensor
-# of the chart in the address chooses the chart of its column, and the other
-# column shows its first chart: /cars/2/2025, /cars/2/car_cost_rate/2025.
+# The car page. Its live view shows each car. A period shows the figures of
+# the charging and of the driving (see Car::Section), and one chart beside
+# them, which a click on a figure or a pick of the menu changes. The sensor
+# of the chart is in the address: /cars/2/2025, /cars/2/car_cost_rate/2025.
+# A day has its timeline in the place of the chart.
 class Cars::HomeController < HomePageController
   include Cars::Selectable
 
@@ -52,23 +52,14 @@ class Cars::HomeController < HomePageController
     @missing_or_stale_summary_days = Sensor::Summarizer.build_few(Car::Report.pending_days(timeframe))
   end
 
-  # The chart of each column: the chart of the address in its column, else
-  # its first chart (see Cars::Selectable#section_charts), or nil without one.
-  # A chart of the address that the period cannot draw stays in the address,
-  # so it comes back with the next timeframe.
-  helper_method def column_charts
-    @column_charts ||= section_charts.transform_values do |charts|
-      charts.find { it.to_s == sensor_name.to_s } || charts.first
-    end
-  end
-
-  # The column whose chart a phone shows: the column of the chart in the
-  # address, else the first column with a chart and a value, like the
-  # driving of a day without charging
-  helper_method def phone_section
-    section = Car::Section.of(sensor_name)
-    return section if section.in?(chart_sections)
-
-    chart_sections.find { !idle_section?(it) } || chart_sections.first || overview_sections.first
+  # The chart of the page: the chart of the address, else the first chart
+  # of its column, else of the first column with a value, like the charging
+  # of a week without a drive (see Cars::Selectable#section_charts). Nil
+  # without a chart. A chart of the address that the period cannot draw stays
+  # in the address, so it comes back with the next timeframe.
+  helper_method def chart_name
+    section = Car::Section.of(sensor_name).presence_in(chart_sections) || chart_sections.find { !idle_section?(it) } || chart_sections.first
+    charts = section_charts.fetch(section, [])
+    charts.find { it.to_s == sensor_name.to_s } || charts.first
   end
 end

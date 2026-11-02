@@ -44,10 +44,7 @@ const HEAT_STACK = {
   generated: 'heatpump_heating_power',
 } as const;
 
-// A step back or forward in the history visits the page again. A page can
-// hold more than one of these controllers, like the two columns of the car
-// page, and they share one listener, so each step makes one visit.
-let popStateUsers = 0;
+// A step back or forward in the history visits the page again
 const visitOnPopState = () =>
   Turbo.visit(window.location.href, { action: 'replace' });
 
@@ -102,8 +99,7 @@ export default class extends Controller {
       );
     }
 
-    if (popStateUsers++ === 0)
-      window.addEventListener('popstate', visitOnPopState);
+    window.addEventListener('popstate', visitOnPopState);
 
     this.startLoop();
   }
@@ -119,8 +115,7 @@ export default class extends Controller {
         this.boundHandleVisibilityChange,
       );
 
-    if (--popStateUsers === 0)
-      window.removeEventListener('popstate', visitOnPopState);
+    window.removeEventListener('popstate', visitOnPopState);
   }
 
   // Stimulus Action: The data behind the page changed, like after a save in a
@@ -190,20 +185,9 @@ export default class extends Controller {
       (element instanceof HTMLOptionElement ? element.value : undefined);
     if (!historyUrl) return;
 
-    this.showChart(
-      historyUrl,
-      event.params?.sensorName,
-      event.params?.chartUrl,
-    );
-  }
+    if (event.params?.sensorName) this.selectedSensor = event.params.sensorName;
 
-  // Loads the chart of a sensor, also for a pick outside this component, like
-  // the menu of the car page, which loads a pick in the column of its chart
-  // (see car_overview_controller.ts). The event `chart` names the sensor.
-  showChart(historyUrl: string, sensorName?: string, chartUrl?: string) {
-    if (sensorName) this.selectedSensor = sensorName;
-    this.applyChartUrl(historyUrl, chartUrl);
-    if (sensorName) this.dispatch('chart', { detail: { sensorName } });
+    this.applyChartUrl(historyUrl, event.params?.chartUrl);
   }
 
   private stopLoop() {
@@ -567,21 +551,10 @@ export default class extends Controller {
   // errors to the console for debugging.
   private async reloadFrames(options: { chart: boolean }) {
     // The year comparison drops the stats frame to give the chart the whole
-    // width, so there may be nothing to reload on that side. A stats frame
-    // without a source gets its stats from another frame (see
-    // StatsWithChart::Component#stats_frame).
-    const reloads =
-      this.hasStatsTarget && this.statsTarget.src
-        ? [this.statsTarget.reload()]
-        : [];
-    // A page without a chart (the live view of the cars) has no chart frame.
-    // A hidden chart, like the one of the other column of the car page on a
-    // phone, loads again once a pick shows it.
-    if (
-      options.chart &&
-      this.hasChartTarget &&
-      this.chartTarget.checkVisibility()
-    )
+    // width, so there may be nothing to reload on that side
+    const reloads = this.hasStatsTarget ? [this.statsTarget.reload()] : [];
+    // A page without a chart (the live view of the cars) has no chart frame
+    if (options.chart && this.hasChartTarget)
       reloads.push(this.chartTarget.reload());
 
     const results = await Promise.allSettled(reloads);

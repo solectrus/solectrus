@@ -274,7 +274,6 @@ en:
       one: 1 session not assigned
       other: '%{count} sessions not assigned'
     daily_rate: Each day at the rate of the %{days} days before and after it
-    # The notes of a period without a value in the overview
   balance_sheet:
     left: Source
     right: Usage

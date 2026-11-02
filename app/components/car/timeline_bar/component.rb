@@ -47,5 +47,5 @@ class Car::TimelineBar::Component < ViewComponent::Base
     { class: css_class, style:, role: 'img', aria: { label: bar.label }, data: }
   end
 
-  def tooltip = Car::OverviewBox::Tooltip::Component.new(title: bar.title, lines: bar.lines, parts: bar.parts, notes: bar.notes)
+  def tooltip = Car::Tooltip::Component.new(title: bar.title, lines: bar.lines, parts: bar.parts, notes: bar.notes)
 end

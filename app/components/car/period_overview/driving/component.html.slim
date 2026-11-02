@@ -1,0 +1,3 @@
+/ The comparison with a combustion car follows below the card
+= render Car::PeriodOverview::Card::Component.new(title: t('car_breakdown.driving'), timeframe:, main: distance_figure, lead: true, cells:, empty:, css_class: 'bg-car-drive-card')
+= render Car::PeriodOverview::Comparison::Component.new(figure: comparison, timeframe:)

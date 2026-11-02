@@ -10,8 +10,9 @@
 class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLength
   include Car::DayTimeline::DriveBars
   include Car::DayTimeline::ChargeFill
+  include Car::DayTimeline::SocCurve
 
-  Part = Car::OverviewBox::Component::Part
+  Part = Car::Tooltip::Component::Part
   private_constant :Part
 
   Bar = Car::TimelineBar::Bar
@@ -25,7 +26,9 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
   private_constant :PLUGGED_COLOR
 
   # `named` names the car also on a single timeline, for "all" on a page that
-  # offers a select: the select names no car then
+  # offers a select: the select names no car then. The timeline stands beside
+  # the cards of the day (see Car::PeriodOverview::Component), in the place
+  # of the chart of a period.
   def initialize(timeline:, named: false)
     super()
     @timeline = timeline
@@ -50,16 +53,42 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
 
   def lane_name(lane) = lane.guest? ? t('.guest') : lane.car.display_name
 
-  # A single timeline with a state of charge fills the rest of the window on
-  # a phone, so the line grows into the space below. The placeholder fills
-  # it too, because a single car is the common case. Several timelines keep
-  # their heights, and the window scrolls.
-  def fills? = placeholder? || (lanes.one? && lanes.first.soc?)
+  # Whether the timeline has a title: beside the cards only the name of its
+  # car, which a single car leaves out
+  def heading?(lane) = lane && named_lanes?
 
-  def fill_class = ('max-lg:flex-1' if fills?)
+  # A single timeline with a state of charge fills the height of the cards,
+  # and on a phone the rest of the window, so the line grows into the space.
+  # A single timeline that only charges, like the guest, fills it with the
+  # row of the charging. The placeholder fills it, because a single car is
+  # the common case. Several timelines keep their heights on a phone, and
+  # the window scrolls. On the desktop, each of them with a state of charge
+  # grows into the height of the cards.
+  def fills? = placeholder? || (lanes.one? && (lanes.first.soc? || charging_only?(lanes.first)))
 
-  # At least the height of a fixed row, so a small phone scrolls
-  def soc_height_class = fills? ? 'min-h-28 max-lg:flex-1 lg:h-36' : 'h-28 lg:h-36'
+  def charging_only?(lane) = !lane.soc? && !lane.driving?
+
+  # Without a lane, the class of the box around all timelines
+  def fill_class(lane = nil)
+    if fills?
+      'flex-1'
+    elsif lane ? lane.soc? : lanes.any?(&:soc?)
+      'lg:flex-1'
+    end
+  end
+
+  # The rows of the charging and of the drives are high like the bars of a
+  # chart
+  def row_height_class = 'h-10 lg:h-12'
+
+  def row_gap_class = 'gap-3 lg:gap-4'
+
+  # The row of the charging grows when it is the only row that fills
+  def charging_height_class(lane) = fills? && charging_only?(lane) ? growing_height_class : row_height_class
+
+  # The row that grows: the state of charge, or the charging alone. At least
+  # the height of a fixed row, so a small phone scrolls.
+  def growing_height_class = fills? ? 'min-h-28 flex-1' : 'h-28 lg:h-auto lg:min-h-36 lg:flex-1'
 
   # A bar for each charging session, from its start to its end, with the
   # tooltip of the session and its fill (see Car::DayTimeline::ChargeFill).
@@ -112,19 +141,23 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
   def soc_label(lane) = t('.soc_label', from: lane.soc_line.first.from_value.round, to: lane.soc_line.last.to_value.round)
 
   # The line of the state of charge as SVG paths in a box of 1000 x 100 (see
-  # Car::DayTimeline::SocLine): the known pieces, and the dashed pieces where
-  # the readings leave open when the value changed
+  # Car::DayTimeline::SocCurve): the known pieces, and the dashed pieces where
+  # the readings leave open when the value changed. Pieces that meet run on
+  # in one path, so their corners join.
   def soc_paths(lane)
-    known, unknown = lane.soc_line.partition(&:known)
+    known, unknown = soc_curve(lane).partition(&:known)
     [known, unknown].map do |segments|
-      segments.map { "M#{soc_point(it.from, it.from_value)} L#{soc_point(it.to, it.to_value)}" }.join(' ')
+      segments.chunk_while { |before, after| before.to == after.from && before.to_value == after.from_value }.map do |run|
+        "M#{soc_point(run.first.from, run.first.from_value)} L#{run.map { soc_point(it.to, it.to_value) }.join(' L')}"
+      end.join(' ')
     end
   end
 
   # The area below the whole line, down to 0 %
   def soc_area(lane)
-    points = lane.soc_line.flat_map { [soc_point(it.from, it.from_value), soc_point(it.to, it.to_value)] }
-    "M#{soc_point(lane.soc_line.first.from, 0)} L#{points.join(' L')} L#{soc_point(lane.soc_line.last.to, 0)} Z"
+    curve = soc_curve(lane)
+    points = curve.flat_map { [soc_point(it.from, it.from_value), soc_point(it.to, it.to_value)] }
+    "M#{soc_point(curve.first.from, 0)} L#{points.join(' L')} L#{soc_point(curve.last.to, 0)} Z"
   end
 
   # The pieces of the line that take time, each a bar without segments with

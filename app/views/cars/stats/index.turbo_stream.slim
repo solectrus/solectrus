@@ -7,18 +7,14 @@
     .h-full.w-full.flex.flex-col id="stats-#{timeframe.id}"
       = render Car::LiveView::Component.new(live: data)
 
-/ The figures of each column of the overview (see Car::Section), from one
-  request and one report
 - else
-  - overview_sections.each do |section|
-    = turbo_stream.update scoped_frame_id("stats-#{section}"), method: :morph do
-      div id="stats-#{section}-#{timeframe.id}" class="lg:flex-1 lg:flex lg:flex-col"
-        - if section == :driving
-          = render Car::DrivingBox::Component.new(report: data)
-        - else
-          = render Car::ChargingBox::Component.new(report: data, all: car.nil? && !car_selection.guest?)
+  / The figures of the charging and of the driving, from one request and
+    one report: the cards, or without an odometer the card of the charging
+  = turbo_stream.update scoped_frame_id('stats'), method: :morph do
+    div id="stats-overview-#{timeframe.id}" class='flex h-full w-full'
+      = render Car::PeriodOverview::Component.new(report: data, all: car.nil? && !car_selection.guest?, driving: driving?)
 
-  / The timeline of a day, below the figures, refreshes with them
+  / The timeline of a day, beside the cards, refreshes with the figures
   - if day_timeline
     = turbo_stream.update scoped_frame_id('timeline'), method: :morph do
       = render Car::DayTimeline::Component.new(timeline: day_timeline, named: car_select? && car.nil? && !car_selection.guest?)

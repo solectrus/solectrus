@@ -1,10 +1,11 @@
 import { Controller } from '@hotwired/stimulus';
 
-// The labels of the parts of a bar (see Car::ShareBar::Component). Each part
-// has the forms of its label from long to short, and shows the longest form
-// that fits its width, or none. The width changes with the window and once
-// the font loads. A refresh of the figures morphs the bar and hides the
-// forms again, so each of these fits the labels anew.
+// The labels of the parts of a bar (see Car::ShareBar::Component), and of
+// the sources in the card of the charging (see Car::PeriodOverview::Card::Component).
+// Each part has the forms of its label from long to short, and shows the
+// longest form that fits its width and its height, or none. The size changes
+// with the window and once the font loads. A refresh of the figures morphs
+// the bar and hides the forms again, so each of these fits the labels anew.
 export default class extends Controller<HTMLElement> {
   static readonly targets = ['segment'];
 
@@ -47,7 +48,9 @@ export default class extends Controller<HTMLElement> {
       }
       open = open.filter(
         ({ segment, forms }) =>
-          forms[index] && segment.scrollWidth > segment.clientWidth,
+          forms[index] &&
+          (segment.scrollWidth > segment.clientWidth ||
+            segment.scrollHeight > segment.clientHeight),
       );
     }
   }

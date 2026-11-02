@@ -4,33 +4,22 @@ class StatsWithChart::Component < ViewComponent::Base
   # stats that cannot shrink: they keep their height, and the chart below
   # takes the rest, so it does not cover them.
   #
-  # A page with more than one pair of stats and chart, like the columns of
-  # the car page, gives each pair a `scope`, which goes into the ids of its
-  # frames.
-  #
   # A page with a layout of its own, like the car page, renders the component
   # with a block. The block gets the component and places its frames with
   # #stats_frame and #chart_frame, in an element with #refresh_options.
-  def initialize(sensor_name:, timeframe:, chart: true, min_interval: nil, rigid_stats: false, scope: nil)
+  def initialize(sensor_name:, timeframe:, chart: true, min_interval: nil, rigid_stats: false)
     super()
     @sensor_name = sensor_name
     @timeframe = timeframe
     @chart = chart
     @min_interval = min_interval
     @rigid_stats = rigid_stats
-    @scope = scope
   end
 
   attr_reader :sensor_name, :timeframe, :min_interval
 
   # Without a chart, the stats take the whole height
   def chart? = @chart
-
-  # The id of a frame, with the scope of the pair
-  def frame_id(prefix, scoped: true)
-    name = [prefix, @scope].compact.join('-')
-    scoped ? helpers.scoped_frame_id(name) : helpers.frame_id(name)
-  end
 
   # Above the chart, the stats take three fifths of the height. Side by side
   # on a large screen, they take the full height. Rigid stats grow to their
@@ -42,19 +31,15 @@ class StatsWithChart::Component < ViewComponent::Base
     class_names('lg:flex-1 h-3/5 lg:h-auto flex', @rigid_stats ? 'min-h-fit lg:min-h-72' : 'min-h-72')
   end
 
-  # The frame of the stats, with the classes of its place in the layout.
-  # Without `source`, the frame loads nothing itself, because the stats of
-  # another frame fill it too, like the figures of the columns of the car
-  # page, which come from one request. A block is the placeholder until the
-  # stats come, in place of the spinner.
-  def stats_frame(css_class, source: true, &)
-    render(Ui::LazyFrame::Component.new(id: frame_id('stats'), src: (stats_path if source), class: css_class, target: '_top', data: { stats_with_chart__component_target: 'stats', turbo_permanent: true }), &)
+  # The frame of the stats, with the classes of its place in the layout. A
+  # block is the placeholder until the stats come, in place of the spinner.
+  def stats_frame(css_class, &)
+    render(Ui::LazyFrame::Component.new(id: helpers.scoped_frame_id('stats'), src: stats_path, class: css_class, target: '_top', data: { stats_with_chart__component_target: 'stats', turbo_permanent: true }), &)
   end
 
-  # The frame of the chart, with the classes of its place in the layout. A
-  # `lazy` chart loads once it is in view, like a chart that a phone hides.
-  def chart_frame(css_class, lazy: false)
-    render Ui::LazyFrame::Component.new(id: frame_id('chart', scoped: false), src: charts_path, class: css_class, target: '_top', loading: (:lazy if lazy), data: { stats_with_chart__component_target: 'chart' })
+  # The frame of the chart, with the classes of its place in the layout
+  def chart_frame(css_class)
+    render Ui::LazyFrame::Component.new(id: helpers.frame_id('chart'), src: charts_path, class: css_class, target: '_top', data: { stats_with_chart__component_target: 'chart' })
   end
 
   # The year comparison puts twelve months next to each other, once per year.

@@ -1,0 +1,10 @@
+div class='flex h-full min-h-0 w-full flex-1 flex-col gap-3 lg:gap-4'
+  - if report
+    = render Car::PeriodOverview::Charging::Component.new(report:, all:)
+    - if driving?
+      = render Car::PeriodOverview::Driving::Component.new(report:)
+  - else
+    - (driving? ? 2 : 1).times do
+      div class='min-h-0 flex-1 rounded-xl bg-fill-strong animate-pulse motion-reduce:animate-none lg:rounded-2xl'
+    - if driving?
+      = render Car::ShareBar::Component.new(segments: [], pulse: true)

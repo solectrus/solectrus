@@ -2,5 +2,7 @@ de:
   guest: davon Gast
   pv_cost: Die Kosten von PV sind die entgangene Einspeisevergütung.
   none: Keine Ladevorgänge
-  cost_description: Was der geladene Strom gekostet hat.
-  sources: Herkunft des geladenen Stroms
+  charged: geladen
+  share: Anteil
+  total: Summe
+  cost_title: Energiekosten für Laden

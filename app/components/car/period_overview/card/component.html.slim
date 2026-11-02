@@ -1,0 +1,71 @@
+section class=['flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl text-white lg:rounded-2xl', css_class] aria-label=title
+  / Without a value, the card says so alone. A link to a list keeps the
+    figures with 0, and the text stands in the place of the bar.
+  - empty_state = capture do
+    - if empty
+      div class='flex flex-1 items-center justify-center gap-2 px-3 lg:gap-3'
+        = helpers.slashed_icon empty.icon, class: 'shrink-0 text-xl opacity-60 lg:text-3xl'
+        span.truncate.text-base.font-medium.opacity-80.lg:text-xl = empty.text
+  - if blank?
+    = empty_state
+  - else
+    / The total: in the height of a line above the bar of the sources, or
+      large in the rest of the card, with its tooltip above it. Like each
+      part of the card, a click presses its content alone, so the card keeps
+      its shape.
+    = figure_tag(main, placement: ('top' if lead?), class: ['flex items-center justify-center px-2 focus-ring', lead? ? 'min-h-0 flex-1' : 'h-9 shrink-0 lg:h-13'], link_class:)
+      span class=['flex items-center gap-1.5 lg:gap-2', press_class(main)]
+        span class=['font-medium tabular-nums whitespace-nowrap [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-80', lead? ? 'text-3xl lg:text-5xl [&_.sensor-value-unit]:text-[0.5em]' : 'text-base lg:text-2xl [&_.sensor-value-unit]:text-[0.85em]']
+          = main.value
+        - if caption
+          span.text-base.opacity-80.lg:text-2xl = caption
+      - if main.tooltip?
+        = render tooltip(main)
+
+    - if bar?
+      / The sources side by side, each as wide as its energy, with a hairline
+        between them, like the balance of the home page. A source shows its
+        icon and its value, or its icon alone, or nothing, whatever fits, like
+        the parts of a bar (see car/share_bar/component_controller.ts). Its
+        tooltip always has its value.
+      div class='flex min-h-0 flex-1 divide-x divide-slate-200 dark:divide-black' data-controller='car--share-bar--component'
+        - if shown_segments.any?
+          - shown_segments.each do |segment|
+            = figure_tag(segment.figure, class: ['flex min-w-0 focus-ring', segment.css], style: "flex: #{segment.weight.round(3)} 1 0%", link_class: 'lg:hover:brightness-110')
+              span class=['flex size-full items-center justify-center overflow-hidden px-3 lg:px-4', press_class(segment.figure)] data-car--share-bar--component-target='segment'
+                span class='flex flex-col items-center gap-1.5 lg:gap-2.5' hidden=true
+                  = icon segment.figure.icon, class: 'text-sm lg:text-xl'
+                  span class='font-medium tabular-nums whitespace-nowrap text-sm lg:text-xl [&_.sensor-value-unit]:text-[0.7em] [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-85'
+                    = segment.figure.value
+                span.flex hidden=true
+                  = icon segment.figure.icon, class: 'text-sm lg:text-xl'
+              - if segment.figure.tooltip?
+                = render tooltip(segment.figure)
+        - elsif empty
+          = empty_state
+
+    / What belongs to the total, side by side
+    div class='flex h-12 shrink-0 divide-x divide-white/15 bg-black/15 lg:h-18'
+      - cells.each do |cell|
+        - if list?(cell)
+          / A phone opens the list in a sheet. Open tasks of the list put an
+            amber dot after its label.
+          - label = capture do
+            span class='flex min-w-0 items-center gap-1 click-animation lg:gap-1.5'
+              span.truncate = cell.label
+              - if cell.notes.any?
+                span.shrink-0.size-2.rounded-full.bg-attention aria-hidden='true'
+                span.sr-only = cell.notes.join(', ')
+              = icon 'chevron-right', class: 'shrink-0 text-[0.6rem] opacity-80'
+          - cell_class = 'group relative flex min-w-0 flex-1 items-center justify-center px-1 text-sm font-medium focus-ring active:bg-white/10 lg:text-base lg:hover:bg-white/10'
+          = link_to label, (cell.sheet_href || cell.href), data: (Ui::TurboModal::Component.link_data if cell.sheet_href), class: ['lg:hidden', cell_class]
+          = link_to label, cell.href, class: ['max-lg:hidden', cell_class]
+        - else
+          = figure_tag(cell.figure, class: 'flex min-w-0 flex-1 flex-col items-center justify-center px-1 focus-ring', link_class:)
+            span class=['flex min-w-0 max-w-full flex-col items-center', press_class(cell.figure)]
+              span class='font-medium leading-tight tabular-nums whitespace-nowrap text-base lg:text-2xl [&_.sensor-value-unit]:text-[0.7em] [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-80'
+                = cell.figure.value
+              - if cell.label
+                span class='max-w-full truncate text-[0.6875rem] leading-tight opacity-75 lg:text-sm' = cell.label
+            - if cell.figure.tooltip?
+              = render tooltip(cell.figure)

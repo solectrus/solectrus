@@ -782,10 +782,10 @@ page, and the address of the payments leads to the cars in the settings. The car
 no savings. If a combustion car uses a fuel without prices, but another fuel has prices, the
 comparison page tells that the prices are missing.
 
-The car page shows the savings for each timeframe but the live view, below the figures of the
-driving. They stand as an amount in a pale green bar, in the place and the height of the bar of
-the charging, so the boxes of both columns end on one line. The bar shows no ratio, because
-the amount matters. A loss is red. The tooltip names the costs of both cars and the savings.
+The car page shows the savings for each timeframe but the live view, in a bar below the cards.
+The bar shows the running costs of the EV beside the savings, so the whole bar is the cost of
+the combustion car. A loss puts the extra cost in red beside the cost of the combustion car.
+The tooltip names the costs of both cars and the savings.
 
 The bar links to the comparison of the same timeframe. It needs a drive and the fuel prices
 of each combustion car. Without a compared distance, the bar is an empty track, and the
@@ -981,52 +981,41 @@ not correct this, because the energy that a car uses while it stands is not know
 
 ### The overview
 
-The overview of a period has two columns: the driving and the charging (`Car::Section`), in
-the order of the rows of the timeline of a day.
-Each column has one figure that leads, other figures beside it and a bar below them. A
-week, a month, a year and the whole time show the chart of one figure below the column. A click on a figure loads its chart into its column, and the address
-keeps the chart.
+The overview has two columns: the charging and the driving (`Car::Section`). For a period
+and for a day, each column is a card of the same height (`Car::PeriodOverview::Component`).
+Below the cards, a bar shows the savings against a combustion car (see above).
 
-A day has no charts. It shows the timeline of the day below the figures (see
-[The day](#the-day)). The overview has no insights. Each column links its list: the charging
-links the charging sessions, and the driving links the places.
+A week, a month, a year and the whole time show one chart. It stands beside the cards on a
+desktop, and below them on a phone. A click on a figure loads its chart, and the address
+keeps the chart. The chart menu offers the charts of both columns, in a group for each.
 
-The sensor of the chart in the address chooses the chart of its column, for example
-`/cars/2/car_cost_rate/2025`. The other column shows its first chart. Without a sensor
-(`/cars/2/2025`), each column shows its first chart. The address of a day has no sensor. An
-address of a day with a sensor goes to the same day without it.
+A day has no charts. Its timeline stands in the place of the chart (see [The day](#the-day)).
+The rows of the timeline have the order of the cards: first the charging, then the drives.
+
+The sensor of the chart in the address chooses the chart, for example
+`/cars/2/car_cost_rate/2025`. Without a sensor (`/cars/2/2025`), the page shows the first
+chart of the first column with a value. The address of a day has no sensor. An address of a
+day with a sensor goes to the same day without it.
 
 - Charging: the charged energy, the charging cost and the state of charge.
 - Driving: the distance, the driving cost, the two rates, the maximum range and the range.
 
-The figures of each column (see `Car::OverviewBox::Component`):
+The figures of each card:
 
-- Charging: the charged energy leads, and the energy cost stands beside it. The bar shows
-  the sources side by side: PV, grid and offsite. Only PV has its share as a number in the
-  bar. The other sources show their icon. The tooltip of the bar has the energy and the
-  share of each source. Without the power splitter, the bar shows the wallbox and offsite,
-  and the share is the one of the wallbox. The tooltip of the cost has the cost of each
-  source and, on "all", the cost of the guest.
-- Driving: the distance leads, and the energy used and the energy cost stand beside it. The
-  bar shows the savings against a combustion car (see above). Without a comparison, the
-  driving has no bar. The tooltip of the distance has the average distance of a day and, on
-  "all", the distance of each car. The tooltips of the energy and of the cost have their
-  rate per 100 km, with a bar of its place among the periods. An info icon beside the title
-  of the column names the window of the rates.
+- Charging: the charged energy stands at the top. Below it, a bar shows the sources side by
+  side: PV, grid and offsite. Each source shows its icon and its energy, or its icon alone,
+  whichever fits. Its tooltip has the energy, the share and the cost of the source. Without
+  the power splitter, the bar shows the wallbox and offsite. The row below the bar has the
+  energy cost and the link to the charging sessions. The tooltip of the cost adds up the
+  cost of the sources and, on "all", names the cost of the guest.
+- Driving: the distance leads in large type. Its tooltip has the average distance of a day
+  and, on "all", the distance of each car. The row below it has the energy cost, the two
+  rates per 100 km and the link to the places. The tooltip of a rate has a bar of its place
+  among the periods, and the window of the rates.
 
-The lead has no caption, because the title of the column names it. The figures beside it
-have no caption either, so the three numbers of the driving fit in one line also for the
-whole time. A screen reader reads the captions. Each tooltip names its figure and tells what
-the value counts. Both energy costs count the electricity alone. The running
-costs in the bar of the savings also count payments like the insurance, so they are higher.
-
-A part of a bar shows the longest form of its label that fits its width, or no label. Where
-the line of the figures is too narrow, the figures beside the lead stand one below the
-other.
-
-The chart menu of a desktop offers the charts of its column alone. A phone shows one chart
-below the figures of both columns: the chart of the column of the last tap. Its chart menu
-offers the charts of both columns.
+A part of a bar shows the longest form of its label that fits its width, or no label. Each
+tooltip names its figure. Both energy costs count the electricity alone. The running costs
+in the bar of the savings also count payments like the insurance, so they are higher.
 
 The bar of a rate places the value between the lowest and the highest value of the periods
 of the same kind (`Car::Spans`). A month stands between the months, and a day between the
@@ -1041,7 +1030,7 @@ These rules are decisions:
   red either. The good end on the right and the numbers at the ends tell good and bad. Only
   a loss against a combustion car is red, because it is a real loss.
 - The overview has no ring. The ring of the distance of one car was always full and told
-  nothing. One figure that leads and a bar read the same on a phone and on a desktop.
+  nothing. The cards read the same on a phone and on a desktop.
 - Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
   timeframe and a range of dates show no bars.
 - A period counts for a bar only when the cars were in use on each of its days. A month in
@@ -1051,18 +1040,25 @@ These rules are decisions:
 - A bar reads each day of the whole time. Before it shows the bars, the page therefore
   builds the missing daily summaries of the whole time.
 
-A selected car without an odometer has no driving, so the page shows the charging alone. The
-guest has no driving either. A column without a value in the period says so in the place of
-its figures, for example "No drives". A column of the charging with sessions that the
-numbers leave out keeps its figures with 0, because its link names these sessions. A period
-without a car in use says so, and the admin gets a link to the settings of the cars.
+A selected car without an odometer has no driving, and neither has the guest. The page then
+shows the card of the charging alone, in the full height of the column, without the bar of
+the savings. The chart or the timeline stands beside it, as for a car that drives. A card
+without a value says so alone, for example "No drives". The charging with
+sessions that the numbers leave out keeps its figures with 0, because its link names these
+sessions. A period without a car in use says so, and the admin gets a link to the settings
+of the cars.
 
 ### The day
 
-The overview of a day shows the timeline of the day below the figures, in the place of the
-charts (`Car::DayTimeline::Component`). The timeline loads with the figures and refreshes
+The overview of a day shows the timeline of the day beside the cards, in the place of the
+chart (`Car::DayTimeline::Component`). The timeline loads with the figures and refreshes
 with them. Its axis is the local day from 0:00 to 24:00, so a day of a change of the clock
 has 23 or 25 hours on the same width.
+
+The timeline fills the height of the cards. The row of the state of charge grows, and the
+other rows keep their height. A timeline without a state of charge and without drives, like
+the guest, lets the row of the charging grow. Its bars then show the charging power like a
+chart.
 
 Only the admin sees today and yesterday (`Car::AdminOnlyDays`). Such a day shows when the cars
 drove and charged, so it tells when someone is away from home. A visitor gets a note with the
@@ -1086,7 +1082,6 @@ without a session there, so the note tells nothing itself.
 
 The timeline of a car has three rows:
 
-- The drives, each from its start to its end.
 - The charging sessions, each from its start to its end, and the times in which the car was
   plugged in but did not charge. A session at the wallbox shows its power over time as
   areas, with PV at the bottom and the grid on top. Power that the power splitter did not
@@ -1095,6 +1090,7 @@ The timeline of a car has three rows:
   stacks the shares of its sources from the bottom up, because parts side by side read as
   one after the other in time. A pause is grey. A time in which the wallbox sent no readings
   is grey with dots, and the tooltip says so.
+- The drives, each from its start to its end.
 - The state of charge, as a line through its readings (see
   [The line of the state of charge](#the-line-of-the-state-of-charge)).
 
@@ -1229,6 +1225,11 @@ These rules draw the line:
   changed. The line is then a slope from one reading to the next, marked as unknown.
 - A change of one percentage point steps at its reading, because it is the noise of the
   reading.
+
+A car reports whole percent, so a charge or a drive is a stair of small steps. The timeline
+therefore draws a line through the middle of each step when the next step follows within 30
+minutes (`Car::DayTimeline::SocCurve`). A longer hold stays flat, like a parked car. The
+tooltips keep the readings.
 
 The state of charge before and after a drive comes from the line.
 

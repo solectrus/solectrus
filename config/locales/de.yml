@@ -274,7 +274,6 @@ de:
       one: 1 Ladung nicht zugeordnet
       other: '%{count} Ladungen nicht zugeordnet'
     daily_rate: Jeder Tag zur Rate der %{days} Tage davor und danach
-    # The notes of a period without a value in the overview
   balance_sheet:
     left: Herkunft
     right: Verwendung
