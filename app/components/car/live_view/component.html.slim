@@ -1,6 +1,7 @@
 / A phone shows the cards one below the other. The live view grows with its
-  cards, and the window scrolls through more than fit (see the car page).
-div class='flex-1 flex flex-col gap-2 sm:flex-row sm:justify-center sm:gap-5'
+  cards, and the window scrolls through more than fit (see the car page). On
+  the desktop it has at least the height of a day.
+div class='flex-1 flex flex-col gap-2 sm:flex-row sm:justify-center sm:gap-5 lg:landscape:min-h-165'
   - if states.empty?
     div class=[Car::LiveShell::Component::CARD, card_classes, 'flex-1 items-center justify-center p-4', Car::LiveCard::Component::GROUND]
       = render Car::NoneInUse::Component.new(text: t('data.car_none_in_use_now'))

@@ -203,14 +203,21 @@ describe Car::LiveView::Component, type: :component do
         expect(toggles.first.text).to include('On the road', 'Connected')
         expect(html.css("##{toggles.first['aria-controls']}").text).to include('Odometer')
       end
+
+      # The desktop has the room for each list
+      it 'folds only on a phone' do
+        expect(html.css("##{toggles.first['aria-controls']}").first['class']).to include('max-lg:group-data-[open=false]/live-card:hidden')
+        expect(toggles.pluck('class')).to all(match(%r{(^|\s)(lg:hidden|max-lg:group-data-\[open=true\]/live-card:flex)(\s|$)}))
+      end
     end
 
+    # A lone card has the room for its list
     context 'with one car' do
       let(:states) { [state_of(car)] }
 
-      it 'starts unfolded' do
-        expect(html.css('section[data-open="true"]').size).to eq(1)
-        expect(toggles.pluck('aria-expanded')).to eq(%w[true true])
+      it 'does not fold the list' do
+        expect(toggles).to be_empty
+        expect(html.css('section[data-open]')).to be_empty
       end
     end
 

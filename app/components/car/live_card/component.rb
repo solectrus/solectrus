@@ -7,11 +7,11 @@
 # The range, the bar and the odometer open the chart of today.
 #
 # A phone has white cards on the gray of the page, the desktop gray cards on
-# its white page. The list of the admin with a map folds into one cell with
-# the place and the plug, and a tap on that cell unfolds it in its place (see
-# component_controller.ts). A lone card starts unfolded. With more than one
-# card, the card is a little smaller and starts folded, so several cars fit
-# on a phone without a scroll.
+# its white page. With more than one card, the card is a little smaller. On
+# a phone, its list with a map then folds into one cell with the place and
+# the plug, so several cars fit without a scroll. A tap on that cell
+# unfolds the list in its place (see component_controller.ts). The map fills
+# the height of the card on the desktop, and on a phone the lone card.
 class Car::LiveCard::Component < ViewComponent::Base
   include Car::BatteryDisplay
   include Car::TimeText
@@ -114,24 +114,26 @@ class Car::LiveCard::Component < ViewComponent::Base
   def cell_label_class = ('lg:hidden' unless compact)
 
   # A lone card on a phone gives the rest of the height of the window to its
-  # map, while its list is unfolded
+  # map
   def fill? = !compact && map?
 
+  # The map or the sample map takes the rest of the height of the card on the
+  # desktop
+  def grow? = map? || teaser?
+
   # The class names stay literal, so Tailwind finds them
-  def map_classes = ['flex lg:h-80 border-fg/15 *:rounded-none', fill? ? 'min-h-56 max-lg:flex-1' : 'h-56']
+  def map_classes = ['flex lg:flex-1 lg:min-h-56 border-fg/15 *:rounded-none', fill? ? 'min-h-56 max-lg:flex-1' : 'h-56 lg:h-auto']
 
   # The map loads the location of the car. A move of the car changes the
   # address, so the map loads again (see component_controller.ts).
   def map_path = helpers.cars_location_path(car: car.id, at: state.location.join(','))
 
   # The list folds into one cell with the place and the plug only around a
-  # map. Without one, that cell would hold most of the list.
-  def fold? = map?
+  # map, and only beside another card. Without a map, that cell would hold
+  # most of the list. A lone card has the room for its list.
+  def fold? = compact && map?
 
   def details_id = "car-live-details-#{car.id}"
-
-  # A lone card has the room for its list
-  def open_at_start? = !compact
 
   # The refresh of the live view keeps the state of the card and its map
   # (see component_controller.ts)
@@ -139,7 +141,7 @@ class Car::LiveCard::Component < ViewComponent::Base
                  'turbo:before-morph-element->car--live-card--component#keepMap'.freeze
   private_constant :FOLD_ACTIONS
 
-  def fold_data = fold? ? { controller: 'car--live-card--component', action: FOLD_ACTIONS, open: open_at_start?.to_s } : {}
+  def fold_data = fold? ? { controller: 'car--live-card--component', action: FOLD_ACTIONS, open: 'false' } : {}
 
   # The cell that unfolds the list, and the cell that folds it again. The class
   # names stay literal, so Tailwind finds them.
@@ -149,7 +151,7 @@ class Car::LiveCard::Component < ViewComponent::Base
   def toggle_options
     {
       type: 'button',
-      'aria-expanded': open_at_start?.to_s,
+      'aria-expanded': 'false',
       'aria-controls': details_id,
       data: { action: 'car--live-card--component#toggle', 'car--live-card--component-target': 'toggle' },
     }
@@ -185,12 +187,21 @@ class Car::LiveCard::Component < ViewComponent::Base
   LINK_CLASSES = 'click-animation focus-ring'.freeze
   private_constant :LINK_CLASSES
 
+  # A link around an area, like the bar, whose press scales its content
+  # alone (see #press_class)
+  AREA_LINK_CLASSES = 'group focus-ring'.freeze
+  private_constant :AREA_LINK_CLASSES
+
   # A value (see DAY_SENSORS) as a link to today, or as a plain block
-  # without one
-  def value_tag(value, **options, &)
+  # without one. An `area` keeps its shape on a press.
+  def value_tag(value, area: false, **options, &)
     path = day_path(value)
-    content_tag(path ? :a : :div, **options, href: path, class: class_names(options[:class], LINK_CLASSES => path), &)
+    content_tag(path ? :a : :div, **options, href: path, class: class_names(options[:class], (area ? AREA_LINK_CLASSES : LINK_CLASSES) => path), &)
   end
+
+  # The content of an area that a press on its link scales, like the percent
+  # on the bar
+  def press_class(value) = ('click-animation' if day_path(value))
 
   def fill_classes = FILL_CLASSES[Sensor::Definitions::CarBatterySoc.level(soc)]
 

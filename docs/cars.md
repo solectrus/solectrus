@@ -948,19 +948,20 @@ Each car has a section of its own (`Car::LiveCard::Component`):
   plug of the wallbox counts only at home.
 - The odometer.
 
-The card of the range and the list below it form one box. For the admin, the list folds into
-one cell with the place and the plug. A tap on that cell unfolds the list in its place, and
-the last cell of the list folds it again. A lone car starts unfolded. With more than one car,
-each list starts folded, so the cars fit on a phone. A visitor sees no place and no map, so the
-short list of a visitor does not fold. The map loads when its list unfolds. The refresh of the
-live view keeps an unfolded list and its map, until the car moves.
+The card of the range and the list below it form one box. With more than one car, the list of
+the admin folds into one cell with the place and the plug on a phone, so the cars fit. A tap on
+that cell unfolds the list in its place, and the last cell of the list folds it again. A lone
+car and the desktop have the room for the list, so it does not fold there. A visitor sees no
+place and no map, so the short list of a visitor does not fold. The map loads when its list
+unfolds. The refresh of the live view keeps an unfolded list and its map, until the car moves.
 
 A lone car on the desktop sets the cells below the map side by side, without their names: the
 icon tells the plug, and the odometer has its name in the tooltip.
 
 The live view grows with its cars, so the window scrolls when they do not fit. A wider screen
-shows the cars side by side. On a phone, the unfolded map of a lone car takes the rest of the
-height of the window.
+shows the cars side by side. On the desktop, the live view has at least the height of a day,
+and the map takes the rest of the height of its card. On a phone, the map of a lone car takes
+the rest of the height of the window.
 
 Only the car at the wallbox shows the power of the wallbox (`Car::Live`). When the wallbox
 charges and no car shows its power, the live view adds a card of the wallbox with the

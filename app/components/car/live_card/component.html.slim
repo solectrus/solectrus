@@ -1,11 +1,11 @@
-= render Car::LiveShell::Component.new(label: car.display_name, css_class: [('group/live-card' if fold?), ('flex-1' if fill?)], data: fold_data) do |card|
+= render Car::LiveShell::Component.new(label: car.display_name, css_class: [('group/live-card' if fold?), ('flex-1' if fill?), ('lg:flex-1' if grow?)], data: fold_data) do |card|
   / The name with a car in the color of the car
   - card.with_title do
     = helpers.car_icon(car.display_color)
     span.truncate = car.display_name
 
   / The card of the range and the list below it form one box
-  div class=['flex flex-col rounded-2xl overflow-hidden', GROUND, ('max-lg:group-data-[open=true]/live-card:flex-1' if fill?)] data-car--live-card--component-target=('box' if fold?)
+  div class=['flex flex-col rounded-2xl overflow-hidden', GROUND, ('max-lg:flex-1' if fill?), ('lg:flex-1' if grow?)] data-car--live-card--component-target=('box' if fold?)
     div class='flex flex-col gap-4 p-4 lg:gap-5 lg:p-6'
       / The range, and without one the state of charge, with its name below.
         At the right, the time of the latest reading of the car.
@@ -32,7 +32,7 @@
         end of the fill. While the car charges, the part that the charge fills
         next pulses. Below the bar, the scale from 0 to the maximum range.
       div
-        = value_tag(:soc, class: 'block rounded-full') do
+        = value_tag(:soc, area: true, class: 'block rounded-full') do
           .relative.lg:h-12.rounded-full.overflow-hidden.bg-fill-strong class=bar_height_class role='img' aria-label=bar_label
             / The pulse lies below the fill and reaches further, so it ends
               round like the fill
@@ -41,7 +41,7 @@
             - if soc&.positive?
               .absolute.inset-y-0.left-0.rounded-full class=fill_classes style="width: #{fill_percent}%"
             - if soc
-              span.absolute.inset-y-0.flex.items-center.lg:text-2xl.font-bold.tabular-nums class=[percent_classes, percent_size_class] style=percent_style aria-hidden='true'
+              span.absolute.inset-y-0.flex.items-center.lg:text-2xl.font-bold.tabular-nums class=[percent_classes, percent_size_class, press_class(:soc)] style=percent_style aria-hidden='true'
                 = percent
         - if scale?
           div class='mt-1.5 lg:mt-2 flex justify-between gap-3 text-base tabular-nums text-muted'
@@ -55,13 +55,13 @@
           = t('cars.battery.stale')
 
     / The map of the place, the plug and the odometer as the cells of a
-      grouped list. The list of the admin folds into one cell with the place
-      and the plug, which unfolds it in its place. The last cell folds it
-      again.
+      grouped list. On a phone, the list of the admin beside another card
+      folds into one cell with the place and the plug, which unfolds it in
+      its place. The last cell folds it again.
     / The place stands next to the chevron, because the map is the most of
       what unfolds
     - if fold?
-      button class=[CELL, TOGGLE_CLASSES, 'border-t border-line group-data-[open=true]/live-card:hidden'] *toggle_options
+      button class=[CELL, TOGGLE_CLASSES, 'border-t border-line group-data-[open=true]/live-card:hidden lg:hidden'] *toggle_options
         - if plug?
           span.shrink-0 = plug_state
         span.ml-auto.flex.min-w-0.items-center.gap-2
@@ -69,7 +69,7 @@
           = helpers.icon 'chevron-down', class: 'shrink-0 text-xs text-faint'
 
     - if details?
-      div id=details_id class=['flex flex-col divide-y divide-line border-t', ((map? || teaser?) ? 'border-fg/15' : 'border-line'), ('max-lg:flex-1' if fill?), ('group-data-[open=false]/live-card:hidden' if fold?)]
+      div id=details_id class=['flex flex-col divide-y divide-line border-t', ((map? || teaser?) ? 'border-fg/15' : 'border-line'), ('max-lg:flex-1' if fill?), ('lg:flex-1' if grow?), ('max-lg:group-data-[open=false]/live-card:hidden' if fold?)]
         / The map names the place, and loads once it shows, so a folded card
           loads none. A car without a position is on the road.
         - if map?
@@ -100,5 +100,5 @@
                     | –
 
     - if fold?
-      button class=['hidden group-data-[open=true]/live-card:flex items-center justify-center min-h-11 border-t border-line', TOGGLE_CLASSES] aria-label=t('.fold') *toggle_options
+      button class=['hidden max-lg:group-data-[open=true]/live-card:flex items-center justify-center min-h-11 border-t border-line', TOGGLE_CLASSES] aria-label=t('.fold') *toggle_options
         = helpers.icon 'chevron-down', class: 'rotate-180 text-xs text-faint'

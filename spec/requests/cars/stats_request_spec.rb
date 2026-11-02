@@ -122,20 +122,24 @@ describe 'Car Stats' do
               }
         end
 
-        it 'shows the name of the place to the admin, with its map' do
-          Place.create!(latitude: 50.92265, longitude: 1.4071, name: 'Home')
+        # The map names the place in a frame of its own, which loads once it
+        # shows (see the locations of the cars)
+        it 'loads the map of the place to the admin, without waiting for Nominatim' do
           login_as_admin
           request_live_view
 
-          expect(response.body).to include('Home', cars_location_path(car: 1))
+          frame = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).at_css('turbo-frame#car_location_1')
+
+          expect(frame['src']).to start_with(cars_location_path(car: 1))
+          expect(frame['loading']).to eq('lazy')
+          expect(a_request(:get, /nominatim/)).not_to have_been_made
         end
 
-        it 'shows the car on the road, without waiting for Nominatim' do
-          login_as_admin
+        it 'shows a sample map to a visitor, without the place' do
+          Place.create!(latitude: 50.92265, longitude: 1.4071, name: 'Home')
           request_live_view
 
-          expect(response.body).to include('On the road', cars_location_path(car: 1))
-          expect(a_request(:get, /nominatim/)).not_to have_been_made
+          expect(response.body).not_to include('Home', cars_location_path(car: 1))
         end
 
         it 'hides the location from a visitor' do
