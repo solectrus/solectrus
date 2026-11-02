@@ -180,7 +180,7 @@ describe Car::LiveView::Component, type: :component do
     def other_car = @other_car ||= Car.new(id: 2, active_from: Date.new(2020, 1, 1))
 
     def state_of(each_car)
-      state_at(5.minutes.ago).with(car: each_car, connected: true, charging_power: 0, odometer: 12_345)
+      state_at(5.minutes.ago).with(car: each_car, connected: true, charging_power: 0, odometer: 12_345, latitude: 1.40706, longitude: 2.50812)
     end
 
     def toggles = html.css('section[data-controller="car--live-card--component"] button[aria-controls]')
@@ -211,6 +211,16 @@ describe Car::LiveView::Component, type: :component do
       it 'starts unfolded' do
         expect(html.css('section[data-open="true"]').size).to eq(1)
         expect(toggles.pluck('aria-expanded')).to eq(%w[true true])
+      end
+    end
+
+    # Without a map, the folded cell would hold the most of the list
+    context 'with a car on the road' do
+      let(:states) { [state_of(car).with(latitude: nil, longitude: nil), state_of(other_car)] }
+
+      it 'does not fold its list' do
+        expect(html.css('section[data-open]').size).to eq(1)
+        expect(html.css('section').first.text).to include('On the road', 'Connected', 'Odometer')
       end
     end
 

@@ -7,8 +7,8 @@
 # The range, the bar and the odometer open the chart of today.
 #
 # A phone has white cards on the gray of the page, the desktop gray cards on
-# its white page. The list of the admin folds into one cell with the place
-# and the plug, and a tap on that cell unfolds it in its place (see
+# its white page. The list of the admin with a map folds into one cell with
+# the place and the plug, and a tap on that cell unfolds it in its place (see
 # component_controller.ts). A lone card starts unfolded. With more than one
 # card, the card is a little smaller and starts folded, so several cars fit
 # on a phone without a scroll.
@@ -124,10 +124,9 @@ class Car::LiveCard::Component < ViewComponent::Base
   # address, so the map loads again (see component_controller.ts).
   def map_path = helpers.cars_location_path(car: car.id, at: state.location.join(','))
 
-  # The list of the admin folds into one cell with the place and the plug,
-  # when it holds more than that cell. A visitor sees no place and no map, so
-  # the short list of a visitor stays as it is.
-  def fold? = location? && (map? || plug? || odometer?)
+  # The list folds into one cell with the place and the plug only around a
+  # map. Without one, that cell would hold most of the list.
+  def fold? = map?
 
   def details_id = "car-live-details-#{car.id}"
 
