@@ -185,6 +185,31 @@ describe Car::DayTimeline do
     end
   end
 
+  # The cloud of the car sent its last state again and again until 10:45
+  context 'with readings that repeat a stale state' do
+    before do
+      Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_BATTERY_SOC_1' => 'Trabant:soc', 'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer'))
+      times = [at(0) - 10.minutes, *(0..41).map { at(0) + (it * 15).minutes }]
+      odometer = [*times.map { [it, 1000.0] }, [at(10, 45), 1110.0]]
+      soc = [*times.map { [it, 24.0] }, [at(10, 45), 63.0]]
+      curves = instance_double(ChargingSession::Curves, start: nil, cars: { at(0).to_date => { car_odometer_1: odometer, car_battery_soc_1: soc } }, wallbox: {}, wallbox_gaps: {})
+      allow(ChargingSession::Curves).to receive(:new).and_return(curves)
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    it 'assumes the start of the drive from its distance' do
+      drive = timeline.lanes.sole.drives.sole
+
+      expect(drive).to be_assumed_start
+      expect(drive).not_to be_too_fast
+    end
+
+    it 'leaves open when the state of charge rose' do
+      expect(timeline.lanes.sole.soc_line.first).to have_attributes(from: at(0), from_value: 24.0, to_value: 63.0, known: false)
+    end
+  end
+
   # The car arrived less than Place::MIN_DURATION ago, so the build made
   # neither a visit nor a place there
   context 'with a drive to a location without a place' do

@@ -151,11 +151,22 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
   def assume(drive, before)
     bounds = [
       before&.ended_at,
-      @readings.map(&:first).select { it < drive.ended_at }.max,
+      stood_at(drive),
       *@charges.map(&:last).select { it <= drive.ended_at },
       arrival_before(drive),
     ]
     drive.with(assumed_at: [drive.ended_at - assumed_duration(drive.distance), *bounds.compact].max)
+  end
+
+  # The last reading of the odometer before the drive, where it still stood
+  # at the start of the drive. A reading within a drive that joined a later
+  # one, like the first report after a gap, tells only that the car drove
+  # on.
+  def stood_at(drive)
+    reached = @readings.filter_map { |time, value| value if time <= drive.ended_at }.max
+    return unless reached
+
+    @readings.filter_map { |time, value| time if time < drive.ended_at && value <= reached - drive.distance + TOLERANCE }.max
   end
 
   # The drive from its distance, where it needs less time than the window of

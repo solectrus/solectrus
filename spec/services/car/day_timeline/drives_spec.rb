@@ -40,6 +40,17 @@ describe Car::DayTimeline::Drives do
       end
     end
 
+    # The first report after the gap came while the car drove on
+    context 'with a drive on after the first report' do
+      let(:readings) { [[at(6), 100], [at(12, 30), 125], [at(12, 45), 130]] }
+
+      # 43 km/h for 30 km
+      it 'assumes the start from the whole distance, before the first report' do
+        expect(drives.sole).to have_attributes(ended_at: at(12, 45), distance: 30)
+        expect(drives.sole.assumed_at).to be_within(1.minute).of(at(12, 3))
+      end
+    end
+
     context 'when the distance needs more time than the gap' do
       let(:readings) { [[at(6), 100], [at(12), 700]] }
 

@@ -133,6 +133,16 @@ describe Car::DayTimeline::SocLine do
     end
   end
 
+  # A car does not charge while it drives
+  context 'with readings far apart and a rise without a charge, but with a drive' do
+    let(:points) { [[at(0), 24], [at(10, 45), 63]] }
+    let(:drives) { [[at(9, 30), at(11), 114]] }
+
+    it 'rises before the drive' do
+      expect(pieces).to eq([['00:00', '09:30', 24, 63, false], ['09:30', '23:55', 63, 63, true]])
+    end
+  end
+
   # A cold battery reads one point less
   context 'with a change of one point' do
     let(:points) { [[at(0), 62], [at(12, 25), 61]] }

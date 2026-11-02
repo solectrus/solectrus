@@ -310,7 +310,7 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
   def drives_of(car, soc, charges)
     return [] unless car.sensor?(:car_odometer)
 
-    before, readings = curve(car.sensor_name(:car_odometer)).partition { |time, _| time < beginning }
+    before, readings = car_curve(car, :car_odometer).partition { |time, _| time < beginning }
     stops = visits_of(car).map { [it.started_at, it.ended_at] }
     Drives.new(readings, before: before.last, soc:, stops:, charges: charges.map(&:span), ends_at: stops_at, running: today?).call
   end
@@ -330,20 +330,12 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
 
   # The readings of the state of charge, the last one before the day at the
   # start of the day. A value of 0 or above 100 is no reading (see
-  # ChargingSession::Curves.soc_reading?).
-  def soc_readings(car)
-    return [] unless car.sensor?(:car_battery_soc)
-
-    day_points(curve(car.sensor_name(:car_battery_soc)).select { ChargingSession::Curves.soc_reading?(it.last) })
-  end
+  # ChargingSession::Curves.soc_reading?). Empty without the sensor.
+  def soc_readings(car) = day_points(car_curve(car, :car_battery_soc))
 
   # The readings of the plug, the last one before the day at the start of the
-  # day
-  def plug_readings(car)
-    return [] unless car.sensor?(:car_connected)
-
-    day_points(curve(car.sensor_name(:car_connected)))
-  end
+  # day. Empty without the sensor.
+  def plug_readings(car) = day_points(car_curve(car, :car_connected))
 
   # The times in which the car was plugged in but did not charge, from the
   # readings of its plug. A drive within a charge ends no time plugged in,
@@ -369,6 +361,27 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
       .order(:started_at)
       .preload(:place)
       .to_a
+  end
+
+  # [[Time, value], ...] of a role of a car, from its reading before the day,
+  # without the readings that repeat a stale state (see
+  # Car::DayTimeline::StaleReadings). The state of charge keeps only its
+  # readings (see ChargingSession::Curves.soc_reading?).
+  def car_curve(car, role)
+    stale = stale_of(car)
+    readings_of(car, role).reject { |time, _| stale.any? { |from, to| time > from && time < to } }
+  end
+
+  def readings_of(car, role)
+    return [] unless car.sensor?(role)
+
+    readings = curve(car.sensor_name(role))
+    role == :car_battery_soc ? readings.select { ChargingSession::Curves.soc_reading?(it.last) } : readings
+  end
+
+  def stale_of(car)
+    @stale ||= {}
+    @stale[car.id] ||= StaleReadings.new(odometer: readings_of(car, :car_odometer), soc: readings_of(car, :car_battery_soc), plug: readings_of(car, :car_connected)).call
   end
 
   # [[Time, value], ...] of a sensor of a car up to the end of the data, from

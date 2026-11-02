@@ -9,8 +9,9 @@
 # noon and reported in the evening would rise in the evening. So the change
 # follows what explains it: a rise follows the charging sessions in the gap,
 # and a fall follows the drives. Without such an event, nothing tells when the
-# value changed, so the line is a slope from one reading to the next. Both
-# are estimates, which the line draws dashed.
+# value changed, so the line is a slope from one reading to the next, outside
+# the events of the other kind. All of them are estimates, which the line
+# draws dashed.
 class Car::DayTimeline::SocLine
   # A piece of the line, from one value to the next. `known` is false where
   # the readings leave open when the value changed, so the piece is an
@@ -62,7 +63,8 @@ class Car::DayTimeline::SocLine
     return step(from, from_value, to, to_value, at: to) if (to_value - from_value).abs <= NOISE
     return step(from, from_value, to, to_value, at: step_time(from, to, rise: to_value > from_value)) if to - from <= MAX_GAP
 
-    spans = event_spans(from, to, rise: to_value > from_value)
+    rise = to_value > from_value
+    spans = event_spans(from, to, rise:).presence || free_spans(from, to, rise:)
     return [Segment.new(from:, to:, from_value:, to_value:, known: false)] if spans.empty?
 
     along(spans, from, to, from_value, to_value).select { it.to > it.from || it.from_value != it.to_value }
@@ -94,6 +96,14 @@ class Car::DayTimeline::SocLine
         cursor = [stop, to].min.clamp(cut..)
         [cut, cursor, weight(distance, stop - start, cursor - cut)]
       end
+  end
+
+  # [[from, to, weight], ...] of the gap without the events of the other
+  # kind, weighted by their time: a car does not charge while it drives, nor
+  # drive while it charges. Empty where they fill the gap.
+  def free_spans(from, to, rise:)
+    cuts = (rise ? @drives : @charges).map { it.first(2) }
+    Car::DayTimeline.without([[from, to]], cuts).map { |start, stop| [start, stop, stop - start] }
   end
 
   # The weight of the part of an event in the gap: of a drive its part of the

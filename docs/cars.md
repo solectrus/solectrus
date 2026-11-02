@@ -1149,6 +1149,18 @@ reading before the day. A state of charge of 0 or above 100 is no reading
 each 5 minutes at its own time, and not the mean at the end of the 5 minutes. Otherwise a
 car that reports when it leaves would start its drive up to 5 minutes late.
 
+The cloud of a car can send its last known state again and again while the car is offline,
+also while it drives or charges. These readings are no readings, so the timeline leaves
+them out (`Car::DayTimeline::StaleReadings`). The time then counts as a gap, like a car that
+did not report. A stale state shows where it ends. The odometer rises faster than a car
+drives, and the state of charge changes in the same report. Before that, the odometer, the
+state of charge and the plug all stood still. A car whose odometer reports a drive late
+keeps its readings, because its state of charge fell while it drove.
+
+A rise of the state of charge over a gap without a charge lies outside the drives in the
+gap, because a car does not charge while it drives. A fall without a drive lies outside the
+charges for the same reason.
+
 #### The drives
 
 No table holds the drives, so `Car::DayTimeline::Drives` finds them in the readings of the
