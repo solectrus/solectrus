@@ -332,7 +332,7 @@ describe Car::DayTimeline::Component, type: :component do
 
     it 'lets the row of the charging fill the height' do
       expect(html.css('.h-10.lg\:h-12')).to be_empty
-      expect(html.css('.min-h-28.flex-1').size).to eq(1)
+      expect(html.css('.min-h-16.flex-1').size).to eq(1)
     end
   end
 

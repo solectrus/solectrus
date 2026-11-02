@@ -88,7 +88,7 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
 
   # The row that grows: the state of charge, or the charging alone. At least
   # the height of a fixed row, so a small phone scrolls.
-  def growing_height_class = fills? ? 'min-h-28 flex-1' : 'h-28 lg:h-auto lg:min-h-36 lg:flex-1'
+  def growing_height_class = fills? ? 'min-h-16 flex-1' : 'h-28 lg:h-auto lg:min-h-36 lg:flex-1'
 
   # A bar for each charging session, from its start to its end, with the
   # tooltip of the session and its fill (see Car::DayTimeline::ChargeFill).
