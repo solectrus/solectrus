@@ -80,6 +80,13 @@
   font-size: 0;
 }
 
+/* The warning of an active export limit shows from STATE 3, next to the value */
+@container (height < 40px) {
+  .segment .limit {
+    display: none;
+  }
+}
+
 /* STATE 2: Icon only */
 @container (min-height: 30px) {
   .segment .icon {

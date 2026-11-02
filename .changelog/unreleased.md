@@ -77,6 +77,7 @@ Keep every section, an empty one included.
 ## Fixes
 
 - The live view now keeps its update every few seconds when a sensor is picked right after a return to the browser tab. Before, the page could stop to update until it was loaded again
+- The live view now hides the warning icon of an active feed-in limit when the grid feed-in segment is too small for it. Before, the icon was cut off at the bottom edge
 - AI access: a question about a past price now also gets the later changes of the tariff up to today. Before, they came as scheduled changes, and an assistant could claim that the old price still holds
 - The menu item HELIOS now opens HELIOS at the address that HELIOS was last opened at, like the IP address in the home network. This needs the next version of HELIOS. Before, the menu item took the domain of the dashboard and opened a page that never loaded (#6092)
 - On a phone, the bar at the bottom now stays in view on a long page. Before, it scrolled away
