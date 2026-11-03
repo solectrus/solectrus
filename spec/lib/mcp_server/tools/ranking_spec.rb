@@ -77,6 +77,15 @@ describe McpServer::Tools::Ranking do
       expect(data[:results].first[:ranking].first[:date]).to eq('2024-01-16')
     end
 
+    # `start` is the earliest period, so the first value needs its own date
+    it 'names the first entry of the order with its period' do
+      _error, data = call(sensor: 'house_power', timeframe: range)
+      result = data[:results].first
+
+      expect(result[:start]).to eq('2024-01-15')
+      expect(result[:top]).to eq(period: '2024-01-17', value: 30_000)
+    end
+
     # A ranking is a SELECTION, so a period missing from it may simply not have
     # made the cut - padding it with an explicit null would claim it holds no
     # data. That promise belongs to get_periods, which returns every period.

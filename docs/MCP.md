@@ -121,6 +121,11 @@ to a time. Measurement says what that arithmetic costs: on a curve peaking at
 value on the wrong clock. `peak` describes the curve as returned, so at a
 coarse resolution it names a bucket, not a sample.
 
+`get_ranking` adds `top` for the same reason: the first entry of the order,
+with its period. With several entries, `start` is the earliest period, and a
+model read it as the period of the first value. It named the right energy on
+the wrong day.
+
 A `null` value means "no data", distinct from a measured `0`. `get_series`
 states its axis even when `values` is empty — the timeframe and the resolution
 fix the grid whether or not a bucket carried anything.

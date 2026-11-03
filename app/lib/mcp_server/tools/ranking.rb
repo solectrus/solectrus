@@ -60,8 +60,9 @@ module McpServer
 
         Ordered by size, `start` is the EARLIEST period rather than the first
         entry, and `indices` gives each entry's offset from it in `period`
-        steps — never a position in `values`. For the same periods in DATE
-        order, dense and ready to plot, ask get_periods.
+        steps — never a position in `values`. `top` names the first entry with
+        its period, so the best or worst one needs no counting. For the same
+        periods in DATE order, dense and ready to plot, ask get_periods.
 
         `limit` counts per sensor but the budget is SHARED: N sensors get
         #{MAX_ENTRIES}/N entries each at most, so a long list and many sensors
@@ -250,10 +251,23 @@ module McpServer
           # left the cut periods out, so it spans less than the timeframe names
           # and entries are missing rather than absent from the data.
           **(complete_only ? { complete_periods_only: true } : {}),
+          **top(rounded),
           **PeriodAxis.axis(rounded, options[:period]),
         }
       end
       private_class_method :rank
+
+      # The first entry of the order with its period, which is the answer to
+      # most rankings. It is derivable from the axis, and stated anyway, like
+      # the `peak` of get_series: with several entries `start` is the EARLIEST
+      # period, and a model read it as the period of the first value - 2 of 6
+      # runs named the right energy on the wrong day.
+      def self.top(rows)
+        return {} if rows.empty?
+
+        { top: { period: rows.first[:date].iso8601, value: rows.first[:value] } }
+      end
+      private_class_method :top
     end
   end
 end

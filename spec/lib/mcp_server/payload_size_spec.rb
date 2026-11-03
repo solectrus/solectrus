@@ -77,7 +77,9 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # sentence of that paragraph is what the bytes buy: the fee is already
       # inside the grid costs, so a model that adds it to a get_totals figure
       # counts it twice. There is no cheaper place to say it.
-      'tool definitions + instructions' => 31_400,
+      #
+      # The `top` of get_ranking raised it from 31_400, by ~90 bytes.
+      'tool definitions + instructions' => 31_600,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -94,7 +96,8 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # Ranks over "all" with almost nothing summarized, so it is the one call
       # here that carries a `summary_note`. A real instance answers "all" with
       # the running day pending at most, and pays nothing for it.
-      'get_ranking (3 sensors, all, day)' => 1_150,
+      # `top` costs ~50 bytes per sensor.
+      'get_ranking (3 sensors, all, day)' => 1_300,
       # A dense year of months: no `indices`, no gaps left out, so this is what
       # the shape costs at its most ordinary - the call behind a chart.
       'get_periods (3 sensors, 2024, month)' => 1_300,
