@@ -34,8 +34,11 @@ module LlmTest
 
       Grade the criterion alone. Ignore style, length and language. An answer
       that is correct but phrased differently than the criterion still passes.
+      You see the calls but not their results: take a fact the answer reports
+      from them, like a date or a price, as given.
 
-      Reply with one line: "PASS" or "FAIL: <what is wrong, in one sentence>".
+      First check the criterion in at most two sentences. Then end with one
+      last line: "PASS" or "FAIL: <what is wrong, in one sentence>".
     TEXT
     public_constant :SYSTEM
 
@@ -55,8 +58,13 @@ module LlmTest
       TEXT
     end
 
+    # The verdict is the last line that starts with one. The judge reasons
+    # first (see SYSTEM): asked for the verdict up front, it wrote "FAIL:" and
+    # then argued in the same line that the criterion is met.
     def parse(text, cost_usd)
-      line = text.to_s.strip.lines.first.to_s.strip
+      # Markdown bold carries no verdict, like in "**FAIL:** reason"
+      lines = text.to_s.strip.lines.map { _1.delete('*').strip }
+      line = lines.rfind { _1.match?(/\A(PASS|FAIL)\b/) } || lines.first.to_s
 
       return Verdict.new(pass: true, cost_usd:) if line.start_with?('PASS')
 

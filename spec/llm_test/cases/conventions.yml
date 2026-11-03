@@ -41,11 +41,18 @@
     one call and never queries data that cannot exist. The second is cheaper
     and just as correct, so expecting get_totals here would measure the case
     rather than the server.
+
+    The judge once read "no data" as a failure even where the installation
+    date followed as its reason, and passed the same wording in the next run.
+    So the rubric asks for the reason, and lets "no data" stand beside it.
   prompt: Wie viel Strom hat meine PV-Anlage im Jahr 2019 erzeugt?
   max_tool_calls: 3
   judge: >
-    Says that the system did not exist yet in 2019 (it was installed later),
-    not that the data is missing or the sensor has no values.
+    Gives as the reason that the system was installed only after 2019 (with
+    its installation date, or as "installed later"). Saying in addition that
+    there is no data for 2019, or that it generated nothing in 2019, is
+    correct. Fails: "no data" without that reason,
+    or a hint at an outage, a faulty sensor or a missing value.
 
 - id: periods_not_repeated_totals
   note: >
