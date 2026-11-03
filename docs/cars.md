@@ -1101,7 +1101,10 @@ A drive past a place has one reading there and lasts one interval of the reading
 has two readings and lasts two intervals. The limit is therefore 1.5 intervals, within a
 lower and an upper bound. The interval comes from the readings at the stop, so it follows
 the user when the car reports more often. A car that reports only at the arrival sends one
-reading at a stop, which gives no interval. Its stop then gets the lower bound.
+reading at a stop, which gives no interval. Its stop then gets the lower bound. This also
+applies when the car moved within the stop before, for example to another parking space. A
+car that repeats its position while it is parked gives an interval with its last reading at
+the stop before, so its first reading on the road needs the full limit.
 
 A visit at a known place has a lower bound that is shorter, for example a stop at a shop. A
 traffic light is rarely near a place. A new place needs the longer bound, and so does the

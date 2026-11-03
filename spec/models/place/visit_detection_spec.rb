@@ -253,6 +253,73 @@ describe Place::VisitDetection do
       end
     end
 
+    # The car also repeats its position while it is parked, so each gap is
+    # 10 minutes and a visit at a known place needs 15 minutes
+    context 'with a car that reports every 10 minutes' do
+      let(:dates) { [Date.new(2026, 9, 22)] }
+      let(:gap) { 10.minutes }
+      let(:segments) do
+        [
+          segment('2026-09-21 18:00', '2026-09-22 10:00', 50.92263, 1.40706),
+          segment('2026-09-22 10:00', '2026-09-22 10:10', 50.89000, 1.39000),
+          # Past the shop
+          segment('2026-09-22 10:10', '2026-09-22 10:20', 50.91000, 1.40000),
+          segment('2026-09-22 10:20', '2026-09-22 10:30', 50.88000, 1.38000),
+          # Work
+          segment('2026-09-22 10:30', '2026-09-22 11:50', 50.90600, 1.40700),
+          segment('2026-09-22 11:50', '2026-09-22 12:00', 50.89000, 1.39000),
+          # A stop at the shop with two readings, at 12:00 and 12:10
+          segment('2026-09-22 12:00', '2026-09-22 12:20', 50.91000, 1.40000),
+          segment('2026-09-22 12:20', '2026-09-22 12:30', 50.89000, 1.39000),
+          segment('2026-09-22 12:30', '2026-09-23 00:00', 50.92263, 1.40706),
+        ]
+      end
+
+      before { Place.create!(latitude: 50.91, longitude: 1.40) }
+
+      it 'makes a visit of the stop with two readings, and none of the drive past' do
+        detection.persist(detection.call)
+
+        expect(visits).to eq(
+          [
+            [50.92263, '22. 00:00', '22. 10:00'],
+            [50.906, '22. 10:30', '22. 11:50'],
+            [50.91, '22. 12:00', '22. 12:20'],
+            [50.92263, '22. 12:30', '23. 00:00'],
+          ],
+        )
+      end
+    end
+
+    # The car repeats its position at home every 2.5 hours, and reports
+    # every 15 minutes on the road, so the gap before its first reading on
+    # the road is an interval of the readings at home
+    context 'with a car that reports rarely while parked' do
+      let(:dates) { [Date.new(2026, 9, 22)] }
+      let(:segments) do
+        [
+          segment('2026-09-21 18:00', '2026-09-22 10:00', 50.92263, 1.40706, gap: nil),
+          # Past the shop
+          segment('2026-09-22 10:00', '2026-09-22 10:15', 50.91000, 1.40000, gap: 150.minutes),
+          segment('2026-09-22 10:15', '2026-09-22 10:30', 50.89000, 1.39000, gap: 15.minutes),
+          segment('2026-09-22 10:30', '2026-09-22 16:00', 50.90600, 1.40700, gap: 15.minutes),
+        ]
+      end
+
+      before { Place.create!(latitude: 50.91, longitude: 1.40) }
+
+      it 'makes no visit of the drive past a known place' do
+        detection.persist(detection.call)
+
+        expect(visits).to eq(
+          [
+            [50.92263, '22. 00:00', '22. 10:00'],
+            [50.906, '22. 10:30', '22. 16:00'],
+          ],
+        )
+      end
+    end
+
     # Each reading is a new place, and its gap is the time at the place before
     context 'with a car that reports only a change' do
       let(:dates) { [Date.new(2026, 9, 22)] }
@@ -290,6 +357,27 @@ describe Place::VisitDetection do
               [50.92459, '22. 12:06', '22. 14:00'],
             ],
           )
+        end
+      end
+
+      # The car moved within the place at home, like to a parking space some
+      # meters away, so the gap before the next arrival covers only a part
+      # of the stop at home
+      context 'with a move within the stop before' do
+        let(:segments) do
+          [
+            segment('2026-09-21 18:00', '2026-09-21 18:30', 50.92280, 1.40706, gap: nil),
+            segment('2026-09-21 18:30', '2026-09-22 10:00', 50.92263, 1.40706, gap: 30.minutes),
+            # The friend, for less than the 3 hours of the longest limit
+            segment('2026-09-22 10:00', '2026-09-22 12:45', 50.92459, 1.36614, gap: 15.5.hours),
+            segment('2026-09-22 12:45', '2026-09-22 15:00', 50.92263, 1.40706, gap: 165.minutes),
+          ]
+        end
+
+        it 'makes a visit of the stop after it' do
+          detection.persist(detection.call)
+
+          expect(visits).to include([50.92459, '22. 10:00', '22. 12:45'])
         end
       end
 

@@ -46,13 +46,14 @@ class Place::VisitDetection
 
   # A stop: the positions that follow each other within Car::Rules::PLACE_RADIUS
   # of its center. The center is the position with the longest time (`longest`).
-  # The stop counts from its limit on (see #limit).
-  Stop = Data.define(:latitude, :longitude, :from, :to, :longest, :limit, :odometer_from, :odometer_to) do
+  # The stop counts from its limit on (see #limit). `last_reading` is the
+  # time of its last reading with a new position.
+  Stop = Data.define(:latitude, :longitude, :from, :to, :longest, :limit, :odometer_from, :odometer_to, :last_reading) do
     def self.of(segment, limit:)
       new(latitude: segment.latitude, longitude: segment.longitude, from: segment.from, to: segment.to, longest: segment.duration, limit:, odometer_from: segment.odometer, odometer_to: segment.odometer)
     end
 
-    def initialize(odometer_from: nil, odometer_to: nil, **) = super
+    def initialize(from:, odometer_from: nil, odometer_to: nil, last_reading: from, **) = super
 
     def duration = to - from
 
@@ -64,9 +65,9 @@ class Place::VisitDetection
     # The stop up to the end of the segment
     def add(segment)
       odometer_to = segment.odometer || self.odometer_to
-      return with(to: segment.to, odometer_to:) if segment.duration <= longest
+      return with(to: segment.to, odometer_to:, last_reading: segment.from) if segment.duration <= longest
 
-      with(latitude: segment.latitude, longitude: segment.longitude, to: segment.to, longest: segment.duration, odometer_to:)
+      with(latitude: segment.latitude, longitude: segment.longitude, to: segment.to, longest: segment.duration, odometer_to:, last_reading: segment.from)
     end
   end
   public_constant :Stop
@@ -142,14 +143,25 @@ class Place::VisitDetection
     end
   end
 
-  # The limit of a stop at its arrival. A car that sent nothing during the
-  # whole stop before reports only a change, so the gap before the arrival is
-  # the time of that stop and no interval of the readings. Its stop needs
-  # the lower bound alone, also with one reading.
+  # The limit of a stop at its arrival. Its stop needs the lower bound alone,
+  # also with one reading, where the gap before the arrival is the time at
+  # the stop before (see #silent_before?).
   def arrival_limit(segment, before)
-    return Car::Rules::MIN_KNOWN_STAY if before&.long? && segment.gap && segment.gap >= before.duration
+    return Car::Rules::MIN_KNOWN_STAY if silent_before?(segment, before)
 
     limit(segment)
+  end
+
+  # Whether the car sent nothing at the long stop before since its last
+  # reading there, so the gap before the arrival is the time of that stop
+  # and no interval of the readings, like a car that reports only a change.
+  # The gap covers the time since the last new position at the stop before,
+  # also where the car moved within that stop. A car that repeats its
+  # position while it is parked sent a reading later, so its gap is shorter.
+  def silent_before?(segment, before)
+    return false unless before&.long? && segment.gap
+
+    segment.gap >= segment.from - before.last_reading
   end
 
   # The limit from the gap before a reading. A stop takes the shorter gap of
