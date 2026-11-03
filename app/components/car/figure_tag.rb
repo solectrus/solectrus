@@ -35,6 +35,6 @@ module Car::FigureTag
   def figure_chart(figure) = figure.sensor_name && chart_sensor_name(figure.sensor_name)
 
   def tooltip(figure)
-    Car::Tooltip::Component.new(title: figure.title, icon: figure.icon, lines: [figure.description].compact, parts: figure.parts, notes: figure.notes, bar: figure.bar)
+    Car::Tooltip::Component.new(title: figure.title, icon: figure.icon, lines: [figure.description].compact, parts: figure.parts, notes: figure.notes)
   end
 end

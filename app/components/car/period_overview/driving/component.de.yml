@@ -5,8 +5,6 @@ de:
   unrated: Ohne %{distance}, für die Ladedaten fehlen.
   window: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen je 100 km die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag.
   none: Keine Fahrten
-  minimum: Minimum
-  maximum: Maximum
   per_day: Ø pro Tag
   ev: E-Auto
   combustion: Verbrenner
@@ -20,3 +18,5 @@ de:
   savings: Ersparnis
   per_100km: je 100 km
   cost_title: Energiekosten für Fahren
+  cost_basis: Die Kosten der gefahrenen Kilometer, berechnet aus den Kosten je 100 km.
+  cost_difference: Der Unterschied zu den Ladekosten entsteht durch Strom, den das Auto an anderen Tagen geladen hat.

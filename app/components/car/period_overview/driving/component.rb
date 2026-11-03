@@ -2,8 +2,7 @@
 # (see Car::PeriodOverview::Component): the distance, with the average
 # distance of a day and on "all" the distance of each car in its tooltip.
 # Below it the energy cost, the rates per 100 km and the link to the places.
-# The tooltip of each rate has a bar of its place between the periods of its
-# kind (see Car::Spans), and the window that the rates come from. The
+# The tooltip of each rate has the window that the rates come from. The
 # comparison with a combustion car follows below the card (see
 # Car::PeriodOverview::Driving::Savings).
 class Car::PeriodOverview::Driving::Component < ViewComponent::Base
@@ -17,7 +16,7 @@ class Car::PeriodOverview::Driving::Component < ViewComponent::Base
 
   attr_reader :report
 
-  delegate :timeframe, :cars, :distance, :driving, :spans, to: :report
+  delegate :timeframe, :cars, :distance, :driving, to: :report
 
   # A period without a drive has 0 km
   def distance_value = Sensor::Value::Component.new(distance || 0, :car_distance)
@@ -77,8 +76,8 @@ class Car::PeriodOverview::Driving::Component < ViewComponent::Base
     cost_rate = driving.cost_per_100km&.then { cost_rate_value(it) }
     [
       cell.new(figure: cost_figure),
-      cell.new(figure: rate_figure(:car_consumption_rate, consumption, energy_tooltip), label: t('.per_100km')),
-      cell.new(figure: rate_figure(:car_cost_rate, cost_rate, cost_tooltip), label: t('.per_100km')),
+      cell.new(figure: rate_figure(:car_consumption_rate, consumption, energy_notes), label: t('.per_100km')),
+      cell.new(figure: rate_figure(:car_cost_rate, cost_rate, cost_notes), label: t('.per_100km')),
       places_list,
     ].compact
   end
@@ -88,10 +87,10 @@ class Car::PeriodOverview::Driving::Component < ViewComponent::Base
   def driven? = distance&.positive?
 
   # A rate per 100 km as a figure of the card, which loads its chart. Its
-  # tooltip has the span of the periods, and the window of the rates as its
-  # last note.
-  def rate_figure(sensor_name, value, tooltip)
-    Car::Figure.new(sensor_name:, title: t("sensors.#{sensor_name}"), value: value ? render(value) : '–', **tooltip, notes: [*tooltip[:notes], note].compact)
+  # tooltip has the window of the rates as its first note, before what only
+  # this rate means.
+  def rate_figure(sensor_name, value, notes)
+    Car::Figure.new(sensor_name:, title: t("sensors.#{sensor_name}"), value: value ? render(value) : '–', notes: [note, *notes].compact)
   end
 
   # The window of the rates. The figures of a day read like its own
@@ -103,57 +102,45 @@ class Car::PeriodOverview::Driving::Component < ViewComponent::Base
 
   # The energy cost loads the chart of the driving cost. Without a cost rate,
   # the cost of the driven kilometers is unknown. Its tooltip keeps what is
-  # missing, because the cost per 100 km has a cell of its own.
+  # missing, because the cost per 100 km has a cell of its own. With a cost,
+  # it says how the cost comes about, and why it differs from the cost of
+  # charging, if the two show different numbers.
   def cost_figure
-    cost = Sensor::Value::Component.new(driving.cost, :total_costs) if driving.cost_rated?
-    Car::Figure.new(sensor_name: :car_driving_costs, title: t('.cost_title'), value: cost ? render(cost) : '–', notes: cost_tooltip.fetch(:notes, []))
+    cost = render(cost_value(driving.cost)) if driving.cost_rated?
+    notes = cost ? [t('.cost_basis'), (t('.cost_difference') if charging_cost_differs?(cost))] : []
+    Car::Figure.new(sensor_name: :car_driving_costs, title: t('.cost_title'), value: cost || '–', notes: [*notes.compact, *cost_notes])
   end
 
-  # The tooltip of a rate has the span of the periods (see #rate_tooltip),
-  # and what only this rate means. Without a rate it tells what is missing.
-  # With an energy rate but without a cost rate, a session around the trip
-  # has no price. Without a drive, nothing is missing.
-  def cost_tooltip
-    return {} unless driven?
-    return { notes: [t(driving.rated? ? '.no_price' : '.no_rate')] } unless driving.cost_per_100km
-
-    rate_tooltip(:car_cost_rate, driving.cost_per_100km, spans&.cost_per_100km, precision: 2, notes: [unrated_note(driving.cost_distance)]) { cost_rate_value(it) }
+  # Whether the card of the charging shows another cost than `cost`, the
+  # rendered driving cost
+  def charging_cost_differs?(cost)
+    sessions = report.sessions
+    sessions.cost? && render(cost_value(sessions.cost)) != cost
   end
 
-  def energy_tooltip
-    return {} unless driven?
-    return { notes: [t('.no_rate')] } unless driving.consumption_per_100km
+  def cost_value(cost) = Sensor::Value::Component.new(cost, :total_costs)
 
-    rate_tooltip(:car_consumption_rate, driving.consumption_per_100km, spans&.consumption_per_100km, precision: 1, notes: [t('.consumption_losses'), unrated_note(driving.distance)]) { consumption_value(it) }
+  # The notes of a rate say what only this rate means. Without a rate they
+  # tell what is missing. With an energy rate but without a cost rate, a
+  # session around the trip has no price. Without a drive, nothing is missing.
+  def cost_notes
+    return [] unless driven?
+    return [t(driving.rated? ? '.no_price' : '.no_rate')] unless driving.cost_per_100km
+
+    [unrated_note(driving.cost_distance)].compact
+  end
+
+  def energy_notes
+    return [] unless driven?
+    return [t('.no_rate')] unless driving.consumption_per_100km
+
+    [t('.consumption_losses'), unrated_note(driving.distance)].compact
   end
 
   # A rate per 100 km with its unit: the energy in kWh, the cost in money
   def consumption_value(kwh) = Sensor::Value::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, precision: 1)
 
   def cost_rate_value(cost) = Sensor::Value::Component.new(cost, :total_costs, precision: 2)
-
-  # The bar of the place of the rate among the periods. A low rate is good.
-  # The ends of the bar have the numbers alone, because the cell has the
-  # unit. `precision` is the number of decimals of these ends. The block
-  # gives a rate with its unit, for the sheet.
-  def rate_tooltip(sensor_name, value, span, precision:, notes:, &)
-    bar = Car::SpanBar::Component.new(value:, span:, better: :lower, precision:, rows: span_rows(span, sensor_name, &)) if span
-    { bar:, notes: notes.compact }
-  end
-
-  # The lowest and the highest rate for a sheet, as rows with a link to their
-  # period, like in the insights
-  def span_rows(span, sensor_name)
-    { minimum: [span.min, span.min_timeframe], maximum: [span.max, span.max_timeframe] }.map do |key, (rate, period)|
-      Insights::Row::Component.new(label: t(".#{key}"), note: Car::SpanBar::Component.period(period), url: period_path(period, sensor_name)).with_content(render(yield(rate)))
-    end
-  end
-
-  # The car page of a period with the chart of the rate. A day has its
-  # timeline in place of the charts.
-  def period_path(period, sensor_name)
-    helpers.cars_home_path(sensor_name: (sensor_name if Car::Section.charts?(period)), timeframe: period.to_s, **helpers.selection_params)
-  end
 
   def kilometers(value) = Sensor::ValueFormatter.new(value.round, unit: Sensor::Registry[:car_distance].unit).to_s
 

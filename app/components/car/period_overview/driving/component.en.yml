@@ -5,8 +5,6 @@ en:
   unrated: Without %{distance} that lack charging data.
   window: The car drives on energy that it charged on other days. Per 100 km therefore counts the charging of the %{days} days before and after each day driven.
   none: No drives
-  minimum: Minimum
-  maximum: Maximum
   per_day: Ø per day
   ev: EV
   combustion: Combustion car
@@ -20,3 +18,5 @@ en:
   savings: Savings
   per_100km: per 100 km
   cost_title: Energy cost of driving
+  cost_basis: The cost of the kilometers driven, based on the cost per 100 km.
+  cost_difference: The difference from the charging cost comes from energy that the car charged on other days.

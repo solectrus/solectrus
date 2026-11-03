@@ -27,24 +27,10 @@ template data-tooltip-target='html'
                 span.inline-block.w-14.text-right.font-normal.text-muted = "#{part.percent} %"
       - if details.any?
         .tooltip-group
-          / The bar places the last detail, the rate. Both form one row, so the
-            list of a sheet draws no line between them.
           - details.each do |part|
-            div
-              .label-value-row
-                span.tooltip-row-label = part.label
-                span.font-semibold.whitespace-nowrap = part.value
-              - if bar && part == details.last
-                .pt-3 = render bar
-      / Without a detail, the bar stands alone below the title, like the span
-        of a rate whose figure shows the rate already
-      - elsif bar
-        .tooltip-group = render bar
-      / The rows of the bar with a link, like its ends, in a sheet alone
-      - if bar&.rows.present?
-        .tooltip-group.tooltip-sheet-only
-          - bar.rows.each do |row|
-            = render row
+            .label-value-row
+              span.tooltip-row-label = part.label
+              span.font-semibold.whitespace-nowrap = part.value
       / The notes wrap at the width of the rows above them, so a long note
         does not widen the tooltip
       - if notes.any?

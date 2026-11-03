@@ -19,9 +19,6 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
   # The share of the width and the shown label of each part of the bar
   def bar_parts = comparison_bar.css('> span').map { [it['style'][/flex: ([\d.]+)/, 1].to_f, it.css('> span').map { it.text.squish }] }
 
-  # The number and the period of each end of each bar of a span
-  def span_ends = html.css('span.justify-between').map { |ends| ends.css('> span').map { it.css('span').map(&:text) } }
-
   let(:distance) { 9877 }
   let(:driving) { Car::Driving::Totals.new(distance: 9877, energy_wh: 2_092_000, cost_distance: 9877, cost: 372.8) }
   let(:report) do
@@ -34,7 +31,7 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
       distances: {},
       km_per_day: (27.1 if distance),
       driving:,
-      spans: nil,
+      sessions: ChargingSession::Sums.empty.with(rows: 1, cost: 401.2),
       savings?: false,
     )
   end
@@ -58,7 +55,17 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
   end
 
   it 'leaves the cost per 100 km out of the tooltip of the cost, which has a cell of its own' do
-    expect(tooltip('car_driving_costs')).to eq('Energy cost of driving')
+    expect(tooltip('car_driving_costs')).to eq('Energy cost of drivingThe cost of the kilometers driven, based on the cost per 100 km.The difference from the charging cost comes from energy that the car charged on other days.')
+  end
+
+  # The card of the charging shows the same number, so there is no difference
+  # to explain
+  context 'with the same cost as the charging' do
+    before { allow(report).to receive(:sessions).and_return(ChargingSession::Sums.empty.with(rows: 1, cost: 373.1)) }
+
+    it 'leaves out why the cost differs from the charging cost' do
+      expect(tooltip('car_driving_costs')).to eq('Energy cost of drivingThe cost of the kilometers driven, based on the cost per 100 km.')
+    end
   end
 
   # The cell shows the rate, so its tooltip does not repeat it
@@ -69,9 +76,11 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
     expect(tooltips.first).to include('charging losses')
   end
 
-  # The rates come from the days around each day driven
-  it 'names the window of the rates in the tooltips of the rates' do
+  # The rates come from the days around each day driven. This comes first,
+  # before what only the rate means.
+  it 'names the window of the rates first in the tooltips of the rates' do
     expect(%w[car_consumption_rate car_cost_rate].map { tooltip(it) }).to all(include('14 days before and after'))
+    expect(tooltip('car_consumption_rate').index('14 days')).to be < tooltip('car_consumption_rate').index('charging losses')
   end
 
   # Without fuel prices or a combustion car, there is nothing to compare
@@ -127,33 +136,6 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
       it 'names the gaps in the tooltip' do
         expect(comparison_tooltip).to end_with('The comparison page names the gaps.')
       end
-    end
-  end
-
-  # A low rate is good, so the good end is the lowest on the right
-  context 'with the span of the periods' do
-    let(:span) { ->(min, max, min_timeframe, max_timeframe) { Car::Spans::Span.new(min:, max:, min_timeframe: Timeframe.new(min_timeframe), max_timeframe: Timeframe.new(max_timeframe)) } }
-
-    before do
-      allow(report).to receive(:spans).and_return(
-        instance_double(Car::Spans, cost_per_100km: span.call(1.06, 10.67, '2023', '2021'), consumption_per_100km: span.call(9.31, 38.92, '2024', '2022')),
-      )
-    end
-
-    it 'shows the ends of each span with their periods in the tooltips, the good end on the right' do
-      expect(span_ends).to eq([[%w[38.9 2022], %w[9.3 2024]], [%w[10.67 2021], %w[1.06 2023]]])
-    end
-
-    # A sheet lists the lowest and the highest rate, each with a link to its
-    # period. The figure is a link itself, so the tooltip is a template.
-    it 'lists the lowest and the highest rate with a link to the period for a sheet' do
-      rows = html.css('template[data-tooltip-target="html"] .tooltip-sheet-only a.insights-row')
-
-      # The stylesheet sets the parentheses around the period
-      expect(rows.map { |row| [row.at_css('.insights-row-main'), row.at_css('.insights-row-value')].map { it.text.squish } }).to eq(
-        [['Minimum 2024', '9.3 kWh'], ['Maximum 2022', '38.9 kWh'], ['Minimum 2023', '1.06 €'], ['Maximum 2021', '10.67 €']],
-      )
-      expect(rows.pluck('href')).to eq(%w[/cars/car_consumption_rate/2024 /cars/car_consumption_rate/2022 /cars/car_cost_rate/2023 /cars/car_cost_rate/2021])
     end
   end
 

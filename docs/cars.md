@@ -877,8 +877,18 @@ today or the edge of a range cuts is hatched.
 Each chart shows its insights below it (`Car::Insights`): the value of the timeframe, the
 change against the previous month and the previous year, and the day with the highest
 value. A rate and the maximum range also name the best and the worst period of the same
-kind, with a link to each (see `Car::Spans`). The overview shows only where the value lies
-between them, so the way to these periods is in the insights.
+kind, with a link to each (see `Car::Spans`). A month stands between the months, and a day
+between the days.
+
+These rules for the best and the worst period are decisions:
+
+- Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
+  timeframe and a range of dates name no best and no worst period.
+- A period counts only when the cars were in use on each of its days. A month in which a
+  car started gives a value of a few days. The shown period always counts.
+- The best and the worst period need three periods with a value. Fewer periods say nothing.
+- They read each day of the whole time. Before the car page shows a calendar period, it
+  therefore builds the missing daily summaries of the whole time.
 
 The distance has no split by energy source. The source of the energy belongs to the charge,
 not to the drive.
@@ -1011,35 +1021,21 @@ The figures of each card:
   cost of the sources and, on "all", names the cost of the guest.
 - Driving: the distance leads in large type. Its tooltip has the average distance of a day
   and, on "all", the distance of each car. The row below it has the energy cost, the two
-  rates per 100 km and the link to the places. The tooltip of a rate has a bar of its place
-  among the periods, and the window of the rates.
+  rates per 100 km and the link to the places. The tooltip of a rate has the window of the
+  rates.
 
 A part of a bar shows the longest form of its label that fits its width, or no label. Each
 tooltip names its figure. Both energy costs count the electricity alone. The running costs
 in the bar of the savings also count payments like the insurance, so they are higher.
 
-The bar of a rate places the value between the lowest and the highest value of the periods
-of the same kind (`Car::Spans`). A month stands between the months, and a day between the
-days. The good end is always on the right, so the bar of a rate runs from the highest value
-to the lowest. The best and the worst period stand in the insights of the chart.
-
 These rules are decisions:
 
 - The figures show no comparison with the previous month or year. Only the insights show
   them.
-- The values show no red, because red marks a low cost as bad. The bars of the rates show no
-  red either. The good end on the right and the numbers at the ends tell good and bad. Only
-  a loss against a combustion car is red, because it is a real loss.
+- The values show no red, because red marks a low cost as bad. Only a loss against a
+  combustion car is red, because it is a real loss.
 - The overview has no ring. The ring of the distance of one car was always full and told
   nothing. The cards read the same on a phone and on a desktop.
-- Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
-  timeframe and a range of dates show no bars.
-- A period counts for a bar only when the cars were in use on each of its days. A month in
-  which a car started gives a value of a few days. The shown period always counts, so its
-  value lies on the bar.
-- A bar needs three periods with a value. Fewer periods say nothing.
-- A bar reads each day of the whole time. Before it shows the bars, the page therefore
-  builds the missing daily summaries of the whole time.
 
 A selected car without an odometer has no driving, and neither has the guest. The page then
 shows the card of the charging alone, in the full height of the column, without the bar of
@@ -1068,12 +1064,12 @@ a visitor of the demo sees the page some days back. The live view stays public t
 it shows no time of a drive.
 
 A longer period, like a week, ends with the day before yesterday for a visitor. Its figures,
-its charts and the spans of its rates leave out today and yesterday, because their amounts
-tell the same as their times. A note above the figures says so, with the login, so someone
-who only forgot to log in sees why the latest days are missing. The navigation keeps the
-periods as they are, so the tab of the day still leads to today. The insights of a chart of
-the car page and the Top 10 of a sensor of a car end with the same day. The state of charge
-of a car on the power balance stays public, like the live view.
+its charts and the best and the worst period of its insights leave out today and yesterday,
+because their amounts tell the same as their times. A note above the figures says so, with
+the login, so someone who only forgot to log in sees why the latest days are missing. The
+navigation keeps the periods as they are, so the tab of the day still leads to today. The
+insights of a chart of the car page and the Top 10 of a sensor of a car end with the same
+day. The state of charge of a car on the power balance stays public, like the live view.
 
 The list of the charging sessions leaves out the sessions of such a day for a visitor, also in
 its sums. Its time and its energy would tell the same, and a large offsite charge tells that

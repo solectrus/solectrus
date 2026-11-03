@@ -1,9 +1,8 @@
 # The figures and the trends of a chart of the car page: the value of the
 # timeframe, its change against the previous month and the previous year (see
 # Car::Trend), the day with the highest value, and for a rate and the maximum
-# range the best and the worst period of the same kind (see Car::Spans). The
-# overview shows the place of a rate in this span, and the insights lead to
-# its ends. `car` is the selection of the car page (see CarSelection).
+# range the best and the worst period of the same kind (see Car::Spans), each
+# with a link. `car` is the selection of the car page (see CarSelection).
 class Car::Insights::Component < ViewComponent::Base
   def initialize(sensor:, timeframe:, car:)
     super()

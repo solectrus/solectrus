@@ -1,8 +1,8 @@
-# The span of a value of the driving card over the periods of the same kind:
-# the lowest and the highest value of each day, week, month or year in the
-# period of use of the cars, each with the period it comes from. The card
-# places the value of its period in this span, so a month compares with the
-# other months.
+# The span of a rate or of the maximum range over the periods of the same
+# kind: the lowest and the highest value of each day, week, month or year in
+# the period of use of the cars, each with the period it comes from. The
+# insights of a chart name them as the best and the worst period (see
+# Car::Insights::Component), so a month compares with the other months.
 #
 # Only a calendar period has periods of its kind. They end with the last day
 # with data of the shown timeframe, like the day before yesterday for a visitor
