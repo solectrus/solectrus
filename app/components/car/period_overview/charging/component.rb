@@ -98,8 +98,8 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
 
   private
 
-  # A source with its icon, its energy, its share and its cost, and what the
-  # cost of PV means
+  # A source with its icon, its energy, its share and its cost, which its
+  # label names (see #cost_label_key)
   def source_figure(source)
     style = Car::ChargingSource[source.key]
     energy = render(energy_value(source.kwh))
@@ -107,11 +107,18 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
     parts = [
       Car::Tooltip::Component::Part.new(label: t('sensors.car_charging'), value: energy),
       Car::Tooltip::Component::Part.new(label: t('.share'), value: "#{share_of(source.key)} %"),
-      (Car::Tooltip::Component::Part.new(label: t('sensors.car_charging_costs'), value: currency(source.cost)) if cost),
+      (Car::Tooltip::Component::Part.new(label: t(cost_label_key(source.key)), value: currency(source.cost)) if cost),
     ].compact
-    notes = [(t('.pv_cost') if cost && source.key == :pv)].compact
-    Car::Figure.new(sensor_name: :car_charging, value: energy, title: t(style.label_key), icon: style.icon, parts:, notes:)
+    Car::Figure.new(sensor_name: :car_charging, value: energy, title: t(style.label_key), icon: style.icon, parts:)
   end
+
+  # The cost of a source by what it is: the grid costs of the grid, the lost
+  # feed-in revenue of PV and the price paid offsite. The wallbox without the
+  # power splitter mixes PV and grid, so its cost is the energy cost.
+  COST_LABEL_KEYS = { pv: 'sensors.opportunity_costs', grid: 'sensors.grid_costs', offsite: '.offsite_cost' }.freeze
+  private_constant :COST_LABEL_KEYS
+
+  def cost_label_key(key) = COST_LABEL_KEYS.fetch(key, 'sensors.car_charging_costs')
 
   # The whole share of the source, rounded so the shares add up to 100
   def share_of(key)
@@ -129,13 +136,8 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
     Car::Figure.new(sensor_name: :car_charging_costs, title: t('.cost_title'), value: cost || '–', parts: cost_parts, notes: cost_notes(sessions))
   end
 
-  # What the cost of PV means, beside the parts, and why the cost is a minimum
-  def cost_notes(sessions)
-    [
-      (t('.pv_cost') if cost_parts.any? && sources.any? { it.key == :pv }),
-      (t('charging_sessions.cost_incomplete') if sessions.cost? && !sessions.costed?),
-    ].compact
-  end
+  # Why the cost is a minimum
+  def cost_notes(sessions) = [(t('charging_sessions.cost_incomplete') if sessions.cost? && !sessions.costed?)].compact
 
   # The cost of each source in the color of the bar, and on "all" the cost
   # of the guest, which the cost holds. A single source without the guest

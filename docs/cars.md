@@ -1015,10 +1015,11 @@ The figures of each card:
 
 - Charging: the charged energy stands at the top. Below it, a bar shows the sources side by
   side: PV, grid and offsite. Each source shows its icon and its energy, or its icon alone,
-  whichever fits. Its tooltip has the energy, the share and the cost of the source. Without
-  the power splitter, the bar shows the wallbox and offsite. The row below the bar has the
-  energy cost and the link to the charging sessions. The tooltip of the cost adds up the
-  cost of the sources and, on "all", names the cost of the guest.
+  whichever fits. Its tooltip has the energy, the share and the cost of the source. The cost
+  has the name of what it is: the lost feed-in revenue of PV, the grid import costs and the
+  price paid offsite. Without the power splitter, the bar shows the wallbox and offsite. The
+  row below the bar has the energy cost and the link to the charging sessions. The tooltip of
+  the cost adds up the cost of the sources and, on "all", names the cost of the guest.
 - Driving: the distance leads in large type. Its tooltip has the average distance of a day
   and, on "all", the distance of each car. The row below it has the energy cost, the two
   rates per 100 km and the link to the places. The tooltip of a rate has the window of the

@@ -1,8 +1,8 @@
 en:
   guest: of which guest
-  pv_cost: The cost of PV is the lost feed-in revenue.
   none: No charging sessions
   charged: charged
   share: Share
+  offsite_cost: Price paid
   total: Total
   cost_title: Energy cost of charging

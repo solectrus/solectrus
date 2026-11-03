@@ -50,9 +50,9 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
 
     expect(tooltips).to eq(
 [
-      'PhotovoltaicsCharged energy1,157 kWhShare56 %Energy cost98 €The cost of PV is the lost feed-in revenue.',
-      'GridCharged energy767 kWhShare37 %Energy cost214 €',
-      'Offsite chargingCharged energy154 kWhShare7 %Energy cost60 €',
+      'PhotovoltaicsCharged energy1,157 kWhShare56 %Lost feed-in revenue98 €',
+      'GridCharged energy767 kWhShare37 %Grid import costs214 €',
+      'Offsite chargingCharged energy154 kWhShare7 %Price paid60 €',
     ],
 )
   end

@@ -706,13 +706,13 @@ describe 'Car Stats' do
           )
         end
 
-        # The tooltip of the charging cost has the cost of each source, and
-        # what the cost of PV means
+        # The tooltip of the charging cost has the cost of each source
         it 'splits the charging cost by source' do
           get(cars_stats_path(sensor_name: 'car_charging', timeframe: day.strftime('%Y-%m'), car: 1), headers:)
 
           tooltip = Nokogiri::HTML4(response.body).at_css("a[href*='car_charging_costs'] [data-tooltip-target='html']").text # rubocop:disable Rails/ResponseParsedBody
-          expect(tooltip).to include(I18n.t('car_breakdown.home_pv'), I18n.t('car_breakdown.offsite'), 'The cost of PV is the lost feed-in revenue.')
+          expect(tooltip).to include(I18n.t('car_breakdown.home_pv'), I18n.t('car_breakdown.offsite'))
+          expect(tooltip).not_to include('feed-in')
         end
       end
     end
