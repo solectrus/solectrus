@@ -79,7 +79,12 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # counts it twice. There is no cheaper place to say it.
       #
       # The `top` of get_ranking raised it from 31_400, by ~90 bytes.
-      'tool definitions + instructions' => 31_600,
+      #
+      # get_car_costs raised it from 31_600, by ~2_100 bytes, ~400 of them for
+      # the rules of the comparison with a combustion car. Only an instance
+      # with a car pays them (Tools::Base.available?), and the test
+      # configuration has one.
+      'tool definitions + instructions' => 34_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -104,6 +109,9 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       'get_forecast' => 1_350,
       'get_amortization' => 2_100,
       'get_cash_flows' => 800,
+      # The running month, with each entry of the response and the comparison
+      # with a combustion car (see seed_car).
+      'get_car_costs (all cars, month)' => 1_250,
     }
   end
 
@@ -246,6 +254,39 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
     CashFlow.create!(date: Date.new(2023, 9, 1), amount: 420.75, category: 'compensation', note: 'Feed-in')
   end
 
+  # A car with each entry get_car_costs can carry: a split wallbox session,
+  # an offsite one, one of no car, and one of a guest without a price. A car
+  # session without a price would leave its window without a cost rate and
+  # the comparison without a distance. The comparison has two payments.
+  # The report reads whole years around the month, so the past days of that
+  # reach get a summary, an empty one where seed_summaries has none.
+  def seed_car
+    car = Car.create!(id: 1, name: 'Benchmark', fuel_type: 'petrol', fuel_consumption: 7.4, combustion_tax: 212)
+    car.payments.create!(category: :insurance, date: Date.new(2024, 3, 1), amount: 480.5)
+    car.payments.create!(category: :ghg_quota, date: Date.new(2024, 4, 15), amount: 85)
+    seed_fuel_prices
+    past = Car::Report.reach(Timeframe.new('month')).select { it < now.to_date } - Summary.pluck(:date)
+    Summary.insert_all!(past.map { { date: it, created_at: now, updated_at: now } })
+    (1..10).each { |day| SummaryValue.create!(date: Date.new(2024, 6, day), field: 'car_odometer_1', aggregation: 'sum', value: noisy(40, day)) }
+
+    car_session(2, kwh: 11.37, kwh_grid: 3.21, cost: 1.73, cost_grid: 1.12, car_id: 1)
+    car_session(3, kind: :offsite, origin: :user, kwh: 23.6, cost: 11.87, car_id: 1)
+    car_session(4, kwh: 6.41, kwh_grid: 1.03, guest: true)
+    car_session(5, kwh: 4.18, kwh_grid: 0.77)
+    car_session(6, kwh: 7.92, kwh_grid: 2.4, cost: 1.31, cost_grid: 0.84, car_id: 1)
+  end
+
+  def seed_fuel_prices
+    prices = instance_double(Car::FuelPrices, any?: true)
+    allow(Car::FuelPrices).to receive(:new).and_return(prices)
+    allow(prices).to receive(:at) { |date| (date.day / 100.0) + 1.7 }
+  end
+
+  def car_session(day, kind: :wallbox, origin: :detection, **attributes)
+    started_at = Time.zone.local(2024, 6, day, 12)
+    ChargingSession.create!(kind:, origin:, started_at:, ended_at: started_at + 2.hours, **attributes)
+  end
+
   def payload(tool, **args)
     response = tool.call(server_context: nil, **args)
     if response.error?
@@ -293,7 +334,11 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       'get_forecast' => -> { payload(McpServer::Tools::Forecast) },
       'get_amortization' => -> { payload(McpServer::Tools::Amortization) },
       'get_cash_flows' => -> { payload(McpServer::Tools::CashFlows) },
-    }.merge(summary_benchmarks)
+    }.merge(summary_benchmarks, car_benchmark)
+  end
+
+  def car_benchmark
+    { 'get_car_costs (all cars, month)' => -> { payload(McpServer::Tools::CarCosts, timeframe: 'month') } }
   end
 
   # The two tools that read the PostgreSQL summaries, over the same sensors:
@@ -325,6 +370,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
     seed_live_values
     seed_series_day
     seed_forecast
+    seed_car
   end
 
   it 'keeps every benchmark call within its size ceiling' do

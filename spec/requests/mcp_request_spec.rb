@@ -254,6 +254,7 @@ describe 'MCP' do
             'get_forecast',
             'get_amortization',
             'get_cash_flows',
+            'get_car_costs',
           )
         end
 

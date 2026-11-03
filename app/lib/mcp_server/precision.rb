@@ -32,7 +32,8 @@ module McpServer
     # error long before the first decimal, and a temperature or a percentage is
     # meaningless beyond a tenth. money_per_kwh is the exception that has to
     # stay fine: a tariff of 0.3271 currency/kWh rounded to 2 decimals is not a
-    # rounding but a loss. A distance is whole kilometres, as the UI shows it.
+    # rounding but a loss. A distance is whole kilometres, as the UI shows it,
+    # and a consumption per 100 km keeps a tenth.
     DECIMALS = {
       watt: 1,
       watt_hour: 0,
@@ -43,6 +44,8 @@ module McpServer
       percent: 1,
       celsius: 1,
       kilometer: 0,
+      kwh_per_100km: 1,
+      money_per_100km: 2,
       unitless: 2,
       gram: 0,
       gram_per_hour: 0,

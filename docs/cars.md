@@ -55,6 +55,7 @@ between charging and driving, because the car drives on energy of other days. A 
 | `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists         |
 | `Car::Section`                      | the two columns of the overview, driving and charging, and their charts |
 | `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there                   |
+| `McpServer::Tools::CarCosts`        | the figures of a `Car::Report` for an MCP client (see [MCP](#mcp))      |
 
 The car page and its charts read one `Car::Report`. A column of a chart and the tile of the
 same period therefore read the same days and show the same number.
@@ -1154,10 +1155,38 @@ car does not reach MCP (see [Location](#location)).
 `car_odometer_<n>` has two meanings. A live value and a curve give the odometer reading. A
 total, a period and a ranking give the distance driven. Its description says both.
 
-The charts of the car page have no number. MCP has no selection of a car, so most of them
-get no tool, and `list_sensors` does not list them. `car_distance` is the exception: it
-adds up the cars, so `get_ranking` ranks it. A client that asks for a role like
-`car_battery_soc` gets no values, but a rejection that names the numbered sensors of the
-cars, for example `car_battery_soc_1 (Model Y)`. This matters because `car_battery_soc` was
-a sensor with values before cars had numbers. The charging and the rates have no MCP tool
-yet.
+The charts of the car page have no number. The sensor tools have no selection of a car, so
+most of these charts get no sensor tool, and `list_sensors` does not list them.
+`car_distance` is the exception: it adds up the cars, so `get_ranking` ranks it. A client
+that asks for a role like `car_battery_soc` gets no values, but a rejection that names the
+numbered sensors of the cars, for example `car_battery_soc_1 (Model Y)`. This matters
+because `car_battery_soc` was a sensor with values before cars had numbers.
+
+`get_car_costs` gives the figures of the car page for a timeframe of whole days: the
+distance, the charging with its sources, and the driving with its rates per 100 km. It
+takes the number of one car. Without it, it covers all cars like the selection "all" of the
+page, so it counts the guest sessions too. The response names the guest sessions and the
+sessions of no car separately. Only an installation with a car offers the tool, because
+each tool costs every MCP session its description.
+
+The figures read the summaries of whole years around the timeframe (see
+[Rates and driving cost](#rates-and-driving-cost)). Like the other tools, it builds the
+missing and the stale summaries of these days, but at most a month of them in one call. A
+build of more days takes too long for an MCP call. Then the tool stops and names the days,
+and the car page of the same timeframe builds them. It does not answer with a note like
+the other tools: a missing day changes the rates of the days around it, so each figure is
+wrong and not only short.
+
+With fuel prices, the response also holds the comparison with a combustion car (see
+[Comparison with a combustion car](#comparison-with-a-combustion-car)). It gives the three
+columns of the comparison page with their totals and their costs per 100 km, and the savings
+with and without the PV system. Each gap of `Car::ComparisonGaps` becomes a sentence. If a car
+has no combustion car in the settings, or the timeframe has no distance to compare, a note
+says why. Without fuel prices, the response says nothing about the comparison, because the
+page and its settings are hidden then too.
+
+The amounts are the exact amounts of `Car::Comparison`, rounded by their unit like all MCP
+values. The page rounds them with `Car::ComparisonAmounts` to whole units for large amounts,
+and a part can take the rest of its rounded sum. So an amount can differ from the page by
+about one unit. The costs per 100 km are the same. The rule of the page holds here too:
+the description tells the client to give differences and no ratio.

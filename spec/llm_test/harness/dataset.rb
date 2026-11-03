@@ -149,6 +149,7 @@ module LlmTest
       seed_influx!
       seed_prices!
       seed_cash_flows!
+      seed_car!
     end
 
     # When this installation went live. The money half of the fixture hangs off
@@ -231,6 +232,69 @@ module LlmTest
           { date:, category:, amount:, note:, created_at: now, updated_at: now }
         end,
       )
+    end
+
+    ### Car #####################################################################
+
+    # Car 1 of the test configuration (INFLUX_SENSOR_CAR_BATTERY_SOC). It drives
+    # and charges the same each day of last month, so the rate of each window
+    # is the rate of a day, and the facts need no window arithmetic.
+    CAR_NAME = 'Stromer'.freeze
+    CAR_DAY = { km: 50.0, kwh: 8.0, kwh_grid: 3.0, cost: 1.466, cost_grid: 1.05 }.freeze
+    public_constant :CAR_NAME, :CAR_DAY
+
+    # The combustion car of the comparison: a petrol price that never moves,
+    # its consumption and its yearly tax. The insurance counts for both cars,
+    # so it changes no saving, but it gives the car a payment.
+    COMBUSTION = { fuel_type: 'petrol', fuel_consumption: 7.0, combustion_tax: 180 }.freeze
+    PETROL_PRICE = 1.8
+    INSURANCE = 365
+    public_constant :COMBUSTION, :PETROL_PRICE, :INSURANCE
+
+    def car_days = (last_month..last_month.end_of_month).to_a
+
+    def seed_car!
+      ChargingSession.delete_all
+      Car.where.not(id: 1).delete_all
+      Car::Payment.delete_all
+      car = Car.find_or_create_by!(id: 1)
+      car.update!(name: CAR_NAME, active_from: installation_date, **COMBUSTION)
+      car.payments.create!(category: :insurance, date: last_month, amount: INSURANCE)
+
+      seed_car_summaries!
+      ChargingSession.insert_all!(car_days.map { car_session(_1) })
+      seed_fuel_prices!
+    end
+
+    # One price each week, as the collector writes them, from before the
+    # reach of the car report up to today
+    def seed_fuel_prices!
+      weeks = ((today << 14).beginning_of_month..today).step(7)
+      InfluxHelper.write!(weeks.map { { name: 'Fuel', time: _1.in_time_zone.change(hour: 12).to_i, fields: { price_petrol: PETROL_PRICE } } })
+    end
+
+    def car_session(date)
+      started_at = date.in_time_zone.change(hour: 12)
+
+      {
+        kind: 'wallbox',
+        origin: 'detection',
+        car_id: 1,
+        started_at:,
+        ended_at: started_at + 2.hours,
+        **CAR_DAY.except(:km),
+        created_at: now,
+        updated_at: now,
+      }
+    end
+
+    # The car report reads the summaries of whole years around its timeframe,
+    # and get_car_costs builds a month of them at most. Empty summaries before
+    # the measured range fill that reach. They carry no value, so the first
+    # measured day stays where it is (MeasuredRange).
+    def seed_car_summaries!
+      Summary.insert_all!(((today << 14).beginning_of_month...first_day).map { { date: _1, created_at: now, updated_at: now } })
+      SummaryValue.insert_all!(car_days.map { { date: _1, field: 'car_odometer_1', aggregation: 'sum', value: CAR_DAY[:km] } })
     end
 
     def seed_summaries!
@@ -332,7 +396,28 @@ module LlmTest
         'best_day_last_month_day' => best.day.to_f,
         'pv_now_watt' => pv_now_watt,
         **money_facts,
+        **car_facts,
       }
+    end
+
+    # Arithmetic on the seed of the car, like the money facts
+    def car_facts
+      days = car_days.size
+
+      {
+        'car_charging_cost_last_month' => (days * CAR_DAY[:cost]).round(2),
+        'car_pv_kwh_last_month' => days * (CAR_DAY[:kwh] - CAR_DAY[:kwh_grid]),
+        'car_cost_per_100km_last_month' => (CAR_DAY[:cost] / CAR_DAY[:km] * 100).round(2),
+        'car_savings_last_month' => car_savings(days).round(2),
+      }
+    end
+
+    # The fuel and the tax share of the combustion car less the energy of the
+    # car. The insurance is on both sides.
+    def car_savings(days)
+      fuel = days * CAR_DAY[:km] * COMBUSTION[:fuel_consumption] / 100 * PETROL_PRICE
+      tax = days * COMBUSTION[:combustion_tax].fdiv(Date.gregorian_leap?(last_month.year) ? 366 : 365)
+      fuel + tax - (days * CAR_DAY[:cost])
     end
 
     # The money facts are arithmetic on the seed above, never a reading of the

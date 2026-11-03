@@ -22,11 +22,21 @@ class Car::Report # rubocop:disable Metrics/ClassLength
   # Car::Spans). The running day is stale after the tolerance of the shown
   # timeframe, not of the days it reads, so a day keeps it fresh.
   def self.pending_days(timeframe)
-    current_tolerance = Summary.current_tolerance_minutes(from: timeframe.effective_beginning_date, to: timeframe.effective_ending_date)
     read = Car::Spans.kind(timeframe) ? Timeframe.all : timeframe
-    reach = Car::Driving.reach(read.effective_dates, min_date: read.min_date)
+    pending_in(reach(read), timeframe)
+  end
+
+  # The same without the spans, which only the page shows
+  def self.pending_report_days(timeframe) = pending_in(reach(timeframe), timeframe)
+
+  # The days that a report of the timeframe reads
+  def self.reach(timeframe) = Car::Driving.reach(timeframe.effective_dates, min_date: timeframe.min_date)
+
+  def self.pending_in(reach, timeframe)
+    current_tolerance = Summary.current_tolerance_minutes(from: timeframe.effective_beginning_date, to: timeframe.effective_ending_date)
     Summary.missing_or_stale_days(from: reach.begin, to: reach.end, current_tolerance:)
   end
+  private_class_method :pending_in
 
   # The sources of the Sums of the wallbox and the offsite sessions, from the
   # bottom of a column up: PV and grid of the wallbox with the power

@@ -25,6 +25,7 @@ Keep every section, an empty one included.
 - Electric vehicles: each car sensor carries the number of its car, for example `INFLUX_SENSOR_CAR_BATTERY_SOC_1`. `INFLUX_SENSOR_CAR_BATTERY_SOC` without a number stays valid for the first car. New optional sensors give the odometer, the range, whether the car is plugged in, and its location
 - Electric vehicles: the new page "EV vs. combustion car" compares the cost of the cars with a combustion car for the same distance, with and without the PV system. Settings > Electric vehicles takes the fuel (petrol, diesel or LPG), the consumption and the vehicle tax of the combustion car, and the running costs and incomes of the cars, for example the insurance or the GHG quota. The page and its settings show only when the weekly fuel prices exist and the currency is the euro. These prices come with a later update (#2407)
 - Electric vehicles: on the car page, a bar below the figures shows the running costs of the car beside the savings against a combustion car for each timeframe but the live view. A tap opens the comparison of the same timeframe. Its charts show only from three months or years on
+- AI access: a new tool gives the distance, the charging cost with its PV share and the driving cost per 100 km of the electric cars, for all cars or for one car. With fuel prices, it also gives the savings against a combustion car. It shows only with a car
 
 ## Improvements
 

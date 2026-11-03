@@ -22,6 +22,9 @@ module McpServer
           error_response(e.message)
         end
 
+        # Whether the server offers the tool on this instance
+        def available? = true
+
         # Declare the annotations shared by every (read-only) SOLECTRUS tool.
         # `idempotent:` says whether repeating an identical call yields the same
         # result - false for live readings, true for historical aggregates.

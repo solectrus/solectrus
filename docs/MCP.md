@@ -59,6 +59,12 @@ setup guide instead, for the admin alone.)
 - `get_cash_flows` — that register itself: the single investments, subsidies,
   costs and revenue with date, category, amount and note, filterable by
   category and date range
+- `get_car_costs` — the electric cars over whole days, for all cars or for one:
+  the distance, the charging with its sources and cost, and the driving cost
+  and consumption per 100 km. With fuel prices it adds the saving against a
+  combustion car. Only an installation with a car offers it. It
+  stops where more summaries are missing than one call builds, see
+  [cars.md](cars.md#mcp)
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,

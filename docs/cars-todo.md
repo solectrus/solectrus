@@ -33,9 +33,6 @@ None of these items changes the design in cars.md.
     period of use replaces `car_active`.
   - The parts of a charge over midnight are all in the filter, so they all get the car.
   - The pages read the sessions directly, so no summary and no cache needs a new build.
-- Full MCP support for the cars: the charged energy, the charging cost, the driving cost
-  and the rates, for all cars and for one car. Today MCP has no tool for them
-  ([cars.md](cars.md#mcp)).
 - The import from evcc, with the sessions and the identifier. An imported session gets the
   origin `evcc` and keeps the kind `wallbox` (see
   [cars.md](cars.md#charging-sessions)). The detection must then leave a charge of the

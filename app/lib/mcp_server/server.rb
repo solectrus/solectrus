@@ -15,6 +15,7 @@ module McpServer
       Tools::Forecast,
       Tools::Amortization,
       Tools::CashFlows,
+      Tools::CarCosts,
     ].freeze
     private_constant :TOOLS
 
@@ -48,6 +49,12 @@ module McpServer
         .join(', ')
     end
 
+    def self.car_tool
+      return '' unless Tools::CarCosts.available?
+
+      "\nget_car_costs for the distance, charging and driving costs of the cars."
+    end
+
     # The conventions that hold across every tool, stated here so no tool
     # description has to repeat them (Facts explains why each is said at all).
     #
@@ -62,7 +69,7 @@ module McpServer
         get_system_info for installation metadata and currency,
         get_prices for the (time-dependent) tariffs, get_forecast for expected PV
         energy, get_amortization for payback, break-even and NPV/IRR, and
-        get_cash_flows for the single investments and costs behind it.
+        get_cash_flows for the single investments and costs behind it.#{car_tool}
 
         list_sensors is for DISCOVERY alone: call it to learn which sensors
         exist, or to resolve a sensor the user named. It is not a prerequisite -
@@ -91,8 +98,9 @@ module McpServer
     # to the spec default `ttlMs: 0`, which tells a client not to cache at all.
     #
     # The tools are a fixed list with static descriptions, so the response only
-    # ever changes with a new release - and a client that reconnects after one
-    # reads the new version out of `serverInfo` anyway. It weighs ~28 KB, which
+    # changes with a new release or with the first car (see
+    # Tools::Base.available?) - and a client that reconnects after one reads
+    # the new version out of `serverInfo` anyway. It weighs ~28 KB, which
     # a long conversation would otherwise pay several times over, so the hint
     # spans a working session rather than a few turns. An update still reaches
     # a client within the hour, and immediately on its next connect.
@@ -110,7 +118,7 @@ module McpServer
         title: 'SOLECTRUS',
         version: Rails.configuration.x.git.commit_version,
         instructions:,
-        tools: TOOLS,
+        tools: TOOLS.select(&:available?),
         ttl_ms: CACHE_TTL.in_milliseconds,
         cache_scope: CACHE_SCOPE,
         server_context:,

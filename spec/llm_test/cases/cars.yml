@@ -1,0 +1,46 @@
+# get_car_costs. The fixture has one car, which drives and charges the same
+# each day of last month (Dataset::CAR_DAY), and a combustion car with a fixed
+# petrol price to compare it with (Dataset::COMBUSTION).
+#
+# Keys: see cases/core.yml and spec/llm_test/README.md.
+
+- id: car_cost_per_100km
+  note: >
+    The cost per 100 km is a driving figure, and only get_car_costs has it.
+    The car sensors of list_sensors give the distance alone, so a model that
+    divides the charging cost by a distance of get_totals took the long way.
+  prompt: Was hat mich mein E-Auto im letzten Monat pro 100 km gekostet?
+  expect_tools: [get_car_costs]
+  forbid_tools: [list_sensors, get_totals]
+  max_tool_calls: 2
+  expect_facts: [car_cost_per_100km_last_month]
+  judge: Names the cost per 100 km of driving in the system currency.
+
+- id: car_charging_cost_and_pv
+  note: >
+    The charging cost and its PV share come from charging, not from driving,
+    and the share is the `pv` source. The question names no car, so the call
+    needs no `car`.
+  prompt: Wie viel hat das Laden meines Autos letzten Monat gekostet, und wie viel kWh kamen davon aus der PV-Anlage?
+  expect_tools: [get_car_costs]
+  forbid_tools: [list_sensors]
+  max_tool_calls: 2
+  expect_facts: [car_charging_cost_last_month, car_pv_kwh_last_month]
+  judge: >
+    Names the charging cost of the month and the energy from the PV system.
+    Presenting the driving cost as the charging cost fails.
+
+- id: car_savings_against_combustion
+  note: >
+    The saving against a combustion car is the `comparison` of
+    get_car_costs, in the same call as the rest. The comparison leaves out
+    the purchase, so a ratio of the two costs says nothing, and the answer
+    must give the difference.
+  prompt: Wie viel habe ich letzten Monat mit meinem E-Auto gegenüber einem Benziner gespart?
+  expect_tools: [get_car_costs]
+  forbid_tools: [list_sensors]
+  max_tool_calls: 2
+  expect_facts: [car_savings_last_month]
+  judge: >
+    Names the saving of last month as an amount of money. Giving the saving
+    as a percentage or a factor of the costs fails.
