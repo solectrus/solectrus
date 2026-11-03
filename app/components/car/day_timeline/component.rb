@@ -107,7 +107,7 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
         from: left,
         to: right,
         **charge_fill(charge),
-        ends: ends(from, to, lane.plugged, jagged: charge.estimated?, open:, continued:),
+        jagged: [false, charge.estimated?],
         title: t(session.offsite? ? '.charge_offsite' : '.charge_wallbox'),
         lines: [time_text((from unless continued), (to unless open)), *offsite_place(session)].compact,
         parts: charge_parts(session),
@@ -119,9 +119,8 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
 
   # A grey bar for each time in which the car was plugged in but did not
   # charge, below the bars of the charges. A time that runs on at now or
-  # over midnight is open at that end, so its bar is square there and its
-  # tooltip names no end. A time plugged in before midnight is open at its
-  # start.
+  # over midnight is open at that end, so its tooltip names no end. A time
+  # plugged in before midnight is open at its start.
   def plugged_bars(lane)
     charges = lane.charges.map(&:span)
     lane.plugged.map do |from, to|
@@ -131,7 +130,6 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
         from: left,
         to: right,
         segments: [[PLUGGED_COLOR, 1]],
-        ends: ends(from, to, charges, open:, continued: left.zero?),
         title: t('.plugged'),
         lines: [plugged_time(from, to, charges, open:, continued: left.zero?)].compact,
       )
@@ -221,16 +219,6 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
       (t('.gap') if charge.gaps.any?),
       (t('.started_before') if charge.session.started_at < timeline.timeframe.beginning),
     ].compact
-  end
-
-  # The looks of the start and the end of a bar from `from` to `to`. An end
-  # that touches one of the `others`, a charge and the time plugged in beside
-  # it, is square, so the two bars read as one time plugged in. An `open` end
-  # runs on, and a `continued` start comes from the day before, so they are
-  # square too. An estimated end is jagged.
-  def ends(from, to, others, jagged: false, open: false, continued: false)
-    last = open || others.any? { it.first == to } ? :square : :round
-    [continued || others.any? { it.last == from } ? :square : :round, jagged ? :jagged : last]
   end
 
   # The time of a bar, the first line below its title: from its start to its

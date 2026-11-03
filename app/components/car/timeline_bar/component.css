@@ -1,6 +1,6 @@
 /*
  * Car::TimelineBar::Component: a bar whose end is an estimate ends in a
- * jagged edge, like a torn strip, instead of its round corners. The mask
+ * jagged edge, like a torn strip, instead of its straight edge. The mask
  * keeps the bar up to the edge and cuts teeth into its last pixels.
  */
 .timeline-bar-estimated {

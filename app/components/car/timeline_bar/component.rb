@@ -34,12 +34,10 @@ class Car::TimelineBar::Component < ViewComponent::Base
     return { class: 'absolute inset-y-0 rounded-sm hover:bg-fill', style:, aria: { hidden: true }, data: } if bar.segments.empty?
 
     css_class = class_names(
-      'absolute inset-y-0 flex flex-col-reverse gap-px overflow-hidden rounded-md',
+      'absolute inset-y-0 flex flex-col-reverse gap-px overflow-hidden',
       'bg-fill' => bar.areas.any?,
-      'rounded-l-none' => bar.ends.first == :square,
-      'rounded-r-none' => bar.ends.last == :square,
-      'timeline-bar-estimated' => bar.ends.last == :jagged,
-      'timeline-bar-estimated-start' => bar.ends.first == :jagged,
+      'timeline-bar-estimated-start' => bar.jagged.first,
+      'timeline-bar-estimated' => bar.jagged.last,
       'cursor-pointer' => bar.href,
     )
     return { class: css_class, style:, data: } if bar.href

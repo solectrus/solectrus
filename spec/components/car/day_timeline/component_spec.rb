@@ -232,7 +232,8 @@ describe Car::DayTimeline::Component, type: :component do
     let(:drive) { Car::DayTimeline::Drive.new(started_at: nil, earliest_at: at(7), ended_at: at(9), distance: nil, ongoing: true) }
 
     it 'is open at its end and names no end and no distance' do
-      expect(bars.first['class']).to include('timeline-bar-estimated-start', 'rounded-r-none')
+      expect(bars.first['class'].split).to include('timeline-bar-estimated-start')
+      expect(bars.first['class'].split).not_to include('timeline-bar-estimated')
       expect(bars.first['aria-label']).to start_with('Driving, since 07:00')
       expect(bars.first['aria-label']).not_to include('Distance')
     end
@@ -372,14 +373,11 @@ describe Car::DayTimeline::Component, type: :component do
       plug_bar = bars.first
 
       expect(plug_bar['aria-label']).to eq('Plugged in')
-      expect(plug_bar['class']).to include('rounded-l-none', 'rounded-r-none')
     end
 
-    it 'joins the two bars without round corners between them' do
-      plug_bar, charge_bar = bars
-
-      expect(charge_bar['class']).to include('rounded-r-none')
-      expect(plug_bar['class']).to include('rounded-l-none')
+    # A short piece keeps its size, so the bars have no round corners
+    it 'draws the bars with square corners' do
+      expect(bars.pluck('class').join(' ')).not_to include('rounded')
     end
   end
 
@@ -392,7 +390,6 @@ describe Car::DayTimeline::Component, type: :component do
       night, evening = bars
 
       expect([night['aria-label'], evening['aria-label']]).to eq(['Plugged in, until 07:00', 'Plugged in, since 23:00'])
-      expect([night, evening].map { it['class'][/rounded-\w-none/] }).to eq(%w[rounded-l-none rounded-r-none])
     end
   end
 
@@ -411,7 +408,6 @@ describe Car::DayTimeline::Component, type: :component do
     before { allow(vc_test_controller).to receive(:admin?).and_return(false) }
 
     it 'leaves the end at midnight open' do
-      expect(bars.map { it['class'][/rounded-\w-none/] }).to eq(%w[rounded-l-none rounded-r-none])
       expect(bars.first['aria-label']).to include('Offsite charging, until 03:00')
       expect(bars.last['aria-label']).to include('Offsite charging, since 22:00')
     end

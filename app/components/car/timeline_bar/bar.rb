@@ -6,15 +6,14 @@
 # the segments. `pauses` are [[left, width], ...] in percent of the bar, the
 # times in which the car stayed plugged in but did not charge. `gaps` are
 # the same for the times in which the wallbox sent no data.
-# `ends` are the looks of its start and of its end: :round, :square where it
-# touches another bar of its row, or :jagged where the start or the end is
-# an estimate.
+# `jagged` tells for its start and for its end whether it is an estimate,
+# which shows as a jagged edge.
 #
 # Its tooltip has a title, `lines` below it, like the town and the street of
 # an address, `parts` and `notes`. A drive without a known start is a mark
 # at its end. A bar with `href` opens its entry, on a phone at `sheet_href`.
-Car::TimelineBar::Bar = Data.define(:from, :to, :segments, :areas, :pauses, :gaps, :ends, :title, :lines, :parts, :notes, :href, :sheet_href) do
-  def initialize(segments: [], areas: [], pauses: [], gaps: [], ends: %i[round round], parts: [], notes: [], href: nil, sheet_href: nil, **) = super # rubocop:disable Metrics/ParameterLists
+Car::TimelineBar::Bar = Data.define(:from, :to, :segments, :areas, :pauses, :gaps, :jagged, :title, :lines, :parts, :notes, :href, :sheet_href) do
+  def initialize(segments: [], areas: [], pauses: [], gaps: [], jagged: [false, false], parts: [], notes: [], href: nil, sheet_href: nil, **) = super # rubocop:disable Metrics/ParameterLists
 
   # The text of the tooltip for a screen reader
   def label = [title, *lines, *parts.map { [it.label, it.value.presence, ("#{it.percent} %" if it.percent)].compact.join(' ') }, *notes].join(', ')

@@ -11,7 +11,7 @@ module Car::DayTimeline::DriveBars
         from: axis.position(drive.start),
         to: axis.position(drive.ended_at),
         segments: [[Car::DayTimeline::Component::DRIVE_COLOR, 1]],
-        ends: drive_ends(drive),
+        jagged: drive_jagged(drive),
         title: t('.drive'),
         lines: [time_text((drive.started_at || drive.earliest_at unless drive.assumed_start?), (drive.ended_at unless drive.ongoing)), *route(lane, drive)],
         parts: drive_parts(lane, drive),
@@ -22,13 +22,12 @@ module Car::DayTimeline::DriveBars
 
   private
 
-  # A window of the readings is open at both ends, a start that is too late
-  # or an estimated or assumed one at its start. A drive that runs at now is
-  # square at its end, like a charge that runs on.
-  def drive_ends(drive)
-    return %i[jagged jagged] if drive.window?
+  # A window of the readings is jagged at both ends, a start that is too late
+  # or an estimated or assumed one at its start
+  def drive_jagged(drive)
+    return [true, true] if drive.window?
 
-    [drive.estimated_start? || drive.assumed_start? || drive.too_fast? ? :jagged : :round, drive.ongoing ? :square : :round]
+    [drive.estimated_start? || drive.assumed_start? || drive.too_fast?, false]
   end
 
   # A window says already that the start is open, so it hides the note of
