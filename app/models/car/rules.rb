@@ -24,6 +24,11 @@ module Car::Rules
   ARRIVAL = REPORT_LAG + BUCKET
   public_constant :ARRIVAL
 
+  # The readings of one report of a car can come some seconds apart, like
+  # the latitude and the longitude, or the odometer and the position
+  REPORT_SPREAD = 1.minute
+  public_constant :REPORT_SPREAD
+
   # How long after a charge a reading of the state of charge counts. A car
   # reports its state only while it is online, so a reading long after the
   # charge says nothing about it. The curves of a day reach further (see
@@ -109,7 +114,9 @@ module Car::Rules
   public_constant :SOC_NOISE_TIME
 
   # Readings of the odometer without a rise over this time within a pause
-  # tell that the car stood, also where the stop was too short for a visit
+  # tell that the car stood, also where the stop was too short for a visit.
+  # So does a position at a place where the car can have stood for this time,
+  # up to the next reading elsewhere (see Car::DayTimeline#stays_of).
   MIN_STOP = 10.minutes
   public_constant :MIN_STOP
 

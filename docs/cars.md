@@ -962,8 +962,12 @@ drive. These are the principles of the rules:
 - A short pause joins two drives, because the state of charge can stand still for a reading
   while the car drives. A charge or a visit in the pause keeps the drives apart, because the
   car stood there. Two readings of the odometer without a rise over some minutes do the
-  same, also where the stop was too short for a visit. A car reports late, so a charge or a
-  visit that starts shortly before the increase ends the drive.
+  same, also where the stop was too short for a visit. So does a stay: the car reported its
+  position at a known place, and its next position elsewhere came some minutes later. The
+  distance up to that next position must leave time for the stop, at the assumed speed of a
+  drive without a start. A car that reports once an hour thus shows each stop at a known
+  place, and a car that reports often does not stop where it passes a place. A car reports
+  late, so a charge or a visit that starts shortly before the increase ends the drive.
 - A car can report the last part of a drive after the arrival. Its distance belongs to the
   drive that arrived. A car does not drive while it charges, so this applies to each
   increase within a charge.
@@ -985,10 +989,10 @@ odometer, is therefore a drive up to now, without a distance.
 A car reports its place late, so a visit can last until the car arrives at the next place,
 and only the start of a visit is sure. A drive therefore starts at the last place where the
 car arrived before it, and it ends at the next visit. Only a visit that starts between the
-start of the drive before and the start of the drive after counts, so a stop without a
-visit between two drives leaves both open there. A stop becomes a visit only after some
-time, so on the running day, the last drive without a visit at its goal ends at the place
-where the car stands now.
+start of the drive before and the start of the drive after counts. Without such a visit, a
+stay tells the place, and a stop without either leaves the start or the goal open. A stop
+becomes a visit only after some time, so on the running day, the last drive without a
+visit at its goal ends at the place where the car stands now.
 
 #### The line of the state of charge
 
@@ -1166,39 +1170,40 @@ its drives and its charges. The classes that apply a rule refer to it there. If 
 value, the result of a step of the daily build changes. You must then increase the `VERSION`
 of that step, so that the build runs again.
 
-| Area    | Rule                                                               | Value    | Constant                          |
-| ------- | ------------------------------------------------------------------ | -------- | --------------------------------- |
-| Reports | A car reports a change of its position or connection late by       | 15 min   | `REPORT_LAG`                      |
-| Reports | The report of a drive can come after an arrival by                 | 20 min   | `ARRIVAL`                         |
-| Reports | A reading of the state of charge counts after a charge for         | 2 h      | `READING_DISTANCE`                |
-| Reports | The state of charge can come after the odometer by                 | 5 min    | `SOC_LAG`                         |
-| Reports | A change of the state of charge is noise up to                     | 1 point  | `SOC_NOISE`                       |
-| Reports | A rise of the state of charge at the wallbox is noise below        | 1 point  | `MIN_SOC_RISE`                    |
-| Places  | A position belongs to a place within                               | 100 m    | `PLACE_RADIUS`                    |
-| Places  | A stop makes a new place from                                      | 30 min   | `MIN_STAY`                        |
-| Places  | A stop at a known place makes a visit from                         | 15 min   | `MIN_KNOWN_STAY`                  |
-| Places  | The limit of a stop in intervals of the readings                   | 1.5      | `STAY_INTERVALS`                  |
-| Places  | The limit of a stop is at most                                     | 3 h      | `MAX_STAY_LIMIT`                  |
-| Places  | A rise of the odometer after a position ends it from more than     | 1 km     | `POSITION_MOVE`                   |
-| Places  | A visit belongs to a drive up to this before or after it           | 1 h      | `VISIT_REACH`                     |
-| Drives  | A gap before a rise of the odometer gives no start from more than  | 1 h      | `MAX_DRIVE_GAP`                   |
-| Drives  | A gap before a rise of the odometer gives an estimated start up to | 3 h      | `MAX_ESTIMATED_GAP`               |
-| Drives  | A pause joins two drives up to                                     | 30 min   | `MAX_DRIVE_PAUSE`                 |
-| Drives  | A fall of 1 point is no drive over more than                       | 30 min   | `SOC_NOISE_TIME`                  |
-| Drives  | An odometer without a rise in a pause is a stop from               | 10 min   | `MIN_STOP`                        |
-| Drives  | A drive without a start is assumed at an average speed up to       | 80 km/h  | `MAX_ASSUMED_SPEED`               |
-| Drives  | A drive needs a distance of                                        | 0.5 km   | `MIN_DRIVE_DISTANCE`              |
-| Drives  | A drive is a short drive in a window of the readings below         | 5 km/h   | `MIN_DRIVE_SPEED`                 |
-| Drives  | … if it lasts longer than                                          | 20 min   | `MIN_WINDOW`                      |
-| Drives  | A drive starts too late above                                      | 150 km/h | `MAX_DRIVE_SPEED`                 |
-| Drives  | The live view shows a drive at a fall within 1 h of more than      | 3 points | `DRIVE_DRAIN`, `DRIVE_DRAIN_TIME` |
-| Charges | A session at the wallbox needs                                     | 0.1 kWh  | `MIN_SESSION_KWH`                 |
-| Charges | A gap of the wallbox ends no session up to                         | 15 min   | `MAX_SESSION_GAP`                 |
-| Charges | A charge with a slow rise keeps one state of charge up to          | 1 h      | `MAX_CHARGE_PAUSE`                |
-| Charges | An offsite proposal needs a rise of                                | 5 points | `MIN_OFFSITE_RISE`                |
-| Charges | … or, with a connection, a rise of                                 | 3 points | `MIN_CONNECTED_RISE`              |
-| Charges | A step of a drive beside a charge holds no charge of its own up to | 30 min   | `MAX_CHARGE_EDGE`                 |
-| Charges | An offsite session blocks proposals around it for                  | 1 h      | `PROPOSAL_MARGIN`                 |
+| Area    | Rule                                                                 | Value    | Constant                          |
+| ------- | -------------------------------------------------------------------- | -------- | --------------------------------- |
+| Reports | A car reports a change of its position or connection late by         | 15 min   | `REPORT_LAG`                      |
+| Reports | The report of a drive can come after an arrival by                   | 20 min   | `ARRIVAL`                         |
+| Reports | The readings of one report can come apart by                         | 1 min    | `REPORT_SPREAD`                   |
+| Reports | A reading of the state of charge counts after a charge for           | 2 h      | `READING_DISTANCE`                |
+| Reports | The state of charge can come after the odometer by                   | 5 min    | `SOC_LAG`                         |
+| Reports | A change of the state of charge is noise up to                       | 1 point  | `SOC_NOISE`                       |
+| Reports | A rise of the state of charge at the wallbox is noise below          | 1 point  | `MIN_SOC_RISE`                    |
+| Places  | A position belongs to a place within                                 | 100 m    | `PLACE_RADIUS`                    |
+| Places  | A stop makes a new place from                                        | 30 min   | `MIN_STAY`                        |
+| Places  | A stop at a known place makes a visit from                           | 15 min   | `MIN_KNOWN_STAY`                  |
+| Places  | The limit of a stop in intervals of the readings                     | 1.5      | `STAY_INTERVALS`                  |
+| Places  | The limit of a stop is at most                                       | 3 h      | `MAX_STAY_LIMIT`                  |
+| Places  | A rise of the odometer after a position ends it from more than       | 1 km     | `POSITION_MOVE`                   |
+| Places  | A visit belongs to a drive up to this before or after it             | 1 h      | `VISIT_REACH`                     |
+| Drives  | A gap before a rise of the odometer gives no start from more than    | 1 h      | `MAX_DRIVE_GAP`                   |
+| Drives  | A gap before a rise of the odometer gives an estimated start up to   | 3 h      | `MAX_ESTIMATED_GAP`               |
+| Drives  | A pause joins two drives up to                                       | 30 min   | `MAX_DRIVE_PAUSE`                 |
+| Drives  | A fall of 1 point is no drive over more than                         | 30 min   | `SOC_NOISE_TIME`                  |
+| Drives  | An odometer without a rise, or a position at a place, is a stop from | 10 min   | `MIN_STOP`                        |
+| Drives  | A drive without a start is assumed at an average speed up to         | 80 km/h  | `MAX_ASSUMED_SPEED`               |
+| Drives  | A drive needs a distance of                                          | 0.5 km   | `MIN_DRIVE_DISTANCE`              |
+| Drives  | A drive is a short drive in a window of the readings below           | 5 km/h   | `MIN_DRIVE_SPEED`                 |
+| Drives  | … if it lasts longer than                                            | 20 min   | `MIN_WINDOW`                      |
+| Drives  | A drive starts too late above                                        | 150 km/h | `MAX_DRIVE_SPEED`                 |
+| Drives  | The live view shows a drive at a fall within 1 h of more than        | 3 points | `DRIVE_DRAIN`, `DRIVE_DRAIN_TIME` |
+| Charges | A session at the wallbox needs                                       | 0.1 kWh  | `MIN_SESSION_KWH`                 |
+| Charges | A gap of the wallbox ends no session up to                           | 15 min   | `MAX_SESSION_GAP`                 |
+| Charges | A charge with a slow rise keeps one state of charge up to            | 1 h      | `MAX_CHARGE_PAUSE`                |
+| Charges | An offsite proposal needs a rise of                                  | 5 points | `MIN_OFFSITE_RISE`                |
+| Charges | … or, with a connection, a rise of                                   | 3 points | `MIN_CONNECTED_RISE`              |
+| Charges | A step of a drive beside a charge holds no charge of its own up to   | 30 min   | `MAX_CHARGE_EDGE`                 |
+| Charges | An offsite session blocks proposals around it for                    | 1 h      | `PROPOSAL_MARGIN`                 |
 
 ## MCP
 

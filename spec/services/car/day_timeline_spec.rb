@@ -15,7 +15,32 @@ describe Car::DayTimeline do
 
     timeline.start
 
-    expect(curves).to have_received(:start).with(wallbox: false)
+    expect(curves).not_to have_received(:start).with(wallbox: true)
+  end
+
+  # Each sensor adds a fixed time to a program, so the positions load beside
+  # the other curves
+  it 'starts the positions in a program of their own' do
+    curves = instance_double(ChargingSession::Curves, start: nil)
+    allow(ChargingSession::Curves).to receive(:new).and_return(curves)
+
+    timeline.start
+
+    expect(ChargingSession::Curves).to have_received(:new).with([at(0).to_date], hash_including(roles: %i[car_latitude car_longitude]))
+    expect(curves).to have_received(:start).twice
+  end
+
+  # A stay only ends a drive, and the drives come from the odometer
+  it 'reads no positions of a car without an odometer' do
+    Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude', 'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude'))
+    curves = instance_double(ChargingSession::Curves, start: nil)
+    allow(ChargingSession::Curves).to receive(:new).and_return(curves)
+
+    timeline.start
+
+    expect(ChargingSession::Curves).to have_received(:new).with([at(0).to_date], hash_including(roles: %i[car_latitude car_longitude], cars: []))
+  ensure
+    Sensor::Config.setup(ENV)
   end
 
   it 'takes the times of a session with an end' do
@@ -246,6 +271,87 @@ describe Car::DayTimeline do
       allow(Place).to receive(:known_name_at).and_return(nil)
 
       expect(lane.goal(lane.drives.sole)).to be_nil
+    end
+  end
+
+  # The car stood at a known place for less than a visit needs
+  context 'with a stay at a place between two drives' do
+    subject(:timeline) { described_class.new(Timeframe.new('2025-12-28'), [car], admin: true) }
+
+    let(:lane) { timeline.lanes.sole }
+    let(:home) { [50.92263, 1.40706] }
+    let(:shop) { [50.91000, 1.40000] }
+    let(:work) { [50.90600, 1.40700] }
+
+    # [[Time, [latitude, longitude], km], ...]
+    def readings(*rows)
+      sensors = { car_odometer_1: rows.map { [it.first, it.last] } }
+      sensors[:car_latitude_1] = rows.map { [it.first, it.second.first] }
+      sensors[:car_longitude_1] = rows.map { [it.first, it.second.last] }
+      curves = instance_double(ChargingSession::Curves, start: nil, cars: { at(0).to_date => sensors }, wallbox: {}, wallbox_gaps: {})
+      allow(ChargingSession::Curves).to receive(:new).and_return(curves)
+    end
+
+    def route = lane.drives.map { [it.distance, lane.origin(it)&.name, lane.goal(it)&.name] }
+
+    before do
+      Sensor::Config.setup(
+        ENV.to_h.merge(
+          'INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer',
+          'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+          'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+        ),
+      )
+      [['Home', home], ['Shop', shop], ['Work', work]].each { |name, (latitude, longitude)| Place.create!(name:, latitude:, longitude:) }
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    # A car that reports every hour
+    it 'splits the drives at the reading at the place' do
+      readings([at(9), home, 100.0], [at(10), shop, 103.0], [at(11), home, 106.0])
+
+      expect(route).to eq([[3.0, 'Home', 'Shop'], [3.0, 'Shop', 'Home']])
+    end
+
+    # A car that reports each minute passes the shop on the road
+    it 'keeps a drive past a place whole' do
+      readings([at(9), home, 100.0], [at(9, 5), shop, 103.0], [at(9, 6), [50.89000, 1.39000], 104.0], [at(9, 10), work, 106.0])
+
+      expect(route).to eq([[6.0, nil, 'Work']])
+    end
+
+    # A car that reports every 15 minutes passes the shop on the road. The
+    # 10 km to the next reading leave no time for a stop there.
+    it 'keeps a drive past a place whole with one reading there' do
+      readings([at(9), home, 100.0], [at(9, 15), shop, 110.0], [at(9, 30), work, 120.0])
+
+      expect(route).to eq([[20.0, nil, 'Work']])
+    end
+
+    # A car that reports each 10 minutes, as long as Car::Rules::MIN_STOP
+    context 'with a reading every 10 minutes' do
+      def road = [50.89000, 1.39000]
+
+      it 'keeps a drive past a place whole' do
+        readings([at(8, 50), home, 100.0], [at(9), home, 100.0], [at(9, 10), road, 105.0], [at(9, 20), shop, 110.0], [at(9, 30), road, 115.0], [at(9, 40), work, 120.0])
+
+        expect(route).to eq([[20.0, 'Home', 'Work']])
+      end
+
+      it 'splits the drives at a stop with two readings at a place' do
+        readings([at(8, 50), home, 100.0], [at(9), home, 100.0], [at(9, 10), road, 105.0], [at(9, 20), shop, 110.0], [at(9, 30), shop, 110.0], [at(9, 40), road, 115.0], [at(9, 50), work, 120.0])
+
+        expect(route).to eq([[10.0, 'Home', 'Shop'], [10.0, 'Shop', 'Work']])
+      end
+    end
+
+    # The first reading came at the arrival, 144 m from the shop, and the
+    # next one in the car park, 67 m from it
+    it 'finds the place from a later reading of the stay' do
+      readings([at(9), home, 100.0], [at(10), [50.91130, 1.40000], 103.0], [at(10, 20), [50.91060, 1.40000], 103.0], [at(11), home, 106.0])
+
+      expect(route).to eq([[3.0, 'Home', 'Shop'], [3.0, 'Shop', 'Home']])
     end
   end
 
