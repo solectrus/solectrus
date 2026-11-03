@@ -303,8 +303,9 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   # Drives in the order of their end, one where they overlap or where a short
   # pause without a stop lies between them. An arrival between them keeps
-  # them apart, also where their times touch. The rest of a drive after its
-  # arrival adds its distance alone.
+  # them apart, also where their times touch, and so does a reading between
+  # two windows (see #windows?). The rest of a drive after its arrival adds
+  # its distance alone.
   def merge(drives)
     drives.sort_by(&:ended_at).each_with_object([]) do |drive, merged|
       before = merged.last
@@ -315,7 +316,13 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def one?(before, after) = !arrival?(before, after) && (before.joins?(after) || pause?(before, after))
+  def one?(before, after) = !arrival?(before, after) && !windows?(before, after) && (before.joins?(after) || pause?(before, after))
+
+  # Whether both drives are windows (see Car::DayTimeline::Drive#window?) of
+  # Car::Rules::MIN_DRIVE_DISTANCE at least: each one is a short drive within
+  # its own window, and one window over both would hide the reading between
+  # them. A shorter rest stays with the drive, so its distance counts.
+  def windows?(before, after) = [before, after].all? { it.window? && it.distance >= Car::Rules::MIN_DRIVE_DISTANCE }
 
   def pause?(before, after) = before.joins?(after, pause: Car::Rules::MAX_DRIVE_PAUSE) && !stood_between?(before, after)
 

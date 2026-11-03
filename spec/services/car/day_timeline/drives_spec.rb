@@ -18,6 +18,16 @@ describe Car::DayTimeline::Drives do
     end
   end
 
+  # A car that reports every hour drove a short way and back: each rise is
+  # a short drive somewhere within its hour
+  context 'with two windows one after the other' do
+    let(:readings) { [[at(9), 100], [at(10), 103], [at(11), 106]] }
+
+    it 'keeps them apart' do
+      expect(spans).to eq([['09:00', '10:00', 3], ['10:00', '11:00', 3]])
+    end
+  end
+
   # The odometer tells only that the car drove since the reading before
   context 'with a long gap before an increase' do
     let(:readings) { [[at(6), 100], [at(12, 30), 125]] }
