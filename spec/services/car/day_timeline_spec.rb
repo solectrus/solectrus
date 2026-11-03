@@ -311,6 +311,29 @@ describe Car::DayTimeline do
         expect(lane.goal(drives.first).name).to eq('Work')
       end
     end
+
+    # The car stood at a shop for less than Place::MIN_DURATION between two
+    # drives, so the shop has no visit
+    context 'with a stop without a visit between two drives' do
+      let(:drives) do
+        [
+          Car::DayTimeline::Drive.new(started_at: at(10, 35), ended_at: at(10, 59), distance: 6),
+          Car::DayTimeline::Drive.new(started_at: at(11, 18), ended_at: at(11, 26), distance: 4),
+        ]
+      end
+      let(:lane) do
+        visits = [visit('Work', at(7, 20), at(10, 44)), visit('Home', at(11, 26), at(23))]
+        described_class.new(car: nil, drives:, charges: [], soc_line: [], visits:)
+      end
+
+      it 'leaves the goal of the drive to the stop open' do
+        expect([lane.origin(drives.first).name, lane.goal(drives.first)]).to eq(['Work', nil])
+      end
+
+      it 'leaves the start of the drive from the stop open' do
+        expect([lane.origin(drives.last), lane.goal(drives.last).name]).to eq([nil, 'Home'])
+      end
+    end
   end
 
   describe '.without' do

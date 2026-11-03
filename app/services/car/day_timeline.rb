@@ -90,15 +90,26 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
       origin = origin_visit(drive)
       return origin.place if origin && origin.ended_at > drive.ended_at + Car::DayTimeline::Drives::ARRIVAL
 
-      visit = visits.select { origin.nil? || it.started_at > origin.started_at }.min_by { (it.started_at - drive.ended_at).abs }
+      visit = visits_around(drive).select { origin.nil? || it.started_at > origin.started_at }.min_by { (it.started_at - drive.ended_at).abs }
       visit.place if visit && (visit.started_at - drive.ended_at).abs <= 1.hour
     end
 
     def origin_visit(drive)
       start = drive.start
-      visits
+      visits_around(drive)
         .select { it.started_at <= start && it.started_at < drive.ended_at && it.ended_at >= start - 1.hour }
         .max_by(&:started_at)
+    end
+
+    # The visits that began from the start of the drive before up to the
+    # start of the drive after. A visit outside belongs to another drive,
+    # like where the car stood too short for a visit between two drives.
+    def visits_around(drive)
+      index = drives.index(drive)
+      return visits unless index
+
+      around = ((drives[index - 1].start if index.positive?)..drives[index + 1]&.start)
+      visits.select { around.cover?(it.started_at) }
     end
   end
   public_constant :Lane

@@ -960,8 +960,9 @@ drive. These are the principles of the rules:
   there, and the odometer came late.
 - A short pause joins two drives, because the state of charge can stand still for a reading
   while the car drives. A charge or a visit in the pause keeps the drives apart, because the
-  car stood there. A car reports late, so a charge or a visit that starts shortly before
-  the increase ends the drive.
+  car stood there. Two readings of the odometer without a rise over some minutes do the
+  same, also where the stop was too short for a visit. A car reports late, so a charge or a
+  visit that starts shortly before the increase ends the drive.
 - A car can report the last part of a drive after the arrival. Its distance belongs to the
   drive that arrived. A car does not drive while it charges, so this applies to each
   increase within a charge.
@@ -982,7 +983,9 @@ odometer, is therefore a drive up to now, without a distance.
 
 A car reports its place late, so a visit can last until the car arrives at the next place,
 and only the start of a visit is sure. A drive therefore starts at the last place where the
-car arrived before it, and it ends at the next visit. A stop becomes a visit only after some
+car arrived before it, and it ends at the next visit. Only a visit that starts between the
+start of the drive before and the start of the drive after counts, so a stop without a
+visit between two drives leaves both open there. A stop becomes a visit only after some
 time, so on the running day, the last drive without a visit at its goal ends at the place
 where the car stands now.
 

@@ -130,19 +130,30 @@ describe Car::DayTimeline::Drives do
   end
 
   context 'with a short pause between two drives' do
-    let(:readings) { [[at(9), 100], [at(9, 30), 110], [at(9, 45), 110], [at(10), 110], [at(10, 15), 120]] }
+    let(:readings) { [[at(9), 100], [at(9, 30), 110], [at(9, 38), 110], [at(9, 45), 120]] }
 
     it 'joins them' do
-      expect(spans).to eq([['09:00', '10:15', 20]])
+      expect(spans).to eq([['09:00', '09:45', 20]])
     end
 
     # The car stood at a place or charged, so the pause is a stop
     context 'with a stop in the pause' do
-      let(:stops) { [[at(9, 35), at(9, 55)]] }
+      let(:stops) { [[at(9, 31), at(9, 37)]] }
 
       it 'keeps them apart' do
-        expect(spans).to eq([['09:00', '09:30', 10], ['10:00', '10:15', 10]])
+        expect(spans).to eq([['09:00', '09:30', 10], ['09:38', '09:45', 10]])
       end
+    end
+  end
+
+  # The car stood at a shop for less than a visit needs, and the odometer
+  # did not rise over MIN_STOP
+  context 'with an odometer that stood still in a short pause' do
+    let(:readings) { [[at(9), 100], [at(9, 30), 106], [at(9, 49), 106], [at(9, 57), 110]] }
+    let(:soc) { [[at(9), 33], [at(9, 30), 29], [at(9, 31), 29], [at(9, 54), 27]] }
+
+    it 'keeps the drive there and the drive back apart' do
+      expect(spans).to eq([['09:00', '09:30', 6], ['09:49', '09:57', 4]])
     end
   end
 

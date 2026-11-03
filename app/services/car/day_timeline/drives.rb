@@ -44,8 +44,10 @@
 # The state of charge reports at a pace of its own too, so it can stand
 # still for a reading while the car drives. A pause of up to MAX_PAUSE
 # between two drives therefore joins them, unless the car stood in it: a
-# charge or a visit of a place splits them, while a short pause says too
-# little to split a drive in the overview of a day.
+# charge, a visit of a place or an odometer that stood still for MIN_STOP
+# splits them, so a stop too short for a visit, like at a shop, keeps its
+# drives apart. A pause that only the state of charge tells says too little
+# to split a drive in the overview of a day.
 #
 # A car that stands does not drive, so a drive ends where a charge or a visit
 # starts in its last ARRIVAL. A car reports late, like for the detection
@@ -93,6 +95,11 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   MAX_PAUSE = 30.minutes
   private_constant :MAX_PAUSE
+
+  # Readings of the odometer without a rise over this time within a pause
+  # tell that the car stood, also where the stop was too short for a visit
+  MIN_STOP = 10.minutes
+  private_constant :MIN_STOP
 
   # A car can report the state of charge of an arrival some time after the
   # odometer, so a fall up to this after an increase belongs to its drive
@@ -351,8 +358,16 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   def one?(before, after) = !arrival?(before, after) && (before.joins?(after) || pause?(before, after))
 
-  def pause?(before, after)
-    before.joins?(after, pause: MAX_PAUSE) && @stops.none? { |from, to| from < after.start && to > before.ended_at }
+  def pause?(before, after) = before.joins?(after, pause: MAX_PAUSE) && !stood_between?(before, after)
+
+  # Whether the car stood in the pause between the drives: a stop lies in
+  # it, or the readings of the odometer in it span MIN_STOP or more without
+  # a rise
+  def stood_between?(before, after)
+    return true if @stops.any? { |from, to| from < after.start && to > before.ended_at }
+
+    first, last = @readings.filter_map { |time, _| time if time.between?(before.ended_at, after.start) }.minmax
+    first.present? && last - first >= MIN_STOP
   end
 
   def arrival?(before, after) = @stops.any? { |from, _| from.between?(before.ended_at, after.start) }
