@@ -27,8 +27,13 @@
   }
 }
 
+/* The narrow box leaves a ragged right edge, so long words break by
+   syllable, in the language of the page. A word of 10 characters or more
+   breaks, with 4 of them on each side at least. */
 .floating-tooltip-inner {
-  @apply glass-panel relative px-4 py-3 text-sm;
+  @apply glass-panel relative px-4 py-3 text-sm hyphens-auto;
+
+  hyphenate-limit-chars: 10 4 4;
 
   opacity: 0;
   transform: scale(0.96);

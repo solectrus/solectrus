@@ -47,6 +47,7 @@ Keep every section, an empty one included.
 - The insights (the light bulb next to the chart) show as lists, as on an iPhone, and contain all values of the tooltip. On a phone, the heatmap opens as a page of its own
 - Without a sponsorship, the light bulb shows the total and the values of the tooltip
 - A tooltip of a live value stays open while the values refresh
+- Tooltips break long words by syllable, so a line has no large gap at its end
 - An empty list or chart shows the same note everywhere: an icon, a title and a short text
 - Grid costs: the tooltip and the cost chart show the energy costs and the base fee separately (#2560)
 - Forecast: the temperature chart shows the highest and the lowest temperature of each day instead of the average

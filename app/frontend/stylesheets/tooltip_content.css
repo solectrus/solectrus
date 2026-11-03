@@ -113,6 +113,13 @@
   @apply text-sm text-gray-400;
 }
 
+/* A tooltip in the sheet of a phone breaks long words like the floating box */
+#tooltip-sheet .bottom-sheet-content {
+  @apply hyphens-auto;
+
+  hyphenate-limit-chars: 10 4 4;
+}
+
 .bottom-sheet .tooltip-layout {
   @apply items-stretch gap-5 p-0 text-left text-base;
 
