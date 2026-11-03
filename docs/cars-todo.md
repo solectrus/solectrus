@@ -1,29 +1,10 @@
 # Cars: todo
 
-The plan for the car support, in the order of the work. [cars.md](cars.md) describes what
-exists. When an item is done, move its description to cars.md and remove it here. A design
-decision that is in neither file is lost.
+The plan for the car support. [cars.md](cars.md) describes what exists. When an item is
+done, move its description to cars.md and remove it here. A design decision that is in
+neither file is lost.
 
-| Topic              | Content                                                      |
-| ------------------ | ------------------------------------------------------------ |
-| 1. First release   | the car section in Helios                                    |
-| 2. Later additions | work after the first release, and the postponed manual input |
-
-## 1. First release
-
-The dashboard has the cars and the detection of the charging sessions. One item of the
-first release is left.
-
-- [ ] The car section in Helios
-
-Helios has a static sensor list with `car_battery_soc` alone. It needs a car section: the
-user adds a car, and Helios writes the `INFLUX_SENSOR_CAR_*_<n>` variables. Helios goes
-into its release after the dashboard. Until then, Helios writes
-`INFLUX_SENSOR_CAR_BATTERY_SOC`, which SOLECTRUS reads as the variable of the first car.
-
-## 2. Later additions
-
-None of these changes the design above.
+None of these items changes the design in cars.md.
 
 - Manual odometer readings, for the history before the odometer sensor or for a car
   without one. This is postponed. It needs a table for the readings, and
@@ -61,11 +42,6 @@ None of these changes the design above.
   import alone, so it makes no second session of it.
 - More than one wallbox. The session gets a `wallbox_id`, and the unique index of the
   detection holds it too.
-- A wider window for a user who drives little. The window of a day has 29 days
-  ([cars.md](cars.md#rates-and-driving-cost)), and below 100 km it gives no rate. A window
-  that grows to a minimum distance, for example 1,000 km, gives a steadier rate but a
-  smaller seasonal difference. Do this when users report rates that jump from day to day.
-  Open: the minimum distance, and how the window grows near today.
 - The removal of `car_battery_soc` from the database. The migration
   [add_car_support](../db/migrate/20260927102209_add_car_support.rb) keeps the value in
   `field_enum`, so an older version still runs on the database. A build of a day writes
