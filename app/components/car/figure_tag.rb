@@ -11,11 +11,10 @@ module Car::FigureTag
   # timeframe or the selection. A figure with a tooltip has it below (see
   # Car::Tooltip::Component). A tap on a link opens it, so its tooltip
   # needs a long press. A press scales the content alone (see #press_class).
-  # `link_class` applies to a link alone, like its hover, and `placement`
-  # places the tooltip, like beside the lead.
-  def figure_tag(figure, link_class: nil, placement: nil, **options, &)
+  # `link_class` applies to a link alone, like its hover.
+  def figure_tag(figure, link_class: nil, **options, &)
     touch = figure_link?(figure) ? 'long' : 'true'
-    data = figure.tooltip? ? { controller: 'tooltip', tooltip_touch_value: touch, tooltip_placement_value: placement }.compact : {}
+    data = figure.tooltip? ? { controller: 'tooltip', tooltip_touch_value: touch } : {}
     link_class = class_names('group cursor-pointer', link_class)
     tag_name, attributes =
       if figure.href

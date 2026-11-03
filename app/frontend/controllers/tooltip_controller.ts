@@ -111,7 +111,9 @@ export default class TooltipController extends Controller {
     },
   };
 
-  static readonly targets = ['html'];
+  // `anchor` is the part of the element that the box points to, like the
+  // number in a large box (default: the element)
+  static readonly targets = ['html', 'anchor'];
 
   declare placementValue: Placement;
   declare mobilePlacementValue: string;
@@ -119,6 +121,7 @@ export default class TooltipController extends Controller {
   declare delegateValue: boolean;
   declare sheetUrlValue: string;
   declare readonly hasHtmlTarget: boolean;
+  declare readonly anchorTargets: HTMLElement[];
 
   private positionCleanup: (() => void) | null = null;
   private overlay: HTMLElement | null = null;
@@ -401,7 +404,7 @@ export default class TooltipController extends Controller {
     this.updateTooltipContent(content);
     this.isVisible = true;
 
-    await this.showTooltipAt(target, this.effectivePlacement);
+    await this.showTooltipAt(this.anchorOf(target), this.effectivePlacement);
 
     // Check if controller was disconnected during async operation
     if (!this.isVisible) return;
@@ -411,6 +414,18 @@ export default class TooltipController extends Controller {
     }
 
     this.createOverlay();
+  }
+
+  // The anchor that the box points to. An element can have one anchor per
+  // variant of its content, like an icon with its value or the icon alone,
+  // and the visible one counts. A child of the delegate mode has none.
+  private anchorOf(target: HTMLElement): HTMLElement {
+    if (target !== this.element) return target;
+
+    return (
+      this.anchorTargets.find((anchor) => anchor.getClientRects().length > 0) ??
+      target
+    );
   }
 
   // A phone shows what a touch opens in a bottom sheet. A tap on a link is

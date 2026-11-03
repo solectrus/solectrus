@@ -64,7 +64,7 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
 
   # The card names the charged energy
   it 'has no tooltip on the charged energy' do
-    expect(card.at_css('> a[data-stats-with-chart--component-sensor-name-param="car_charging"] [data-tooltip-target]')).to be_nil
+    expect(card.at_css('> a[data-stats-with-chart--component-sensor-name-param="car_charging"] [data-tooltip-target="html"]')).to be_nil
   end
 
   it 'loads the chart of each figure' do

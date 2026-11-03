@@ -4,7 +4,7 @@
 # to it, like its cost and the link to its list. The card of the charging has
 # a bar of its sources between them, each as wide as its energy. Each part
 # loads its chart or opens its page (see Car::FigureTag), and its tooltip
-# says more.
+# says more. The tooltip points to the content of the part, not to its box.
 #
 # The card of the driving has its total as its `lead`: large, in the height
 # that the bar of the sources takes in the card of the charging, so both
