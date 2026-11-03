@@ -32,6 +32,11 @@ class Place < ApplicationRecord
   MIN_DURATION = 30.minutes
   public_constant :MIN_DURATION
 
+  # A stop at a place that exists already needs less, for example a stop at
+  # a shop. A traffic light is rarely within RADIUS of a place.
+  MIN_KNOWN_DURATION = 15.minutes
+  public_constant :MIN_KNOWN_DURATION
+
   # A failed request to Nominatim waits this long before the next one, from
   # geocoded_at
   RETRY_AFTER = 10.minutes

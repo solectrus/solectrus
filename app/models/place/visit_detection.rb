@@ -12,21 +12,23 @@
 #
 # Each stop has a limit (see #limit). A stop at no place and shorter than its
 # limit is left out, for example a traffic light, and a shorter visit too,
-# for example a drive past the home. Two visits at one place with a shorter
-# time between them are one visit, for example with a wrong position between
-# them.
+# for example a drive past the home. A new place needs Place::MIN_DURATION
+# at least, a visit at a known place only Place::MIN_KNOWN_DURATION, for
+# example a stop at a shop. Two visits at one place with less time than the
+# limit between them, and Place::MIN_DURATION at least, are one visit, for
+# example with a wrong position between them.
 #
 # A position lasts until the next reading, at any age (see
 # Sensor::Query::Positions). A car that reports every 15 minutes therefore
 # stays 15 minutes at each position of a drive. The limit
-# is at least Place::MIN_DURATION, and longer than one interval of the
+# is at least Place::MIN_KNOWN_DURATION, and longer than one interval of the
 # readings at the stop, so a visit needs two readings at the place. The
 # interval comes from the readings themselves, so it can change from one day
 # to the next, for example when the user asks the car more often.
 #
 # A car that reports only a change sends one reading at a stop. The gap
 # before it is the time at the place before, so it gives no interval, and
-# the stop needs Place::MIN_DURATION alone (see #arrival_limit).
+# the stop needs the lower bound alone (see #arrival_limit).
 class Place::VisitDetection
   # The step of the daily build (see Summary::Steps)
   KEY = :place_visits
@@ -63,7 +65,8 @@ class Place::VisitDetection
 
     def duration = to - from
 
-    def long? = duration >= limit
+    # Whether the stop is long enough for a new place
+    def long? = duration >= [limit, Place::MIN_DURATION].max
 
     def near?(segment) = Geo.distance(latitude, longitude, segment.latitude, segment.longitude) <= Place::RADIUS
 
@@ -150,9 +153,9 @@ class Place::VisitDetection
   # The limit of a stop at its arrival. A car that sent nothing during the
   # whole stop before reports only a change, so the gap before the arrival is
   # the time of that stop and no interval of the readings. Its stop needs
-  # Place::MIN_DURATION, also with one reading.
+  # the lower bound alone, also with one reading.
   def arrival_limit(segment, before)
-    return Place::MIN_DURATION if before&.long? && segment.gap && segment.gap >= before.duration
+    return Place::MIN_KNOWN_DURATION if before&.long? && segment.gap && segment.gap >= before.duration
 
     limit(segment)
   end
@@ -163,10 +166,12 @@ class Place::VisitDetection
   # or before the departure of a car that reports less often when parked.
   # A stop with one reading lasts as long as the gap of its departure, so it
   # always stays below its limit. The first reading of the query has no gap.
+  # The lower bound is the one of a known place, and a new place needs more
+  # (see Stop#long?).
   def limit(segment)
-    return Place::MIN_DURATION unless segment.gap
+    return Place::MIN_KNOWN_DURATION unless segment.gap
 
-    (segment.gap * INTERVALS).clamp(Place::MIN_DURATION, MAX_LIMIT)
+    (segment.gap * INTERVALS).clamp(Place::MIN_KNOWN_DURATION, MAX_LIMIT)
   end
 
   # The rows of the visits on the days of the step in the period of use of
@@ -197,11 +202,11 @@ class Place::VisitDetection
   end
 
   # A visit joins the visit before at the same place after a time shorter
-  # than the limit of the visit before
+  # than the limit of the visit before, and than Place::MIN_DURATION at least
   def join(visits)
     visits.each_with_object([]) do |visit, result|
       last = result.last
-      if last&.place == visit.place && visit.from - last.to < last.limit
+      if last&.place == visit.place && visit.from - last.to < [last.limit, Place::MIN_DURATION].max
         last.to = visit.to
       else
         result << visit.dup

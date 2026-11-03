@@ -130,6 +130,36 @@ describe Place::VisitDetection do
       end
     end
 
+    # A stop of 20 minutes, shorter than Place::MIN_DURATION
+    context 'with a short stop' do
+      let(:dates) { [Date.new(2026, 9, 22)] }
+      let(:gap) { 5.minutes }
+      let(:segments) do
+        [
+          segment('2026-09-22 00:00', '2026-09-22 10:00', 50.92263, 1.40706),
+          segment('2026-09-22 10:00', '2026-09-22 10:20', 50.91000, 1.40000),
+          segment('2026-09-22 10:20', '2026-09-23 00:00', 50.92263, 1.40706),
+        ]
+      end
+
+      it 'makes no place there, and joins the visits at home around it' do
+        detection.persist(detection.call)
+
+        expect(visits).to eq([[50.92263, '22. 00:00', '23. 00:00']])
+        expect(Place.count).to eq(1)
+      end
+
+      context 'with a known place there, like a shop' do
+        before { Place.create!(latitude: 50.91, longitude: 1.4) }
+
+        it 'makes a visit' do
+          detection.persist(detection.call)
+
+          expect(visits).to include([50.91, '22. 10:00', '22. 10:20'])
+        end
+      end
+    end
+
     context 'with a position every hour' do
       let(:dates) { [Date.new(2026, 9, 22)] }
       let(:gap) { 1.hour }

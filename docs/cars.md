@@ -1100,6 +1100,10 @@ lower and an upper bound. The interval comes from the readings at the stop, so i
 the user when the car reports more often. A car that reports only at the arrival sends one
 reading at a stop, which gives no interval. Its stop then gets the lower bound.
 
+The lower bound is 15 minutes for a visit at a known place (`Place::MIN_KNOWN_DURATION`),
+for example a stop at a shop. A traffic light is rarely near a place. A new place needs 30
+minutes (`Place::MIN_DURATION`), and so does the time between two visits that join.
+
 The step cuts the visits at midnight, like a daily summary. The list of the visits joins
 these rows again and shows a visit that is still going on without an end.
 
