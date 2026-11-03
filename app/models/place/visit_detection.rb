@@ -16,7 +16,9 @@
 # at least, a visit at a known place only Car::Rules::MIN_KNOWN_STAY, for
 # example a stop at a shop. Two visits at one place with less time than the
 # limit between them, and Car::Rules::MIN_STAY at least, are one visit, for
-# example with a wrong position between them.
+# example with a wrong position between them. Where the odometer rose by
+# more than Car::Rules::POSITION_MOVE between them, the car drove away, so
+# they stay two visits.
 #
 # A position lasts until the next reading, at any age (see
 # Sensor::Query::Positions). A car that reports every 15 minutes therefore
@@ -35,7 +37,7 @@ class Place::VisitDetection
   public_constant :KEY
 
   # Bump to build each day again (see Summary::Steps)
-  VERSION = 3
+  VERSION = 4
   public_constant :VERSION
 
   # The visits come from the build alone (see Summary::Steps). The places
@@ -45,10 +47,12 @@ class Place::VisitDetection
   # A stop: the positions that follow each other within Car::Rules::PLACE_RADIUS
   # of its center. The center is the position with the longest time (`longest`).
   # The stop counts from its limit on (see #limit).
-  Stop = Data.define(:latitude, :longitude, :from, :to, :longest, :limit) do
+  Stop = Data.define(:latitude, :longitude, :from, :to, :longest, :limit, :odometer_from, :odometer_to) do
     def self.of(segment, limit:)
-      new(latitude: segment.latitude, longitude: segment.longitude, from: segment.from, to: segment.to, longest: segment.duration, limit:)
+      new(latitude: segment.latitude, longitude: segment.longitude, from: segment.from, to: segment.to, longest: segment.duration, limit:, odometer_from: segment.odometer, odometer_to: segment.odometer)
     end
+
+    def initialize(odometer_from: nil, odometer_to: nil, **) = super
 
     def duration = to - from
 
@@ -59,9 +63,10 @@ class Place::VisitDetection
 
     # The stop up to the end of the segment
     def add(segment)
-      return with(to: segment.to) if segment.duration <= longest
+      odometer_to = segment.odometer || self.odometer_to
+      return with(to: segment.to, odometer_to:) if segment.duration <= longest
 
-      with(latitude: segment.latitude, longitude: segment.longitude, to: segment.to, longest: segment.duration)
+      with(latitude: segment.latitude, longitude: segment.longitude, to: segment.to, longest: segment.duration, odometer_to:)
     end
   end
   public_constant :Stop
@@ -175,29 +180,39 @@ class Place::VisitDetection
     end
   end
 
-  # A visit keeps the limit of its first stop
-  Visit = Struct.new(:place, :from, :to, :limit)
+  # A visit keeps the limit of its first stop, and the odometer at its first
+  # and at its last reading
+  Visit = Struct.new(:place, :from, :to, :limit, :odometer_from, :odometer_to)
   private_constant :Visit
 
   # The visits of the stops with a place. The stops at one place join first,
   # so short stops can add up. The short visits go next, and the visits at
   # one place join again, so a short visit at another place splits no visit.
   def visits(places_and_stops)
-    visits = places_and_stops.filter_map { |place, stop| Visit.new(place, stop.from, stop.to, stop.limit) if place }
+    visits = places_and_stops.filter_map { |place, stop| Visit.new(place, stop.from, stop.to, stop.limit, stop.odometer_from, stop.odometer_to) if place }
 
     join(join(visits).select { it.to - it.from >= it.limit })
   end
 
   # A visit joins the visit before at the same place after a time shorter
-  # than the limit of the visit before, and than Car::Rules::MIN_STAY at least
+  # than the limit of the visit before, and than Car::Rules::MIN_STAY at
+  # least, unless the car drove between them (see #drove_between?)
   def join(visits)
     visits.each_with_object([]) do |visit, result|
       last = result.last
-      if last&.place == visit.place && visit.from - last.to < [last.limit, Car::Rules::MIN_STAY].max
+      if last&.place == visit.place && visit.from - last.to < [last.limit, Car::Rules::MIN_STAY].max && !drove_between?(last, visit)
         last.to = visit.to
+        last.odometer_to = visit.odometer_to || last.odometer_to
       else
         result << visit.dup
       end
     end
+  end
+
+  # Whether the odometer rose between two visits by more than
+  # Car::Rules::POSITION_MOVE, so the car drove away and came back, and no
+  # wrong position lay between them
+  def drove_between?(before, after)
+    before.odometer_to && after.odometer_from && Sensor::Query::Positions.left?(before.odometer_to, after.odometer_from)
   end
 end

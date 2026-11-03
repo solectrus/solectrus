@@ -18,9 +18,13 @@ module Sensor
     #
     # Each segment knows the time between its first reading and the reading
     # before it (`gap`), so a caller sees how often the car reported at that
-    # time. The first reading of the query has no gap.
+    # time. The first reading of the query has no gap. It also knows the
+    # odometer at its reading (`odometer`), so a caller sees whether the car
+    # drove between two positions. Without an odometer, it is nil.
     class Positions < Helpers::Influx::Base
-      Segment = ::Data.define(:from, :to, :latitude, :longitude, :gap) do
+      Segment = ::Data.define(:from, :to, :latitude, :longitude, :gap, :odometer) do
+        def initialize(odometer: nil, **) = super
+
         def duration = to - from
       end
       public_constant :Segment
@@ -114,30 +118,31 @@ module Sensor
         ends = [*readings.drop(1).map(&:time), to]
 
         readings.zip(ends).filter_map do |reading, ending|
-          ending = [ending, departure(reading.time, odometer_readings)].compact.min
+          at_position = odometer_at_position(reading.time, odometer_readings)
+          ending = [ending, departure(reading.time, at_position, odometer_readings)].compact.min
           start = [reading.time, from].max
           next if start >= ending
 
-          Segment.new(from: start, to: ending, latitude: reading.latitude, longitude: reading.longitude, gap: reading.gap)
+          Segment.new(from: start, to: ending, latitude: reading.latitude, longitude: reading.longitude, gap: reading.gap, odometer: at_position)
         end
       end
 
       # The time of the first odometer reading that is more than POSITION_MOVE
-      # above the odometer at the time of the position, or nil
-      def departure(time, odometer_readings)
+      # above the odometer at the position, `at_position`, or nil
+      def departure(time, at_position, odometer_readings)
+        return unless at_position
+
+        odometer_readings[first_after(time, odometer_readings)..].find { |_, km| self.class.left?(at_position, km) }&.first&.in_time_zone
+      end
+
+      # The odometer at the time of a position, from the last reading up to
+      # it, or nil without an odometer. A position before the period can be
+      # older than each odometer reading of the query, so its odometer comes
+      # from one more query.
+      def odometer_at_position(time, odometer_readings)
         return unless odometer
 
         after = first_after(time, odometer_readings)
-        at_position = odometer_at(time, odometer_readings, after)
-        return unless at_position
-
-        odometer_readings[after..].find { |_, km| self.class.left?(at_position, km) }&.first&.in_time_zone
-      end
-
-      # The odometer at a time, from the last reading up to it. A position
-      # before the period can be older than each odometer reading of the
-      # query, so its odometer comes from one more query.
-      def odometer_at(time, odometer_readings, after)
         reading = odometer_readings[after - 1] if after.positive?
         reading&.last || self.class.odometer_at(odometer, time)
       end

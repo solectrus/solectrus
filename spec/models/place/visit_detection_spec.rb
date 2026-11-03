@@ -20,8 +20,8 @@ describe Place::VisitDetection do
   # The time between two readings of the car, the same for each segment
   let(:gap) { nil }
 
-  def segment(from, to, latitude, longitude, gap: self.gap)
-    Sensor::Query::Positions::Segment.new(from: Time.zone.parse(from), to: Time.zone.parse(to), latitude:, longitude:, gap:)
+  def segment(from, to, latitude, longitude, gap: self.gap, odometer: nil)
+    Sensor::Query::Positions::Segment.new(from: Time.zone.parse(from), to: Time.zone.parse(to), latitude:, longitude:, gap:, odometer:)
   end
 
   def visits
@@ -156,6 +156,50 @@ describe Place::VisitDetection do
           detection.persist(detection.call)
 
           expect(visits).to include([50.91, '22. 10:00', '22. 10:20'])
+        end
+      end
+    end
+
+    # A car that reports every hour drove to a shop and back. Its one reading
+    # at the shop is too short for a visit.
+    context 'with a drive to a shop between two readings at home' do
+      let(:dates) { [Date.new(2026, 9, 22)] }
+      let(:gap) { 1.hour }
+      let(:segments) do
+        [
+          segment('2026-09-21 12:00', '2026-09-22 14:00', 50.92263, 1.40706, odometer: 100),
+          segment('2026-09-22 14:00', '2026-09-22 15:00', 50.91000, 1.40000, odometer: 106),
+          segment('2026-09-22 15:00', '2026-09-23 00:00', 50.92263, 1.40706, odometer: 112),
+        ]
+      end
+
+      before { Place.create!(latitude: 50.91, longitude: 1.4) }
+
+      it 'keeps the visits at home before and after it apart' do
+        detection.persist(detection.call)
+
+        expect(visits).to eq(
+          [
+            [50.92263, '22. 00:00', '22. 14:00'],
+            [50.92263, '22. 15:00', '23. 00:00'],
+          ],
+        )
+      end
+
+      # The odometer did not rise, so the reading at the shop was wrong
+      context 'with a wrong position between them' do
+        let(:segments) do
+          [
+            segment('2026-09-21 12:00', '2026-09-22 14:00', 50.92263, 1.40706, odometer: 100),
+            segment('2026-09-22 14:00', '2026-09-22 15:00', 50.91000, 1.40000, odometer: 100),
+            segment('2026-09-22 15:00', '2026-09-23 00:00', 50.92263, 1.40706, odometer: 100),
+          ]
+        end
+
+        it 'joins the visits at home' do
+          detection.persist(detection.call)
+
+          expect(visits).to eq([[50.92263, '22. 00:00', '23. 00:00']])
         end
       end
     end

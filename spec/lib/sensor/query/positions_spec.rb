@@ -101,6 +101,10 @@ describe Sensor::Query::Positions do
     it 'ends the position when the car drove away' do
       expect(segments.map { [it.from.strftime('%H:%M'), it.to.strftime('%H:%M')] }).to eq([%w[00:00 07:30]])
     end
+
+    it 'gives the odometer at the reading of the position' do
+      expect(segments.sole.odometer).to eq(1000.0)
+    end
   end
 
   # A parked car repeats its odometer, and the query keeps only its changes

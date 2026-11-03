@@ -1093,7 +1093,9 @@ Each stop has a limit:
 
 - A stop at no place and shorter than its limit gets no place, for example a traffic light.
 - A visit shorter than its limit is left out, for example a drive past the home.
-- Two visits at one place make one visit when less time than the limit lies between them.
+- Two visits at one place make one visit when less time than the limit lies between them,
+  for example with a wrong position between them. If the odometer rose by more than 1 km
+  between them, the car drove away, and they stay two visits.
 
 A drive past a place has one reading there and lasts one interval of the readings. A visit
 has two readings and lasts two intervals. The limit is therefore 1.5 intervals, within a
