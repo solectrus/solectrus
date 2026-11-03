@@ -241,7 +241,7 @@ class ChargingSession < ApplicationRecord
     dated = select(arel_table[Arel.star], local_date_sql.as('local_date'))
     continued = unscoped.from(dated, table_name).select(
       "#{table_name}.*",
-      sanitize_sql_array([CONTINUED_SQL, { gap: ChargingSession::Detection::Periods::GAP.to_i, bucket: ChargingSession::Detection::Periods::BUCKET.to_i }]),
+      sanitize_sql_array([CONTINUED_SQL, { gap: Car::Rules::MAX_SESSION_GAP.to_i, bucket: ChargingSession::Detection::Periods::BUCKET.to_i }]),
     )
 
     unscoped.from(continued, table_name)

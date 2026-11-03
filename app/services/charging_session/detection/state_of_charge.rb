@@ -32,7 +32,7 @@ class ChargingSession::Detection::StateOfCharge
   def of(date, car, from, to)
     readings = @curves.call(date, car.sensor_name(:car_battery_soc)).select { ChargingSession::Curves.soc_reading?(it.last) }
     before = readings.rfind { |time, _| time <= from }
-    after = readings.select { |time, _| time > from && time <= to + ChargingSession::Detection::CarAssignment::READING_DISTANCE }
+    after = readings.select { |time, _| time > from && time <= to + Car::Rules::READING_DISTANCE }
     return if before.nil? || after.empty?
 
     soc_from = before.last.round(1)

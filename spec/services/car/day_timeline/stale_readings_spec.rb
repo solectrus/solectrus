@@ -26,7 +26,7 @@ describe Car::DayTimeline::StaleReadings do
       end
     end
 
-    context 'with a change of the state of charge by NOISE' do
+    context 'with a change of the state of charge by SOC_NOISE' do
       let(:soc) { [*times.map { [it, 24.0] }, [at(10, 45), 23.0]] }
 
       it 'keeps the readings' do

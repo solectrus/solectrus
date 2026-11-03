@@ -11,12 +11,6 @@
 module ChargingSession::Proposal
   extend ActiveSupport::Concern
 
-  # An offsite session blocks a proposal in its time and this margin around
-  # it, because an entered time is not exact and a car reports its state of
-  # charge late
-  BLOCK_MARGIN = 1.hour
-  public_constant :BLOCK_MARGIN
-
   included do
     # The open proposals of the build
     scope :proposals, -> { offsite.where(assigned_manually: false) }
@@ -74,12 +68,12 @@ module ChargingSession::Proposal
   end
 
   # The time in which this offsite session blocks a proposal of its car: its
-  # time with BLOCK_MARGIN around it, or without an end its whole day,
+  # time with PROPOSAL_MARGIN around it, or without an end its whole day,
   # because a session from the history often has its day alone
   def blocked_period
     return date.beginning_of_day...date.next_day.beginning_of_day unless ended_at
 
-    (started_at - BLOCK_MARGIN)...(ended_at + BLOCK_MARGIN)
+    (started_at - Car::Rules::PROPOSAL_MARGIN)...(ended_at + Car::Rules::PROPOSAL_MARGIN)
   end
 
   private

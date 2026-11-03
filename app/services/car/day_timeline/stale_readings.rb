@@ -14,14 +14,6 @@
 # while it drove, so its rise comes without a change of the state of
 # charge. Its readings stay.
 class Car::DayTimeline::StaleReadings
-  # A car can report the state of charge some time after the odometer, like
-  # for the drives (see Car::DayTimeline::Drives)
-  SOC_LAG = Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
-  private_constant :SOC_LAG
-
-  NOISE = Car::DayTimeline::Drives::NOISE
-  private_constant :NOISE
-
   # Each of the readings are [[Time, value], ...] of a sensor of the car,
   # empty without the sensor
   def initialize(odometer:, soc: [], plug: [])
@@ -46,13 +38,13 @@ class Car::DayTimeline::StaleReadings
   def too_fast?(from, to, distance) = distance.positive? && Car::DayTimeline::Drive.new(started_at: from, ended_at: to, distance:).too_fast?
 
   # Whether the first reading of the state of charge after `before_time`
-  # comes with the rise at `time` and changes by more than NOISE
+  # comes with the rise at `time` and changes by more than SOC_NOISE
   def soc_changed?(before_time, time)
     before = @soc.rfind { |at, _| at <= before_time }
     after = @soc.find { |at, _| at > before_time }
     return false unless before && after
 
-    after.first <= time + SOC_LAG && (after.last - before.last).abs > NOISE
+    after.first <= time + Car::Rules::SOC_LAG && (after.last - before.last).abs > Car::Rules::SOC_NOISE
   end
 
   # The time of the first reading of the run of the same value that holds at

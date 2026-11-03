@@ -1,31 +1,23 @@
 # The line of the state of charge of a car on a day (see Car::DayTimeline),
 # from its readings.
 #
-# A car reports at a pace of its own. Some cars report every few minutes,
-# others only now and then, like after a drive or a charge. Between two close
-# readings, the line holds the first value and steps at the second, like the
-# chart of the state of charge. Between two readings more than MAX_GAP apart,
-# a step at the second reading would come too late: a car that charged at
-# noon and reported in the evening would rise in the evening. So the change
-# follows what explains it: a rise follows the charging sessions in the gap,
-# and a fall follows the drives. Without such an event, nothing tells when the
-# value changed, so the line is a slope from one reading to the next, outside
-# the events of the other kind. All of them are estimates, which the line
-# draws dashed.
+# A car reports at a pace of its own. Some cars report every few minutes, others
+# only now and then, like after a drive or a charge. Between two close readings,
+# the line holds the first value and steps at the second, like the chart of the
+# state of charge. Between two readings more than MAX_DRIVE_GAP apart, a step at
+# the second reading would come too late: a car that charged at noon and
+# reported in the evening would rise in the evening. So the change follows what
+# explains it: a rise follows the charging sessions in the gap, and a fall
+# follows the drives. Without such an event, nothing tells when the value
+# changed, so the line is a slope from one reading to the next, outside the
+# events of the other kind. All of them are estimates, which the line draws
+# dashed.
 class Car::DayTimeline::SocLine
   # A piece of the line, from one value to the next. `known` is false where
   # the readings leave open when the value changed, so the piece is an
   # estimate.
   Segment = Data.define(:from, :to, :from_value, :to_value, :known)
   public_constant :Segment
-
-  # Like the drives (see Car::DayTimeline::Drives)
-  MAX_GAP = Car::DayTimeline::Drives::MAX_GAP
-  private_constant :MAX_GAP
-
-  # A change of the noise of the reading steps at its reading
-  NOISE = Car::DayTimeline::Drives::NOISE
-  private_constant :NOISE
 
   # `points` are the [[Time, percent], ...] of the line: the value at the
   # start of the day and each reading after it. The line holds the last value
@@ -60,8 +52,8 @@ class Car::DayTimeline::SocLine
 
   def between(from, from_value, to, to_value)
     return [flat(from, to, from_value)] if from_value == to_value
-    return step(from, from_value, to, to_value, at: to) if (to_value - from_value).abs <= NOISE
-    return step(from, from_value, to, to_value, at: step_time(from, to, rise: to_value > from_value)) if to - from <= MAX_GAP
+    return step(from, from_value, to, to_value, at: to) if (to_value - from_value).abs <= Car::Rules::SOC_NOISE
+    return step(from, from_value, to, to_value, at: step_time(from, to, rise: to_value > from_value)) if to - from <= Car::Rules::MAX_DRIVE_GAP
 
     rise = to_value > from_value
     spans = event_spans(from, to, rise:).presence || free_spans(from, to, rise:)

@@ -42,29 +42,9 @@
 # each session gets this car, and the user marks a guest charge by hand. A
 # session that no candidate was connected to stays not assigned.
 class ChargingSession::Detection::CarAssignment
-  # How long after a session a reading of the state of charge counts. A car
-  # reports its state only while it is online, so a reading long after the
-  # session says nothing about it. The curves of a day reach further (see
-  # ChargingSession::Curves::MARGIN).
-  READING_DISTANCE = 2.hours
-  public_constant :READING_DISTANCE
-
-  # How late a car reports a change of its position or its connection: one
-  # interval of a source that polls the car
-  REPORT_LAG = 15.minutes
-  public_constant :REPORT_LAG
-
   # The sensors that show whether a car is online: one of them changes
   OFFLINE_ROLES = %i[car_battery_soc car_odometer car_connected].freeze
   private_constant :OFFLINE_ROLES
-
-  # A rise of the state of charge below this is noise (percentage points)
-  MIN_SOC_RISE = 1
-  private_constant :MIN_SOC_RISE
-
-  # A rise of the odometer above this is a drive (km)
-  MIN_DRIVE = 0.5
-  public_constant :MIN_DRIVE
 
   # A curve has the mean of 5 minutes, at the end of its bucket (see
   # Sensor::Query::Helpers::Influx::DailyCurves)
@@ -113,7 +93,7 @@ class ChargingSession::Detection::CarAssignment
   # session, and a reading up to REPORT_LAG after it as well. Without one, or
   # with the readings of an offline car, the state at the start counts.
   def connection_sign(date, car, from, to)
-    during = readings(date, :car_connected, car, from + 1, to + REPORT_LAG)
+    during = readings(date, :car_connected, car, from + 1, to + Car::Rules::REPORT_LAG)
     return sign_before(state_at(date, :car_connected, car, from)) if during.empty? || offline?(date, car, from, to)
 
     during.any? { it.last.positive? } ? :connected : :disconnected
@@ -124,7 +104,7 @@ class ChargingSession::Detection::CarAssignment
   def offline?(date, car, from, to)
     OFFLINE_ROLES.all? do |role|
       before = state_at(date, role, car, from)&.last
-      readings(date, role, car, from + 1, to + REPORT_LAG).all? { it.last == before }
+      readings(date, role, car, from + 1, to + Car::Rules::REPORT_LAG).all? { it.last == before }
     end
   end
 
@@ -145,24 +125,24 @@ class ChargingSession::Detection::CarAssignment
   # does not, nil without a reading. The state at the start is the last
   # reading before it, at any age.
   def soc_sign(date, car, from, to)
-    after = readings(date, :car_battery_soc, car, from, to + READING_DISTANCE)
+    after = readings(date, :car_battery_soc, car, from, to + Car::Rules::READING_DISTANCE)
     before = state_at(date, :car_battery_soc, car, from) || after.first
     return if before.nil? || after.empty?
 
-    after.map(&:last).max - before.last >= MIN_SOC_RISE ? :rose : :flat
+    after.map(&:last).max - before.last >= Car::Rules::MIN_SOC_RISE ? :rose : :flat
   end
 
   # Whether the car reports positions during the session, and none of them
-  # within Place::RADIUS of home. Only a bucket after the start counts,
-  # because the reading before can be from the drive home, and a bucket up to
-  # REPORT_LAG after the end counts too. A mean of a
-  # bucket on a drive is no real position, but a car on a drive does not
-  # charge at the wallbox either. The latitude is a state like the
-  # longitude, so the two need not share a bucket.
+  # within Car::Rules::PLACE_RADIUS of home. Only a bucket after the start
+  # counts, because the reading before can be from the drive home, and a bucket
+  # up to REPORT_LAG after the end counts too. A mean of a bucket on a drive is
+  # no real position, but a car on a drive does not charge at the wallbox
+  # either. The latitude is a state like the longitude, so the two need not
+  # share a bucket.
   def away?(date, car, from, to)
     return false unless home
 
-    positions = readings(date, :car_longitude, car, from + BUCKET, to + REPORT_LAG).filter_map do |time, longitude|
+    positions = readings(date, :car_longitude, car, from + BUCKET, to + Car::Rules::REPORT_LAG).filter_map do |time, longitude|
       latitude = state_at(date, :car_latitude, car, time)&.last
       [latitude, longitude] if latitude
     end
@@ -175,7 +155,7 @@ class ChargingSession::Detection::CarAssignment
   # the last reading before it, at any age.
   def drove?(date, car, from, to)
     values = [state_at(date, :car_odometer, car, from), *readings(date, :car_odometer, car, from, to)].compact.map(&:last)
-    values.size > 1 && values.max - values.min > MIN_DRIVE
+    values.size > 1 && values.max - values.min > Car::Rules::MIN_DRIVE_DISTANCE
   end
 
   def readings(date, role, car, from, to)

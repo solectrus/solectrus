@@ -32,6 +32,7 @@ between charging and driving, because the car drives on energy of other days. A 
 | Class                               | Job                                                                     |
 | ----------------------------------- | ----------------------------------------------------------------------- |
 | `Car`                               | a car: number, name, color, period of use, `Car.configured`             |
+| `Car::Rules`                        | the values of the rules for places, visits, drives and charges          |
 | `Car::PeriodChange`                 | what follows when the period of use of a car changes                    |
 | `Sensor::Cars`                      | the numbers and the sensor names of the cars, without a database        |
 | `ChargingSession`                   | a charge of a car, at the wallbox or offsite                            |
@@ -1100,9 +1101,9 @@ lower and an upper bound. The interval comes from the readings at the stop, so i
 the user when the car reports more often. A car that reports only at the arrival sends one
 reading at a stop, which gives no interval. Its stop then gets the lower bound.
 
-The lower bound is 15 minutes for a visit at a known place (`Place::MIN_KNOWN_DURATION`),
-for example a stop at a shop. A traffic light is rarely near a place. A new place needs 30
-minutes (`Place::MIN_DURATION`), and so does the time between two visits that join.
+A visit at a known place has a lower bound that is shorter, for example a stop at a shop. A
+traffic light is rarely near a place. A new place needs the longer bound, and so does the
+time between two visits that join. [The rules](#the-rules) give the values.
 
 The step cuts the visits at midnight, like a daily summary. The list of the visits joins
 these rows again and shows a visit that is still going on without an end.
@@ -1152,6 +1153,47 @@ SOLECTRUS sends no location to Nominatim. A place and a car on the road then sho
 The request sends a User-Agent with the version of the app and the word "self-hosted". All
 installations send the same User-Agent, so the word tells the operators of Nominatim that
 each IP address is a separate installation.
+
+## The rules
+
+`Car::Rules` holds the values of the rules for the reports of a car, its places and visits,
+its drives and its charges. The classes that apply a rule refer to it there. If you change a
+value, the result of a step of the daily build changes. You must then increase the `VERSION`
+of that step, so that the build runs again.
+
+| Area    | Rule                                                               | Value    | Constant                          |
+| ------- | ------------------------------------------------------------------ | -------- | --------------------------------- |
+| Reports | A car reports a change of its position or connection late by       | 15 min   | `REPORT_LAG`                      |
+| Reports | The report of a drive can come after an arrival by                 | 20 min   | `ARRIVAL`                         |
+| Reports | A reading of the state of charge counts after a charge for         | 2 h      | `READING_DISTANCE`                |
+| Reports | The state of charge can come after the odometer by                 | 5 min    | `SOC_LAG`                         |
+| Reports | A change of the state of charge is noise up to                     | 1 point  | `SOC_NOISE`                       |
+| Reports | A rise of the state of charge at the wallbox is noise below        | 1 point  | `MIN_SOC_RISE`                    |
+| Places  | A position belongs to a place within                               | 100 m    | `PLACE_RADIUS`                    |
+| Places  | A stop makes a new place from                                      | 30 min   | `MIN_STAY`                        |
+| Places  | A stop at a known place makes a visit from                         | 15 min   | `MIN_KNOWN_STAY`                  |
+| Places  | The limit of a stop in intervals of the readings                   | 1.5      | `STAY_INTERVALS`                  |
+| Places  | The limit of a stop is at most                                     | 3 h      | `MAX_STAY_LIMIT`                  |
+| Places  | A rise of the odometer after a position ends it from more than     | 1 km     | `POSITION_MOVE`                   |
+| Places  | A visit belongs to a drive up to this before or after it           | 1 h      | `VISIT_REACH`                     |
+| Drives  | A gap before a rise of the odometer gives no start from more than  | 1 h      | `MAX_DRIVE_GAP`                   |
+| Drives  | A gap before a rise of the odometer gives an estimated start up to | 3 h      | `MAX_ESTIMATED_GAP`               |
+| Drives  | A pause joins two drives up to                                     | 30 min   | `MAX_DRIVE_PAUSE`                 |
+| Drives  | A fall of 1 point is no drive over more than                       | 30 min   | `SOC_NOISE_TIME`                  |
+| Drives  | An odometer without a rise in a pause is a stop from               | 10 min   | `MIN_STOP`                        |
+| Drives  | A drive without a start is assumed at an average speed up to       | 80 km/h  | `MAX_ASSUMED_SPEED`               |
+| Drives  | A drive needs a distance of                                        | 0.5 km   | `MIN_DRIVE_DISTANCE`              |
+| Drives  | A drive is a short drive in a window of the readings below         | 5 km/h   | `MIN_DRIVE_SPEED`                 |
+| Drives  | … if it lasts longer than                                          | 20 min   | `MIN_WINDOW`                      |
+| Drives  | A drive starts too late above                                      | 150 km/h | `MAX_DRIVE_SPEED`                 |
+| Drives  | The live view shows a drive at a fall within 1 h of more than      | 3 points | `DRIVE_DRAIN`, `DRIVE_DRAIN_TIME` |
+| Charges | A session at the wallbox needs                                     | 0.1 kWh  | `MIN_SESSION_KWH`                 |
+| Charges | A gap of the wallbox ends no session up to                         | 15 min   | `MAX_SESSION_GAP`                 |
+| Charges | A charge with a slow rise keeps one state of charge up to          | 1 h      | `MAX_CHARGE_PAUSE`                |
+| Charges | An offsite proposal needs a rise of                                | 5 points | `MIN_OFFSITE_RISE`                |
+| Charges | … or, with a connection, a rise of                                 | 3 points | `MIN_CONNECTED_RISE`              |
+| Charges | A step of a drive beside a charge holds no charge of its own up to | 30 min   | `MAX_CHARGE_EDGE`                 |
+| Charges | An offsite session blocks proposals around it for                  | 1 h      | `PROPOSAL_MARGIN`                 |
 
 ## MCP
 

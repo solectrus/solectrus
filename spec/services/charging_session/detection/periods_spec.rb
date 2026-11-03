@@ -19,7 +19,7 @@ describe ChargingSession::Detection::Periods do
     end
   end
 
-  context 'with a gap of GAP' do
+  context 'with a gap of MAX_SESSION_GAP' do
     let(:power) { curve([at(8), at(9)], [at(9, 15), at(10)], value: 11_000) }
 
     it 'finds one period' do

@@ -210,7 +210,7 @@ describe Car::DayTimeline do
     end
   end
 
-  # The car arrived less than Place::MIN_DURATION ago, so the build made
+  # The car arrived less than Car::Rules::MIN_STAY ago, so the build made
   # neither a visit nor a place there
   context 'with a drive to a location without a place' do
     subject(:timeline) { described_class.new(Timeframe.new('day'), [car], admin: true) }
@@ -289,7 +289,7 @@ describe Car::DayTimeline do
       expect([lane.origin(drive), lane.goal(drive)].map(&:name)).to eq(%w[School Work])
     end
 
-    # The car stands at the shop for less than Place::MIN_DURATION, so the
+    # The car stands at the shop for less than Car::Rules::MIN_STAY, so the
     # build wrote no visit there yet
     context 'with the place where the car stands now' do
       let(:drives) do
@@ -312,7 +312,7 @@ describe Car::DayTimeline do
       end
     end
 
-    # The car stood at a shop for less than Place::MIN_DURATION between two
+    # The car stood at a shop for less than Car::Rules::MIN_STAY between two
     # drives, so the shop has no visit
     context 'with a stop without a visit between two drives' do
       let(:drives) do

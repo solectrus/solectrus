@@ -22,21 +22,6 @@
 #  index_places_on_home  ((1)) UNIQUE WHERE ('home'::text = ANY ((labels)::text[]))
 #
 class Place < ApplicationRecord
-  # A position belongs to the nearest place within this distance in meters
-  RADIUS = 100
-  public_constant :RADIUS
-
-  # A shorter stop gets no place of its own, for example a stop at a traffic
-  # light. A car that reports less often needs a longer stop (see
-  # Place::VisitDetection#limit).
-  MIN_DURATION = 30.minutes
-  public_constant :MIN_DURATION
-
-  # A stop at a place that exists already needs less, for example a stop at
-  # a shop. A traffic light is rarely within RADIUS of a place.
-  MIN_KNOWN_DURATION = 15.minutes
-  public_constant :MIN_KNOWN_DURATION
-
   # A failed request to Nominatim waits this long before the next one, from
   # geocoded_at
   RETRY_AFTER = 10.minutes
@@ -114,18 +99,18 @@ class Place < ApplicationRecord
   end
 
   # The places in the box around a location, which holds each place within
-  # RADIUS. The database selects them, so a request loads a few places and
+  # PLACE_RADIUS. The database selects them, so a request loads a few places and
   # not each place.
   def self.around(latitude, longitude)
-    latitudes, longitudes = Geo.box(latitude, longitude, RADIUS)
+    latitudes, longitudes = Geo.box(latitude, longitude, Car::Rules::PLACE_RADIUS)
     where(latitude: latitudes, longitude: longitudes)
   end
 
-  # The nearest place within RADIUS, out of the given places
+  # The nearest place within PLACE_RADIUS, out of the given places
   def self.near(latitude, longitude, places = around(latitude, longitude))
     places
       .map { [it, it.distance_to(latitude, longitude)] }
-      .select { |_, distance| distance <= RADIUS }
+      .select { |_, distance| distance <= Car::Rules::PLACE_RADIUS }
       .min_by(&:last)
       &.first
   end
@@ -133,7 +118,7 @@ class Place < ApplicationRecord
   # The place of each stop (Place::VisitDetection::Stop), in the order of
   # the stops. A long stop (Stop#long?) gets a new place when no place is
   # near. A shorter stop without a place gets nil. A chunk of 7 days has
-  # about 20 stops, because a stop joins the positions within RADIUS, so a
+  # about 20 stops, because a stop joins the positions within PLACE_RADIUS, so a
   # search through each place is fast enough (95 places: about 4 ms).
   #
   # Two builds can run at the same time, for example in two tabs. Neither
@@ -261,8 +246,8 @@ class Place < ApplicationRecord
     Geo.distance(latitude, longitude, other_latitude, other_longitude)
   end
 
-  # Whether the position is within RADIUS of the place
-  def covers?(other_latitude, other_longitude) = distance_to(other_latitude, other_longitude) <= RADIUS
+  # Whether the position is within PLACE_RADIUS of the place
+  def covers?(other_latitude, other_longitude) = distance_to(other_latitude, other_longitude) <= Car::Rules::PLACE_RADIUS
 
   # Asks Nominatim for the address once. The answer stays in the record.
   def geocode!

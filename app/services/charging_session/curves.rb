@@ -21,7 +21,7 @@ class ChargingSession::Curves
   # How far the curves of a car on a day reach into the day before and the
   # day after. A charge over midnight needs the next morning (see
   # OffsiteDetection), and a late reading of a wallbox session needs
-  # Detection::CarAssignment::READING_DISTANCE.
+  # Car::Rules::READING_DISTANCE.
   MARGIN = 12.hours
   public_constant :MARGIN
 

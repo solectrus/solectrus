@@ -6,16 +6,16 @@
 # ChargingSession::OffsiteDetection::CarCurves):
 #
 # - A step between two readings in which the odometer rises by more than
-#   Sensor::Query::Positions::MOVE ends the rise before it. Two stops at
+#   Car::Rules::POSITION_MOVE ends the rise before it. Two stops at
 #   chargers on one trip give two rises. A step of a drive with a rise at
 #   the start or at the end of a charge adds its rise to the state of
 #   charge, because the car drove to the charger or away from it within the
 #   step (see CarCurves#charges).
 # - A value of the state of charge of 0 or less, or above 100, is no reading
 #   (see ChargingSession::Curves.soc_reading?).
-# - A rise needs MIN_RISE. A smaller rise down to MIN_CONNECTED_RISE counts
-#   only while the car reports a connection, because the connection tells a
-#   short charge from noise, for example a new calibration of the battery.
+# - A rise needs MIN_OFFSITE_RISE. A smaller rise down to MIN_CONNECTED_RISE
+#   counts only while the car reports a connection, because the connection tells
+#   a short charge from noise, for example a new calibration of the battery.
 # - A car that reports its connection and is not connected during the whole
 #   rise does not charge. Without a reading of the connection, it gives no
 #   sign.
@@ -53,15 +53,6 @@ class ChargingSession::OffsiteDetection
   # The proposals keep no change of the user, but a dismissed proposal and
   # an accepted one are rows of the user, so a reset keeps the table
   def self.derived = nil
-
-  # A smaller rise is noise or a short charge (percentage points)
-  MIN_RISE = 5
-  public_constant :MIN_RISE
-
-  # A smaller rise counts only while the car reports a connection, which
-  # tells a short charge from noise (percentage points)
-  MIN_CONNECTED_RISE = 3
-  public_constant :MIN_CONNECTED_RISE
 
   # A curve has the mean of 5 minutes, at the end of its bucket (see
   # Sensor::Query::Helpers::Influx::DailyCurves)
@@ -157,17 +148,17 @@ class ChargingSession::OffsiteDetection
     end
   end
 
-  # Whether the rise is a charge: MIN_RISE, or MIN_CONNECTED_RISE while the
-  # car reports a connection. A car that reports no connection does not
+  # Whether the rise is a charge: MIN_OFFSITE_RISE, or MIN_CONNECTED_RISE while
+  # the car reports a connection. A car that reports no connection does not
   # charge. A rise needs a step without a drive, which gives its time.
   def counts?(curves, steps)
     return false if steps.all? { curves.drive?(it) }
 
     rise = steps.sum(&:last)
-    return false if rise < MIN_CONNECTED_RISE
+    return false if rise < Car::Rules::MIN_CONNECTED_RISE
 
     sign = curves.connection(steps.first.first, steps.last.second)
-    sign == :connected || (sign.nil? && rise >= MIN_RISE)
+    sign == :connected || (sign.nil? && rise >= Car::Rules::MIN_OFFSITE_RISE)
   end
 
   # The time and the position come from the steps without a drive, because
@@ -228,7 +219,7 @@ class ChargingSession::OffsiteDetection
   def away?(rise) = home.present? && rise.located?
 
   def reported_late?(rise, session)
-    rise.started_at.between?(session.ended_at, session.ended_at + ChargingSession::Detection::CarAssignment::READING_DISTANCE)
+    rise.started_at.between?(session.ended_at, session.ended_at + Car::Rules::READING_DISTANCE)
   end
 
   def row(rise)

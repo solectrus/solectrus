@@ -11,10 +11,10 @@ module Sensor
     # until the end of the period. A source that sends a position only when
     # it changes, like TeslaMate, thus gives a whole night at home.
     #
-    # A source can also stop to send the position while the car drives on.
-    # The odometer of the car ends a position therefore: when it rises by
-    # more than MOVE after the reading of the position, the car left the
-    # position at the time of this odometer reading.
+    # A source can also stop to send the position while the car drives on. The
+    # odometer of the car ends a position therefore: when it rises by more than
+    # POSITION_MOVE after the reading of the position, the car left the position
+    # at the time of this odometer reading.
     #
     # Each segment knows the time between its first reading and the reading
     # before it (`gap`), so a caller sees how often the car reported at that
@@ -25,15 +25,9 @@ module Sensor
       end
       public_constant :Segment
 
-      # The rise of the odometer after a position that tells that the car left
-      # it (km). The last reading of a drive can come shortly after the
-      # position of the arrival, so a small rise is no departure.
-      MOVE = 1
-      public_constant :MOVE
-
       # Whether the odometer tells that the car left a position, from the
       # odometer at the position and a later one
-      def self.left?(at_position, later) = later > at_position + MOVE
+      def self.left?(at_position, later) = later > at_position + Car::Rules::POSITION_MOVE
 
       # The odometer at a time, from the last reading up to it, at any age.
       # The query stays cached (see Sensor::Query::LastSeen).
@@ -128,8 +122,8 @@ module Sensor
         end
       end
 
-      # The time of the first odometer reading that is more than MOVE above
-      # the odometer at the time of the position, or nil
+      # The time of the first odometer reading that is more than POSITION_MOVE
+      # above the odometer at the time of the position, or nil
       def departure(time, odometer_readings)
         return unless odometer
 

@@ -7,7 +7,7 @@
 #
 # 1. A session with an end takes the rises in its time.
 # 2. A session with an end and no rise in its time takes the rises in its
-#    time with ChargingSession::Proposal::BLOCK_MARGIN around it, because an
+#    time with Car::Rules::PROPOSAL_MARGIN around it, because an
 #    entered time is not exact.
 # 3. A session without an end takes the rises of its day.
 #

@@ -5,13 +5,8 @@
 #
 # A step goes from one reading to the next. The readings of the same value
 # join into one pause, and the steps up to a fall or up to a pause longer
-# than MAX_PAUSE are one run, the steps of one charge.
+# than MAX_CHARGE_PAUSE are one run, the steps of one charge.
 class ChargingSession::SocRuns
-  # A charge with a slow rise reports the same state of charge for a while,
-  # but not for longer than this
-  MAX_PAUSE = 1.hour
-  private_constant :MAX_PAUSE
-
   # `curve` is [[Time, value], ...] in the order of time
   def initialize(curve)
     @curve = curve
@@ -37,6 +32,6 @@ class ChargingSession::SocRuns
   end
 
   def charging?((from, to, rise))
-    rise.positive? || (rise.zero? && to - from <= MAX_PAUSE)
+    rise.positive? || (rise.zero? && to - from <= Car::Rules::MAX_CHARGE_PAUSE)
   end
 end

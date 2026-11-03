@@ -63,17 +63,17 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
     # The place where the drive started: the last visit that began before
     # it. A car reports its place late, so a visit can last until the car
     # arrives at the next place, and only its start is sure. A visit that
-    # ended more than an hour before the drive belongs to another drive. A
+    # ended more than VISIT_REACH before the drive belongs to another drive. A
     # drive without a start began before its end.
     def origin(drive) = origin_visit(drive)&.place
 
     # The place where the drive ended: the visit after the one where it
-    # started that starts closest to its end, an hour away at most. A visit
+    # started that starts closest to its end, VISIT_REACH away at most. A visit
     # that lasts past the end by more than the late report of an arrival
-    # (see Car::DayTimeline::Drives::ARRIVAL) saw the car back after the
+    # (see Car::Rules::ARRIVAL) saw the car back after the
     # drive: a round trip, whose stop was too short for a visit. The last
     # drive without such a visit ends where the car stands now: a stop
-    # counts as a visit only after Place::MIN_DURATION. A drive that runs
+    # counts as a visit only after Car::Rules::MIN_STAY. A drive that runs
     # at now has no goal yet.
     def goal(drive)
       return if drive.ongoing
@@ -88,16 +88,16 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
 
     def visit_goal(drive)
       origin = origin_visit(drive)
-      return origin.place if origin && origin.ended_at > drive.ended_at + Car::DayTimeline::Drives::ARRIVAL
+      return origin.place if origin && origin.ended_at > drive.ended_at + Car::Rules::ARRIVAL
 
       visit = visits_around(drive).select { origin.nil? || it.started_at > origin.started_at }.min_by { (it.started_at - drive.ended_at).abs }
-      visit.place if visit && (visit.started_at - drive.ended_at).abs <= 1.hour
+      visit.place if visit && (visit.started_at - drive.ended_at).abs <= Car::Rules::VISIT_REACH
     end
 
     def origin_visit(drive)
       start = drive.start
       visits_around(drive)
-        .select { it.started_at <= start && it.started_at < drive.ended_at && it.ended_at >= start - 1.hour }
+        .select { it.started_at <= start && it.started_at < drive.ended_at && it.ended_at >= start - Car::Rules::VISIT_REACH }
         .max_by(&:started_at)
     end
 
@@ -272,7 +272,7 @@ class Car::DayTimeline # rubocop:disable Metrics/ClassLength
 
   # The place at the latest position of the car, like in the live view (see
   # Car::Live), or nil on the road. The build writes a visit only after
-  # Place::MIN_DURATION, so on the running day the last drive can end at a
+  # Car::Rules::MIN_STAY, so on the running day the last drive can end at a
   # place that has no visit yet. The build also makes the place itself, so
   # a new position takes the town that the live view found there, as a place
   # that is not saved.

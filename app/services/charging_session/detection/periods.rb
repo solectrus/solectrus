@@ -1,6 +1,6 @@
-# The periods of a day in which the wallbox charged, found on the 5-minute
-# means of its curves. A period is a continuous time with wallbox_power > 0.
-# A gap of GAP or less does not end it, because load management and PV
+# The periods of a day in which the wallbox charged, found on the 5-minute means
+# of its curves. A period is a continuous time with wallbox_power > 0. A gap of
+# MAX_SESSION_GAP or less does not end it, because load management and PV
 # surplus control make such gaps.
 #
 # wallbox_car_connected bridges a longer gap, but it never moves an end: the
@@ -19,10 +19,6 @@
 class ChargingSession::Detection::Periods
   BUCKET = 5.minutes
   public_constant :BUCKET
-
-  # A gap of this length or less does not end a period
-  GAP = 15.minutes
-  public_constant :GAP
 
   # A period with the parts in it where the wallbox had power, [[from, to],
   # ...]. A connected car joins two parts over a longer pause, so a period
@@ -87,7 +83,7 @@ class ChargingSession::Detection::Periods
 
   # Whether a gap does not end the part: it is short, or it has no data
   def joined?(last_end, next_start)
-    next_start - last_end <= GAP || without_data?(last_end, next_start)
+    next_start - last_end <= Car::Rules::MAX_SESSION_GAP || without_data?(last_end, next_start)
   end
 
   # Whether each bucket between the two periods has no reading

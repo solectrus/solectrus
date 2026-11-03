@@ -8,10 +8,6 @@ ChargingSession::OffsiteDetection::CarCurves = Data.define(:car, :soc, :odometer
 # The methods sit in a class body and not in the block of Data.define, like
 # ChargingSession::Sums
 class ChargingSession::OffsiteDetection::CarCurves
-  # A longer step of a drive can hold a charge of its own
-  MAX_EDGE = 30.minutes
-  private_constant :MAX_EDGE
-
   # The steps of each charge: the runs of the state of charge (see
   # ChargingSession::SocRuns), cut at each step of a drive. Two stops at
   # chargers on one trip are two charges. A short step of a drive beside a
@@ -34,7 +30,7 @@ class ChargingSession::OffsiteDetection::CarCurves
   # Whether the car drove during a step
   def drive?((from, to)) = moved?(from, to)
 
-  # Whether the odometer rises by more than Sensor::Query::Positions::MOVE
+  # Whether the odometer rises by more than Car::Rules::POSITION_MOVE
   # from one time to another
   def moved?(from, to)
     Sensor::Query::Positions.left?(state_at(odometer, from) || 0, state_at(odometer, to) || 0)
@@ -55,7 +51,7 @@ class ChargingSession::OffsiteDetection::CarCurves
   # The position at a time, or nil. It is the last reading before the time,
   # at any age, of each coordinate. Like in
   # Sensor::Query::Positions, it ends when the odometer rises by more than
-  # Sensor::Query::Positions::MOVE after it, because the car drove away. A
+  # Car::Rules::POSITION_MOVE after it, because the car drove away. A
   # parked car can send nothing for days, while a source can stop to send
   # the position on the road.
   def position_at(time)
@@ -78,7 +74,7 @@ class ChargingSession::OffsiteDetection::CarCurves
     return unless part && drive?(part.first)
 
     from, to = part.first
-    part if to - from <= MAX_EDGE && beyond.to_a.none? { |_, _, rise| rise.positive? }
+    part if to - from <= Car::Rules::MAX_CHARGE_EDGE && beyond.to_a.none? { |_, _, rise| rise.positive? }
   end
 
   # The last reading at or before a time, at any age

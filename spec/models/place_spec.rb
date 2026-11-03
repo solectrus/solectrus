@@ -20,7 +20,7 @@ describe Place do
   let(:home) { described_class.create!(latitude: 50.92263, longitude: 1.40706) }
 
   def stop(latitude, longitude, duration)
-    Place::VisitDetection::Stop.new(latitude:, longitude:, from: Time.current, to: Time.current + duration, longest: duration, limit: described_class::MIN_DURATION)
+    Place::VisitDetection::Stop.new(latitude:, longitude:, from: Time.current, to: Time.current + duration, longest: duration, limit: Car::Rules::MIN_STAY)
   end
 
   describe '.near' do
@@ -41,7 +41,7 @@ describe Place do
     before { home }
 
     it 'selects a place within the radius, also to the east' do
-      # About 90 m east, which is more than RADIUS in degrees of latitude
+      # About 90 m east, which is more than PLACE_RADIUS in degrees of latitude
       expect(described_class.around(50.92263, 1.40835)).to contain_exactly(home)
     end
 

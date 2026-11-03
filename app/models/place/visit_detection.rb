@@ -4,24 +4,24 @@
 # midnight, like a daily summary, so a night at home has a row on each of the
 # two days (see PlaceVisit).
 #
-# #call reads the positions of each car (see Sensor::Query::Positions) with
-# one query for all days, and joins each position within Place::RADIUS of the
-# stop before into this stop. It needs no database, so it can run in a thread
-# of its own. #persist gives each stop its place (see Place.of), joins the
-# stops at one place, and writes the visits of the days.
+# #call reads the positions of each car (see Sensor::Query::Positions) with one
+# query for all days, and joins each position within Car::Rules::PLACE_RADIUS of
+# the stop before into this stop. It needs no database, so it can run in a
+# thread of its own. #persist gives each stop its place (see Place.of), joins
+# the stops at one place, and writes the visits of the days.
 #
 # Each stop has a limit (see #limit). A stop at no place and shorter than its
 # limit is left out, for example a traffic light, and a shorter visit too,
-# for example a drive past the home. A new place needs Place::MIN_DURATION
-# at least, a visit at a known place only Place::MIN_KNOWN_DURATION, for
+# for example a drive past the home. A new place needs Car::Rules::MIN_STAY
+# at least, a visit at a known place only Car::Rules::MIN_KNOWN_STAY, for
 # example a stop at a shop. Two visits at one place with less time than the
-# limit between them, and Place::MIN_DURATION at least, are one visit, for
+# limit between them, and Car::Rules::MIN_STAY at least, are one visit, for
 # example with a wrong position between them.
 #
 # A position lasts until the next reading, at any age (see
 # Sensor::Query::Positions). A car that reports every 15 minutes therefore
 # stays 15 minutes at each position of a drive. The limit
-# is at least Place::MIN_KNOWN_DURATION, and longer than one interval of the
+# is at least Car::Rules::MIN_KNOWN_STAY, and longer than one interval of the
 # readings at the stop, so a visit needs two readings at the place. The
 # interval comes from the readings themselves, so it can change from one day
 # to the next, for example when the user asks the car more often.
@@ -42,21 +42,8 @@ class Place::VisitDetection
   # keep the names of the user, so they are no part of it.
   def self.derived = PlaceVisit
 
-  # The limit of a stop in intervals of the readings. A drive past has one
-  # reading and lasts one interval, a visit has two readings and lasts two.
-  # The half between them allows for an uneven interval.
-  INTERVALS = 1.5
-  private_constant :INTERVALS
-
-  # The longest limit, so a car that reports rarely while it is parked still
-  # makes a visit. The query reads this much time before the first day and
-  # after the last day. A visit over midnight then shows its full time up to
-  # this length, so the limit gives the same result on both days.
-  MAX_LIMIT = 3.hours
-  private_constant :MAX_LIMIT
-
-  # A stop: the positions that follow each other within Place::RADIUS of its
-  # center. The center is the position with the longest time (`longest`).
+  # A stop: the positions that follow each other within Car::Rules::PLACE_RADIUS
+  # of its center. The center is the position with the longest time (`longest`).
   # The stop counts from its limit on (see #limit).
   Stop = Data.define(:latitude, :longitude, :from, :to, :longest, :limit) do
     def self.of(segment, limit:)
@@ -66,9 +53,9 @@ class Place::VisitDetection
     def duration = to - from
 
     # Whether the stop is long enough for a new place
-    def long? = duration >= [limit, Place::MIN_DURATION].max
+    def long? = duration >= [limit, Car::Rules::MIN_STAY].max
 
-    def near?(segment) = Geo.distance(latitude, longitude, segment.latitude, segment.longitude) <= Place::RADIUS
+    def near?(segment) = Geo.distance(latitude, longitude, segment.latitude, segment.longitude) <= Car::Rules::PLACE_RADIUS
 
     # The stop up to the end of the segment
     def add(segment)
@@ -123,13 +110,13 @@ class Place::VisitDetection
 
   attr_reader :cars
 
-  # One query for all days of the step, with MAX_LIMIT before and after
+  # One query for all days of the step, with MAX_STAY_LIMIT before and after
   def positions(car)
     Sensor::Query::Positions.new(
       latitude: car.sensor_name(:car_latitude),
       longitude: car.sensor_name(:car_longitude),
       odometer: car.sensor_name(:car_odometer),
-      period: (day(dates.first).begin - MAX_LIMIT)..(day(dates.last).end + MAX_LIMIT),
+      period: (day(dates.first).begin - Car::Rules::MAX_STAY_LIMIT)..(day(dates.last).end + Car::Rules::MAX_STAY_LIMIT),
     ).call
   end
 
@@ -155,7 +142,7 @@ class Place::VisitDetection
   # the time of that stop and no interval of the readings. Its stop needs
   # the lower bound alone, also with one reading.
   def arrival_limit(segment, before)
-    return Place::MIN_KNOWN_DURATION if before&.long? && segment.gap && segment.gap >= before.duration
+    return Car::Rules::MIN_KNOWN_STAY if before&.long? && segment.gap && segment.gap >= before.duration
 
     limit(segment)
   end
@@ -169,9 +156,9 @@ class Place::VisitDetection
   # The lower bound is the one of a known place, and a new place needs more
   # (see Stop#long?).
   def limit(segment)
-    return Place::MIN_KNOWN_DURATION unless segment.gap
+    return Car::Rules::MIN_KNOWN_STAY unless segment.gap
 
-    (segment.gap * INTERVALS).clamp(Place::MIN_KNOWN_DURATION, MAX_LIMIT)
+    (segment.gap * Car::Rules::STAY_INTERVALS).clamp(Car::Rules::MIN_KNOWN_STAY, Car::Rules::MAX_STAY_LIMIT)
   end
 
   # The rows of the visits on the days of the step in the period of use of
@@ -202,11 +189,11 @@ class Place::VisitDetection
   end
 
   # A visit joins the visit before at the same place after a time shorter
-  # than the limit of the visit before, and than Place::MIN_DURATION at least
+  # than the limit of the visit before, and than Car::Rules::MIN_STAY at least
   def join(visits)
     visits.each_with_object([]) do |visit, result|
       last = result.last
-      if last&.place == visit.place && visit.from - last.to < [last.limit, Place::MIN_DURATION].max
+      if last&.place == visit.place && visit.from - last.to < [last.limit, Car::Rules::MIN_STAY].max
         last.to = visit.to
       else
         result << visit.dup

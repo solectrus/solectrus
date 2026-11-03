@@ -9,7 +9,7 @@
 # A car does not charge while it drives or while it charges in another
 # session, so these times give no sign. A rise that reaches into another
 # session belongs to that session, also with its part outside, because the
-# readings come seldom. A change of NOISE is no rise.
+# readings come seldom. A change of SOC_NOISE is no rise.
 #
 # The signs can give a small part far from the charge, like a rise of the
 # state of charge at another charger. So the charge lies in the run of signs
@@ -19,9 +19,6 @@
 # bucket, and a reading holds until the next one. So the estimate fits the
 # line of the state of charge and the time plugged in.
 class Car::DayTimeline::OffsiteEstimate
-  NOISE = Car::DayTimeline::Drives::NOISE
-  private_constant :NOISE
-
   # `from` and `to` are the time in which the session can have charged.
   # `soc` and `plug` are the [[Time, value], ...] of the state of charge and
   # of the plug, the state at the start of the day first. `drives` and
@@ -78,7 +75,7 @@ class Car::DayTimeline::OffsiteEstimate
   def rises
     @rises ||=
       ChargingSession::SocRuns.new(@soc).call
-      .select { it.sum(&:last) > NOISE }
+      .select { it.sum(&:last) > Car::Rules::SOC_NOISE }
       .flat_map { |run| run.reject { |from, to, _| charging?(from, to) }.slice_when { |before, after| before.second != after.first }.to_a }
       .filter_map { rise_of(it) }
   end

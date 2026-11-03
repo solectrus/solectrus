@@ -1,17 +1,17 @@
 # The drives of a car on a day, from the readings of its odometer and of its
 # state of charge (see Car::DayTimeline).
 #
-# The odometer tells that the car drove between two of its readings: from
-# the reading before an increase to the reading with it. A car reports at a
-# pace of its own, and the collectors differ too. Some write each change
-# while the car drives. Others write the odometer of the start until the car
-# stops, so the increase comes after the drive. A gap of more than MAX_GAP
-# before an increase gives no start: the drive ended by its reading, and
-# nothing tells when it began. Its distance at an assumed speed (see
-# #assumed_duration) then gives it an assumed start, so a long drive does not
-# show as short as a short one. The same holds after a shorter gap in which
-# the car stood at a place, like a car that reports only when it parks: the
-# drive away from the place took the end of the gap, not all of it.
+# The odometer tells that the car drove between two of its readings: from the
+# reading before an increase to the reading with it. A car reports at a pace of
+# its own, and the collectors differ too. Some write each change while the car
+# drives. Others write the odometer of the start until the car stops, so the
+# increase comes after the drive. A gap of more than MAX_DRIVE_GAP before an
+# increase gives no start: the drive ended by its reading, and nothing tells
+# when it began. Its distance at an assumed speed (see #assumed_duration) then
+# gives it an assumed start, so a long drive does not show as short as a short
+# one. The same holds after a shorter gap in which the car stood at a place,
+# like a car that reports only when it parks: the drive away from the place took
+# the end of the gap, not all of it.
 #
 # A car that reports only when it parks or wakes up sends nothing while it
 # drives. Its drive then fills the whole time between two readings, which
@@ -41,22 +41,21 @@
 # up to now without an increase of the odometer is therefore a drive up to
 # now, without a distance.
 #
-# The state of charge reports at a pace of its own too, so it can stand
-# still for a reading while the car drives. A pause of up to MAX_PAUSE
-# between two drives therefore joins them, unless the car stood in it: a
-# charge, a visit of a place or an odometer that stood still for MIN_STOP
-# splits them, so a stop too short for a visit, like at a shop, keeps its
-# drives apart. A pause that only the state of charge tells says too little
-# to split a drive in the overview of a day.
+# The state of charge reports at a pace of its own too, so it can stand still
+# for a reading while the car drives. A pause of up to MAX_DRIVE_PAUSE between
+# two drives therefore joins them, unless the car stood in it: a charge, a visit
+# of a place or an odometer that stood still for MIN_STOP splits them, so a stop
+# too short for a visit, like at a shop, keeps its drives apart. A pause that
+# only the state of charge tells says too little to split a drive in the
+# overview of a day.
 #
 # A car that stands does not drive, so a drive ends where a charge or a visit
-# starts in its last ARRIVAL. A car reports late, like for the detection
-# of the wallbox sessions (see
-# ChargingSession::Detection::CarAssignment::REPORT_LAG), so the reading with
-# the increase can come some minutes after the car arrived and plugged in.
-# ARRIVAL adds a bucket to this lag as a margin. The drive ends there before
-# it joins another one, so two drives on both sides of an arrival stay
-# apart, also where their times touch.
+# starts in its last ARRIVAL. A car reports late, like for the detection of the
+# wallbox sessions (see Car::Rules::REPORT_LAG), so the reading with the
+# increase can come some minutes after the car arrived and plugged in. ARRIVAL
+# adds a bucket to this lag as a margin. The drive ends there before it joins
+# another one, so two drives on both sides of an arrival stay apart, also where
+# their times touch.
 #
 # A car can report the last part of a drive after the arrival, while it
 # stands at the place. An increase that ends in the ARRIVAL after the
@@ -67,13 +66,12 @@
 # that arrived at the charge, also after ARRIVAL.
 #
 # A drive never overlaps a charge that the car recorded: it ends where the
-# charge starts and starts where the charge ends. A drive within a charge
-# keeps a mark at the end of the charge. A charge that runs on, like until
-# now, has no end yet, so the mark stays at its start.
-#
-# A drive shorter than MIN_DISTANCE, like moving the car in front of the
-# house, is no drive: its distance shows as 0 km. It counts after the drives
-# are joined, so the short parts of a slow drive stay in it.
+# charge starts and starts where the charge ends. A drive within a charge keeps
+# a mark at the end of the charge. A charge that runs on, like until now, has no
+# end yet, so the mark stays at its start. A drive shorter than
+# MIN_DRIVE_DISTANCE, like moving the car in front of the house, is no drive:
+# its distance shows as 0 km. It counts after the drives are joined, so the
+# short parts of a slow drive stay in it.
 #
 # A wrong reading of the odometer, like a 0 of an offline car, is left out
 # (see Sensor::MeterReadings). A reading that steps back within the rounding
@@ -81,47 +79,8 @@
 # reading before it. A larger step back that stays is a new source of the
 # meter, so the drives count from there.
 class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
-  MAX_GAP = 1.hour
-  public_constant :MAX_GAP
-
   BUCKET = Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
   private_constant :BUCKET
-
-  # A gap of up to this before an increase gives the drive an estimated
-  # start (see Car::DayTimeline::Drive#earliest_at). A longer gap says too
-  # little, like a night in which the car did not report.
-  MAX_ESTIMATED_GAP = 3.hours
-  private_constant :MAX_ESTIMATED_GAP
-
-  MAX_PAUSE = 30.minutes
-  private_constant :MAX_PAUSE
-
-  # Readings of the odometer without a rise over this time within a pause
-  # tell that the car stood, also where the stop was too short for a visit
-  MIN_STOP = 10.minutes
-  private_constant :MIN_STOP
-
-  # A car can report the state of charge of an arrival some time after the
-  # odometer, so a fall up to this after an increase belongs to its drive
-  SOC_LAG = BUCKET
-  private_constant :SOC_LAG
-
-  # The highest average speed (km/h) that a drive is assumed to take (see
-  # #assumed_duration)
-  MAX_ASSUMED_SPEED = 80
-  private_constant :MAX_ASSUMED_SPEED
-
-  # The distance (km) below which a drive rounds to 0 km
-  MIN_DISTANCE = 0.5
-  private_constant :MIN_DISTANCE
-
-  # A change of one percentage point of the state of charge is the noise of
-  # the reading, like a cold battery
-  NOISE = 1
-  public_constant :NOISE
-
-  ARRIVAL = ChargingSession::Detection::CarAssignment::REPORT_LAG + Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
-  public_constant :ARRIVAL
 
   # Rounding of the source (see Sensor::MeterReadings)
   TOLERANCE = Sensor::MeterReadings::TOLERANCE
@@ -146,7 +105,7 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   def call
     refined = [nil, *increases].each_cons(2).map { |before, increase| cut(refine(increase, after: before&.ended_at)) }
-    drives = merge(refined).select { it.distance >= MIN_DISTANCE }.map { stood(clip(it)) }
+    drives = merge(refined).select { it.distance >= Car::Rules::MIN_DRIVE_DISTANCE }.map { stood(clip(it)) }
     ongoing([nil, *drives].each_cons(2).map { |before, drive| drive.unknown_start? ? assume(drive, before) : shorten(drive) })
   end
 
@@ -193,7 +152,7 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
   # the speed grows with the distance: 20 km/h for 3 km, 29 km/h for 10 km
   # and 48 km/h for 40 km, up to MAX_ASSUMED_SPEED.
   def assumed_duration(distance)
-    speed = [(Math.sqrt(distance) * 6) + 10, MAX_ASSUMED_SPEED].min
+    speed = [(Math.sqrt(distance) * 6) + 10, Car::Rules::MAX_ASSUMED_SPEED].min
     (distance.to_f / speed).hours
   end
 
@@ -216,19 +175,19 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   def increase(before, time, distance)
     gap = time - before
-    Car::DayTimeline::Drive.new(started_at: (before if gap <= MAX_GAP), earliest_at: (before if gap > MAX_GAP && gap <= MAX_ESTIMATED_GAP), ended_at: time, distance:)
+    Car::DayTimeline::Drive.new(started_at: (before if gap <= Car::Rules::MAX_DRIVE_GAP), earliest_at: (before if gap > Car::Rules::MAX_DRIVE_GAP && gap <= Car::Rules::MAX_ESTIMATED_GAP), ended_at: time, distance:)
   end
 
   # The drive as the state of charge tells it, where it fell before the
-  # increase. A fall that ends the drive lies at most MAX_GAP before the
-  # reading before the increase, so a fall of an earlier drive stays there.
-  # A fall up to SOC_LAG after the end of the increase before, `after`,
-  # belongs to that increase: the odometer counted that drive already. A
-  # fall after the increase belongs to it only where its step starts before
-  # the increase, so the drive does not start after its end.
+  # increase. A fall that ends the drive lies at most MAX_DRIVE_GAP before the
+  # reading before the increase, so a fall of an earlier drive stays there. A
+  # fall up to SOC_LAG after the end of the increase before, `after`, belongs to
+  # that increase: the odometer counted that drive already. A fall after the
+  # increase belongs to it only where its step starts before the increase, so
+  # the drive does not start after its end.
   def refine(drive, after: nil)
     arrival = arrival_before(drive)
-    from = [drive.start - MAX_GAP, arrival].compact.max
+    from = [drive.start - Car::Rules::MAX_DRIVE_GAP, arrival].compact.max
     last = falls.rfind { fall_of?(it, drive, from, after) }
     return drive unless last
 
@@ -247,29 +206,29 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
     [[gap_start(first - 1), @soc[first - 1].first].compact.min, *bounds].compact.max
   end
 
-  # The start of a drive in the gap before the reading at the index, where
-  # the state of charge fell there by more than NOISE over more than
-  # MAX_GAP: the last reading of the odometer in the gap, up to MAX_GAP
-  # before the reading. The odometer did not rise there, so the car still
-  # stood, like the reading before an increase (see #increase). Without such
-  # a reading, the gap says too little, like a car that wakes up only some
-  # minutes after it left.
+  # The start of a drive in the gap before the reading at the index, where the
+  # state of charge fell there by more than SOC_NOISE over more than
+  # MAX_DRIVE_GAP: the last reading of the odometer in the gap, up to
+  # MAX_DRIVE_GAP before the reading. The odometer did not rise there, so the
+  # car still stood, like the reading before an increase (see #increase).
+  # Without such a reading, the gap says too little, like a car that wakes up
+  # only some minutes after it left.
   def gap_start(index)
     return unless index.positive?
 
     (before_time, before_value), (time, value) = @soc[index - 1], @soc[index]
-    return if time - before_time <= MAX_GAP || before_value - value <= NOISE
+    return if time - before_time <= Car::Rules::MAX_DRIVE_GAP || before_value - value <= Car::Rules::SOC_NOISE
 
-    @readings.map(&:first).select { it > before_time && it < time && time - it <= MAX_GAP }.max
+    @readings.map(&:first).select { it > before_time && it < time && time - it <= Car::Rules::MAX_DRIVE_GAP }.max
   end
 
-  # The drive that runs at now on the running day: the state of charge falls
-  # up to MAX_PAUSE before now, but the odometer did not rise since, like an
+  # The drive that runs at now on the running day: the state of charge falls up
+  # to MAX_DRIVE_PAUSE before now, but the odometer did not rise since, like an
   # odometer that reports only when the car stops. The drive runs until now,
   # without a distance. A fall up to SOC_LAG after the last drive belongs to
-  # that drive, and the drive starts after the end of a charge. Where it
-  # joins the last drive, like an odometer that reports less often than the
-  # state of charge, that drive runs on with the distance so far.
+  # that drive, and the drive starts after the end of a charge. Where it joins
+  # the last drive, like an odometer that reports less often than the state of
+  # charge, that drive runs on with the distance so far.
   def ongoing(drives)
     drive = ongoing_after(drives.last&.ended_at) if @running && falling_at_end?
     return drives unless drive
@@ -280,15 +239,15 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   # The drive that runs at now after the end of the last drive, or nil
   def ongoing_after(before)
-    first = first_of_last_falls(after: before&.+(SOC_LAG))
+    first = first_of_last_falls(after: before&.+(Car::Rules::SOC_LAG))
     return unless first
 
     charged = @charges.map(&:last).select { it <= @soc[first].first }.max
     Car::DayTimeline::Drive.new(started_at: fall_start(first, before, charged), ended_at: @ends_at, distance: nil, ongoing: true)
   end
 
-  # Whether the last fall lies up to MAX_PAUSE before the end of the data
-  def falling_at_end? = @ends_at && falls.any? && @ends_at - @soc[falls.last].first <= MAX_PAUSE
+  # Whether the last fall lies up to MAX_DRIVE_PAUSE before the end of the data
+  def falling_at_end? = @ends_at && falls.any? && @ends_at - @soc[falls.last].first <= Car::Rules::MAX_DRIVE_PAUSE
 
   # The index of the first of the last falls one after the other, all of
   # them after `after`, or nil where the last one lies before
@@ -304,7 +263,7 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
   # Whether the fall at the index belongs to the drive: it lies from `from`
   # up to SOC_LAG after the increase, its step starts before the increase,
   # and it lies more than SOC_LAG after the increase before, `after`
-  def fall_of?(index, drive, from, after) = (from..(drive.ended_at + SOC_LAG)).cover?(@soc[index].first) && @soc[index - 1].first <= drive.ended_at && (after.nil? || @soc[index].first > after + SOC_LAG)
+  def fall_of?(index, drive, from, after) = (from..(drive.ended_at + Car::Rules::SOC_LAG)).cover?(@soc[index].first) && @soc[index - 1].first <= drive.ended_at && (after.nil? || @soc[index].first > after + Car::Rules::SOC_LAG)
 
   # The last fall where the state of charge stood still after it up to the
   # increase of the odometer: the car stood, and the odometer caught up
@@ -325,22 +284,22 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
     drive.started_at if drive.started_at && drive.started_at < fall_at
   end
 
-  # The indexes of the readings of the state of charge below the reading
-  # before them, with a gap of MAX_GAP at most. A fall of NOISE over more
-  # than MAX_PAUSE is no drive, like a cold battery while the car stands: a
-  # short drive falls by a point within some minutes.
+  # The indexes of the readings of the state of charge below the reading before
+  # them, with a gap of MAX_DRIVE_GAP at most. A fall of SOC_NOISE over more
+  # than SOC_NOISE_TIME is no drive, like a cold battery while the car stands:
+  # a short drive falls by a point within some minutes.
   def falls
     @falls ||= (1...@soc.size).select do |index|
       (before_time, before_value), (time, value) = @soc[index - 1], @soc[index]
       gap = time - before_time
-      value < before_value && gap <= MAX_GAP && !(before_value - value <= NOISE && gap > MAX_PAUSE)
+      value < before_value && gap <= Car::Rules::MAX_DRIVE_GAP && !(before_value - value <= Car::Rules::SOC_NOISE && gap > Car::Rules::SOC_NOISE_TIME)
     end
   end
 
   # The last start of a stop before the drive, where the car arrived before
   # it drove on. A stop that starts in the last ARRIVAL of the drive is
   # where the drive arrives (see #cut).
-  def arrival_before(drive) = @stops.map(&:first).select { it < drive.ended_at - ARRIVAL }.max
+  def arrival_before(drive) = @stops.map(&:first).select { it < drive.ended_at - Car::Rules::ARRIVAL }.max
 
   # Drives in the order of their end, one where they overlap or where a short
   # pause without a stop lies between them. An arrival between them keeps
@@ -358,7 +317,7 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
 
   def one?(before, after) = !arrival?(before, after) && (before.joins?(after) || pause?(before, after))
 
-  def pause?(before, after) = before.joins?(after, pause: MAX_PAUSE) && !stood_between?(before, after)
+  def pause?(before, after) = before.joins?(after, pause: Car::Rules::MAX_DRIVE_PAUSE) && !stood_between?(before, after)
 
   # Whether the car stood in the pause between the drives: a stop lies in
   # it, or the readings of the odometer in it span MIN_STOP or more without
@@ -367,7 +326,7 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
     return true if @stops.any? { |from, to| from < after.start && to > before.ended_at }
 
     first, last = @readings.filter_map { |time, _| time if time.between?(before.ended_at, after.start) }.minmax
-    first.present? && last - first >= MIN_STOP
+    first.present? && last - first >= Car::Rules::MIN_STOP
   end
 
   def arrival?(before, after) = @stops.any? { |from, _| from.between?(before.ended_at, after.start) }
@@ -381,15 +340,15 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
   def rest?(before, after)
     @stops.any? do |stop|
       from, to = stop
-      from.between?(before.ended_at, [after.start, before.ended_at + ARRIVAL].min) && to >= after.ended_at &&
-        (after.ended_at <= from + ARRIVAL || @charges.include?(stop))
+      from.between?(before.ended_at, [after.start, before.ended_at + Car::Rules::ARRIVAL].min) && to >= after.ended_at &&
+        (after.ended_at <= from + Car::Rules::ARRIVAL || @charges.include?(stop))
     end
   end
 
   # The drive up to the first stop that starts in its last ARRIVAL, and
   # after its start
   def cut(drive)
-    from = [drive.started_at, drive.ended_at - ARRIVAL].compact.max
+    from = [drive.started_at, drive.ended_at - Car::Rules::ARRIVAL].compact.max
     stop = @stops.map(&:first).select { it > from && it < drive.ended_at }.min
     stop ? drive.with(ended_at: stop) : drive
   end

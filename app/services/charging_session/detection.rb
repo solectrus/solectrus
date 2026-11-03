@@ -8,10 +8,10 @@
 # ChargingSession::Detection::Periods). The session stores the times of the
 # readings at its edges (see ChargingSession::Detection::Edges).
 #
-# The energy comes from integral(unit: 1h) over the raw series, the function
-# of the daily sum, and not from the 5-minute means, which lose the shape
-# inside a bucket. The grid share comes from wallbox_power_grid in the same
-# way. A session below MIN_KWH is the standby power of the wallbox, and its
+# The energy comes from integral(unit: 1h) over the raw series, the function of
+# the daily sum, and not from the 5-minute means, which lose the shape inside a
+# bucket. The grid share comes from wallbox_power_grid in the same way. A
+# session below MIN_SESSION_KWH is the standby power of the wallbox, and its
 # energy stays in the wallbox sums.
 #
 # A session gets the prices of its day (see ChargingSession::Cost). It stores
@@ -39,9 +39,6 @@ class ChargingSession::Detection
   # keeps them (see Summary::Steps)
   def self.derived = nil
 
-  MIN_KWH = 0.1
-  public_constant :MIN_KWH
-
   WALLBOX_POWER = %i[wallbox_power wallbox_power_grid].freeze
   private_constant :WALLBOX_POWER
 
@@ -50,7 +47,7 @@ class ChargingSession::Detection
   # its grid share reaches one cycle beyond each end, within its day.
   # Otherwise the session loses the grid share of its first and its last
   # cycle, which the daily sum holds. Two sessions are more than two cycles
-  # apart (see Periods::GAP), so no value counts twice.
+  # apart (see Car::Rules::MAX_SESSION_GAP), so no value counts twice.
   SPLITTER_CYCLE = 5.minutes
   private_constant :SPLITTER_CYCLE
 
@@ -107,7 +104,7 @@ class ChargingSession::Detection
   # The car and its state of charge read the buckets of the period, and the
   # session stores the times of the readings at its edges
   def session(date, from, to, kwh, kwh_grid, edges: nil)
-    return unless kwh && kwh >= MIN_KWH
+    return unless kwh && kwh >= Car::Rules::MIN_SESSION_KWH
 
     # The cost comes from the stored energy, so a change of a price gives the
     # same cost (see ChargingSession.reprice)

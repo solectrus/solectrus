@@ -32,15 +32,6 @@ class Car::Live
   WALLBOX_SENSORS = %i[wallbox_power wallbox_car_connected].freeze
   private_constant :WALLBOX_SENSORS
 
-  # The fall of the state of charge (percent) within a time that tells that an
-  # unplugged car drives. A short drive stays below it. A parked car loses
-  # less than a percent in an hour, but one that heats or cools can lose more.
-  DRIVE_DRAIN = 3
-  private_constant :DRIVE_DRAIN
-
-  DRIVE_DRAIN_TIME = 1.hour
-  private_constant :DRIVE_DRAIN_TIME
-
   # `home` is the place of the wallbox, or nil (see Place.home)
   def initialize(cars, home: Place.home)
     @cars = cars
@@ -135,7 +126,7 @@ class Car::Live
     odometer_rose?(car, state, position_time) || drained?(car, state, position_time)
   end
 
-  # Whether the odometer rose by more than Sensor::Query::Positions::MOVE
+  # Whether the odometer rose by more than Car::Rules::POSITION_MOVE
   # since the position
   def odometer_rose?(car, state, position_time)
     odometer = car.sensor_name(:car_odometer)
@@ -154,8 +145,8 @@ class Car::Live
     soc_time = data.time_for(soc)
     return false unless state.soc && !plugged?(state) && soc_time && soc_time > position_time
 
-    highest = Sensor::Query::Highest.new(soc, from: [position_time, soc_time - DRIVE_DRAIN_TIME].max, to: soc_time).call
-    highest.present? && highest - state.soc > DRIVE_DRAIN
+    highest = Sensor::Query::Highest.new(soc, from: [position_time, soc_time - Car::Rules::DRIVE_DRAIN_TIME].max, to: soc_time).call
+    highest.present? && highest - state.soc > Car::Rules::DRIVE_DRAIN
   end
 
   # The own plug of the car, or else the plug of the wallbox. A car at the

@@ -130,7 +130,7 @@ describe Place::VisitDetection do
       end
     end
 
-    # A stop of 20 minutes, shorter than Place::MIN_DURATION
+    # A stop of 20 minutes, shorter than Car::Rules::MIN_STAY
     context 'with a short stop' do
       let(:dates) { [Date.new(2026, 9, 22)] }
       let(:gap) { 5.minutes }

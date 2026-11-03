@@ -10,14 +10,6 @@
 Car::DayTimeline::Drive = Data.define(:started_at, :ended_at, :distance, :earliest_at, :assumed_at, :within_charge, :ongoing)
 
 class Car::DayTimeline::Drive
-  # The average speeds (km/h) of a drive that fit its time. A drive below
-  # MIN_SPEED for longer than MIN_WINDOW is a short drive within a window of
-  # the readings. Above MAX_SPEED, the time is too short.
-  MIN_SPEED = 5
-  MIN_WINDOW = 20.minutes
-  MAX_SPEED = 150
-  private_constant :MIN_SPEED, :MIN_WINDOW, :MAX_SPEED
-
   BUCKET = Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
   private_constant :BUCKET
 
@@ -43,12 +35,12 @@ class Car::DayTimeline::Drive
 
   # Whether the drive takes longer than its distance needs. Its time is then
   # the window between two readings, in which a short drive took place.
-  def window? = !ongoing && duration > MIN_WINDOW && distance / (duration / 1.hour) < MIN_SPEED
+  def window? = !ongoing && duration > Car::Rules::MIN_WINDOW && distance / (duration / 1.hour) < Car::Rules::MIN_DRIVE_SPEED
 
   # Whether the drive is faster than a car drives, so its start lies too
   # late. The check adds a bucket as a margin, so a drive that is some
   # minutes short does not count as too fast.
-  def too_fast? = !ongoing && duration.positive? && distance / ((duration + BUCKET) / 1.hour) > MAX_SPEED
+  def too_fast? = !ongoing && duration.positive? && distance / ((duration + BUCKET) / 1.hour) > Car::Rules::MAX_DRIVE_SPEED
 
   # Whether the other drive, which ends later, starts within `pause` after
   # this one
