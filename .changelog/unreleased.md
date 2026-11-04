@@ -24,4 +24,5 @@ Keep every section, an empty one included.
 
 ## Maintenance
 
+- Security updates for Rails, Rack, Brotli and the HTML sanitizer
 - Ruby 4.0.9 and Alpine 3.24.3 with OpenSSL security fixes
