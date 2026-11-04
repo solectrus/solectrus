@@ -19,6 +19,10 @@ SOLECTRUS is a self‑hosted solution — just bring your own server (a Raspberr
 
 The recommended way to install SOLECTRUS is [HELIOS](https://solectrus.de/install/), the companion app that manages your installation. HELIOS sets up the Docker containers, keeps the configuration in one place, and installs updates with one click. It also creates a support package with anonymized logs and configuration if you need help.
 
+## One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/Solectrus/)
+
 ## Development
 
 To contribute, set up a local development environment (this guide assumes macOS with Homebrew):
