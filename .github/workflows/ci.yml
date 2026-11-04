@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - 'preview-*'
+      - 'hotfix/*'
     tags:
       - v*
   pull_request:
@@ -434,8 +435,9 @@ jobs:
     runs-on: ubuntu-26.04
     needs: [ci-success]
     # A push to develop, a "preview-*" branch or a release tag publishes the
-    # image. A pull request builds and tests its image, but no tag.
-    if: ${{ github.event_name == 'push' }}
+    # image. A pull request or a "hotfix/*" branch builds and tests its image,
+    # but no tag and no deployment.
+    if: ${{ github.event_name == 'push' && !startsWith(github.ref, 'refs/heads/hotfix/') }}
     timeout-minutes: 10
     permissions:
       packages: write
