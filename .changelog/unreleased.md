@@ -23,3 +23,5 @@ Keep every section, an empty one included.
 ## Fixes
 
 ## Maintenance
+
+- Ruby 4.0.9 and Alpine 3.24.3 with OpenSSL security fixes
