@@ -311,4 +311,55 @@ describe 'MCP' do
       end
     end
   end
+
+  describe 'request log' do
+    before do
+      Setting.mcp_enabled = true
+      allow(ApplicationPolicy).to receive(:mcp?).and_return(true)
+    end
+
+    def logged_payload(&)
+      payload = nil
+      ActiveSupport::Notifications.subscribed(
+        ->(event) { payload = event.payload },
+        'process_action.action_controller',
+        &
+      )
+      payload
+    end
+
+    def tool_call(name, arguments = {})
+      {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'tools/call',
+        params: {
+          name:,
+          arguments:,
+        },
+      }
+    end
+
+    it 'names the JSON-RPC method' do
+      payload = logged_payload { post_mcp(tools_list) }
+
+      expect(payload).to include(mcp: 'tools/list')
+      expect(payload).not_to include(:tool, :mcp_error)
+    end
+
+    it 'names the tool of a tools/call, without its arguments' do
+      payload =
+        logged_payload { post_mcp(tool_call('list_sensors', secret: 'x')) }
+
+      expect(payload).to include(mcp: 'tools/call', tool: 'list_sensors')
+      expect(payload.values).not_to include('x')
+    end
+
+    it 'names the error of an unknown tool, but not the name sent' do
+      payload = logged_payload { post_mcp(tool_call("x status=500\nfake")) }
+
+      expect(payload).to include(mcp: 'tools/call', mcp_error: :invalid_params)
+      expect(payload).not_to include(:tool)
+    end
+  end
 end

@@ -16,7 +16,7 @@ class McpController < ActionController::API
     return head :not_found unless mcp_available?
     return request_authentication unless authenticated?
 
-    server = McpServer::Server.build
+    server = McpServer::Server.build(around_request: method(:log_rpc))
     transport =
       MCP::Server::Transports::StreamableHTTPTransport.new(
         server,
@@ -56,6 +56,26 @@ class McpController < ActionController::API
   end
 
   private
+
+  # Keeps what the gem reports about the request for the request log, so a
+  # log line tells a handshake from a data query. The method is one the server
+  # knows (or "unsupported_method"), the error a symbol of the gem. The tool
+  # name is client input, so only a name of our tools passes, and the tool
+  # arguments stay out.
+  def log_rpc(data)
+    yield
+  ensure
+    @rpc_log = {
+      mcp: data[:method],
+      tool: data[:tool_name].presence_in(McpServer::Server.tool_names),
+      mcp_error: data[:error],
+    }.compact
+  end
+
+  def append_info_to_payload(payload)
+    super
+    payload.merge!(@rpc_log) if @rpc_log
+  end
 
   def mcp_available?
     McpOauth.available?

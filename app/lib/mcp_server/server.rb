@@ -19,6 +19,11 @@ module McpServer
     ].freeze
     private_constant :TOOLS
 
+    TOOL_NAMES = TOOLS.map(&:name_value).freeze
+    private_constant :TOOL_NAMES
+
+    def self.tool_names = TOOL_NAMES
+
     # The sensors nearly every question is about, with the word a user says for
     # each. Named up front because a model that does not know them either
     # spends a list_sensors round trip on "how much did my PV produce
@@ -112,8 +117,11 @@ module McpServer
     CACHE_SCOPE = 'private'.freeze
     private_constant :CACHE_SCOPE
 
-    def self.build(server_context: {})
+    # around_request wraps the handling of each request and receives the data
+    # the gem gathers about it (method, tool, error), see MCP::Instrumentation.
+    def self.build(server_context: {}, around_request: nil)
       MCP::Server.new(
+        configuration: MCP::Configuration.new(around_request:),
         name: 'solectrus',
         title: 'SOLECTRUS',
         version: Rails.configuration.x.git.commit_version,

@@ -69,6 +69,9 @@ Rails.application.configure do
 
   # Use lograge gem
   config.lograge.enabled = true
+  # McpController names the JSON-RPC method, the tool and the error (see
+  # McpController#log_rpc)
+  config.lograge.custom_options = ->(event) { event.payload.slice(:mcp, :tool, :mcp_error) }
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!).
   config.log_level = ENV.fetch('RAILS_LOG_LEVEL', 'info')
