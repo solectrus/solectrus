@@ -13,7 +13,11 @@ declare module '@hotwired/turbo' {
   }>;
 
   export type TurboBeforeFetchResponseEvent = CustomEvent<{
-    fetchResponse: { succeeded: boolean; contentType: string | null };
+    fetchResponse: {
+      succeeded: boolean;
+      contentType: string | null;
+      header(name: string): string | null;
+    };
   }>;
 
   export function visit(url: string, options?): void;

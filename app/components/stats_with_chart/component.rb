@@ -49,7 +49,10 @@ class StatsWithChart::Component < ViewComponent::Base
   def refresh_options
     {
       controller: 'stats-with-chart--component',
-      action: 'ui--turbo-modal--component:changed@document->stats-with-chart--component#refresh',
+      action: [
+        'ui--turbo-modal--component:changed@document->stats-with-chart--component#refresh',
+        'turbo:before-fetch-response->stats-with-chart--component#adoptInterval',
+      ].join(' '),
       'stats-with-chart--component-sensor-name-value': sensor_name,
       'stats-with-chart--component-interval-value':
         (
@@ -61,6 +64,9 @@ class StatsWithChart::Component < ViewComponent::Base
             5.minutes
           end
         ),
+      # A stats answer of the live view carries the current interval (see
+      # LivePollInterval), and the page keeps to this minimum
+      'stats-with-chart--component-min-interval-value': min_interval.to_i,
       'stats-with-chart--component-reload-chart-value': !timeframe.now?,
     }
   end

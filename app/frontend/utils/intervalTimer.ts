@@ -30,6 +30,14 @@ export class IntervalTimer {
     }, this.delay);
   }
 
+  // Changes the delay. A running timer starts again with it.
+  setDelay(delay: number): void {
+    if (delay === this.delay) return;
+
+    this.delay = delay;
+    if (this.isActive()) this.start();
+  }
+
   // Clears the currently running interval, if any.
   stop(): void {
     this.clearInterVal();

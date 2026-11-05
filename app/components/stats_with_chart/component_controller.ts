@@ -1,4 +1,5 @@
 import { Controller, type ActionEvent } from '@hotwired/stimulus';
+import type { TurboBeforeFetchResponseEvent } from '@hotwired/turbo';
 import * as Turbo from '@hotwired/turbo';
 import { Chart, ChartDataset } from 'chart.js';
 import { IntervalTimer } from '@/utils/intervalTimer';
@@ -70,12 +71,16 @@ export default class extends Controller {
     // Refresh interval in seconds
     interval: { type: Number, default: 5 },
 
+    // The interval never drops below this, in seconds (see `adoptInterval`)
+    minInterval: { type: Number, default: 0 },
+
     // Should the chart be reloaded when the page is reloaded?
     // If false, the chart will be updated by adding a new point
     reloadChart: { type: Boolean, default: false },
   };
   declare readonly sensorNameValue: string;
-  declare readonly intervalValue: number;
+  declare intervalValue: number;
+  declare readonly minIntervalValue: number;
   declare readonly reloadChartValue: boolean;
 
   private timer?: IntervalTimer;
@@ -122,6 +127,24 @@ export default class extends Controller {
   // sheet (see ui/turbo_modal), so the stats and the chart load again
   refresh() {
     this.reloadFrames({ chart: true });
+  }
+
+  // Stimulus Action: A stats answer of the live view carries the current poll
+  // interval (see LivePollInterval). The page renders with the interval of
+  // its time, and an outage of the collector raises it to the maximum. Without
+  // this, a page opened in an outage keeps the maximum until a reload.
+  adoptInterval(event: TurboBeforeFetchResponseEvent) {
+    const seconds = Number(
+      event.detail.fetchResponse.header('X-Poll-Interval'),
+    );
+    // No header gives 0, a bad one NaN
+    if (!(seconds > 0)) return;
+
+    this.intervalValue = Math.max(seconds, this.minIntervalValue);
+  }
+
+  intervalValueChanged() {
+    this.timer?.setDelay(this.intervalValue * 1000);
   }
 
   private async reload() {

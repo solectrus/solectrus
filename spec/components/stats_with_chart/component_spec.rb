@@ -14,6 +14,13 @@ describe StatsWithChart::Component, type: :component do
     expect(interval(min_interval: 30.seconds)).to eq(30.seconds)
   end
 
+  # The page adopts the interval of each stats answer, but not below the minimum
+  it 'tells the page its minimum interval' do
+    options = described_class.new(sensor_name: :car_range, timeframe: Timeframe.now, min_interval: 30.seconds).refresh_options
+
+    expect(options[:'stats-with-chart--component-min-interval-value']).to eq(30)
+  end
+
   # The tiles of the driving card cannot shrink, so the chart must not cover them
   it 'lets rigid stats grow to their content' do
     rigid = described_class.new(sensor_name: :car_distance, timeframe: Timeframe.now, rigid_stats: true)
