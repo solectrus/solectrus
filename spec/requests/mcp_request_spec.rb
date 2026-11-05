@@ -308,6 +308,32 @@ describe 'MCP' do
             'supportedVersions' => include('2026-07-28'),
           )
         end
+
+        # A stateless JSON exchange cannot hold the SSE stream of
+        # `subscriptions/listen` open, so discovery must not invite a client to
+        # wait for list changes.
+        it 'offers no list change notifications' do
+          post_mcp_modern({ jsonrpc: '2.0', id: 1, method: 'server/discover' })
+
+          capabilities = response.parsed_body.dig('result', 'capabilities')
+          expect(capabilities.values).to all(satisfy { !it.key?('listChanged') })
+        end
+
+        it 'refuses the listen stream as an unknown method' do
+          post_mcp_modern(
+            {
+              jsonrpc: '2.0',
+              id: 1,
+              method: 'subscriptions/listen',
+              params: {
+                notifications: {},
+              },
+            },
+          )
+
+          expect(response).to have_http_status(:not_found)
+          expect(response.parsed_body.dig('error', 'code')).to eq(-32_601)
+        end
       end
     end
   end
@@ -360,6 +386,17 @@ describe 'MCP' do
 
       expect(payload).to include(mcp: 'tools/call', mcp_error: :invalid_params)
       expect(payload).not_to include(:tool)
+    end
+
+    it 'names a method the server does not serve' do
+      payload =
+        logged_payload do
+          post_mcp_modern(
+            { jsonrpc: '2.0', id: 1, method: 'subscriptions/listen' },
+          )
+        end
+
+      expect(payload).to include(mcp: 'unsupported_method')
     end
   end
 end

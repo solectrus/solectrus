@@ -35,6 +35,10 @@ class McpController < ActionController::API
         # Host check; the Origin check would still 403 those browser clients, and
         # their origins cannot be enumerated. So we turn the whole thing off.
         dns_rebinding_protection: false,
+        # `subscriptions/listen` needs an SSE response held open, which this
+        # action cannot serve: it renders the body as one string. Turned off,
+        # the method answers 404 and discovery no longer offers listChanged.
+        serve_subscriptions_listen: false,
       )
 
     request.body.rewind
