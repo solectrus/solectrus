@@ -56,7 +56,11 @@
   forbid_tools: [get_amortization]
   max_tool_calls: 3
   expect_facts: [battery_investment]
-  judge: Names what the battery cost, as one entry of the register.
+  judge: >
+    Names what the battery cost, as one entry of the register. Naming the
+    other entries beside it is fine. The subsidy belongs to no single
+    investment: saying that it lowers the whole investment, or leaving its
+    share open, is fine too.
 
 - id: amortization_net_investment
   note: >

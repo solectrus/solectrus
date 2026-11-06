@@ -8,17 +8,18 @@ module McpServer
       tool_name 'get_cash_flows'
       title 'Get cash flow entries'
       description <<~TEXT.strip
-        The manually kept cash flow register behind get_amortization: the
-        individual investments, subsidies, costs and revenue, as entered in the
-        SOLECTRUS settings. Ask it when a single entry matters; for the
-        resulting profitability ask get_amortization.
+        The manually kept cash flow register: the individual investments,
+        subsidies, costs and revenue, as entered in the SOLECTRUS settings. A
+        question about an entry needs this tool alone: get_amortization only
+        adds the entries up into profitability.
 
         Each entry carries `date`, `category`, `amount` and the free-text `note`
         its owner wrote. A negative `amount` is money out, a positive one money
         in. The CATEGORY, not the sign, decides how an entry counts:
           - investment base (#{CashFlow::INVESTMENT_BASE_CATEGORIES.join(', ')}):
             what has to be earned back — investment raises it, the other two
-            lower it.
+            lower it as a whole, never one investment. Their `sum` is the net
+            investment.
           - operating (#{CashFlow::OPERATING_CATEGORIES.join(', ')}): they meet
             the measured savings. manual_savings covers periods the sensors
             never saw, e.g. before SOLECTRUS was installed.
@@ -26,8 +27,8 @@ module McpServer
 
         `entries` is capped by `limit`; `total_count` says how many entries
         matched the filter, so a shorter list means the rest was cut off.
-        `sum` and `sum_by_category` always cover ALL matching entries, not just
-        the returned ones — a limited list still adds up to the totals above it.
+        `sum` and `sum_by_category` cover ALL matching entries, also those cut
+        off.
 
         Money is in the system currency (see get_system_info) with 2 decimals,
         dates are ISO 8601.
