@@ -273,11 +273,8 @@ module Sensor
       # Build SQL calculation expression (direct or composite)
       def build_sql_calculation(sql_deps)
         return sensor.sql_calculation if sensor.respond_to?(:sql_calculation)
-        if sql_deps.size == 1
-          return Sensor::Registry[sql_deps.first].sql_calculation
-        end
 
-        # Composite: combine multiple SQL calculations
+        # Composite: combine the SQL calculations
         sql_deps
           .map { |dep| "(#{Sensor::Registry[dep].sql_calculation})" }
           .join(' + ')

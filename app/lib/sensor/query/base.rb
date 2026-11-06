@@ -14,13 +14,7 @@ module Sensor
       def call(additional_attributes = {})
         raw_data = fetch_raw_data
 
-        # Merge additional attributes into raw_data
-        if raw_data.is_a?(Hash)
-          raw_data.merge!(additional_attributes)
-        elsif raw_data.is_a?(Array)
-          # For time series data, add additional attributes to each point
-          raw_data.each { |point| point.merge!(additional_attributes) }
-        end
+        raw_data.merge!(additional_attributes)
 
         create_data_instance(raw_data, timeframe).tap do |data|
           ensure_sensor_accessors(data)
@@ -233,11 +227,6 @@ module Sensor
       # Common empty result method - can be overridden by subclasses
       def empty_result
         {}
-      end
-
-      # Default query type - subclasses should override
-      def query_type
-        :unknown
       end
     end
   end

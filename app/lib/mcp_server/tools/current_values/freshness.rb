@@ -47,10 +47,6 @@ module McpServer
           return [sensor.name] unless sensor.calculated?
 
           Sensor::DependencyResolver.new(sensor.name, context: :influx).resolve
-        rescue ArgumentError
-          # A dependency block needing context kwargs cannot be resolved here;
-          # fall back to the sensor itself.
-          [sensor.name]
         end
       end
     end

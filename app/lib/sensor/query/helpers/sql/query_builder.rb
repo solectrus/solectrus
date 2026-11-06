@@ -28,7 +28,6 @@ module Sensor
                         :required_aggregations,
                         :finance_sensors,
                         :standard_sensors,
-                        :calculated_sensors,
                         :required_prices
 
           def cte_builder
@@ -56,7 +55,6 @@ module Sensor
             self.required_aggregations = Set.new
             self.finance_sensors = []
             self.standard_sensors = []
-            self.calculated_sensors = []
             self.required_prices = Set.new
           end
 
@@ -65,8 +63,6 @@ module Sensor
 
             if sensor.sql_calculated?
               process_finance_sensor(sensor_name, meta_agg, base_agg, sensor)
-            elsif sensor.calculated? && sensor.summary_aggregations.empty?
-              calculated_sensors << [sensor_name, meta_agg, base_agg]
             else
               process_standard_sensor(sensor_name, meta_agg, base_agg)
             end

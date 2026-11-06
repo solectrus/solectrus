@@ -291,10 +291,6 @@ Sensor::Registry[:inverter_power]
 Sensor::Registry.by_category(:inverter)
 # => [#<Sensor::Definitions::InverterPower>, ...]
 
-# Chart-enabled sensors
-Sensor::Registry.chart_sensors
-# => [all sensors with chart block]
-
 # Top10-capable sensors
 Sensor::Registry.top10_sensors
 # => [all sensors with top10: true]
@@ -577,7 +573,6 @@ Sensor::Config.nameable_sensors   # => [all user-nameable sensors]
 
 # Feature checks
 Sensor::Config.multi_inverter?    # => true/false
-Sensor::Config.single_consumer?   # => true/false
 ```
 
 `Sensor::Config.exists?` also takes care of derived sensors. In particular, `:power_splitter` sensors are auto-configured from the corresponding base sensor and still honor permission checks such as `ApplicationPolicy.power_splitter?`. The daily build does not ask for the permission: it reads `Sensor::Config.sensors_for_build`.

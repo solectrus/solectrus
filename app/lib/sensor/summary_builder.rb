@@ -116,7 +116,7 @@ module Sensor
       non_sum_aggregations = needed_aggregations - [:sum]
 
       tasks = [
-        (defer { collect_data_for_aggregation(:sum) } if needed_aggregations.include?(:sum)),
+        (defer { collect_sum_data } if needed_aggregations.include?(:sum)),
         (defer { collect_meter_data } if meter_sensor_names.any?),
         (defer { collect_state_data } if state_sensor_names.any?),
         (defer { collect_combined_non_sum_aggregations(non_sum_aggregations) } if non_sum_aggregations.any?),
@@ -159,14 +159,6 @@ module Sensor
           [[dep_name, aggregation_type], value]
         end
 
-      # If the sensor needs access to its own raw value (like house_power),
-      # include it in the dependency data - but only if it has raw data available
-      if sensor.summary_aggregations.any? && sensor_has_influx_data?(sensor)
-        raw_value =
-          get_dependency_value(sensor.name, aggregation_type, summary_data)
-        dependency_data[[sensor.name, aggregation_type]] = raw_value
-      end
-
       data = Sensor::Data::Single.new(dependency_data, timeframe:)
       # Extract dependency values as explicit parameters (keyword arguments)
       dependency_values =
@@ -195,19 +187,10 @@ module Sensor
       end
     end
 
-    def collect_data_for_aggregation(aggregation_type)
-      sensors = sensors_for_aggregation(aggregation_type)
+    def collect_sum_data
+      sensors = sensors_for_aggregation(:sum)
       return {} if sensors.empty?
 
-      case aggregation_type
-      when :sum
-        collect_sum_data(sensors)
-      when :max, :min, :avg
-        collect_aggregation_data(sensors, aggregation_type)
-      end
-    end
-
-    def collect_sum_data(sensors)
       # Use Integral query for sum values
       sum_query_result =
         prefetched&.dig(:sum) ||
@@ -224,27 +207,6 @@ module Sensor
         else
           # Skip sensors that don't have data (not configured or no data available)
           [[sensor.name, :sum], nil]
-        end
-      end
-    end
-
-    def collect_aggregation_data(sensors, aggregation_type)
-      # Use Aggregation query for max/min/avg values
-      aggregation_query_result =
-        Sensor::Query::Helpers::Influx::Aggregation.new(
-          sensors.map(&:name),
-          timeframe,
-        ).call
-
-      sensors.to_h do |sensor|
-        # Only try to access sensors that have accessor methods defined
-        if aggregation_query_result.respond_to?(sensor.name)
-          value =
-            aggregation_query_result.public_send(sensor.name, aggregation_type)
-          [[sensor.name, aggregation_type], value]
-        else
-          # Skip sensors that don't have data (not configured or no data available)
-          [[sensor.name, aggregation_type], nil]
         end
       end
     end

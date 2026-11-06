@@ -11,11 +11,7 @@ class Sensor::SummaryInvalidator
     normalized_current_config = normalize_config(current_config)
 
     # Check what kind of configuration change occurred
-    if stored_config.nil?
-      # First run, no stored config yet
-      Setting.summary_config = current_config
-      log_line 'First run, configuration initialized'
-    elsif normalized_stored_config == normalized_current_config
+    if normalized_stored_config == normalized_current_config
       log_line 'Configuration unchanged, summaries still valid'
     else
       # Save changed config

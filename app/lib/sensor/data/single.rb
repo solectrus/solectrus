@@ -69,17 +69,13 @@ class Sensor::Data::Single < Sensor::Data::Base
     sensor_keys =
       raw_data.keys.select { |k| k.is_a?(Array) && k.first == sensor_name }
 
-    case sensor_keys.length
-    when 0
-      nil
-    when 1
-      # Exactly one aggregation - use it
-      convert_value(raw_data[sensor_keys.first], sensor_name)
-    else
-      # Multiple aggregations - require explicit parameters
+    # Multiple aggregations - require explicit parameters
+    if sensor_keys.many?
       raise ArgumentError,
             "Sensor '#{sensor_name}' has multiple aggregations. Use explicit aggregation parameters."
     end
+
+    convert_value(raw_data[sensor_keys.first], sensor_name)
   end
 
   def get_aggregated_value(sensor_name, aggregations)

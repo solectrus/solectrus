@@ -34,10 +34,6 @@ class Sensor::Registry
       raise(ArgumentError, "Unknown category: #{category}")
   end
 
-  def self.chart_sensors
-    all.select(&:chart_enabled?)
-  end
-
   def self.top10_sensors
     all.select(&:top10_enabled?)
   end

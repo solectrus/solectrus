@@ -40,13 +40,8 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :chart_sensor_by_name,
                    :top10_sensors,
                    :multi_inverter?,
-                   :single_consumer?,
                    :total_consumption_relevant?,
                    :clear_cache!
-  end
-
-  def self.display_name(sensor_name, format = :short)
-    Sensor::Registry[sensor_name].display_name(format)
   end
 
   def setup(env, validate_summaries: false)
@@ -154,12 +149,6 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
         sensor.is_a?(Sensor::Definitions::CustomPower) &&
           house_power_excluded_sensors.exclude?(sensor)
       end
-  end
-
-  def single_consumer?
-    Sensor::Registry
-      .by_category(:consumer)
-      .one? { |sensor| exists?(sensor.name) }
   end
 
   # total_consumption (house + heat pump + wallbox) only adds value when there
