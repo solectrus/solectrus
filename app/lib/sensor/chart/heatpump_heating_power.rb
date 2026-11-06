@@ -95,15 +95,14 @@ class Sensor::Chart::HeatpumpHeatingPower < Sensor::Chart::Base
 
   def clamp_to_heating_power(sensor_name, heating_power, timestamp)
     case sensor_name
-    when :heatpump_power_grid, :heatpump_power
-      [component_value(sensor_name, timestamp), heating_power].min
     when :heatpump_power_pv
       _grid, pv = clamped_grid_pv(heating_power, timestamp)
       pv
     when :heatpump_power_env
       clamp_env_power(heating_power, timestamp)
     else
-      component_value(sensor_name, timestamp)
+      # heatpump_power_grid, or heatpump_power for live data
+      [component_value(sensor_name, timestamp), heating_power].min
     end
   end
 

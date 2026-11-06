@@ -20,11 +20,6 @@ class Sensor::Chart::CarDistance < Sensor::Chart::Base
     @chart_sensor_names ||= cars.select { it.sensor?(:car_odometer) }.map { it.sensor_name(:car_odometer) }
   end
 
-  # The label of each part names its car
-  def label
-    I18n.t('sensors.car_distance')
-  end
-
   def blank_message = no_driving_message
 
   def blank_icon = 'road'

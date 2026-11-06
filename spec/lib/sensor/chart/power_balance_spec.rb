@@ -4,10 +4,6 @@ describe Sensor::Chart::PowerBalance do
   describe 'basic attributes' do
     let(:timeframe) { Timeframe.new('2025-W10') }
 
-    it 'returns localized label' do
-      expect(chart.label).to eq(I18n.t('charts.balance'))
-    end
-
     it 'returns :other as menu_group' do
       expect(chart.menu_group).to eq(:other)
     end

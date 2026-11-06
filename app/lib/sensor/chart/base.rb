@@ -494,10 +494,6 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     values.map { |value| value || 0 }
   end
 
-  def style
-    style_for_sensor(sensor)
-  end
-
   def style_for_sensor(sensor)
     {
       # The quantity the sensor measures, as its definition names it. The

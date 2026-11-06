@@ -86,7 +86,6 @@ module Sensor
       end
 
       def validate_gradient_options!(gradient, text, border)
-        validate_gradient_hash!(gradient)
         validate_gradient_text!(text)
         validate_gradient_border!(border)
 
@@ -105,12 +104,6 @@ module Sensor
         return if stops.all? { |key, value| key.is_a?(Numeric) && value.is_a?(String) }
 
         raise ArgumentError, 'color gradient stops must map numeric values to color class strings'
-      end
-
-      def validate_gradient_hash!(gradient)
-        return if gradient?(gradient)
-
-        raise ArgumentError, 'color gradient must be provided via background: gradient(...)'
       end
 
       def validate_gradient_text!(text)

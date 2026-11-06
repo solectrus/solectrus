@@ -7,10 +7,6 @@ class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
   COMPONENT_SENSOR_NAMES = %i[house_power heatpump_power wallbox_power].freeze
   public_constant :COMPONENT_SENSOR_NAMES
 
-  def label
-    Sensor::Registry[:total_consumption].display_name
-  end
-
   def options
     super.deep_merge(
       plugins: {

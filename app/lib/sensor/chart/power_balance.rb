@@ -28,10 +28,6 @@ class Sensor::Chart::PowerBalance < Sensor::Chart::Base # rubocop:disable Metric
 
   public_constant :DATA_SENSOR_NAMES, :DISPLAY_SENSOR_NAMES
 
-  def label
-    I18n.t('charts.balance')
-  end
-
   # Place this chart in the "Other" menu group
   def menu_group
     :other

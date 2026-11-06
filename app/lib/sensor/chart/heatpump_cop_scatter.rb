@@ -5,7 +5,6 @@ class Sensor::Chart::HeatpumpCopScatter < Sensor::Chart::Base # rubocop:disable 
 
   def type = 'scatter'
   def chart_sensor_names = %i[heatpump_cop outdoor_temp heatpump_power]
-  def label = I18n.t('charts.heatpump_cop_scatter.title')
 
   def options
     {

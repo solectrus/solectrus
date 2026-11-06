@@ -72,20 +72,6 @@ module Sensor
         :outdoor_temp_forecast
       end
 
-      def transform_data(data_values, sensor_name)
-        return super unless sensor_name == :outdoor_temp_forecast
-
-        # Set past and current values to nil (keeps timestamps but hides line in past)
-        # This prevents overlap with actual temperature line
-        now = Time.current
-        points =
-          series.public_send(sensor_name, *aggregations_for_sensor(sensor_name))
-
-        points.map do |time_key, value|
-          normalize_timestamp(time_key) > now ? value : nil
-        end
-      end
-
       def add_series_boundaries!(series_raw_data)
         Sensor::Forecast::BoundaryAdjuster.add_edge_boundaries!(series_raw_data)
       end
