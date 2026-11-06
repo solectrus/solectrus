@@ -98,10 +98,14 @@ export class BottomSheet {
     panel.addEventListener('pointercancel', this.endDrag);
     panel.addEventListener('click', this.swallowClickAfterDrag, true);
 
-    // The content can grow or shrink while the sheet is open
+    // The content can grow or shrink while the sheet is open. A tall panel
+    // keeps its height, so only its children tell about content that comes
+    // later, like a frame that loads after the sheet opened.
     this.resizeObserver = new ResizeObserver(() => this.markScrollable());
-    for (const area of panel.querySelectorAll(SCROLL_AREA))
+    for (const area of panel.querySelectorAll(SCROLL_AREA)) {
       this.resizeObserver.observe(area);
+      for (const child of area.children) this.resizeObserver.observe(child);
+    }
   }
 
   // `instant` skips the fade of the dim area, for a backdrop that is on the
