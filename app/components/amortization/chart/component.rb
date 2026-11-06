@@ -55,8 +55,8 @@ class Amortization::Chart::Component < ViewComponent::Base
 
   private
 
-  # Same clamp/round as the Amortization::Degree KPI, so the today tooltip shows
-  # the identical percentage as the headline.
+  # Same clamp/round as the degree in Amortization::Stats, so the today tooltip
+  # shows the identical percentage as the KPI rail.
   def today_degree
     return unless result.degree_percent
 

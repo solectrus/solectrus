@@ -1,6 +1,6 @@
 # Detail view (sponsor feature, shown to every visitor): key figures of the
 # amortization calculation as stat tiles. The nominal payback date itself lives
-# in the timeline (Amortization::Degree); here discounting is exposed as NPV
+# in the chart, as its break-even mark; here discounting is exposed as NPV
 # instead of a second competing payback date.
 class Amortization::Stats::Component < ViewComponent::Base
   def initialize(result:)
@@ -32,8 +32,8 @@ class Amortization::Stats::Component < ViewComponent::Base
     investment_reduction.positive?
   end
 
-  # Whole-percent amortization degree, floored at 0 - identical to the
-  # Amortization::Degree headline and the chart's today marker, so all three agree.
+  # Whole-percent amortization degree, floored at 0 - identical to the chart's
+  # today marker, so both agree.
   def display_degree
     return unless degree_percent
 
