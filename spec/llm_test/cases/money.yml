@@ -33,8 +33,10 @@
     The other half of the same rule: `effective` is the price valid ON `date`,
     so a past date has to yield the historical tariff. Tied to
     INSTALLATION_DATE of the test environment (2020-11-27), which 2021 has to
-    lie after.
-  prompt: Was hat mich die Kilowattstunde im Juni 2021 gekostet?
+    lie after. The question asks for the tariff: "what did the kWh cost ME"
+    sent a model after the measured costs of June 2021, which the fixture
+    does not hold (2 of 8 runs before the raw data tools, 6 calls each).
+  prompt: Wie hoch war der Strompreis pro Kilowattstunde im Juni 2021?
   expect_tools: [get_prices]
   max_tool_calls: 2
   expect_facts: [electricity_price_2021]

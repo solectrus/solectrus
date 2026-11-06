@@ -76,8 +76,12 @@
     plausible extrapolation of the date range they do show. It recovers one
     round trip later. At that rate it is not worth a sentence in
     Facts::TIMEFRAME_FORMS, which every timeframe argument would pay for.
+
+    The same-days comparison takes three calls (both months and the same days
+    of last month), and a look at the forecast for the rest of the month a
+    fourth. Both are the right reaction to a partial month, so the limit is 4.
   prompt: Vergleiche die PV-Erzeugung im letzten Monat mit der in diesem Monat.
-  max_tool_calls: 3
+  max_tool_calls: 4
   judge: >
     Says that the running month is not over yet (only part of it is
     measured). Naming the difference so far passes, as long as the answer
