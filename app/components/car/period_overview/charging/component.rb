@@ -33,9 +33,17 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
     @sources ||= total_kwh.positive? ? report.sources.select { it.kwh.positive? } : []
   end
 
-  # The charged energy, which the card names, so it needs no tooltip
+  # The charged energy. A phone shows it as the only number of the card, so
+  # its tooltip has the energy of each source with its share, and the cost.
+  # The tooltip of each source has its own cost.
   def energy_figure
-    Car::Figure.new(sensor_name: :car_charging, value: render(energy_value(total_kwh)))
+    cost = plain_cost_figure
+    parts = [
+      *sources.map { energy_part(it) },
+      (Car::Tooltip::Component::Part.new(label: t('sensors.car_charging_costs'), value: cost.value) if report.sessions.cost?),
+      *cost.parts.reject(&:color),
+    ].compact
+    Car::Figure.new(sensor_name: :car_charging, value: render(energy_value(total_kwh)), title: t('car_breakdown.charging'), parts:, notes: cost.notes)
   end
 
   # The sources of the bar. Each one loads the chart of the charged energy,
@@ -152,6 +160,11 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
       else
         []
       end
+  end
+
+  def energy_part(source)
+    style = Car::ChargingSource[source.key]
+    Car::Tooltip::Component::Part.new(label: t(style.label_key), value: render(energy_value(source.kwh)), color: style.color, percent: share_of(source.key))
   end
 
   def source_part(source)

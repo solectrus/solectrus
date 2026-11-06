@@ -46,8 +46,20 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
     expect(cells).to eq([['373 €'], ['21.2 kWh', 'per 100 km'], ['3.77 €', 'per 100 km']])
   end
 
-  it 'shows the average distance of a day in the tooltip of the distance' do
-    expect(tooltip('car_distance')).to eq('Distance drivenØ per day27 km')
+  # A phone shows the distance as the only number of the card, so its
+  # tooltip has the figures of the cells, in a group each, and one note
+  it 'groups the distance, the cost and the consumption in the tooltip of the distance' do
+    template = card.at_css('[data-stats-with-chart--component-sensor-name-param="car_distance"] [data-tooltip-target="html"]')
+    groups = Nokogiri::HTML.fragment(template.inner_html).css('.tooltip-group').map { it.text.squish }
+
+    expect(groups[0..2]).to eq(['Distance driven9,877 kmØ per day27 km', 'Energy cost373 €per 100 km3.77 €', 'Usage per 100 km21.2 kWh'])
+    expect(groups.last).to start_with('The values per 100 km count the charging of the 14 days')
+  end
+
+  # A phone shows the links alone, a wider screen also the figures
+  it 'shows the links alone on a phone' do
+    expect(card.at_css('> div.lg\\:hidden')).to be_nil
+    expect(card.at_css('> div.max-lg\\:hidden')).to be_present
   end
 
   it 'loads the chart of each figure' do
@@ -104,8 +116,18 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
 
     # The whole bar is the cost of the combustion car
     it 'shows the cost of the car beside the savings, and links to the comparison' do
-      expect(html.at_css('a[href="/cars/savings/2025"]')).to eq(comparison_bar.parent)
+      expect(comparison_bar.parent['href']).to eq('/cars/savings/2025')
       expect(bar_parts).to eq([[25.0, []], [75.0, ['75 € saved', '75 €']]])
+    end
+
+    # A bar above the timeline of a day looks like one of its lanes
+    it 'shows the savings as a link in the card in place of the bar on a phone' do
+      link = card.at_css('> div.lg\\:hidden > a')
+
+      expect(comparison_bar.parent['class']).to include('max-lg:hidden')
+      expect(link['href']).to eq('/cars/savings/2025')
+      expect(link.text.squish).to eq('75 € saved')
+      expect(card.css('> div.max-lg\\:hidden a[href*="/savings"]')).to be_empty
     end
 
     it 'names both cars and the savings in the tooltip' do
@@ -121,6 +143,7 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
       it 'shows the extra cost beside the cost of the combustion car, in red' do
         expect(bar_parts).to eq([[100.0, []], [12.0, ['12 € more', '12 €']]])
         expect(comparison_bar.at_css('.text-signal-negative-strong')).to be_present
+        expect(card.at_css('> div.lg\\:hidden > a').text.squish).to eq('12 € more')
       end
     end
 
@@ -130,7 +153,11 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
 
       it 'keeps the bar as an empty track, which links to the comparison' do
         expect(comparison_bar.css('[data-car--share-bar--component-target]')).to be_empty
-        expect(html.at_css('a[href="/cars/savings/2025"]')).to be_present
+        expect(comparison_bar.parent['href']).to eq('/cars/savings/2025')
+      end
+
+      it 'names the savings without an amount on a phone' do
+        expect(card.at_css('> div.lg\\:hidden > a').text.squish).to eq('Savings')
       end
 
       it 'names the gaps in the tooltip' do

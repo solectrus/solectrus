@@ -2,7 +2,9 @@
 # the car page (see Car::PeriodOverview::Component): a bar of the cost of
 # the car and its savings (see
 # Car::PeriodOverview::Driving::Savings#comparison). It opens the comparison
-# page, and its tooltip names the costs of both cars.
+# page, and its tooltip names the costs of both cars. A phone has a link in
+# the card of the driving in its place (see
+# Car::PeriodOverview::Driving::Savings#savings_list).
 class Car::PeriodOverview::Comparison::Component < ViewComponent::Base
   include Car::FigureTag
 
@@ -16,7 +18,7 @@ class Car::PeriodOverview::Comparison::Component < ViewComponent::Base
   attr_reader :figure, :timeframe
 
   def call
-    figure_tag(figure, class: 'block shrink-0 rounded-xl focus-ring', link_class: 'lg:hover:brightness-95') do
+    figure_tag(figure, class: 'block shrink-0 rounded-xl focus-ring max-lg:hidden', link_class: 'lg:hover:brightness-95') do
       safe_join([render(figure.value), (render(tooltip(figure)) if figure.tooltip?)])
     end
   end

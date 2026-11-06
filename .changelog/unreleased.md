@@ -22,7 +22,7 @@ Keep every section, an empty one included.
 
 - **Car page:** up to five cars, with live view, distance, charged energy, costs, consumption and range. A day shows a timeline of the drives, the charges and the charge level (#3517, #5836, #6021, #6022, #6035, #6053, #6057)
 - **Charging sessions and places:** lists of the charges at the wallbox and at public stations, and of the places that the cars visited. A charge at the wallbox shows its power, split into PV and grid
-- **EV vs. combustion car:** compares the costs with a combustion car for the same distance, with and without PV. The car page shows the savings below its figures. Needs the euro as currency and the fuel prices of the Public Data Collector, which HELIOS sets up in an EU country (#2407)
+- **EV vs. combustion car:** compares the costs with a combustion car for the same distance, with and without PV. The car page shows the savings with its figures. Needs the euro as currency and the fuel prices of the Public Data Collector, which HELIOS sets up in an EU country (#2407)
 - **Settings > Electric vehicles:** the cars, their places, the combustion car for the comparison, and running costs and incomes like the insurance or the GHG quota
 - **Sensors:** each car sensor has a number, for example `INFLUX_SENSOR_CAR_BATTERY_SOC_1`. Without a number, it means the first car. New optional sensors: odometer, range, plugged in, location
 - **AI access:** a new tool gives the distance, the charging costs and the driving costs per 100 km of the cars, and the savings against a combustion car

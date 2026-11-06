@@ -65,7 +65,7 @@
             place, so the chart does not move and draw itself again. The
             cards hold the figures of the charging and of the driving.
             Without an odometer, the card of the charging is the only one.
-          = pair.stats_frame(['flex', driving? ? 'max-lg:h-80' : 'max-lg:h-52']) do
+          = pair.stats_frame(['flex', driving? ? 'max-lg:h-64' : 'max-lg:h-52']) do
             = render Car::PeriodOverview::Component.new(driving: driving?)
           - if pair.chart?
             = pair.chart_frame('flex-1 min-h-48 flex relative')

@@ -27,9 +27,11 @@ class Car::PeriodOverview::Card::Component < ViewComponent::Base
   # The link to the list of the card. `notes` name the open tasks of the
   # list, like the sessions to review. The link has an amber dot then, and a
   # screen reader reads the notes. A list with `sheet_href` opens in a sheet
-  # on a phone (see SheetPage).
-  List = Data.define(:label, :href, :notes, :sheet_href) do
-    def initialize(notes: [], sheet_href: nil, **) = super
+  # on a phone (see SheetPage). A link with `phone_only` stands in the place
+  # of something that a phone leaves out, like the savings in the place of
+  # their bar.
+  List = Data.define(:label, :href, :notes, :sheet_href, :phone_only) do
+    def initialize(notes: [], sheet_href: nil, phone_only: false, **) = super
   end
   public_constant :List
 
@@ -72,6 +74,16 @@ class Car::PeriodOverview::Card::Component < ViewComponent::Base
   def blank? = empty.present? && cells.none? { list?(it) }
 
   def list?(cell) = cell.is_a?(List)
+
+  # The rows that have cells, each as whether it is the row of a phone and
+  # its cells. A phone shows the links alone, so the card has one number,
+  # and the tooltip of the total has the figures. A wider screen shows each
+  # cell but the links for a phone alone.
+  def rows
+    phone = cells.select { list?(it) }
+    wide = cells.reject { list?(it) && it.phone_only }
+    [[true, phone], [false, wide]].select { |_, row_cells| row_cells.any? }
+  end
 
   # A part of the card, which brightens on hover
   def link_class = 'active:bg-white/10 lg:hover:bg-white/10'

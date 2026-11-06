@@ -62,9 +62,19 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
     expect(cost_tooltip).to start_with('Energy cost of chargingPhotovoltaics98 €Grid+ 214 €Offsite charging+ 60 €Total= 372 €')
   end
 
-  # The card names the charged energy
-  it 'has no tooltip on the charged energy' do
-    expect(card.at_css('> a[data-stats-with-chart--component-sensor-name-param="car_charging"] [data-tooltip-target="html"]')).to be_nil
+  # A phone shows the charged energy as the only number of the card
+  it 'names the energy and the share of each source and the cost in the tooltip of the charged energy' do
+    tooltip = card.at_css('> a[data-stats-with-chart--component-sensor-name-param="car_charging"] [data-tooltip-target="html"]').text.squish
+
+    expect(tooltip).to eq('ChargingPhotovoltaics1,157 kWh56 %Grid767 kWh37 %Offsite charging154 kWh7 %Energy cost372 €')
+  end
+
+  # The phone row holds the link alone, the row of a wider screen also the
+  # cost. A phone shows the icon of a source alone.
+  it 'shows the link alone and the icons of the sources alone on a phone' do
+    expect(card.css('> div.lg\:hidden > *').map { it.text.squish }).to eq(['Charging sessions'])
+    expect(card.css('> div.max-lg\:hidden > *').map { it.text.squish }).to match([start_with('372 €Energy cost'), 'Charging sessions'])
+    expect(card.css('[data-car--share-bar--component-target="segment"] > span:first-child > span.max-lg\:hidden').size).to eq(3)
   end
 
   it 'loads the chart of each figure' do
@@ -76,8 +86,10 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
     let(:offsite) { sums(count: 7, kwh: 154.0, cost: 60.0, uncosted: 1) }
 
     it 'marks the cost as a minimum and tells why' do
+      energy_tooltip = card.at_css('> a[data-stats-with-chart--component-sensor-name-param="car_charging"] [data-tooltip-target="html"]').text.squish
+
       expect(card.text.squish).to include('≥ 372 €')
-      expect(cost_tooltip).to include(I18n.t('charging_sessions.cost_incomplete'))
+      expect([cost_tooltip, energy_tooltip]).to all(include(I18n.t('charging_sessions.cost_incomplete')))
     end
   end
 
@@ -119,7 +131,7 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
     before { allow(report).to receive(:unassigned_sessions).and_return(sums(count: 2)) }
 
     it 'names them at the link to the wallbox sessions' do
-      link = html.at_css('a.max-lg\:hidden[href*="/charging_sessions/"]')
+      link = html.at_css('div.max-lg\:hidden > a[href*="/charging_sessions/"]')
 
       expect(link['href']).to include('/charging_sessions/wallbox/2025')
       expect(link.text).to include(I18n.t('car_breakdown.unassigned', count: 2))
@@ -127,7 +139,7 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
 
     # A phone opens the list in a sheet over the car page (see SheetPage)
     it 'opens the list in a sheet on a phone' do
-      link = html.at_css('a.lg\:hidden[href*="/charging_sessions/"]')
+      link = html.at_css('div.lg\:hidden > a[href*="/charging_sessions/"]')
 
       expect(link['href']).to include('/charging_sessions/wallbox/2025?sheet=1')
       expect(link['data-turbo-frame']).to eq('modal')

@@ -25,8 +25,9 @@ section class=['flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl text-whi
       / The sources side by side, each as wide as its energy, with a hairline
         between them, like the balance of the home page. A source shows its
         icon and its value, or its icon alone, or nothing, whatever fits, like
-        the parts of a bar (see car/share_bar/component_controller.ts). Its
-        tooltip always has its value.
+        the parts of a bar (see car/share_bar/component_controller.ts). A
+        phone shows the icon alone, so the total is the only number of the
+        card. The tooltip always has the value.
       div class='flex min-h-0 flex-1 divide-x divide-slate-200 dark:divide-black' data-controller='car--share-bar--component'
         - if shown_segments.any?
           - shown_segments.each do |segment|
@@ -34,7 +35,7 @@ section class=['flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl text-whi
               span class=['flex size-full items-center justify-center overflow-hidden px-3 lg:px-4', press_class(segment.figure)] data-car--share-bar--component-target='segment'
                 span class='flex flex-col items-center gap-1.5 lg:gap-2.5' hidden=true data-tooltip-target='anchor'
                   = icon segment.figure.icon, class: 'text-sm lg:text-xl'
-                  span class='font-medium tabular-nums whitespace-nowrap text-sm lg:text-xl [&_.sensor-value-unit]:text-[0.7em] [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-85'
+                  span class='font-medium tabular-nums whitespace-nowrap text-sm max-lg:hidden lg:text-xl [&_.sensor-value-unit]:text-[0.7em] [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-85'
                     = segment.figure.value
                 span.flex hidden=true data-tooltip-target='anchor'
                   = icon segment.figure.icon, class: 'text-sm lg:text-xl'
@@ -43,28 +44,30 @@ section class=['flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl text-whi
         - elsif empty
           = empty_state
 
-    / What belongs to the total, side by side
-    div class='flex h-12 shrink-0 divide-x divide-white/15 bg-black/15 lg:h-18'
-      - cells.each do |cell|
-        - if list?(cell)
-          / A phone opens the list in a sheet. Open tasks of the list put an
-            amber dot after its label.
-          - label = capture do
-            span class='flex min-w-0 items-center gap-1 click-animation lg:gap-1.5'
-              span.truncate = cell.label
-              - if cell.notes.any?
-                span.shrink-0.size-2.rounded-full.bg-attention aria-hidden='true'
-                span.sr-only = cell.notes.join(', ')
-              = icon 'chevron-right', class: 'shrink-0 text-[0.6rem] opacity-80'
-          - cell_class = 'group relative flex min-w-0 flex-1 items-center justify-center px-1 text-sm font-medium focus-ring active:bg-white/10 lg:text-base lg:hover:bg-white/10'
-          = link_to label, (cell.sheet_href || cell.href), data: (Ui::TurboModal::Component.link_data if cell.sheet_href), class: ['lg:hidden', cell_class]
-          = link_to label, cell.href, class: ['max-lg:hidden', cell_class]
-        - else
-          = figure_tag(cell.figure, class: 'flex min-w-0 flex-1 flex-col items-center justify-center px-1 focus-ring', link_class:)
-            span class=['flex min-w-0 max-w-full flex-col items-center', press_class(cell.figure)] data-tooltip-target='anchor'
-              span class='font-medium leading-tight tabular-nums whitespace-nowrap text-base lg:text-2xl [&_.sensor-value-unit]:text-[0.7em] [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-80'
-                = cell.figure.value
-              - if cell.label
-                span class='max-w-full truncate text-[0.6875rem] leading-tight opacity-75 lg:text-sm' = cell.label
-            - if cell.figure.tooltip?
-              = render tooltip(cell.figure)
+    / What belongs to the total, side by side, in a row for a phone and a
+      row for a wider screen (see #rows). Each row holds only what it shows,
+      so the hairlines stand between its cells alone.
+    - rows.each do |phone, row_cells|
+      div class=['flex h-12 shrink-0 divide-x divide-white/15 bg-black/15 lg:h-18', (phone ? 'lg:hidden' : 'max-lg:hidden')]
+        - row_cells.each do |cell|
+          - if list?(cell)
+            / A phone opens the list in a sheet. Open tasks of the list put an
+              amber dot after its label.
+            - label = capture do
+              span class='flex min-w-0 items-center gap-1 click-animation lg:gap-1.5'
+                span.truncate = cell.label
+                - if cell.notes.any?
+                  span.shrink-0.size-2.rounded-full.bg-attention aria-hidden='true'
+                  span.sr-only = cell.notes.join(', ')
+                = icon 'chevron-right', class: 'shrink-0 text-[0.6rem] opacity-80'
+            - sheet_href = cell.sheet_href if phone
+            = link_to label, (sheet_href || cell.href), data: (Ui::TurboModal::Component.link_data if sheet_href), class: 'group relative flex min-w-0 flex-1 items-center justify-center px-1 text-sm font-medium focus-ring active:bg-white/10 lg:text-base lg:hover:bg-white/10'
+          - else
+            = figure_tag(cell.figure, class: 'flex min-w-0 flex-1 flex-col items-center justify-center px-1 focus-ring', link_class:)
+              span class=['flex min-w-0 max-w-full flex-col items-center', press_class(cell.figure)] data-tooltip-target='anchor'
+                span class='font-medium leading-tight tabular-nums whitespace-nowrap text-base lg:text-2xl [&_.sensor-value-unit]:text-[0.7em] [&_.sensor-value-unit]:font-normal [&_.sensor-value-unit]:opacity-80'
+                  = cell.figure.value
+                - if cell.label
+                  span class='max-w-full truncate text-[0.6875rem] leading-tight opacity-75 lg:text-sm' = cell.label
+              - if cell.figure.tooltip?
+                = render tooltip(cell.figure)

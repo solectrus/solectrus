@@ -738,7 +738,9 @@ the payments, and their addresses lead away.
 The car page shows the savings for each timeframe but the live view, in a bar below the
 cards. The whole bar is the cost of the combustion car, so the running costs of the EV and
 the savings stand side by side. The bar links to the comparison of the same timeframe.
-Without a comparison, it is an empty track, and its tooltip names the reason.
+Without a comparison, it is an empty track, and its tooltip names the reason. A phone shows
+a link with the savings in the card of the driving in place of the bar. Above the timeline
+of a day, the bar looks like one more lane.
 
 The comparison page (`/cars/savings`) takes each timeframe of whole days. Like the car page,
 it is open to everyone. Above the figures, warnings name what the data lacks
@@ -885,6 +887,13 @@ The card of the charging shows the charged energy and its sources, PV, grid and 
 each with its cost. The card of the driving shows the distance, its energy cost and the two
 rates. A selected car without an odometer has no driving, and neither has the guest. The
 page then shows the card of the charging alone, without the bar of the savings.
+
+A phone shows one number on each card: the charged energy and the distance. The sources
+show their icons alone. Below the number, a card has only its links, like the sessions, the
+places and the savings. The sheet of the number holds the other figures: the energy and the
+share of each source with the cost, or the cost, the cost per 100 km and the consumption per
+100 km. On a day, a tap opens the sheet. On a longer timeframe, a tap loads the chart, and a
+long press opens the sheet.
 
 These rules are decisions:
 

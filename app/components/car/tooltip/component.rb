@@ -4,13 +4,15 @@
 # its `lines`: first its time, then like the address of an offsite session.
 # The parts of its value are rows with the swatch of their color, and at
 # times their share. A part without a color, like the cost of the guest, is
-# a detail below them. The notes stand at the end, smaller than the rows.
-# Without parts, the notes are the whole tooltip.
+# a detail below them. Details of one `group` stand together, like the cost
+# and the cost per 100 km. The notes stand at the end, smaller than the
+# rows. Without parts, the notes are the whole tooltip.
 class Car::Tooltip::Component < ViewComponent::Base
   # A part of a value with the color of its part of a bar, a CSS color like
-  # "var(--color-car-pv)", and its whole share in percent
-  Part = Data.define(:label, :value, :color, :percent) do
-    def initialize(color: nil, percent: nil, **) = super
+  # "var(--color-car-pv)", and its whole share in percent. Successive details
+  # of one `group` share a box.
+  Part = Data.define(:label, :value, :color, :percent, :group) do
+    def initialize(color: nil, percent: nil, group: nil, **) = super
   end
   public_constant :Part
 
@@ -29,5 +31,6 @@ class Car::Tooltip::Component < ViewComponent::Base
 
   def colored = parts.select(&:color)
 
-  def details = parts.reject(&:color)
+  # The details in their groups, each group in its own box
+  def detail_groups = parts.reject(&:color).chunk_while { |part, other| part.group == other.group }
 end

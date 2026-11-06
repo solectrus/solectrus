@@ -4,6 +4,7 @@ de:
   consumption_losses: Die Energie ist beim Laden gemessen und enthält die Ladeverluste. Das Auto selbst zeigt deshalb meist weniger an.
   unrated: Ohne %{distance}, für die Ladedaten fehlen.
   window: Das Auto fährt mit Strom, der an anderen Tagen geladen wurde. Deshalb zählen je 100 km die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag.
+  summary: Die Werte je 100 km zählen die Ladungen der %{days} Tage vor und nach jedem gefahrenen Tag, mit den Ladeverlusten. Die Energiekosten sind die gefahrenen Kilometer mal die Kosten je 100 km, deshalb können sie von den Ladekosten abweichen.
   none: Keine Fahrten
   per_day: Ø pro Tag
   ev: E-Auto

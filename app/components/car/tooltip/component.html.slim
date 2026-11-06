@@ -25,9 +25,9 @@ template data-tooltip-target='html'
               = part.value
               - if part.percent
                 span.inline-block.w-14.text-right.font-normal.text-muted = "#{part.percent} %"
-      - if details.any?
+      - detail_groups.each do |group|
         .tooltip-group
-          - details.each do |part|
+          - group.each do |part|
             .label-value-row
               span.tooltip-row-label = part.label
               span.font-semibold.whitespace-nowrap = part.value

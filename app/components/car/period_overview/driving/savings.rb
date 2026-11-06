@@ -1,6 +1,8 @@
 # The savings of the driving against a combustion car (see Car::Comparison),
 # as a bar below the card of the driving, with the costs of both cars in its
-# tooltip. It opens the comparison page.
+# tooltip. It opens the comparison page. A phone shows a link in the card in
+# its place, because a bar above the timeline of a day looks like one of its
+# lanes.
 module Car::PeriodOverview::Driving::Savings
   # The comparison below the card, which opens the comparison page. Without
   # fuel prices, there is no page to open, and the bar is a gray track (see
@@ -10,7 +12,24 @@ module Car::PeriodOverview::Driving::Savings
     Car::Figure.new(sensor_name: nil, href:, value: comparison_bar, title: t('car_breakdown.savings'), **savings_tooltip)
   end
 
+  # The savings as a link in the card, which a phone shows in the place of
+  # the bar. It stays white like the card, because the green and the red of
+  # the bar are too weak on the color of the card. Without a compared
+  # distance, it names the savings alone, and the comparison page names the
+  # gaps. Without a drive or without a comparison there is no link.
+  def savings_list
+    return unless driven? && report.savings?
+
+    Car::PeriodOverview::Card::Component::List.new(label: savings_link_label, href: savings_path, phone_only: true)
+  end
+
   private
+
+  def savings_link_label
+    return t('.savings') unless amounts
+
+    safe_join([icon(gain? ? 'piggy-bank' : 'circle-exclamation'), t(gain? ? '.saved' : '.extra', amount: amount(amounts.savings.abs))], ' ')
+  end
 
   # The comparison of the cars as the comparison page shows it, nil without
   # a compared distance

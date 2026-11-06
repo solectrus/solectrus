@@ -6,5 +6,8 @@ div class='flex h-full min-h-0 w-full flex-1 flex-col gap-3 lg:gap-4'
   - else
     - (driving? ? 2 : 1).times do
       div class='min-h-0 flex-1 rounded-xl bg-fill-strong animate-pulse motion-reduce:animate-none lg:rounded-2xl'
+    / A phone has no bar of the savings (see
+      Car::PeriodOverview::Comparison::Component)
     - if driving?
-      = render Car::ShareBar::Component.new(segments: [], pulse: true)
+      .max-lg:hidden
+        = render Car::ShareBar::Component.new(segments: [], pulse: true)
