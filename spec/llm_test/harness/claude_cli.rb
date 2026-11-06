@@ -18,6 +18,15 @@ module LlmTest
     ALLOWED_TOOLS = "mcp__#{SERVER}".freeze
     public_constant :ALLOWED_TOOLS
 
+    # --system-prompt does not keep out the context of the machine: without
+    # these, every run also reads the CLAUDE.md files of the user and the
+    # auto memory of the project, which can name what a case asks.
+    ISOLATED = {
+      'CLAUDE_CODE_DISABLE_AUTO_MEMORY' => '1',
+      'CLAUDE_CODE_DISABLE_CLAUDE_MDS' => '1',
+    }.freeze
+    private_constant :ISOLATED
+
     ToolCall = Struct.new(:name, :arguments, :error)
     public_constant :ToolCall
 
@@ -54,7 +63,7 @@ module LlmTest
       command = base_command + tool_arguments + ['--system-prompt', system, '--', prompt]
       events = []
 
-      Open3.popen3(*command) do |stdin, stdout, stderr, wait|
+      Open3.popen3(ISOLATED, *command) do |stdin, stdout, stderr, wait|
         stdin.close
         stdout.each_line { |line| events << parse(line) }
         status = wait.value
