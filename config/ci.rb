@@ -32,7 +32,7 @@ SYSTEM_RUNTIME_LOG = 'tmp/parallel_runtime_system.log'.freeze
 ParallelCI.run do
   parallel_step 'Setup' do
     check 'InfluxDB', 'bin/influxdb-restart.sh'
-    check 'Remove previous coverage results', 'rm -rf coverage/.resultset.json'
+    check 'Remove previous coverage results', 'rm -rf coverage/.resultset.json coverage/.last_run.json'
 
     # One database per worker. Creating them is idempotent, and the boot of
     # the test environment loads the schema into an empty or outdated one
@@ -82,6 +82,10 @@ ParallelCI.run do
     runtime_log: SYSTEM_RUNTIME_LOG,
     env: { COVERAGE_NAME: 'system', PLAYWRIGHT_HEADLESS: true },
   )
+
+  # The system run merges its coverage with the one of the unit run, so the
+  # figure is complete only now.
+  step 'Coverage: 100 %', 'bin/rake coverage:check'
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.

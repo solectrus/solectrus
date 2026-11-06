@@ -58,6 +58,14 @@ The specs use `spec/quiet_formatter.rb`. It drops the progress dots and keeps th
 
 The unit specs always split by size. The comment in `config/ci.rb` says why.
 
+### Coverage
+
+Every line of the app must run in at least one spec. `bin/rake coverage:check` makes sure of that. It reads the line coverage from `coverage/.last_run.json` and fails below 100 %.
+
+A single run of `bin/rspec` covers only a part of the app, so it has no minimum. The figure is complete only after the system run merged its coverage with the coverage of the unit run. For this reason, `coverage:check` is the last step of `bin/ci`. On GitHub it is the last step of the job `coverage-report`, after the merge of all runs. That job is not a gate. A coverage below 100 % shows as a failed job, but the publish does not wait for it.
+
+A line that runs only in development, for example a reload hook, stays out of the figure between the comments `# simplecov:disable` and `# simplecov:enable`. Use them for such lines only. A line that no spec reaches is dead code, or it needs a spec.
+
 ### Isolation
 
 Every spec process gets its own Postgres database and its own InfluxDB bucket. Both carry the number that `parallel_tests` puts into `TEST_ENV_NUMBER`. The `Setup` step creates the databases, and `spec/support/influx_bucket.rb` creates the buckets. A plain `bin/rspec` run gets no such number and keeps the `solectrus_test` database and the `my-bucket` bucket.

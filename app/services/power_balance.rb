@@ -218,6 +218,9 @@ Rails.application.config.after_initialize do
   PowerBalance.define_dynamic_methods
 end
 
+# Runs in development only, where code reloads. The specs run without it.
+# simplecov:disable
 if Rails.env.development?
   Rails.application.reloader.to_prepare { PowerBalance.define_dynamic_methods }
 end
+# simplecov:enable

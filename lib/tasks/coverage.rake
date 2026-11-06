@@ -20,4 +20,23 @@ namespace :coverage do
 
     puts 'Coverage merged successfully!'
   end
+
+  # A single spec run covers only a part of the app, so the minimum cannot
+  # live in .simplecov. This runs after the merge of all runs, which writes
+  # the merged figure to coverage/.last_run.json.
+  desc 'Fail unless the merged line coverage is 100 %'
+  task :check do # rubocop:disable Rails/RakeEnvironment
+    require 'json'
+
+    path = 'coverage/.last_run.json'
+    abort "#{path} not found. Run the specs first." unless File.exist?(path)
+
+    line = JSON.parse(File.read(path)).dig('result', 'line')
+    if line < 100
+      abort "Line coverage is #{line} %, but must be 100 %. " \
+            'coverage/index.html lists the lines that no spec runs.'
+    end
+
+    puts "Line coverage: #{line} %"
+  end
 end

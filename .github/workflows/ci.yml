@@ -309,6 +309,11 @@ jobs:
           path: tmp/parallel_runtime_rspec.log
           key: parallel-runtime-${{ github.sha }}
 
+      # Last, so that Qlty and the cache get their files also when the
+      # coverage is too low
+      - name: Check coverage
+        run: bundle exec rake coverage:check
+
   ci-success:
     runs-on: ubuntu-26.04
     # coverage-report is not a gate. It uploads to Qlty and caches the
