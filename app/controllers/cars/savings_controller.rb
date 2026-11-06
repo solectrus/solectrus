@@ -2,9 +2,11 @@
 # Car::Comparison): the savings, the calculation of each column, the periods
 # of the timeframe and the payments. Like the lists below the car page, the
 # page has a timeframe and a car select (see Car::SubNav::Component). The
-# menu and the page More link to it (see MainNavigation#car_pages).
+# menu and the page More link to it (see MainNavigation#car_pages). A phone
+# opens it from the car page in a sheet (see SheetPage).
 class Cars::SavingsController < ApplicationController
   include CarListPage
+  include SheetPage
 
   # Like the car page, the comparison is open to everyone. Only the admin
   # opens the payments behind its numbers (see Car::ComparisonLinks).
@@ -16,13 +18,14 @@ class Cars::SavingsController < ApplicationController
 
   # The page comes first without the comparison, so its frame is on screen at
   # once. Its frame then asks the same address for the comparison, which takes
-  # the time (see Ui::LazyFrame).
+  # the time (see Ui::LazyFrame). The sheet of a phone loads the page first
+  # too, in the modal frame.
   def index
     # A car that the page does not offer goes to "all", like on the car page
     return redirect_to(page_path_with(car: nil)) unless car_selection.valid?
     # The live view and the last hours go to today
     return redirect_to(page_path_with) unless Car::Comparison.timeframe?(timeframe)
-    return render(:comparison) if turbo_frame_request?
+    return render(:comparison) if turbo_frame_request? && !sheet_page?
 
     # While days wait for the build, the page shows the build instead of the
     # comparison. Like the car page, it builds a few days at once.

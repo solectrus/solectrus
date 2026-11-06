@@ -16,11 +16,12 @@ module Car::PeriodOverview::Driving::Savings
   # the bar. It stays white like the card, because the green and the red of
   # the bar are too weak on the color of the card. Without a compared
   # distance, it names the savings alone, and the comparison page names the
-  # gaps. Without a drive or without a comparison there is no link.
+  # gaps. Without a drive or without a comparison there is no link. Like the
+  # lists of the cards, it opens the comparison in a sheet (see SheetPage).
   def savings_list
     return unless driven? && report.savings?
 
-    Car::PeriodOverview::Card::Component::List.new(label: savings_link_label, href: savings_path, phone_only: true)
+    Car::PeriodOverview::Card::Component::List.new(label: savings_link_label, href: savings_path, sheet_href: savings_path(sheet: 1), phone_only: true)
   end
 
   private
@@ -39,8 +40,8 @@ module Car::PeriodOverview::Driving::Savings
     @amounts = (Car::ComparisonAmounts.new(report.comparison) if report.savings? && report.comparison.ready?)
   end
 
-  def savings_path
-    helpers.cars_savings_path(timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id)
+  def savings_path(**)
+    helpers.cars_savings_path(timeframe: (timeframe.to_param unless timeframe.all?), car: report.car&.id, **)
   end
 
   # The costs of both cars and the savings, for a screen reader

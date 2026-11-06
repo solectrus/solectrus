@@ -133,7 +133,8 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
       link = card.at_css('> div.lg\\:hidden > a')
 
       expect(comparison_bar.parent['class']).to include('max-lg:hidden')
-      expect(link['href']).to eq('/cars/savings/2025')
+      expect(link['href']).to eq('/cars/savings/2025?sheet=1')
+      expect(link['data-turbo-frame']).to eq('modal')
       expect(link.text.squish).to eq('75 € saved')
       expect(card.css('> div.max-lg\\:hidden a[href*="/savings"]')).to be_empty
     end

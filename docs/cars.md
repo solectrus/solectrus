@@ -740,7 +740,8 @@ cards. The whole bar is the cost of the combustion car, so the running costs of 
 the savings stand side by side. The bar links to the comparison of the same timeframe.
 Without a comparison, it is an empty track, and its tooltip names the reason. A phone shows
 a link with the savings in the card of the driving in place of the bar. Above the timeline
-of a day, the bar looks like one more lane.
+of a day, the bar looks like one more lane. Like the lists, the link opens the comparison in
+a sheet over the car page (see the section "Sheets with pages" in [docs/ui.md](ui.md)).
 
 The comparison page (`/cars/savings`) takes each timeframe of whole days. Like the car page,
 it is open to everyone. Above the figures, warnings name what the data lacks

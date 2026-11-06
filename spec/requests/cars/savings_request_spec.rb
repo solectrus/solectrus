@@ -111,6 +111,18 @@ describe 'Cars Savings' do
       expect(response).to redirect_to('/cars/savings/2026-09-23')
     end
 
+    # A phone opens the comparison from the car page in a sheet, which keeps
+    # the timeframe and the car of the car page (see SheetPage)
+    it 'opens the comparison in the sheet of a phone, without its own navigation' do
+      get cars_savings_path(timeframe: '2026', car: car.id), params: { sheet: 1 }, headers: { 'Turbo-Frame' => 'modal' }
+
+      sheet_page = response.parsed_body.at_css('turbo-frame#modal dialog.bottom-sheet turbo-frame#sheet-page')
+      expect(sheet_page.at_css('h2').text.squish).to eq('EV vs. combustion car')
+      expect(sheet_page.text.squish).to include('2026')
+      expect(sheet_page.at_css('turbo-frame#comparison')['src']).to eq("/cars/#{car.id}/savings/2026?sheet=1")
+      expect(response.parsed_body.at_css('nav[aria-label="Tabs"]')).to be_nil
+    end
+
     it 'offers each timeframe but the last hours in the timeframe select' do
       get cars_savings_path(timeframe: '2026', select: 1), headers: { 'Turbo-Frame' => 'modal' }
 
