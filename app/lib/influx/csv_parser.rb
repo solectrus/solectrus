@@ -30,7 +30,7 @@ class Influx
       datatypes = nil
       defaults = nil
 
-      @body.each_line do |line|
+      each_record do |line|
         line = line.chomp
         next if line.empty?
 
@@ -62,6 +62,28 @@ class Influx
     end
 
     private
+
+    # The lines of the body, one per record. A string value with a line break
+    # is quoted, so a line with an odd number of quotes goes on in the next one.
+    # InfluxDB writes every line break as CRLF, also the one in a value.
+    def each_record
+      pending = nil
+      @body.each_line do |line|
+        if pending
+          pending << line
+          # An odd count in this line closes the value that `pending` opened
+          next if line.count('"').even?
+
+          line = pending.gsub("\r\n", "\n")
+          pending = nil
+        elsif line.include?('"') && line.count('"').odd?
+          pending = line
+          next
+        end
+
+        yield line
+      end
+    end
 
     # Column 0 carries the annotation name and is empty on header and data
     # lines, so every column index is shifted by one throughout.

@@ -65,6 +65,12 @@ setup guide instead, for the admin alone.)
   combustion car. Only an installation with a car offers it. It
   stops where more summaries are missing than one call builds, see
   [cars.md](cars.md#mcp)
+- `list_measurements` — the raw structure of InfluxDB: the measurements that
+  hold data, and the fields and tags of one measurement. See
+  [Raw InfluxDB data](#raw-influxdb-data). Only when the admin allows raw data
+- `get_raw_series` — the samples of any measurement and its fields, also of a
+  field that no sensor reads. Only when the admin allows raw data. See
+  [Raw InfluxDB data](#raw-influxdb-data)
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,
@@ -292,6 +298,86 @@ totals above it. The category, not the sign of the amount, decides how an entry
 counts: `investment`/`subsidy`/`refund` shape the investment base,
 `compensation`/`manual_savings`/`operating_cost`/`repair` the operating cash
 flow, and `other` counts nowhere.
+
+### Raw InfluxDB data
+
+The sensor tools read only the configured sensors. The same InfluxDB bucket
+often holds more measurements and fields than that, written by collectors and
+devices that no sensor reads. `list_measurements` and `get_raw_series` read
+these too, so a technical diagnosis needs no export from the InfluxDB Data
+Explorer.
+
+The two tools are off by default. The admin turns them on in the system
+settings, with "Also allow raw data" below the MCP switch. Then a client can
+read every measurement in the bucket, also data that SOLECTRUS does not use.
+The checkbox shows once MCP is on, and switching MCP off takes the raw data
+back. Without the setting, the server does not offer the two tools, and
+`list_sensors` does not search the raw data.
+
+`list_measurements` without arguments lists the measurements that hold data
+within the lookback (30 days by default, 366 at most). With `measurement`, it
+gives each field with its type (float, integer, boolean or string), its newest
+value and time, and the values of each tag. A field that a sensor reads
+carries the name of the sensor, because the sensor tools give unit and
+summaries for it.
+
+`query` searches the names of the measurements and of their fields. One
+match gives the fields at once. No match says that the instance holds no such
+data, so a client stops searching. If the admin allows raw data, a `list_sensors`
+search without a match looks in the raw data as well. It names the
+measurements that hold the word, or says that there are none.
+
+`get_raw_series` takes one measurement, up to 10 fields and an optional tag
+filter. The window is `start` and `stop` as ISO 8601 timestamps, or a
+`timeframe` as in the other tools. Without aggregation, the tool returns
+every sample over at most 7 days. With `last`, `mean`, `min`, `max` or `count`, it
+returns one value per window of the resolution, over at most 366 days. The
+coarsest resolution is 6 hours. The windows align to UTC, because InfluxDB
+cannot aggregate windows on the local timezone in its storage engine. It then
+reads every sample, and one field over a year takes several seconds. A
+boolean aggregates as 0 and 1, so `max` tells if a flag was set in the window.
+A string always takes the last value.
+
+With `count`, the tool returns the number of samples per window, for every
+type. A window without a sample gives 0 and is not left out. A gap in the
+data thus shows, also a gap that is shorter than the window. The field states
+the window with the fewest samples as its `min`. One call over a year in
+6-hour windows finds the outages of a device.
+
+With `changes`, the tool returns the first sample of the window and every
+sample whose value differs from the one before, over at most 31 days. This
+gives the times when a flag switched or a mode changed, for example every
+start and end of a cycle in one call. A value holds until the next entry.
+A gap in the data does not show in this mode. This mode reads every sample,
+so the tool first counts the samples in the window. If there are more than
+50,000, the call fails before InfluxDB reads them.
+
+Each field has its own time axis: `t[i]` is the time of `values[i]` in
+seconds after `start`. Devices write their fields at different moments. A
+shared axis would show values side by side that were not measured together.
+A client pairs two fields by time, never by position. A number field also
+states its highest and lowest value, each with its time.
+
+The limits protect a small computer such as a Raspberry Pi:
+
+- A response holds at most 3000 points. A larger request fails, and the error
+  names a resolution or a window that fits. The tool never leaves out points.
+- A request reads at most 20 series, which are the distinct combinations of
+  tags.
+- All queries of one call must finish within 5 seconds together. After that,
+  the tool cancels the query. The other limits keep a query far below this
+  time.
+- An answer from InfluxDB larger than 4 MB stops while it arrives, and the call
+  fails.
+- One call reads raw data at a time. A second call waits up to 5 seconds, then
+  fails with a request to send the calls one after the other.
+- A string value is cut after 200 characters.
+- A window starts on 1970-01-01 at the earliest.
+
+The access is read-only. The client sends names, not Flux. SOLECTRUS puts
+each name into the query as a string literal, and the query uses only read
+functions. The fields of a sensor that only the admin sees, like the location
+of a car, are not available here either.
 
 ## Connecting a client
 

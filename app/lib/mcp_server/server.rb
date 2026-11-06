@@ -16,6 +16,8 @@ module McpServer
       Tools::Amortization,
       Tools::CashFlows,
       Tools::CarCosts,
+      Tools::ListMeasurements,
+      Tools::RawSeries,
     ].freeze
     private_constant :TOOLS
 
@@ -103,9 +105,9 @@ module McpServer
     # to the spec default `ttlMs: 0`, which tells a client not to cache at all.
     #
     # The tools are a fixed list with static descriptions, so the response only
-    # changes with a new release or with the first car (see
-    # Tools::Base.available?) - and a client that reconnects after one reads
-    # the new version out of `serverInfo` anyway. It weighs ~28 KB, which
+    # changes with a new release, with the first car or with the setting for
+    # raw data (see Tools::Base.available?) - and a client that reconnects
+    # after one reads the new version out of `serverInfo` anyway. It weighs ~28 KB, which
     # a long conversation would otherwise pay several times over, so the hint
     # spans a working session rather than a few turns. An update still reaches
     # a client within the hour, and immediately on its next connect.

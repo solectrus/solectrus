@@ -113,4 +113,10 @@ describe Influx::CsvParser do
   it 'returns no rows for an empty body' do
     expect(described_class.call('')).to eq([])
   end
+
+  it 'reads a quoted value with line breaks as one value' do
+    body = "#datatype,string,long,string\r\n,result,table,_value\r\n,,0,\"a\r\n\"\"b\"\"\r\nc\"\r\n,,0,d\r\n"
+
+    expect(described_class.call(body).pluck('_value')).to eq([%(a\n"b"\nc), 'd'])
+  end
 end

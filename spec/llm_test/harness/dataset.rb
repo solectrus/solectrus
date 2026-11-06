@@ -145,6 +145,8 @@ module LlmTest
 
     def seed!
       Setting.sensor_names = SENSOR_NAMES.stringify_keys
+      # The pool cases (cases/raw.yml) need the raw data tools
+      Setting.mcp_raw_data = true
       seed_summaries!
       seed_influx!
       seed_prices!
@@ -273,6 +275,40 @@ module LlmTest
       InfluxHelper.write!(weeks.map { { name: 'Fuel', time: _1.in_time_zone.change(hour: 12).to_i, fields: { price_petrol: PETROL_PRICE } } })
     end
 
+    ### Raw data ################################################################
+
+    # A device in the same bucket that no sensor reads: what list_measurements
+    # and get_raw_series exist for. A pool pump, with a field of each type.
+    # Its fields arrive at their own moments - the water temperature every
+    # five minutes on the full minute, the pump every minute 30 seconds later -
+    # so no two fields share a timestamp.
+    POOL = 'Pool'.freeze
+    POOL_RPM = 2400
+    # The runs of the pump, as [start, stop) in minutes of the day
+    POOL_RUNS = [[8 * 60, 12 * 60], [15 * 60, (17 * 60) + 30]].freeze
+    public_constant :POOL, :POOL_RPM, :POOL_RUNS
+
+    def pool_running?(minute) = POOL_RUNS.any? { |from, to| (from...to).cover?(minute) }
+
+    # In degrees Celsius, warmest at 14:00 with 27. It rises and falls by 0.05
+    # every five minutes, so no other sample comes close to the peak.
+    def pool_temp(minute) = (27.0 - ((minute - 840).abs / 100.0)).round(2)
+
+    def pool_points(date)
+      last = steps_on(date)
+
+      (0...last).flat_map do |minute|
+        time = date.beginning_of_day + minute.minutes
+        running = pool_running?(minute)
+        pump = { pump_running: running, pump_rpm: running ? POOL_RPM : 0, mode: running ? 'filter' : 'idle' }
+
+        [
+          ({ name: POOL, time: time.to_i, fields: { water_temp: pool_temp(minute) } } if (minute % 5).zero?),
+          { name: POOL, time: (time + 30.seconds).to_i, fields: pump },
+        ].compact
+      end
+    end
+
     def car_session(date)
       started_at = date.in_time_zone.change(hour: 12)
 
@@ -331,12 +367,16 @@ module LlmTest
     def seed_influx!
       InfluxHelper.delete_all!
 
-      points = influx_points(yesterday) + influx_points(today)
+      points = influx_points(yesterday) + influx_points(today) + pool_points(yesterday) + pool_points(today)
       points.each_slice(2_000) { InfluxHelper.write!(_1) }
     end
 
+    # The steps of a day that the fixture writes: all of yesterday, today up
+    # to the frozen clock
+    def steps_on(date) = date == today ? ((now - date.beginning_of_day) / STEP).to_i : POINTS_PER_DAY
+
     def influx_points(date)
-      last = date == today ? ((now - date.beginning_of_day) / STEP).to_i : POINTS_PER_DAY
+      last = steps_on(date)
 
       (0...last).map do |i|
         time = date.beginning_of_day + (i * STEP)
@@ -397,6 +437,19 @@ module LlmTest
         'pv_now_watt' => pv_now_watt,
         **money_facts,
         **car_facts,
+        **pool_facts,
+      }
+    end
+
+    # Arithmetic on the schedule of the pump, like the money facts
+    def pool_facts
+      first_start = POOL_RUNS.first.first
+
+      {
+        'pool_runs_yesterday' => POOL_RUNS.size.to_f,
+        'pool_hours_yesterday' => POOL_RUNS.sum { |from, to| to - from } / 60.0,
+        'pool_max_temp_yesterday' => (0...POINTS_PER_DAY).step(5).map { pool_temp(_1) }.max,
+        'pool_temp_at_first_start' => pool_temp(first_start),
       }
     end
 

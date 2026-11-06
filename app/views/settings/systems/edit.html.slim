@@ -1,13 +1,14 @@
 = render 'settings/sub_nav', save: 'settings_system_form', save_bar: 'settings_system_form'
 
-= form_with(model: Setting.new, url: settings_system_path, method: :patch, id: 'settings_system_form', html: { class: 'ui-form relative px-2', data: page_form_data }) do |f|
+= form_with(model: Setting.new, url: settings_system_path, method: :patch, id: 'settings_system_form', html: { class: 'ui-form relative px-2', data: page_form_data('checkbox-reveal') }) do |f|
   = render Ui::SectionHeader::Component.new(title: t('settings.system.mcp.title'), class: 'mb-4 max-lg:mb-0')
   = f.group flush: true do
     - if ApplicationPolicy.mcp?
       = f.check_box :mcp_enabled,
                     checked: Setting.mcp_enabled,
                     label: t('settings.system.mcp.enable'),
-                    hint: t('settings.system.mcp.hint')
+                    hint: t('settings.system.mcp.hint'),
+                    data: { checkbox_reveal_target: 'switch', action: 'change->checkbox-reveal#update' }
 
       - if McpOauth.available?
         p.ps-7.-mt-3.text-xs.text-gray-500.dark:text-gray-400
@@ -18,6 +19,13 @@
                     class: 'font-mono text-indigo-600 dark:text-indigo-400 hover:underline break-all',
                     target: '_blank',
                     rel: 'noopener'
+
+      / A part of MCP, so only there while MCP is checked, also before saving
+      .ps-7 data-checkbox-reveal-target="part" hidden=!Setting.mcp_enabled
+        = f.check_box :mcp_raw_data,
+                      checked: Setting.mcp_enabled && Setting.mcp_raw_data,
+                      label: t('settings.system.mcp.raw_data'),
+                      hint: t('settings.system.mcp.raw_data_hint')
     - else
       = f.check_box :mcp_enabled,
                     checked: false,

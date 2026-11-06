@@ -4,6 +4,9 @@ require 'connection_pool'
 class Influx
   class QueryError < StandardError; end
 
+  # The answer grew past the `max_bytes` of the query
+  class ResponseTooLarge < QueryError; end
+
   # Runs Flux queries over a pool of kept-alive connections.
   #
   # The former influxdb-client gem opened a fresh connection for every request
@@ -61,8 +64,15 @@ class Influx
 
     # Returns the response rows as plain hashes (column => value), flattened
     # across Flux tables. See Influx::CsvParser for why not FluxTable objects.
-    def query(flux)
-      CsvParser.call(post(flux))
+    #
+    # `timeout` limits the whole query, also an answer that arrives slowly.
+    # `max_bytes` limits the size of the answer, so a large one is never held
+    # in memory. Both stop the read: Net::HTTP then closes the socket, which
+    # makes InfluxDB cancel the query. `timeout` raises Net::ReadTimeout,
+    # `max_bytes` Influx::ResponseTooLarge.
+    def query(flux, timeout: nil, max_bytes: nil)
+      limits = QueryLimits.new(timeout:, max_bytes:) if timeout || max_bytes
+      CsvParser.call(post(flux, limits:))
     end
 
     # Whether InfluxDB answers. Raises when it cannot be reached.
@@ -86,8 +96,8 @@ class Influx
 
     attr_reader :pool
 
-    def post(flux)
-      perform(build_request(flux), "Flux: #{flux}")
+    def post(flux, limits:)
+      perform(build_request(flux), "Flux: #{flux}", limits:)
     end
 
     # A connection of its own, outside the pool: the health check must answer
@@ -96,12 +106,15 @@ class Influx
       request = Net::HTTP::Get.new(path)
       request['User-Agent'] = USER_AGENT
       build_connection.start do |http|
-        check_response(http.request(request), "Path: #{path}")
+        response = http.request(request)
+        check_response(response, response.body, "Path: #{path}")
       end
     end
 
-    def perform(request, context)
-      pool.with { |http| execute(http, request, context) }
+    def perform(request, context, limits:)
+      pool.with do |http|
+        with_default_read_timeout(http) { execute(http, request, context, limits) }
+      end
     rescue ConnectionPool::TimeoutError => e
       raise QueryError,
             "InfluxDB connection pool exhausted: #{e.message}\n#{context}"
@@ -119,12 +132,13 @@ class Influx
       request
     end
 
-    def execute(http, request, context)
+    def execute(http, request, context, limits)
       attempts = 0
 
       begin
+        limits&.arm!(http)
         http.start unless http.started?
-        check_response(http.request(request), context)
+        check_response(*send_request(http, request, limits), context)
       rescue *CONNECTION_ERRORS => e
         attempts += 1
         if attempts > MAX_RETRIES
@@ -138,14 +152,40 @@ class Influx
       end
     end
 
-    def check_response(response, context)
+    # [response, body]
+    def send_request(http, request, limits)
+      return limits.request(http, request) if limits
+
+      response = http.request(request)
+      [response, response.body]
+    end
+
+    def check_response(response, body, context)
+      body = utf8(body)
       unless response.is_a?(Net::HTTPSuccess)
         raise QueryError,
               "InfluxDB query failed: #{response.code} #{response.message}\n" \
-                "#{response.body}\n#{context}"
+                "#{body}\n#{context}"
       end
 
-      response.body
+      body
+    end
+
+    # Net::HTTP leaves a body binary. InfluxDB writes UTF-8, and a name or a
+    # string value can hold any character.
+    def utf8(body)
+      return if body.nil?
+
+      body.force_encoding(Encoding::UTF_8).scrub!
+    end
+
+    # The connection goes back to the pool, so the next query gets the
+    # default timeout again, also after Influx::QueryLimits#arm!
+    def with_default_read_timeout(http)
+      default = http.read_timeout
+      yield
+    ensure
+      http.read_timeout = default
     end
 
     def reconnect(http)

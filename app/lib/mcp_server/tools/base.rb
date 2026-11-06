@@ -11,19 +11,28 @@ module McpServer
       MAX_SENSORS = 20
       public_constant :MAX_SENSORS
 
+      # A failure that is not the fault of the arguments, but that the client
+      # can still act on: InfluxDB not answering in time, say. Its message is
+      # written for the client and carries no internals.
+      class Failure < StandardError; end
+
       class << self
         # The entry point the MCP gem calls. Subclasses implement `perform` and
         # return the response Hash; serializing it and turning a rejected
         # argument into an error response is identical in all ten tools, so
         # `perform` is left to say only what its tool actually answers.
         def call(**)
-          json_response(perform(**))
-        rescue ArgumentError => e
+          json_response(around_perform { perform(**) })
+        rescue ArgumentError, Failure => e
           error_response(e.message)
         end
 
         # Whether the server offers the tool on this instance
         def available? = true
+
+        # Wraps `perform`, for a tool that shares a limited resource with
+        # other calls (see McpServer::RawData.session)
+        def around_perform = yield
 
         # Declare the annotations shared by every (read-only) SOLECTRUS tool.
         # `idempotent:` says whether repeating an identical call yields the same

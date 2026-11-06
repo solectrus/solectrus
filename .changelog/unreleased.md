@@ -32,6 +32,7 @@ Keep every section, an empty one included.
 - **Year comparison:** the chart of the total timeframe compares the years by month, quarter or season, with the average as a dashed line. Pick it in the OVERALL menu (#2131)
 - **Base fee:** an electricity tariff can have a base fee for the grid connection. It counts into the grid costs, prorated by day. The AI access gives it too (#2560)
 - **Timeframe menu:** the tab of the current timeframe offers readings like "This month" or "Last 30 days"
+- **AI access:** two new tools read the raw InfluxDB data, also the other measurements in the same bucket that no sensor reads. They stay off until the admin allows raw data in the system settings
 
 ## Improvements
 

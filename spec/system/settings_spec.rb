@@ -72,7 +72,10 @@ describe 'Settings' do
 
       # System specs run without transactions, so both the direct assignment
       # below and the form submits leak the enabled flag into the shared DB.
-      after { Setting.mcp_enabled = false }
+      after do
+        Setting.mcp_enabled = false
+        Setting.mcp_raw_data = false
+      end
 
       let(:endpoint_label) do
         I18n.t('settings.system.mcp.endpoint', locale: :de)
@@ -98,10 +101,31 @@ describe 'Settings' do
           expect(page).to have_text(success_message)
           expect(page).to have_no_text(endpoint_label)
         end
+
+        it 'hides the raw data while MCP is unchecked, and brings it back unchecked' do
+          check 'setting_mcp_raw_data'
+
+          uncheck 'setting_mcp_enabled'
+          expect(page).to have_no_field('setting_mcp_raw_data')
+
+          check 'setting_mcp_enabled'
+          expect(page).to have_unchecked_field('setting_mcp_raw_data')
+        end
       end
 
       context 'when MCP is disabled' do
         before { visit '/settings/system' }
+
+        it 'shows the raw data once MCP is checked, before saving' do
+          expect(page).to have_no_field('setting_mcp_raw_data')
+
+          check 'setting_mcp_enabled'
+          check 'setting_mcp_raw_data'
+          click_on save_button
+
+          expect(page).to have_text(success_message)
+          expect(page).to have_checked_field('setting_mcp_raw_data')
+        end
 
         it 'shows the endpoint after enabling and saving' do
           expect(page).to have_no_text(endpoint_label)

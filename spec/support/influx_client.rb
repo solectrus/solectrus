@@ -2,10 +2,10 @@
 # reads (see Influx::QueryApi), so neither needs a client gem. bin/llm-test
 # requires this file as well.
 #
-# A point is a hash { name:, fields:, time: } with the time in seconds. The line
-# protocol follows the rules of the former gem: the fields in sorted order, an
-# Integer with the suffix "i", and a field without a key or a value left out.
-# A point without a field is not written.
+# A point is a hash { name:, fields:, time: } with the time in seconds, and
+# optionally `tags:`. The line protocol follows the rules of the former gem:
+# the fields in sorted order, an Integer with the suffix "i", and a field
+# without a key or a value left out. A point without a field is not written.
 module InfluxClient
   class Error < StandardError
   end
@@ -41,7 +41,13 @@ module InfluxClient
         end
       return if fields.empty?
 
-      [escape(point[:name], ESCAPE_MEASUREMENT), fields.join(','), point[:time]].compact.join(' ')
+      [series_key(point), fields.join(','), point[:time]].compact.join(' ')
+    end
+
+    def series_key(point)
+      tags = (point[:tags] || {}).sort.map { |key, value| "#{escape(key, ESCAPE_KEY)}=#{escape(value, ESCAPE_KEY)}" }
+
+      [escape(point[:name], ESCAPE_MEASUREMENT), *tags].join(',')
     end
 
     def format_value(value)

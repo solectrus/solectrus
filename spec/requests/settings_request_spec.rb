@@ -158,6 +158,56 @@ describe 'Settings' do
             McpOauth.valid_access_token?(token, base_url: 'http://www.example.com'),
           ).to be_nil
         end
+
+        describe 'the raw data' do
+          before { Setting.mcp_enabled = true }
+
+          it 'is allowed, and taken back' do
+            patch '/settings/system', params: { setting: { mcp_enabled: '1', mcp_raw_data: '1' } }
+            expect(Setting.mcp_raw_data).to be(true)
+
+            patch '/settings/system', params: { setting: { mcp_enabled: '1', mcp_raw_data: '0' } }
+            expect(Setting.mcp_raw_data).to be(false)
+          end
+
+          it 'is taken back with MCP, also from a form that still holds it' do
+            Setting.mcp_raw_data = true
+
+            patch '/settings/system', params: { setting: { mcp_enabled: '0', mcp_raw_data: '1' } }
+
+            expect(Setting.mcp_raw_data).to be(false)
+          end
+
+          it 'stays off when MCP is switched on again' do
+            Setting.mcp_enabled = false
+            Setting.mcp_raw_data = true
+
+            patch '/settings/system', params: { setting: { mcp_enabled: '1' } }
+
+            expect(Setting.mcp_raw_data).to be(false)
+          end
+
+          it 'is refused while MCP is off' do
+            Setting.mcp_enabled = false
+
+            patch '/settings/system', params: { setting: { mcp_raw_data: '1' } }
+
+            expect(Setting.mcp_raw_data).to be(false)
+          end
+
+          # The checkbox of MCP shows and hides it in the browser (checkbox-reveal)
+          it 'hides its checkbox while MCP is off, and leaves it unchecked' do
+            Setting.mcp_raw_data = true
+            get '/settings/system'
+            expect(response.parsed_body.at_css('[data-checkbox-reveal-target="part"]')['hidden']).to be_nil
+
+            Setting.mcp_enabled = false
+            get '/settings/system'
+            part = response.parsed_body.at_css('[data-checkbox-reveal-target="part"]')
+            expect(part['hidden']).not_to be_nil
+            expect(part.at_css('input[type="checkbox"]')['checked']).to be_nil
+          end
+        end
       end
 
       context 'when not a sponsor' do
@@ -168,6 +218,12 @@ describe 'Settings' do
           expect(response).to redirect_to(edit_settings_system_path)
 
           expect(Setting.mcp_enabled).to be(false)
+        end
+
+        it 'refuses to allow the raw data' do
+          patch '/settings/system', params: { setting: { mcp_raw_data: '1' } }
+
+          expect(Setting.mcp_raw_data).to be(false)
         end
       end
     end

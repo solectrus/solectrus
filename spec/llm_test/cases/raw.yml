@@ -1,0 +1,79 @@
+# list_measurements and get_raw_series. The fixture has a pool pump in the
+# same bucket that no sensor reads (Dataset::POOL). Its water temperature
+# arrives every five minutes on the full minute, the pump every minute 30
+# seconds later, so no two of its fields share a timestamp.
+#
+# Keys: see cases/core.yml and spec/llm_test/README.md.
+
+- id: raw_discover_fields
+  note: >
+    No sensor knows the pool, so list_sensors cannot answer. list_measurements
+    names the measurement, and with `measurement` its fields and types.
+  prompt: Welche Messwerte meiner Poolpumpe stehen in der InfluxDB?
+  expect_tools: [list_measurements]
+  forbid_tools: [get_raw_series]
+  max_tool_calls: 4
+  answer_must_match: [water_temp, pump_running, pump_rpm]
+  judge: >
+    Names the fields of the pool measurement with their kind (number, flag,
+    text). Saying that no such data exists fails.
+
+- id: raw_pump_runs
+  note: >
+    The runs of the pump come from the flag over a whole day. Every sample
+    of three fields over that day is over the point budget, so the short way
+    is the flag alone, or an aggregated flag.
+  prompt: Wie oft und wie lange lief meine Poolpumpe gestern insgesamt?
+  expect_tools: [get_raw_series]
+  forbid_tools: [get_series, get_totals]
+  max_tool_calls: 6
+  expect_facts: [pool_runs_yesterday, pool_hours_yesterday]
+  judge: >
+    Names two runs, one in the morning and one in the afternoon, and their
+    total time in hours.
+
+- id: raw_max_temp
+  note: >
+    A maximum with its time. The time is `start` plus the offset in `t`, so a
+    model that counts positions in `values` names the wrong hour. An hourly
+    window that starts at 14:00 is a right answer too ("between 14 and 15").
+  prompt: Wann war das Poolwasser gestern am wärmsten, und wie warm war es da?
+  expect_tools: [get_raw_series]
+  forbid_tools: [get_series]
+  max_tool_calls: 5
+  expect_facts: [pool_max_temp_yesterday]
+  answer_must_match: ['\b14[:.]00\b|\b14\s*(Uhr|und|bis|[-–])']
+  judge: >
+    Names the highest water temperature of yesterday, at 14:00 or in the hour
+    from 14:00.
+
+- id: raw_pair_by_time
+  note: >
+    The two fields never share a timestamp. The answer needs the temperature
+    at the moment the pump first started, which is a pairing by time - the
+    first `true` of the flag sits 30 seconds after the 08:00 temperature.
+    Pairing the two lists by position names a temperature of the night.
+    The limit of calls is loose on purpose: two things to find (the water
+    temperature and the pump) send a model looking for a sensor of each, and
+    the short way to the measurement is what raw_discover_fields measures.
+  prompt: Wie warm war das Poolwasser gestern, als die Pumpe zum ersten Mal anlief?
+  expect_tools: [get_raw_series]
+  max_tool_calls: 8
+  expect_facts: [pool_temp_at_first_start]
+  answer_must_match: ['\b0?8[:.]00\b|\b8 Uhr\b']
+  judge: Names the first start of the pump at about 08:00 and the water temperature then.
+
+- id: raw_not_for_sensors
+  note: >
+    The PV generation is a configured sensor. get_series answers it with unit
+    and display name, and the description of get_raw_series sends a sensor
+    there. After get_series, a model now and then still tried the raw samples
+    of "exactly 12:00" (2 of 30 runs). What the server enforces is the next
+    step: get_raw_series rejects a sensor name and names the sensor tools. So
+    that one rejection is allowed, and the answer has to come from get_series.
+  prompt: Wie hoch war die PV-Leistung gestern um 12 Uhr?
+  expect_tools: [get_series]
+  forbid_tools: [list_measurements]
+  allow_tool_errors: true
+  max_tool_calls: 3
+  judge: Names a power in W or kW for yesterday around noon.

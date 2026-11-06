@@ -351,12 +351,46 @@ describe McpServer::Tools::ListSensors do
       end
 
       # A query that matches nothing is not an error - the word came from the
-      # user, and the way out is a wider search, not a failed call.
-      it 'says what to do when nothing matched' do
-        result = filtered(query: 'zzzz')
+      # user. The miss looks in the raw data itself, so the client learns
+      # either where the data is or that there is none.
+      context 'when no sensor matches' do
+        before do
+          travel_to Time.zone.local(2026, 1, 11, 12)
+          Setting.mcp_raw_data = true
+        end
 
-        expect(result[:sensors]).to be_empty
-        expect(result[:filter_note]).to include('whole index')
+        it 'leaves the raw data alone when the admin does not allow it' do
+          Setting.mcp_raw_data = false
+          allow(McpServer::RawData).to receive(:search)
+
+          expect(filtered(query: 'zzzz')[:filter_note]).to include('whole index')
+          expect(McpServer::RawData).not_to have_received(:search)
+        end
+
+        it 'finds raw data with an umlaut in its name' do
+          add_influx_point(name: 'RAW_WÄRME', fields: { level: 1.0 }, time: 1.hour.ago)
+
+          expect(filtered(query: 'wärme')[:filter_note]).to include('RAW_WÄRME')
+        end
+
+        it 'says that neither a sensor nor raw data holds it' do
+          result = filtered(query: 'zzzz')
+
+          expect(result[:sensors]).to be_empty
+          expect(result[:filter_note]).to include('no such data', 'answer the rest')
+        end
+
+        it 'names the raw data that holds it' do
+          add_influx_point(name: 'RAW_POOL', fields: { zzzz_temp: 20.0 }, time: 1.hour.ago)
+
+          expect(filtered(query: 'zzzz')[:filter_note]).to include('RAW_POOL (zzzz_temp)', 'get_raw_series')
+        end
+
+        it 'says what to do when InfluxDB does not answer' do
+          allow(Influx.query_api).to receive(:query).and_raise(Influx::QueryError)
+
+          expect(filtered(query: 'zzzz')[:filter_note]).to include('whole index')
+        end
       end
 
       it 'echoes the filter it applied' do

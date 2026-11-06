@@ -84,7 +84,12 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # the rules of the comparison with a combustion car. Only an instance
       # with a car pays them (Tools::Base.available?), and the test
       # configuration has one.
-      'tool definitions + instructions' => 34_000,
+      #
+      # list_measurements and get_raw_series raised it from 34_000, by ~3_400
+      # bytes, ~530 of them for the timeframe grammar. They replace exporting
+      # raw data by hand, which no other tool can do. Only an instance whose
+      # admin allows raw data pays them.
+      'tool definitions + instructions' => 37_500,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_400,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -300,6 +305,8 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # receives them in `tools/list`. Not a response but the entry fee: it is sent
   # before a single measurement is read, so it belongs in the same benchmark.
   def tool_definitions
+    # The largest list, with the raw data tools the admin can allow
+    Setting.mcp_raw_data = true
     server = McpServer::Server.build
     definitions = server.tools.values.map { it.to_h.to_json }
 

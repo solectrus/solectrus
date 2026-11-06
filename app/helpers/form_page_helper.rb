@@ -54,9 +54,9 @@ module FormPageHelper
   # Ui::ConfirmDialog::Component before a visit leaves the changes behind.
   #
   #   = form_with(url: settings_system_path, html: { data: page_form_data }) do |f|
-  def page_form_data
+  def page_form_data(*controllers)
     {
-      controller: 'form-dirty',
+      controller: ['form-dirty', *controllers].join(' '),
       form_dirty_ui__confirm_dialog__component_outlet: Ui::ConfirmDialog::Component::SELECTOR,
     }
   end

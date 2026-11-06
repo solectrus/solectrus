@@ -46,6 +46,11 @@ class Setting < RailsSettings::Base
   # existing admin password - no token is stored. See McpOauth.
   field :mcp_enabled, type: :boolean, default: false
 
+  # Whether MCP also reads the raw InfluxDB data: every measurement of the
+  # bucket, not only the configured sensors. Off by default, because the
+  # bucket can hold data that SOLECTRUS knows nothing about.
+  field :mcp_raw_data, type: :boolean, default: false
+
   # Rotatable salt mixed into the OAuth signing key. Rotating it invalidates
   # every issued token at once (used to drop all clients when MCP is disabled).
   # Blank until first rotated. See McpOauth.signing_key.

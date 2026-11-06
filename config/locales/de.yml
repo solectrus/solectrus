@@ -489,6 +489,8 @@ de:
         enable: Model-Context-Protocol (MCP) aktivieren
         hint: Erlaubt KI-Clients (z.B. Claude oder ChatGPT) lesenden Zugriff auf deine SOLECTRUS-Daten (Messwerte, Prognosen, Preise und Anlagendetails).
         endpoint: 'Endpunkt:'
+        raw_data: Auch Rohdaten freigeben
+        raw_data_hint: KI-Clients können dann jeden Messwert im InfluxDB-Bucket lesen, auch Daten, die keinem Sensor zugeordnet sind.
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.

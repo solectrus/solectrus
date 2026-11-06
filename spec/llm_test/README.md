@@ -143,10 +143,11 @@ become the baseline for a server that ships the sentence.
 
 ## How a case works
 
-A case is one entry in `spec/llm_test/cases/*.yml`. There are four files:
+A case is one entry in `spec/llm_test/cases/*.yml`. There are five files:
 `core.yml` holds the questions a user asks most, `conventions.yml` one case per
 rule in `McpServer::Facts`, `money.yml` the tariffs, the cash flow register and
-the amortization, and `cars.yml` the cost of the electric car. `--only` matches a case id as a regular expression, so a
+the amortization, `cars.yml` the cost of the electric car, and `raw.yml` the
+raw InfluxDB data. `--only` matches a case id as a regular expression, so a
 subset runs with `--only 'totals|current|resolve'`.
 
 One case looks like this:
@@ -209,6 +210,12 @@ the value from the same curves that the fixture was built from.
   range get empty summaries. Without them, get_car_costs stops: it builds at
   most a month of missing days. A combustion car with a fixed petrol price
   gives the comparison.
+- A pool pump in the same bucket that no sensor reads, yesterday and today.
+  It has a field of each type: the water temperature (float), whether the pump
+  runs (boolean), its speed (integer) and its mode (string). The temperature
+  arrives every five minutes, the pump every minute 30 seconds later. So no
+  two of its fields share a timestamp, and an answer that pairs them by
+  position is wrong.
 
 One generator feeds both stores, so InfluxDB and the summaries always agree.
 
@@ -228,7 +235,7 @@ the transport. The model therefore reads the tool list and the descriptions
 that we ship, byte for byte, without an HTTP server or an OAuth token.
 
 Every run starts with `--tools ""`, so Claude Code brings no tool of its own.
-The model has our 13 MCP tools and nothing else.
+The model has our MCP tools and nothing else.
 
 One Ruby process answers all the parallel runs, so a tool call waits for the
 others. The MCP timeouts of the CLI assume a server per client, and the harness

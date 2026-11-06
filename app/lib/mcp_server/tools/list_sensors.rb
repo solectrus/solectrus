@@ -130,9 +130,10 @@ module McpServer
           splits, listed = McpServer::SplitSensors.partition(McpServer::Sensors.all)
           sensors = answerable(listed)
           filtered = filter(sensors, query:, category:)
+          raw = raw_search(query) if filtered.empty?
 
           {
-            **filter_note(query:, category:, matched: filtered.size),
+            **filter_note(query:, category:, matched: filtered.size, raw:),
             sensors: filtered.map { entry_for(it) },
             conventions: conventions_for(splits, filtered: filtered.size < sensors.size),
           }
@@ -178,26 +179,48 @@ module McpServer
       # Says WHY the list is short, and what to do when it is empty - without
       # it a filtered response is indistinguishable from an instance that has
       # nothing, and the client stops rather than widening the search.
-      def self.filter_note(query:, category:, matched:)
+      def self.filter_note(query:, category:, matched:, raw:)
         applied = { **(query.present? ? { query: } : {}), **(category.present? ? { category: } : {}) }
         return {} if applied.empty?
 
-        {
-          filter: applied,
-          **(
-            if matched.zero?
-              {
-                filter_note:
-                  'No sensor matched. Try a shorter or different `query`, or ' \
-                    'call without arguments for the whole index.',
-              }
-            else
-              {}
-            end
-          ),
-        }
+        { filter: applied, **(matched.zero? ? { filter_note: nothing_matched(query, raw) } : {}) }
       end
       private_class_method :filter_note
+
+      def self.nothing_matched(query, raw)
+        if raw.nil?
+          'No sensor matched. Try a shorter or different `query`, or call ' \
+            'without arguments for the whole index.'
+        elsif raw.empty?
+          "No sensor matched. #{McpServer::RawData.nothing_note(query)}"
+        else
+          'No sensor matched, but InfluxDB holds data under that name: ' \
+            "#{describe_matches(raw)}. list_measurements gives the fields of a " \
+            'measurement, get_raw_series its values.'
+        end
+      end
+      private_class_method :nothing_matched
+
+      # The device a user names can also be one that no sensor reads, whose
+      # data still sits in the bucket. Told to look there, a model still
+      # varied the `query` up to four times before it did (bin/llm-test,
+      # cases/raw.yml). So the miss looks itself, and either names the data or
+      # says that there is none - which ends the search either way.
+      #
+      # Nil where there is no `query`, the admin does not allow raw data, or
+      # InfluxDB does not answer: the note then says what it said before there
+      # was raw data to look in.
+      def self.raw_search(query)
+        McpServer::RawData.search(query) if query.present? && McpServer::RawData.enabled?
+      rescue Base::Failure
+        nil
+      end
+      private_class_method :raw_search
+
+      def self.describe_matches(matches)
+        matches.map { |measurement, fields| fields.empty? ? measurement : "#{measurement} (#{fields.join(', ')})" }.join('; ')
+      end
+      private_class_method :describe_matches
 
       # An index exists so a client can PICK a sensor to call something with.
       # A sensor with an empty `tools` is the one entry that can never be

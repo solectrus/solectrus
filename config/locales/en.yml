@@ -489,6 +489,8 @@ en:
         enable: Enable Model Context Protocol (MCP)
         hint: Allows AI clients (e.g. Claude or ChatGPT) read-only access to your SOLECTRUS data (measurements, forecasts, prices and system details).
         endpoint: 'Endpoint:'
+        raw_data: Also allow raw data
+        raw_data_hint: AI clients can then read every measurement in the InfluxDB bucket, also data that no sensor reads.
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
