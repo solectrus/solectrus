@@ -48,22 +48,7 @@ class InverterBalance
     (inverter_power_difference * 100.0 / inverter_power).round(1)
   end
 
-  def inverter_power_sum
-    return @inverter_power_sum if defined?(@inverter_power_sum)
-
-    @inverter_power_sum =
-      Sensor::Config
-        .custom_inverter_sensors
-        .filter_map { |sensor| public_send(sensor.name) }
-        .presence
-        &.sum
-  end
-
   private
-
-  def sum_of(sensor_names)
-    sensor_names.sum { @sensor_data.public_send(it).to_f }
-  end
 
   # Generic percent helper with memoization.
   def percent(sensor_name)

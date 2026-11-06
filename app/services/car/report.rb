@@ -157,12 +157,6 @@ class Car::Report # rubocop:disable Metrics/ClassLength
     memo(:spans) { Car::Spans.for(timeframe, cars) }
   end
 
-  # The visits of the cars at the places in the timeframe, and the number of
-  # these places (see PlaceVisit.counts)
-  def visit_counts
-    memo(:visit_counts) { PlaceVisit.where(car: cars).counts(timeframe) }
-  end
-
   # The driving of the cars on the given dates, day by day at the rates of the
   # window around each day. Several cars are the sum of each car, so a chart
   # with a part for each car does not drive each day twice.
