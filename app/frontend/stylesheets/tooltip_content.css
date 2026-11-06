@@ -38,6 +38,25 @@
   @apply mt-2 w-full space-y-2;
 }
 
+/* A row that links to its chart (see Car::Tooltip::Component): the whole
+   row is the link, with a chevron after its value. The floating box of a
+   wider screen takes no click, so it shows no chevron. */
+.tooltip-link {
+  @apply flex items-center gap-3 active:opacity-60;
+
+  > :first-child {
+    @apply min-w-0 flex-1;
+  }
+}
+
+.tooltip-link-chevron {
+  @apply text-faint shrink-0 text-xs;
+}
+
+.floating-tooltip .tooltip-link-chevron {
+  @apply hidden;
+}
+
 /* A smaller group, for a detail of lower weight */
 .tooltip-group-sm {
   @apply text-xs;

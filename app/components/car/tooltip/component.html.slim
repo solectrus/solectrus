@@ -28,9 +28,10 @@ template data-tooltip-target='html'
       - detail_groups.each do |group|
         .tooltip-group
           - group.each do |part|
-            .label-value-row
-              span.tooltip-row-label = part.label
-              span.font-semibold.whitespace-nowrap = part.value
+            = detail_row(part) do
+              .label-value-row
+                span.tooltip-row-label = part.label
+                span.font-semibold.whitespace-nowrap = part.value
       / The notes wrap at the width of the rows above them, so a long note
         does not widen the tooltip
       - if notes.any?

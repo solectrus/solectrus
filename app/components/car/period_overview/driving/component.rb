@@ -7,6 +7,7 @@
 # The comparison with a combustion car follows below the card (see
 # Car::PeriodOverview::Driving::Savings).
 class Car::PeriodOverview::Driving::Component < ViewComponent::Base
+  include Car::ChartLink
   include Car::ComparisonFormat
   include Car::PeriodOverview::Driving::Savings
 
@@ -46,16 +47,18 @@ class Car::PeriodOverview::Driving::Component < ViewComponent::Base
 
   # The figures of the tooltip of the distance, in a group each: the
   # distance with its average of a day, which a day has not, the cost with
-  # the cost per 100 km, and the consumption per 100 km
+  # the cost per 100 km, and the consumption per 100 km. Each figure links
+  # to its chart, the average to the chart of the distance, whose bars are
+  # the days.
   def driving_parts
     part = Car::Tooltip::Component::Part
     per_day = Sensor::ValueFormatter.new(report.km_per_day, unit: Sensor::Registry[:car_distance].unit).to_s if report.km_per_day
     [
-      part.new(label: t('sensors.car_distance'), value: render(distance_value), group: :distance),
-      (part.new(label: t('.per_day'), value: per_day, group: :distance) if per_day),
-      part.new(label: t('sensors.car_driving_costs'), value: cost_figure.value, group: :cost),
-      part.new(label: t('.per_100km'), value: cost_rate_figure.value, group: :cost),
-      part.new(label: t('sensors.car_consumption_rate'), value: consumption_figure.value, group: :consumption),
+      part.new(label: t('sensors.car_distance'), value: render(distance_value), group: :distance, href: chart_href(:car_distance)),
+      (part.new(label: t('.per_day'), value: per_day, group: :distance, href: chart_href(:car_distance)) if per_day),
+      part.new(label: t('sensors.car_driving_costs'), value: cost_figure.value, group: :cost, href: chart_href(:car_driving_costs)),
+      part.new(label: t('.per_100km'), value: cost_rate_figure.value, group: :cost, href: chart_href(:car_cost_rate)),
+      part.new(label: t('sensors.car_consumption_rate'), value: consumption_figure.value, group: :consumption, href: chart_href(:car_consumption_rate)),
     ].compact
   end
 

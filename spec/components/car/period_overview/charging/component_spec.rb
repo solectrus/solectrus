@@ -69,6 +69,13 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
     expect(tooltip).to eq('ChargingPhotovoltaics1,157 kWh56 %Grid767 kWh37 %Offsite charging154 kWh7 %Energy cost372 €')
   end
 
+  # The sheet of a phone loads the chart of the cost (see tooltipSheet.ts)
+  it 'links the cost in the tooltip of the charged energy to its chart' do
+    template = card.at_css('> a[data-stats-with-chart--component-sensor-name-param="car_charging"] [data-tooltip-target="html"]')
+
+    expect(Nokogiri::HTML.fragment(template.inner_html).css('a.tooltip-link').pluck('href')).to eq(['/cars/car_charging_costs/2025'])
+  end
+
   # The phone row holds the link alone, the row of a wider screen also the
   # cost. A phone shows the icon of a source alone.
   it 'shows the link alone and the icons of the sources alone on a phone' do

@@ -25,6 +25,11 @@ module Car::ChartLink
     [:a, { **options, href: chart_link_url(sensor_name), class: [*options[:class], link_class].compact, data: data.merge(chart_link_data(sensor_name)) }]
   end
 
+  # The address of the chart of the sensor, or nil without a chart. A row of
+  # a sheet links to it, and the sheet loads the chart through the link of
+  # the page with this address (see tooltipSheet.ts).
+  def chart_href(sensor_name) = chart_sensor_name(sensor_name)&.then { chart_link_url(it) }
+
   def chart_link_url(sensor_name)
     helpers.cars_home_path(sensor_name:, timeframe:, **helpers.selection_params)
   end

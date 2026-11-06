@@ -10,6 +10,8 @@
 # and for the admin the proposals of the offsite sessions. Without them the
 # numbers would be too small without a reason.
 class Car::PeriodOverview::Charging::Component < ViewComponent::Base
+  include Car::ChartLink
+
   # `all` is whether the page shows "all" and not one selected car
   def initialize(report:, all: false)
     super()
@@ -34,13 +36,13 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
   end
 
   # The charged energy. A phone shows it as the only number of the card, so
-  # its tooltip has the energy of each source with its share, and the cost.
-  # The tooltip of each source has its own cost.
+  # its tooltip has the energy of each source with its share, and the cost,
+  # which links to its chart. The tooltip of each source has its own cost.
   def energy_figure
     cost = plain_cost_figure
     parts = [
       *sources.map { energy_part(it) },
-      (Car::Tooltip::Component::Part.new(label: t('sensors.car_charging_costs'), value: cost.value) if report.sessions.cost?),
+      (Car::Tooltip::Component::Part.new(label: t('sensors.car_charging_costs'), value: cost.value, href: chart_href(:car_charging_costs)) if report.sessions.cost?),
       *cost.parts.reject(&:color),
     ].compact
     Car::Figure.new(sensor_name: :car_charging, value: render(energy_value(total_kwh)), title: t('car_breakdown.charging'), parts:, notes: cost.notes)

@@ -95,6 +95,7 @@ function find(): BottomSheet | null {
   if (!(dialog instanceof HTMLDialogElement)) return null;
 
   sheet?.destroy();
+  dialog.addEventListener('click', followInPlace);
   sheet = new BottomSheet(dialog, {
     onClosed: () => {
       dialog.querySelector('.bottom-sheet-content')?.replaceChildren();
@@ -105,6 +106,29 @@ function find(): BottomSheet | null {
     },
   });
   return sheet;
+}
+
+// A link of the sheet to an address that a link of the page loads in place,
+// like the chart of a figure, takes that link: the sheet closes, and the
+// page loads the chart without a visit. The link of the page can be hidden,
+// like a cell that only a wider screen shows. Any other link visits its
+// address.
+function followInPlace(event: MouseEvent): void {
+  if (!(event.target instanceof Element)) return;
+
+  const href = event.target
+    .closest('.bottom-sheet-content a[href]')
+    ?.getAttribute('href');
+  if (!href) return;
+
+  const pageLink = document.querySelector<HTMLElement>(
+    `main a[href="${CSS.escape(href)}"][data-action~="stats-with-chart--component#loadChart"]`,
+  );
+  if (!pageLink) return;
+
+  event.preventDefault();
+  closeTooltipSheet();
+  pageLink.click();
 }
 
 // A visit replaces the page below the sheet, so its content has no target

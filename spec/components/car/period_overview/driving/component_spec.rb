@@ -56,6 +56,14 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
     expect(groups.last).to start_with('The values per 100 km count the charging of the 14 days')
   end
 
+  # The sheet of a phone loads the chart of a row (see tooltipSheet.ts)
+  it 'links each figure in the tooltip of the distance to its chart' do
+    template = card.at_css('[data-stats-with-chart--component-sensor-name-param="car_distance"] [data-tooltip-target="html"]')
+    links = Nokogiri::HTML.fragment(template.inner_html).css('a.tooltip-link').pluck('href')
+
+    expect(links).to eq(%w[/cars/car_distance/2025 /cars/car_distance/2025 /cars/car_driving_costs/2025 /cars/car_cost_rate/2025 /cars/car_consumption_rate/2025])
+  end
+
   # A phone shows the links alone, a wider screen also the figures
   it 'shows the links alone on a phone' do
     expect(card.at_css('> div.lg\\:hidden')).to be_nil
@@ -172,6 +180,7 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
 
     it 'loads no chart' do
       expect(charts).to be_empty
+      expect(card.css('[data-tooltip-target="html"]').map(&:inner_html).join).not_to include('tooltip-link')
     end
   end
 

@@ -353,9 +353,11 @@ export default class TooltipController extends Controller {
   }
 
   // The lift of the finger after a long press can still cause a click, like
-  // on iOS. It must not follow the link, like the chart of a figure.
+  // on iOS. It must not follow the link, like the chart of a figure. A click
+  // of a script, like a row of the sheet that loads the chart through this
+  // link (see tooltipSheet.ts), passes.
   private readonly swallowClickAfterLongPress = (event: Event): void => {
-    if (!this.longPressed) return;
+    if (!this.longPressed || !event.isTrusted) return;
 
     this.longPressed = false;
     event.preventDefault();
