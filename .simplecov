@@ -3,6 +3,8 @@
 # Loaded on `require "simplecov"`, so `rake coverage:merge` picks up the
 # same groups and filters for the merged report.
 SimpleCov.configure do
+  enable_coverage :branch
+
   # Enable merging of coverage results from multiple test runs
   merging true
   merge_timeout 3600 # 1 hour

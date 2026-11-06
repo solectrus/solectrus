@@ -60,9 +60,11 @@ The unit specs always split by size. The comment in `config/ci.rb` says why.
 
 ### Coverage
 
-Every line of the app must run in at least one spec. `bin/rake coverage:check` makes sure of that. It reads the line coverage from `coverage/.last_run.json` and fails below 100 %.
+Every line of the app must run in at least one spec. SimpleCov also counts branches, the two sides of each `if`, `unless`, `case` and `&.`. At least 90 % of the branches must run. `bin/rake coverage:check` makes sure of both minimums. It reads the figures from `coverage/.last_run.json`.
 
-A single run of `bin/rspec` covers only a part of the app, so it has no minimum. The figure is complete only after the system run merged its coverage with the coverage of the unit run. For this reason, `coverage:check` is the last step of `bin/ci`. On GitHub it is the last step of the job `coverage-report`, after the merge of all runs. That job is not a gate. A coverage below 100 % shows as a failed job, but the publish does not wait for it.
+The branch minimum is a floor, not a target of 100 %. Some branches are guards that no real data reaches, and some only choose a CSS class. A spec for them repeats the code. Write specs for the branches that guard against real edge cases, for example a day without data. Delete the guards that nothing reaches. When the figure goes up, raise the minimum in `lib/tasks/coverage.rake`.
+
+A single run of `bin/rspec` covers only a part of the app, so it has no minimum. The figures are complete only after the system run merged its coverage with the coverage of the unit run. For this reason, `coverage:check` is the last step of `bin/ci`. On GitHub it is the last step of the job `coverage-report`, after the merge of all runs. That job is not a gate. A coverage below a minimum shows as a failed job, but the publish does not wait for it.
 
 A line that runs only in development, for example a reload hook, stays out of the figure between the comments `# simplecov:disable` and `# simplecov:enable`. Use them for such lines only. A line that no spec reaches is dead code, or it needs a spec.
 

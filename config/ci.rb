@@ -85,7 +85,7 @@ ParallelCI.run do
 
   # The system run merges its coverage with the one of the unit run, so the
   # figure is complete only now.
-  step 'Coverage: 100 %', 'bin/rake coverage:check'
+  step 'Coverage', 'bin/rake coverage:check'
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.

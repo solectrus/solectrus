@@ -24,19 +24,30 @@ namespace :coverage do
   # A single spec run covers only a part of the app, so the minimum cannot
   # live in .simplecov. This runs after the merge of all runs, which writes
   # the merged figure to coverage/.last_run.json.
-  desc 'Fail unless the merged line coverage is 100 %'
+  #
+  # Branches have a floor instead of 100 %: a part of the missing ones are
+  # defensive guards and UI variants that a spec would only repeat. Raise the
+  # floor when the figure goes up.
+  desc 'Fail unless the merged coverage reaches its minimum'
   task :check do # rubocop:disable Rails/RakeEnvironment
     require 'json'
+
+    minimum = { 'line' => 100, 'branch' => 90 }
 
     path = 'coverage/.last_run.json'
     abort "#{path} not found. Run the specs first." unless File.exist?(path)
 
-    line = JSON.parse(File.read(path)).dig('result', 'line')
-    if line < 100
-      abort "Line coverage is #{line} %, but must be 100 %. " \
-            'coverage/index.html lists the lines that no spec runs.'
+    result = JSON.parse(File.read(path))['result']
+    too_low = minimum.reject { |criterion, min| result[criterion].to_f >= min }
+
+    minimum.each do |criterion, min|
+      value = result[criterion] ? "#{result[criterion]} %" : 'missing'
+      puts "#{criterion.capitalize} coverage: #{value} (minimum #{min} %)"
     end
 
-    puts "Line coverage: #{line} %"
+    if too_low.any?
+      abort "Coverage below minimum: #{too_low.keys.join(', ')}. " \
+            'coverage/index.html shows the lines and branches that no spec runs.'
+    end
   end
 end
