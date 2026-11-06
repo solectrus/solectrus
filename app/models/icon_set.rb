@@ -33,8 +33,4 @@ class IconSet
         "No icon named #{name.inspect}. Add it to config/icons.yml and run `bin/rails icons:generate`.",
       )
   end
-
-  def self.names
-    ALL.keys
-  end
 end

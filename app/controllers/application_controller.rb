@@ -26,16 +26,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def respond_with_flash(notice: nil, alert: nil)
-    flash.now[:notice] = notice
-    flash.now[:alert] = alert
-
-    respond_to do |format|
-      format.html
-      format.turbo_stream { render turbo_stream: turbo_stream_update_flash }
-    end
-  end
-
   # Override this method to set a custom page title
   helper_method def title
   end

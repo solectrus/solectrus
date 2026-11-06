@@ -34,16 +34,14 @@ class Settings::PlacesController < ApplicationController
   end
 
   # A new home takes the label from the old home (see Place), so the row of
-  # the old home changes too, and the notice names it
+  # the old home changes too, and the notice names it. The form edits only
+  # the name and the home flag, and neither has a validation that can fail.
   def update
     previous_home = Place.home
-    if @place.update(permitted_params)
-      @moved = previous_home if previous_home != @place && @place.home?
-      notice = @moved ? t('settings.places.home_moved', previous: @moved.display_name || t('settings.places.unnamed')) : t('crud.success')
-      respond_with_list(notice:)
-    else
-      respond_with_errors(@place)
-    end
+    @place.update!(permitted_params)
+    @moved = previous_home if previous_home != @place && @place.home?
+    notice = @moved ? t('settings.places.home_moved', previous: @moved.display_name || t('settings.places.unnamed')) : t('crud.success')
+    respond_with_list(notice:)
   end
 
   # Only a place without a visit can go (see Place#deletable?)
