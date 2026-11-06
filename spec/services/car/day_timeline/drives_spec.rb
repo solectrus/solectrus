@@ -282,6 +282,24 @@ describe Car::DayTimeline::Drives do
     end
   end
 
+  # The car drove to a friend and back after a long stay. The position of
+  # each report came a second after its odometer, so the visit there starts
+  # after the end of the drive there and after the earliest start of the
+  # drive back.
+  context 'with a visit that starts a second after the odometer' do
+    let(:readings) { [[at(14, 3), 100], [at(14, 21), 108], [at(16, 12), 111]] }
+    let(:soc) { [[at(14, 4), 78], [at(14, 10), 77], [at(14, 16), 76], [at(14, 23), 76], [at(16, 13), 75]] }
+    let(:stops) { [[at(0), at(14, 21)], [at(14, 21) + 1.second, at(16, 12)], [at(16, 12) + 1.second, at(23)]] }
+
+    # 20 km/h for 3 km
+    it 'keeps the drive there and the drive back apart' do
+      expect(drives.map { [it.start.strftime('%H:%M'), it.ended_at.strftime('%H:%M'), it.distance] }).to eq(
+        [['14:04', '14:21', 8], ['16:03', '16:12', 3]],
+      )
+      expect(drives.last).to have_attributes(started_at: nil, earliest_at: nil)
+    end
+  end
+
   # A car that reports only when it parks or wakes up. It woke up at 10:15
   # and reported the drive when it parked at 11:00.
   context 'with no reading while the car drives' do

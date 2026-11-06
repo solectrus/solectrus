@@ -336,7 +336,10 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
     first.present? && last - first >= Car::Rules::MIN_STOP
   end
 
-  def arrival?(before, after) = @stops.any? { |from, _| from.between?(before.ended_at, after.start) }
+  # The position of a report can come some seconds after its odometer, so a
+  # stop counts up to Car::Rules::REPORT_SPREAD after the start of the drive
+  # after, like where both drives touch
+  def arrival?(before, after) = @stops.any? { |from, _| from.between?(before.ended_at, after.start + Car::Rules::REPORT_SPREAD) }
 
   # Whether the drive after an arrival is the rest of the drive before it:
   # the drive before arrived at the stop, which starts in the ARRIVAL after
@@ -363,8 +366,10 @@ class Car::DayTimeline::Drives # rubocop:disable Metrics/ClassLength
   # A drive whose estimated start lies within a stop that lasts up to its
   # end, like a stay at a place: the car stood there, so the earliest start
   # tells nothing. The start is then assumed from the distance (see #assume).
+  # The position of the report at the earliest start can come some seconds
+  # after its odometer (see Car::Rules::REPORT_SPREAD).
   def stood(drive)
-    return drive unless drive.estimated_start? && @stops.any? { |from, to| from <= drive.earliest_at && to >= drive.ended_at }
+    return drive unless drive.estimated_start? && @stops.any? { |from, to| from <= drive.earliest_at + Car::Rules::REPORT_SPREAD && to >= drive.ended_at }
 
     drive.with(earliest_at: nil)
   end
