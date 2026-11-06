@@ -130,6 +130,9 @@ export default class TooltipController extends Controller {
   private touchTimer: ReturnType<typeof setTimeout> | null = null;
   private longPressStartX = 0;
   private longPressStartY = 0;
+  // A long press opened the tooltip, so the lift of the finger must not
+  // follow the link
+  private longPressed = false;
   private isVisible = false;
   private openedByTouch = false;
   private inSheet = false;
@@ -258,6 +261,14 @@ export default class TooltipController extends Controller {
         this.element.addEventListener('touchcancel', this.cancelTouchTimer, {
           passive: true,
         });
+        this.element.addEventListener('contextmenu', this.handleContextMenu);
+        this.element.addEventListener(
+          'click',
+          this.swallowClickAfterLongPress,
+          {
+            capture: true,
+          },
+        );
       }
     }
   }
@@ -270,6 +281,10 @@ export default class TooltipController extends Controller {
     this.element.removeEventListener('touchmove', this.handleTouchMove);
     this.element.removeEventListener('touchend', this.cancelTouchTimer);
     this.element.removeEventListener('touchcancel', this.cancelTouchTimer);
+    this.element.removeEventListener('contextmenu', this.handleContextMenu);
+    this.element.removeEventListener('click', this.swallowClickAfterLongPress, {
+      capture: true,
+    });
   }
 
   private readonly showOnPointer = (event: Event): void => {
@@ -307,11 +322,44 @@ export default class TooltipController extends Controller {
     const touch = event.changedTouches[0];
     this.longPressStartX = touch.screenX;
     this.longPressStartY = touch.screenY;
+    this.longPressed = false;
     this.touchTimer = globalThis.setTimeout(() => {
-      this.openedByTouch = true;
-      this.show();
       this.touchTimer = null;
+      this.showOnLongPress();
     }, LONG_PRESS_DURATION);
+  };
+
+  // Chrome and Firefox on Android report a long press as a context menu, at
+  // a threshold of their own, and then cancel the touch. The long press
+  // opens the tooltip in place of the menu of the link. A right click with
+  // a mouse keeps its menu. Safari on iOS reports no context menu, because
+  // the page turns its callout off, so the timer opens the tooltip there.
+  private readonly handleContextMenu = (event: Event): void => {
+    const byFinger =
+      event instanceof PointerEvent
+        ? event.pointerType === 'touch'
+        : this.touchTimer !== null;
+    if (!byFinger) return;
+
+    event.preventDefault();
+    this.cancelTouchTimer();
+    if (!this.longPressed) this.showOnLongPress();
+  };
+
+  private showOnLongPress(): void {
+    this.longPressed = true;
+    this.openedByTouch = true;
+    void this.show();
+  }
+
+  // The lift of the finger after a long press can still cause a click, like
+  // on iOS. It must not follow the link, like the chart of a figure.
+  private readonly swallowClickAfterLongPress = (event: Event): void => {
+    if (!this.longPressed) return;
+
+    this.longPressed = false;
+    event.preventDefault();
+    event.stopImmediatePropagation();
   };
 
   private readonly handleTouchMove = (event: Event): void => {
