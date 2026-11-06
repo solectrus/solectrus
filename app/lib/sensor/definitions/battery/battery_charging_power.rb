@@ -11,13 +11,15 @@ class Sensor::Definitions::BatteryChargingPower < Sensor::Definitions::Base
     value = data.respond_to?(:battery_soc) ? data.battery_soc : nil
 
     case value
-    when 0...15
+    # Beginless ranges, checked in order, so a fraction between two levels
+    # still finds one
+    when ..15
       'battery-empty'
-    when 16...30
+    when ..30
       'battery-quarter'
-    when 31...60, nil
+    when ..60, nil
       'battery-half'
-    when 61...85
+    when ..85
       'battery-three-quarters'
     else
       'battery-full'

@@ -1,4 +1,17 @@
 describe 'Battery sensor icons' do # rubocop:disable RSpec/DescribeClass
+  # A state of charge between two whole levels still finds one
+  let(:boundaries) do
+    {
+      15 => 'battery-empty',
+      15.5 => 'battery-quarter',
+      30 => 'battery-quarter',
+      30.4 => 'battery-half',
+      60 => 'battery-half',
+      60.5 => 'battery-three-quarters',
+      85 => 'battery-three-quarters',
+    }
+  end
+
   %i[battery_power battery_charging_power battery_discharging_power].each do |sensor_name|
     describe sensor_name.to_s do
       subject(:sensor) { Sensor::Registry[sensor_name] }
@@ -13,6 +26,10 @@ describe 'Battery sensor icons' do # rubocop:disable RSpec/DescribeClass
         expect(icon_for(45)).to eq('battery-half')
         expect(icon_for(70)).to eq('battery-three-quarters')
         expect(icon_for(95)).to eq('battery-full')
+      end
+
+      it 'leaves no gap between the levels' do
+        expect(boundaries.keys.index_with { icon_for(it) }).to eq(boundaries)
       end
 
       it 'shows a half battery without a state of charge' do

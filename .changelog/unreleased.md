@@ -98,5 +98,6 @@ Keep every section, an empty one included.
 - **Accessibility:** the phone tab bar now shows the keyboard focus, and screen readers read messages like "Saved" and the selected tab. Before, the focus was invisible and the screen reader kept silent
 - **Settings:** a delete now says "Deleted", and an empty price shows one error. Before, it said "Saved" and showed two errors
 - **Amortization:** a payment of 100 million or more now shows an error. Before, the save failed with an error page
+- **Battery icon:** a charge level at a step like 15 %, 30 % or 60.5 % now shows the matching level. Before, it showed a full battery
 
 ## Maintenance
