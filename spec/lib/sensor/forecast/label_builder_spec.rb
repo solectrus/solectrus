@@ -48,6 +48,26 @@ describe Sensor::Forecast::LabelBuilder do
       expect(labels.first[:lines].size).to be >= 1
     end
 
+    context 'with more than three days' do
+      let(:forecast_data) do
+        (15..18).to_h do |day|
+          date = Date.new(2024, 1, day)
+          [date, { noon_timestamp: date.in_time_zone.change(hour: 12).to_i * 1000, total_wh: 25_000 }]
+        end
+      end
+
+      it 'abbreviates the weekday on a phone and spells it out from md up' do
+        day_line = labels.first[:lines].first
+
+        expect(day_line[:text]).to eq(I18n.l(Date.new(2024, 1, 15), format: '%a'))
+        expect(day_line.dig(:md, :text)).to eq(I18n.l(Date.new(2024, 1, 15), format: '%A'))
+      end
+
+      it 'shows the energy above its unit' do
+        expect(labels.first[:lines].drop(1).pluck(:text)).to eq(%w[25 kWh])
+      end
+    end
+
     context 'when total_wh is nil' do
       let(:forecast_data) do
         {

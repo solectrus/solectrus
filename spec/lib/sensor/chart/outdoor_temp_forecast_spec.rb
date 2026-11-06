@@ -263,4 +263,57 @@ describe Sensor::Chart::OutdoorTempForecast do
       end
     end
   end
+
+  describe '#data' do
+    subject(:range_data) { chart.data[:datasets].first[:data] }
+
+    let(:now) { Date.new(2026, 3, 10).in_time_zone.change(hour: 9) }
+
+    # Hourly forecast for the days after today, one array of temperatures per day
+    def forecast_series(*days)
+      points =
+        days.each_with_index.flat_map do |temps, offset|
+          day = (now.to_date + offset + 1).in_time_zone
+          temps.each_with_index.map { |temp, hour| [day.change(hour: hour + 8), temp] }
+        end
+
+      Sensor::Data::Series.new(
+        { %i[outdoor_temp_forecast avg avg] => points.to_h },
+        timeframe:,
+      )
+    end
+
+    before do
+      travel_to(now)
+      allow(chart).to receive_messages(
+        chart_sensor_names: %i[outdoor_temp_forecast],
+        series: forecast_series([5.0, 20.0], [10.0, 10.0], [20.0, 20.0]),
+      )
+    end
+
+    it 'draws the range of each day' do
+      expect(range_data.first).to eq([5.0, 20.0])
+    end
+
+    it 'widens a flat day upwards, so its bar stays visible' do
+      # epsilon is 2 % of the overall range: (20 - 5) * 0.02 = 0.3
+      min_val, max_val = range_data.second
+      expect(min_val).to eq(10.0)
+      expect(max_val).to be_within(0.001).of(10.3)
+    end
+
+    it 'widens a flat day at the overall maximum downwards' do
+      min_val, max_val = range_data.third
+      expect(min_val).to be_within(0.001).of(19.7)
+      expect(max_val).to eq(20.0)
+    end
+
+    it 'pads the days without a forecast up to the end of the timeframe' do
+      labels = chart.data[:labels]
+      last_noon = timeframe.ending.to_date.in_time_zone.change(hour: 12)
+
+      expect(labels.last).to eq(last_noon.to_i * 1000)
+      expect(range_data.drop(3)).to all(be_nil)
+    end
+  end
 end

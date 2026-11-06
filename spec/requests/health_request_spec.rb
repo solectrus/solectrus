@@ -22,6 +22,35 @@ describe 'Health Check' do
     end
   end
 
+  context 'when Redis is down', :redis do
+    before do
+      allow(Rails.cache).to receive(:redis).and_raise(Redis::CannotConnectError)
+    end
+
+    it 'returns 503' do
+      get '/up'
+
+      expect(response).to have_http_status(:service_unavailable)
+      expect(response.parsed_body['redis']).to eq('error')
+    end
+  end
+
+  context 'when InfluxDB is down' do
+    before do
+      allow(Influx).to receive(:ping?).and_raise(Errno::ECONNREFUSED)
+    end
+
+    it 'returns 503' do
+      get '/up'
+
+      expect(response).to have_http_status(:service_unavailable)
+
+      json = response.parsed_body
+      expect(json['postgresql']).to eq('ok')
+      expect(json['influxdb']).to eq('error')
+    end
+  end
+
   context 'when PostgreSQL is down' do
     before do
       allow(ApplicationRecord.connection).to receive(:select_value).and_raise(

@@ -303,6 +303,21 @@ describe Car::DayTimeline::Component, type: :component do
       expect(html.css('section').size).to eq(2)
       expect(html.css('h2').map { it.text.squish }).to eq([car.display_name, 'Guest'])
     end
+
+    # On the desktop, a timeline with a state of charge grows into the height
+    # of the cards, the others keep their height
+    context 'with a state of charge of one car' do
+      let(:lanes) do
+        [
+          Car::DayTimeline::Lane.new(car:, drives: [drive], charges: [], soc_line:, visits: []),
+          Car::DayTimeline::Lane.new(car: nil, drives: [], charges: [charge(session)], soc_line: [], visits: []),
+        ]
+      end
+
+      it 'lets the timeline of this car grow on the desktop alone' do
+        expect(html.css('section').map { it['class'].split.include?('lg:flex-1') }).to eq([true, false])
+      end
+    end
   end
 
   # Beside the cards of a day, in the place of the chart of a period

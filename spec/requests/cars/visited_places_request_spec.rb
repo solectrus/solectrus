@@ -98,6 +98,33 @@ describe 'Cars Visited places' do
 
         expect(response.body).to include('href="/cars/places/2026-08"')
       end
+
+      # A range that ends before it starts is no timeframe
+      it 'lists the places of the whole time for an invalid timeframe' do
+        visit_at(Place.create!(latitude: 50.95, longitude: 1.45), '2026-08-10 10:00', '2026-08-10 11:00')
+
+        get cars_visited_places_path(timeframe: '2026-09-30..2026-09-01')
+
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body.at_css('.ui-keep-lit span.tabular-nums').text).to eq('3 places')
+      end
+
+      it 'loads the next page into its frame' do
+        # One place a day, each beside the others
+        (1..25).each do |day|
+          place = Place.create!(latitude: (day / 100.0) + 50, longitude: 1.5)
+          visit_at(place, "2026-09-#{day} 10:00", "2026-09-#{day} 11:00")
+        end
+
+        get cars_visited_places_path(timeframe: '2026-09')
+
+        expect(response.body).to include('id="places_page_2"')
+
+        get cars_visited_places_path(timeframe: '2026-09', page: 2), headers: { 'Turbo-Frame' => 'places_page_2' }
+
+        expect(response.body).to include('<turbo-frame', 'id="places_page_2"')
+        expect(response.body).not_to include('places_page_3', '<html')
+      end
     end
   end
 end

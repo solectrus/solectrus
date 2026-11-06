@@ -34,6 +34,19 @@ describe Sensor::Definitions::Describable do
       end
     end
 
+    it 'derives the description of a total sensor without its own translation' do
+      allow(I18n).to receive(:t).and_call_original
+      allow(I18n).to receive(:t)
+        .with('sensor_descriptions.inverter_power_total', default: nil)
+        .and_return(nil)
+
+      I18n.with_locale(:en) do
+        expect(sensor(:inverter_power_total).description).to eq(
+          '"Generation", summed across all inverters/consumers.',
+        )
+      end
+    end
+
     it 'derives descriptions for templated sensors' do
       I18n.with_locale(:en) do
         expect(sensor(:inverter_power_1).description).to eq(

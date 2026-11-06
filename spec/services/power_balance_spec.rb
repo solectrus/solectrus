@@ -223,6 +223,40 @@ describe PowerBalance do
     end
   end
 
+  describe '#inverter_power_1_percent_of_total' do
+    subject { power_balance.inverter_power_1_percent_of_total }
+
+    it 'calculates the share of the inverter in total_plus' do
+      is_expected.to be_within(0.01).of(36.36) # 800 / 2200 * 100
+    end
+  end
+
+  # The methods are defined from the configuration at boot. A custom consumer
+  # that the house power leaves out gets a grid ratio and a share of its own.
+  describe '.define_dynamic_methods' do
+    include_context 'with an excluded custom consumer'
+
+    let(:raw_data) do
+      {
+        house_power: 600,
+        wallbox_power: 0,
+        heatpump_power: 0,
+        battery_charging_power: 0,
+        grid_export_power: 0,
+        custom_power_01: 400,
+        custom_power_01_grid: 100,
+      }
+    end
+
+    it 'adds the grid ratio of the excluded consumer' do
+      expect(power_balance.custom_power_01_grid_ratio).to eq(25)
+    end
+
+    it 'adds the share of the excluded consumer in total_minus' do
+      expect(power_balance.custom_power_01_percent).to eq(40.0)
+    end
+  end
+
   describe 'method delegation' do
     it 'responds to methods on the wrapped object' do
       expect(power_balance).to respond_to(:timeframe)

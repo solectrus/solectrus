@@ -61,6 +61,13 @@ describe Sensor::Chart::BatteryChargingPower do
       )
     end
 
+    it 'draws the charging in its own style, without a split' do
+      style = style_for(:battery_charging_power)
+
+      expect(style).to include(fill: true)
+      expect(style).not_to include(:stack)
+    end
+
     it 'leaves the overlap decision to the frontend' do
       expect(chart.__send__(:overlapping_datasets?)).to be_nil
     end

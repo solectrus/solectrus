@@ -270,6 +270,19 @@ describe Sensor::Query::Helpers::Influx::Total do
       end
     end
 
+    context 'with only a calculated sensor that has nothing to read' do
+      let(:query) do
+        described_class.new(Timeframe.new('P24H')) { |q| q.sum :custom_power_total }
+      end
+
+      # Without a custom consumer the total depends on no InfluxDB sensor
+      before { Sensor::Config.setup({ 'INFLUX_SENSOR_HOUSE_POWER' => 'my-pv:house_power' }) }
+
+      it 'sums up nothing' do
+        expect(call.custom_power_total).to eq(0)
+      end
+    end
+
     context 'with different hourly timeframes' do
       let(:query) do
         described_class.new(Timeframe.new(timeframe_string)) do |q|

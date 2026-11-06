@@ -493,6 +493,21 @@ describe 'Settings' do
         expect(Setting.sensor_names[:custom_power_01]).to eq('Washer')
       end
 
+      it 'saves the general switches that the form sends' do
+        patch '/settings/sensors',
+              params: {
+                general: {
+                  inverter_as_total: '0',
+                  enable_heatpump: '0',
+                },
+              }
+
+        expect(response).to redirect_to('/settings/sensors')
+        expect(Setting.inverter_as_total).to be(false)
+        expect(Setting.enable_heatpump).to be(false)
+        expect(Setting.enable_car).to be(true)
+      end
+
       it 'does nothing for unknown keys' do
         patch '/settings/sensors', params: { sensor_names: { foo: 'Test1' } }
         expect(response).to have_http_status(:redirect)

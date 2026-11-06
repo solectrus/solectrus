@@ -612,5 +612,14 @@ describe Sensor::ValueFormatter do
         expect(result[:value].encoding).to eq(Encoding::UTF_8)
       end
     end
+
+    describe 'scaling validation' do
+      it 'rejects an unknown scaling' do
+        expect { described_class.new(1, unit: :watt, scaling: :giga) }.to raise_error(
+          ArgumentError,
+          'Invalid scaling :giga. Must be one of: auto, off, kilo, mega or a number',
+        )
+      end
+    end
   end
 end

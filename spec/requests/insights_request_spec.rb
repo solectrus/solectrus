@@ -84,10 +84,46 @@ describe 'Insights' do
       expect(page).to have_css('.splitted-costs-ratio', text: '75 %')
     end
 
+    context 'with a consumer that is not configured' do
+      before { Sensor::Config.setup(ENV.to_h.except('INFLUX_SENSOR_CUSTOM_POWER_02')) }
+      after { Sensor::Config.setup(ENV) }
+
+      it 'shows no costs' do
+        get_insights('custom_power_02')
+
+        expect(response).to have_http_status(:ok)
+        expect(page).to have_no_css('.splitted-costs')
+      end
+    end
+
     it 'shows the values of a relative period' do
       get_insights('inverter_power', timeframe: 'P30D')
 
       expect(page).to have_css('.insights-heading-total')
+    end
+
+    # The referer names the page that holds the frame, and a day leads to
+    # that page
+    describe 'the link of a day' do
+      def get_insights_from(referer)
+        get insights_path(sensor_name: 'inverter_power_1', timeframe: '2025-01'),
+            headers: {
+              'Turbo-Frame' => 'modal',
+              'Referer' => referer,
+            }
+      end
+
+      it 'leads to the page that holds the frame' do
+        get_insights_from('http://www.example.com/inverter/inverter_power_1/2025-01')
+
+        expect(page).to have_link(href: '/inverter/inverter_power_1/2025-01-01')
+      end
+
+      it 'leads to the balance for a referer that is no address' do
+        get_insights_from('http://www.example.com/inverter/a b')
+
+        expect(page).to have_link(href: '/inverter_power_1/2025-01-01')
+      end
     end
   end
 end

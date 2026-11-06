@@ -66,4 +66,10 @@ describe Sensor::Chart::HeatpumpCosts do
       )
     end
   end
+
+  describe '#options' do
+    it 'stacks the grid and the PV segment on the value axis' do
+      expect(chart.options.dig(:scales, :y, :stacked)).to be(true)
+    end
+  end
 end

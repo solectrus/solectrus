@@ -3,8 +3,10 @@
 # consumption (total_consumption, traditional_costs and thus savings) has to add
 # it back. Shared by the specs covering that.
 #
-# No teardown needed: spec/support/sensor_setup.rb resets Sensor::Config after
-# every example.
+# spec/support/sensor_setup.rb resets Sensor::Config before every example.
+# PowerBalance defines a method per sensor from the configuration that it finds
+# at boot, so the excluded consumer gets its methods here, and they go again
+# after the example.
 RSpec.shared_context 'with an excluded custom consumer' do
   let(:env) do
     {
@@ -18,5 +20,14 @@ RSpec.shared_context 'with an excluded custom consumer' do
     }
   end
 
-  before { Sensor::Config.setup(env) }
+  around do |example|
+    defined_before = PowerBalance.instance_methods(false)
+    example.run
+    (PowerBalance.instance_methods(false) - defined_before).each { PowerBalance.remove_method(it) }
+  end
+
+  before do
+    Sensor::Config.setup(env)
+    PowerBalance.define_dynamic_methods
+  end
 end

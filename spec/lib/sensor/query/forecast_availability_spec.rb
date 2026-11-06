@@ -38,6 +38,14 @@ describe Sensor::Query::ForecastAvailability do
       end
     end
 
+    context 'when the rows carry no time' do
+      before { allow(Influx).to receive(:query).and_return([{ '_time' => nil }]) }
+
+      it 'returns nil' do
+        expect(checker.call).to be_nil
+      end
+    end
+
     context 'when limit is specified' do
       # Max timestamp 10 days in the future
       before { stub_max_time((Date.current + 10.days).in_time_zone.change(hour: 18)) }

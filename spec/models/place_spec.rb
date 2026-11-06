@@ -343,4 +343,23 @@ describe Place do
       expect(Place::Nominatim).to have_received(:reverse).twice
     end
   end
+
+  # The address of an offsite session (see ChargingSession::AddressLookup)
+  describe '.address_at' do
+    let(:answer) { { 'address' => { 'country_code' => 'de', 'postcode' => '12345', 'town' => 'Springfield', 'road' => 'Main Street', 'house_number' => '1' } } }
+
+    before { allow(Place::Nominatim).to receive(:reverse).and_return(answer) }
+
+    it 'keeps the address of a place in the place' do
+      home
+
+      expect(described_class.address_at(50.92265, 1.4071)).to eq('DE-12345 Springfield, Main Street 1')
+      expect(home.reload.geocoding).to eq(answer)
+    end
+
+    it 'makes no place at a location without one' do
+      expect(described_class.address_at(50.92263, 1.40706)).to eq('DE-12345 Springfield, Main Street 1')
+      expect(described_class.count).to eq(0)
+    end
+  end
 end

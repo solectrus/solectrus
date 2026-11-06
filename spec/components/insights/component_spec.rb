@@ -99,6 +99,40 @@ describe Insights::Component, type: :component do
     end
   end
 
+  describe 'the links' do
+    subject(:links) { render_inline(component).css('a').pluck('href') }
+
+    context 'with the trends of the house' do
+      let(:sensor) { Sensor::Registry[:house_power] }
+
+      before do
+        [
+          [Date.new(2025, 1, 1), 12_000],
+          [Date.new(2024, 12, 1), 10_000],
+          [Date.new(2024, 1, 1), 8_000],
+        ].each { |date, value| create_summary(date:, values: [[:house_power, :sum, value]]) }
+      end
+
+      it 'links each trend to the period it compares with' do
+        expect(links).to include('/house_power/2024-12', '/house_power/2024-01')
+      end
+    end
+
+    context 'with the battery charged on consecutive days' do
+      let(:sensor) { Sensor::Registry[:battery_soc] }
+
+      before do
+        (Date.new(2025, 1, 3)..Date.new(2025, 1, 5)).each do |date|
+          create_summary(date:, values: [[:battery_soc, :min, 20]])
+        end
+      end
+
+      it 'links the longest streak to its days' do
+        expect(links).to include('/battery_soc/2025-01-03..2025-01-05')
+      end
+    end
+  end
+
   context 'with the heat pump and a Power Splitter' do
     before do
       stub_feature(:power_splitter)

@@ -95,6 +95,43 @@ describe Sensor::Chart::HeatpumpCopScatter do
       # Without InfluxDB data, scatter chart has no points
       expect(chart.data).to be_nil
     end
+
+    context 'with hourly data of the running day' do
+      let(:points) { chart.data[:datasets].first[:data] }
+
+      def at(hour, min = 0) = Time.zone.local(2025, 3, 3, hour, min)
+
+      def hourly(values) = values.to_h { |(hour, min), value| [at(hour, min), value] }
+
+      before do
+        travel_to at(14, 30)
+
+        keys = [[10, 0], [11, 0], [12, 30], [15, 0]]
+        series =
+          Sensor::Data::Series.new(
+            {
+              %i[heatpump_cop avg avg] => hourly(keys.zip([3.0, 4.0, 3.5, 3.8])),
+              %i[outdoor_temp avg avg] => hourly(keys.zip([2.0, 4.0, 5.0, 6.0])),
+              %i[heatpump_power avg avg] => hourly(keys.zip([1_000, 2_000, 500, 1_500])),
+            },
+            timeframe:,
+          )
+        query = instance_double(Sensor::Query::Series, call: series)
+        allow(Sensor::Query::Series).to receive(:new).and_return(query)
+      end
+
+      it 'skips the partial and the future hours' do
+        expect(points.pluck(:timestamp)).to eq([at(10), at(11)].map { it.to_i * 1000 })
+      end
+
+      it 'sizes each point by its power relative to the strongest hour' do
+        expect(points.pluck(:r)).to eq([7.5, 12.0])
+      end
+
+      it 'offers no drilldown for an hour' do
+        expect(points.pluck(:drilldownPath)).to all(be_nil)
+      end
+    end
   end
 
   describe 'with invalid COP values' do

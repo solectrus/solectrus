@@ -188,6 +188,16 @@ describe McpServer::Tools::RawSeries do
       )
     end
 
+    it 'asks for fewer fields where no resolution fits the budget' do
+      stub_const("#{described_class}::MAX_POINTS", 3)
+
+      # Even at 6h the 10 minutes are 2 windows per field, 4 for both
+      expect(error(fields: %w[level active], aggregation: 'max')).to include(
+        'At resolution "6h" this request returns up to 4 points',
+        'Ask for fewer fields',
+      )
+    end
+
     # "P30D" ends yesterday. 30 days in 15m windows are 2881 points.
     it 'aggregates a long window' do
       write(-1.day, { level: 7.0 })

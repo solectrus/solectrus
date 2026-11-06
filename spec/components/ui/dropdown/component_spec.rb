@@ -81,4 +81,108 @@ describe Ui::Dropdown::Component, type: :component do
       end
     end
   end
+
+  # A long menu spreads into two columns, and the top item then stands
+  # centered above them
+  describe 'the columns of a menu' do
+    subject(:menu) { page.find('[role="menu"]', visible: :all) }
+
+    before do
+      render_inline(
+        described_class.new(
+          name: 'sensor',
+          items: Array.new(count) { item("Item #{it}", "item-#{it}") },
+          top_item: item('Top', 'top'),
+        ),
+      )
+    end
+
+    let(:top) { menu.find('a', text: 'Top', visible: :all) }
+
+    context 'with up to 10 items' do
+      let(:count) { 10 }
+
+      it 'shows one column with the top item at its start' do
+        aggregate_failures do
+          expect(menu).to have_css('div.columns-1', visible: :all)
+          expect(top[:class]).not_to include('justify-center')
+        end
+      end
+    end
+
+    context 'with 11 to 14 items' do
+      let(:count) { 11 }
+
+      it 'shows two columns on a short screen only' do
+        aggregate_failures do
+          expect(menu).to have_css('div.columns-1.short\:columns-2', visible: :all)
+          expect(top[:class]).to include('short:flex short:justify-center')
+        end
+      end
+    end
+
+    context 'with more than 14 items' do
+      let(:count) { 15 }
+
+      it 'always shows two columns' do
+        aggregate_failures do
+          expect(menu).to have_css('div.columns-2', visible: :all)
+          expect(top[:class]).to include('flex justify-center')
+          expect(top[:class]).not_to include('short:')
+        end
+      end
+    end
+  end
+
+  context 'with groups and a top item' do
+    before do
+      render_inline(
+        described_class.new(
+          name: 'sensor',
+          items: [
+            { name: 'Source', items: [item('Solar', 'solar')] },
+            { name: 'Usage', items: [item('House', 'house')] },
+          ],
+          top_item: item('Top', 'top'),
+        ),
+      )
+    end
+
+    it 'puts the groups in a grid and leaves the top item at its start' do
+      top = page.find('[role="menu"] a', text: 'Top', visible: :all)
+
+      aggregate_failures do
+        expect(page).to have_css('[role="menu"] div.grid', visible: :all)
+        expect(top[:class]).not_to include('justify-center')
+      end
+    end
+  end
+
+  # An item without an icon keeps the space of one, so the names stand in a
+  # column
+  context 'with an icon on some items' do
+    before do
+      render_inline(
+        described_class.new(
+          name: 'nav',
+          items: [
+            Ui::MenuItem::Component.new(name: 'Home', id: 'home', href: '/home', icon: 'house'),
+            item('Other', 'other'),
+          ],
+        ),
+      )
+    end
+
+    it 'leaves the space of the icon empty' do
+      other = page.find('[role="menu"] a', text: 'Other', visible: :all)
+
+      expect(other).to have_css('span.w-6.block', visible: :all)
+    end
+  end
+
+  it 'refuses an unknown position of the menu' do
+    component = described_class.new(name: 'sensor', items: [item('Solar', 'solar')], menu_position: :left)
+
+    expect { render_inline(component) }.to raise_error(ArgumentError, /Unknown menu_position: :left/)
+  end
 end

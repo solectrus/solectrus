@@ -191,6 +191,12 @@ describe 'Cars Savings' do
 
       after { Sensor::Config.setup(ENV) }
 
+      it 'offers each car in the car select' do
+        get cars_savings_path(timeframe: '2026')
+
+        expect(hrefs).to include('/cars/1/savings/2026', '/cars/2/savings/2026')
+      end
+
       it 'opens the form of the one car without a combustion car for all cars' do
         car.update!(fuel_type: 'petrol', fuel_consumption: 8)
 

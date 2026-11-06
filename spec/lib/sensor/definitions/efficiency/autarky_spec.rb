@@ -27,6 +27,19 @@ describe Sensor::Definitions::Autarky do # rubocop:disable RSpec/SpecFilePathFor
     end
   end
 
+  describe 'colors' do
+    it 'uses the identity color without a value' do
+      expect(sensor.color_background).to eq('bg-sensor-autarky')
+      expect(sensor.color_text).to eq('text-white dark:text-slate-400')
+    end
+
+    it 'colors the text by quality with a value' do
+      expect(sensor.color_text(value: 80)).to eq('text-signal-positive')
+      expect(sensor.color_text(value: 50)).to eq('text-signal-warning')
+      expect(sensor.color_text(value: 10)).to eq('text-signal-negative')
+    end
+  end
+
   describe 'SQL integration' do
     subject(:result) { query.call }
 

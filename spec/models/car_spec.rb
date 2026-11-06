@@ -268,6 +268,14 @@ describe Car do
 
       expect(described_class.configured.map(&:id)).to eq([1, 3])
     end
+
+    # Before the migration of the table has run
+    it 'has no car without the table' do
+      allow(described_class).to receive(:table_exists?).and_return(false)
+
+      expect(described_class.configured).to eq([])
+      expect(described_class.count).to eq(0)
+    end
   end
 
   describe '.sole_in_use' do

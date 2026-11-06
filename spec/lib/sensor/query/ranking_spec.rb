@@ -731,6 +731,38 @@ describe Sensor::Query::Ranking do
       end
     end
 
+    context 'when using composite sensor without a SQL calculation of its own (house_costs)' do
+      let(:sensor_name) { :house_costs }
+      let(:period) { :day }
+      let(:desc) { true }
+      let(:start) { Rails.configuration.x.installation_date }
+      let(:stop) { start + 1.month }
+
+      before do
+        # house_costs = house_costs_grid + house_costs_pv
+        # grid: 5 kWh * 0.2545 = 1.2725 EUR, PV: 15 kWh * 0.0832 = 1.248 EUR
+        create_summary(
+          date: start + 1.day,
+          values: [[:house_power, :sum, 20_000], [:house_power_grid, :sum, 5_000]],
+        )
+
+        # grid: 8 kWh * 0.2545 = 2.036 EUR, PV: 2 kWh * 0.0832 = 0.1664 EUR
+        create_summary(
+          date: start + 2.days,
+          values: [[:house_power, :sum, 10_000], [:house_power_grid, :sum, 8_000]],
+        )
+      end
+
+      it 'adds up the SQL calculations of its parts' do
+        expect(call).to match(
+          [
+            { date: start + 1.day, value: be_within(0.001).of(2.5205) },
+            { date: start + 2.days, value: be_within(0.001).of(2.2024) },
+          ],
+        )
+      end
+    end
+
     context 'when using sql-calculated sensor (savings)' do
       let(:sensor_name) { :savings }
       let(:period) { :day }
@@ -939,6 +971,15 @@ describe Sensor::Query::Ranking do
           expect(result[0][:value]).to be_within(0.01).of(38.89)
         end
       end
+    end
+  end
+
+  describe 'validation' do
+    it 'rejects an unknown period' do
+      expect { described_class.new(:heatpump_power, period: :decade) }.to raise_error(
+        ArgumentError,
+        'Invalid period :decade. Must be one of: day, week, month, year',
+      )
     end
   end
 end

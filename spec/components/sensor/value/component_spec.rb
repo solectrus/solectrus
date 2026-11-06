@@ -144,6 +144,17 @@ describe Sensor::Value::Component, type: :component do
             expect(page).to have_no_text('-')
           end
         end
+
+        context 'with zero' do
+          let(:raw_data) { { grid_costs: 0 } }
+
+          it 'applies no color' do
+            render_inline(component)
+
+            expect(page).to have_css('span.sensor-value')
+            expect(page).to have_no_css('[class*="text-signal-"]')
+          end
+        end
       end
 
       context 'with sign: :value_based_reverse' do
@@ -177,6 +188,17 @@ describe Sensor::Value::Component, type: :component do
 
             expect(page).to have_css('strong.font-medium', text: '46')
             expect(page).to have_no_text('-')
+          end
+        end
+
+        context 'with zero' do
+          let(:raw_data) { { grid_costs: 0 } }
+
+          it 'applies no color' do
+            render_inline(component)
+
+            expect(page).to have_css('span.sensor-value')
+            expect(page).to have_no_css('[class*="text-signal-"]')
           end
         end
       end

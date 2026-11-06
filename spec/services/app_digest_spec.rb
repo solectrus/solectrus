@@ -5,6 +5,28 @@ describe AppDigest do
     it 'is nothing in a local environment' do
       expect(described_class.current).to be_nil
     end
+
+    # The Docker image runs production. The digest covers the application
+    # directory and is read once for the rest of the process. A fresh
+    # instance keeps the memoized value away from the shared singleton.
+    context 'with production' do
+      let(:app_digest) { described_class.__send__(:new) }
+
+      before do
+        allow(Rails).to receive(:env).and_return(
+          ActiveSupport::EnvironmentInquirer.new('production'),
+        )
+        allow(app_digest).to receive(:digest_of).with(Rails.root).and_return(
+          '0123abcd',
+        )
+      end
+
+      it 'is the digest of the application directory, read once' do
+        expect(app_digest.current).to eq('0123abcd')
+        expect(app_digest.current).to eq('0123abcd')
+        expect(app_digest).to have_received(:digest_of).once
+      end
+    end
   end
 
   describe '#digest_of' do

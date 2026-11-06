@@ -45,4 +45,22 @@ describe FontPreload::Component, type: :component do
       expect(href).to match(%r{\A/vite.*/inter-latin-wght-normal-.*\.woff2\z})
     end
   end
+
+  # A build without the font leaves the page working, only without the hint.
+  context 'when the manifest lacks the font' do
+    before do
+      allow(RailsVite.config).to receive(:dev_server_running?).and_return(
+        false,
+      )
+      allow(RailsVite.manifest).to receive(:path_for).with(
+        described_class::FONT,
+      ).and_raise(RailsVite::MissingEntryError.new(described_class::FONT, 'manifest.json'))
+
+      render_inline(component)
+    end
+
+    it 'renders nothing' do
+      expect(page).to have_no_css('link', visible: :all)
+    end
+  end
 end

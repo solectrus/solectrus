@@ -95,6 +95,33 @@ describe UpdateCheck::SignatureVerifier do
       it { is_expected.to be true }
     end
 
+    context 'with a list of hashes in the payload' do
+      let(:data) do
+        {
+          version: 'v1.3.0',
+          features: [{ name: 'insights', enabled: true }],
+        }
+      end
+
+      it { is_expected.to be true }
+
+      context 'when an entry of the list is changed' do
+        let(:payload) do
+          data.merge(
+            features: [{ name: 'insights', enabled: false }],
+            signature:,
+          )
+        end
+
+        it 'raises InvalidSignatureError' do
+          expect { verify }.to raise_error(
+            described_class::InvalidSignatureError,
+            'Invalid signature',
+          )
+        end
+      end
+    end
+
     context 'with unsorted keys from server' do
       let(:data) do
         { version: 'v1.3.0', eligible_for_free: true, registration_status: 'complete' }

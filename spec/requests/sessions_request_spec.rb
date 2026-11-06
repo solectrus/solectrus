@@ -15,6 +15,20 @@ describe 'Sessions' do
 
       expect(response).to have_http_status(:success)
     end
+
+    def return_to = response.parsed_body.at_css('input[name="return_to"]')['value']
+
+    it 'returns to the page the user came from' do
+      get '/login', headers: { 'Referer' => 'http://www.example.com/forecast?x=1' }
+
+      expect(return_to).to eq('/forecast?x=1')
+    end
+
+    it 'returns to the start for a referer that is no address' do
+      get '/login', headers: { 'Referer' => 'http://www.example.com/a b' }
+
+      expect(return_to).to eq('/')
+    end
   end
 
   describe 'POST /login' do
@@ -56,6 +70,14 @@ describe 'Sessions' do
         guess(1)
         expect(response).to have_http_status(:too_many_requests)
         expect(response.body).to include(I18n.t('login.throttled'))
+      end
+
+      it 'replaces the form of a Turbo request once the limit is reached' do
+        guess(10)
+        post '/login', params: { admin_user: { password: 'invalid' } }, as: :turbo_stream
+
+        expect(response).to have_http_status(:too_many_requests)
+        expect(response.body).to include('<turbo-stream action="replace" target="new_admin_user">', I18n.t('login.throttled'))
       end
 
       it 'grants no session once the limit is reached, right password or not' do
@@ -132,6 +154,13 @@ describe 'Sessions' do
       delete '/logout', params: { return_to: '/forecast' }
 
       expect(response).to redirect_to('/forecast')
+    end
+
+    it 'redirects to root for a return_to that is no address' do
+      login_as_admin
+      delete '/logout', params: { return_to: '/a b' }
+
+      expect(response).to redirect_to('/')
     end
 
     context 'with malicious return_to' do

@@ -145,6 +145,18 @@ describe Notification::Show::Component, type: :component do
       end
     end
 
+    context 'when the body contains a link that is no valid URI' do
+      let(:body) { '<a href="https://solectrus.de/a b">Broken</a>' }
+
+      it 'keeps it without UTM parameters' do
+        render_inline(component)
+
+        expect(page.find('a', text: 'Broken')['href']).to eq(
+          'https://solectrus.de/a%20b',
+        )
+      end
+    end
+
     context 'when the body contains a relative link' do
       let(:body) { '<a href="/somewhere">Local</a>' }
 

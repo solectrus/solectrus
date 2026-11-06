@@ -88,6 +88,27 @@ describe Sensor::Definitions::Co2Reduction do # rubocop:disable RSpec/SpecFilePa
       end
     end
 
+    describe 'ranking' do
+      before do
+        create_summary(date: '2024-06-15', values: [[:inverter_power, :sum, 16_000]])
+        create_summary(date: '2024-06-16', values: [[:inverter_power, :sum, 8_000]])
+      end
+
+      it 'ranks the days by the CO2 reduction of their generation' do
+        ranking =
+          Sensor::Query::Ranking.new(
+            :co2_reduction,
+            aggregation: :sum,
+            period: :day,
+            start: Date.new(2024, 6, 1),
+            stop: Date.new(2024, 6, 30),
+          ).call
+
+        expect(ranking.pluck(:date)).to eq([Date.new(2024, 6, 15), Date.new(2024, 6, 16)])
+        expect(ranking.pluck(:value)).to eq([16_000 * 0.401, 8_000 * 0.401])
+      end
+    end
+
     describe 'Forbidden aggregations' do
       %i[avg min max].each do |agg|
         context "when #{agg} of single day" do

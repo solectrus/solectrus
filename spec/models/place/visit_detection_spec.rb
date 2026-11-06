@@ -46,6 +46,11 @@ describe Place::VisitDetection do
     expect(described_class).to be_enabled
   end
 
+  # A change of these sensors builds the visits again (see Summary::Steps)
+  it 'reads the position and the odometer of each car' do
+    expect(described_class.sensor_names).to eq(%i[car_latitude_1 car_longitude_1 car_odometer_1])
+  end
+
   # The permission opens the pages, the build does not ask for it
   it 'finds the stops also without the permission of the car sensors' do
     allow(ApplicationPolicy.instance).to receive(:feature_enabled?).and_return(false)

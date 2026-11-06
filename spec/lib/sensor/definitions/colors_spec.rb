@@ -52,6 +52,39 @@ describe Sensor::Definitions::Colors do
         expect { colors.color(background: gradient, text: :white) }
           .to raise_error(ArgumentError, /text as a string/)
       end
+
+      it 'raises when the border is not a string' do
+        expect { colors.color(background: gradient, text: 'text-white', border: gradient) }
+          .to raise_error(ArgumentError, /does not support border gradients/)
+      end
+
+      it 'raises when a bound is missing' do
+        gradient = colors.gradient(from: -10, start: 'bg-cold', stop: 'bg-hot')
+
+        expect { colors.color(background: gradient, text: 'text-white') }
+          .to raise_error(ArgumentError, /requires from, to, start, and stop/)
+      end
+
+      it 'raises when start or stop is not a string' do
+        gradient = colors.gradient(from: -10, to: 40, start: :cold, stop: 'bg-hot')
+
+        expect { colors.color(background: gradient, text: 'text-white') }
+          .to raise_error(ArgumentError, /start and stop as strings/)
+      end
+
+      it 'raises when a bound is not numeric' do
+        gradient = colors.gradient(from: 'cold', to: 40, start: 'bg-cold', stop: 'bg-hot')
+
+        expect { colors.color(background: gradient, text: 'text-white') }
+          .to raise_error(ArgumentError, /numeric keys/)
+      end
+    end
+
+    context 'without block, background or text' do
+      it 'raises' do
+        expect { colors.color(background: 'bg-blue-500') }
+          .to raise_error(ArgumentError, /either a block or background and text/)
+      end
     end
 
     context 'with dynamic block' do

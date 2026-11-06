@@ -138,6 +138,19 @@ describe Sensor::Data::Single do
         expect { data.grid_import_power }.to raise_error(NoMethodError)
       end
 
+      it 'rejects more than two aggregation params' do
+        expect { data.house_power(:avg, :sum, :max) }.to raise_error(
+          ArgumentError,
+          'Expected 0, 1 or 2 aggregation parameters, got 3',
+        )
+      end
+
+      it 'rejects a stored value under a key that names no sensor' do
+        data.store_sensor_value('house_power', 1)
+
+        expect { data.sensor_names }.to raise_error(ArgumentError, 'Invalid key: house_power')
+      end
+
       it 'raises exception for non-existent aggregation keys' do
         expect { data.house_power(:avg) }.to raise_error(
           ArgumentError,

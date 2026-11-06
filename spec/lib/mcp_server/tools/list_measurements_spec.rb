@@ -109,6 +109,15 @@ describe McpServer::Tools::ListMeasurements do
       expect(answer(measurement: 'RAW_DEVICE')).to include(series_count: 2, tags: { unit: %w[a b] })
     end
 
+    it 'counts the values of a tag with too many of them, and lists only the first' do
+      add_influx_points(Array.new(21) { { name: 'RAW_SWARM', tags: { id: format('id%02d', it) }, fields: { level: 1.0 }, time: (now - 1.hour).to_i } })
+
+      tags = answer(measurement: 'RAW_SWARM')[:tags]
+
+      expect(tags[:id]).to include(value_count: 21)
+      expect(tags[:id][:values]).to eq(Array.new(20) { format('id%02d', it) })
+    end
+
     it 'says so where nothing was written' do
       data = answer(measurement: 'RAW_NOTHING')
 

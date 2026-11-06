@@ -84,4 +84,16 @@ describe Sensor::Data::Base do
       )
     end
   end
+
+  describe 'a subclass without #get_sensor_value' do
+    let(:incomplete) do
+      Class.new(described_class) do
+        def sensor_names = [:inverter_power]
+      end
+    end
+
+    it 'raises NotImplementedError on reading a sensor' do
+      expect { incomplete.new({}, timeframe:).inverter_power }.to raise_error(NotImplementedError)
+    end
+  end
 end

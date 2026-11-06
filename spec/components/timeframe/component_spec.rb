@@ -21,4 +21,14 @@ describe Timeframe::Component, type: :component do
       expect(component.period_dates).to eq('21.09.2026 – 27.09.2026')
     end
   end
+
+  context 'with the last years' do
+    let(:period) { 'P3Y' }
+
+    before { travel_to Date.new(2026, 9, 25) }
+
+    it 'names the first and the last of the years before the current one' do
+      expect(component.period_dates).to eq('2023 – 2025')
+    end
+  end
 end

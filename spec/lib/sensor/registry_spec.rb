@@ -140,4 +140,36 @@ describe Sensor::Registry do
       end
     end
   end
+
+  # The development reloader calls it on each code change
+  describe '.reset!' do
+    it 'builds the definitions afresh on the next access' do
+      before = described_class.all
+
+      described_class.reset!
+
+      expect(described_class.all).not_to equal(before)
+      expect(described_class.all.map(&:name)).to eq(before.map(&:name))
+    end
+  end
+
+  describe 'loading the definitions' do
+    it 'rejects a definition with more than one constructor argument' do
+      definition = Class.new { def initialize(_number, _name); end }
+
+      expect { described_class.__send__(:instantiate_by_arity, definition) }.to raise_error(
+        StandardError,
+        /unsupported number of constructor arguments: 2/,
+      )
+    end
+
+    it 'rejects two definitions of the same name' do
+      definitions = Array.new(2) { instance_double(Sensor::Definitions::Base, name: :house_power) }
+
+      expect { described_class.__send__(:validate_unique_names!, definitions) }.to raise_error(
+        StandardError,
+        'Duplicate sensor definition names: house_power',
+      )
+    end
+  end
 end

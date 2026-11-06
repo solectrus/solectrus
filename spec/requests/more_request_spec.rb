@@ -165,6 +165,23 @@ describe 'Page More' do
     it 'offers the logout in red' do
       expect(html.at_css('main a[href^="/logout"] .text-signal-negative')).to be_present
     end
+
+    it 'offers the registration' do
+      expect(html.at_css('main a[href="/registration"]').text.squish).to eq('Registration')
+    end
+  end
+
+  # The admin skipped the prompt, but the sponsorship is still open
+  context 'when logged in as admin without a sponsorship' do
+    before do
+      allow(UpdateCheck).to receive_messages(prompt?: true, skipped_prompt?: true)
+      login_as_admin
+      get '/more'
+    end
+
+    it 'offers the registration together with the sponsorship' do
+      expect(html.at_css('main a[href="/registration"]').text.squish).to eq('Registration & Sponsorship')
+    end
   end
 
   describe 'the timeframe of the views' do

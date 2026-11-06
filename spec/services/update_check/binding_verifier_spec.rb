@@ -66,6 +66,18 @@ describe UpdateCheck::BindingVerifier do
     end
   end
 
+  # Reads like a date, but the month and the day do not exist
+  context 'when the expiry is a date that does not exist' do
+    let(:data) { { setup_id: Setting.setup_id.to_s, expires_at: '2026-13-45' } }
+
+    it 'refuses it' do
+      expect { verify! }.to raise_error(
+        described_class::InvalidBindingError,
+        'Missing expiry',
+      )
+    end
+  end
+
   # A clock that nobody keeps drifts, and a few minutes of it say nothing
   # about an answer the update server wrote for hours.
   context 'when the clock of the installation runs a little ahead' do

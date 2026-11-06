@@ -1,4 +1,4 @@
-describe Insights::TrendIndicator::Component do
+describe Insights::TrendIndicator::Component, type: :component do
   subject(:component) { described_class.new(trend:) }
 
   let(:trend) do
@@ -103,6 +103,41 @@ describe Insights::TrendIndicator::Component do
       let(:sensor) { double('Sensor', trend_aggregation: :sum, unit: :percent) }
 
       it { is_expected.to be true }
+    end
+  end
+
+  # The unit behind the change
+  describe 'rendered change' do
+    subject(:text) { render_inline(component).text.squish }
+
+    let(:trend) do
+      instance_double(Trend, diff:, more_is_better?: true, sensor:, same?: diff.zero?, precision: 0, percent: 25)
+    end
+
+    context 'with a percentage sensor' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :percent) }
+      let(:diff) { 3 }
+
+      it 'shows the change in percentage points' do
+        expect(text).to eq('+3 pp')
+      end
+    end
+
+    context 'with an average' do
+      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :celsius) }
+      let(:diff) { 2 }
+
+      it 'shows the change without a unit' do
+        expect(text).to eq('+2')
+      end
+    end
+
+    context 'with a sum that did not change' do
+      let(:diff) { 0 }
+
+      it 'shows no change in percent' do
+        expect(text).to eq('± 0%')
+      end
     end
   end
 end

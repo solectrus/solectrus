@@ -7,11 +7,12 @@ describe Sensor::Chart::HeatpumpHeatingPower do
   # Build a Sensor::Data::Series stubbed onto the chart. Both arrays share
   # the same 5-min bucket grid; the length determines how many buckets are
   # emitted.
-  def stub_series(heating:, grid: [])
+  def stub_series(heating:, grid: [], env: [])
     ts = Array.new(heating.size) { |i| Time.zone.local(2024, 4, 19, 0, 0) + (i * 5).minutes }
     raw = {}
     raw[%i[heatpump_heating_power avg avg]] = ts.zip(heating).to_h
     raw[%i[heatpump_power_grid avg avg]] = ts.zip(grid).to_h if grid.any?
+    raw[%i[heatpump_power_env avg avg]] = ts.zip(env).to_h if env.any?
     series = Sensor::Data::Series.new(raw, timeframe:)
     allow(chart).to receive(:series).and_return(series)
   end
@@ -114,6 +115,15 @@ describe Sensor::Chart::HeatpumpHeatingPower do
       expect(result.first).to eq(100)
       expect(result[72]).to eq(100)
       expect(result[1..71]).to all(be_nil)
+    end
+
+    it 'derives the environment share without a PV share in the series' do
+      stub_series(heating: [800.0, 800.0], grid: [300, 900], env: [500, 0])
+
+      result = chart.__send__(:transform_data, [500, 0], :heatpump_power_env)
+
+      # heating - (grid + PV), with grid clamped to heating and PV missing
+      expect(result).to eq([500.0, 0])
     end
   end
 

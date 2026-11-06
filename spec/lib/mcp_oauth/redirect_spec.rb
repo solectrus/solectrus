@@ -117,4 +117,16 @@ describe McpOauth::Redirect do
       expect(described_class.loopback?('::::')).to be(false)
     end
   end
+
+  describe '.plaintext?' do
+    it 'is true for an http callback to another machine' do
+      expect(described_class.plaintext?('http://192.168.1.98:8080/cb')).to be(true)
+    end
+
+    it 'is false for https, a loopback callback and malformed input' do
+      expect(described_class.plaintext?('https://claude.ai/cb')).to be(false)
+      expect(described_class.plaintext?('http://localhost:51763/callback')).to be(false)
+      expect(described_class.plaintext?('::::')).to be(false)
+    end
+  end
 end

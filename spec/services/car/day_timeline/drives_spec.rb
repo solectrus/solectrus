@@ -68,6 +68,15 @@ describe Car::DayTimeline::Drives do
         expect(drives.sole.assumed_at).to eq(at(6))
       end
     end
+
+    # The car stood at the charger until 12:10, so the drive started after it
+    context 'with a recorded charge that ends in the gap' do
+      it 'starts the drive not before the end of the charge' do
+        drive = described_class.new(readings, charges: [[at(7), at(12, 10)]]).call.sole
+
+        expect(drive).to have_attributes(assumed_at: at(12, 10), ended_at: at(12, 30), distance: 25)
+      end
+    end
   end
 
   # A car that reports each hour missed a reading during a long drive

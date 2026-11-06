@@ -243,6 +243,19 @@ describe Sensor::Config do
         expect(described_class.configured?(:non_existent_sensor)).to be(false)
       end
     end
+
+    context 'when the setup configured no sensor at all' do
+      before { instance.instance_variable_set(:@configurations, {}) }
+
+      after { described_class.setup(env) }
+
+      it 'raises instead of answering' do
+        expect { described_class.configured?(:inverter_power) }.to raise_error(
+          StandardError,
+          /Sensor configurations not present/,
+        )
+      end
+    end
   end
 
   describe '.measurement' do

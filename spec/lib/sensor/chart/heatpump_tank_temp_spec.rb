@@ -80,5 +80,50 @@ describe Sensor::Chart::HeatpumpTankTemp do
         :heatpump_tank_temp_setpoint,
       )
     end
+
+    describe '#data' do
+      let(:timeframe) { Timeframe.new('2025-03-03') }
+
+      before do
+        travel_to Time.zone.local(2025, 3, 4, 12)
+
+        influx_batch do
+          { heatpump_tank_temp: 45, heatpump_tank_temp_setpoint: 50 }.each do |name, value|
+            add_influx_point(
+              name: Sensor::Config.measurement(name),
+              fields: { Sensor::Config.field(name) => value },
+              time: Time.zone.local(2025, 3, 3, 10),
+            )
+            add_influx_point(
+              name: Sensor::Config.measurement(name),
+              fields: { Sensor::Config.field(name) => value },
+              time: Time.zone.local(2025, 3, 3, 11),
+            )
+          end
+        end
+      end
+
+      it 'draws the setpoint as a dashed line without fill' do
+        setpoint = chart.data[:datasets].find { it[:id] == 'heatpump_tank_temp_setpoint' }
+
+        expect(setpoint).to include(fill: false, borderDash: [6, 4], noGradient: true)
+        expect(setpoint[:label]).to eq(Sensor::Registry[:heatpump_tank_temp_setpoint].display_name(:short))
+      end
+
+      it 'draws the tank temperature as a filled area' do
+        tank = chart.data[:datasets].find { it[:id] == 'heatpump_tank_temp' }
+
+        expect(tank).to include(fill: true)
+        expect(tank).not_to have_key(:borderDash)
+      end
+    end
+  end
+
+  describe '#options' do
+    let(:timeframe) { Timeframe.new('2025-W10') }
+
+    it 'suggests a lower bound of 20 °C for the y axis' do
+      expect(chart.options.dig(:scales, :y, :suggestedMin)).to eq(20)
+    end
   end
 end

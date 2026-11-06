@@ -79,4 +79,71 @@ describe Sensor::Definitions::Dsl do
       expect(sensor_class { |**| 1 }.new).to be_calculated
     end
   end
+
+  describe '.permitted' do
+    it 'stores a static value' do
+      sensor_class = Class.new(Sensor::Definitions::Base) do
+        value unit: :watt
+        permitted false
+      end
+
+      expect(sensor_class.permitted).to be(false)
+      expect(sensor_class.new.permitted?).to be(false)
+    end
+
+    it 'stores a block that runs on the sensor' do
+      sensor_class = Class.new(Sensor::Definitions::Base) do
+        value unit: :watt
+        permitted { unit == :watt }
+      end
+
+      expect(sensor_class.new.permitted?).to be(true)
+    end
+
+    it 'defaults to true' do
+      sensor_class = Class.new(Sensor::Definitions::Base) { value unit: :watt }
+
+      expect(sensor_class.permitted).to be(true)
+    end
+  end
+
+  describe '.allowed_aggregations' do
+    it 'stores the given aggregations, flattened' do
+      sensor_class = Class.new(Sensor::Definitions::Base) do
+        value unit: :watt
+        allowed_aggregations %i[min max], :avg
+      end
+
+      expect(sensor_class.allowed_aggregations).to eq(%i[min max avg])
+    end
+  end
+
+  describe '.summary_aggregations' do
+    it 'stores the given aggregations, flattened' do
+      sensor_class = Class.new(Sensor::Definitions::Base) do
+        value unit: :watt
+        summary_aggregations %i[sum], :max
+      end
+
+      expect(sensor_class.summary_aggregations).to eq(%i[sum max])
+      expect(sensor_class.new.summary_aggregations).to eq(%i[sum max])
+    end
+  end
+
+  describe '.depends_on with a condition' do
+    def sensor_class(condition)
+      Class.new(Sensor::Definitions::Base) do
+        value unit: :watt
+        depends_on :inverter_power, :house_power, if: condition
+      end
+    end
+
+    it 'returns the dependencies when the condition holds' do
+      expect(sensor_class(-> { true }).depends_on).to eq(%i[inverter_power house_power])
+    end
+
+    it 'returns no dependencies when the condition fails' do
+      expect(sensor_class(-> { false }).new.dependencies).to eq([])
+    end
+  end
 end

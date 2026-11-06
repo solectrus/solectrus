@@ -217,6 +217,51 @@ describe Sensor::Definitions::Base do
     end
   end
 
+  describe '#color_background with a color scale' do
+    let(:sensor) do
+      Class.new(described_class) do
+        value unit: :celsius
+
+        color background: gradient(stops: { -10 => 'bg-cold', 20 => 'bg-mild', 40 => 'bg-hot' }),
+              text: 'text-white'
+      end.new
+    end
+
+    it 'returns the lowest class below the scale' do
+      expect(sensor.color_background(value: -25)).to eq('bg-cold')
+    end
+
+    it 'returns the highest class above the scale' do
+      expect(sensor.color_background(value: 55)).to eq('bg-hot')
+    end
+
+    it 'returns the class of the nearest stop inside the scale' do
+      expect(sensor.color_background(value: 1)).to eq('bg-cold')
+      expect(sensor.color_background(value: 12)).to eq('bg-mild')
+      expect(sensor.color_background(value: 31)).to eq('bg-hot')
+    end
+
+    it 'falls back to the highest class without a value' do
+      expect(sensor.color_background).to eq('bg-hot')
+    end
+  end
+
+  describe '#configured?' do
+    let(:sensor) { Sensor::Registry[:inverter_power] }
+
+    it 'asks the sensor config' do
+      allow(Sensor::Config).to receive(:exists?).with(:inverter_power).and_return(true)
+
+      expect(sensor.configured?).to be(true)
+    end
+
+    it 'is false for a sensor the config does not know' do
+      allow(Sensor::Config).to receive(:exists?).with(:inverter_power).and_return(false)
+
+      expect(sensor.configured?).to be(false)
+    end
+  end
+
   describe '#color_variable' do
     it 'names the CSS variable of the background color' do
       expect(Sensor::Registry[:grid_import_power].color_variable).to eq('--color-sensor-grid')

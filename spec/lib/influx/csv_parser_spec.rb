@@ -110,6 +110,22 @@ describe Influx::CsvParser do
     end
   end
 
+  context 'with a base64 value' do
+    let(:body) do
+      <<~CSV
+        #datatype,string,long,base64Binary
+        #group,false,false,false
+        #default,_result,,
+        ,result,table,payload
+        ,,0,aGVsbG8=
+      CSV
+    end
+
+    it 'decodes it' do
+      expect(described_class.call(body).first['payload']).to eq('hello')
+    end
+  end
+
   it 'returns no rows for an empty body' do
     expect(described_class.call('')).to eq([])
   end

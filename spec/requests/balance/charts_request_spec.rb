@@ -186,4 +186,17 @@ describe 'Charts' do
       end
     end
   end
+
+  # A chart behind a sponsorship shows the teaser, and its demo link opens
+  # the same chart in the demo.
+  describe 'a chart behind a sponsorship' do
+    before { stub_feature }
+
+    it 'links to the same chart of the demo' do
+      get_chart(balance_charts_path(sensor_name: 'savings', timeframe: '2024'))
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('https://demo.solectrus.de/savings/2024?')
+    end
+  end
 end

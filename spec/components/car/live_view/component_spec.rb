@@ -269,6 +269,45 @@ describe Car::LiveView::Component, type: :component do
     it 'shows a card of the guest while it charges' do
       expect(html.css('section[aria-label="Guest"]').text).to include('charging at the wallbox')
     end
+
+    # The time of the last value of the wallbox, in the head of its card
+    describe 'the time of the reading' do
+      let(:data) { Sensor::Data::Single.new({ wallbox_power: 7_400 }, timeframe: Timeframe.now, times: { wallbox_power: time }) }
+
+      def head = html.at_css('section[aria-label="Guest"] span.tabular-nums').text.squish
+
+      context 'with a reading of today' do
+        def time = Time.zone.local(2026, 10, 7, 15, 37)
+
+        it 'shows the time' do
+          expect(head).to eq(I18n.l(time, format: :now))
+        end
+      end
+
+      context 'with a reading of yesterday' do
+        def time = Time.zone.local(2026, 10, 6, 17, 10)
+
+        it 'shows "Yesterday" and the time' do
+          expect(head).to eq(I18n.t('cars.time.yesterday', time: I18n.l(time, format: :now)))
+        end
+      end
+
+      context 'with a reading of six days ago' do
+        def time = Time.zone.local(2026, 10, 1, 18, 30)
+
+        it 'shows the weekday and the time' do
+          expect(head).to eq(I18n.t('cars.time.weekday', day: 'Thursday', time: I18n.l(time, format: :now)))
+        end
+      end
+
+      context 'with a reading of seven days ago' do
+        def time = Time.zone.local(2026, 9, 30, 18, 30)
+
+        it 'shows the date and the time' do
+          expect(head).to eq(I18n.l(time, format: :short))
+        end
+      end
+    end
   end
 
   # The timeline of today shows the state of charge and the drives

@@ -75,6 +75,27 @@ describe Sensor::DependencyResolver do
       end
     end
 
+    context 'when two sensors depend on each other' do
+      let(:sensor_names) { [:house_power] }
+
+      before do
+        allow(Sensor::Registry).to receive(:[]).and_call_original
+        allow(Sensor::Registry).to receive(:[]).with(:house_power).and_return(
+          instance_double(Sensor::Definitions::Base, dependencies: [:heatpump_power]),
+        )
+        allow(Sensor::Registry).to receive(:[]).with(:heatpump_power).and_return(
+          instance_double(Sensor::Definitions::Base, dependencies: [:house_power]),
+        )
+      end
+
+      it 'raises an ArgumentError naming them' do
+        expect { resolve }.to raise_error(
+          ArgumentError,
+          'Circular dependency detected in sensors: [:heatpump_power, :house_power]',
+        )
+      end
+    end
+
     context 'when sensor with complex nested dependencies requiring topological order' do
       let(:sensor_names) { [:self_consumption_quote] }
 

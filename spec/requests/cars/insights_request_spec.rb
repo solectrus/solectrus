@@ -46,6 +46,22 @@ describe 'Car Insights' do
     end
   end
 
+  context 'with the maximum range of several months' do
+    before do
+      [[1, 300], [2, 340], [3, 320]].each do |month, range|
+        Summary.find_or_create_by!(date: Date.new(2026, month, 10))
+        SummaryValue.create!(date: Date.new(2026, month, 10), field: 'car_max_range_1', aggregation: 'avg', value: range)
+      end
+    end
+
+    it 'names the best and the worst month, each with a link' do
+      get(insights_path(sensor_name: 'car_max_range', timeframe: '2026-03', car: 1), headers:)
+
+      expect(response.body).to include('Best period', 'href="/cars/1/car_max_range/2026-02"')
+      expect(response.body).to include('Worst period', 'href="/cars/1/car_max_range/2026-01"')
+    end
+  end
+
   context 'with a car that replaced another one' do
     before do
       first, second = Car.configured

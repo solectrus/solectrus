@@ -39,6 +39,12 @@ describe Trend do
         it { is_expected.to eq('2024-01-01..2024-05-10') }
       end
 
+      context 'when timeframe is a past year' do
+        let(:timeframe) { Timeframe.new('2023') }
+
+        it { is_expected.to eq('2022') }
+      end
+
       context 'when timeframe is last 12 months' do
         let(:timeframe) { Timeframe.new('P12M') } # 2024-05-01..2025-04-30
 
@@ -65,6 +71,30 @@ describe Trend do
         let(:timeframe) { Timeframe.new('2025') }
 
         it { is_expected.to eq('2024-01-01..2024-05-10') }
+      end
+
+      context 'when timeframe is a week' do
+        let(:timeframe) { Timeframe.new('2025-W18') }
+
+        it 'raises an error' do
+          expect { trend.base_timeframe }.to raise_error(
+            ArgumentError,
+            'timeframe unknown: 2025-W18',
+          )
+        end
+      end
+    end
+  end
+
+  describe '.new' do
+    let(:sensor) { Sensor::Registry[:inverter_power] }
+    let(:timeframe) { Timeframe.new('2025-04') }
+
+    context 'with an unknown base' do
+      let(:base) { :next_year }
+
+      it 'raises an error' do
+        expect { trend }.to raise_error(ArgumentError, 'Invalid base: next_year')
       end
     end
   end

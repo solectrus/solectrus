@@ -43,6 +43,50 @@ describe Influx do
       )
     end
 
+    it 'raises a QueryError when every pooled connection is busy' do
+      pool = described_class.query_api.__send__(:pool)
+      allow(pool).to receive(:with).and_raise(ConnectionPool::TimeoutError, 'Waited 5 sec')
+
+      expect { described_class.query(flux) }.to raise_error(
+        Influx::QueryError,
+        /connection pool exhausted: Waited 5 sec/,
+      )
+    end
+
+    describe 'with a dropped connection' do
+      # The first `count` requests fail as if the server had closed the
+      # kept-alive socket, the later ones reach InfluxDB
+      def drop_requests(count)
+        attempts = 0
+        allow(Net::HTTP).to receive(:new).and_wrap_original do |original, *args|
+          original.call(*args).tap do |http|
+            allow(http).to receive(:request).and_wrap_original do |request, *request_args, &block|
+              attempts += 1
+              raise Errno::ECONNRESET if attempts <= count
+
+              request.call(*request_args, &block)
+            end
+          end
+        end
+        described_class.query_api.reset!
+      end
+
+      it 'reconnects and retries the query' do
+        drop_requests(2)
+
+        expect(described_class.query(flux)).to be_an(Array)
+      end
+
+      it 'gives up after two retries' do
+        drop_requests(3)
+
+        expect { described_class.query(flux) }.to raise_error(
+          Influx::QueryError,
+          /failed after 2 retries/,
+        )
+      end
+    end
+
     describe 'with a timeout' do
       def read_timeouts
         timeouts = []

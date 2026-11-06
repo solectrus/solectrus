@@ -232,6 +232,16 @@ describe UpdateCheck::NotificationImporter do
       end
     end
 
+    context 'when published_at is a date that does not exist' do
+      let(:notifications_data) do
+        [{ id: 1, title: 'Title', body: 'Body', published_at: '2024-13-45' }]
+      end
+
+      it 'does not create the notification' do
+        expect { call }.not_to change(Notification, :count)
+      end
+    end
+
     context 'when notification data is invalid' do
       let(:notifications_data) do
         [

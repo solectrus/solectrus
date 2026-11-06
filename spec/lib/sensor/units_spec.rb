@@ -38,6 +38,12 @@ describe Sensor::Units do
     end
   end
 
+  describe '#format' do
+    it 'prints nothing for a value without a unit' do
+      expect(described_class[nil].format(42)).to eq('')
+    end
+  end
+
   describe 'scaling' do
     it 'scales watt up to megawatts' do
       expect(described_class[:watt].scale_steps.last).to include(

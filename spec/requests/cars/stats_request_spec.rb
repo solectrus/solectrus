@@ -622,6 +622,15 @@ describe 'Car Stats' do
           expect(response.body).not_to include("target=\"cars-car-select-#{month}\"", '/cars/1/car_charging/2026-05')
         end
 
+        # A referer that names no page of the app is like none
+        it 'renders the navigation for a referer that is no page' do
+          month = '2026-06'
+
+          get(cars_charts_path(sensor_name: 'car_charging', timeframe: month, car: 1), headers: headers.merge('Referer' => 'http://www.example.com/no/such/page'))
+
+          expect(response.body).to include("target=\"cars-car-select-#{month}\"")
+        end
+
         it 'adds the guest to "all", but not to a car' do
           get(cars_stats_path(timeframe: day.to_s), headers:)
           expect(response.body).to include('>37</strong>')

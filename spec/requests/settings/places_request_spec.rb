@@ -200,6 +200,12 @@ describe 'Settings Places' do
         expect(response).to have_http_status(:ok)
         expect(response.body).to include(I18n.t('visits.at_place', count: 2))
       end
+
+      it 'counts the visits of the whole time for a return_to that is no page' do
+        get edit_settings_place_path(place, return_to: '/no/such/page')
+
+        expect(response.body).to include('href="/no/such/page"', I18n.t('visits.at_place', count: 2))
+      end
     end
 
     it 'does not lead to the visits of a place without one' do
