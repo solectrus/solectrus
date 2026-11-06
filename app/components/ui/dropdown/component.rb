@@ -188,18 +188,13 @@ class Ui::Dropdown::Component < ViewComponent::Base # rubocop:disable Metrics/Cl
 
   def grid_classes
     @grid_classes ||=
-      if grouped?
-        column_count = total_columns
-        case column_count
-        when 1..2
-          'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)]'
-        when 3..4
-          'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)] lg:grid-cols-[repeat(4,max-content)]'
-        else
-          'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)] lg:grid-cols-[repeat(3,max-content)] xl:grid-cols-[repeat(6,max-content)]'
-        end
+      case total_columns
+      when 1..2
+        'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)]'
+      when 3..4
+        'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)] lg:grid-cols-[repeat(4,max-content)]'
       else
-        'grid-cols-1'
+        'grid-cols-[repeat(1,max-content)] sm:grid-cols-[repeat(2,max-content)] lg:grid-cols-[repeat(3,max-content)] xl:grid-cols-[repeat(6,max-content)]'
       end
   end
 

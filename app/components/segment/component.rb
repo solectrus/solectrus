@@ -70,11 +70,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       end
     when 'house'
       house_home_path(sensor_name: sensor.name, timeframe: parent.timeframe)
-    when 'heatpump'
-      heatpump_home_path(
-        sensor_name: 'heatpump_heating_power',
-        timeframe: parent.timeframe,
-      )
     else
       balance_home_path(sensor_name: sensor.name, timeframe: parent.timeframe)
     end
@@ -89,11 +84,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
       )
     when 'house'
       helpers.house_charts_path(sensor_name: sensor.name, timeframe: parent.timeframe)
-    when 'heatpump'
-      helpers.heatpump_charts_path(
-        sensor_name: 'heatpump_heating_power',
-        timeframe: parent.timeframe,
-      )
     else
       helpers.balance_charts_path(sensor_name: sensor.name, timeframe: parent.timeframe)
     end
@@ -212,34 +202,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
     Scale.new(target: 90..150, max: peak).result(value)
   end
 
-  def balance?
-    return @balance if defined?(@balance)
-
-    @balance =
-      sensor.name.in?(
-        %i[
-          grid_export_power
-          inverter_power
-          battery_discharging_power
-          battery_charging_power
-          house_power
-          heatpump_power
-          wallbox_power
-          grid_import_power
-          heatpump_power_grid
-        ],
-      ) ||
-        sensor.name.in?(
-          Sensor::Config.house_power_excluded_custom_sensors.map(&:name),
-        )
-  end
-
-  def inverter?
-    return @inverter if defined?(@inverter)
-
-    @inverter = sensor.category == :inverter
-  end
-
   def house?
     return @house if defined?(@house)
 
@@ -251,19 +213,6 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
               Sensor::Config.house_power_excluded_custom_sensors.map(&:name),
             )
         )
-  end
-
-  def heatpump?
-    return @heatpump if defined?(@heatpump)
-
-    @heatpump =
-      sensor.name.in? %i[
-                        heatpump_power_pv
-                        heatpump_power_grid
-                        heatpump_power_env
-                        heatpump_heating_power
-                        heatpump_tank_temp
-                      ]
   end
 
   def default_color_class

@@ -94,27 +94,9 @@ class ChartDropdown::Selector::Component < ViewComponent::Base # rubocop:disable
       next if sensors.none?
 
       items = build_menu_items_for_sensors(sensors)
-
-      # Add virtual items for grid_power and battery_power for title display only
-      items = add_virtual_title_items(items, group_key)
-
       groups << { name: I18n.t("balance_groups.#{group_key}"), items: }
     end
     groups
-  end
-
-  def add_virtual_title_items(items, _group_key)
-    # No virtual items needed anymore, as we have individual chart classes
-    items
-  end
-
-  def build_virtual_title_item(sensor_name)
-    Ui::MenuItem::Component.new(
-      name: Sensor::Registry[sensor_name].display_name,
-      key: sensor_name,
-      href: nil, # No link, just for title display
-      current: true,
-    )
   end
 
   def group_sensors_manually
@@ -238,24 +220,6 @@ class ChartDropdown::Selector::Component < ViewComponent::Base # rubocop:disable
   def available_sensors
     @available_sensors ||=
       sensor_names.flat_map { |name| Sensor::Registry[name].chart_entry_names }
-  end
-
-  # Define the order in which categories should appear
-  def category_order(category)
-    order = {
-      inverter: 1,
-      grid: 2,
-      battery: 3,
-      consumer: 4,
-      heatpump: 5,
-      car: 6,
-      economic: 7,
-      forecast: 8,
-      power_splitter: 9,
-      status: 10,
-      other: 99,
-    }
-    order[category] || 100
   end
 
   def menu_order

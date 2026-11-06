@@ -19,10 +19,6 @@ class Nav::Top::Component < ViewComponent::Base
     primary_items.drop(1)
   end
 
-  def current_item
-    primary_items.find(&:current) || secondary_items.find(&:current)
-  end
-
   def helios_dot?
     secondary_items.any?(&:dot)
   end

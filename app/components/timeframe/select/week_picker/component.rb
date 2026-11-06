@@ -21,18 +21,7 @@ class Timeframe::Select::WeekPicker::Component < ViewComponent::Base
   end
 
   def initial_year
-    return parsed_date.cwyear if valid_value?
-    return Date.current.year if Date.current >= min_date
-
-    min_date.year
-  end
-
-  def min_year
-    min_date.year
-  end
-
-  def max_year
-    Date.current.year
+    parsed_date.cwyear
   end
 
   def max_date

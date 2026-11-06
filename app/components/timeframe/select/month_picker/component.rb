@@ -20,20 +20,10 @@ class Timeframe::Select::MonthPicker::Component < ViewComponent::Base
     value if timeframe.month?
   end
 
+  # The value is always a month (YYYY-MM): the month itself, or the month the
+  # other timeframe ends in
   def initial_year
-    # Only parse if value looks like YYYY-MM format
-    return Date.parse("#{value}-01").year if valid_value?
-    return Date.current.year if Date.current >= min_date
-
-    min_date.year
-  end
-
-  def min_year
-    min_date.year
-  end
-
-  def max_year
-    Date.current.year
+    Date.parse("#{value}-01").year
   end
 
   def max_date

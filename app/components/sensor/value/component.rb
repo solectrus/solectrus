@@ -23,10 +23,6 @@ class Sensor::Value::Component < ViewComponent::Base
     raw_value.nil?
   end
 
-  def title(format = :long)
-    sensor.display_name(format)
-  end
-
   def unit
     @unit ||= formatted_data[:unit]
   end
