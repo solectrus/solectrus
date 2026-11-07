@@ -114,12 +114,11 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
   end
 
   context 'with a comparison' do
-    let(:comparison) { instance_double(Car::Comparison, ready?: true) }
-    let(:amounts) { instance_double(Car::ComparisonAmounts, car_cost: 25, combustion_cost: 100, savings: 75, precision: 0) }
+    let(:amounts) { Car::Savings::Amounts.new(precision: 0, car_cost: 25, combustion_cost: 100) }
 
     before do
-      allow(report).to receive_messages(savings?: true, comparison:)
-      allow(Car::ComparisonAmounts).to receive(:new).with(comparison).and_return(amounts)
+      allow(report).to receive(:savings?).and_return(true)
+      allow(Car::Savings).to receive(:new).with(report).and_return(instance_double(Car::Savings, amounts:))
     end
 
     # The whole bar is the cost of the combustion car
@@ -148,7 +147,7 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
 
     # The whole bar is the cost of the car
     context 'with a loss' do
-      let(:amounts) { instance_double(Car::ComparisonAmounts, car_cost: 112, combustion_cost: 100, savings: -12, precision: 0) }
+      let(:amounts) { Car::Savings::Amounts.new(precision: 0, car_cost: 112, combustion_cost: 100) }
 
       it 'shows the extra cost beside the cost of the combustion car, in red' do
         expect(bar_parts).to eq([[100.0, []], [12.0, ['12 € more', '12 €']]])
@@ -159,7 +158,7 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
 
     # The comparison page says what it lacks
     context 'without a compared distance' do
-      let(:comparison) { instance_double(Car::Comparison, ready?: false) }
+      let(:amounts) { nil }
 
       it 'keeps the bar as an empty track, which links to the comparison' do
         expect(comparison_bar.css('[data-car--share-bar--component-target]')).to be_empty

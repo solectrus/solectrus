@@ -33,11 +33,11 @@ module Car::PeriodOverview::Driving::Savings
   end
 
   # The comparison of the cars as the comparison page shows it, nil without
-  # a compared distance
+  # a compared distance. The amounts come from the cache (see Car::Savings).
   def amounts
     return @amounts if defined?(@amounts)
 
-    @amounts = (Car::ComparisonAmounts.new(report.comparison) if report.savings? && report.comparison.ready?)
+    @amounts = (Car::Savings.new(report).amounts if report.savings?)
   end
 
   def savings_path(**)

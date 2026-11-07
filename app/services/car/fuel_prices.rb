@@ -40,6 +40,10 @@ class Car::FuelPrices
   # Whether a price exists
   delegate :any?, to: :points
 
+  # A digest of all prices, for the key of a cache that holds a result of
+  # them. A new price changes it, and so does a corrected one.
+  def cache_version = Digest::SHA256.hexdigest(points.to_s)
+
   private
 
   # [[date, price], ...], sorted by date. An empty result stays in the cache
