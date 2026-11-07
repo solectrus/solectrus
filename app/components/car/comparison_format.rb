@@ -32,6 +32,20 @@ module Car::ComparisonFormat
   WITHOUT_PV_FADE = "invisible opacity-0 transition-[opacity,visibility] #{MOTION} group-data-without-pv/comparison:visible group-data-without-pv/comparison:opacity-100".freeze
   public_constant :WITHOUT_PV_FADE
 
+  # The label of a figure
+  FIGURE_LABEL = 'font-semibold text-slate-500 dark:text-slate-400'.freeze
+  public_constant :FIGURE_LABEL
+
+  # The buttons below the columns: the details of the calculation, and the
+  # column without PV
+  PILL_BUTTON = 'inline-flex items-center gap-2 cursor-pointer rounded-full border border-slate-300 dark:border-slate-600 px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring'.freeze
+  public_constant :PILL_BUTTON
+
+  # A link in the text of the page: a dotted line in the color of the text,
+  # because a blue link everywhere would be restless
+  LINK = 'border-b border-dotted border-slate-400 hover:border-solid dark:border-slate-500 rounded-sm focus-ring'.freeze
+  public_constant :LINK
+
   # The title of a column. Beside the car without PV, the car names its PV
   # system with a suffix.
   def column_title(column)
@@ -46,22 +60,61 @@ module Car::ComparisonFormat
   # the block gives the values of a key
   def column_series(columns) = columns.map { { key: it.key, label: it.title, suffix: it.suffix, values: yield(it.key) }.compact }
 
-  def column_colors(columns) = columns.map { COLORS[it.key] }
+  def column_colors(columns) = columns.map(&:color)
 
   # An amount in whole units, also below 10, unless it asks for its
   # precision: an amount of the comparison has the decimals of the page (see
   # Car::ComparisonAmounts#precision), a rate or a price its own.
   def money(value, precision: 0, **) = render(Sensor::Value::Component.new(value, :total_costs, precision:, **))
 
+  # An amount of the comparison, with the decimals of its `amounts`
+  def amount(value) = money(value, precision: amounts.precision)
+
   def currency(value, precision: 0) = helpers.number_to_currency(value, precision:, unit: Currency.symbol)
 
-  # A price per liter, nil without one
-  def per_liter(value) = ("#{currency(value, precision: 2)}/l" if value)
+  # The title and the cost of a column above its bar, in the color of the
+  # column. The cost has the decimals of the `amounts` of the page.
+  def bar(column)
+    tag = helpers.tag
+    head = tag.div(class: 'flex items-baseline justify-between gap-3 text-sm md:text-base') do
+      tag.span(column_title(column)) + tag.span(amount(column.total), class: 'font-semibold tabular-nums')
+    end
+    track = tag.div(class: 'mt-1 h-3 rounded-full bg-slate-200 dark:bg-slate-700') do
+      tag.div(class: "h-3 rounded-full #{column.color}", style: "width: #{bar_width(column)}%")
+    end
+    head + track
+  end
+
+  # The width of the bar of a column, in percent of the highest cost of the
+  # `columns` of the page. A negative cost has no bar.
+  def bar_width(column)
+    highest = columns.map(&:total).max
+    return 0 unless highest.positive? && column.total.positive?
+
+    (column.total * 100 / highest).round(1)
+  end
+
+  # A figure smaller than the savings: its label and its value
+  def small_figure(label, value, color)
+    helpers.tag.div do
+      helpers.safe_join(
+        [
+          helpers.tag.div(label, class: "#{FIGURE_LABEL} text-xs md:text-sm"),
+          helpers.tag.div(value, class: "mt-0.5 text-lg md:text-xl font-semibold tabular-nums #{color}"),
+        ],
+      )
+    end
+  end
 
   # The info icon beside a title, with notes as paragraphs. It stays in the
   # flow, but must be relative, so its touch target is centered on it and
   # does not cover the page.
   def info_icon(notes, position: nil) = Ui::InfoIcon::Component.new(text: notes.join("\n\n"), position: helpers.class_names('relative', position))
+
+  # The decimals of an energy (in kWh) or a fuel (in liters): one below 10,
+  # so a small quantity, for example of a day, keeps its size, else whole
+  # units
+  def quantity_precision(value) = value.abs < 10 ? 1 : 0
 
   # The lowest and the highest price, rounded to their decimals. Two prices
   # that look the same stand as one.

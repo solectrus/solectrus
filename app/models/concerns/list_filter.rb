@@ -44,6 +44,10 @@ module ListFilter
 
   def active? = categories.any? || from.present? || to.present?
 
+  # The category of a new entry: the one of the filter, when it has a single
+  # one
+  def category = (categories.sole if categories.one?)
+
   # The entries of the filter, of all of them in the scope
   def apply(scope)
     scope = scope.where(category: categories) if categories.any?

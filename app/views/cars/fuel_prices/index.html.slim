@@ -1,2 +1,2 @@
 = render Ui::TurboModal::Component.new(title: Car::FuelPriceChart::Component.title(@comparison), width: :medium) do
-  = render Car::FuelPriceChart::Component.new(comparison: @comparison)
+  = render Car::FuelPriceChart::Component.for(@comparison)

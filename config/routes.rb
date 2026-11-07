@@ -24,6 +24,8 @@
 #                    forecast_chart GET              /forecast/:id(.:format)                                                 forecast/charts#show {id: /inverter_power|outdoor_temp/}
 #                  cars_fuel_prices GET              /cars(/:car)/savings/fuel_prices(/:timeframe)(.:format)                 cars/fuel_prices#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                      cars_savings GET              /cars(/:car)/savings(/:timeframe)(.:format)                             cars/savings#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#              heatpump_fuel_prices GET              /heatpump/savings/fuel_prices(/:timeframe)(.:format)                    heatpump/savings#fuel_prices {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
+#                  heatpump_savings GET              /heatpump/savings(/:timeframe)(.:format)                                heatpump/savings#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                      balance_home GET              /(:sensor_name)(/:timeframe)(/:compare)(.:format)                       balance/home#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/, compare: /(?-mix:by_month|by_quarter|by_season)/}
 #                     balance_stats GET              /stats/:sensor_name(/:timeframe)(.:format)                              balance/stats#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                    balance_charts GET              /charts/:sensor_name(/:timeframe)(/:compare)(.:format)                  balance/charts#index {timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/, compare: /(?-mix:by_month|by_quarter|by_season)/}
@@ -87,6 +89,16 @@
 #                                   PATCH            /settings/prices/:id(.:format)                                          settings/prices#update
 #                                   PUT              /settings/prices/:id(.:format)                                          settings/prices#update
 #                                   DELETE           /settings/prices/:id(.:format)                                          settings/prices#destroy
+#            edit_settings_heatpump GET              /settings/heatpump(.:format)                                            settings/heatpumps#edit
+#                 settings_heatpump PATCH            /settings/heatpump(.:format)                                            settings/heatpumps#update
+#                                   PUT              /settings/heatpump(.:format)                                            settings/heatpumps#update
+#        settings_heatpump_payments GET              /settings/heatpump_payments(.:format)                                   settings/heatpump_payments#index
+#                                   POST             /settings/heatpump_payments(.:format)                                   settings/heatpump_payments#create
+#     new_settings_heatpump_payment GET              /settings/heatpump_payments/new(.:format)                               settings/heatpump_payments#new
+#    edit_settings_heatpump_payment GET              /settings/heatpump_payments/:id/edit(.:format)                          settings/heatpump_payments#edit
+#         settings_heatpump_payment PATCH            /settings/heatpump_payments/:id(.:format)                               settings/heatpump_payments#update
+#                                   PUT              /settings/heatpump_payments/:id(.:format)                               settings/heatpump_payments#update
+#                                   DELETE           /settings/heatpump_payments/:id(.:format)                               settings/heatpump_payments#destroy
 #                     settings_cars GET              /settings/cars(.:format)                                                settings/cars#index
 #                 edit_settings_car GET              /settings/cars/:id/edit(.:format)                                       settings/cars#edit
 #                      settings_car PATCH            /settings/cars/:id(.:format)                                            settings/cars#update
@@ -217,6 +229,18 @@ Rails.application.routes.draw do
         constraints: { car: CarSelection::CAR, timeframe: Timeframe::REGEX }
   end
 
+  # The savings of the heat pump against a heating that burns oil or gas.
+  # Before the home pages, because the heat pump page would take "savings"
+  # as the name of its sensor of the same name.
+  get '/heatpump/savings/fuel_prices(/:timeframe)',
+      to: 'heatpump/savings#fuel_prices',
+      as: :heatpump_fuel_prices,
+      constraints: { timeframe: Timeframe::REGEX }
+  get '/heatpump/savings(/:timeframe)',
+      to: 'heatpump/savings#index',
+      as: :heatpump_savings,
+      constraints: { timeframe: Timeframe::REGEX }
+
   constraints SensorConstraint.new(:chart_enabled?) do
     constraints timeframe: Timeframe::REGEX do
       # A chart of the total timeframe can compare the years month by month or
@@ -341,6 +365,8 @@ Rails.application.routes.draw do
       get '(:name)', on: :collection, action: :index, as: ''
     end
 
+    resource :heatpump, only: %i[edit update], path_names: { edit: '' }
+    resources :heatpump_payments, except: :show
     resources :cars, only: %i[index edit update]
     resources :places, only: %i[index edit update destroy]
     resources :car_payments, except: :show

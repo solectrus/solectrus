@@ -8,7 +8,13 @@
         .text-xs.text-slate-500.dark:text-slate-400 = date
 
 / The text color is the color of the line, the red of the combustion car
-.relative.mt-4.h-64.text-combustion data-controller='car--fuel-price-chart--component' data-car--fuel-price-chart--component-currency-value=Currency.code
+  or of the fossil heating
+.relative.mt-4.h-64.text-combustion[
+  data-controller='car--fuel-price-chart--component'
+  data-car--fuel-price-chart--component-currency-value=Currency.code
+  data-car--fuel-price-chart--component-unit-value=unit
+  data-car--fuel-price-chart--component-precision-value=precision
+]
   script type='application/json' data-car--fuel-price-chart--component-target='data'
     == chart_data.to_json
   canvas.max-w-full data-car--fuel-price-chart--component-target='canvas'

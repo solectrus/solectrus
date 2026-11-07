@@ -1,0 +1,34 @@
+= render 'settings/sub_nav', save: 'settings_heatpump_form', save_bar: 'settings_heatpump_form'
+
+= render Ui::SideNav::Component.new(items: heatpump_nav_items) do
+  / A form that comes back with errors holds input that is not saved yet
+  = form_with(model: @heating, url: settings_heatpump_path, id: 'settings_heatpump_form', html: { class: 'ui-form relative px-2', data: { **page_form_data, **unsaved_data(@heating) } }) do |f|
+    / The intro heads the page, so the fields read at once as a heating
+      that does not exist. It is content in the ink of the values, so it
+      stands apart from the grey header of the section, the labels and the
+      hints. A phone centers it, as the settings of iOS head a section.
+    p.mb-8.text-gray-900.dark:text-slate-200.max-lg:px-4.max-lg:text-center.max-lg:text-sm = t('settings.heatpump.intro')
+
+    / No autofocus: iOS would open the keyboard right at the slide.
+      Each field is a card of its own on a phone, with its hint below the
+      card. The desktop puts the fields in columns, each hint in a tooltip at
+      the right above its input.
+    - label_with_info = ->(attribute, hint) { safe_join([Heatpump::Heating.human_attribute_name(attribute), render(Ui::InfoIcon::Component.new(text: hint, position: 'relative float-right mt-0.5 max-lg:hidden'))]) }
+    .grid.grid-cols-1.gap-8.lg:grid-cols-3.lg:gap-4
+      div
+        = f.group flush: true do
+          = f.select :fuel_type, Heatpump::Heating::FUEL_TYPES.map { [Heatpump::Heating.human_fuel_type(it), it] }, include_blank: t('settings.heatpump.fuel_type_none')
+      - { efficiency: { in: Heatpump::Heating::EFFICIENCY, step: 1, suffix: '%' }, fixed_costs: { min: 0, step: '0.01', currency: true } }.each do |attribute, options|
+        - hint = t("settings.heatpump.#{attribute}_hint")
+        div
+          = f.group flush: true do
+            = f.number_field attribute, label: label_with_info.call(attribute, hint), **options
+          / A blank line splits a hint into paragraphs, like the tooltip
+          .ui-form-footer.space-y-2.lg:hidden
+            - hint.split("\n\n").each do |paragraph|
+              p = paragraph
+
+  / The payments are a group below the heating on a phone, a tab on the
+    desktop
+  .mt-8.lg:hidden
+    = render Ui::NavList::Component.new(items: heatpump_nav_items.drop(1), label: t('settings.heatpump.name'), footer: t('settings.heatpump.payments_intro'))

@@ -31,16 +31,25 @@ Chart.register(
 applyChartDefaults();
 
 interface FuelPriceData {
-  // A line for each fuel: x as an ISO date, y in currency per liter. Each
+  // A line for each fuel: x as an ISO date, y in currency per unit. Each
   // price holds until the next one, the last point closes the timeframe.
   lines: { label: string; points: { x: string; y: number }[] }[];
 }
 
-// The weekly prices of the fuel of the combustion car as a stepped line (see
-// Car::FuelPriceChart::Component)
+// The prices of the fuel of the combustion car or of the fossil heating as a
+// stepped line (see Car::FuelPriceChart::Component)
 export default class extends ComparisonChartBase<FuelPriceData, 'line'> {
-  static readonly values = { currency: String };
+  // The unit after a price and its decimals, like a liter, or a kWh of gas
+  // with a decimal more (see Car::FuelPriceChart::Component)
+  static readonly values = {
+    currency: String,
+    unit: String,
+    precision: Number,
+  };
   static readonly targets = ['canvas', 'data'];
+
+  declare readonly unitValue: string;
+  declare readonly precisionValue: number;
 
   private dateFormatter?: Intl.DateTimeFormat;
 
@@ -50,7 +59,8 @@ export default class extends ComparisonChartBase<FuelPriceData, 'line'> {
     if (!lines.length) return;
 
     const { tick: axisColor, grid: gridColor } = this.axisColors();
-    // The red of the combustion car, from the text color of the element
+    // The red of the combustion car or of the fossil heating, from the text
+    // color of the element
     const lineColor = window.getComputedStyle(this.element).color;
 
     const xs = lines.flatMap((line) => line.points.map((p) => Date.parse(p.x)));
@@ -102,7 +112,8 @@ export default class extends ComparisonChartBase<FuelPriceData, 'line'> {
             border: { display: false },
             ticks: {
               color: axisColor,
-              callback: (value) => this.formatMoney(Number(value), 2),
+              callback: (value) =>
+                this.formatMoney(Number(value), this.precisionValue),
             },
           },
         },
@@ -119,7 +130,7 @@ export default class extends ComparisonChartBase<FuelPriceData, 'line'> {
                 return typeof x === 'number' ? this.formatDate(x) : '';
               },
               label: (item) =>
-                `${item.dataset.label}: ${this.formatMoney(item.parsed.y ?? 0, 2)}/l`,
+                `${item.dataset.label}: ${this.formatMoney(item.parsed.y ?? 0, this.precisionValue)}/${this.unitValue}`,
             },
           },
         },

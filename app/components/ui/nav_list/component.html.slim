@@ -1,4 +1,4 @@
 nav aria-label=label
-  = render Ui::GroupedList::Component.new do |list|
+  = render Ui::GroupedList::Component.new(footer:) do |list|
     - items.each do |item|
       - list.with_cell(name: item[:name], icon: item[:icon], href: item[:href], slide: true)

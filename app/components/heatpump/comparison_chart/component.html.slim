@@ -1,0 +1,16 @@
+/ The hidden dots give the bars the colors of the columns. The chart draws
+  its title itself, and it draws the bar without PV again when the button of
+  the comparison adds or removes it.
+section[
+  class=[CARD, 'p-4 md:p-5 lg:p-0']
+  data-controller='car--comparison-chart--component'
+  data-car--comparison-chart--component-currency-value=Currency.code
+  data-action='without-pv-toggle:change@document->car--comparison-chart--component#redraw'
+  data-car--comparison-chart--component-title-value=title
+]
+  - colors.each do |color|
+    span.hidden class=color data-car--comparison-chart--component-target='swatch'
+  script type='application/json' data-car--comparison-chart--component-target='data'
+    == chart_data.to_json
+  .relative.h-72
+    canvas.max-w-full data-car--comparison-chart--component-target='canvas'

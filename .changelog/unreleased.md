@@ -29,6 +29,7 @@ Keep every section, an empty one included.
 
 ### More
 
+- **Heat pump vs. oil or gas heating:** compares the costs of the heat pump with an oil or a gas heating that makes the same heat, with and without PV. The heat pump page shows the savings beside the costs. Needs the sensor of the generated heat, the euro as currency and the prices of the Public Data Collector. Set up the fossil heating and record the payments of the heat pump, like its maintenance, in Settings > Heat pump
 - **Year comparison:** the chart of the total timeframe compares the years by month, quarter or season, with the average as a dashed line. Pick it in the OVERALL menu (#2131)
 - **Base fee:** an electricity tariff can have a base fee for the grid connection. It counts into the grid costs, prorated by day. The AI access gives it too (#2560)
 - **Timeframe menu:** the tab of the current timeframe offers readings like "This month" or "Last 30 days"

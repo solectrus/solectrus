@@ -39,7 +39,7 @@ export interface ColumnSeries {
 }
 
 // Whether the page shows the car without PV (see
-// car/comparison_page/component_controller.ts)
+// without_pv_toggle_controller.ts)
 export const showsWithoutPv = (element: HTMLElement): boolean =>
   element.closest('[data-without-pv]') !== null;
 

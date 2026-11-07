@@ -13,9 +13,6 @@ de:
     savings: Eingesparte laufende Kosten
     savings_without_pv: Ohne PV wären es
     savings_per_100km: Pro 100 km
-  without_pv:
-    show: Variante ohne PV vergleichen
-    hide: Variante ohne PV ausblenden
   details:
     show: Rechenweg anzeigen
     hide: Rechenweg ausblenden

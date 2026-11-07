@@ -31,6 +31,14 @@ module SettingsNavigation
           current: controller_name == 'sensors',
           technical: true,
         },
+        (if heatpump_settings?
+           {
+             name: t('settings.heatpump.name'),
+             href: edit_settings_heatpump_path,
+             icon: 'fan',
+             current: controller_name.in?(%w[heatpumps heatpump_payments]),
+           }
+         end),
         (if Sensor::HomePage.available?(:cars)
            {
              name: t('settings.cars.name'),
@@ -68,6 +76,15 @@ module SettingsNavigation
       ]
     end
 
+    # The pages of the heat pump: the fossil heating that it compares with,
+    # and its payments
+    helper_method def heatpump_nav_items
+      [
+        { name: t('settings.heatpump.heating_tab'), title: t('settings.titles.heatpump_heating'), href: edit_settings_heatpump_path, icon: 'fire-flame-curved' },
+        { name: t('settings.heatpump_payments.name'), title: t('settings.titles.heatpump_payments'), href: settings_heatpump_payments_path, icon: 'hand-holding-dollar' },
+      ]
+    end
+
     # The side navigation of the cars: their names, their payments when the
     # comparison has fuel prices (see Car::Comparison.available?), and their
     # places when the cars have a location. Each page has a URL of its own.
@@ -83,4 +100,19 @@ module SettingsNavigation
       items + [{ name: t('settings.places.name'), title: t('settings.titles.places'), href: settings_places_path }]
     end
   end
+
+  private
+
+  # The settings of the heat pump: the fossil heating of the comparison and
+  # the payments of the heat pump. They need the heat pump page and the
+  # comparison (see Heatpump::Comparison.available?). The page and the
+  # navigation ask both, so the fuel prices load once.
+  def heatpump_settings?
+    return @heatpump_settings if defined?(@heatpump_settings)
+
+    @heatpump_settings = Sensor::HomePage.available?(:heatpump) && Heatpump::Comparison.available?
+  end
+
+  # A page of the heat pump settings without them goes to the settings
+  def heatpump_settings_required! = (redirect_to(settings_path) unless heatpump_settings?)
 end

@@ -1,0 +1,50 @@
+en:
+  heatpump: Heat pump
+  without_pv: Heat pump without PV
+  with_pv: (with PV)
+  savings: Saved heating costs
+  savings_without_pv: Without PV, it would be
+  liters: liters
+  to_settings: To the settings
+  none_title: Comparison not set up yet
+  none: No oil or gas heating is chosen for the comparison yet.
+  no_prices_title: No prices yet
+  no_prices: The comparison needs the prices of %{fuel}. The Public Data Collector delivers them.
+  no_heat_title: No heat to compare
+  no_heat: The timeframe has no day with generated heat, costs of the heat pump and a fuel price.
+  steps:
+    heat: Heat
+    cop: Performance factor
+    electricity: Electricity needed
+    electricity_cost: Energy costs
+    efficiency: Efficiency
+    fuel:
+      gas: Gas needed
+      heating_oil: Heating oil needed
+    price: Price
+    fuel_cost:
+      gas: Gas costs
+      heating_oil: Heating oil costs
+    running_costs: Running costs
+    total: Costs
+  notes:
+    savings: The difference of the heating costs of the heat pump and a fictional fossil heating that makes the same heat.
+    data: |-
+      Data taken into account:
+      - Generated heat of the heat pump
+      - Energy of the heat pump with its costs
+      - Historical fuel prices
+      - Running costs of the fossil heating
+      - Recorded payments like the maintenance and the operating costs
+    heatpump_intro: The energy costs of the heat pump for the generated heat.
+    heatpump: Grid energy costs the electricity price, PV energy the lost feed-in revenue.
+    payments: Its recorded running costs add to it, like the maintenance, repairs and the operating costs. The purchase and a subsidy do not count.
+    running_costs: Its running costs per year from the settings add to it, like the maintenance and the chimney sweep.
+    without_pv_intro: 'Fictional: the same heat pump without a PV system.'
+    without_pv: All the energy costs the electricity price of the day.
+    heating_intro: 'Fictional: a fossil heating that makes the same heat, with the fuel and the efficiency from the settings of the heat pump.'
+    heating_oil: Heating oil costs the price of the week of the day (Weekly Oil Bulletin of the EU). A liter has %{kwh_per_liter} kWh (gross calorific value).
+    gas: Natural gas costs the price of the month of the day (Eurostat), with the standing charge, the taxes and the levies.
+    left_out:
+      one: One day without costs of the heat pump or without a price is missing from the comparison.
+      other: '%{count} days without costs of the heat pump or without a price are missing from the comparison.'

@@ -248,7 +248,7 @@ describe 'Cars Savings' do
         get_comparison cars_savings_path(timeframe: '2026-01', car: car.id)
 
         expect(response).to have_http_status(:ok)
-        expect(response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')).to be_present
+        expect(response.parsed_body.at_css('[data-controller~="car--comparison-page--component"]')).to be_present
       end
 
       # 150 km at 8 l/100 km and 2 EUR/l, and 365 EUR tax for the year, of
@@ -288,7 +288,7 @@ describe 'Cars Savings' do
       end
 
       describe 'the car without PV' do
-        def page = response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')
+        def page = response.parsed_body.at_css('[data-controller~="car--comparison-page--component"]')
 
         def pressed = page.at_css('button[aria-pressed]')['aria-pressed']
 
@@ -462,7 +462,7 @@ describe 'Cars Savings' do
       it 'shows a timeframe with fewer than three periods without the charts' do
         get_comparison cars_savings_path(timeframe: '2026-01-01..2026-02-18')
 
-        expect(response.parsed_body.at_css('[data-controller="car--comparison-page--component"]')).to be_present
+        expect(response.parsed_body.at_css('[data-controller~="car--comparison-page--component"]')).to be_present
         expect(chart_data).to be_nil
         expect(chart_data('comparison-rate-chart')).to be_nil
       end

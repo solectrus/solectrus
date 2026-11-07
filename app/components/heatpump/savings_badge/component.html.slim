@@ -1,0 +1,18 @@
+- if compact?
+  / Below the costs on a phone, split from them like the costs from the card
+    beside them, so it shows as a button of its own: a piggy bank and the
+    amount. It opens the comparison in a sheet, like the savings of a car.
+  = link_to sheet_path, class: ['savings-compact click-animation flex items-center justify-center gap-1 rounded-br-xl bg-slate-200 px-2 py-2.5 text-sm font-medium leading-none dark:bg-slate-800', css_class], aria: { label: }, data: Ui::TurboModal::Component.link_data do
+    span class=value_class = icon('piggy-bank')
+    span class=value_class = value
+- else
+  / Like the costs beside it, a tap opens the comparison and a long press its
+    tooltip, which explains the comparison
+  = link_to path, class: css_class, data: { turbo_frame: '_top', turbo_prefetch: 'false', **tooltip_data } do
+    = render RectBadge::Component.new(title: t('heatpump_comparison.savings'), css_class: 'h-full justify-center px-3 md:px-4') do
+      span class=value_class = value
+    - if amounts
+      / Only words, no numbers: the badge shows the savings, the page of the
+        comparison its calculation
+      span.hidden data-tooltip-target='html'
+        = t('heatpump_comparison.badge_tooltip', heating: heating.name)

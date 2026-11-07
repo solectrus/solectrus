@@ -63,6 +63,8 @@ interface ComparisonData {
 
 // The cost of the columns of the comparison with a combustion car for
 // each period, as bars that overlap (see Car::ComparisonChart::Component).
+// The comparison of the heat pump with a fossil heating draws its periods
+// with it too (see Heatpump::ComparisonChart::Component).
 // Chart.js draws the last dataset first, so the combustion car stands at the
 // back and the car in front. A border in the color of the background parts
 // the bars.

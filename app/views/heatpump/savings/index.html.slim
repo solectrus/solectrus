@@ -1,0 +1,38 @@
+- content = capture do
+  - if @missing_or_stale_summary_days.present?
+    = render Summary::Builder::Component.new(timeframe:, missing_or_stale_days: @missing_or_stale_summary_days)
+  - else
+    = render Heatpump::ComparisonPage::Component.new(comparison: @comparison, without_pv: Heatpump::ComparisonPage::Component.without_pv?(cookies))
+
+/ In the sheet of a phone, over the heat pump page, the comparison keeps the
+  timeframe of the heat pump page (see SheetPage). A link in it leaves the
+  sheet and opens its page.
+- if sheet_page?
+  = render Ui::SheetPage::Component.new(title:, subtitle: timeframe.localized) do
+    = turbo_frame_tag 'comparison', target: '_top', class: 'flex flex-auto flex-col'
+      = content
+- else
+  / The head of the comparison, a page below the heat pump page, like the
+    comparison of a car with a combustion car. The desktop shows the page as
+    the current pill.
+  - content_for :fixed_nav, true
+  / A swipe turns the page to the period before or after, as on the home
+    pages (see swipe_controller.ts)
+  - extra_stimulus_controllers 'swipe' if timeframe.can_paginate?
+  - content_for :sub_nav do
+    ruby:
+      options = {
+        title:,
+        back: { back_href: back_path, back_label: t('layout.heatpump'), back_slide: false },
+        desktop_back_label: t('heatpump_comparison.back'),
+        tabs: [{ name: t('heatpump_comparison.savings'), href: request.path, current: true }],
+      }
+    = render Car::SubNav::Component.new(**options) do |nav|
+      - nav.with_timeframe do
+        = render Timeframe::Component.new(timeframe:, page: timeframe_page)
+
+  / The period of a phone at the top of the content, as on the home pages
+  .lg:hidden
+    = render Timeframe::Pager::Component.new(**pager_items)
+
+  = content

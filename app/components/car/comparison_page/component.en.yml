@@ -13,9 +13,6 @@ en:
     savings: Saved running costs
     savings_without_pv: Without PV, it would be
     savings_per_100km: Per 100 km
-  without_pv:
-    show: Compare the variant without PV
-    hide: Hide the variant without PV
   details:
     show: Show the calculation
     hide: Hide the calculation

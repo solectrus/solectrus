@@ -279,11 +279,6 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
 
   def text_cell(number, unit, href = nil) = [linked(number, href), unit]
 
-  # The decimals of the energy (in kWh) or the fuel (in liters): one below
-  # 10, so a small quantity, for example of a day, keeps its size, else
-  # whole units
-  def quantity_precision(value) = value.abs < 10 ? 1 : 0
-
   # [number, unit] of the lowest and the highest price per liter, one price
   # if they look the same. The range opens the modal of the prices.
   def price_range_cell(range, href)

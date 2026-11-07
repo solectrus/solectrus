@@ -21,8 +21,4 @@ Car::PaymentFilter = Data.define(:car, :categories, :from, :to) do
   # The filter with another car or without one
   def with_car(car) = with(car:)
   def without_car = with(car: nil)
-
-  # The category of a new payment: the one of the filter, when it has a
-  # single one
-  def category = (categories.sole if categories.one?)
 end

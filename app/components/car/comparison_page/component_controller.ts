@@ -3,17 +3,17 @@ import { writeCookie } from '@/utils/cookie';
 import { isReducedMotion } from '@/utils/device';
 import { EASE_GLIDE } from '@/utils/motion';
 
-// Adds the car without PV to the comparison or takes it away, and shows or
-// hides the details of the calculation in the columns. The server renders
-// each choice from a cookie, also when a refresh morphs the page. So a click
-// switches here at once, and the cookie keeps the choice for the next render.
+// Shows or hides the details of the calculation in the columns. The server
+// renders the choice from a cookie, also when a refresh morphs the page. So
+// a click switches here at once, and the cookie keeps the choice for the
+// next render. The car without PV has a controller of its own (see
+// without_pv_toggle_controller.ts).
 //
 // CSS cannot animate the rows of the details between hidden and shown. So
 // the columns grow or shrink from their old height to the new one, and the
 // page below follows. The rows glide to their new places: the rows that go
 // fade out first, and the rows that come fade in (see
-// Car::ComparisonColumns::Component#visibility). The car without PV animates
-// with CSS alone (see Car::ComparisonFormat::MOTION).
+// Car::ComparisonColumns::Component#visibility).
 const DURATION = 300;
 
 // The top of a row, undefined while it hides
@@ -27,21 +27,6 @@ export default class extends Controller<HTMLElement> {
   declare readonly detailsTarget: HTMLElement;
 
   private toggling = false;
-
-  // CSS shows the parts of the car without PV, and the charts read the
-  // attribute when they change (see showsWithoutPv in comparison_chart_base)
-  toggleWithoutPv({ currentTarget }: Event) {
-    const withoutPv = this.element.toggleAttribute('data-without-pv');
-    (currentTarget as HTMLElement).setAttribute(
-      'aria-pressed',
-      String(withoutPv),
-    );
-
-    // The default needs no cookie
-    writeCookie('car_comparison_without_pv', withoutPv ? 'true' : null);
-
-    this.dispatch('without-pv', { target: document });
-  }
 
   async toggle() {
     if (this.toggling) return;

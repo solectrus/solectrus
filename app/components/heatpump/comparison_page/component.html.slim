@@ -1,0 +1,76 @@
+- case state
+- when :none
+  = render Ui::EmptyState::Component.new(icon: 'fan', title: t('.none_title'), text: t('.none')) do
+    - if (button = settings_button)
+      = render button
+- when :no_prices
+  = render Ui::EmptyState::Component.new(icon: 'fan', title: t('.no_prices_title'), text: t('.no_prices', fuel: heating.human_fuel_type), slashed: true)
+- when :no_heat
+  = render Ui::EmptyState::Component.new(icon: 'fan', title: t('.no_heat_title'), text: t('.no_heat'), slashed: true)
+- else
+  / The heat pump without PV shows only with the button below the columns.
+    Its parts keep their place and fade, or open from no size, so nothing
+    jumps.
+  div[
+    class='group/comparison flex flex-col gap-4 md:gap-6 lg:gap-10 text-slate-700 dark:text-slate-300'
+    data-controller='without-pv-toggle'
+    data-without-pv-toggle-cookie-value=WITHOUT_PV_COOKIE
+    data-without-pv=without_pv?
+  ]
+    / The days that the comparison leaves out, like the warnings of the
+      comparison of a car
+    - if left_out_warning
+      section.rounded-2xl.border.border-signal-warning/40.bg-signal-warning/10.px-4.py-3.md:px-5 role='status'
+        .flex.items-start.gap-3.text-sm.md:text-base
+          = icon 'triangle-exclamation', class: 'mt-1 shrink-0 text-signal-warning'
+          span.flex-1 = left_out_warning
+
+    / The savings beside the cost of the columns as bars, in the order of the
+      columns. The savings without PV stand smaller beside them. Both sides
+      start at the top.
+    section.grid.grid-cols-1.lg:grid-cols-2.gap-6.md:gap-8.p-5.md:p-8.lg:p-0 class=CARD
+      .self-start.flex.flex-wrap.items-baseline-last.gap-x-10.gap-y-4
+        div
+          div class="flex items-center gap-2 #{FIGURE_LABEL} text-sm md:text-base"
+            = t('.savings')
+            = render info_icon(savings_notes)
+          div class="mt-1 text-4xl md:text-5xl font-bold tabular-nums #{savings_color_of(amounts.savings)}" = amount(amounts.savings)
+        div class=WITHOUT_PV_FIGURE = small_figure(t('.savings_without_pv'), amount(amounts.savings_without_pv), savings_color_of(amounts.savings_without_pv))
+
+      div
+        - columns.each_with_index do |column, index|
+          = bar_wrap(column, index) { bar(column) }
+
+    / The calculation of each column, step by step. The columns stand side by
+      side when the page has the width for them. Then an empty slot keeps the
+      height of its row beside the other columns. Stacked, it is left out.
+    div class='@container'
+      div class=GRID
+        - columns.each_with_index do |column, index|
+          div class=track_class(column)
+            .min-h-0 class=fade_class(column)
+              section class=card_classes(column, index)
+                .flex.items-center.gap-2.pb-2
+                  h3.font-semibold = column_title(column)
+                  = render info_icon(notes_of(column), position: 'ml-auto')
+                div class="h-1 mb-3 rounded-full #{column.color}"
+                table.w-full.border-separate.border-spacing-y-1.text-sm
+                  - slots.each do |slot|
+                    - step = column.steps[slot]
+                    - line = line_class(slot, step)
+                    - if step
+                      tr class=('font-semibold' if step.result)
+                        td.w-5.text-slate-500.dark:text-slate-400 class=line = step.operator
+                        td class=line = step.label
+                        td.text-right.whitespace-nowrap.tabular-nums class=line = step.value
+                    - else
+                      tr class='@max-3xl:hidden' aria-hidden='true'
+                        td colspan=3 class=line
+                          | &nbsp;
+
+      .mt-3.md:mt-4.flex.justify-center
+        = render Car::WithoutPvButton::Component.new(pressed: without_pv?)
+
+    / The costs of the columns in the periods of the timeframe, like the
+      comparison of a car
+    = render chart

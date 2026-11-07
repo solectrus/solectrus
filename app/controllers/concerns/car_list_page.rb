@@ -8,33 +8,18 @@ module CarListPage
   extend ActiveSupport::Concern
   include Cars::PageGate
   include TimeframeSelectModal
+  include WholeTimeDefault
 
   included do
-    helper_method :timeframe, :list_tabs, :pager_items
+    helper_method :list_tabs
   end
 
   private
-
-  # The period of a phone, as the home pages have it (see
-  # TimeframePagerItems). The whole time of a list has a name of its own.
-  def pager_items
-    TimeframePagerItems.new(
-      timeframe:,
-      path: ->(timeframe) { timeframe_page.path(timeframe) },
-      period_item: (timeframe.all? ? { name: timeframe_page.label_for_all } : {}),
-    ).to_h
-  end
 
   # A closed car page sends its list to the start page, or to the car page
   # with its upsell
   def car_page_closed
     redirect_to(Sensor::HomePage.available?(:cars) ? cars_home_path : root_path)
-  end
-
-  def timeframe
-    @timeframe ||= Timeframe.new(timeframe_param.presence || 'all')
-  rescue ArgumentError
-    @timeframe = Timeframe.new('all')
   end
 
   # The lists of the charging sessions and of the places, and the savings
@@ -55,7 +40,4 @@ module CarListPage
       ({ name: t('car_comparison.tab'), href: cars_savings_path(timeframe: (savings_timeframe.to_param unless savings_timeframe.all?), car:), current: list_tab == :savings } if Car::Comparison.available?),
     ].compact
   end
-
-  # The timeframe in the address of the list
-  def timeframe_param = params[:timeframe]
 end

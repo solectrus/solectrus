@@ -31,35 +31,44 @@
       .flex.w-full.items-stretch.gap-1.md:gap-2.text-slate-700.dark:text-slate-400
         = render Heatpump::PowerCard::Component.new(data:, timeframe:, css_class: card_base_classes)
 
+        / The savings share their amounts between the badge of the desktop and
+          the compact link below the costs on a phone (see Heatpump::SavingsBadge)
+        - savings = Heatpump::Savings.new(timeframe)
+
         - if !timeframe.now? && data.heatpump_costs
-          = link_to url_for(controller: 'home', sensor_name: 'heatpump_costs', timeframe:),
-                    class: "click-animation block shrink-0 h-full rounded-xl rounded-l-none #{focus_ring_classes}",
-                    data: { \
-                      controller: 'tooltip',
-                      tooltip_placement_value: 'bottom',
-                      tooltip_force_tap_to_close_value: false,
-                      tooltip_touch_value: 'long',
-                      tooltip_sheet_url_value: sensor_insights_path(Sensor::Registry[:heatpump_costs], timeframe:),
-                      turbo_prefetch: 'false',
-                      'stats-with-chart--component-target': 'current',
-                      'sensor-name': 'heatpump_costs',
-                      value: data.heatpump_costs,
-                      time: data.time.to_i,
-                      action: 'stats-with-chart--component#loadChart',
-                      stats_with_chart__component_sensor_name_param: 'heatpump_costs',
-                      stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_costs', timeframe:),
-                    } do
-            = render RectBadge::Component.new(title: t('sensors.heatpump_costs_short'), css_class: 'h-full rounded-l-none justify-center px-3 md:px-4') do
-              = render Sensor::Value::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
-            #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
-              .tooltip-layout.tooltip-layout-table
-                = render SplittedCosts::Component.new( \
-                    costs: data.heatpump_costs,
-                    power_grid_ratio: data.heatpump_power_grid_ratio,
-                    grid_costs: data.heatpump_costs_grid,
-                    pv_costs: data.heatpump_costs_pv,
-                    show_power_breakdown: false,
-                  )
+          .group.flex.shrink-0.flex-col.gap-1
+            = link_to url_for(controller: 'home', sensor_name: 'heatpump_costs', timeframe:),
+                      class: "click-animation block flex-1 rounded-xl rounded-l-none #{focus_ring_classes}",
+                      data: { \
+                        controller: 'tooltip',
+                        tooltip_placement_value: 'bottom',
+                        tooltip_force_tap_to_close_value: false,
+                        tooltip_touch_value: 'long',
+                        tooltip_sheet_url_value: sensor_insights_path(Sensor::Registry[:heatpump_costs], timeframe:),
+                        turbo_prefetch: 'false',
+                        'stats-with-chart--component-target': 'current',
+                        'sensor-name': 'heatpump_costs',
+                        value: data.heatpump_costs,
+                        time: data.time.to_i,
+                        action: 'stats-with-chart--component#loadChart',
+                        stats_with_chart__component_sensor_name_param: 'heatpump_costs',
+                        stats_with_chart__component_chart_url_param: heatpump_charts_path(sensor_name: 'heatpump_costs', timeframe:),
+                      } do
+              = render RectBadge::Component.new(title: t('sensors.heatpump_costs_short'), css_class: 'h-full rounded-l-none justify-center px-3 md:px-4 max-lg:group-has-[.savings-compact]:rounded-br-none') do
+                = render Sensor::Value::Component.new(data.heatpump_costs, :total_costs, sign: :negative)
+              #tooltip-content-heatpump_costs.hidden data-tooltip-target= 'html'
+                .tooltip-layout.tooltip-layout-table
+                  = render SplittedCosts::Component.new( \
+                      costs: data.heatpump_costs,
+                      power_grid_ratio: data.heatpump_power_grid_ratio,
+                      grid_costs: data.heatpump_costs_grid,
+                      pv_costs: data.heatpump_costs_pv,
+                      show_power_breakdown: false,
+                    )
+
+            = render Heatpump::SavingsBadge::Component.new(timeframe:, savings:, compact: true, css_class: "lg:hidden #{focus_ring_classes}")
+
+        = render Heatpump::SavingsBadge::Component.new(timeframe:, savings:, css_class: "click-animation block shrink-0 h-full rounded-xl max-lg:hidden #{focus_ring_classes}")
 
     ruby:
       donut_heating_url = heatpump_home_path(sensor_name: 'heatpump_heating_power', timeframe:)

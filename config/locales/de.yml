@@ -195,6 +195,26 @@ de:
     total: Stromverbrauch
     costs_note:
       battery_charging_power: Netzstrom wird den Verbrauchern zugerechnet.
+  heatpump_comparison:
+    title: Vergleich mit %{heating}
+    title_none: Vergleich mit einer Öl- oder Gasheizung
+    savings: Ersparnis
+    # The tooltip of the savings badge on the heat pump page
+    badge_tooltip: Die Ersparnis vergleicht die Wärmepumpe mit einer gedachten %{heating}, die dieselbe Wärme erzeugt hätte.
+    back: Zurück zur Wärmepumpe
+    fuel_prices:
+      heating_oil: Heizölpreis
+      gas: Gaspreis
+    # The info tooltip beside the title of the prices, only for a fuel with
+    # a note
+    fuel_prices_note:
+      gas: |-
+        Eurostat misst den Gaspreis halbjährlich und veröffentlicht ihn etwa sechs Monate später.
+
+        Neuere Monate sind geschätzt und werden dann korrigiert.
+    heating:
+      heating_oil: Ölheizung
+      gas: Gasheizung
   car_comparison:
     # The tab of the page beside the charging sessions and the places. The
     # title bar has the name of the menu (layout.car_comparison).
@@ -475,6 +495,8 @@ de:
       vehicles: Deine Elektroautos
       car_payments: Laufende Kosten und Einnahmen der Elektroautos
       places: Von den Elektroautos besuchte Orte
+      heatpump_heating: Fossile Heizung zum Vergleich
+      heatpump_payments: Kosten und Einnahmen der Wärmepumpe
     plant:
       name: PV-Anlage
       data: Bezeichnung
@@ -523,6 +545,33 @@ de:
       battery_kwh_hint: Die nutzbare Kapazität. Sie schätzt die Energie einer unbestätigten Auswärtsladung und ergibt den Ladeverlust.
       combustion: Fiktiver Verbrenner, den das E-Auto ersetzt
       fuel_type_none: Kein Vergleich
+    heatpump:
+      name: Wärmepumpe
+      intro: Die Kosten der Wärmepumpe im Vergleich mit einer gedachten Öl- oder Gasheizung.
+      fuel_type_none: Kein Vergleich
+      efficiency_hint: |-
+        Anteil der Energie im Brennstoff, der als Wärme ankommt, bezogen auf den Brennwert.
+
+        Ein Brennwertkessel erreicht im Alltag etwa 75 bis 90 %, ein Kessel ohne Brennwerttechnik 70 bis 80 %.
+
+        Gab es im Haus vorher eine Öl- oder Gasheizung, wird der Wert mit ihren alten Abrechnungen genauer: die erzeugte Wärme eines Jahres geteilt durch den Brennstoff in kWh eines früheren Jahres mit ähnlichem Wetter.
+      fixed_costs_hint: |-
+        Alle laufenden Kosten der fossilen Heizung: Wartung, Schornsteinfeger, Strom für Brenner und Pumpe, bei Öl auch Tankreinigung und Tankversicherung, außerdem ein Mittelwert für Reparaturen.
+
+        Üblich sind etwa 250 bis 400 € pro Jahr für Gas und 400 bis 550 € für Öl.
+
+        Der Grundpreis eines Gasanschlusses gehört nicht dazu, er steckt schon im Gaspreis.
+      payments_intro: Die laufenden Kosten der Wärmepumpe, etwa Wartung, Reparaturen oder ein eigener Zähler, mindern die Ersparnis.
+      heating_tab: Heizung
+    heatpump_payments:
+      name: Zahlungen
+      new: Neue Zahlung
+      edit: Zahlung bearbeiten
+      footer: Der Vergleich mit der fossilen Heizung zählt Wartung, Betriebskosten und Sonstiges als laufende Kosten der Wärmepumpe. Anschaffung und Förderung zählen nicht.
+      expenses: Ausgaben
+      incomes: Einnahmen
+      amount_hint: Eine Erstattung als negativen Betrag in ihrer Kategorie eintragen.
+      category_hint: "Anschaffung: Gerät, Einbau und Zubehör wie Messtechnik, auch die Raten eines Kredits dafür.\nWartung: auch Reparaturen.\nBetriebskosten: etwa ein eigener Zähler oder der Grundpreis eines Wärmepumpen-Tarifs."
     car_payments:
       name: Zahlungen
       new: Neue Zahlung
@@ -612,6 +661,13 @@ de:
     attributes:
       admin_user:
         password: Passwort
+      heatpump/heating:
+        fuel_type: Brennstoff
+        fuel_types:
+          heating_oil: Heizöl
+          gas: Erdgas
+        efficiency: Jahresnutzungsgrad
+        fixed_costs: Laufende Kosten pro Jahr
 
   activerecord:
     models:
@@ -637,10 +693,14 @@ de:
           lpg: Autogas (LPG)
         fuel_consumption: Verbrauch
         combustion_tax: Kfz-Steuer pro Jahr
+      payment:
+        category: Kategorie
+        date: Datum
+        amount: Betrag
+        note: Notiz
       car/payment:
         car: Auto
         car_id: Auto
-        category: Kategorie
         categories:
           purchase: Kauf
           leasing_down_payment: Sonderzahlung
@@ -654,9 +714,13 @@ de:
           subsidy: Förderung
           ghg_quota: THG-Quote
           sale: Verkauf
-        date: Datum
-        amount: Betrag
-        note: Notiz
+      heatpump/payment:
+        categories:
+          purchase: Anschaffung
+          maintenance: Wartung
+          operating_costs: Betriebskosten
+          other_expense: Sonstiges
+          subsidy: Förderung
       place:
         name: Name
         town: Ort laut OpenStreetMap

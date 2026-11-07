@@ -1,0 +1,18 @@
+/ The prices of the fuel of the heating in the chart of the comparison of a
+  car. The title names the fuel, and gas explains its estimated prices in
+  an info tooltip beside it.
+- heating = @comparison.heating
+- note = t("heatpump_comparison.fuel_prices_note.#{heating.fuel_type}", default: nil)
+= render Ui::TurboModal::Component.new(width: :medium) do |modal|
+  - modal.with_title do
+    span.inline-flex.items-center.gap-2
+      = t("heatpump_comparison.fuel_prices.#{heating.fuel_type}")
+      - if note
+        = render Ui::InfoIcon::Component.new(text: note, position: 'relative text-base')
+  = render Car::FuelPriceChart::Component.new( \
+      lines: { heating.human_fuel_type => @comparison.fuel_series },
+      extremes: @comparison.fuel_price_extremes,
+      days: @comparison.compared_dates.count,
+      unit: heating.fuel.unit,
+      precision: heating.fuel.price_precision,
+    )

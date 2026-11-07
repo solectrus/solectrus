@@ -18,6 +18,8 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   # suffix follows the title beside the car without PV.
   Column = Data.define(:key, :title, :total, :suffix) do
     def initialize(key:, title:, total:, suffix: nil) = super
+
+    def color = COLORS[key]
   end
   public_constant :Column
 
@@ -96,36 +98,15 @@ class Car::ComparisonPage::Component < ViewComponent::Base
   # Without a combustion car, the prices of any fuel
   def prices? = comparison ? comparison.possible? : Car::FuelPrices.any?
 
-  # The label of a figure
-  FIGURE_LABEL = 'font-semibold text-slate-500 dark:text-slate-400'.freeze
-  public_constant :FIGURE_LABEL
-
-  # The buttons below the columns: the details of the calculation, and the
-  # car without PV
-  PILL_BUTTON = 'inline-flex items-center gap-2 cursor-pointer rounded-full border border-slate-300 dark:border-slate-600 px-4 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus-ring'.freeze
-  public_constant :PILL_BUTTON
-
   # [[label, value, color], ...]: the figures beside the bars. The savings
   # are green for a gain and red for a loss.
   def figures
     per_100km = amounts.savings_per_100km
     [
-      [t('.figures.savings'), money(amounts.savings, precision: amounts.precision), savings_color_of(amounts.savings)],
-      [t('.figures.savings_without_pv'), money(amounts.savings_without_pv, precision: amounts.precision), savings_color_of(amounts.savings_without_pv)],
+      [t('.figures.savings'), amount(amounts.savings), savings_color_of(amounts.savings)],
+      [t('.figures.savings_without_pv'), amount(amounts.savings_without_pv), savings_color_of(amounts.savings_without_pv)],
       [t('.figures.savings_per_100km'), money(per_100km, precision: 2), (savings_color_of(per_100km) if per_100km)],
     ]
-  end
-
-  # A figure smaller than the savings: its label and its value
-  def small_figure(label, value, color)
-    helpers.tag.div do
-      helpers.safe_join(
-        [
-          helpers.tag.div(label, class: "#{FIGURE_LABEL} text-xs md:text-sm"),
-          helpers.tag.div(value, class: "mt-0.5 text-lg md:text-xl font-semibold tabular-nums #{color}"),
-        ],
-      )
-    end
   end
 
   # The fuel of the combustion car is a setting of the car, so the page
@@ -137,27 +118,6 @@ class Car::ComparisonPage::Component < ViewComponent::Base
       Column.new(key: :without_pv, title: t('.ev_without_pv'), total: amounts.car_cost_without_pv),
       Column.new(key: :combustion, title: t('.combustion').upcase_first, total: amounts.combustion_cost),
     ]
-  end
-
-  # The width of the bar of a column, in percent of the highest cost. A
-  # negative cost has no bar.
-  def bar_width(column)
-    highest = columns.map(&:total).max
-    return 0 unless highest.positive? && column.total.positive?
-
-    (column.total * 100 / highest).round(1)
-  end
-
-  # The title and the cost of a column above its bar
-  def bar(column)
-    tag = helpers.tag
-    head = tag.div(class: 'flex items-baseline justify-between gap-3 text-sm md:text-base') do
-      tag.span(column_title(column)) + tag.span(money(column.total, precision: amounts.precision), class: 'font-semibold tabular-nums')
-    end
-    track = tag.div(class: 'mt-1 h-3 rounded-full bg-slate-200 dark:bg-slate-700') do
-      tag.div(class: "h-3 rounded-full #{COLORS[column.key]}", style: "width: #{bar_width(column)}%")
-    end
-    head + track
   end
 
   # The info tooltip of the figures: how the savings come about, and the

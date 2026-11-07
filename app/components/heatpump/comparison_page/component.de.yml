@@ -1,0 +1,50 @@
+de:
+  heatpump: Wärmepumpe
+  without_pv: Wärmepumpe ohne PV
+  with_pv: (mit PV)
+  savings: Eingesparte Heizkosten
+  savings_without_pv: Ohne PV wären es
+  liters: Liter
+  to_settings: Zu den Einstellungen
+  none_title: Vergleich noch nicht eingerichtet
+  none: Es ist noch keine Öl- oder Gasheizung zum Vergleich gewählt.
+  no_prices_title: Noch keine Preise
+  no_prices: Der Vergleich braucht die Preise für %{fuel}. Der Public Data Collector liefert sie.
+  no_heat_title: Keine Wärme zum Vergleichen
+  no_heat: Im Zeitraum gibt es keinen Tag mit erzeugter Wärme, Kosten der Wärmepumpe und Brennstoffpreis.
+  steps:
+    heat: Wärme
+    cop: Arbeitszahl
+    electricity: Strombedarf
+    electricity_cost: Stromkosten
+    efficiency: Nutzungsgrad
+    fuel:
+      gas: Gasbedarf
+      heating_oil: Heizölbedarf
+    price: Preis
+    fuel_cost:
+      gas: Gaskosten
+      heating_oil: Heizölkosten
+    running_costs: Laufende Kosten
+    total: Kosten
+  notes:
+    savings: Der Unterschied der Heizkosten von Wärmepumpe und einer fiktiven fossilen Heizung, die dieselbe Wärme erzeugt.
+    data: |-
+      Berücksichtigte Daten:
+      - Erzeugte Wärme der Wärmepumpe
+      - Strom der Wärmepumpe mit seinen Kosten
+      - Historische Brennstoffpreise
+      - Laufende Kosten der fossilen Heizung
+      - Erfasste Zahlungen wie Wartung und Betriebskosten
+    heatpump_intro: Die Stromkosten der Wärmepumpe für die erzeugte Wärme.
+    heatpump: Netzstrom kostet den Strompreis, PV-Strom die entgangene Einspeisevergütung.
+    payments: Dazu kommen ihre erfassten laufenden Kosten wie Wartung, Reparaturen und Betriebskosten. Anschaffung und Förderung zählen nicht.
+    running_costs: Dazu kommen ihre laufenden Kosten pro Jahr aus den Einstellungen, etwa Wartung und Schornsteinfeger.
+    without_pv_intro: 'Fiktiv: dieselbe Wärmepumpe ohne PV-Anlage.'
+    without_pv: Der gesamte Strom kostet den Strompreis des Tages.
+    heating_intro: 'Fiktiv: eine fossile Heizung, die dieselbe Wärme erzeugt, mit Brennstoff und Nutzungsgrad aus den Einstellungen der Wärmepumpe.'
+    heating_oil: Heizöl kostet den Preis aus der Woche des Tages (Weekly Oil Bulletin der EU). Ein Liter hat %{kwh_per_liter} kWh (Brennwert).
+    gas: Erdgas kostet den Preis aus dem Monat des Tages (Eurostat), mit Grundpreis, Steuern und Abgaben.
+    left_out:
+      one: Ein Tag ohne Kosten der Wärmepumpe oder ohne Preis fehlt im Vergleich.
+      other: '%{count} Tage ohne Kosten der Wärmepumpe oder ohne Preis fehlen im Vergleich.'

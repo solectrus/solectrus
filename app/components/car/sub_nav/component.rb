@@ -13,20 +13,24 @@ class Car::SubNav::Component < ViewComponent::Base
   renders_one :timeframe
 
   # `back` takes the options of the way back of Ui::TitleBar::Component.
-  # `desktop_back` is the way back of the desktop, which has no page More.
-  # `add` is a hash with :href and :label, or nil. `car_select` is the select
-  # of the car of the desktop (see Car::Select::Component), or nil.
-  def initialize(title:, back:, desktop_back: back[:back_href], tabs: [], add: nil, car_select: nil)
+  # `desktop_back` is the way back of the desktop, which has no page More,
+  # and `desktop_back_label` names the page it leads to, the car page by
+  # default (see Car::BackLink::Component). `add` is a hash with :href and
+  # :label, or nil. `car_select` is the select of the car of the desktop (see
+  # Car::Select::Component), or nil. The comparison of the heat pump has the
+  # same head (see heatpump/savings/index.html.slim).
+  def initialize(title:, back:, desktop_back: back[:back_href], desktop_back_label: nil, tabs: [], add: nil, car_select: nil) # rubocop:disable Metrics/ParameterLists
     super()
     @title = title
     @back = back
     @desktop_back = desktop_back
+    @desktop_back_label = desktop_back_label
     @tabs = tabs
     @add = add
     @car_select = car_select
   end
 
-  attr_reader :title, :back, :desktop_back, :tabs, :add
+  attr_reader :title, :back, :desktop_back, :desktop_back_label, :tabs, :add
 
   def car_select? = !@car_select.nil?
 

@@ -6,9 +6,7 @@
 # in a tooltip instead. A title never links. The component has the report, the comparison, its amounts, the
 # timeframe and `@car`, the parameter of the selected car, nil for "all".
 module Car::ComparisonLinks
-  # A link in the text of the page: a dotted line in the color of the text,
-  # because a blue link everywhere would be restless
-  LINK = 'border-b border-dotted border-slate-400 hover:border-solid dark:border-slate-500 rounded-sm focus-ring'.freeze
+  LINK = Car::ComparisonFormat::LINK
   private_constant :LINK
 
   # A value with a link to `href`, in the modal with `modal: true`, or with

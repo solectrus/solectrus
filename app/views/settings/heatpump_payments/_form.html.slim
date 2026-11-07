@@ -1,0 +1,16 @@
+ruby:
+  # The categories in two groups, the expenses and the incomes
+  categories = { expenses: Heatpump::Payment::EXPENSES, incomes: Heatpump::Payment::INCOMES }.to_h do |group, keys|
+    [t("settings.heatpump_payments.#{group}"), keys.map { [Heatpump::Payment.human_enum_name(:category, it), it] }]
+  end
+
+= form_page_with(model: payment, url: payment.persisted? ? settings_heatpump_payment_path(payment) : settings_heatpump_payments_path) do |f|
+  = f.group footer: t('settings.heatpump_payments.footer') do
+    = f.select :category, categories, { include_blank: true, hint: t('settings.heatpump_payments.category_hint') }, autofocus: true
+    = f.date_field :date
+    = f.number_field :amount, step: '0.01', currency: true, hint: t('settings.heatpump_payments.amount_hint')
+
+  = f.group do
+    = f.text_field :note
+
+  = render Ui::SubmitButton::Component.new delete_path: (settings_heatpump_payment_path(payment) if payment.persisted?)

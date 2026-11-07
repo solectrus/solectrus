@@ -1,0 +1,10 @@
+button[
+  class=Car::ComparisonFormat::PILL_BUTTON
+  type='button'
+  aria-pressed=pressed.to_s
+  data-action='without-pv-toggle#toggle'
+]
+  span.grid
+    span class='col-start-1 row-start-1 group-data-without-pv/comparison:invisible' = t('.show')
+    span class='invisible col-start-1 row-start-1 group-data-without-pv/comparison:visible' = t('.hide')
+  = icon 'plus', class: 'text-xs transition-transform motion-reduce:transition-none group-data-without-pv/comparison:rotate-45'

@@ -4,7 +4,7 @@
 / The desktop has the way back, the lists or the title, and the timeframe
 .hidden.lg:flex.relative.items-center.justify-between.py-5
   .flex.items-center.gap-2
-    = render Car::BackLink::Component.new(path: desktop_back)
+    = render Car::BackLink::Component.new(path: desktop_back, label: desktop_back_label)
     - if tabs.any?
       = render Nav::Sub::Component.new(abbreviate: false) do |c|
         - c.with_items tabs

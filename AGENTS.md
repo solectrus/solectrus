@@ -18,6 +18,7 @@ problem outside it, name it in one sentence and leave that code alone.
 - `docs/sensor-sql-queries.md` — SQL query patterns for daily+ timeframes
 - `docs/MCP.md` — the built-in MCP server and the tools it exposes
 - `docs/cars.md` — car support: numbered cars, charging sessions, rates and costs
+- `docs/heatpump.md` — the comparison of the heat pump with an oil or a gas heating
 
 Keep a document here to its substance: no filler sections, no repeated
 summaries.

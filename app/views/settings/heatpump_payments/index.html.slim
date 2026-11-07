@@ -1,0 +1,10 @@
+/ One level below the heating on a phone, a tab beside it on the desktop
+= render 'settings/sub_nav', title:, back_href: edit_settings_heatpump_path, back_label: t('settings.heatpump.name'), action: { href: new_settings_heatpump_payment_path(return_to: list_address), icon: 'plus', label: t('settings.heatpump_payments.new') }
+
+= render Ui::SideNav::Component.new(items: heatpump_nav_items) do
+  / The filter stands outside the frame, so a refresh of the list keeps it
+  = render Ui::FilterBar::Component.new(filter:, category_pill: Heatpump::PaymentCategoryPill::Component)
+
+  / A stream refreshes the list. The link of a row on a phone leaves the frame.
+  = tag.turbo_frame id: 'list', target: '_top' do
+    = render list_component(@payments, @pagy)

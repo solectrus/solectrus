@@ -40,6 +40,14 @@ class Setting < RailsSettings::Base
   field :enable_car, type: :boolean, default: true
   field :enable_forecast, type: :boolean, default: true
 
+  # The heating that burns oil or gas, which the heat pump compares with (see
+  # Heatpump::Heating). Until the admin saves it, a gas heating with a
+  # condensing boiler is the default. An empty fuel is the choice of no
+  # comparison.
+  field :heatpump_heating_fuel_type, type: :string, default: 'gas'
+  field :heatpump_heating_efficiency, type: :integer, default: 85
+  field :heatpump_heating_fixed_costs, type: :float
+
   # Read-only data access via Model Context Protocol (/mcp). Disabled by
   # default; admins opt in via the system settings. When enabled, access is
   # protected by stateless OAuth (auth code + PKCE), authenticated with the

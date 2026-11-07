@@ -195,6 +195,26 @@ en:
     total: Power consumption
     costs_note:
       battery_charging_power: Grid electricity is attributed to the consumers.
+  heatpump_comparison:
+    title: Comparison with %{heating}
+    title_none: Comparison with an oil or a gas heating
+    savings: Savings
+    # The tooltip of the savings badge on the heat pump page
+    badge_tooltip: The savings compare the heat pump with an imagined %{heating} that would have made the same heat.
+    back: Back to the heat pump
+    fuel_prices:
+      heating_oil: Heating oil price
+      gas: Gas price
+    # The info tooltip beside the title of the prices, only for a fuel with
+    # a note
+    fuel_prices_note:
+      gas: |-
+        Eurostat measures the gas price for each half year and publishes it about six months later.
+
+        Newer months are estimates, which it corrects then.
+    heating:
+      heating_oil: oil heating
+      gas: gas heating
   car_comparison:
     # The tab of the page beside the charging sessions and the places. The
     # title bar has the name of the menu (layout.car_comparison).
@@ -475,6 +495,8 @@ en:
       vehicles: Your electric vehicles
       car_payments: Running costs and incomes of the electric vehicles
       places: Places visited by the electric vehicles
+      heatpump_heating: Fossil heating for the comparison
+      heatpump_payments: Costs and incomes of the heat pump
     plant:
       name: PV system
       data: Name
@@ -523,6 +545,33 @@ en:
       battery_kwh_hint: The usable capacity. It estimates the energy of an unconfirmed offsite charge and gives the loss of a charge.
       combustion: Fictional combustion car that the EV replaces
       fuel_type_none: No comparison
+    heatpump:
+      name: Heat pump
+      intro: The costs of the heat pump compared with an imagined oil or gas heating.
+      fuel_type_none: No comparison
+      efficiency_hint: |-
+        The part of the energy in the fuel that arrives as heat, relative to the gross calorific value.
+
+        In daily use, a condensing boiler reaches about 75 to 90 %, a boiler without condensing 70 to 80 %.
+
+        If the house had an oil or a gas heating before, its old bills give a more exact value: the generated heat of a year divided by the fuel in kWh of an earlier year with similar weather.
+      fixed_costs_hint: |-
+        All running costs of the fossil heating: the maintenance, the chimney sweep, the electricity of the burner and the pump, for oil also the cleaning and the insurance of the tank, and also an average for repairs.
+
+        A gas heating usually costs about 250 to 400 € a year, an oil heating 400 to 550 €.
+
+        The standing charge of a gas connection does not belong here, because the gas price includes it.
+      payments_intro: The running costs of the heat pump, for example the maintenance, repairs or a meter of its own, reduce the savings.
+      heating_tab: Heating
+    heatpump_payments:
+      name: Payments
+      new: New payment
+      edit: Edit payment
+      footer: The comparison with the fossil heating counts the maintenance, the operating costs and other costs as running costs of the heat pump. The purchase and a subsidy do not count.
+      expenses: Expenses
+      incomes: Incomes
+      amount_hint: Enter a refund as a negative amount in its category.
+      category_hint: "Purchase: the device, its installation and accessories like a meter, also the rates of a loan for them.\nMaintenance: repairs too.\nOperating costs: for example a meter of its own or the standing charge of a heat pump tariff."
     car_payments:
       name: Payments
       new: New payment
@@ -612,6 +661,13 @@ en:
     attributes:
       admin_user:
         password: Password
+      heatpump/heating:
+        fuel_type: Fuel
+        fuel_types:
+          heating_oil: Heating oil
+          gas: Natural gas
+        efficiency: Annual efficiency
+        fixed_costs: Running costs per year
 
   activerecord:
     models:
@@ -637,10 +693,14 @@ en:
           lpg: LPG
         fuel_consumption: Consumption
         combustion_tax: Vehicle tax per year
+      payment:
+        category: Category
+        date: Date
+        amount: Amount
+        note: Note
       car/payment:
         car: Car
         car_id: Car
-        category: Category
         categories:
           purchase: Purchase
           leasing_down_payment: Down payment
@@ -654,9 +714,13 @@ en:
           subsidy: Subsidy
           ghg_quota: GHG quota
           sale: Sale
-        date: Date
-        amount: Amount
-        note: Note
+      heatpump/payment:
+        categories:
+          purchase: Purchase
+          maintenance: Maintenance
+          operating_costs: Operating costs
+          other_expense: Other
+          subsidy: Subsidy
       place:
         name: Name
         town: Town according to OpenStreetMap
