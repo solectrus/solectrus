@@ -1,8 +1,8 @@
 # The savings of the driving against a combustion car (see Car::Comparison),
-# as a bar below the card of the driving, with the costs of both cars in its
-# tooltip. It opens the comparison page. A phone shows a link in the card in
-# its place, because a bar above the timeline of a day looks like one of its
-# lanes.
+# as a bar below the card of the driving. Its tooltip says what the savings
+# compare, without numbers, like the badge of the heat pump. It opens the
+# comparison page. A phone shows a link in the card in its place, because a
+# bar above the timeline of a day looks like one of its lanes.
 module Car::PeriodOverview::Driving::Savings
   # The comparison below the card, which opens the comparison page. Without
   # fuel prices, there is no page to open, and the bar is a gray track (see
@@ -55,7 +55,7 @@ module Car::PeriodOverview::Driving::Savings
   # bar is the cost of the car. Without a compared distance, the bar is a
   # gray track, and the comparison page tells why. The cost of the car has
   # no label: the savings beside it say what the bar compares, and the
-  # tooltip names both costs. The bar has the amounts only with the
+  # comparison page names both costs. The bar has the amounts only with the
   # comparison page, so it is always a link, whose press scales the labels.
   # The car has the green of PV, which is the green of the comparison page
   # in light mode, and in dark mode the darker green of the cards, because
@@ -81,20 +81,8 @@ module Car::PeriodOverview::Driving::Savings
     )
   end
 
-  # The car and the combustion car, each in the color of its column on the
-  # comparison page (see Car::ComparisonFormat::COLORS), and the savings
-  # below them
-  def savings_parts
-    savings = amounts.savings
-    [
-      Car::Tooltip::Component::Part.new(label: t('.ev'), value: money(amounts.car_cost, precision: amounts.precision), color: 'var(--color-signal-positive)'),
-      Car::Tooltip::Component::Part.new(label: t('.combustion'), value: money(amounts.combustion_cost, precision: amounts.precision), color: 'var(--color-combustion)'),
-      Car::Tooltip::Component::Part.new(label: t('.savings'), value: helpers.tag.span(money(savings, precision: amounts.precision), class: savings_color_of(savings))),
-    ]
-  end
-
   def savings_tooltip
-    amounts ? { parts: savings_parts, notes: [t('.savings_note')] } : { notes: [t(".no_savings.#{no_savings_reason}")] }
+    amounts ? { notes: [t('.savings_note')] } : { notes: [t(".no_savings.#{no_savings_reason}")] }
   end
 
   # Why the bar is a gray track: no drive, no comparison with fuel prices

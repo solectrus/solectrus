@@ -11,7 +11,7 @@ de:
   combustion: Verbrenner
   saved: '%{amount} gespart'
   extra: '%{amount} mehr'
-  savings_note: Der Unterschied der laufenden Kosten von E-Auto und einem fiktiven Verbrenner, mit Kosten wie Versicherung und Wartung.
+  savings_note: Die Ersparnis vergleicht das E-Auto mit einem gedachten Verbrenner, der dieselbe Strecke gefahren wäre.
   no_savings:
     drive: Ohne Fahrt gibt es nichts zu vergleichen.
     comparison: Für den Vergleich braucht das Auto einen Verbrenner in seinen Einstellungen und die Kraftstoffpreise.

@@ -8,7 +8,6 @@
 # Car::PeriodOverview::Driving::Savings).
 class Car::PeriodOverview::Driving::Component < ViewComponent::Base
   include Car::ChartLink
-  include Car::ComparisonFormat
   include Car::PeriodOverview::Driving::Savings
 
   def initialize(report:)

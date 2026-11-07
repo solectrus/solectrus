@@ -139,10 +139,11 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
       expect(card.css('> div.max-lg\\:hidden a[href*="/savings"]')).to be_empty
     end
 
-    it 'names both cars and the savings in the tooltip' do
+    it 'explains the comparison in the tooltip, without numbers' do
       tooltip = comparison_bar.parent.at_css('[data-tooltip-target="html"]').text.squish
 
-      expect(tooltip).to include('Savings against a combustion car', 'EV25 €', 'Combustion car100 €', 'Savings75 €')
+      expect(tooltip).to include('Savings against a combustion car', 'The savings compare the EV with an imagined combustion car')
+      expect(tooltip).not_to match(/\d/)
     end
 
     # The whole bar is the cost of the car
