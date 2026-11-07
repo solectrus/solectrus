@@ -256,7 +256,7 @@ class Car::Comparison # rubocop:disable Metrics/ClassLength
     days = driving.in_use(car, dates)
     return 0.0 unless yearly.positive? && days
 
-    days.sum { yearly / (Date.gregorian_leap?(it.year) ? 366 : 365) }
+    days.sum { yearly / Time.days_in_year(it.year) }
   end
 
   # The payments of the cars of a category in the dates as a cost: the
