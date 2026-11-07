@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_18_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -18,18 +18,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_100000) do
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "aggregation_enum", ["sum", "max", "min", "avg", "last"]
   create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "battery_discharging_power_grid", "car_battery_soc_1", "car_battery_soc_2", "car_battery_soc_3", "car_battery_soc_4", "car_battery_soc_5", "car_odometer_1", "car_odometer_2", "car_odometer_3", "car_odometer_4", "car_odometer_5", "car_max_range_1", "car_max_range_2", "car_max_range_3", "car_max_range_4", "car_max_range_5", "car_range_1", "car_range_2", "car_range_3", "car_range_4", "car_range_5"]
-
-  create_table "car_payments", force: :cascade do |t|
-    t.integer "car_id", null: false
-    t.string "category", null: false
-    t.date "date", null: false
-    t.decimal "amount", precision: 10, scale: 2, null: false
-    t.string "note"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["car_id"], name: "index_car_payments_on_car_id"
-    t.check_constraint "amount <> 0::numeric", name: "car_payments_amount"
-  end
 
   create_table "cars", id: :integer, default: nil, force: :cascade do |t|
     t.string "name"
@@ -110,6 +98,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_100000) do
     t.index ["published_at"], name: "index_notifications_on_published_at"
   end
 
+  create_table "payments", force: :cascade do |t|
+    t.string "type", null: false
+    t.integer "car_id"
+    t.string "category", null: false
+    t.date "date", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["car_id"], name: "index_payments_on_car_id"
+    t.index ["type", "date"], name: "index_payments_on_type_and_date"
+    t.check_constraint "amount <> 0::numeric", name: "payments_amount"
+    t.check_constraint "type::text <> 'Car::Payment'::text OR car_id IS NOT NULL", name: "payments_car"
+  end
+
   create_table "place_visits", force: :cascade do |t|
     t.integer "car_id", null: false
     t.date "date", null: false
@@ -167,8 +170,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_18_100000) do
     t.index ["field", "aggregation", "date"], name: "index_summary_values_on_field_and_aggregation_and_date"
   end
 
-  add_foreign_key "car_payments", "cars"
   add_foreign_key "charging_sessions", "cars", name: "charging_sessions_car_id_fkey"
+  add_foreign_key "payments", "cars"
   add_foreign_key "place_visits", "cars"
   add_foreign_key "place_visits", "places", on_delete: :cascade
   add_foreign_key "summary_values", "summaries", column: "date", primary_key: "date", on_delete: :cascade

@@ -1,0 +1,6 @@
+en:
+  empty_title: No payments yet
+  empty:
+    car_payment: Add what your cars cost and earn, from the purchase and the insurance to the GHG quota.
+    heatpump_payment: Add what your heat pump costs and earns, from the purchase and the maintenance to a subsidy.
+  empty_filtered: No payments match this filter

@@ -1,6 +1,6 @@
-describe Car::PaymentList::Component, type: :component do
+describe PaymentList::Component, type: :component do
   subject(:html) do
-    render_inline(described_class.new(payments: Car::Payment.none, pagy: nil, total: 0, cars: [Car.new(id: 1)], filter:))
+    render_inline(described_class.new(payments: Car::Payment.none, payment_class: Car::Payment, pagy: nil, total: 0, cars: [Car.new(id: 1)], filter:))
   end
 
   context 'without a filter' do

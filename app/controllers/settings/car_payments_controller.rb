@@ -24,7 +24,7 @@ class Settings::CarPaymentsController < ApplicationController
 
   def index
     @pagy, @payments = paginated_payments
-    render(rows_component(@payments, @pagy), layout: false) if Ui::LazyRows::Component.request?(request, Car::PaymentList::Rows::Component::FRAME_PREFIX)
+    render(rows_component(@payments, @pagy), layout: false) if Ui::LazyRows::Component.request?(request, PaymentList::Rows::Component.frame_prefix(Car::Payment))
   end
 
   def new
@@ -64,7 +64,7 @@ class Settings::CarPaymentsController < ApplicationController
   end
 
   def list_component(payments, pagy)
-    Car::PaymentList::Component.new(payments:, pagy:, total: filtered_payments.signed_sum, cars:, filter:)
+    PaymentList::Component.new(payments:, payment_class: Car::Payment, pagy:, total: filtered_payments.signed_sum, cars:, filter:)
   end
 
   helper_method :list_component
@@ -73,7 +73,7 @@ class Settings::CarPaymentsController < ApplicationController
   # before tells whether its first payment goes on with that year.
   def rows_component(payments, pagy)
     previous_date = filtered_payments.offset(pagy.offset - 1).pick(:date)
-    Car::PaymentList::Rows::Component.new(payments:, pagy:, car_column: cars.many?, filter:, previous_date:, frame: true)
+    PaymentList::Rows::Component.new(payments:, payment_class: Car::Payment, pagy:, car_column: cars.many?, filter:, previous_date:, frame: true)
   end
 
   helper_method def title

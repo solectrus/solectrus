@@ -2,20 +2,22 @@ require 'rails_helper'
 
 # == Schema Information
 #
-# Table name: car_payments
+# Table name: payments
 #
 #  id         :bigint           not null, primary key
 #  amount     :decimal(10, 2)   not null
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string
+#  type       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  car_id     :integer          not null
+#  car_id     :integer
 #
 # Indexes
 #
-#  index_car_payments_on_car_id  (car_id)
+#  index_payments_on_car_id         (car_id)
+#  index_payments_on_type_and_date  (type,date)
 #
 # Foreign Keys
 #

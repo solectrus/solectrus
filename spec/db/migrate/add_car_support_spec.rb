@@ -1,15 +1,16 @@
 require Rails.root.join('db', 'migrate', '20260927102209_add_car_support')
 require Rails.root.join('db', 'migrate', '20261018100000_add_combustion_comparison')
+require Rails.root.join('db', 'migrate', '20261107120000_create_payments')
 
-# Runs the migration down and up again. The payments of a later migration
-# refer to the cars, so that migration goes down first and up last.
-# PostgreSQL rolls the changes of the schema back with the transaction of
-# the example.
+# Runs the migration down and up again. The payments of the later
+# migrations refer to the cars, so those migrations go down first and up
+# last. PostgreSQL rolls the changes of the schema back with the transaction
+# of the example.
 describe AddCarSupport do
   subject(:migration) { described_class.new }
 
   def migrate(direction)
-    steps = [migration, AddCombustionComparison.new]
+    steps = [migration, AddCombustionComparison.new, CreatePayments.new]
     steps.reverse! if direction == :down
     steps.each do |step|
       forget_tables

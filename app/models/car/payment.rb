@@ -1,33 +1,32 @@
 # A payment of a car on a date, for example its purchase, a rate of its
-# lease, its insurance or the GHG quota of a year. Its category gives the direction: an income or an
-# expense. The amount of an expense can be negative: a refund, for example
-# of the insurance, lowers the cost of its category. A payment does not
-# count in the amortization, because the car is not part of the PV system.
+# lease, its insurance or the GHG quota of a year (see Payment).
 #
 # The comparison with a combustion car (see Car::Comparison) counts the
 # categories of an electric car alone and the running costs (see COMPARED).
 # == Schema Information
 #
-# Table name: car_payments
+# Table name: payments
 #
 #  id         :bigint           not null, primary key
 #  amount     :decimal(10, 2)   not null
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string
+#  type       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
-#  car_id     :integer          not null
+#  car_id     :integer
 #
 # Indexes
 #
-#  index_car_payments_on_car_id  (car_id)
+#  index_payments_on_car_id         (car_id)
+#  index_payments_on_type_and_date  (type,date)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (car_id => cars.id)
 #
-class Car::Payment < ApplicationRecord
+class Car::Payment < Payment
   belongs_to :car, inverse_of: :payments
 
   # The expenses first, then the incomes, in the order of the form
@@ -73,32 +72,11 @@ class Car::Payment < ApplicationRecord
   enum :category, (EXPENSES + INCOMES).index_with(&:itself), validate: true
 
   scope :compared, -> { where(category: COMPARED) }
-  scope :ordered, -> { order(date: :desc, id: :desc) }
-
-  # The sum of the payments, positive for more income than expense. One
-  # query adds the incomes and subtracts the expenses.
-  def self.signed_sum
-    amount = arel_table[:amount]
-    sum(Arel::Nodes::Case.new.when(arel_table[:category].in(INCOMES)).then(amount).else(Arel::Nodes::UnaryOperation.new('-', amount)))
-  end
-
-  normalizes :note, with: -> { it.strip.presence }
 
   # The list and the comparison show the configured cars only, so a payment
   # of another car could not be found again
   validates :car_id, inclusion: { in: ->(_) { Car.configured.map(&:id) } }, if: :car_id_changed?
-  validates :date, presence: true
-  validates :amount, presence: true, numericality: { other_than: 0, greater_than: -100_000_000, less_than: 100_000_000 }
-  validates :amount, numericality: { greater_than: 0 }, if: :income?
   validate :car_active, if: -> { car && date && category && changed.intersect?(%w[car_id date category]) }
-
-  def self.income?(category) = category.in?(INCOMES)
-
-  def income? = self.class.income?(category)
-
-  # The amount with the sign of its category: an income is positive, an
-  # expense negative
-  def signed_amount = income? ? amount : -amount
 
   private
 

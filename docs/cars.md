@@ -52,7 +52,7 @@ between charging and driving, because the car drives on energy of other days. A 
 | `Car::AdminOnlyDays`                | the days that only the admin sees: today and yesterday                  |
 | `Car::Comparison`                   | the cost of the cars against a combustion car, and its page             |
 | `Car::FuelPrices`                   | the weekly fuel prices, from InfluxDB                                   |
-| `Car::Payment`                      | an income or an expense of a car, for the comparison                    |
+| `Car::Payment`                      | an income or an expense of a car, for the comparison (see `Payment`)    |
 | `CarSelection`                      | the selected car (`/cars/2/…`) on the car page and in the lists         |
 | `Car::Section`                      | the two columns of the overview, driving and charging, and their charts |
 | `Place`, `Place::VisitDetection`    | the places where the cars stood, and the visits there                   |
