@@ -76,4 +76,33 @@ describe ApplicationHelper do
 
     it { is_expected.to eq('controller1 controller2') }
   end
+
+  describe '#honeybadger_api_key' do
+    subject { helper.honeybadger_api_key }
+
+    before do
+      allow(Rails.configuration.x.honeybadger).to receive(:api_key).and_return(
+        'secret',
+      )
+      helper.request.user_agent = user_agent
+    end
+
+    context 'with a supported browser' do
+      let(:user_agent) do
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15'
+      end
+
+      it { is_expected.to eq('secret') }
+    end
+
+    # The browser check can be skipped, but such a browser cannot parse all of
+    # the JavaScript
+    context 'with a browser below the minimum version' do
+      let(:user_agent) do
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.8 Safari/605.1.15'
+      end
+
+      it { is_expected.to be_nil }
+    end
+  end
 end

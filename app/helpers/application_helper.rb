@@ -92,4 +92,10 @@ module ApplicationHelper
   def chrome_background_style
     "background-color: var(--color-chrome, #{ThemeConfig.x.color(chosen_theme)})"
   end
+
+  # The browser reports its errors only when it is one the app supports, see
+  # BrowserCheck
+  def honeybadger_api_key
+    Rails.configuration.x.honeybadger.api_key if BrowserCheck.supported?(request)
+  end
 end

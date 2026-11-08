@@ -11,13 +11,28 @@
 module BrowserCheck
   extend ActiveSupport::Concern
 
+  MINIMUM_VERSIONS = { chrome: 111, safari: 16.4, firefox: 128, ie: false }.freeze
+  private_constant :MINIMUM_VERSIONS
+
+  # A skipped check lets an older browser in. It cannot parse all of the
+  # JavaScript, so its errors are no bugs of the application.
+  #
+  # BrowserBlocker is internal to Rails (nodoc), but it is the same check that
+  # allow_browser runs. The specs of BrowserCheck and ApplicationHelper fail
+  # when a Rails update changes it.
+  def self.supported?(request)
+    # Rails loads the gem only inside the allow_browser callback, which has
+    # not run when the check is skipped
+    require 'useragent'
+
+    !ActionController::AllowBrowser::BrowserBlocker.new(
+      request,
+      versions: MINIMUM_VERSIONS,
+    ).blocked?
+  end
+
   included do
-    allow_browser versions: {
-                    chrome: 111,
-                    safari: 16.4,
-                    firefox: 128,
-                    ie: false,
-                  },
+    allow_browser versions: MINIMUM_VERSIONS,
                   unless: -> { browser_check_disabled? },
                   except: %i[skip_browser_check]
   end

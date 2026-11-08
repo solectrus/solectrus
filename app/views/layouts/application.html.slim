@@ -32,8 +32,8 @@ html.scroll-pt-4.scroll-pb-20 class= html_theme_classes lang= I18n.locale style=
     meta name="robots" content= "noindex, nofollow, noarchive"
     = turbo_refreshes_with method: :morph, scroll: :preserve
 
-    - if Rails.configuration.x.honeybadger.api_key
-      meta name="honeybadger-api-key" content= Rails.configuration.x.honeybadger.api_key
+    - if honeybadger_api_key
+      meta name="honeybadger-api-key" content= honeybadger_api_key
 
     link rel="manifest" href= manifest_path crossorigin="use-credentials"
     link rel="icon" type="image/png" sizes="196x196" href="/favicon-196.png"

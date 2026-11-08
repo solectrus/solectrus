@@ -34,6 +34,17 @@ describe 'Browser Check', type: :request do
 
           expect(response).to have_http_status(:redirect)
         end
+
+        # Such a browser cannot parse all of the JavaScript, so its errors
+        # are no bugs of the application
+        it 'does not report errors to Honeybadger' do
+          allow(Rails.configuration.x.honeybadger).to receive(:api_key).and_return('secret')
+
+          get('/login', headers:)
+
+          expect(response).to have_http_status(:ok)
+          expect(response.body).not_to include('honeybadger-api-key')
+        end
       end
     end
   end
@@ -50,6 +61,14 @@ describe 'Browser Check', type: :request do
       get('/', headers:)
 
       expect(response).to have_http_status(:redirect)
+    end
+
+    it 'reports errors to Honeybadger' do
+      allow(Rails.configuration.x.honeybadger).to receive(:api_key).and_return('secret')
+
+      get('/login', headers:)
+
+      expect(response.body).to include('<meta content="secret" name="honeybadger-api-key" />')
     end
   end
 end
