@@ -63,6 +63,10 @@ module Car::ComparisonFormat
   # does not cover the page.
   def info_icon(notes, position: nil) = Ui::InfoIcon::Component.new(text: notes.join("\n\n"), position: helpers.class_names('relative', position))
 
+  # The lowest and the highest price, rounded to their decimals. Two prices
+  # that look the same stand as one.
+  def shown_prices(lowest, highest, precision:) = [lowest, highest].map { it.round(precision) }.uniq
+
   # The color of a saving: green for a gain, red for a loss
   def savings_color_of(amount) = amount.negative? ? 'text-signal-negative' : 'text-signal-positive'
 

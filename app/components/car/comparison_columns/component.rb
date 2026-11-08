@@ -285,11 +285,11 @@ class Car::ComparisonColumns::Component < ViewComponent::Base
   def quantity_precision(value) = value.abs < 10 ? 1 : 0
 
   # [number, unit] of the lowest and the highest price per liter, one price
-  # if they are the same. The range opens the modal of the prices.
+  # if they look the same. The range opens the modal of the prices.
   def price_range_cell(range, href)
     return money_cell(nil, precision: 2) unless range
 
-    prices = [range.begin, range.end].uniq.map { Sensor::Value::Component.new(it, :total_costs, unit: false, precision: 2) }
+    prices = shown_prices(range.begin, range.end, precision: 2).map { Sensor::Value::Component.new(it, :total_costs, unit: false, precision: 2) }
     number = helpers.safe_join(prices.map { render(it) }, ' – ')
     [linked(number, href, modal: true), prices.first.unit]
   end
