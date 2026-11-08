@@ -226,7 +226,7 @@ GEM
     nokogiri (1.19.7-x86_64-linux-musl)
       racc (~> 1.4)
     ostruct (0.6.3)
-    pagy (43.8.1)
+    pagy (43.8.2)
       json
       uri
       yaml
