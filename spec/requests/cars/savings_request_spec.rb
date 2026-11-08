@@ -258,11 +258,11 @@ describe 'Cars Savings' do
         get_comparison cars_savings_path(timeframe: '2026')
 
         expect(response.parsed_body.text.squish).to include('Without PV, it would be', 'Per 100 km190.26 €')
-        expect(rows).to include('Consumption per 100 km 8.0 liters', '× Distance 150 km', '= Fuel 12 liters', 'Price per liter 1.90 – 2.10 €', '= Fuel cost 24 €', '+ Vehicle tax 266 €', '= Running costs 290 €', 'Per 100 km 193.33 €')
+        expect(rows).to include('Consumption per 100 km 8.0 liters', '× Distance 150 km', '= Fuel needed 12 liters', 'Price per liter 1.90 – 2.10 €', '= Fuel cost 24 €', '+ Vehicle tax 266 €', '= Running costs 290 €', 'Per 100 km 193.33 €')
 
         # 30 kWh for 150 km, 10 kWh of them from the grid for 3.00 EUR, and
         # the PV energy for the rest of 4.60 EUR
-        expect(rows).to include('Consumption per 100 km 20.0 kWh', '= Energy 30 kWh', 'PV energy 2 €', '+ Grid energy 3 €', '= Electricity cost 5 €', 'Per 100 km 3.07 €')
+        expect(rows).to include('Consumption per 100 km 20.0 kWh', '= Electricity needed 30 kWh', 'PV energy 2 €', '+ Grid energy 3 €', '= Electricity cost 5 €', 'Per 100 km 3.07 €')
       end
 
       # 24 EUR fuel for 150 km. The car has no other costs, so its electricity

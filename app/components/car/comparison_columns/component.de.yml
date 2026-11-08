@@ -8,8 +8,8 @@ de:
     total: Laufende Kosten
     per_100km: Pro 100 km
     consumption: Verbrauch pro 100 km
-    fuel: Kraftstoff
-    energy: Energie
+    fuel: Kraftstoffbedarf
+    energy: Strombedarf
     pv: PV-Strom
     grid: Netzstrom
     offsite: Auswärts geladen

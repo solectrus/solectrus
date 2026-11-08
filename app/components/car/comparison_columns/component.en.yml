@@ -8,8 +8,8 @@ en:
     total: Running costs
     per_100km: Per 100 km
     consumption: Consumption per 100 km
-    fuel: Fuel
-    energy: Energy
+    fuel: Fuel needed
+    energy: Electricity needed
     pv: PV energy
     grid: Grid energy
     offsite: Charged offsite
