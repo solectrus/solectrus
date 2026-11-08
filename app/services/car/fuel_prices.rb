@@ -7,13 +7,11 @@
 # A price holds until the next one, like the state of a car sensor, so the
 # days after the last price keep it. A day before the first price has none.
 class Car::FuelPrices
-  # The collector writes a new price once a week. Without a price, the
-  # collector can start later, so the cache asks again sooner.
+  # The collector writes a new price once a week, so the cache asks
+  # InfluxDB once an hour. An empty result holds as long, because an
+  # installation can run without the collector for a long time.
   CACHE_TTL = 1.hour
   private_constant :CACHE_TTL
-
-  EMPTY_CACHE_TTL = 5.minutes
-  private_constant :EMPTY_CACHE_TTL
 
   # Whether a price of any fuel exists
   def self.any? = Car.fuel_types.keys.any? { new(it).any? }
@@ -53,10 +51,7 @@ class Car::FuelPrices
   def points
     return @points = [] unless Currency.eur?
 
-    @points ||=
-      Rails.cache.fetch(['fuel-prices', fuel_type], expires_in: CACHE_TTL) do |_key, options|
-        Sensor::Query::FuelPrices.new(fuel_type).call.tap { options.expires_in = EMPTY_CACHE_TTL if it.empty? }
-      end
+    @points ||= Rails.cache.fetch(['fuel-prices', fuel_type], expires_in: CACHE_TTL) { Sensor::Query::FuelPrices.new(fuel_type).call }
   end
 
   def dates = @dates ||= points.map(&:first)

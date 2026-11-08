@@ -71,13 +71,15 @@ describe Car::FuelPrices do
       expect(prices.at(Date.new(2026, 1, 5))).to be_nil
     end
 
-    # The collector can start later, so the empty result holds for a short
-    # time only
-    it 'asks InfluxDB again after a few minutes' do
+    # An installation can run without the collector for a long time, so the
+    # empty result holds as long as the prices
+    it 'asks InfluxDB again after an hour' do
       allow(Rails).to receive(:cache).and_return(ActiveSupport::Cache::MemoryStore.new)
 
-      2.times { described_class.new('petrol').any? }
-      travel 6.minutes
+      described_class.new('petrol').any?
+      travel 59.minutes
+      described_class.new('petrol').any?
+      travel 2.minutes
       described_class.new('petrol').any?
 
       expect(query).to have_received(:call).twice
