@@ -162,11 +162,14 @@ export default class extends Controller<HTMLElement> {
   // Whether the marking slides here and now. Without a slide, a tab with a
   // menu keeps its look until the page arrives, as a label of the same color
   // as the marking would vanish on it.
+  //
+  // Safari has checkVisibility only since 17.4, so an older one does not slide
   private slides() {
     return (
       this.slideValue &&
       !pills.matches &&
       !isReducedMotion() &&
+      typeof this.element.checkVisibility === 'function' &&
       this.element.checkVisibility()
     );
   }
