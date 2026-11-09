@@ -29,6 +29,10 @@ module Cars::Selectable
     # The cars the page shows
     helper_method def cars = car_selection.cars
 
+    # Whether the timeline of a day names its car also when it is the only
+    # one: for "all", because the select names no car then
+    helper_method def day_timeline_named? = car_select? && car.nil? && !car_selection.guest?
+
     # Whether the day is one that a visitor does not see (see Car::AdminOnlyDays)
     helper_method def admin_only_day? = !admin? && timeframe.present? && Car::AdminOnlyDays.cover?(timeframe)
 

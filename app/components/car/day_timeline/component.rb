@@ -28,11 +28,13 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
   # `named` names the car also on a single timeline, for "all" on a page that
   # offers a select: the select names no car then. The timeline stands beside
   # the cards of the day (see Car::PeriodOverview::Component), in the place
-  # of the chart of a period.
-  def initialize(timeline:, named: false)
+  # of the chart of a period. `car` names the placeholder, whose timeline is
+  # not there yet.
+  def initialize(timeline:, named: false, car: nil)
     super()
     @timeline = timeline
     @named = named
+    @car = car
   end
 
   attr_reader :timeline
@@ -43,19 +45,23 @@ class Car::DayTimeline::Component < ViewComponent::Base # rubocop:disable Metric
   # The labels of the axis, the same below each timeline
   def ticks = @ticks ||= axis.ticks
 
-  # The box while the timeline loads, in its height
-  def self.placeholder = new(timeline: nil)
+  # The box while the timeline loads, in its height. The first timeline is
+  # that of the first car, so a named placeholder has its title already, and
+  # the rows do not move when the timeline comes.
+  def self.placeholder(named: false, car: nil) = new(timeline: nil, named:, car:)
 
   def placeholder? = timeline.nil?
 
-  # Several timelines name their car or the guest, and so does "all"
-  def named_lanes? = @named || lanes.many?
+  # Whether each timeline has a title, the name of its car or the guest:
+  # several timelines and "all" have one, a single car leaves it out
+  def named_lanes? = @named || (!placeholder? && lanes.many?)
 
-  def lane_name(lane) = lane.guest? ? t('.guest') : lane.car.display_name
-
-  # Whether the timeline has a title: beside the cards only the name of its
-  # car, which a single car leaves out
-  def heading?(lane) = lane && named_lanes?
+  def lane_name(lane)
+    if lane.nil? then @car&.display_name
+    elsif lane.guest? then t('.guest')
+    else lane.car.display_name
+    end
+  end
 
   # A single timeline with a state of charge fills the height of the cards,
   # and on a phone the rest of the window, so the line grows into the space.

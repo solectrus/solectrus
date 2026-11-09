@@ -78,7 +78,7 @@
             fill it.
           - if timeframe.day?
             div id=scoped_frame_id('timeline') class='max-lg:flex-1 flex flex-col' data-turbo-permanent=true
-              = render Car::DayTimeline::Component.placeholder
+              = render Car::DayTimeline::Component.placeholder(named: day_timeline_named?, car: cars.first)
   - else
     = render Ui::Message::Component.new do |c|
       - c.with_watermark do

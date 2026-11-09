@@ -3,10 +3,10 @@
   the groups of figures above.
 div class=['flex flex-col gap-6 lg:gap-8', fill_class]
   - (placeholder? ? [nil] : lanes).each_with_index do |lane, index|
-    section class=['flex flex-col gap-2 lg:gap-3', fill_class(lane)] aria-label=(t('.title') unless heading?(lane)) aria-labelledby=("car-day-timeline-#{index}" if heading?(lane))
+    section class=['flex flex-col gap-2 lg:gap-3', fill_class(lane)] aria-label=(t('.title') unless named_lanes?) aria-labelledby=("car-day-timeline-#{index}" if named_lanes?)
       / The timeline stands in the place of a chart and needs no title, only
         the name of its car
-      - if heading?(lane)
+      - if named_lanes?
         div class='flex min-h-8 items-center max-lg:px-1'
           h2 id="car-day-timeline-#{index}" class='text-xl font-semibold text-fg'
             = lane_name(lane)

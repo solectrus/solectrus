@@ -449,5 +449,13 @@ describe Car::DayTimeline::Component, type: :component do
 
     expect(html.css('.animate-pulse')).to be_present
     expect(html.css('[role="img"]')).to be_empty
+    expect(html.css('h2')).to be_empty
+  end
+
+  it 'shows the title of the first timeline in a named placeholder' do
+    html = render_inline(described_class.placeholder(named: true, car:))
+
+    expect(html.css('h2').map { it.text.squish }).to eq([car.display_name])
+    expect(html.css('.animate-pulse')).to be_present
   end
 end
