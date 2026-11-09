@@ -25,8 +25,11 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
 
   def total_kwh = report.sessions.kwh
 
+  # An energy below 1 kWh shows in Wh, so a small source does not round to
+  # "0 kWh" beside a share above 0
   def energy_value(kwh, precision: total_kwh >= 100 ? 0 : 1)
-    Sensor::Value::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling: :kilo, precision:)
+    scaling = kwh.positive? && kwh < 1 ? :auto : :kilo
+    Sensor::Value::Component.new(kwh * 1000, :wallbox_power, context: :total, scaling:, precision:)
   end
 
   # The sources with energy in the order of the bar, PV first. Without

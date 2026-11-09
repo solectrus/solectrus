@@ -88,6 +88,16 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
     expect(charts).to eq(%w[car_charging car_charging_costs])
   end
 
+  # A small source must not round to 0 kWh beside its share
+  context 'with a source below 1 kWh' do
+    let(:wallbox) { sums(count: 1, kwh: 2.0, kwh_grid: 0.04, cost: 0.2, cost_grid: 0.01) }
+    let(:offsite) { sums }
+
+    it 'shows its energy in Wh' do
+      expect(source_labels).to eq([['sun 2.0 kWh', 'sun'], ['bolt 40 Wh', 'bolt']])
+    end
+  end
+
   # A session without a price has no cost, so the sum is the least cost
   context 'with a session without a price' do
     let(:offsite) { sums(count: 7, kwh: 154.0, cost: 60.0, uncosted: 1) }
