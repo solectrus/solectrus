@@ -24,6 +24,23 @@ describe 'Top 10 Chart' do
       end
     end
 
+    # The chart offers only the rankings the installation permits
+    context 'with a sensor that needs a sponsorship' do
+      it 'returns not found without it' do
+        stub_feature
+
+        get '/top10-chart/day/heatpump_heating_power/sum/desc'
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'renders with it' do
+        stub_feature(:heatpump)
+
+        get '/top10-chart/day/heatpump_heating_power/sum/desc'
+        expect(response).to have_http_status(:success)
+      end
+    end
+
     # A car tells when it drove (see Car::AdminOnlyDays)
     context 'with a sensor of a car' do
       before { Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer')) }

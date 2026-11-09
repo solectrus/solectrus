@@ -54,6 +54,15 @@ describe 'Sponsored frames' do
       get_frame '/stats/inverter_power/2026-09-18'
       expect(response).to have_http_status(:success)
     end
+
+    # A sensor can be a feature on its own, even on the free page
+    it 'answers nothing for a sensor behind a sponsorship' do
+      get_frame '/charts/heatpump_heating_power/2026-09-18'
+      expect(response).to have_http_status(:not_found)
+
+      get_frame '/stats/heatpump_heating_power/2026-09-18'
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   # A relative timeframe is a feature on every page, the free one included.

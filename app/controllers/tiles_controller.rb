@@ -1,6 +1,9 @@
 class TilesController < ApplicationController
   include ParamsHandling
 
+  # The route admits every sensor of the registry, the permission aside
+  before_action { head(:not_found) if Sensor::Config.withheld?(sensor.name) }
+
   def show
   end
 

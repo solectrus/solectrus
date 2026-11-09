@@ -1,11 +1,12 @@
 # The gate of a frame that carries the data of a home page.
 #
 # A frame is a request of its own, so what holds the page back has to hold the
-# frame back as well. Four things decide, and they are the four the page
+# frame back as well. Five things decide, and they are the five the page
 # reads: the settings can switch the page off (see
 # Sensor::HomePage.available?), the page can be a sponsor feature (see
-# Sensor::HomePage.permitted?), a relative timeframe is one on every page,
-# and the page can have no hours view (see Sensor::HomePage.hours?).
+# Sensor::HomePage.permitted?), the sensor can be one as well, even on a page
+# that is free, a relative timeframe is one on every page, and the page can
+# have no hours view (see Sensor::HomePage.hours?).
 module SponsoredFrame
   extend ActiveSupport::Concern
 
@@ -15,7 +16,7 @@ module SponsoredFrame
     private
 
     def verify_sponsoring
-      return if permitted_page? && permitted_timeframe? && offered_timeframe?
+      return if permitted_page? && permitted_sensor? && permitted_timeframe? && offered_timeframe?
 
       head :not_found
     end
@@ -28,6 +29,14 @@ module SponsoredFrame
 
     def permitted_page?
       Sensor::HomePage.open?(frame_page_key)
+    end
+
+    # Only the permission, not whether the installation has the sensor: a page
+    # can default to a sensor it lacks (see Heatpump::HomeController), and its
+    # frame then draws an empty chart. A frame without a sensor has nothing to
+    # hold back.
+    def permitted_sensor?
+      sensor.nil? || !Sensor::Config.withheld?(sensor.name)
     end
 
     def permitted_timeframe?

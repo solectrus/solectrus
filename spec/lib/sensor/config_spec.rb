@@ -220,6 +220,43 @@ describe Sensor::Config do
     end
   end
 
+  describe '.withheld?' do
+    before do
+      described_class.setup(env.merge('INFLUX_SENSOR_HEATPUMP_HEATING_POWER' => 'heatpump:heating_power'))
+      allow(ApplicationPolicy.instance).to receive(:feature_enabled?) { features.include?(it) }
+    end
+
+    context 'without a permission' do
+      let(:features) { [] }
+
+      it 'is true for a sensor the permission holds back' do
+        expect(described_class.withheld?(:heatpump_heating_power)).to be(true)
+      end
+
+      # heatpump_costs needs no permission of its own, but its split does
+      it 'is true for a sensor whose dependency the permission holds back' do
+        expect(described_class.withheld?(:heatpump_costs)).to be(true)
+      end
+
+      # A sensor the installation lacks is no question of the permission
+      it 'is false for a sensor the installation lacks' do
+        expect(described_class.withheld?(:car_odometer_1)).to be(false)
+      end
+
+      it 'is false for a sensor without a permission' do
+        expect(described_class.withheld?(:inverter_power)).to be(false)
+      end
+    end
+
+    context 'with the permission' do
+      let(:features) { %i[heatpump] }
+
+      it 'is false' do
+        expect(described_class.withheld?(:heatpump_heating_power)).to be(false)
+      end
+    end
+  end
+
   # `depends_on` blocks branch on this answer, so a nil - which is what
   # `configurations&.key?` gave before anything had built the configuration -
   # hands a sensor dependencies it does not have.

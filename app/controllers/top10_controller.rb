@@ -4,6 +4,8 @@ class Top10Controller < ApplicationController
 
   def index
     return redirect_to(default_path) unless period && sensor_name && calc && sort
+    # The route admits every sensor with a ranking, the permission aside
+    return head(:not_found) if Sensor::Config.withheld?(sensor_name)
     return redirect_to(default_path(calc: default_calc)) unless supports_calc?
 
     load_missing_or_stale_summary_days(Timeframe.all)

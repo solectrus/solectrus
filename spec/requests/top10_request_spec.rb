@@ -35,4 +35,12 @@ describe 'Top 10' do
       expect(response).to redirect_to('/top10/day/grid_costs/sum/desc')
     end
   end
+
+  # The page offers only the rankings the installation permits
+  it 'returns not found when the sensor needs a sponsorship' do
+    stub_feature
+
+    get '/top10/month/heatpump_heating_power/sum/asc'
+    expect(response).to have_http_status(:not_found)
+  end
 end

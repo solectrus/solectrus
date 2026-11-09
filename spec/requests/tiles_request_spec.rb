@@ -27,4 +27,23 @@ describe 'Tiles' do
       expect(response).to have_http_status(:not_found)
     end
   end
+
+  describe 'GET /tiles/:sensor_name/:timeframe' do
+    # A tile shows only a sensor of the installation, with its permission
+    it 'returns not found for a sensor behind a sponsorship' do
+      stub_feature
+
+      get '/tiles/heatpump_heating_power/year'
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'renders the sensor with the sponsorship' do
+      stub_feature(:heatpump)
+
+      get '/tiles/heatpump_heating_power/year'
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

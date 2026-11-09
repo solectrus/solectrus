@@ -27,6 +27,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
                    :mapping,
                    :configured?,
                    :exists?,
+                   :withheld?,
                    :sensors,
                    :sensors_for_build,
                    :house_power_excluded_sensors,
@@ -128,6 +129,13 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
       ensure_configurations!
       configurations.key?(sensor_name)
     end
+  end
+
+  # Whether the permission alone holds back a sensor the installation has,
+  # through the sensor itself or through a sensor it depends on. A URL can name
+  # any sensor of the registry, and this is the answer it gets no data for.
+  def withheld?(sensor_name)
+    exists?(sensor_name, check_policy: false) && !exists?(sensor_name)
   end
 
   def house_power_excluded_sensors
