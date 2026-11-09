@@ -965,16 +965,15 @@ describe UpdateCheck do
     end
 
     # The sensor list is built once per process, and it drops what the feature
-    # flags forbid. Nothing else would notice a grant that appears or disappears
-    # between two checks, so the list would keep the answer of the check that
-    # happened to run first - until the next restart.
+    # flags forbid. It must follow a grant that appears or disappears, but it
+    # must not be built again for an answer that changes nothing.
     describe 'the sensor cache after a check' do
       include_context 'with signature verification'
 
       let(:headers) { { 'Cache-Control' => 'max-age=43200, private' } }
 
-      def stub_answer(premium_reason)
-        body = { version: 'v1.3.0', registration_status: 'complete' }
+      def stub_answer(premium_reason, **fields)
+        body = { version: 'v1.3.0', registration_status: 'complete', **fields }
         body[:premium_reason] = premium_reason if premium_reason
 
         stub_request(:get, 'https://update.solectrus.de').to_return(
@@ -1018,18 +1017,29 @@ describe UpdateCheck do
         end
       end
 
+      # A grant ends at a moment of its own, and no answer announces it
+      it 'follows a grant that reaches its end' do
+        stub_answer('intro', premium_ends_at: 1.minute.from_now.iso8601)
+        instance.latest
+        expect(heatpump_charted?).to be(true)
+
+        travel 2.minutes do
+          expect(heatpump_charted?).to be(false)
+        end
+        expect(a_request(:get, 'https://update.solectrus.de')).to have_been_made.once
+      end
+
       it 'keeps the list when the answer does not change' do
         stub_answer('sponsoring')
         instance.latest
-
-        allow(Sensor::Config).to receive(:clear_cache!)
+        list = Sensor::Config.chart_sensors
 
         travel 13.hours do
           stub_answer('sponsoring')
           instance.latest
-        end
 
-        expect(Sensor::Config).not_to have_received(:clear_cache!)
+          expect(Sensor::Config.chart_sensors).to equal(list)
+        end
       end
     end
   end

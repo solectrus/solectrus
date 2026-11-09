@@ -16,6 +16,11 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
     end
   private_constant :ConfigEntry
 
+  # How many seconds the lists trust the last answer of PremiumStatus.active?
+  # (see #permitted_memo)
+  PERMISSION_RECHECK = 1
+  private_constant :PERMISSION_RECHECK
+
   # Class method delegation to singleton instance
   class << self
     extend Forwardable
@@ -152,11 +157,12 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def house_power_included_custom_sensors
-    @house_power_included_custom_sensors ||=
+    permitted_memo(:house_power_included_custom_sensors) do
       filter_sensors do |sensor|
         sensor.is_a?(Sensor::Definitions::CustomPower) &&
           house_power_excluded_sensors.exclude?(sensor)
       end
+    end
   end
 
   # total_consumption (house + heat pump + wallbox) only adds value when there
@@ -167,7 +173,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def sensors
-    @sensors ||= Sensor::Registry.all.select { |sensor| exists?(sensor.name) }
+    permitted_memo(:sensors) { Sensor::Registry.all.select { |sensor| exists?(sensor.name) } }
   end
 
   # The sensors for the daily summaries, also without the permission. A
@@ -177,19 +183,21 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   end
 
   def nameable_sensors
-    @nameable_sensors ||= sensors.select(&:nameable?)
+    permitted_memo(:nameable_sensors) { sensors.select(&:nameable?) }
   end
 
   ### Inverter
 
   def inverter_sensors
-    @inverter_sensors ||=
+    permitted_memo(:inverter_sensors) do
       sensors.grep(Sensor::Definitions::InverterPower) + custom_inverter_sensors
+    end
   end
 
   def custom_inverter_sensors
-    @custom_inverter_sensors ||=
+    permitted_memo(:custom_inverter_sensors) do
       sensors.grep(Sensor::Definitions::CustomInverterPower)
+    end
   end
 
   def multi_inverter?
@@ -199,7 +207,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   ###
 
   def custom_power_sensors
-    @custom_power_sensors ||= sensors.grep(Sensor::Definitions::CustomPower)
+    permitted_memo(:custom_power_sensors) { sensors.grep(Sensor::Definitions::CustomPower) }
   end
 
   def top10_sensors
@@ -209,7 +217,7 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   # Unlike top10_enabled?, chart_enabled? is static metadata, so the result
   # only changes when `sensors` does.
   def chart_sensors
-    @chart_sensors ||= sensors.select(&:chart_enabled?)
+    permitted_memo(:chart_sensors) { sensors.select(&:chart_enabled?) }
   end
 
   # The chart sensor a menu or a URL addresses by this name. Usually the
@@ -219,27 +227,48 @@ class Sensor::Config # rubocop:disable Metrics/ClassLength
   # This is not the sensor that draws the chart - a half draws its own, see
   # ChartLoader::Component. It is the sensor a menu entry belongs to.
   def chart_sensor_by_name
-    @chart_sensor_by_name ||= chart_sensors.index_by(&:name).merge(combined_chart_halves)
+    permitted_memo(:chart_sensor_by_name) { chart_sensors.index_by(&:name).merge(combined_chart_halves) }
   end
 
   def clear_cache!
     %i[
-      @sensors
+      @permitted_memo
       @sensors_for_build
-      @nameable_sensors
-      @inverter_sensors
-      @custom_inverter_sensors
-      @custom_power_sensors
-      @chart_sensors
-      @chart_sensor_by_name
       @house_power_excluded_custom_sensors
-      @house_power_included_custom_sensors
     ].each do |var|
       remove_instance_variable(var) if instance_variable_defined?(var)
     end
   end
 
   private
+
+  # The lists that leave out what the permission forbids (see #exists?). They
+  # are built once per process, and they hold only as long as the permission
+  # does. The permission changes with a new answer of the update server, which
+  # a second Puma worker does not see arrive, or when a grant reaches its end,
+  # which no answer announces. So the lists are kept for the current state of
+  # PremiumStatus.active? and built again when it changes.
+  #
+  # The list goes into the hash it was asked for. A hash that a change of the
+  # state replaced meanwhile thus gets no list of the former state.
+  def permitted_memo(key)
+    memo = current_permitted_memo
+    memo.fetch(key) { memo[key] = yield }
+  end
+
+  # Asking PremiumStatus costs far more than reading a list, and the lists are
+  # read in loops. So the state is asked at most once per PERMISSION_RECHECK,
+  # and again after a clock that went back.
+  def current_permitted_memo
+    now = Time.now # rubocop:disable Rails/TimeZone -- a difference only, Time.current costs more
+    return @permitted_memo if @permitted_memo && (now - @permitted_checked_at).between?(0, PERMISSION_RECHECK)
+
+    active = PremiumStatus.active?
+    @permitted_memo = {} unless @permitted_memo && @permitted_active == active
+    @permitted_active = active
+    @permitted_checked_at = now
+    @permitted_memo
+  end
 
   # The claim of a combined chart on its halves. It wins over the entry a half
   # makes for itself, because the menu offers the half for the combined chart.

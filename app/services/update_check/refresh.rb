@@ -87,7 +87,6 @@ module UpdateCheck::Refresh
     data = result[:data]
     binding = UpdateCheck::BindingVerifier.new(data)
     fresh_until = binding.expires_at
-    previous_reason = cached_entry&.dig(:data, :premium_reason).presence
 
     UpdateCheck::NotificationImporter.new(data.delete(:notifications)).call
     cache_manager.set(
@@ -101,14 +100,8 @@ module UpdateCheck::Refresh
 
     memoize_verified(data)
 
-    # The sensor list is built once per process and filters out what the feature
-    # flags forbid (see Sensor::Config#sensors), so a grant that appears or
-    # disappears between two checks would never reach it. Every installation
-    # meets that moment at the end of its intro phase, and a sponsor meets it
-    # whenever a check follows one that failed. This is the only place that sees
-    # the answer change.
-    Sensor::Config.clear_cache! if data[:premium_reason].presence != previous_reason
-
+    # A grant that appears or disappears reaches the sensor list by itself (see
+    # Sensor::Config#permitted_memo).
     @verified_result
   end
 
