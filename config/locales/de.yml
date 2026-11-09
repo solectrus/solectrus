@@ -200,7 +200,7 @@ de:
     title_none: Vergleich mit einer Öl- oder Gasheizung
     savings: Ersparnis
     # The tooltip of the savings badge on the heat pump page
-    badge_tooltip: Die Ersparnis vergleicht die Wärmepumpe mit einer gedachten %{heating}, die dieselbe Wärme erzeugt hätte.
+    badge_tooltip: Die Ersparnis vergleicht die Wärmepumpe mit einer fiktiven %{heating}, die dieselbe Wärme erzeugt hätte.
     back: Zurück zur Wärmepumpe
     fuel_prices:
       heating_oil: Heizölpreis
@@ -547,7 +547,7 @@ de:
       fuel_type_none: Kein Vergleich
     heatpump:
       name: Wärmepumpe
-      intro: Die Kosten der Wärmepumpe im Vergleich mit einer gedachten Öl- oder Gasheizung.
+      intro: Die Kosten der Wärmepumpe im Vergleich mit einer fiktiven Öl- oder Gasheizung.
       fuel_type_none: Kein Vergleich
       efficiency_hint: |-
         Anteil der Energie im Brennstoff, der als Wärme ankommt, bezogen auf den Brennwert.

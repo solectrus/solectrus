@@ -200,7 +200,7 @@ en:
     title_none: Comparison with an oil or a gas heating
     savings: Savings
     # The tooltip of the savings badge on the heat pump page
-    badge_tooltip: The savings compare the heat pump with an imagined %{heating} that would have made the same heat.
+    badge_tooltip: The savings compare the heat pump with a fictional %{heating} that would have made the same heat.
     back: Back to the heat pump
     fuel_prices:
       heating_oil: Heating oil price
@@ -547,7 +547,7 @@ en:
       fuel_type_none: No comparison
     heatpump:
       name: Heat pump
-      intro: The costs of the heat pump compared with an imagined oil or gas heating.
+      intro: The costs of the heat pump compared with a fictional oil or gas heating.
       fuel_type_none: No comparison
       efficiency_hint: |-
         The part of the energy in the fuel that arrives as heat, relative to the gross calorific value.

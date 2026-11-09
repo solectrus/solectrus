@@ -141,7 +141,7 @@ describe Car::PeriodOverview::Driving::Component, type: :component do
     it 'explains the comparison in the tooltip, without numbers' do
       tooltip = comparison_bar.parent.at_css('[data-tooltip-target="html"]').text.squish
 
-      expect(tooltip).to include('Savings against a combustion car', 'The savings compare the EV with an imagined combustion car')
+      expect(tooltip).to include('Savings against a combustion car', 'The savings compare the EV with a fictional combustion car')
       expect(tooltip).not_to match(/\d/)
     end
 

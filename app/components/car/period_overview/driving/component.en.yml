@@ -11,7 +11,7 @@ en:
   combustion: Combustion car
   saved: '%{amount} saved'
   extra: '%{amount} more'
-  savings_note: The savings compare the EV with an imagined combustion car that would have driven the same distance.
+  savings_note: The savings compare the EV with a fictional combustion car that would have driven the same distance.
   no_savings:
     drive: Without a drive, there is nothing to compare.
     comparison: The comparison needs a combustion car in the settings of the car, and the fuel prices.
