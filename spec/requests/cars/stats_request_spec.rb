@@ -512,7 +512,12 @@ describe 'Car Stats' do
       it 'offers the charts of both columns' do
         get(cars_charts_path(sensor_name: 'car_charging', timeframe: '2026-06'), headers:)
 
-        expect(menu_items).to include(I18n.t('sensors.car_charging'), I18n.t('sensors.car_charging_costs'), I18n.t('sensors.car_distance_short'))
+        expect(menu_items).to include(
+          I18n.t('sensors.car_charging'),
+          'Energy cost of charging',
+          'Energy cost of driving',
+          I18n.t('sensors.car_distance_short'),
+        )
       end
 
       it 'offers the distance and no state of charge in the selection "all"' do

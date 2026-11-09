@@ -1,9 +1,13 @@
 class ChartDropdown::Car::Component < ViewComponent::Base
   include ChartDropdown::Logic
 
-  # The titles of the menu that differ from the names of the sensors
+  # The titles of the menu that differ from the names of the sensors. The
+  # costs of both columns share the name of their sensor, so the menu names
+  # the column as well.
   TITLES = {
     car_battery_soc: 'sensors.car_battery_soc_short',
+    car_driving_costs: '.car_driving_costs',
+    car_charging_costs: '.car_charging_costs',
   }.freeze
   private_constant :TITLES
 
@@ -29,7 +33,7 @@ class ChartDropdown::Car::Component < ViewComponent::Base
   def menu_config
     super.merge(
       grouped: false,
-      display_names: menu_items.index_with { TITLES[it]&.then { I18n.t(it) } }.compact,
+      display_names: menu_items.index_with { TITLES[it]&.then { t(it) } }.compact,
     )
   end
 end
