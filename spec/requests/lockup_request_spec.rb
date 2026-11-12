@@ -174,6 +174,31 @@ describe 'Lockup' do
       end
     end
 
+    # The signed cookie is readable, so it must not hold a plain hash of the
+    # codeword, which would let a weak codeword be guessed
+    context 'with a signed cookie holding a plain hash of the codeword' do
+      it 'is not what the unlock sets' do
+        post '/lockup/unlock', params: { lockup: { codeword: } }
+
+        jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
+        expect(jar.signed[:lockup]).to be_present
+        expect(jar.signed[:lockup]).not_to eq(Digest::SHA256.hexdigest(codeword))
+      end
+
+      it 'is rejected and redirects to unlock page' do
+        jar = ActionDispatch::Cookies::CookieJar.build(
+          ActionDispatch::TestRequest.create,
+          {},
+        )
+        jar.signed[:lockup] = Digest::SHA256.hexdigest(codeword)
+        cookies[:lockup] = jar[:lockup]
+
+        get '/'
+
+        expect(response).to redirect_to(%r{/lockup/unlock})
+      end
+    end
+
     context 'with an unsigned cookie holding the codeword' do
       before { cookies[:lockup] = codeword }
 

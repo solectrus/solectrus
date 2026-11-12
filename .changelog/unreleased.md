@@ -104,5 +104,6 @@ Keep every section, an empty one included.
 - **Code word page:** now refuses more guesses after ten wrong code words from one address within three minutes. Before, a trailing slash in the address lifted the limit
 - **Names in tooltips and menus:** a sensor or car name with a character like `<` or `&` now shows as written. Before, the browser read it as HTML
 - **Admin login:** a new admin password now ends every login. Before, a login stayed valid for up to 90 days after the change. After the update, the admin logs in once again
+- **Code word:** the cookie of the code word page now holds no hash of the code word. Before, a copy of the cookie let someone guess a weak code word. After the update, each browser asks for the code word once again
 
 ## Maintenance
