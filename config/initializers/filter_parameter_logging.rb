@@ -4,9 +4,12 @@
 # Use this to limit dissemination of sensitive information.
 # See the ActiveSupport::ParameterFilter documentation for supported notations and behaviors.
 #
-# An address is personal data (see Place::Nominatim).
+# An address is personal data (see Place::Nominatim), and so is the position
+# of an offsite charging session.
 Rails.application.config.filter_parameters += %i[
   address
+  latitude
+  longitude
   passw
   email
   secret
