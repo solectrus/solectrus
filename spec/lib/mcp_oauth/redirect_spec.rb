@@ -70,6 +70,12 @@ describe McpOauth::Redirect do
       expect(described_class.valid?('https://user:pass@claude.ai/cb')).to be(false)
     end
 
+    # RFC 6749, section 3.1.2
+    it 'rejects a fragment' do
+      expect(described_class.valid?('https://claude.ai/cb#x')).to be(false)
+      expect(described_class.valid?('https://claude.ai/cb#')).to be(false)
+    end
+
     # An unusual host is not a suspicious one, and this is not a check of
     # hostname syntax.
     it 'accepts an unusual but resolvable host' do
