@@ -80,6 +80,21 @@ describe 'Lockup' do
         end
       end
 
+      context 'with a hash in place of a string' do
+        it 'redirects to root for a hash as return_to' do
+          post '/lockup/unlock',
+               params: { lockup: { codeword:, return_to: { x: 1 } } }
+
+          expect(response).to redirect_to('/')
+        end
+
+        it 'shows the form for a string as lockup' do
+          post '/lockup/unlock', params: { lockup: 'x' }
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
       context 'with incorrect codeword' do
         it 'shows error message' do
           post '/lockup/unlock',

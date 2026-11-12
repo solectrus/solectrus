@@ -4,12 +4,11 @@ module SafeReturnPath
   private
 
   def safe_return_path(path)
-    return '/' if path.blank?
-
     # Only allow relative paths (no scheme, no host) starting with a single
     # forward slash. This blocks open redirects, including protocol-relative
-    # URLs like "//evil.com" and backslash tricks like "/\evil.com".
-    return '/' unless path.start_with?('/')
+    # URLs like "//evil.com" and backslash tricks like "/\evil.com". A
+    # parameter can also arrive as a hash or an array, which is no path.
+    return '/' unless path.is_a?(String) && path.start_with?('/')
     return '/' if path.start_with?('//', '/\\')
 
     uri = URI.parse(path)

@@ -19,14 +19,11 @@ class LockupController < ApplicationController
   layout 'blank'
 
   def unlock
-    @return_to = params.dig(:lockup, :return_to) || params[:return_to]
+    @return_to = return_to
 
     # Until unlocked, the page answers 403, so crawlers do not take it as content
-    unless request.post? && params.dig(:lockup, :codeword).present?
-      return render(:unlock, status: :forbidden)
-    end
-
-    codeword = params[:lockup][:codeword].to_s
+    codeword = lockup_params.dig(:lockup, :codeword)
+    return render(:unlock, status: :forbidden) unless request.post? && codeword.present?
 
     if ActiveSupport::SecurityUtils.secure_compare(codeword, lockup_codeword)
       cookies.signed[:lockup] = lockup_cookie(codeword_digest)
@@ -41,9 +38,18 @@ class LockupController < ApplicationController
 
   # Answered in the shape of a wrong codeword, so the page stays usable
   def render_too_many_attempts
-    @return_to = params.dig(:lockup, :return_to) || params[:return_to]
+    @return_to = return_to
     @throttled = true
     render :unlock, status: :too_many_requests
+  end
+
+  # Each value must be a string, so a hash or an array in its place is left out
+  def lockup_params
+    @lockup_params ||= params.permit(:return_to, lockup: %i[codeword return_to])
+  end
+
+  def return_to
+    lockup_params.dig(:lockup, :return_to) || lockup_params[:return_to]
   end
 
   # Without a codeword there is nothing to unlock, so the page must not answer
