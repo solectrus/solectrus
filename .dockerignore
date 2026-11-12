@@ -31,7 +31,6 @@ eslint.config.mjs
 .env*
 Brewfile
 Caddyfile
-compose.yaml
 Procfile*
 
 # Documentation and assets for the repository page

@@ -5,7 +5,7 @@ class HeliosCheck
 
   HOSTNAME = 'helios'.freeze
   # Helios listens on 3000 inside its container; the browser reaches it via
-  # the host-mapped port 3999 (see compose.yaml: ports: 3999:3000).
+  # the host-mapped port 3999 (see the compose.yaml of HELIOS: 3999:3000).
   PROBE_PORT = 3000
   BROWSER_PORT = 3999
   HEALTH_PATH = '/up'.freeze
