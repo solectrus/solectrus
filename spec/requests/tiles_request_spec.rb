@@ -38,6 +38,14 @@ describe 'Tiles' do
       expect(response).to have_http_status(:not_found)
     end
 
+    # A percentage has no sum, so the tile has nothing to show
+    it 'reports no value for a sensor without a sum' do
+      get '/tiles/battery_soc/year'
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include('---')
+    end
+
     it 'renders the sensor with the sponsorship' do
       stub_feature(:heatpump)
 

@@ -26,16 +26,21 @@ class TilesController < ApplicationController
   # instead of dressing up a division of a period as a current reading. No UI
   # path builds such a link today; the guard is what keeps it that way.
   def data_now
-    return no_live_value unless sensor.instantaneous?
+    return no_value unless sensor.instantaneous?
 
     Sensor::Query::Latest.new([sensor.name]).call
   end
 
-  def no_live_value
+  def no_value
     Sensor::Data::Single.new({ sensor.name => nil }, timeframe:)
   end
 
+  # The tile shows the sum of a period. A sensor without one, like a
+  # percentage, a temperature or a chart of the car page, reports "---" for
+  # the same reason as above.
   def data_range
+    return no_value if sensor.allowed_aggregations.exclude?(:sum)
+
     Sensor::Query::Total.new(timeframe) { |q| q.sum sensor.name, :sum }.call
   end
 end
