@@ -8,7 +8,9 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-26.04
-    if: ${{ github.actor == 'dependabot[bot]' }}
+    # The author of the pull request, not the actor: the actor is whoever
+    # triggered the run, and a pull request from a fork never qualifies
+    if: ${{ github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - name: Dependabot metadata
         id: metadata

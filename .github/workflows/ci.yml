@@ -497,7 +497,7 @@ jobs:
         env:
           DEPLOY_HOOK: ${{ secrets.DEPLOY_HOOK }}
         if: env.DEPLOY_HOOK != null
-        run: curl -X POST ${{ env.DEPLOY_HOOK }}
+        run: curl -sS -X POST "$DEPLOY_HOOK"
 
       - name: Notify Honeybadger about deployment
         env:
