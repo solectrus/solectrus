@@ -25,6 +25,7 @@ Keep every section, an empty one included.
 - **AI access:** the password page now refuses a callback address with a backslash or a user name. Before, such an address could show one host on the page and send the access to another
 - **Code word page:** now refuses more guesses after ten wrong code words from one address within three minutes. Before, a trailing slash in the address lifted the limit
 - **Names in tooltips and menus:** a sensor name with a character like `<` or `&` now shows as written. Before, the browser read it as HTML
+- **Admin login:** a new admin password now ends every login. Before, a login stayed valid for up to 90 days after the change. After the update, the admin logs in once again
 
 ## Maintenance
 
