@@ -56,6 +56,20 @@ describe McpOauth::Redirect do
       expect(described_class.valid?('https://@/callback')).to be(false)
     end
 
+    # The browser reads a backslash as a slash, so it goes to "evil.com"
+    # while Addressable names "claude.ai" - the host the consent page shows.
+    it 'rejects a backslash anywhere' do
+      expect(described_class.valid?('https://evil.com\\@claude.ai/cb')).to be(false)
+      expect(described_class.valid?('https://evil.com\\claude.ai/cb')).to be(false)
+      expect(described_class.valid?('https://claude.ai/cb\\x')).to be(false)
+    end
+
+    it 'rejects userinfo' do
+      expect(described_class.valid?('https://claude.ai@evil.com/cb')).to be(false)
+      expect(described_class.valid?('https://evil.com%5C@claude.ai/cb')).to be(false)
+      expect(described_class.valid?('https://user:pass@claude.ai/cb')).to be(false)
+    end
+
     # An unusual host is not a suspicious one, and this is not a check of
     # hostname syntax.
     it 'accepts an unusual but resolvable host' do

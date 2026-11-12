@@ -22,6 +22,8 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- **AI access:** the password page now refuses a callback address with a backslash or a user name. Before, such an address could show one host on the page and send the access to another
+
 ## Maintenance
 
 - Ruby 4.0.10 with security fixes for regular expressions and string case conversion, Alpine 3.24.4 with security fixes for OpenSSL, the PostgreSQL client and zlib

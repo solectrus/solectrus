@@ -46,12 +46,18 @@ module McpOauth
     # back out of the path whenever the two schemes differ, as they do on a
     # plain-http instance (docs/MCP.md offers one). The code then reaches a
     # host that was never named.
+    #
+    # A backslash and userinfo are refused for the same reason: the browser
+    # reads a backslash as a slash, Addressable does not. So in
+    # "https://evil.com\@claude.ai/cb" this server sees the host "claude.ai",
+    # the browser goes to "evil.com". No callback needs either of the two.
     def valid?(redirect_uri)
-      return false if redirect_uri.blank?
+      return false if redirect_uri.blank? || redirect_uri.include?('\\')
 
       uri = Addressable::URI.parse(redirect_uri)
       SCHEMES.include?(uri.normalized_scheme) &&
-        uri.normalized_host.present? && uri.path.present?
+        uri.normalized_host.present? && uri.path.present? &&
+        uri.userinfo.nil?
     rescue Addressable::URI::InvalidURIError
       false
     end
