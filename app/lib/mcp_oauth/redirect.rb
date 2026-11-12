@@ -51,16 +51,20 @@ module McpOauth
     # reads a backslash as a slash, Addressable does not. So in
     # "https://evil.com\@claude.ai/cb" this server sees the host "claude.ai",
     # the browser goes to "evil.com". No callback needs either of the two.
+    #
+    # A fragment is refused as RFC 6749 (section 3.1.2) demands it.
     def valid?(redirect_uri)
       return false if redirect_uri.blank? || redirect_uri.include?('\\')
 
       uri = Addressable::URI.parse(redirect_uri)
       SCHEMES.include?(uri.normalized_scheme) &&
-        uri.normalized_host.present? && uri.path.present? &&
-        uri.userinfo.nil?
+        uri.normalized_host.present? && uri.path.present? && no_extras?(uri)
     rescue Addressable::URI::InvalidURIError
       false
     end
+
+    # Neither userinfo nor a fragment
+    def no_extras?(uri) = uri.userinfo.nil? && uri.fragment.nil?
 
     # The host to name on the consent page, as the browser will resolve it.
     #

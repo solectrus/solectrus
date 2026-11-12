@@ -99,10 +99,15 @@ class Oauth::AuthorizationsController < ActionController::Base
       )
   end
 
+  # An S256 challenge is a SHA-256 digest in base64url, always 43 characters
+  # (RFC 7636, section 4.2)
+  S256_CHALLENGE = /\A[A-Za-z0-9_-]{43}\z/
+  private_constant :S256_CHALLENGE
+
   def valid_authorize_request?
     authorize_params[:response_type] == 'code' &&
       authorize_params[:code_challenge_method] == 'S256' &&
-      authorize_params[:code_challenge].present? &&
+      S256_CHALLENGE.match?(authorize_params[:code_challenge].to_s) &&
       McpOauth::Redirect.valid?(authorize_params[:redirect_uri])
   end
 

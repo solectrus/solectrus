@@ -253,6 +253,15 @@ describe 'OAuth (MCP)' do
         expect(response).to have_http_status(:bad_request)
       end
 
+      # An S256 challenge is always 43 characters of base64url
+      it 'rejects a challenge that is no S256 digest' do
+        ['short', "#{code_challenge}x", code_challenge.tr('-', '+')].each do |challenge|
+          get '/oauth/authorize', params: authorize_params(code_challenge: challenge)
+
+          expect(response).to have_http_status(:bad_request)
+        end
+      end
+
       it 'rejects a scheme that is not http(s)' do
         get '/oauth/authorize',
             params: authorize_params(redirect_uri: 'ftp://evil.com/callback')
