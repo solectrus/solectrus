@@ -19,6 +19,28 @@ describe 'Tooltip' do
     expect(arrow_distance_from('right')).to be < 2
   end
 
+  # A title is plain text, so markup in it shows as written
+  it 'shows a title as text' do
+    visit '/inverter_power/now'
+    add_title_tooltip('<b>Bold</b> name')
+
+    find_by_id('probe').hover
+    expect(page).to have_css('.floating-tooltip.show', text: '<b>Bold</b> name')
+    expect(page).to have_no_css('.floating-tooltip b')
+  end
+
+  # A tooltip from a title, independent of the data a page shows
+  def add_title_tooltip(hint)
+    page.execute_script(<<~JS, hint)
+      const probe = document.createElement('span');
+      probe.id = 'probe';
+      probe.textContent = 'Probe';
+      probe.title = arguments[0];
+      probe.dataset.controller = 'tooltip';
+      document.querySelector('main').prepend(probe);
+    JS
+  end
+
   # How far the center of the arrow stands from one edge of the box, in pixels.
   # The arrow reaches a new place over a transition, so in the frame that
   # changes the placement it still stands at the old one.
