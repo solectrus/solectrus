@@ -46,4 +46,37 @@ describe 'Tiles' do
       expect(response).to have_http_status(:ok)
     end
   end
+
+  # A visitor sees a chart of the car page up to the latest public day (see
+  # Car::AdminOnlyDays)
+  describe 'a chart of the car page' do
+    before do
+      travel_to Time.zone.local(2026, 9, 23, 12)
+      Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER' => 'Trabant:odometer'))
+      Current.cars = nil
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    %w[day 2026-09-22 week 2026-09].each do |timeframe|
+      it "is not found for a visitor with #{timeframe}" do
+        get "/tiles/car_distance/#{timeframe}"
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    it 'renders a period before for a visitor' do
+      get '/tiles/car_distance/2026-09-21'
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'renders today for the admin' do
+      login_as_admin
+      get '/tiles/car_distance/day'
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

@@ -27,4 +27,32 @@ describe 'Car Charts' do
       expect(response).to redirect_to('/cars/2026-06-26')
     end
   end
+
+  # Only the frame of the car page ends the data of a visitor with the latest
+  # public day (see Car::AdminOnlyDays). A frame of another page must not
+  # draw a chart of the car page.
+  describe 'a chart of the car page in the frame of another page' do
+    let(:headers) { { 'Turbo-Frame' => 'random-turbo-frame' } }
+
+    before do
+      Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER' => 'Trabant:odometer'))
+      Current.cars = nil
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    %w[/charts /house/charts /inverter/charts /heatpump/charts /stats].each do |prefix|
+      it "is not found at #{prefix}" do
+        get("#{prefix}/car_distance/2026-06", headers:)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    it 'renders at /cars/charts' do
+      get('/cars/charts/car_distance/2026-06', headers:)
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

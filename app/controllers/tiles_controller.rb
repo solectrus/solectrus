@@ -4,10 +4,20 @@ class TilesController < ApplicationController
   # The route admits every sensor of the registry, the permission aside
   before_action { head(:not_found) if Sensor::Config.withheld?(sensor.name) }
 
+  # A chart of the car page tells when the cars drove and charged, so only the
+  # admin sees its total of a period with today or yesterday (see
+  # Car::AdminOnlyDays). An older period stays public, like on the car page.
+  before_action { head(:not_found) if admin_only_days? }
+
   def show
   end
 
   private
+
+  def admin_only_days?
+    !admin? && sensor.is_a?(Sensor::Definitions::CarPageChart) && !timeframe.now? &&
+      Car::AdminOnlyDays.overlap?(timeframe)
+  end
 
   # The sensor comes straight from the URL, so unlike the curated tiles of the
   # essentials page this can be asked for anything the registry knows - a power
