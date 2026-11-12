@@ -93,6 +93,42 @@ describe 'Lockup' do
       end
     end
 
+    describe 'guessing the codeword' do
+      def guess(times)
+        times.times do
+          post '/lockup/unlock', params: { lockup: { codeword: 'wrong' } }
+        end
+      end
+
+      it 'stops answering after ten attempts from one address' do
+        guess(10)
+        expect(response).to have_http_status(:forbidden)
+
+        guess(1)
+        expect(response).to have_http_status(:too_many_requests)
+        expect(response.body).to include(
+          ERB::Util.html_escape(I18n.t('lockup.throttled')),
+        )
+      end
+
+      it 'grants no access once the limit is reached, right codeword or not' do
+        guess(10)
+
+        post '/lockup/unlock', params: { lockup: { codeword: } }
+
+        expect(response).to have_http_status(:too_many_requests)
+        expect(cookies[:lockup]).to be_blank
+      end
+
+      it 'counts no visit to the form' do
+        11.times { get '/lockup/unlock' }
+
+        post '/lockup/unlock', params: { lockup: { codeword: } }
+
+        expect(response).to redirect_to('/')
+      end
+    end
+
     context 'when already unlocked' do
       before do
         post '/lockup/unlock',

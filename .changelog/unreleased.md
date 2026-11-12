@@ -23,6 +23,7 @@ Keep every section, an empty one included.
 ## Fixes
 
 - **AI access:** the password page now refuses a callback address with a backslash or a user name. Before, such an address could show one host on the page and send the access to another
+- **Code word page:** now refuses more guesses after ten wrong code words from one address within three minutes. Before, a trailing slash in the address lifted the limit
 
 ## Maintenance
 

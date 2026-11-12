@@ -13,10 +13,13 @@
                              nil,
                              placeholder: t('lockup.placeholder'),
                              autofocus: true,
-                             class: "form-input w-full text-center #{'input-error' if @wrong}",
+                             class: "form-input w-full text-center #{'input-error' if @wrong || @throttled}",
                              autocomplete: 'off'
       p.mt-1.text-center.text-sm.h-5
-        - if @wrong
+        - if @throttled
+          span.text-signal-negative.font-medium
+            = t('lockup.throttled')
+        - elsif @wrong
           span.text-signal-negative.font-medium
             = t('lockup.wrong')
 
