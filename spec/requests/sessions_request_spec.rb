@@ -186,6 +186,13 @@ describe 'Sessions' do
       expect(response).to redirect_to('/')
     end
 
+    it 'redirects to root for an array as return_to' do
+      login_as_admin
+      delete '/logout', params: { return_to: ['/forecast'] }
+
+      expect(response).to redirect_to('/')
+    end
+
     context 'with malicious return_to' do
       [
         '//evil.com',
