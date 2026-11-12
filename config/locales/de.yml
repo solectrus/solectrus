@@ -393,6 +393,7 @@ de:
     headline: Geschützter Zugang
     description: Diese SOLECTRUS-Instanz ist nicht öffentlich.
     wrong: Nicht korrekt!
+    throttled: Zu viele Versuche von dieser Adresse. Bitte warte einige Minuten.
     placeholder: Codewort
     submit: Weiter
   sponsoring:

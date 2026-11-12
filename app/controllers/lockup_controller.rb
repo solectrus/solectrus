@@ -7,6 +7,15 @@ class LockupController < ApplicationController
 
   before_action :ensure_lockup_enabled
 
+  # The codeword is the only thing between a locked instance and its pages, so
+  # guesses are bounded here as on the login. Only a submitted form counts, a
+  # visit to the form does not.
+  rate_limit to: 10,
+             within: 3.minutes,
+             only: :unlock,
+             if: -> { request.post? },
+             with: -> { render_too_many_attempts }
+
   layout 'blank'
 
   def unlock
@@ -29,6 +38,13 @@ class LockupController < ApplicationController
   end
 
   private
+
+  # Answered in the shape of a wrong codeword, so the page stays usable
+  def render_too_many_attempts
+    @return_to = params.dig(:lockup, :return_to) || params[:return_to]
+    @throttled = true
+    render :unlock, status: :too_many_requests
+  end
 
   # Without a codeword there is nothing to unlock, so the page must not answer
   def ensure_lockup_enabled

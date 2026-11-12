@@ -393,6 +393,7 @@ en:
     headline: Protected access
     description: This SOLECTRUS instance is not public.
     wrong: Incorrect!
+    throttled: Too many attempts from this address. Please wait a few minutes.
     placeholder: Code word
     submit: Continue
   sponsoring:
