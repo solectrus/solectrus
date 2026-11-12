@@ -49,7 +49,30 @@ describe 'Sessions' do
       expect(response).to redirect_to(balance_home_path)
 
       jar = ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
-      expect(jar.signed[:admin]).to be true
+      expect(jar.signed[:admin]).to eq(AdminUser.session_token)
+      expect(jar.signed[:admin]).not_to include(password)
+    end
+
+    # A new password revokes every session, like the tokens of the MCP
+    # connector
+    it 'ends the session when the password changes' do
+      post '/login', params: { admin_user: { username: 'admin', password: } }
+      get '/settings'
+      expect(response).to have_http_status(:ok)
+
+      allow(Rails.configuration.x).to receive(:admin_password).and_return('n3w-s3cr3t')
+      get '/settings'
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'ends the session when the password is removed' do
+      post '/login', params: { admin_user: { username: 'admin', password: } }
+
+      allow(Rails.configuration.x).to receive(:admin_password).and_return(nil)
+      get '/settings'
+
+      expect(response).to have_http_status(:forbidden)
     end
 
     # ADMIN_PASSWORD is the only thing between a reachable instance and full

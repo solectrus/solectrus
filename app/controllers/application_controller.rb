@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   end
 
   helper_method def admin?
-    cookies.signed[:admin] == true
+    AdminUser.session?(cookies.signed[:admin])
   end
 
   def turbo_stream_update_flash

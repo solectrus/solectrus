@@ -85,7 +85,7 @@ class SessionsController < ApplicationController
   def start_admin_session
     reset_session
     cookies.signed[:admin] = {
-      value: true,
+      value: AdminUser.session_token,
       max_age: 90.days.to_i,
       httponly: true,
       secure: request.ssl?,
