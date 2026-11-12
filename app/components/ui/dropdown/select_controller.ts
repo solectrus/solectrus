@@ -65,8 +65,12 @@ export default class SelectController extends Controller<HTMLSelectElement> {
     const text =
       this.selectTarget.options[this.selectTarget.selectedIndex].text;
 
-    // Use a temporary select which has just ONE option - the selected one
-    this.tempTarget.innerHTML = `<option selected>${text}</option>`;
+    // Use a temporary select which has just ONE option - the selected one.
+    // The text is set as text, not as HTML, so a name cannot add markup.
+    const option = document.createElement('option');
+    option.selected = true;
+    option.textContent = text;
+    this.tempTarget.replaceChildren(option);
 
     // Return the width of the temporary select
     return this.tempTarget.clientWidth;

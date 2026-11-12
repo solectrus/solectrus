@@ -226,9 +226,16 @@ export default class TooltipController extends Controller {
     const htmlTarget = this.element.querySelector(
       '[data-tooltip-target="html"]',
     );
-    return (
-      htmlTarget?.innerHTML || (this.element as HTMLElement).ariaLabel || ''
-    );
+    if (htmlTarget?.innerHTML) return htmlTarget.innerHTML;
+
+    // The label is plain text (it came from the title), but the content is
+    // inserted as HTML, so it must be escaped
+    const label = (this.element as HTMLElement).ariaLabel;
+    if (!label) return '';
+
+    const text = document.createElement('div');
+    text.textContent = label;
+    return text.innerHTML;
   }
 
   private setupEventListeners(): void {

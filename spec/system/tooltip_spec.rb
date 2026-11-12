@@ -19,6 +19,16 @@ describe 'Tooltip' do
     expect(arrow_distance_from('right')).to be < 2
   end
 
+  # A title is plain text, so markup in it shows as written
+  it 'shows a title as text' do
+    visit '/inverter_power/now'
+    add_tap_tooltip('<b>Bold</b> name')
+
+    find_by_id('probe').hover
+    expect(page).to have_css('.floating-tooltip.show', text: '<b>Bold</b> name')
+    expect(page).to have_no_css('.floating-tooltip b')
+  end
+
   # The box is fixed to the viewport, so the scroll offset must not move it
   it 'stays in the viewport on a page scrolled down' do
     visit '/inverter_power/now'

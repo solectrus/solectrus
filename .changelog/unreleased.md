@@ -102,5 +102,6 @@ Keep every section, an empty one included.
 - **AI access:** the password page now refuses a callback address with a backslash or a user name. Before, such an address could show one host on the page and send the access to another
 - **Battery icon:** a charge level at a step like 15 %, 30 % or 60.5 % now shows the matching level. Before, it showed a full battery
 - **Code word page:** now refuses more guesses after ten wrong code words from one address within three minutes. Before, a trailing slash in the address lifted the limit
+- **Names in tooltips and menus:** a sensor or car name with a character like `<` or `&` now shows as written. Before, the browser read it as HTML
 
 ## Maintenance
