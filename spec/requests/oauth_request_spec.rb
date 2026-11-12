@@ -362,6 +362,20 @@ describe 'OAuth (MCP)' do
         expect(response.headers['Location']).to be_nil
       end
 
+      # The consent page would name "claude.ai", the browser would deliver the
+      # code to "evil.com".
+      it 'mints no code for a redirect_uri with a backslash before the host' do
+        post '/oauth/authorize',
+             params:
+               authorize_params(
+                 redirect_uri: 'https://evil.com\\@claude.ai/cb',
+                 password: admin_password,
+               )
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.headers['Location']).to be_nil
+      end
+
       it 'does not redirect to a disallowed redirect_uri even with the password' do
         post '/oauth/authorize',
              params:
