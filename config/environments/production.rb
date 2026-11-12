@@ -57,9 +57,12 @@ Rails.application.configure do
     # When running behind a trusted reverse proxy (Cloudflare/Traefik), a
     # misbehaving client-side proxy may inject a private `Client-IP` header that
     # conflicts with `X-Forwarded-For`, triggering a false-positive
-    # IpSpoofAttackError. remote_ip is only used for logging here, and the real
-    # trust boundary is the reverse proxy, so the spoofing check is safe to
-    # disable. Self-hosters without a proxy keep the check enabled.
+    # IpSpoofAttackError. Disabling the check is safe for remote_ip, which also
+    # keys the rate limit of the password checks (SessionsController,
+    # Oauth::AuthorizationsController): the reverse proxy appends the real
+    # client IP to `X-Forwarded-For`, and remote_ip takes that entry, so
+    # `Client-IP` is never read. Self-hosters without a proxy keep the check
+    # enabled.
     config.action_dispatch.ip_spoofing_check = false
   end
 
