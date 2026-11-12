@@ -6,8 +6,9 @@
 # over the year, in percent of the gross calorific value. A gas bill and the
 # gas prices count each kWh by this value, so a gas heating needs no
 # conversion. A condensing boiler reaches 75 to 90 % in daily use, a boiler
-# without condensing 70 to 80 %, well below the data sheet (see
-# docs/heatpump.md). The default is 85 % (see Setting).
+# without condensing 70 to 80 %, well below the data sheet. The default is
+# 85 % (see Setting), the mean of the condensing boilers in a field test
+# (see docs/heatpump.md).
 #
 # The fixed costs are all running costs of the heating per year, like the
 # maintenance and the chimney sweep. The page calls them running costs. The

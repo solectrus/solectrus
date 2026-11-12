@@ -552,9 +552,9 @@ de:
       efficiency_hint: |-
         Anteil der Energie im Brennstoff, der als Wärme ankommt, bezogen auf den Brennwert.
 
-        Ein Brennwertkessel erreicht im Alltag etwa 75 bis 90 %, ein Kessel ohne Brennwerttechnik 70 bis 80 %.
+        Ein Brennwertkessel erreicht im Alltag etwa 75 bis 90 %, ein Kessel ohne Brennwerttechnik 70 bis 80 %. Macht der Kessel auch das Warmwasser, liegt er eher im unteren Bereich, weil er im Sommer nur dafür läuft.
 
-        Gab es im Haus vorher eine Öl- oder Gasheizung, wird der Wert mit ihren alten Abrechnungen genauer: die erzeugte Wärme eines Jahres geteilt durch den Brennstoff in kWh eines früheren Jahres mit ähnlichem Wetter.
+        Gab es im Haus vorher eine Öl- oder Gasheizung, wird der Wert mit ihren alten Abrechnungen genauer: die erzeugte Wärme eines Jahres geteilt durch den Brennstoff in kWh eines früheren Jahres mit ähnlichem Wetter. Das gilt nur, wenn die alte Heizung dasselbe versorgt hat wie heute die Wärmepumpe.
       fixed_costs_hint: |-
         Alle laufenden Kosten der fossilen Heizung: Wartung, Schornsteinfeger, Strom für Brenner und Pumpe, bei Öl auch Tankreinigung und Tankversicherung, außerdem ein Mittelwert für Reparaturen.
 

@@ -552,9 +552,9 @@ en:
       efficiency_hint: |-
         The part of the energy in the fuel that arrives as heat, relative to the gross calorific value.
 
-        In daily use, a condensing boiler reaches about 75 to 90 %, a boiler without condensing 70 to 80 %.
+        In daily use, a condensing boiler reaches about 75 to 90 %, a boiler without condensing 70 to 80 %. If the boiler also makes the hot water, it is more likely at the low end, because in summer it runs only for the hot water.
 
-        If the house had an oil or a gas heating before, its old bills give a more exact value: the generated heat of a year divided by the fuel in kWh of an earlier year with similar weather.
+        If the house had an oil or a gas heating before, its old bills give a more exact value: the generated heat of a year divided by the fuel in kWh of an earlier year with similar weather. This works only if the old heating supplied the same as the heat pump does today.
       fixed_costs_hint: |-
         All running costs of the fossil heating: the maintenance, the chimney sweep, the electricity of the burner and the pump, for oil also the cleaning and the insurance of the tank, and also an average for repairs.
 
