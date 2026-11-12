@@ -29,7 +29,12 @@ module Lockup
     Rails.configuration.x.lockup_codeword
   end
 
+  # The value of the cookie. It comes from the codeword, so a new codeword
+  # locks every browser again. The key comes from secret_key_base, because the
+  # signed cookie is readable and a plain hash would let a weak codeword be
+  # guessed from it.
   def codeword_digest
-    @codeword_digest ||= Digest::SHA256.hexdigest(lockup_codeword)
+    @codeword_digest ||=
+      Rails.application.key_generator.generate_key("solectrus-lockup-#{lockup_codeword}", 32).unpack1('H*')
   end
 end
