@@ -6,18 +6,16 @@ Blocks B and C in the [roadmap](roadmap.md#block-b--influxdb). Requires [01](01-
 
 ## Data model
 
-A price entry gains a `mode`:
+The `mode` of a price entry (from [02](02-consumer-tariffs.md#ending-a-consumer-tariff)) gains two values:
 
 | Mode          | Amount per kWh | Slots       |
 | ------------- | -------------- | ----------- |
 | `fixed`       | required       | must be nil |
+| `inherit`     | must be nil    | must be nil |
 | `time_of_use` | must be nil    | required    |
 | `dynamic`     | must be nil    | must be nil |
-| `inherit`     | must be nil    | must be nil |
 
-`inherit` is only valid for a consumer tariff ([02](02-consumer-tariffs.md#ending-a-consumer-tariff)).
-
-The amount column becomes nullable in the database and the model. Never store zero for "no amount": zero is a real spot price. An older SOLECTRUS version then reads nil for such a row and shows blank money figures for those dates; say so in the release notes.
+The amount column is nullable in the database and the model. Never store zero for "no amount": zero is a real spot price. An older SOLECTRUS version then reads nil for such a row and shows blank money figures for those dates; say so in the release notes.
 
 A slot is a start time and an amount, in order:
 
@@ -30,7 +28,7 @@ A slot is a start time and an amount, in order:
 ```
 
 - Each slot runs until the next one; the last until midnight. The first starts at 00:00.
-- **Slots start on the full hour.** The time-of-use window is one hour, so a 06:30 slot would put one hour of energy into two prices. §14a module 3 and every published time-of-use tariff use full hours. Whoever relaxes this validation must shrink the window in the same commit.
+- Slots start on the quarter hour, which is the [window](#one-window) everything is priced in.
 - Slot times are local wall-clock times. A DST day has 23 or 25 hours; build the ranges in the local zone, as `Timeframe` does.
 
 ## Price sensors
@@ -46,7 +44,7 @@ Dynamic mode reads prices from InfluxDB through two ordinary registry sensors, `
 
 ## Shape times amount
 
-The obvious approach, an energy integral per slot or quarter hour times its price, is wrong here twice. The sum of the sub-day integrals is the raw energy, not the corrected daily value, so stored cost and stored energy would disagree. And a windowed integral defeats the InfluxDB pushdown (4–11× slower, see `Influx::DailyBatch`).
+The obvious approach, an energy integral per quarter hour times its price, is wrong here twice. The sum of the sub-day integrals is the raw energy, not the corrected daily value, so stored cost and stored energy would disagree. And a windowed integral defeats the InfluxDB pushdown (4–11× slower, see `Influx::DailyBatch`).
 
 So the sub-day query asks only for the **shape** of the day, and the amount comes from the corrected daily value:
 
@@ -62,32 +60,30 @@ The window energies add up to the stored daily value by construction, so every c
 - The window count comes from the timeframe (DST days), never from a constant.
 - A mean is sample-weighted. With a constant collector interval that does not matter; check it against real data.
 
-## The tariff sets the window
+## One window
 
-| Mode          | Window     |
-| ------------- | ---------- |
-| `fixed`       | no query   |
-| `time_of_use` | one hour   |
-| `dynamic`     | 15 minutes |
+Every sub-day mode is priced in windows of **15 minutes**, the resolution of the spot market. A day whose tariffs are all `fixed` runs no shape query.
 
-Time-of-use on an hourly window is exact, because slots start on the hour, and returns a quarter of the rows. Dynamic must not use an hourly window: that averages the price over the hour and removes exactly the load shifting a dynamic tariff is bought for.
+One window keeps one code path and one benchmark. It also covers a day with two modes, such as time-of-use import and dynamic feed-in, with a single query. An hourly window would average the spot price over the hour and remove exactly the load shifting a dynamic tariff is bought for.
 
-## Two arithmetic traps
+Two arithmetic traps:
 
-- **Multiply at the price resolution, then sum.** An hour costs the sum of four quarter-hour products, not hourly energy times mean price. The difference is a systematic error against shifted load.
+- **Multiply per window, then sum.** An hour costs the sum of four quarter-hour products, not hourly energy times mean price. The difference is a systematic error against shifted load.
 - **Timestamps.** The collector stamps each price at the start of its interval, while a windowed aggregate is right-aligned by default. Align the windows to the price grid and carry a price forward; never interpolate.
 
 ## Query cost
 
 The shape query is one more stream per day inside the program `Influx::DailyBatch` already sends: one query per chunk of days, never one per day or slot. Dynamic adds one query per chunk for the price series.
 
-The cost is in the rows. One sensor and day return one row per window instead of one. So:
+The cost is in the rows. One sensor and day return 96 rows instead of one. So:
 
-- Window only the sensors a cost term is made of: grid pair, `inverter_power`, battery pair, priced consumers and their `_grid` shares. 13 sensors without custom consumers, 53 with all 20. At 96 windows over seven days that is up to 36,000 rows per response.
+- Window only the sensors a cost term is made of: grid pair, `inverter_power`, battery pair, priced consumers and their `_grid` shares. 13 sensors without custom consumers, 53 with all 20. Over seven days that is up to 36,000 rows per response.
 - Benchmark the Ruby parse too, not only InfluxDB.
 - Where a per-day stream of 5-minute means already exists (sensors declaring min/max/avg), the shape is a fourth branch of it. The `_grid` shares and `custom_power_XX` declare a sum only and need a stream of their own; that group is the larger one with custom consumers.
 
 **Today is the hot path.** The summary of today goes stale after minutes and is rebuilt alone, without the batch, while the user watches. Measure that path on its own. Price series of finished days never change, so they can be cached; today's cannot.
+
+If the benchmark fails only because of the row count, an hourly window for days without a dynamic tariff is the fallback. It returns a quarter of the rows and then requires slots on the full hour.
 
 ## The sub-day views
 
@@ -98,20 +94,16 @@ The cost is in the rows. One sensor and day return one row per window instead of
 
 ## Charging sessions and the heat pump comparison
 
-Both are priced with a simplification: the **time-weighted mean price** over their window, assuming constant power. No power query.
+They are priced with a simplification: the **time-weighted mean price** over their window, assuming constant power. No power query.
 
 - A charging session uses its exact start and end. A wallbox charges at nearly constant power, so the error is small. A time-of-use edit reprices sessions from stored data, inline, as today.
-- The "without PV" column of `Heatpump::Comparison` uses the mean price of the day. It ignores when the heat pump ran, so it does not reward load shifting. That is acceptable for a hypothetical comparison and is stated on the page.
+- The "without PV" figures of `Heatpump::Comparison` and `Car::Ledger::WithoutPv` use the mean price of the day. They ignore when the consumer ran, so they do not reward load shifting. That is acceptable for a hypothetical comparison and is stated on the page.
 
 ## Missing data
 
-When the price series of a dynamic day is missing, its costs are nil and no cost row is written. The day itself is written, so its energy stays visible.
+When the price series of a dynamic day is missing, its costs are nil and no cost row is written. The day itself is written, so its energy stays visible. Never fall back to the last known price.
 
-Such a day would count as fresh and never retry. So the summary gets a marker: since when a cost was omitted. A day is stale while the marker is set and younger than one week; after that it stops retrying and the marker tells the UI why it is incomplete. The marker is cleared when the day is written complete.
-
-Both staleness checks need the marker: `Summary.missing_or_stale_days` and `Summary#stale?`. Teaching only the SQL lists the day and then drops it again in Ruby.
-
-Never fall back to the last known price.
+Do not build a retry. Spot prices are published the day before, so they are there when a day is summarized; when they are not, the collector was down, and no collector backfills. If the missing prices are written to InfluxDB later, a reset of the summaries picks them up.
 
 ## MCP
 
@@ -129,5 +121,4 @@ Run `bin/llm-test` after every description change, and `--ablate` before adding 
 - Shape sums to zero: `NaN` in the summary.
 - Price sensor in `depends_on`: all cost sensors vanish without a collector.
 - Hourly totals priced with one amount: wrong for every sub-day mode.
-- Missing-data marker taught to one staleness check only: no retry.
-- Slots between full hours: the hourly window prices at a rate the tariff never had.
+- A sub-day edit recalculated from daily energy instead of rebuilt: the cost loses its shape.

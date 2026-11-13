@@ -10,7 +10,7 @@ A daily energy sum cannot say how much of it fell into the expensive hours. So w
 
 ## What gets stored
 
-Every definition that prices a quantity of its own becomes `stored: [:sum]`. A field carries the name of its sensor.
+Every priced sensor becomes `stored: [:sum]`. A field carries the name of its sensor.
 
 | Sensor                     | Price       | Priced quantity                                        |
 | -------------------------- | ----------- | ------------------------------------------------------ |
@@ -28,15 +28,17 @@ Every definition that prices a quantity of its own becomes `stored: [:sum]`. A f
 
 That is 52 enum values, 40 of them the custom pairs. Enum values cannot be removed from a user's database, but they can be corrected while the work is on the branch.
 
-The composed sensors stay computed: `grid_costs`, `house_costs`, `heatpump_costs`, `wallbox_costs`, `custom_XX_costs`, `grid_balance`, `solar_price`, `savings`, `house_without_custom_costs` and `total_costs`.
+The [composed sensors](current-state.md#two-kinds-of-finance-sensors) stay computed.
 
 About 21 rows per day for a typical setup, 38,000 over five years. No new index.
 
 ## Priced terms
 
-A cost definition returns its terms: an energy, a price type, and (from A6) a consumer. `FinanceBase` multiplies each term by its resolved price, sums, and adds the base fee where the sensor carries it. Clamps such as `max(house − house_grid, 0)` live in the term method.
+A priced sensor returns its terms: an energy, a price type, and (from A6) a consumer. `FinanceBase` multiplies each term by its resolved price, sums, and adds the base fee where the sensor carries it.
 
-This replaces the 13 hand-written multiplications in `#calculate_with_prices` once, in A2, without changing a number. Then all callers use the same terms: the cost step, the recalculation, the InfluxDB path, the consumer tariffs in [02](02-consumer-tariffs.md), and the per-window pricing in [03](03-sub-day-prices.md).
+The energy of a term is computed from the dependency values and is nil when its inputs are missing. Clamps such as `max(house − house_grid, 0)` live there. A sensor without any term value and without a fee is nil.
+
+This replaces the hand-written multiplications in `#calculate_with_prices` once, in A2, without changing a number. Then all callers use the same terms: the cost step, the recalculation, the InfluxDB path, the consumer tariffs in [02](02-consumer-tariffs.md), and the per-window pricing in [03](03-sub-day-prices.md).
 
 ## The cost step
 
@@ -44,30 +46,37 @@ A new collection step at the end of `SummaryBuilder#call`, **after** `#clean_inv
 
 > A stored cost is the price applied to the stored energy, never to the energy before correction.
 
-- The step reads the corrected daily energies, resolves the prices of the day with `Price::Schedule`, and stores what the terms produce.
+- The step is a function of the daily energies and a `Price::Schedule`. It reads neither InfluxDB nor the database, so the recalculation can call it too.
 - Finance sensors stay out of the list sent to `Influx::DailyBatch`. The existing filters (configured watt sensors) already do that; do not relax them.
 - No clamp and no range check. Costs and revenues can be negative with spot prices.
 - Store the float. Round only when formatting.
 
 ## The SQL path
 
-`#sql_calculation` stays and points at the sensor's own column, because `Sensor::Config#exists?` depends on it. Do not coalesce a stored column to zero.
+`#sql_calculation` of a priced sensor stays and points at the sensor's own column, because `Sensor::Config#exists?` depends on it. Do not coalesce a stored column to zero.
 
 ### A day without energy is NULL
 
-Today a day without an energy row costs 0. Afterwards it has no cost row. Sums stay the same; `min` and the top-10 ranking change, because a day the meter never reported did not cost nothing. This is the correct number and goes into the changelog.
+Today the SQL path prices a missing energy as 0. Afterwards such a day has no cost row. Sums stay the same; `min` and the top-10 ranking change, because a day the meter never reported did not cost nothing. This is the correct number and goes into the changelog.
 
-`battery_savings`, `opportunity_costs` and `traditional_costs` currently return a number when a dependency is missing. They must return nil when no dependency has a value (A4).
+`battery_savings`, `opportunity_costs` and `traditional_costs` currently return a number in Ruby when a dependency is missing. They must return nil when no dependency has a value (A4).
 
 ### A composed sensor tolerates a missing part
 
-`grid_costs`, `solar_price`, `savings`, `total_costs` and the consumer `*_costs` splice the SQL of their parts. Once the parts are stored columns, a missing part is NULL and makes the whole day NULL. A day without export would drop out of `savings`, and with it out of the amortization. This starts with the first stored sensor, because `solar_price` and `savings` splice `grid_revenue`.
+Once the parts are stored, a missing part is nil. Most composed sensors then lose the whole day: a day without export would drop out of `savings`, and with it out of the amortization. This starts with the first stored sensor, because `solar_price` and `savings` build on `grid_revenue`.
 
-So every composed sensor builds its SQL through one helper on `FinanceBase`: coalesce each part, NULL only when all parts are NULL. The Ruby side of `grid_costs` already follows that rule. A spec per composed sensor with one part missing.
+One rule for every composed sensor: **a missing part counts as zero, and the result is nil only when all parts are missing.** That is what the SQL path returns today, so no number moves. It has to hold in both places a composed sensor is calculated:
+
+- the `calculate` block, which serves totals, series and the amortization;
+- the SQL of the four ranked ones.
+
+One shared helper per side, used by every composed sensor. `grid_costs` already follows the rule in Ruby. A spec per composed sensor with one part missing, through `Query::Total` and, where ranked, through `Query::Ranking`.
 
 ## The base fee
 
-`grid_base_fee` is stored like the rest, so the price join can go entirely. It follows today's rule: a fee row only on a day that has at least one measured value. That keeps the numbers unchanged, and `MeasuredRange` keeps seeing only measured days.
+`grid_base_fee` is stored like the rest, so the price join can go entirely. The cost step writes the fee on every day whose summary holds at least one value. `house_costs_grid` and `traditional_costs` contain the fee on those days too, also when their own energy is missing.
+
+Today the fee depends on the fields a query asks for. The stored rule gives the same number in the common case and differs only on a day where the queried field is missing but another one is present. `MeasuredRange` keeps seeing only measured days.
 
 ## Recalculation after a price change
 
@@ -78,23 +87,27 @@ From A3 on a price edit leaves wrong stored costs unless they are recalculated. 
 3. Run the same cost step per day.
 4. Delete the cost rows of the range, then insert the new ones. An upsert alone would leave the cost of a day whose tariff is gone.
 
-No InfluxDB and no second formula. The one-time backfill when upgrading is the same code over the whole history.
+No InfluxDB and no second formula. It runs after every save or destroy of a price, also when only the base fee changed.
+
+### The backfill
+
+The one-time backfill when upgrading is the same recalculation over the whole history. `Sensor::SummaryInvalidator` triggers it: the summary configuration gets a cost version, and when that is the only change, the invalidator recalculates all days instead of resetting the summaries. Bumping the version is also the repair for anything that left costs wrong.
 
 ### Where it runs
 
 Inline, in the transaction that saves the price. Then a price and its costs are always consistent, and a failure shows as an error on the form.
 
-_Stop point 1:_ measure the edit of the oldest price on five years of seeded summaries. If it is too slow for a form submit, move it into a job. A job must mark the affected summaries stale when it fails, so they rebuild from InfluxDB instead of staying silently wrong.
+_Stop point 1:_ measure the edit of the oldest price on five years of seeded summaries. If it is too slow for a form submit, move it into a job. A job that fails must delete the affected summaries, so they rebuild from InfluxDB instead of staying silently wrong.
 
-Two edits do not trigger it: a price written outside the model (console, SQL) and a summary run already in flight while the price is saved. Do not guard against either. The repair is the same recalculation over the range; name it where it lives.
+Two edits do not trigger it: a price written outside the model (console, SQL) and a summary run already in flight while the price is saved. Do not guard against either.
 
 ### Sub-day modes rebuild instead
 
 A cost under time-of-use or dynamic prices needs sub-day data, so the recalculation cannot redo it from stored daily energy. An edit that involves such a mode deletes the affected summaries and returns. The existing staleness mechanism rebuilds them in the background. Never rebuild inline. This arrives in C1.
 
-### The amortization cache
+### The caches
 
-`AmortizationCalculator` caches under a key that includes the price table version. After a sub-day edit the key changes immediately, but the summaries are rebuilt only over the next page views, so the cache stores a figure computed from a gap. _Stop point 3:_ either rebuild before returning, or do not cache while days are missing.
+`AmortizationCalculator`, `Car::Savings` and `Heatpump::Savings` cache under a key that includes the price table version. After a sub-day edit the key changes immediately, but the summaries are rebuilt only over the next page views, so a cache stores a figure computed from a gap. _Stop point 3:_ either rebuild before returning, or do not cache while days are missing.
 
 ## What stays
 
@@ -104,7 +117,7 @@ The hourly totals and the chart series have no daily row to read. They keep calc
 
 Write it as a spec before converting: seed days, record day, month, year and top-10 from the current code as expected values, then convert. The seed needs a price change inside the period, a day without energy data, and a day without export.
 
-Expected differences: `min` and ranking where a day has no energy. Totals agree within float tolerance (the old path multiplies in `numeric`, the new one in `Float`); a cent or more is a bug.
+Expected differences: `min` and ranking where a day has no energy, and the base fee on a day where only the queried field is missing. Totals agree within float tolerance (the old path multiplies in `numeric`, the new one in `Float`); a cent or more is a bug.
 
 The spec proves the arithmetic. Comparing the same figures on a real database before and after A3 is the acceptance.
 
@@ -115,7 +128,7 @@ Not supported. An older version ignores the cost rows but does not keep them tru
 ## Traps
 
 - Cost step before the corrections: stored cost and stored energy disagree.
-- A composed sensor without the coalesce helper: whole days vanish from `savings` and the amortization.
+- The missing-part rule only in SQL: the ranking is right, but whole days vanish from `savings` and the amortization, which run through the `calculate` block.
 - Deleting `#sql_calculation`: the sensor leaves the registry.
 - Deleting `#required_prices` or the terms with the CTE: hourly views and charts break.
 - Fee rows on days without measurements: `MeasuredRange` moves the installation date back.
