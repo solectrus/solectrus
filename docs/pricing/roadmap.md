@@ -16,17 +16,17 @@ A1 went to `develop` on its own. Every step from A2 on stays on one working bran
 
 Update this table in the commit that finishes a step.
 
-| Step | What                   | Status |
-| ---- | ---------------------- | ------ |
-| A1   | Monthly base fee       | done   |
-| A2   | Preparation            | todo   |
-| A3   | Pilot: `grid_revenue`  | todo   |
-| A4   | All other cost sensors | todo   |
-| A5   | Retire the price join  | todo   |
-| A6   | Consumer tariffs       | todo   |
-| B1   | Windowed daily batch   | todo   |
-| C1   | Time-of-use            | todo   |
-| C2   | Dynamic prices         | todo   |
+| Step | What                       | Status |
+| ---- | -------------------------- | ------ |
+| A1   | Monthly base fee           | done   |
+| A2   | Preparation                | todo   |
+| A3   | Pilot: `grid_energy_costs` | todo   |
+| A4   | All other cost sensors     | todo   |
+| A5   | Retire the price join      | todo   |
+| A6   | Consumer tariffs           | todo   |
+| B1   | Windowed daily batch       | todo   |
+| C1   | Time-of-use                | todo   |
+| C2   | Dynamic prices             | todo   |
 
 ## Stop points
 
@@ -52,14 +52,18 @@ No behavior change.
 1. Every priced sensor returns its **priced terms** (energy, price type, consumer), and `FinanceBase` does the multiplication. See [01](01-stored-costs.md#priced-terms).
 2. `Sql::QueryBuilder` and `Sql::Total` ask a finance sensor for its `storable_fields` instead of its SQL dependencies. Without this, A3 references a column the CTE never selected.
 
-### A3 — Pilot: `grid_revenue`
+### A3 — Pilot: `grid_energy_costs`
 
-1. Enum value, `stored: [:sum]`, `#sql_calculation` points at the own column.
-2. The cost step in `SummaryBuilder`, after the value corrections. See [01](01-stored-costs.md#the-cost-step).
-3. The missing-part rule for composed sensors, in the `calculate` block and in SQL, with `solar_price` and `savings` on it, because both build on `grid_revenue`. See [01](01-stored-costs.md#a-composed-sensor-tolerates-a-missing-part).
-4. The recalculation after a price change, and the cost version in `SummaryInvalidator` that runs it as the backfill. _Stop point 1._
-5. Check the heatmap, which switches to the stored-column path.
-6. The comparison spec: day, month, year and top-10 against the values from before.
+The pilot is as simple as a priced sensor gets: one energy, one price, no base fee, no Power Splitter share. And unlike the feed-in price, the electricity price has changed in almost every installation, so the acceptance on a real database exercises the recalculation.
+
+1. The comparison spec, before anything is converted: day, month, year and the top-10 of `grid_costs` from the current code as expected values. See [01](01-stored-costs.md#correctness-check).
+2. Enum value, `stored: [:sum]`, `#sql_calculation` points at the own column.
+3. The cost step in `SummaryBuilder`, after the value corrections. See [01](01-stored-costs.md#the-cost-step).
+4. The missing-part rule for composed sensors, in the `calculate` block and in SQL, with `grid_costs`, `solar_price`, `savings` and `total_costs` on it, because all four build on `grid_energy_costs`. See [01](01-stored-costs.md#a-composed-sensor-tolerates-a-missing-part).
+5. The recalculation after a price change, and the cost version in `SummaryInvalidator` that runs it as the backfill. _Stop point 1._
+6. Check the heatmap, which switches to the stored-column path.
+
+Until A4, `grid_costs` adds a stored part and a base fee that still comes from the price join. That mixed state is intended.
 
 Fix two comments that stop being true: the heatmap's example of the calculated path, and the reason given in `AmortizationCalculator.cache_key`.
 

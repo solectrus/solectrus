@@ -63,7 +63,7 @@ Today the SQL path prices a missing energy as 0. Afterwards such a day has no co
 
 ### A composed sensor tolerates a missing part
 
-Once the parts are stored, a missing part is nil. Most composed sensors then lose the whole day: a day without export would drop out of `savings`, and with it out of the amortization. This starts with the first stored sensor, because `solar_price` and `savings` build on `grid_revenue`.
+Once the parts are stored, a missing part is nil. Most composed sensors then lose the whole day: a day without export would drop out of `savings`, and with it out of the amortization. This starts with the first stored sensor, because `grid_costs`, `solar_price`, `savings` and `total_costs` build on the pilot, `grid_energy_costs`.
 
 One rule for every composed sensor: **a missing part counts as zero, and the result is nil only when all parts are missing.** That is what the SQL path returns today, so no number moves. It has to hold in both places a composed sensor is calculated:
 
