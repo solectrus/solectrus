@@ -47,6 +47,10 @@ A new collection step at the end of `SummaryBuilder#call`, **after** `#clean_inv
 > A stored cost is the price applied to the stored energy, never to the energy before correction.
 
 - The step is a function of the daily energies and a `Price::Schedule`. It reads neither InfluxDB nor the database, so the recalculation can call it too.
+- It is not one of the [`Summary::Steps`](current-state.md#details-that-matter-for-the-work). Those read InfluxDB and write records of their own, and a new version of one resets all summaries. The cost step writes values into `summary_values`, and its version recalculates. See [the backfill](#the-backfill).
+- `Sensor::Summarizer` loads the `Price::Schedule` once per run and hands it to each `SummaryBuilder`, as it does with the results of `Influx::DailyBatch`.
+- The step returns a key for each cost sensor, also when the cost is nil. The writer deletes an existing row only for a nil key, so a dropped key keeps an old cost when a day is rebuilt.
+- The step takes its sensors from `sensors_for_build` and never asks the sponsor policy. A summary holds every cost, also one a page does not show yet.
 - Finance sensors stay out of the list sent to `Influx::DailyBatch`. The existing filters (configured watt sensors) already do that; do not relax them.
 - No clamp and no range check. Costs and revenues can be negative with spot prices.
 - Store the float. Round only when formatting.
@@ -93,7 +97,7 @@ No InfluxDB and no second formula. It runs after every save or destroy of a pric
 
 ### The backfill
 
-The one-time backfill when upgrading is the same recalculation over the whole history. `Sensor::SummaryInvalidator` triggers it: the summary configuration gets a cost version, and when that is the only change, the invalidator recalculates all days instead of resetting the summaries. Bumping the version is also the repair for anything that left costs wrong.
+The one-time backfill when upgrading is the same recalculation over the whole history. `Sensor::SummaryInvalidator` triggers it: the summary configuration gets a cost version as a key of its own, apart from the general version and the step versions, which both reset. When the cost version is the only change, the invalidator recalculates all days instead of resetting the summaries. Bumping the version is also the repair for anything that left costs wrong.
 
 ### Where it runs
 

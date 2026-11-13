@@ -42,7 +42,10 @@ A composed sensor is calculated in two places:
 
 - **`Sensor::Config#exists?`** keeps a priced sensor alive only through `#sql_calculation` (it has no env variable and no `calculate` block). Remove the method and the sensor disappears from the registry, the menu and every query.
 - **`SummaryBuilder#call`** collects raw and calculated values, then runs `#clean_invalid_sensor_values` (including `#nullify_sums_without_corresponding_max`) and `#apply_value_corrections` (`SummaryCorrector` rescales every `*_grid` share and caps custom consumers). Both change the energies a cost is made of. A finance sensor passes neither collection filter today.
-- **`Sensor::SummaryInvalidator`** compares a stored configuration at boot and resets all summaries when it changed in a relevant way. A sensor added with history is such a change, so a rebuilt day never misses a consumer that had data.
+- **`Sensor::Summarizer`** builds the summaries in chunks of days. Per chunk it sends one `Influx::DailyBatch`, runs a `SummaryBuilder` per day with the prefetched results, and writes everything in one transaction. It writes every value the builder returns, so a cost the builder adds needs no extra code to be stored. It deletes an existing value only when the builder returns its key with nil.
+- **`Summary::Steps`** are the parts of the build besides the sensor values, such as the detection of charging sessions. A step reads InfluxDB in a thread of its own and writes records of its own. Its `VERSION` is in the summary configuration, and a new one resets all summaries.
+- **`Sensor::SummaryInvalidator`** compares a stored configuration at boot and resets all summaries when it changed in a relevant way. A sensor added with history is such a change, so a rebuilt day never misses a consumer that had data. The configuration lists only sensors with an InfluxDB mapping, so a finance sensor that becomes stored does not change it.
+- **`Sensor::Config.sensors_for_build`** is the sensor list of the build, the steps and the invalidator. It ignores the sponsor policy. `FinanceBase` has a policy of its own for the top 10.
 - **`#corresponding_base_sensor`** maps a `_grid` share to its consumer (`heatpump_power_grid` → `heatpump_power`).
 - **`Base#storable_fields`** resolves a sensor to the stored fields it comes down to. `Query::Ranking` uses it; `Sql::QueryBuilder` and `Sql::Total` read `dependencies(context: :sql)` instead.
 - **`Influx::DailyBatch`** unions per-day pipelines into one Flux program (30-day rebuild 2265 → 535 ms against a remote InfluxDB). Letting InfluxDB cut the days itself (`aggregateWindow(fn: integral)`, `location`) was 4–11× slower. It sends two programs: per-day integrals for sum sensors, and per-day 5-minute means reduced to min/max/avg for sensors that declare those. The `_grid` shares and `custom_power_XX` declare a sum only.
@@ -59,4 +62,6 @@ A composed sensor is calculated in two places:
 
 ## Outside this repository
 
-`solectrus/tibber-collector` writes quarter-hourly gross spot prices to InfluxDB, stamped at the start of each interval, for today and tomorrow. It never backfills.
+`solectrus/tibber-collector` writes quarter-hourly gross spot prices to InfluxDB, stamped at the start of each interval, for today and tomorrow. It never backfills. Each point has the fields `amount` (the Tibber `total`) and `level`, in a measurement the collector configuration names. A price sensor maps to `<measurement>:amount`.
+
+Checked against that repository on 2026-11-13. The missing-data rule in [03](03-sub-day-prices.md#missing-data) rests on these statements.
