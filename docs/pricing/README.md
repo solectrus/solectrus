@@ -2,6 +2,29 @@
 
 How SOLECTRUS turns energy into money, and what it takes to support tariffs that change during a day. Only the monthly base fee is implemented so far.
 
+## In short
+
+SOLECTRUS should support tariffs whose price changes during a day: fixed time slots (time-of-use) and spot market prices (dynamic). It should also support a separate tariff for a single consumer.
+
+**The idea.** Today money is calculated every time a page is shown: the energy of a day times the price of that day. That only works while a day has one price. So in future the cost of a day is calculated once and stored, while the data within the day is still at hand.
+
+**The parts.**
+
+- **Stored costs (01).** The cost of each day is stored next to its energy. No tariff changes; this is the groundwork for everything else. When a price changes, the affected days are recalculated from the stored energy.
+- **Consumer tariffs (02).** The heat pump, the wallbox or a consumer on its own meter can have its own electricity price. Without one, the normal price applies.
+- **Sub-day prices (03).** Time-of-use and dynamic work the same way: the energy of a day is spread over 15-minute windows by its course, and each window is multiplied by its price. A collector delivers the dynamic prices. A day without prices has no cost.
+- **Energy sharing (04).** Written down, not planned, because there is no data source yet.
+
+**The order.**
+
+1. **Block A** touches only the database: store the costs (one sensor as a pilot, then all), remove the old price calculation, then the consumer tariffs. The base fee is already done.
+2. **Block B** measures whether the 15-minute query is fast enough, also on slow hardware. It decides whether block C is built this way.
+3. **Block C** brings time-of-use first, then dynamic prices.
+
+Everything after the base fee stays on one branch until the end, because the new database fields cannot be taken back once released.
+
+## Where to read on
+
 Read [current-state.md](current-state.md) first, then the [roadmap](roadmap.md). Each feature file holds the decisions for its feature and the traps that come with them. It does not hold queries or column names.
 
 | File                                             | Feature                                     | Issue               |
