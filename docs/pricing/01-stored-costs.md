@@ -72,6 +72,8 @@ One rule for every composed sensor: **a missing part counts as zero, and the res
 
 One shared helper per side, used by every composed sensor. `grid_costs` already follows the rule in Ruby. A spec per composed sensor with one part missing, through `Query::Total` and, where ranked, through `Query::Ranking`.
 
+On the installation measured on 2026-11-13 no day in six years lacks a value for grid import, export, inverter, house or battery; heat pump and wallbox are missing only before they existed. The rule moves no number there. It matters for installations with outages.
+
 ## The base fee
 
 `grid_base_fee` is stored like the rest, so the price join can go entirely. The cost step writes the fee on every day whose summary holds at least one value. `house_costs_grid` and `traditional_costs` contain the fee on those days too, also when their own energy is missing.
@@ -97,7 +99,9 @@ The one-time backfill when upgrading is the same recalculation over the whole hi
 
 Inline, in the transaction that saves the price. Then a price and its costs are always consistent, and a failure shows as an error on the form.
 
-_Stop point 1:_ measure the edit of the oldest price on five years of seeded summaries. If it is too slow for a form submit, move it into a job. A job that fails must delete the affected summaries, so they rebuild from InfluxDB instead of staying silently wrong.
+A dry run on a real database (2026-11-13, six years, 31,000 cost rows, plain SQL without ActiveRecord and with simplified arithmetic) took 0.4 s for load, calculation, delete and insert.
+
+_Stop point 1:_ confirm that with the real code on the oldest price. If it is too slow for a form submit, move it into a job. A job that fails must delete the affected summaries, so they rebuild from InfluxDB instead of staying silently wrong.
 
 Two edits do not trigger it: a price written outside the model (console, SQL) and a summary run already in flight while the price is saved. Do not guard against either.
 

@@ -32,7 +32,7 @@ Update this table in the commit that finishes a step.
 
 Four points need a decision the work cannot make itself. Do the work up to there, present the numbers or options, and wait.
 
-1. **A3:** how long the recalculation after a price edit takes on five years of summaries. Inline or job? See [01](01-stored-costs.md#where-it-runs).
+1. **A3:** how long the recalculation after a price edit takes on the whole history. Inline or job? A dry run says inline. See [01](01-stored-costs.md#where-it-runs).
 2. **B1:** the benchmark of the windowed batch. Decides whether block C goes ahead.
 3. **C1:** the caches while summaries are rebuilt after a time-of-use edit. See [01](01-stored-costs.md#the-caches).
 4. **C2:** the `t` flag of the price sensors in the MCP tool matrix. See [03](03-sub-day-prices.md#mcp).
@@ -94,6 +94,8 @@ See [02](02-consumer-tariffs.md). Still no InfluxDB.
 Extend `Influx::DailyBatch` with per-day means in 15-minute windows that keep their buckets, only for the sensors a cost term is made of. See [03](03-sub-day-prices.md#query-cost).
 
 Benchmark against the current programs on the local test InfluxDB, filled with 20 custom consumers (53 sensors). Measure the query, the Ruby parse, and a single day without the batch. Report the ratio to the current batch, not absolute times. _Stop point 2._
+
+A [first measurement](03-sub-day-prices.md#first-measurement) on a real installation was unremarkable. B1 still has to show the same with 53 sensors, on slow hardware and inside the existing program.
 
 ## Block C — Sub-day prices
 

@@ -58,7 +58,7 @@ The window energies add up to the stored daily value by construction, so every c
 - **One shape per term, never per dependency.** A clamp does not survive being taken apart: Σ max(a − b, 0) ≠ max(Σa − Σb, 0). The priced terms of [01](01-stored-costs.md#priced-terms) are evaluated per window, so this comes for free.
 - **A shape that sums to zero** (the corrector can create a daily value the raw data never had): spread the daily value evenly over the windows with data. Otherwise the division yields `NaN`, which a float column accepts silently.
 - The window count comes from the timeframe (DST days), never from a constant.
-- A mean is sample-weighted. With a constant collector interval that does not matter; check it against real data.
+- A mean is sample-weighted, so a window with gaps in its samples gets a slightly wrong weight. Measured on a day with gaps of up to eleven minutes: at most 0.3 % of the daily energy in one window, otherwise below 0.1 %. Accept it. Averaging one-minute means first halves the error at the same query cost, if it ever matters; filling gaps with the previous value does not work, because it also fills the rest of today.
 
 ## One window
 
@@ -78,10 +78,26 @@ The shape query is one more stream per day inside the program `Influx::DailyBatc
 The cost is in the rows. One sensor and day return 96 rows instead of one. So:
 
 - Window only the sensors a cost term is made of: grid pair, `inverter_power`, battery pair, priced consumers and their `_grid` shares. 13 sensors without custom consumers, 53 with all 20. Over seven days that is up to 36,000 rows per response.
-- Benchmark the Ruby parse too, not only InfluxDB.
+- Ask for no empty windows (`createEmpty: false`); they were 28 % of the rows over seven days and half of them for today, whose future windows are empty.
+- Benchmark the Ruby parse too, not only InfluxDB. Group the rows by the day string; a `Date.parse` per row was 40 % of the parse time.
 - Where a per-day stream of 5-minute means already exists (sensors declaring min/max/avg), the shape is a fourth branch of it. The `_grid` shares and `custom_power_XX` declare a sum only and need a stream of their own; that group is the larger one with custom consumers.
 
 **Today is the hot path.** The summary of today goes stale after minutes and is rebuilt alone, without the batch, while the user watches. Measure that path on its own. Price series of finished days never change, so they can be cached; today's cannot.
+
+### First measurement
+
+2026-11-13, one real installation with 27 cost sensors, a fast remote InfluxDB, the shape query as a program of its own, median of three runs:
+
+|                          | Query  | Parse  | Rows   |
+| ------------------------ | ------ | ------ | ------ |
+| 7 days, current programs | 210 ms | 5 ms   | 311    |
+| 7 days, 15-minute means  | 164 ms | 123 ms | 16,416 |
+| Today, current queries   | 119 ms | 1 ms   | 41     |
+| Today, 15-minute means   | 75 ms  | 18 ms  | 2,016  |
+
+The shape query costs about as much as the queries it joins. Without empty windows, today drops to 58 ms and 992 rows. Not measured: 53 sensors, slow hardware, and the stream inside the existing program.
+
+The sum of real window integrals was 0.5 % below the daily integral, and 4 % on a day with gaps, because an integral counts a gap across a window boundary as zero. That confirms taking the amount from the daily value.
 
 If the benchmark fails only because of the row count, an hourly window for days without a dynamic tariff is the fallback. It returns a quarter of the rows and then requires slots on the full hour.
 
