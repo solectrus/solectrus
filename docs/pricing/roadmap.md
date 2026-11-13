@@ -37,6 +37,28 @@ Four points need a decision the work cannot make itself. Do the work up to there
 3. **C1:** the caches while summaries are rebuilt after a time-of-use edit. See [01](01-stored-costs.md#the-caches).
 4. **C2:** the `t` flag of the price sensors in the MCP tool matrix. See [03](03-sub-day-prices.md#mcp).
 
+## Decided
+
+Confirmed on 2026-11-13. Do not reopen without a new reason.
+
+- One 15-minute window for time-of-use and dynamic. See [03](03-sub-day-prices.md#one-window).
+- `mode` arrives in A6, without an interim `inherit` flag. See [02](02-consumer-tariffs.md#ending-a-consumer-tariff).
+- No retry marker for days without spot prices. See [03](03-sub-day-prices.md#missing-data).
+- A stored field is named like its sensor, and no sensor is renamed. See [01](01-stored-costs.md#what-gets-stored).
+
+## Critical points
+
+In order of risk:
+
+1. **B1.** The windowed query with 53 sensors and on slow hardware. Today is rebuilt alone every five minutes.
+2. **Cost matches energy.** The cost step runs after the corrections, and under sub-day prices InfluxDB gives only the shape, per term.
+3. **Composed sensors with a missing part,** in Ruby and in SQL, from the first stored sensor on.
+4. **The comparison spec** before converting. A3 to A5 move no number beyond the announced differences.
+5. **Enum values** are final once released.
+6. **Price edits under sub-day modes** delete and rebuild, and the caches must not keep a figure from a gap.
+7. **Hourly and chart views** need a price per point, not one per timeframe.
+8. **Dynamic prices depend on the collector.** Price sensors are never in `depends_on`.
+
 ## Block A — PostgreSQL only
 
 The hourly and chart views keep calculating money in Ruby throughout. See [01](01-stored-costs.md#what-stays).
