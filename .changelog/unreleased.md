@@ -85,6 +85,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- **Sponsoring:** an outage of the update server right after an update now keeps the sponsor features on. Before, the features were locked and showed "Status unknown" for at least 15 minutes
 - **Live view:** now keeps its update every few seconds. Before, it sometimes stopped or slowed to once a minute, for example after a return to the browser tab or a short outage of the values
 - **Open for a long time:** a page like on a wall display now needs less memory and less work of the device. Before, the memory grew with each page, and the browser redrew the page without need
 - **HELIOS link:** now opens HELIOS at the address that it was last opened at, with HELIOS 1.6. Before, it took the domain of the dashboard and never loaded (#6092)

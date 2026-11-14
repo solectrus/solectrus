@@ -88,6 +88,12 @@ describe UpdateCheck::CacheManager do
       expect(cache_manager.get[:data]).to eq(test_data)
     end
 
+    it 'stores the commit version beside the answer' do
+      cache_manager.set(test_data, fresh_until:, usable_until:)
+
+      expect(cache_manager.get[:version]).to eq('abc123')
+    end
+
     it 'sets Rails cache TTL to usable_until' do
       cache_manager.set(test_data, fresh_until:, usable_until:)
 
@@ -263,20 +269,10 @@ describe UpdateCheck::CacheManager do
   describe '#cache_key' do
     subject(:cache_key) { cache_manager.cache_key }
 
-    it 'includes the git commit version' do
-      expect(cache_key).to eq('UpdateCheck:abc123')
-    end
-
-    context 'with different commit version' do
-      before do
-        allow(Rails.configuration.x.git).to receive(:commit_version).and_return(
-          'def456',
-        )
-      end
-
-      it 'reflects the new commit version' do
-        expect(cache_key).to eq('UpdateCheck:def456')
-      end
+    # The answer of the previous version must stay reachable after an update.
+    it 'does not change with the commit version' do
+      expect { allow(Rails.configuration.x.git).to receive(:commit_version).and_return('def456') }
+        .not_to(change(cache_manager, :cache_key))
     end
   end
 end

@@ -919,6 +919,39 @@ describe UpdateCheck do
         end
       end
 
+      # An update starts with the answer of the previous version only.
+      describe 'after an update' do
+        before do
+          stub_request(:get, 'https://update.solectrus.de').to_return(
+            body: signed_json(
+              version: 'v1.3.0',
+              registration_status: 'complete',
+              premium_reason: 'sponsoring',
+            ),
+          )
+          instance.latest
+
+          allow(Rails.configuration.x.git).to receive(:commit_version).and_return('v9.9.9')
+          allow(Rails.logger).to receive(:warn)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'asks the server first' do
+          stub_request(:get, 'https://update.solectrus.de').to_return(
+            body: signed_json(version: 'v9.9.9', registration_status: 'complete'),
+          )
+
+          expect(instance.latest).to include(version: 'v9.9.9')
+        end
+
+        it 'keeps the previous answer while the server does not answer' do
+          stub_failure
+
+          expect(instance.latest).to include(premium_reason: 'sponsoring')
+          travel(13.hours) { expect(instance.latest).to include(premium_reason: 'sponsoring') }
+        end
+      end
+
       it 'recovers cleanly when the server comes back during the grace period' do
         stub_success
         instance.latest

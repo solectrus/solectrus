@@ -55,8 +55,11 @@ module UpdateCheck::Refresh
     entry
   end
 
+  # The answer of another app version is never fresh, so an update asks the
+  # server at once. Until it answers, that answer is still usable.
   def fresh?(entry)
-    entry && Time.current < entry[:fresh_until]
+    entry && entry[:version] == Rails.configuration.x.git.commit_version &&
+      Time.current < entry[:fresh_until]
   end
 
   # Whether an entry may still be served. The stale phase has an end of its own,

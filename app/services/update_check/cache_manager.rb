@@ -12,8 +12,10 @@ class UpdateCheck::CacheManager
     local_cache || @mutex.synchronize { rails_cache }
   end
 
+  # The entry names the app version that stored it, so the next version can
+  # tell the answer is not its own (see UpdateCheck::Refresh#fresh?).
   def set(data, fresh_until:, usable_until:)
-    entry = { data:, fresh_until:, usable_until: }
+    entry = { data:, fresh_until:, usable_until:, version: Rails.configuration.x.git.commit_version }
     @mutex.synchronize do
       memoize_local(entry)
       Rails.cache.write(cache_key, entry, expires_in: (usable_until - Time.current).seconds)
@@ -73,8 +75,10 @@ class UpdateCheck::CacheManager
     cached_local? || cached_rails?
   end
 
+  # No version in the key: after an update, the answer of the previous version
+  # bridges a short outage of the update server.
   def cache_key
-    "UpdateCheck:#{Rails.configuration.x.git.commit_version}"
+    'UpdateCheck:Answer'
   end
 
   # No version in the key: an update must not bring back a page the admin has

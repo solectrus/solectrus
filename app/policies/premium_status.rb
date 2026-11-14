@@ -9,9 +9,9 @@
 # server just granted them to. Only the rendering needs the name, and it falls
 # back to a text that gives none (see PremiumStatus::Component).
 #
-# There is no fallback to the older single flags. The cache key of the update
-# check carries the app version, so an update makes the previous answer
-# unreachable and the next check asks the server again.
+# There is no fallback to the older single flags. After an update, the next
+# check asks the server again. The previous answer serves only while the server
+# does not answer (see UpdateCheck::Refresh#fresh?).
 class PremiumStatus
   # Only these two grants end. A subscription runs until it is cancelled, a
   # manual grant has no end at all. The list serves the simulation, which must
