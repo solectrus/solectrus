@@ -200,6 +200,32 @@ describe ChargingSession::Detection do
 
       expect([session.started_at, session.ended_at].map { it.in_time_zone.strftime('%H:%M') }).to eq(%w[13:00 15:05])
     end
+
+    # The power splitter writes one value per cycle, in the middle of the
+    # cycle, up to the cycle that ends at `hour`:`min`
+    def write_splits(hour, min, watt)
+      stop = today.in_time_zone.change(hour:, min:)
+      influx_batch do
+        (today.in_time_zone.to_i + 150).step(stop.to_i, 5.minutes) do |seconds|
+          time = Time.zone.at(seconds)
+          add_influx_point(name: Sensor::Config.measurement(:wallbox_power_grid), fields: { Sensor::Config.field(:wallbox_power_grid) => time.hour >= 13 ? watt : 0 }, time:)
+        end
+      end
+    end
+
+    # The energy reaches up to now, the split up to 14:55
+    it 'takes the grid share of the buckets that the power splitter split' do
+      write_splits(14, 55, 1_000)
+      session = detection.call[today].sole
+
+      expect(session.kwh_grid).to be_within(0.01).of(session.kwh / 4)
+    end
+
+    it 'has no grid share before the first split of the session' do
+      write_splits(13, 0, 4_000)
+
+      expect(detection.call[today].sole.kwh_grid).to be_nil
+    end
   end
 
   context 'without a price' do

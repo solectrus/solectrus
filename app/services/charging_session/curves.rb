@@ -36,11 +36,13 @@ class ChargingSession::Curves
 
   # `roles` are the sensors of the cars that the curves read, `margin` how
   # far they reach into the day before and the day after. `split` adds the
-  # grid share of the wallbox, which the detection does not need, for the
-  # timeline of a day (see Car::DayTimeline). `reading_time` gives the
-  # readings of the cars at their own time instead of the buckets, for the
-  # drives of the timeline (see Sensor::Query::Helpers::Influx::DailyCurves).
-  def initialize(dates, cars: Car.configured, roles: CAR_ROLES, margin: MARGIN, split: false, reading_time: false)
+  # grid share of the wallbox, for the timeline of a day (see
+  # Car::DayTimeline), and for the detection on the running day alone, where
+  # the power splitter lags behind (see Detection#kwh_grid). `reading_time`
+  # gives the readings of the cars at their own time instead of the buckets,
+  # for the drives of the timeline (see
+  # Sensor::Query::Helpers::Influx::DailyCurves).
+  def initialize(dates, cars: Car.configured, roles: CAR_ROLES, margin: MARGIN, split: dates.include?(Date.current), reading_time: false)
     wallbox = wallbox_requests(split:)
     car = car_request(dates, cars, roles, margin).merge(reading_time:)
 

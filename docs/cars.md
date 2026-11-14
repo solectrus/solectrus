@@ -343,6 +343,10 @@ comment and the classes it names hold the rules. These are the decisions behind 
   find it (`Detection::Edges`).
 - A session needs a minimum energy, because many wallboxes report a standby power.
 - The energy and the grid share come from the integral of the power, like the daily sum.
+- The power splitter writes its split some minutes after the power. Until it splits the end
+  of a session, the session takes the grid share of the cycles that it split already.
+  Otherwise the rest of a running charge counts as PV, also at night. A session before the
+  first split has no grid share yet.
 - The grid share costs the electricity price and the PV share the feed-in price of the day.
   Without the power splitter, `kwh_grid` stays NULL, and the full energy gets the
   electricity price. Without a price, `cost` stays NULL, because zero is a wrong number.

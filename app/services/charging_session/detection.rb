@@ -10,9 +10,10 @@
 #
 # The energy comes from integral(unit: 1h) over the raw series, the function of
 # the daily sum, and not from the 5-minute means, which lose the shape inside a
-# bucket. The grid share comes from wallbox_power_grid in the same way. A
-# session below MIN_SESSION_KWH is the standby power of the wallbox, and its
-# energy stays in the wallbox sums.
+# bucket. The grid share comes from wallbox_power_grid in the same way, unless
+# the power splitter has not split the end of the session yet (see
+# #kwh_grid). A session below MIN_SESSION_KWH is the standby power of the
+# wallbox, and its energy stays in the wallbox sums.
 #
 # A session gets the prices of its day (see ChargingSession::Cost). It stores
 # the cost of its grid share as well, so its split needs no price when it is
@@ -109,7 +110,7 @@ class ChargingSession::Detection
     # The cost comes from the stored energy, so a change of a price gives the
     # same cost (see ChargingSession.reprice)
     kwh = kwh.round(3)
-    kwh_grid = kwh_grid&.clamp(0, kwh)&.round(3)
+    kwh_grid = kwh_grid(date, from, to, kwh, kwh_grid)&.clamp(0, kwh)&.round(3)
     session_cost, cost_grid = cost.call(date, kwh, kwh_grid)
     started_at, ended_at = edges || [from, to]
     Session.new(
@@ -131,6 +132,28 @@ class ChargingSession::Detection
   def curve(date, sensor_name)
     source = ChargingSession::Curves::WALLBOX.include?(sensor_name) ? curves.wallbox : curves.cars
     source.dig(date, sensor_name) || []
+  end
+
+  # The power splitter writes its split some minutes after the power. On the
+  # running day, the curve of the grid share therefore lacks the buckets at
+  # the end of a running charge, and the integral would count them as PV,
+  # also at night. Such a session takes the grid share of the buckets that
+  # the power splitter split already, and none before the first one. The
+  # first build after the power splitter caught up takes the integral again.
+  def kwh_grid(date, from, to, kwh, integral)
+    split = pending_split(date, from, to)
+    return integral unless split
+
+    power = curve(date, :wallbox_power).to_h
+    total = split.sum { |time, _| power.fetch(time, 0.0) }
+    kwh * split.sum(&:last) / total if total.positive?
+  end
+
+  # The split buckets of a session on the running day, while the power
+  # splitter has not split its last one
+  def pending_split(date, from, to)
+    split = curves.wallbox.dig(date, :wallbox_power_grid)&.select { |time, _| time > from }
+    split if split&.none? { |time, _| time >= to }
   end
 
   # { [from, to] => [kWh, kWh of the grid or nil] }, from one program for all
