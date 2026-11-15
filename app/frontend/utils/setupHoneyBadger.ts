@@ -18,7 +18,16 @@ const resizeObserverMessages = [
   'ResizeObserver loop limit exceeded',
 ];
 
-const ignoredMessages = [...networkErrorMessages, ...resizeObserverMessages];
+// Safari hides the URL of scripts injected by browser extensions (password
+// managers, content blockers) behind this placeholder. Errors carrying it come
+// from such an extension, never from the application.
+const extensionMessages = ['webkit-masked-url://'];
+
+const ignoredMessages = [
+  ...networkErrorMessages,
+  ...resizeObserverMessages,
+  ...extensionMessages,
+];
 
 // Most installations have no API key, so the library loads only with one. The
 // import does not wait: the app starts at once, and the errors of its first
