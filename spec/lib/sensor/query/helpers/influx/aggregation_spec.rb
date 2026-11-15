@@ -25,7 +25,8 @@ describe Sensor::Query::Helpers::Influx::Aggregation do
     subject(:call) { aggregation.call }
 
     before do
-      freeze_time
+      # Fixed noon: all points stay on the current day, outside of P6D
+      travel_to Time.zone.local(2026, 11, 14, 12)
 
       # Setup test data - 6 points spanning 3 hours ago to 30 min ago
       # P2H (last 2 hours) should include 4 points: from 2h ago to 30min ago

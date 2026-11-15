@@ -67,7 +67,8 @@ describe Sensor::Query::Helpers::Influx::Integral do
     subject(:call) { integral.call }
 
     before do
-      freeze_time
+      # Fixed noon: all points stay on the current day, outside of P6D
+      travel_to Time.zone.local(2026, 11, 14, 12)
 
       # Setup test data with power values over time for integral calculation
       influx_batch do
