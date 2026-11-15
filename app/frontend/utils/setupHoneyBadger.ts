@@ -29,6 +29,20 @@ const ignoredMessages = [
   ...extensionMessages,
 ];
 
+// Other browsers keep the real URL of an extension script. An error thrown in
+// such a script (a crypto wallet that fails to connect, for example) is noise
+// as well. Only the frame that threw counts: an extension that merely wraps a
+// browser API must not hide the errors of the application passing through it.
+const extensionUrlPrefixes = [
+  'chrome-extension://',
+  'moz-extension://',
+  'safari-extension://',
+  'safari-web-extension://',
+];
+
+const thrownByExtension = (file: string | undefined) =>
+  !!file && extensionUrlPrefixes.some((prefix) => file.startsWith(prefix));
+
 // Most installations have no API key, so the library loads only with one. The
 // import does not wait: the app starts at once, and the errors of its first
 // moments go unreported.
@@ -49,6 +63,8 @@ if (honeybadgerApiKey) {
       const message = notice?.message ?? '';
       if (ignoredMessages.some((needle) => message.includes(needle)))
         return false;
+
+      if (thrownByExtension(notice?.backtrace?.[0]?.file)) return false;
     });
   });
 }
