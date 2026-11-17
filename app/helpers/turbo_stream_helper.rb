@@ -17,12 +17,16 @@ module TurboStreamHelper
   end
 
   # The status of the live view: in the bar of a wide screen, and in the
-  # content of a phone (see shared/_home_sub_nav)
-  def turbo_stream_update_status(**)
+  # content of a phone (see shared/_home_sub_nav). Without a current reading,
+  # NoCurrentReading::Component tells the time of the last one in place of the
+  # stats, so the status clears.
+  def turbo_stream_update_status(time:, **)
+    current = Sensor::Query::Latest.current?(time)
+
     safe_join(
       [
-        turbo_stream.update(frame_id('status')) { render Status::Component.new(**) },
-        turbo_stream.update(frame_id('status-content')) { render Status::Component.new(**, on_bar: false) },
+        turbo_stream.update(frame_id('status')) { render Status::Component.new(time:, **) if current },
+        turbo_stream.update(frame_id('status-content')) { render Status::Component.new(time:, **, on_bar: false) if current },
       ],
     )
   end

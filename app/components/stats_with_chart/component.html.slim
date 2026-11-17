@@ -5,11 +5,11 @@
   - else
     = tag.turbo_frame id: helpers.scoped_frame_id('stats-content'), class: 'flex-auto min-h-20 flex' do
       - if Sensor.data?
-        div class='flex-1 min-h-0 flex flex-col lg:landscape:flex-row gap-5' data=refresh_options
+        div class='group/stats-with-chart flex-1 min-h-0 flex flex-col lg:landscape:flex-row gap-5' data=refresh_options
           - unless year_comparison?
             = stats_frame(stats_class)
           - if chart?
-            = chart_frame('flex-1 min-h-20 flex relative')
+            = chart_frame("flex-1 min-h-20 flex relative #{HIDDEN_WITHOUT_CHART}")
       - else
         .flex-1.flex.items-center.justify-center
           = render EmptyState::Component.new

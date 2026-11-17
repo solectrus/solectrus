@@ -14,11 +14,48 @@ describe 'Stats' do
       end
     end
 
+    # The content of the two status frames: in the bar and on the page
+    def status_templates
+      %w[balance-status-now balance-status-content-now].map do |target|
+        response.body[%r{<turbo-stream action="update" target="#{target}"><template>(.*?)</template>}m, 1]
+      end
+    end
+
+    context 'with a current power reading' do
+      before do
+        add_influx_point(name: Sensor::Config.measurement(:house_power), fields: { Sensor::Config.field(:house_power) => 500 })
+      end
+
+      it 'shows the status' do
+        get balance_stats_path(sensor_name: 'house_power', timeframe: 'now'),
+            headers: {
+              'Turbo-Frame' => 'random-turbo-frame',
+            }
+
+        expect(status_templates).to all(include('<time'))
+      end
+    end
+
+    # NoCurrentReading::Component tells the time of the last reading instead
+    context 'without a current power reading' do
+      it 'clears the status' do
+        get balance_stats_path(sensor_name: 'house_power', timeframe: 'now'),
+            headers: {
+              'Turbo-Frame' => 'random-turbo-frame',
+            }
+
+        expect(response.body).to include('No current readings')
+        expect(status_templates).to all(be_empty)
+      end
+    end
+
     context 'with the home battery and one car in use' do
       before do
         Car.create!(id: 1)
         add_influx_point(name: Sensor::Config.measurement(:battery_soc), fields: { Sensor::Config.field(:battery_soc) => 64 })
         add_influx_point(name: Sensor::Config.measurement(:car_battery_soc_1), fields: { Sensor::Config.field(:car_battery_soc_1) => 78 })
+        # Without a current power reading, now shows no bars
+        add_influx_point(name: Sensor::Config.measurement(:house_power), fields: { Sensor::Config.field(:house_power) => 500 })
       end
 
       it 'shows the state of charge of both' do
@@ -44,6 +81,11 @@ describe 'Stats' do
             [:inverter_power_2, :sum, 1000.0],
           ],
         )
+
+        # Without a current reading, now shows no bars
+        %i[inverter_power_1 inverter_power_2].each do |sensor_name|
+          add_influx_point(name: Sensor::Config.measurement(sensor_name), fields: { Sensor::Config.field(sensor_name) => 1000 })
+        end
       end
 
       %w[now 2025].each do |timeframe|

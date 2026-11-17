@@ -39,6 +39,17 @@ describe Sensor::Data::Base do
     end
   end
 
+  describe '#power_time' do
+    subject(:data) { DataTest.new(raw_data, timeframe:, times:) }
+
+    let(:times) { { inverter_power: 1.hour.ago, battery_soc: 1.minute.ago } }
+
+    it 'takes the newest time of a power sensor only' do
+      expect(data.power_time).to eq(times[:inverter_power])
+      expect(data.time).to eq(times[:battery_soc])
+    end
+  end
+
   describe 'type conversion' do
     let(:raw_data) do
       {

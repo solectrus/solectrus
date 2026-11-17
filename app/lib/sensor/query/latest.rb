@@ -9,6 +9,8 @@ module Sensor
       MAX_AGE = 15.minutes
       public_constant :MAX_AGE
 
+      def self.current?(time) = time.present? && time > MAX_AGE.ago
+
       def initialize(sensor_names)
         super(sensor_names, Timeframe.now)
       end

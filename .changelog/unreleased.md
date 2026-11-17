@@ -66,6 +66,7 @@ Keep every section, an empty one included.
 - **Live view:** the bars glide to a new value in 0.3 instead of 1 second, which takes the device less work
 - **Electric vehicles:** the live view shows "On the road" as soon as the charge level falls. With more than one car, the balance shows only the home battery (#6020)
 - **Desktop:** a page is as high as its content and glides to its new height on a page change
+- **No current readings:** if no power reading came in for 15 minutes, Now shows this note and the time of the last reading on the power balance, house consumption, heat pump and generation pages. Before, these pages showed empty bars, an empty chart and the status "No data"
 
 ### Settings and forms
 

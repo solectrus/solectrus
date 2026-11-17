@@ -19,6 +19,13 @@ class Sensor::Data::Base
     times[sensor_name]
   end
 
+  # The newest timestamp of a power sensor. The live view draws power, so this
+  # tells its age. Another sensor, like the charge level of a car, can come
+  # from a source that still delivers while the site is offline.
+  def power_time
+    @power_time ||= times.filter_map { |name, time| time if Sensor::Registry[name].unit == :watt }.max
+  end
+
   def single?
     false
   end

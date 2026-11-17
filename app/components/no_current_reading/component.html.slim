@@ -1,0 +1,5 @@
+- if stale?
+  .flex-1.flex data-hides-chart=true
+    = render Ui::EmptyState::Component.new(icon: 'plug', slashed: true, title: t('.title'), text: last_reading)
+- else
+  = content

@@ -2,8 +2,9 @@
   = render Timeframe::Component.new(timeframe:)
 
 - if timeframe.now?
-  = turbo_stream_update_status time: data.time, max_age: Influx::PollInterval.tolerated_delay
+  = turbo_stream_update_status time: data.power_time, max_age: Influx::PollInterval.tolerated_delay
 
 = turbo_stream.update frame_id('stats'), method: :morph do
   .h-full.w-full.flex.flex-col.min-h-0.gap-3 id= "stats-#{timeframe.id}"
-    = render Breakdown::House::Component.new(data:, timeframe:, sensor_name:)
+    = render NoCurrentReading::Component.new(data:) do
+      = render Breakdown::House::Component.new(data:, timeframe:, sensor_name:)

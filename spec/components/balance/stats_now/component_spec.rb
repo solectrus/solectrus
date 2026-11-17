@@ -32,6 +32,26 @@ describe Balance::StatsNow::Component, type: :component do
     end
   end
 
+  context 'without a current reading' do
+    let(:sensor) { Sensor::Registry[:power_balance] }
+    let(:data) do
+      PowerBalance.new(
+        Sensor::Data::Single.new(
+          {},
+          timeframe: Timeframe.now,
+          times: { inverter_power: 1.hour.ago },
+        ),
+      )
+    end
+
+    it 'shows the note in place of the bars' do
+      render_inline(component)
+
+      expect(page).to have_css('[data-hides-chart]')
+      expect(page).to have_no_text(I18n.t('balance_sheet.left'))
+    end
+  end
+
   describe '#max_flow' do
     context 'when peak data has positive values' do
       before do

@@ -21,6 +21,13 @@ class StatsWithChart::Component < ViewComponent::Base
   # Without a chart, the stats take the whole height
   def chart? = @chart
 
+  # Stats with nothing to draw, like the live view without a current reading,
+  # mark themselves with `data-hides-chart`. The chart then gives its place to
+  # them, and comes back with the next stats that have values.
+  HIDDEN_WITHOUT_CHART = 'group-has-[[data-hides-chart]]/stats-with-chart:hidden'.freeze
+  FULL_WITHOUT_CHART = 'group-has-[[data-hides-chart]]/stats-with-chart:flex-1'.freeze
+  private_constant :HIDDEN_WITHOUT_CHART, :FULL_WITHOUT_CHART
+
   # Above the chart, the stats take three fifths of the height. Side by side
   # on a large screen, they take the full height. Rigid stats grow to their
   # content instead of a fixed minimum, which a smaller screen than a large
@@ -28,7 +35,7 @@ class StatsWithChart::Component < ViewComponent::Base
   def stats_class
     return 'flex-1 min-h-0 flex' unless chart?
 
-    class_names('lg:flex-1 h-3/5 lg:h-auto flex', @rigid_stats ? 'min-h-fit lg:min-h-72' : 'min-h-72')
+    class_names('lg:flex-1 h-3/5 lg:h-auto flex', FULL_WITHOUT_CHART, @rigid_stats ? 'min-h-fit lg:min-h-72' : 'min-h-72')
   end
 
   # The frame of the stats, with the classes of its place in the layout. A
