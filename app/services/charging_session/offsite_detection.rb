@@ -10,7 +10,9 @@
 #   chargers on one trip give two rises. A step of a drive with a rise at
 #   the start or at the end of a charge adds its rise to the state of
 #   charge, because the car drove to the charger or away from it within the
-#   step (see CarCurves#charges).
+#   step (see CarCurves#charges). A car that reports a connection during the
+#   whole step does not drive, so a late report of the odometer does not
+#   cut a charge (see CarCurves#drive?).
 # - A value of the state of charge of 0 or less, or above 100, is no reading
 #   (see ChargingSession::Curves.soc_reading?).
 # - A rise needs MIN_OFFSITE_RISE. A smaller rise down to MIN_CONNECTED_RISE
@@ -47,7 +49,7 @@ class ChargingSession::OffsiteDetection
   public_constant :KEY
 
   # Bump to build each day again (see Summary::Steps)
-  VERSION = 2
+  VERSION = 3
   public_constant :VERSION
 
   # The proposals keep no change of the user, but a dismissed proposal and

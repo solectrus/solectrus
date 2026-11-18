@@ -361,6 +361,18 @@ describe ChargingSession::OffsiteDetection do
     expect(proposals).to eq([[at(10, 30), at(11), 46.0, 80.0, 17.0]])
   end
 
+  # The odometer reports the drive to the charger late, while the car
+  # charges and reports a connection
+  it 'keeps one charge when the odometer rises during the connection' do
+    write(:car_battery_soc_1, [[at(8), 30], [at(10), 30], [at(10, 20), 36], [at(10, 40), 48], [at(11), 60], [at(13), 60]])
+    write(:car_odometer_1, [[at(8), 1000], [at(10, 25), 1020]])
+    write(:car_connected_1, [[at(9, 55), true], [at(11, 5), false]])
+
+    run
+
+    expect(proposals).to eq([[at(10), at(11), 30.0, 60.0, 15.0]])
+  end
+
   # Readings every 20 minutes: the car drives to the charger and starts to
   # charge within one step, and ends to charge and drives away within another
   context 'with a step of a drive at each end of a charge' do

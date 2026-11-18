@@ -437,6 +437,10 @@ comment of `OffsiteDetection` holds the rules. These are the decisions behind th
   large part of its rise ([#6056](https://github.com/solectrus/solectrus/issues/6056)).
   Against the receipts of one installation, the rule halved the spread of the energy per
   percentage point.
+- A car that reports a connection during a whole step does not drive in it. Some cars
+  report the odometer of the drive to the charger late, during the charge. Without this
+  rule, such a report cut one charge into two proposals, and the rise in the step was lost
+  ([#6187](https://github.com/solectrus/solectrus/issues/6187)).
 - A rise at home gives no proposal. There the energy came through the house, or the
   wallbox data has a gap.
 - A rise during a wallbox session of the car, or shortly after it, belongs to that session,

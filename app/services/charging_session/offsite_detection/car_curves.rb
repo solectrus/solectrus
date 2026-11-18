@@ -8,6 +8,9 @@ ChargingSession::OffsiteDetection::CarCurves = Data.define(:car, :soc, :odometer
 # The methods sit in a class body and not in the block of Data.define, like
 # ChargingSession::Sums
 class ChargingSession::OffsiteDetection::CarCurves
+  BUCKET = Sensor::Query::Helpers::Influx::DailyCurves::BUCKET
+  private_constant :BUCKET
+
   # The steps of each charge: the runs of the state of charge (see
   # ChargingSession::SocRuns), cut at each step of a drive. Two stops at
   # chargers on one trip are two charges. A short step of a drive beside a
@@ -27,8 +30,10 @@ class ChargingSession::OffsiteDetection::CarCurves
     end
   end
 
-  # Whether the car drove during a step
-  def drive?((from, to)) = moved?(from, to)
+  # Whether the car drove during a step. A car that reports a connection
+  # during the whole step does not drive: its odometer reports an earlier
+  # drive late, and the step stays a part of the charge (#6187).
+  def drive?((from, to)) = moved?(from, to) && !plugged?(from, to)
 
   # Whether the odometer rises by more than Car::Rules::POSITION_MOVE
   # from one time to another
@@ -66,6 +71,19 @@ class ChargingSession::OffsiteDetection::CarCurves
   end
 
   private
+
+  # Whether the car reports a connection from one time to another, without
+  # a gap. A reading of the connection is the last one of its bucket, so it
+  # tells the state at the end of the bucket (see
+  # Sensor::Query::Helpers::Influx::DailyCurves). Without a reading, the car
+  # gives no sign.
+  def plugged?(from, to)
+    start = from - BUCKET
+    stop = to - BUCKET
+    values = [state_at(connected, start), *connected.filter_map { |time, value| value if time > start && time <= stop }]
+
+    values.all? { it&.positive? }
+  end
 
   # The short part of a drive beside a charge, unless the part beyond it
   # rises, because a drive between two charges belongs to neither (see
