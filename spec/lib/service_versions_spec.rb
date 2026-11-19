@@ -22,7 +22,7 @@ describe ServiceVersions do
       it 'returns the version and logs a warning' do
         allow(Rails.logger).to receive(:warn)
         expect(fetch_influxdb).to eq(Gem::Version.new('2.6.0'))
-        expect(Rails.logger).to have_received(:warn).with(/upgrading to 2.9/)
+        expect(Rails.logger).to have_received(:warn).with(/upgrading to 2.10/)
       end
     end
 
