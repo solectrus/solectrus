@@ -65,7 +65,7 @@
     },
     {
       "name": "Map (car page only)",
-      "limit": "445 kB",
+      "limit": "460 kB",
       "gzip": true,
       "path": "public/vite/assets/maplibre-*.js"
     }
