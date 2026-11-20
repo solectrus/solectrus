@@ -5,6 +5,9 @@ describe 'Tooltip' do
   it 'keeps the arrow at the edge when the placement changes' do
     visit '/inverter_power/now'
     expect(page).to have_css('#segment-inverter_power')
+    # The stream of the chart writes the navigation anew, so a link found
+    # before it is gone when the mouse gets there
+    expect(page).to have_css('#chart-now')
 
     # The navigation puts its tooltip below itself, where the arrow hangs on
     # the upper edge and travels from left to right
