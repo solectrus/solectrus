@@ -23,12 +23,14 @@ class Ui::BottomSheet::Component < ViewComponent::Base
 
   # A `tall` sheet takes nearly the whole height of a phone, whatever its
   # content, so it keeps its height while its page changes (see
-  # Ui::SheetPage::Component)
-  def initialize(id:, width: :wide, tall: false, data: {})
+  # Ui::SheetPage::Component). With `fit`, it is only as high as its content,
+  # up to that height, and glides to the height of its next page.
+  def initialize(id:, width: :wide, tall: false, fit: false, data: {})
     super()
     @id = id
     @width = WIDTHS[width]
     @tall = tall
+    @fit = fit
     @data = data
   end
 
@@ -48,6 +50,6 @@ class Ui::BottomSheet::Component < ViewComponent::Base
   end
 
   def panel_class
-    ['bottom-sheet-panel', @width, ('is-tall' if @tall)]
+    ['bottom-sheet-panel', @width, ('is-tall' if @tall), ('is-fit' if @fit)]
   end
 end

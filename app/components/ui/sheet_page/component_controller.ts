@@ -28,6 +28,8 @@ const DURATION = 350;
 const PARALLAX = '-30%';
 // The skeleton or the copy fades out this fast over the page that rendered
 const FADE = 150;
+// A sheet as high as its content glides to the height of the next page
+const RESIZE = 250;
 
 type FrameRender = (current: Element, next: Element) => Promise<void> | void;
 type FrameRenderEvent = CustomEvent<{
@@ -89,8 +91,10 @@ export default class extends Controller<HTMLElement> {
     if (slide) {
       event.preventDefault();
       detail.render = async (current, next) => {
+        const height = this.#fitHeight();
         await render(current, next);
         area.scrollTop = 0;
+        resize(this.#panel(), height);
         void fadeOut(slide.layers).then(() => release(area));
       };
       void slide.finished.then(detail.resume);
@@ -102,9 +106,11 @@ export default class extends Controller<HTMLElement> {
     const slides = from !== to && !isReducedMotion();
 
     detail.render = async (current, next) => {
+      const height = this.#fitHeight();
       const ghost = slides ? snapshot(area) : null;
       await render(current, next);
       area.scrollTop = 0;
+      resize(this.#panel(), height);
       if (!ghost) return;
 
       const kind = to > from ? 'push' : 'pop';
@@ -192,11 +198,37 @@ export default class extends Controller<HTMLElement> {
     return this.element.closest<HTMLElement>('.bottom-sheet-content');
   }
 
+  #panel() {
+    return this.element.closest<HTMLElement>('.bottom-sheet-panel');
+  }
+
+  // The height of a sheet that fits its content, before its page changes.
+  // Another sheet keeps its height, so it is not measured.
+  #fitHeight() {
+    const panel = this.#panel();
+    return panel?.classList.contains('is-fit') ? panel.offsetHeight : undefined;
+  }
+
   // The path of this page. The first page loaded into the modal frame.
   #path() {
     const src = this.element.closest('turbo-frame[src]')?.getAttribute('src');
     return src ? path(new URL(src, location.href)) : '';
   }
+}
+
+// A sheet as high as its content (`fit`, see Ui::BottomSheet::Component)
+// takes the height of the next page. It glides there from the height it
+// had, instead of jumping.
+function resize(panel: HTMLElement | null, from: number | undefined) {
+  if (!panel || from === undefined || isReducedMotion()) return;
+
+  const to = panel.offsetHeight;
+  if (Math.abs(to - from) < 1) return;
+
+  panel.animate([{ height: `${from}px` }, { height: `${to}px` }], {
+    duration: RESIZE,
+    easing: EASE_GLIDE,
+  });
 }
 
 // The level of a page: a page with a way back lies one level down

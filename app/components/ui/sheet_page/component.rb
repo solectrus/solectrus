@@ -26,6 +26,10 @@ class Ui::SheetPage::Component < ViewComponent::Base
                 link_to icon(icon), href, class: BUTTON_CLASS, title: label, 'aria-label': label, data: { turbo_frame: frame }
               }
 
+  # A control at the right of the head in place of the actions, like a
+  # small Ui::SegmentedControl::Component
+  renders_one :accessory
+
   # The save button of a form, which the form-dirty controller enables
   renders_one :save,
               lambda { |form:, label: t('ui.save')|
@@ -34,13 +38,22 @@ class Ui::SheetPage::Component < ViewComponent::Base
 
   # Round buttons without text, as in Ui::TitleBar::Component, so the title
   # keeps the middle
-  BUTTON_CLASS = 'flex size-9 items-center justify-center rounded-full bg-fill text-indigo-600 dark:text-indigo-400 click-animation focus-ring'.freeze
-  SAVE_CLASS = 'flex size-9 items-center justify-center rounded-full bg-indigo-600 text-white disabled:opacity-40 click-animation focus-ring'.freeze
+  SHAPE_CLASS = 'flex size-9 items-center justify-center rounded-full click-animation focus-ring'.freeze
+  BUTTON_CLASS = "#{SHAPE_CLASS} bg-fill text-indigo-600 dark:text-indigo-400".freeze
+  SAVE_CLASS = "#{SHAPE_CLASS} bg-indigo-600 text-white disabled:opacity-40".freeze
   WRAPPER_CLASS = 'flex-1 flex flex-col'.freeze
-  private_constant :BUTTON_CLASS, :SAVE_CLASS, :WRAPPER_CLASS
+  # The way back and the close button in gray, like the close button of
+  # every other sheet (Ui::BottomSheet::Component), so they stand apart from
+  # the actions
+  NAV_CLASS = "#{SHAPE_CLASS} bg-fill text-muted".freeze
+  private_constant :SHAPE_CLASS, :BUTTON_CLASS, :SAVE_CLASS, :WRAPPER_CLASS, :NAV_CLASS
 
-  def initialize(title:, subtitle: nil, back_href: nil, back_label: nil, frame: true)
+  # `width` on a larger screen and `fit` to the content, see
+  # Ui::BottomSheet::Component
+  def initialize(title:, subtitle: nil, back_href: nil, back_label: nil, frame: true, width: :wide, fit: false) # rubocop:disable Metrics/ParameterLists
     super()
+    @width = width
+    @fit = fit
     @frame = frame
     @title = title
     @subtitle = subtitle
@@ -48,12 +61,14 @@ class Ui::SheetPage::Component < ViewComponent::Base
     @back_label = back_label
   end
 
-  attr_reader :title, :subtitle, :back_href, :back_label
+  attr_reader :title, :subtitle, :back_href, :back_label, :width, :fit
 
   # Two buttons at the right take the room of two on the left too, so the
-  # title keeps the middle. The class names stay literal, so Tailwind finds
-  # them.
+  # title keeps the middle. An accessory takes the room it needs. The class
+  # names stay literal, so Tailwind finds them.
   def head_columns
+    return 'grid-cols-[auto_minmax(0,1fr)_auto]' if accessory?
+
     actions.many? && !save? ? 'grid-cols-[5rem_1fr_5rem]' : 'grid-cols-[2.25rem_1fr_2.25rem]'
   end
 

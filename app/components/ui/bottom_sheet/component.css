@@ -85,6 +85,20 @@
   }
 }
 
+/* A tall sheet that fits is only as high as its content, like a short list.
+   On a phone it ends at the height of a tall sheet. The dialog of a larger
+   screen keeps its head in view at any height, so it grows with the window
+   and scrolls only where the window is too low for the content. A change of
+   its page glides to the new height (see sheet_page/component_controller.ts). */
+.bottom-sheet-panel.is-tall.is-fit {
+  height: auto;
+  max-height: calc(100dvh - env(safe-area-inset-top) - 0.75rem);
+
+  @variant md {
+    max-height: 90dvh;
+  }
+}
+
 /* While the keyboard of a phone is open, the panel ends above it and loses
    the room for the home indicator, which the keyboard covers. The script
    measures the covered height (see utils/bottomSheet.ts). A tall panel keeps
@@ -105,6 +119,13 @@
   .bottom-sheet-panel.is-tall {
     max-height: none;
     height: calc(
+      100dvh - env(safe-area-inset-top) - 0.75rem - var(--keyboard-inset)
+    );
+  }
+
+  .bottom-sheet-panel.is-tall.is-fit {
+    height: auto;
+    max-height: calc(
       100dvh - env(safe-area-inset-top) - 0.75rem - var(--keyboard-inset)
     );
   }

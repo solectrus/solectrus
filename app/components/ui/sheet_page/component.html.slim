@@ -1,4 +1,4 @@
-= render Ui::TurboModal::Component.new(tall: true) do
+= render Ui::TurboModal::Component.new(tall: true, width:, fit:) do
   = wrapper do
     header.sticky.top-0.z-10.pb-4.md:pt-6.grid.items-center.gap-2.bg-canvas[
       class=[head_columns, '-mx-4 px-4 md:-mx-6 md:px-6']
@@ -7,13 +7,13 @@
     ]
       div
         - if back_href
-          = link_to icon('chevron-left'), back_href, class: BUTTON_CLASS, title: back_label, 'aria-label': back_label
+          = link_to icon('chevron-left'), back_href, class: NAV_CLASS, title: back_label, 'aria-label': back_label
         - else
           / The first page closes the sheet here, as a sheet of iOS does. A
             phone closes it with a swipe down too.
           button[
             type='button'
-            class=BUTTON_CLASS
+            class=NAV_CLASS
             title=t('.close')
             aria-label=t('.close')
             data-bottom-sheet-close=''
@@ -24,6 +24,6 @@
         - if subtitle
           p.text-subhead.text-muted.truncate = subtitle
       .flex.justify-end.gap-2
-        = save || safe_join(actions)
+        = save || accessory || safe_join(actions)
 
     = content

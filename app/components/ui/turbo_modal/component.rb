@@ -5,7 +5,7 @@
 #
 # The sheet closes after a successful submit of a form inside it, and its
 # controller asks in Ui::ConfirmDialog::Component before a form with unsaved
-# changes closes. `width` and `tall`, see Ui::BottomSheet::Component.
+# changes closes. `width`, `tall` and `fit`, see Ui::BottomSheet::Component.
 #
 #   = link_to 'Edit', edit_price_path(price), data: Ui::TurboModal::Component.link_data
 #
@@ -28,11 +28,12 @@ class Ui::TurboModal::Component < ViewComponent::Base
 
   renders_one :title
 
-  def initialize(title: nil, width: :wide, tall: false)
+  def initialize(title: nil, width: :wide, tall: false, fit: false)
     super()
     @title = title
     @width = width
     @tall = tall
+    @fit = fit
   end
 
   # The title as a text or as a slot
@@ -54,6 +55,7 @@ class Ui::TurboModal::Component < ViewComponent::Base
       id: 'modal-sheet',
       width: @width,
       tall: @tall,
+      fit: @fit,
       data: {
         ui__turbo_modal__component_target: 'dialog',
         action: 'turbo:submit-end->ui--turbo-modal--component#submitEnd',
