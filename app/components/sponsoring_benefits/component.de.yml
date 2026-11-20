@@ -5,7 +5,9 @@ de:
     generators: Erzeuger inkl. BKW
     splitter: PV- & Netzstrom je Gerät
     heatpump: Wärmepumpe & COP
+    car: E-Auto & Ladekosten
     trends: Trends & Vergleiche
+    relative_timeframe: Flexible Zeiträume
     finance: Kosten & Ersparnis
     amortization: Rendite-Rechner
     balance: Strombilanz-Diagramm

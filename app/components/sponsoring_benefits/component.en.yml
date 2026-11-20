@@ -5,7 +5,9 @@ en:
     generators: Generators + balcony PV
     splitter: PV & grid power per device
     heatpump: Heat pump & COP
+    car: EV & charging costs
     trends: Trends & comparisons
+    relative_timeframe: Flexible timeframes
     finance: Costs & savings
     amortization: Payback calculator
     balance: Power balance chart
