@@ -62,6 +62,7 @@ Keep every section, an empty one included.
 - **Insights:** the light bulb next to the chart shows all values of the tooltip as a list. On a phone, the heatmap is a page of its own. Without a sponsorship, it shows the total and the values of the tooltip
 - **Tooltips:** a lighter look on desktop, and long words break by syllable. A tooltip of a live value stays open while the values refresh
 - **Empty state:** an empty list or chart shows the same note everywhere
+- **Sponsoring note:** it looks like the other empty places of the app. If the free month is still unused, the note says that one click in the registration starts it
 - **Forecast:** the temperature chart shows the high and the low of each day instead of the average
 - **Live view:** the bars glide to a new value in 0.3 instead of 1 second, which takes the device less work
 - **Electric vehicles:** the live view shows "On the road" as soon as the charge level falls. With more than one car, the balance shows only the home battery (#6020)

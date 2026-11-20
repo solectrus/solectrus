@@ -11,7 +11,7 @@ describe DemoLink::Component, type: :component do
     expect(page).to have_link 'Demo', href: %r{\Ahttps://demo\.solectrus\.de/house\?}
   end
 
-  it 'names the reason in the badge' do
+  it 'names the reason' do
     render_inline(component)
 
     expect(page).to have_text 'Exclusively for sponsors'
@@ -57,7 +57,7 @@ describe DemoLink::Component, type: :component do
         allow(vc_test_controller).to receive(:admin?).and_return(admin)
         render_inline(component)
 
-        expect(page).to have_text 'By the way, you can try the full feature set free for one month.'
+        expect(page).to have_text 'free month starts with one click in the registration'
       end
     end
 
@@ -75,7 +75,7 @@ describe DemoLink::Component, type: :component do
     it 'names no offer' do
       render_inline(component)
 
-      expect(page).to have_no_text 'By the way, you can try the full feature set free for one month.'
+      expect(page).to have_no_text 'free month starts with one click in the registration'
     end
   end
 end

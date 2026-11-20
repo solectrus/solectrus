@@ -1,31 +1,22 @@
-= render Ui::Message::Component.new do |c|
-  = c.with_header do
-    = t('title', scope: ".#{feature}")
+/ Laid out like an empty place of the app (Ui::EmptyState::Component): the
+  feature is missing here, and the text says why and how to get it.
+= render Ui::EmptyState::Component.new(icon: 'lock', title: t('title', scope: ".#{feature}"), text: t('description', scope: ".#{feature}")) do
+  .flex.max-w-prose.flex-col.items-center.gap-6
+    / Every visitor sees the offer of the free month, admin or not: whoever
+      cannot start it can still tell the person who can. It says where the
+      month starts, but gets no button, because the registration page turns
+      away everyone without the admin session.
+    p.text-sm.text-muted.md:text-base
+      = t('.sponsoring_only')
 
-  = c.with_body do
-    = t('description', scope: ".#{feature}")
+    - if PremiumStatus.trial_available?
+      p.rounded-lg.bg-attention-soft.px-4.py-3.text-sm.text-attention-strong.md:text-base
+        == t('.trial_hint_html')
 
-    / One box for the whole answer: the reason in full size, and below it the
-    / way in, while there is one.
-    .mt-8
-      / The cap keeps the box from stretching to the width of the sentence,
-      / which would leave the headline small inside a wide band.
-      .inline-block.max-w-xl.rounded-xl.bg-amber-100.dark:bg-amber-900.text-gray-700.dark:text-gray-300.px-4.md:px-6.py-2.md:py-3
-        .text-2xl.md:text-3xl.font-bold.sm:text-4xl
-          = t('.sponsoring_only')
-
-        / Every visitor sees the offer, admin or not: whoever cannot start the
-        / month can still tell the person who can. It stays a notice and gets
-        / no button, because the registration page that starts the month turns
-        / away everyone without the admin session.
-        - if PremiumStatus.trial_available?
-          .mt-1.md:mt-2.text-base.md:text-lg
-            = t('.trial_hint')
-
-  = c.with_footer do
-    .flex.gap-10.justify-center
+    .flex.flex-col.items-center.justify-center.gap-4.sm:flex-row.sm:gap-8
       - if demo_url
         = render Ui::Button::Component.new label: t('.demo'),
+                                           icon: 'arrow-up-right-from-square',
                                            href: demo_url,
                                            target: '_blank',
                                            style: :primary
