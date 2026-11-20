@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
-  // The worker of MapLibre imports a shared module, which needs the ES format
+  // MapLibre ships its worker as an ES module and starts it as a module worker
   worker: {
     format: 'es',
   },
