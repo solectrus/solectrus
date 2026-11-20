@@ -119,9 +119,11 @@ class Insights # rubocop:disable Metrics/ClassLength
     @inverter_sensor_values ||= build_inverter_sensor_data
   end
 
+  # A sum per day, for a period of days. A sensor that is idle on most days,
+  # like the wallbox, or that nets two directions has none.
   def per_day_value
+    return unless per_day?
     return unless value
-    return if timeframe.days_passed <= 1
 
     (value / timeframe.days_passed(include_today: true)).round(2)
   end
@@ -212,6 +214,11 @@ class Insights # rubocop:disable Metrics/ClassLength
   end
 
   private
+
+  def per_day?
+    timeframe.days_passed > 1 && sensor.allowed_aggregations.first == :sum &&
+      %i[grid_power wallbox_power battery_power].exclude?(sensor.name)
+  end
 
   def costs_by_source(source)
     return unless ApplicationPolicy.power_splitter?

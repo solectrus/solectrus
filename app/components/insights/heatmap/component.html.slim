@@ -1,0 +1,27 @@
+/ On a phone, the heatmap is a page of its own, which a row pushes into
+/ the sheet (component_controller.ts). A larger screen shows it here.
+.tooltip-group.md:hidden
+  = render Insights::Row::Component.new(label: t('.heatmap'), action: 'insights--component#push')
+
+/ It scrolls on its own and covers the content, so the sheet treats it as
+/ a scroll area with its header as a handle (utils/bottomSheet.ts)
+.insights-subpage.bottom-sheet-scroll[
+  tabindex= '-1'
+  data-insights--component-target= 'subpage'
+  data-action= 'pointerdown->insights--component#swipeStart pointerup->insights--component#swipeEnd'
+]
+  .insights-subpage-header data-bottom-sheet-handle= ''
+    .bottom-sheet-grabber aria-hidden= 'true'
+    div
+      button.insights-back[
+        type= 'button'
+        data-action= 'insights--component#pop'
+      ]
+        = icon 'chevron-left'
+        span.truncate = sensor.display_name
+    h2.bottom-sheet-title.mt-1 = t('.heatmap')
+    p.insights-subpage-detail = timeframe.localized
+
+  .tooltip-group
+    div
+      = render Insights::HeatmapTile::Component.new(data:, sensor:, timeframe:)

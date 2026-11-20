@@ -71,37 +71,13 @@
         = render Insights::TrendRow::Component.new(trend: insights.yearly_trend, label: t('.previous_year'), url: (yearly_trend_base_path if insights.yearly_trend))
 
     - if insights.heatmap_data
-      / On a phone, the heatmap is a page of its own, which a row pushes into
-      / the sheet (component_controller.ts). A larger screen shows it here.
-      .tooltip-group.md:hidden
-        = render Insights::Row::Component.new(label: t('.heatmap'), action: 'insights--component#push')
+      = render Insights::Heatmap::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
 
-      / It scrolls on its own and covers the content, so the sheet treats it as
-      / a scroll area with its header as a handle (utils/bottomSheet.ts)
-      .insights-subpage.bottom-sheet-scroll[
-        tabindex= '-1'
-        data-insights--component-target= 'subpage'
-        data-action= 'pointerdown->insights--component#swipeStart pointerup->insights--component#swipeEnd'
-      ]
-        .insights-subpage-header data-bottom-sheet-handle= ''
-          .bottom-sheet-grabber aria-hidden= 'true'
-          div
-            button.insights-back[
-              type= 'button'
-              data-action= 'insights--component#pop'
-            ]
-              = icon 'chevron-left'
-              span.truncate = sensor.display_name
-          h2.bottom-sheet-title.mt-1 = t('.heatmap')
-          p.insights-subpage-detail = timeframe.localized
-
-        .tooltip-group
-          div
-            = render Insights::HeatmapTile::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
-
-    - min_day = insights.minimum(:date)
-    - max_day = insights.maximum(:date)
-    - if min_day || max_day || per_day_value?
+    ruby:
+      min_day = insights.minimum(:date)
+      max_day = insights.maximum(:date)
+      per_day = insights.per_day_value
+    - if min_day || max_day || per_day
       .tooltip-group
         - if min_day
           = render Insights::Row::Component.new(label: t('.minimum'), note: l(min_day), url: day_path(min_day)) do
@@ -111,6 +87,6 @@
           = render Insights::Row::Component.new(label: t('.maximum'), note: l(max_day), url: day_path(max_day)) do
             = render Sensor::Value::Component.new(insights.maximum(:value), sensor.name, context: :total, scaling: :kilo)
 
-        - if per_day_value?
+        - if per_day
           = render Insights::Row::Component.new(label: t('.average_per_day')) do
-            = render Sensor::Value::Component.new(insights.per_day_value, sensor.name, context: :total, scaling: :kilo)
+            = render Sensor::Value::Component.new(per_day, sensor.name, context: :total, scaling: :kilo)

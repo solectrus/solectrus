@@ -5,32 +5,33 @@ describe Insights::Component, type: :component do
 
   let(:timeframe) { Timeframe.new('2025-01') }
 
-  describe '#per_day_value?' do
-    subject { component.per_day_value? }
+  # The rule lives in Insights#per_day_value, which the list asks
+  describe 'the value per day' do
+    subject(:per_day) { component.insights.per_day_value }
 
     context 'when sensor uses sum aggregation' do
       let(:sensor) { Sensor::Registry[:inverter_power] }
 
-      it { is_expected.to be true }
+      it { is_expected.not_to be_nil }
     end
 
     context 'when sensor uses avg aggregation' do
       let(:sensor) { Sensor::Registry[:heatpump_cop] }
 
-      it { is_expected.to be false }
+      it { is_expected.to be_nil }
     end
 
     context 'when timeframe is single day' do
       let(:sensor) { Sensor::Registry[:inverter_power] }
       let(:timeframe) { Timeframe.new('2025-01-01') }
 
-      it { is_expected.to be false }
+      it { is_expected.to be_nil }
     end
 
     context 'when sensor is excluded from per_day display' do
       let(:sensor) { Sensor::Registry[:grid_power] }
 
-      it { is_expected.to be false }
+      it { is_expected.to be_nil }
     end
   end
 
