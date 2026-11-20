@@ -1,8 +1,8 @@
 describe 'Car Stats' do
   describe 'GET /cars/stats' do
-    # The car page needs the summaries of the whole time, because the spans
-    # of a calendar period read each day (see Car::Spans). Without them, each
-    # request builds the summaries of years of days.
+    # The car page needs a fresh summary of each day that its report reads
+    # (see Car::Report.pending_days). Without one, a request builds the
+    # missing summaries first.
     def summarize
       dates = Rails.configuration.x.installation_date..Date.current
       Summary.upsert_all(dates.map { { date: it, updated_at: Time.current } }, unique_by: :date)

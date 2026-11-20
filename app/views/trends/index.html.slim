@@ -1,0 +1,20 @@
+/ The head holds the earlier period, and for a month the choice of the
+  month before, so the list starts high up. The earlier period stands below
+  the choice, smaller than its labels, or below the title of a year, which
+  has no choice. It says that the period compares with it. The whole time
+  has no earlier period.
+- if timeframe.all?
+  = render Ui::SheetPage::Component.new(title: t('.title_all'), width: :medium, fit: true) do
+    = render TrendOverview::Component.new(overview: @overview)
+
+- else
+  - bases = TrendOverview.bases(timeframe)
+  - compared_with = t('.compared_with', period: Trend::PeriodLabel.new(@overview.base_timeframe).to_s)
+  = render Ui::SheetPage::Component.new(title: t('.title', period: Trend::PeriodLabel.short(timeframe)), subtitle: (compared_with unless bases.many?), width: :medium, fit: true) do |sheet|
+    - if bases.many?
+      - sheet.with_accessory do
+        .flex.flex-col.items-center.gap-1
+          = render Ui::SegmentedControl::Component.new(label: t('.base'), small: true, items: bases.map { |kind| { name: t(".#{kind}"), href: trends_path(timeframe:, **@overview.link_params, base: TrendOverview.base_param(kind)), current: kind == @overview.base } })
+          p.text-muted.whitespace-nowrap.tabular-nums class='text-[0.6875rem]' = compared_with
+
+    = render TrendOverview::Component.new(overview: @overview)

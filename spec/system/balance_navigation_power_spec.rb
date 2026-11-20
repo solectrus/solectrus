@@ -18,7 +18,7 @@ describe 'Balance page (power sensors)' do
     stub_feature(
       :relative_timeframe,
       :power_splitter,
-      :insights,
+      :trends,
       :finance_charts,
       :car,
     )

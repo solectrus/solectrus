@@ -1,6 +1,13 @@
 describe Car::Trend do
   subject(:trend) do
-    described_class.new(sensor: Sensor::Registry[:car_distance], timeframe:, current_value: 150, base:, cars:)
+    described_class.new(
+      sensor: Sensor::Registry[:car_distance],
+      timeframe:,
+      current_value: 150,
+      base:,
+      base_data: Car::Report.new(Trend.base_timeframe(timeframe, base), cars),
+      first_date: described_class.first_day_of_use(cars:, guest: false),
+    )
   end
 
   let(:cars) { [Car.create!(id: 1, active_from: Date.new(2025, 1, 1))] }

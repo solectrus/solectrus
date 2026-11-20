@@ -1,11 +1,15 @@
 describe Trend do
+  # The callers fetch the values of the earlier period and the first days
+  # once for all their sensors (see TrendOverview::Changes)
   subject(:trend) do
-    described_class.new(sensor:, timeframe:, current_value:, base:)
+    base_data = Sensor::Query::Total.new(described_class.base_timeframe(timeframe, base)) { |q| q.public_send(sensor.trend_aggregation, sensor.name) }.call
+    first_date = described_class.first_date(sensor, first_dates: SummaryValue.first_dates(described_class.summary_fields(sensor)))
+    described_class.new(sensor:, timeframe:, current_value:, base:, base_data:, first_date:)
   end
 
-  before { travel_to Date.new(2025, 5, 10) }
-
   let(:current_value) { 0 }
+
+  before { travel_to Date.new(2025, 5, 10) }
 
   describe '#base_timeframe' do
     subject { trend.base_timeframe.to_s }
@@ -24,7 +28,7 @@ describe Trend do
       context 'when timeframe is current month' do
         let(:timeframe) { Timeframe.new('2025-05') }
 
-        it { is_expected.to eq('2024-05-01..2024-05-10') }
+        it { is_expected.to eq('2024-05-01..2024-05-09') }
       end
 
       context 'when timeframe is last 30 days' do
@@ -36,7 +40,7 @@ describe Trend do
       context 'when timeframe is a year' do
         let(:timeframe) { Timeframe.new('2025') }
 
-        it { is_expected.to eq('2024-01-01..2024-05-10') }
+        it { is_expected.to eq('2024-01-01..2024-05-09') }
       end
 
       context 'when timeframe is a past year' do
@@ -67,10 +71,27 @@ describe Trend do
         it { is_expected.to eq('2025-03') }
       end
 
+      # The same days of the month before, up to yesterday
+      context 'when timeframe is current month' do
+        let(:timeframe) { Timeframe.new('2025-05') }
+
+        it { is_expected.to eq('2025-04-01..2025-04-09') }
+      end
+
+      # On the 31st, the 29th and the 30th of March shrink to the 28th of
+      # February
+      context 'when the days of the current month shrink to a single day' do
+        let(:timeframe) { Timeframe.new('2025-03', min_date: Date.new(2025, 3, 29)) }
+
+        before { travel_to Date.new(2025, 3, 31) }
+
+        it { is_expected.to eq('2025-02-28') }
+      end
+
       context 'when timeframe is a year' do
         let(:timeframe) { Timeframe.new('2025') }
 
-        it { is_expected.to eq('2024-01-01..2024-05-10') }
+        it { is_expected.to eq('2024-01-01..2024-05-09') }
       end
 
       context 'when timeframe is a week' do
@@ -133,7 +154,7 @@ describe Trend do
     it { is_expected.to eq(6000) }
   end
 
-  describe '#factor und #percent' do
+  describe '#percent' do
     let(:sensor) { Sensor::Registry[:inverter_power] }
     let(:timeframe) { Timeframe.new('2025-04') }
     let(:base) { :previous_year }
@@ -154,30 +175,26 @@ describe Trend do
 
     {
       [2000, 'greater'] => {
-        factor: 2,
         percent: 100,
       },
       [500, 'less'] => {
-        factor: 0.5,
         percent: -50,
       },
       [1000, 'equal'] => {
-        factor: 1,
         percent: 0,
       },
     }.each do |(value, msg), expected|
       context "when #{msg} than sum" do
         let(:current_value) { value }
 
-        it 'calculates factor and percent correctly' do
-          expect(trend.factor).to eq(expected[:factor])
+        it 'calculates the percent' do
           expect(trend.percent).to eq(expected[:percent])
         end
       end
     end
   end
 
-  describe '#factor und #percent with avg aggregation' do
+  describe '#percent with avg aggregation' do
     let(:sensor) { Sensor::Registry[:heatpump_cop] }
     let(:timeframe) { Timeframe.new('2025-04') }
     let(:base) { :previous_year }
@@ -210,26 +227,37 @@ describe Trend do
 
     {
       [4.5, 'greater'] => {
-        factor: 1.5,
         percent: 50,
       },
       [1.5, 'less'] => {
-        factor: 0.5,
         percent: -50,
       },
       [3.0, 'equal'] => {
-        factor: 1.0,
         percent: 0,
       },
     }.each do |(value, msg), expected|
       context "when #{msg} than average" do
         let(:current_value) { value }
 
-        it 'calculates factor and percent correctly' do
-          expect(trend.factor).to eq(expected[:factor])
+        it 'calculates the percent' do
           expect(trend.percent).to eq(expected[:percent])
         end
       end
+    end
+  end
+
+  describe '#percent with a negative base value' do
+    let(:sensor) { Sensor::Registry[:inverter_power] }
+    let(:timeframe) { Timeframe.new('2025-04') }
+    let(:base) { :previous_year }
+    let(:current_value) { -500 }
+
+    before do
+      create_summary(date: Date.new(2024, 4, 1), values: [[:inverter_power, :sum, -1000]])
+    end
+
+    it 'keeps the sign of the difference' do
+      expect(trend.percent).to eq(50)
     end
   end
 
@@ -265,28 +293,26 @@ describe Trend do
     end
   end
 
-  describe '#precision' do
-    subject { trend.precision }
-
+  describe '#valid?' do
+    let(:sensor) { Sensor::Registry[:inverter_power] }
     let(:timeframe) { Timeframe.new('2025-04') }
     let(:base) { :previous_year }
 
-    context 'when sensor uses sum aggregation' do
-      let(:sensor) { double('Sensor', trend_aggregation: :sum, unit: :watt) }
-
-      it { is_expected.to eq(0) }
+    before do
+      allow(Rails.application.config.x).to receive(:installation_date).and_return(Date.new(2024, 4, 15))
     end
 
-    context 'when sensor uses avg aggregation' do
-      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :watt) }
+    it 'compares with a base period that has data from its first day on' do
+      create_summary(date: Date.new(2024, 4, 1), values: [[:inverter_power, :sum, 1000]])
 
-      it { is_expected.to eq(1) }
+      expect(trend).to be_valid
     end
 
-    context 'when sensor unit is percent' do
-      let(:sensor) { double('Sensor', trend_aggregation: :avg, unit: :percent) }
+    # The month of the installation has fewer days
+    it 'does not compare with a base period that begins before the data' do
+      create_summary(date: Date.new(2024, 4, 15), values: [[:inverter_power, :sum, 1000]])
 
-      it { is_expected.to eq(0) }
+      expect(trend).not_to be_valid
     end
   end
 end

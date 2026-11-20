@@ -1,0 +1,128 @@
+/*
+ * TrendOverview::Component: a grouped list in the tall sheet. Each row has
+ * the columns name, bar, figure and chevron, so the bars and the figures of
+ * all groups line up. A long name wraps, it is never cut off.
+ */
+.trend-overview {
+  @apply flex flex-col gap-5;
+
+  /* On a phone, the bars leave the name the room for a word like
+     "Gesamtverbrauch" on one line */
+  --trend-columns: minmax(0, 1fr) 26% 3.75rem 0.75rem;
+
+  @variant md {
+    --trend-columns: minmax(0, 1fr) 34% 4rem 0.75rem;
+  }
+}
+
+.trend-overview-header {
+  @apply text-muted px-4 pb-1.5 text-xs font-medium tracking-wide uppercase;
+}
+
+/* A total stands in a list of its own above the rows it sums up
+   (TrendOverview::Component#lists) */
+.trend-overview-group {
+  @apply bg-surface overflow-clip rounded-xl;
+
+  & + & {
+    @apply mt-2;
+  }
+
+  > li + li .trend-overview-row {
+    @apply border-line border-t;
+  }
+}
+
+/* The columns of all rows line up. Like a cell of Ui::GroupedList, the row
+   dims while pressed, and a mouse gets a highlight. */
+.trend-overview-row {
+  @apply focus-ring-inset active:bg-fill-strong pointer-fine:hover:bg-fill grid min-h-12 items-center gap-x-2 px-4 py-2 md:gap-x-2.5;
+  grid-template-columns: var(--trend-columns);
+}
+
+.trend-overview-name {
+  @apply text-headline hyphens-auto;
+  overflow-wrap: break-word;
+}
+
+/* The zero in the middle of the track, the half to each side is the way to
+   the edge of the scale */
+.trend-overview-track {
+  @apply relative h-3.5;
+
+  &::before {
+    @apply absolute -inset-y-1 left-1/2 w-px bg-slate-400/60;
+    content: '';
+  }
+
+  /* No change on the scale (TrendOverview::Bar::Component) */
+  &.is-empty::before {
+    content: none;
+  }
+}
+
+.trend-overview-bar {
+  @apply absolute inset-y-0.5;
+
+  &.is-up {
+    @apply left-1/2 rounded-r;
+  }
+
+  &.is-down {
+    @apply right-1/2 rounded-l;
+  }
+}
+
+/* A change beyond the scale: a slanted gap near the end of the bar, in the
+   color of the group, as the break of an axis. */
+.trend-overview-break {
+  @apply bg-surface absolute -inset-y-1 w-1 -skew-x-24;
+
+  .is-up > & {
+    @apply right-1/5;
+  }
+
+  .is-down > & {
+    @apply left-1/5;
+  }
+}
+
+/* No change worth a bar */
+.trend-overview-dot {
+  @apply absolute top-1/2 left-1/2 size-2 -translate-1/2 rounded-full bg-slate-400;
+}
+
+/* The years of the overview of the whole time in the columns of the bar and
+   the figure, one column per year (TrendOverview::YearBars::Component). A
+   year fills the height of the row, so a mouse finds a low column too. */
+.trend-overview-years {
+  @apply col-span-2 flex h-6 items-end gap-0.5;
+
+  > * {
+    @apply min-w-0 flex-1;
+  }
+}
+
+.trend-overview-slot {
+  @apply flex h-full items-end;
+
+  > .trend-overview-year {
+    @apply w-full;
+  }
+}
+
+.trend-overview-year {
+  @apply min-h-px rounded-t-sm;
+
+  &.is-partial {
+    @apply opacity-40;
+  }
+}
+
+.trend-overview-value {
+  @apply text-right font-semibold whitespace-nowrap tabular-nums;
+}
+
+.trend-overview-chevron {
+  @apply justify-self-end text-sm text-gray-400 dark:text-slate-500;
+}

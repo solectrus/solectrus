@@ -1,0 +1,4 @@
+/ In place of the overview, without the permission (see TrendsController).
+  The demo opens the page that the visitor comes from.
+= render Ui::SheetPage::Component.new(title: timeframe.all? ? t('trends.index.title_all') : t('trends.index.title', period: Trend::PeriodLabel.short(timeframe)), width: :medium, fit: true) do
+  = render DemoLink::Component.new(feature: 'trends', url: referer_route)

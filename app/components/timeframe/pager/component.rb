@@ -9,19 +9,22 @@
 # period, the row does not show, but keeps its arrows hidden, as the swipe
 # takes its pages from them. `arrows` has the
 # pages before and after this one as :prev and :next. A missing one has none.
+# With `timeframe`, the row has the way to the insights of a home page left
+# of the name (Timeframe::TrendsButton::Component).
 class Timeframe::Pager::Component < ViewComponent::Base
   # The place of the row, which the status of the live view takes as well, so
   # the content does not move between the tabs (see shared/_home_sub_nav)
   ROW_CLASS = '-mt-3 mb-1 h-11'.freeze
   public_constant :ROW_CLASS
 
-  def initialize(period:, arrows:)
+  def initialize(period:, arrows:, timeframe: nil)
     super()
     @period = period
     @arrows = arrows
+    @timeframe = timeframe
   end
 
-  attr_reader :period, :arrows
+  attr_reader :period, :arrows, :timeframe
 
   # An arrow without a page in its direction keeps its place, dimmed, so the
   # name does not move. Its link gives the swipe its page (`data-nav`). The

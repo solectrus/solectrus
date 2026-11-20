@@ -1,0 +1,41 @@
+.tooltip-layout.insights data-controller= 'insights--component' data-action= 'cancel@document->insights--component#back:capture'
+  - if total
+    .tooltip-group
+      = render Insights::Row::Component.new(label: current_period) do
+        span.insights-comparison-current
+          = text(total, total.current)
+          - if (diff = value_change(total))
+            span.insights-comparison-diff class=change_class(total) = diff
+      = render Insights::Row::Component.new(label: base_period) do
+        span.insights-comparison-base = text(total, total.base)
+
+  - if months.any?
+    .tooltip-group
+      .insights-months
+        - months.each do |row|
+          / A hover or a tap shows the values behind the change
+          .insights-month data-controller='tooltip' data-tooltip-touch-value='true'
+            span = month_label(row)
+            = render bar(row)
+            span.insights-month-value class=(month_class(row) if row.diff) = month_change(row)
+            span.hidden data-tooltip-target='html'
+              - month_values(row).each_with_index do |line, index|
+                - if index.positive?
+                  br
+                = line
+
+  - if heatmap_data
+    = render Insights::Heatmap::Component.new(data: heatmap_data, sensor:, timeframe:, label: page_label, tile: heatmap_tile.merge(frame: '_top'))
+
+  - if days.any? || extremes.any?
+    .tooltip-group
+      - days.each do |row|
+        = render Insights::Row::Component.new(label: label(row), detail: base_detail(row), url: row_path(row), frame: '_top') do
+          span.insights-comparison-current
+            = text(row, row.current)
+            - if (diff = value_change(row))
+              span.insights-comparison-diff class=change_class(row) = diff
+
+      - extremes.each do |key, day, value|
+        = render Insights::Row::Component.new(label: t(".#{key}"), note: l(day), url: day_path(day), frame: '_top') do
+          = render Sensor::Value::Component.new(value, sensor.name, context: :total, scaling: :kilo)

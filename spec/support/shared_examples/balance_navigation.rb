@@ -3,7 +3,7 @@ shared_examples_for 'balance navigation' do |paths|
     stub_feature(
       :relative_timeframe,
       :power_splitter,
-      :insights,
+      :trends,
       :finance_charts,
       :car,
     )
@@ -52,7 +52,7 @@ shared_examples_for 'balance navigation' do |paths|
 
     expect(page).to have_css('#chart-day')
     check_inverter_power_specifics(path)
-    check_insights(path) unless finance_sensor?(path)
+    check_no_insights
     check_top10_link(path)
 
     check_prev_next(
@@ -88,7 +88,7 @@ shared_examples_for 'balance navigation' do |paths|
     expect(page).to have_css('#chart-week')
 
     check_inverter_power_energy_values(path)
-    check_insights(path)
+    check_no_insights
     check_top10_link(path)
 
     check_prev_next(
@@ -189,6 +189,11 @@ shared_examples_for 'balance navigation' do |paths|
     expect(page).to have_text(/\d+(?:,\d+)?\s*[MkGT]?Wh/) # Match energy values
   end
 
+  # A day and a week have no insights beside the timeframe
+  def check_no_insights
+    expect(page).to have_no_css('[data-trends-button]')
+  end
+
   def check_insights(path)
     if path.in? %w[
                   autarky
@@ -199,15 +204,12 @@ shared_examples_for 'balance navigation' do |paths|
       return
     end
 
-    click_on('Kennzahlen & Trend')
-    expect(page).to have_css('#modal-sheet-title')
+    # The button beside the timeframe, for a month or a year the trends
+    find('[data-trends-button]').click
+    expect(page).to have_css('dialog#modal-sheet[open]')
 
     click_on('Schließen')
-    expect(page).to have_no_css('#modal-sheet-title')
-  end
-
-  def finance_sensor?(path)
-    path.in?(%w[grid_costs savings grid_revenue])
+    expect(page).to have_no_css('dialog#modal-sheet[open]')
   end
 
   def check_inverter_power_specifics(path)

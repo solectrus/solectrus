@@ -18,10 +18,10 @@
         data-action= 'insights--component#pop'
       ]
         = icon 'chevron-left'
-        span.truncate = sensor.display_name
+        span.truncate = label
     h2.bottom-sheet-title.mt-1 = t('.heatmap')
     p.insights-subpage-detail = timeframe.localized
 
   .tooltip-group
     div
-      = render Insights::HeatmapTile::Component.new(data:, sensor:, timeframe:)
+      = render Insights::HeatmapTile::Component.new(data:, sensor:, timeframe:, **tile)

@@ -50,4 +50,22 @@ describe SummaryValue do
   describe 'associations' do
     it { is_expected.to belong_to(:summary) }
   end
+
+  describe '.first_dates' do
+    before do
+      create_summary(date: Date.new(2025, 1, 1), values: [[:inverter_power, :sum, 1_000]])
+      create_summary(date: Date.new(2025, 2, 1), values: [[:inverter_power, :sum, 1_000], [:house_power, :sum, 1_000]])
+    end
+
+    it 'finds the first day of each field' do
+      expect(described_class.first_dates(%i[inverter_power house_power wallbox_power])).to eq(
+        'inverter_power' => Date.new(2025, 1, 1),
+        'house_power' => Date.new(2025, 2, 1),
+      )
+    end
+
+    it 'finds nothing without a field' do
+      expect(described_class.first_dates([])).to eq({})
+    end
+  end
 end

@@ -17,9 +17,9 @@ de:
   power_balance_chart:
     title: Diagramm zur Strombilanz
     description: Zeigt Herkunft und Verbrauch des Stroms im zeitlichen Verlauf.
-  insights:
-    title: Kennzahlen & Trends
-    description: Hier werden weitere Kennzahlen und Trends dargestellt, die sich auf den gewählten Sensor und Zeitraum beziehen. Hierzu gehören Ertrag pro kWp, Durchschnitt pro Tag, Vergleich mit Vormonat und Vorjahr.
+  trends:
+    title: Trends
+    description: Zeigt für jeden Wert der Seite die Veränderung gegenüber dem Vormonat oder dem Vorjahr und vergleicht die Jahre seit der Inbetriebnahme. Ein Tipp auf einen Wert zeigt seine Kennzahlen, zum Beispiel den Kalender und den höchsten Tag.
   finance_charts:
     title: Finanzdiagramme
     description: Dargestellt wird der zeitliche Verlauf von Kosten, Einnahmen und Einsparungen der Solaranlage.

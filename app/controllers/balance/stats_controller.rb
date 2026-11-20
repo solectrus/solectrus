@@ -90,6 +90,7 @@ class Balance::StatsController < ApplicationController
           q.sum :battery_savings, :sum
           q.avg :self_consumption_quote, :avg
           q.sum :solar_price, :sum
+          q.sum :specific_yield, :sum
           q.sum :total_costs, :sum
           q.sum :traditional_costs, :sum
           q.sum :wallbox_costs, :sum

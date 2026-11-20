@@ -77,6 +77,19 @@ class CarSelection
     car ? [car] : offered
   end
 
+  # The cars whose report the figures and the trends read (see Car::Report):
+  # "all" compares the cars of the installation, each in its period of use,
+  # so a car that replaced another one continues its trend. The guest
+  # sessions have no car.
+  def report_cars
+    return [] if guest?
+
+    car ? [car] : installed
+  end
+
+  # The report of the cars of the figures in a period (see Car::Report)
+  def report(timeframe) = Car::Report.new(timeframe, report_cars, guest: with_guest?)
+
   # The parameter of the selection, nil for "all"
   def to_param
     (GUEST if guest?) || car&.id&.to_s

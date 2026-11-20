@@ -1,0 +1,7 @@
+span.trend-overview-track class=('is-empty' unless change) aria-hidden='true' data=data
+  - if bar?
+    span class=bar_class style=bar_style
+      - if broken?
+        span.trend-overview-break
+  - elsif change
+    span.trend-overview-dot

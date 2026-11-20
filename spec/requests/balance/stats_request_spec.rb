@@ -103,6 +103,31 @@ describe 'Stats' do
       end
     end
 
+    # The tooltip of the generation shows the yield per kWp with the
+    # permission of the trends
+    context 'with the installed capacity' do
+      before do
+        create_summary(date: Date.new(2025, 5, 10), values: [[:inverter_power, :sum, 3000.0]])
+        allow(UpdateCheck.instance).to receive(:kwp).and_return(10)
+      end
+
+      def request_stats = get(balance_stats_path(sensor_name: 'house_power', timeframe: '2025'), headers: { 'Turbo-Frame' => 'random-turbo-frame' })
+
+      it 'shows the yield per kWp with the permission' do
+        stub_feature(:trends)
+        request_stats
+
+        expect(response.body).to include('Yield per kWp')
+      end
+
+      it 'shows no yield per kWp without the permission' do
+        stub_feature
+        request_stats
+
+        expect(response.body).not_to include('Yield per kWp')
+      end
+    end
+
     # A consumer outside the house power has a segment of its own
     context 'with a consumer excluded from the house power' do
       include_context 'with an excluded custom consumer'

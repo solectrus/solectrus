@@ -100,7 +100,7 @@ module McpServer
       private_class_method :preamble
 
       def self.summarize(timeframe)
-        pending = Car::Report.pending_report_days(timeframe)
+        pending = Car::Report.pending_days(timeframe)
         raise ArgumentError, pending_days_message(pending) if pending.size > McpServer::Summaries::MAX_DAYS
 
         Sensor::Summarizer.new(pending).call

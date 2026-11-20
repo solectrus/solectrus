@@ -45,6 +45,7 @@ class Inverter::StatsController < ApplicationController
             q.sum sensor.name, :sum
           end
           q.sum :inverter_power_difference, :sum
+          q.sum :specific_yield, :sum
         end
         .call
 

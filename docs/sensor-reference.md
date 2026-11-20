@@ -792,7 +792,7 @@ class-level predicate, for example `ApplicationPolicy.heatpump?`:
 | `:custom_consumer`     | Custom power sensors                 |
 | `:multi_inverter`      | Multiple inverters                   |
 | `:relative_timeframe`  | Relative timeframes (P7D, P30D, ...) |
-| `:insights`            | Figures and trends behind a chart    |
+| `:trends`              | Trends of a page, figures of a chart |
 | `:heatpump`            | Heat pump                            |
 | `:finance_charts`      | Financial charts                     |
 | `:power_balance_chart` | Power balance chart                  |

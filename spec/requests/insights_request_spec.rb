@@ -68,7 +68,7 @@ describe 'Insights' do
   end
 
   context 'with the permission' do
-    before { stub_feature(:insights, :power_splitter, :custom_consumer) }
+    before { stub_feature(:trends, :power_splitter, :custom_consumer) }
 
     it 'shows all figures' do
       get_insights('battery_charging_power')
@@ -76,6 +76,24 @@ describe 'Insights' do
       expect(page).to have_css('.splitted-costs-ratio')
       expect(page).to have_css('.insights-row', text: 'Minimum')
       expect(page).to have_no_link(href: sponsoring_path)
+    end
+
+    it 'shows the share of each inverter and the days of the strings' do
+      stub_feature(:trends, :multi_inverter)
+      create_summary(date: Date.new(2025, 1, 2), values: [[:inverter_power, :sum, 5_000], [:inverter_power_1, :sum, 3_000], [:inverter_power_2, :sum, 2_000]])
+      get_insights('inverter_power')
+
+      expect(page).to have_css('.insights-bars')
+      expect(page).to have_css('.insights-row', text: 'Maximum')
+    end
+
+    it 'shows the costs and the revenue of the grid' do
+      Price.create!(name: :electricity, starts_at: Date.new(2024, 1, 1), amount_per_kwh: 0.3)
+      Price.create!(name: :feed_in, starts_at: Date.new(2024, 1, 1), amount_per_kwh: 0.08)
+      create_summary(date: Date.new(2025, 1, 2), values: [[:grid_import_power, :sum, 3_000], [:grid_export_power, :sum, 5_000]])
+      get_insights('grid_power')
+
+      expect(page).to have_css('.text-sm', text: 'Saldo')
     end
 
     it 'shows the grid share of a consumer' do

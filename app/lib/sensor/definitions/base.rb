@@ -204,6 +204,11 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
     self.class.more_is_better
   end
 
+  # A trend without better or worse (see DSL#trend)
+  def neutral?
+    self.class.neutral
+  end
+
   # Clamp a value to the sensor's valid range
   def clamp_value(value)
     return value unless value.is_a?(Numeric)

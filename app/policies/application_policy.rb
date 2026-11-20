@@ -29,7 +29,7 @@ class ApplicationPolicy
     custom_consumer
     multi_inverter
     relative_timeframe
-    insights
+    trends
     heatpump
     finance_charts
     power_balance_chart

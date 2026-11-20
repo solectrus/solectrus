@@ -18,8 +18,9 @@ class Sensor::Definitions::CarOdometer < Sensor::Definitions::Base
   # any queried range.
   aggregations stored: %i[sum], meta: %i[sum], top10: true, meter: true
 
-  # Distance is the SUM of the daily distances across the period.
-  trend
+  # Distance is the SUM of the daily distances across the period. It follows
+  # the need, so it is neither better nor worse.
+  trend neutral: true
 
   requires_permission :car
 end

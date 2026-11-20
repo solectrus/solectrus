@@ -1,5 +1,7 @@
+# The insights of a chart of the car page are a page of the sheet of its
+# trends (see InsightsController#trend_overview?)
 describe 'Car Insights' do
-  let(:headers) { { 'Turbo-Frame' => 'modal' } }
+  let(:headers) { { 'Turbo-Frame' => 'sheet-page', 'Referer' => 'http://www.example.com/cars/1/2026-01' } }
 
   def summary(date, field, value)
     Summary.find_or_create_by!(date:)
@@ -23,12 +25,14 @@ describe 'Car Insights' do
   # A visitor sees the data up to the day before yesterday (see
   # Car::AdminOnlyDays)
   it 'ends the data of a visitor with the latest public day' do
-    allow(Car::Insights::Component).to receive(:new).and_call_original
+    allow(Insights::CarComparison).to receive(:new).and_call_original
     get(insights_path(sensor_name: 'car_distance', timeframe: '2026-09', car: 1), headers:)
 
-    expect(Car::Insights::Component).to have_received(:new).with(hash_including(timeframe: having_attributes(effective_ending_date: Date.new(2026, 9, 21))))
+    expect(Insights::CarComparison).to have_received(:new).with(hash_including(timeframe: having_attributes(effective_ending_date: Date.new(2026, 9, 21))))
   end
 
+  # The charts of the trends of the car page. The maximum range needs a sensor
+  # of its own, which this setup has not.
   %w[
     car_distance
     car_charging
@@ -37,29 +41,21 @@ describe 'Car Insights' do
     car_driving_costs
     car_cost_rate
     car_consumption_rate
-    car_max_range
   ].each do |sensor_name|
     it "renders #{sensor_name}" do
       get(insights_path(sensor_name:, timeframe: '2026-01', car: 1), headers:)
 
       expect(response).to have_http_status(:ok)
+      expect(response.body).to include('tooltip-layout insights')
     end
   end
 
-  context 'with the maximum range of several months' do
-    before do
-      [[1, 300], [2, 340], [3, 320]].each do |month, range|
-        Summary.find_or_create_by!(date: Date.new(2026, month, 10))
-        SummaryValue.create!(date: Date.new(2026, month, 10), field: 'car_max_range_1', aggregation: 'avg', value: range)
-      end
-    end
+  # Outside the sheet of the trends, a chart of the car page has no details
+  it 'shows the head alone outside the trends' do
+    get(insights_path(sensor_name: 'car_distance', timeframe: '2026-01', car: 1), headers: { 'Turbo-Frame' => 'modal' })
 
-    it 'names the best and the worst month, each with a link' do
-      get(insights_path(sensor_name: 'car_max_range', timeframe: '2026-03', car: 1), headers:)
-
-      expect(response.body).to include('Best period', 'href="/cars/1/car_max_range/2026-02"')
-      expect(response.body).to include('Worst period', 'href="/cars/1/car_max_range/2026-01"')
-    end
+    expect(response).to have_http_status(:ok)
+    expect(response.body).not_to include('insights-row')
   end
 
   context 'with a car that replaced another one' do
@@ -78,27 +74,20 @@ describe 'Car Insights' do
     it 'compares "all" with the cars of the previous year' do
       get(insights_path(sensor_name: 'car_distance', timeframe: '2026-01'), headers:)
 
-      expect(response.body).to include('Previous year', '+100', 'href="/cars/car_distance/2025-01"')
-      # The previous month has no distance
-      expect(response.body).not_to include('Previous month')
+      expect(response.body).to match(/Jan 2026.*200 km.*Jan 2025.*100 km/m)
     end
 
-    it 'shows the day with the highest distance' do
+    it 'shows the day with the highest distance of the new car alone' do
       get(insights_path(sensor_name: 'car_distance', timeframe: '2026-01', car: 2), headers:)
 
-      expect(response.body).to include('Maximum', 'href="/cars/2/car_distance/2026-01-10"')
+      expect(Capybara.string(response.body)).to have_css('.insights-row', text: /Maximum.*150 km/)
     end
 
-    it 'has no trend for the new car alone' do
-      get(insights_path(sensor_name: 'car_distance', timeframe: '2026-01', car: 2), headers:)
+    # The button beside the timeframe opens the trends of a month
+    it 'links the timeframe to the trends of the selected car' do
+      get(cars_charts_path(car: 2, sensor_name: 'car_distance', timeframe: '2026-01'), headers: { 'Turbo-Frame' => 'modal' })
 
-      expect(response.body).not_to include('Previous year')
-    end
-
-    it 'links the chart to the insights of the selected car' do
-      get(cars_charts_path(car: 2, sensor_name: 'car_distance', timeframe: '2026-01'), headers:)
-
-      expect(response.body).to include('href="/insights/car_distance/2026-01?car=2"')
+      expect(response.body).to include('href="/trends/2026-01?car=2"')
     end
   end
 end

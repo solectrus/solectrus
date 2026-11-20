@@ -213,9 +213,47 @@
   }
 }
 
-/* A value in the detail, like that of the earlier period. It reads in the
-   color of the text, so it stands apart from the gray period beside the
-   label. */
-.insights-row-detail-value {
-  @apply text-gray-800 dark:text-gray-300;
+/*
+ * Below the trend overview, the insights are a page of a tall sheet
+ * (Ui::SheetPage), which is gray like a page. There a group is white, and
+ * the page of the heatmap takes the gray of the sheet.
+ */
+.bottom-sheet-panel.is-tall {
+  .insights .tooltip-group {
+    @apply bg-surface;
+  }
+
+  .insights-subpage {
+    @apply max-md:bg-canvas;
+  }
+}
+
+/* The value of the period above the earlier one
+   (Insights::Comparison::Component), the current one in the color of
+   the text with its change below it */
+.insights-comparison-current {
+  @apply text-right font-semibold whitespace-nowrap tabular-nums;
+}
+
+.insights-comparison-base {
+  @apply text-muted text-right whitespace-nowrap tabular-nums;
+}
+
+.insights-comparison-diff {
+  @apply block text-xs font-medium;
+}
+
+/* The change of each month on one scale, with the track of the trend
+   overview (trend_overview/component.css). The months stand close
+   together, in one row of the group. */
+.insights-months {
+  @apply grid grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5;
+}
+
+.insights-month {
+  @apply col-span-3 grid grid-cols-subgrid items-center;
+}
+
+.insights-month-value {
+  @apply text-subhead text-right font-medium whitespace-nowrap tabular-nums;
 }

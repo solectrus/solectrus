@@ -56,7 +56,6 @@ de:
     missing_heatpump: Hier könnten Arbeitszahl, erzeugte Wärme und weitere interessante Messwerte deiner Wärmepumpe visualisiert werden. Ergänze deine Konfiguration um zusätzliche Sensoren (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
     incomplete_car: E-Auto
     missing_car: Hier könnten Kilometerstand, Reichweite und Ladekosten deines E-Autos visualisiert werden. Ergänze deine Konfiguration um den Kilometerstand des Autos (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>) und für das Laden zu Hause um die Wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
-    insights: Kennzahlen & Trend
   more:
     show:
       appearance: Darstellung
@@ -76,6 +75,22 @@ de:
     years: Letzte %{count} Jahre
     all: Seit Inbetriebnahme
     total: Gesamter Zeitraum
+  trend:
+    percentage_points: Pp
+    period:
+      from_same_month: '%-d.'
+      to_same_month: '%-d. %b %Y'
+      from_same_year: '%-d. %b'
+      to: '%-d. %b %Y'
+      month: '%b %Y'
+  trends:
+    index:
+      title: 'Trend %{period}'
+      title_all: Jahre im Vergleich
+      base: Vergleich mit
+      compared_with: 'gegenüber %{period}'
+      previous_year: Vorjahr
+      previous_period: Vormonat
   sensors:
     car_roles:
       car_battery_soc: Ladestand
@@ -179,6 +194,7 @@ de:
     autarky: Autarkie
     inverter_power_total: Gesamterzeugung
     specific_yield: Spezifischer Ertrag
+    specific_yield_short: Ertrag pro kWp
     heatpump_status: Wärmepumpen-Status
     custom_power_total: Benutzerdefinierte Verbraucher
     wallbox_car_connected: Auto angeschlossen

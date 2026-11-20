@@ -91,6 +91,8 @@ If a form in the sheet has unsaved changes, a link that leaves it asks first. Th
 
 The desktop does not use these sheets. It keeps the lists as pages and the forms in the modal. The lists keep their own pages on a phone too, for a link from another page.
 
+The trends of a home page (`TrendOverview::Component`) use the sheet on the desktop too, as a dialog. Their first page shows the change of each sensor against the year or the month before. A row opens the insights of its sensor one level down. They compare its figures with the earlier period, side by side, and leave out what the page shows already.
+
 ## Forms
 
 On a phone, a form is a grouped list. Each group of fields is a card. Each field is a cell: the label at the left, the input at the right, without a border. A text field puts its label above the input, so the text has the full width of the cell. A hint shows below the input, in the same cell. A check box is a switch. The desktop keeps the usual form.

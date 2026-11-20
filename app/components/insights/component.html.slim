@@ -65,11 +65,6 @@
         div
           = render GridCosts::Graph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
 
-    - if [insights.monthly_trend, insights.yearly_trend].any? { it&.comparable? }
-      .tooltip-group
-        = render Insights::TrendRow::Component.new(trend: insights.monthly_trend, label: t('.previous_month'), url: (monthly_trend_base_path if insights.monthly_trend))
-        = render Insights::TrendRow::Component.new(trend: insights.yearly_trend, label: t('.previous_year'), url: (yearly_trend_base_path if insights.yearly_trend))
-
     - if insights.heatmap_data
       = render Insights::Heatmap::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
 

@@ -14,7 +14,7 @@ class Insights::Component < ViewComponent::Base
   # Everyone sees what the tooltip of a balance segment shows: the total and
   # the values beside it. The figures beyond it need this permission.
   def permitted?
-    ApplicationPolicy.insights?
+    ApplicationPolicy.trends?
   end
 
   # The values of the tooltip, for a sensor and a period that a page shows the
@@ -38,8 +38,14 @@ class Insights::Component < ViewComponent::Base
   end
 
   # The total of the period, which the heading of the sheet shows
-  # (insights/index.html.slim)
+  # (insights/index.html.slim), or the average of an average. An average
+  # without data has none.
   def total_value
+    if average?
+      value = insights.raw_value(sensor.name)
+      return value && Sensor::Value::Component.new(value, sensor.name, context: :total)
+    end
+
     case sensor.name
     when :inverter_power
       Sensor::Value::Component.new(data, sensor.name, context: :total, precision: 3)
@@ -72,7 +78,7 @@ class Insights::Component < ViewComponent::Base
     return unless tooltip_values?
     return unless (total = total_value)
 
-    Insights::HeadingTotal::Component.new(total:, running: running_period?)
+    Insights::HeadingTotal::Component.new(total:, running: running_period?, average: average?)
   end
 
   # The share of PV and grid, and the costs it causes. A consumer shows the
@@ -125,22 +131,6 @@ class Insights::Component < ViewComponent::Base
     )
   end
 
-  def yearly_trend_base_path
-    url_for(
-      sensor_name: sensor.name,
-      timeframe: insights.yearly_trend.base_timeframe.to_s,
-      controller: "#{controller_namespace}/home",
-    )
-  end
-
-  def monthly_trend_base_path
-    url_for(
-      sensor_name: sensor.name,
-      timeframe: insights.monthly_trend.base_timeframe.to_s,
-      controller: "#{controller_namespace}/home",
-    )
-  end
-
   def day_path(day)
     url_for(
       sensor_name: sensor.name,
@@ -150,6 +140,11 @@ class Insights::Component < ViewComponent::Base
   end
 
   private
+
+  # A percentage or a temperature is averaged over the period, not summed
+  def average?
+    sensor.allowed_aggregations.first == :avg
+  end
 
   def permitted_timeframe?
     !timeframe.relative? || ApplicationPolicy.relative_timeframe?

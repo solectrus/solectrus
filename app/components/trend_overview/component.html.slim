@@ -1,0 +1,17 @@
+.trend-overview
+  / No sensor of the page has data in the periods, like on a new system
+  - if sections.empty?
+    = render Ui::EmptyState::Component.new(icon: 'arrow-trend-up', title: t('data.blank'), size: :small)
+
+  - sections.each do |group, lists|
+    section
+      - if group
+        h2.trend-overview-header = t(".groups.#{group}")
+      - lists.each do |rows|
+        ul.trend-overview-group
+          - rows.each do |row|
+            li
+              a.trend-overview-row href=href(row) data-nav-title=label(row)
+                span.trend-overview-name = label(row)
+                = render trend(row)
+                = icon 'chevron-right', class: 'trend-overview-chevron'

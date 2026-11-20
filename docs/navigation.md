@@ -20,6 +20,8 @@ Below a wide screen in landscape, a view shows its timeframe in two rows. The he
 
 A tap on the name opens the timeframe select in a sheet, with the picker of the period already open. Its way back shows the fields of the select. A chevron beside the name marks this. The arrows turn the page, as a swipe does. From today, they lead to yesterday and to the forecast. An arrow without a page in its direction stays dimmed in its place.
 
+Left of the name, a home page has a button for its trends (`Timeframe::TrendsButton`). For a month or a year, the button opens the change of each value of the page. For the whole time, it opens the value of each year. Without a sponsorship, it opens a teaser in their place. The live view, a day and a week have no button. The desktop shows the same button left of the timeframe in the header.
+
 The live view shows no period. Its arrows stay in the page, hidden, because the swipe takes its pages from them. So a swipe on the live view leads to yesterday and to the forecast. A comparison of the years shows no period either, because the menu of its tab picks the comparison.
 
 The lists of the car have no tabs. Their period stands at the top of the list, below the title bar. On the car page and on its lists, the cars follow below the period as chips (`Ui::Chips`). On the forecast, the period names the next days. Its tabs, the arrow back to today and its timeframe select belong to the view that led to the forecast. The desktop keeps the tabs and the timeframe with its arrows in the header.

@@ -1,0 +1,10 @@
+de:
+  per_day: Ø pro Tag
+  maximum: Maximum
+  minimum: Minimum
+  full_days: Voll
+  empty_days: Leer
+  charged_consecutively: Geladen in Folge
+  days:
+    one: Tag
+    other: Tage

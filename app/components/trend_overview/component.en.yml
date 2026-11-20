@@ -1,0 +1,11 @@
+en:
+  groups:
+    driving: Driving
+    charging: Charging
+    generation: Generation
+    consumption: Consumption
+    heat: Heat
+    grid_battery: Grid & battery
+    finance: Finances
+    quotas: Rates
+    averages: Averages

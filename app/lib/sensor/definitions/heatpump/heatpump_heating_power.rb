@@ -10,7 +10,9 @@ class Sensor::Definitions::HeatpumpHeatingPower < Sensor::Definitions::Base
 
   chart { |timeframe| Sensor::Chart::HeatpumpHeatingPower.new(timeframe:) }
 
-  trend
+  # The heat follows the need of the house, so it is neither better nor
+  # worse
+  trend neutral: true
 
   requires_permission :heatpump
 end

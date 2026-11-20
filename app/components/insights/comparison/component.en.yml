@@ -1,0 +1,10 @@
+en:
+  per_day: Ø per day
+  maximum: Maximum
+  minimum: Minimum
+  full_days: Full
+  empty_days: Empty
+  charged_consecutively: Charged consecutively
+  days:
+    one: day
+    other: days

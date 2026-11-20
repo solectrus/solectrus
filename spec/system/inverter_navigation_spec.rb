@@ -1,7 +1,7 @@
 describe 'Inverter navigation' do
   include ActiveSupport::Testing::TimeHelpers
 
-  before { stub_feature(:multi_inverter, :insights) }
+  before { stub_feature(:multi_inverter, :trends) }
 
   %w[inverter_power inverter_power_1 inverter_power_2].each do |path|
     context "when #{path}" do
@@ -95,8 +95,6 @@ describe 'Inverter navigation' do
       end
     end
 
-    check_insights(path)
-
     click_prev_and_expect('Montag, 20. Juni 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#inverter-chart-2022-06-20')
@@ -108,6 +106,7 @@ describe 'Inverter navigation' do
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-day')
 
+    check_no_insights
     check_top10_link(path)
   end
 
@@ -128,8 +127,6 @@ describe 'Inverter navigation' do
       end
     end
 
-    check_insights(path)
-
     click_prev_and_expect('KW 24, 2022')
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#inverter-chart-2022-W24')
@@ -141,6 +138,7 @@ describe 'Inverter navigation' do
     expect(page).to have_css("[data-controller*='stats-with-chart--component']")
     expect(page).to have_css('#chart-week')
 
+    check_no_insights
     check_top10_link(path)
   end
 
@@ -252,11 +250,17 @@ describe 'Inverter navigation' do
     end
   end
 
+  # A day and a week have no insights beside the timeframe
+  def check_no_insights
+    expect(page).to have_no_css('[data-trends-button]')
+  end
+
   def check_insights(_path)
-    click_on('Kennzahlen & Trend')
-    expect(page).to have_css('#modal-sheet-title')
+    # The button beside the timeframe, for a month or a year the trends
+    find('[data-trends-button]').click
+    expect(page).to have_css('dialog#modal-sheet[open]')
 
     click_on('Schließen')
-    expect(page).to have_no_css('#modal-sheet-title')
+    expect(page).to have_no_css('dialog#modal-sheet[open]')
   end
 end

@@ -2,6 +2,7 @@ class InsightsController < ApplicationController
   include ParamsHandling
   include TimeframeNavigation
   include RefererNamespace
+  include SheetPage
 
   def index
     if turbo_frame_request?
@@ -32,5 +33,24 @@ class InsightsController < ApplicationController
   # remove it -- and the balance is then the default.
   def controller_namespace
     referer_namespace
+  end
+
+  # A row of the trend overview loads the insights into the frame of its
+  # sheet, one level below the overview (see TrendsController)
+  helper_method def trend_overview?
+    return @trend_overview if defined?(@trend_overview)
+
+    @trend_overview =
+      sheet_page? && TrendOverview.available?(page: controller_namespace, sensor:, timeframe:)
+  end
+
+  # The earlier period of the trend overview above the insights
+  helper_method def compared_with
+    TrendOverview.base_for(timeframe, params[:base])
+  end
+  # The figures then and now below the trend overview. The whole time has
+  # no earlier period.
+  helper_method def comparison
+    @comparison ||= Insights::Comparison.for(sensor:, timeframe:, base_timeframe: (Trend.base_timeframe(timeframe, compared_with) unless timeframe.all?), car: params[:car])
   end
 end

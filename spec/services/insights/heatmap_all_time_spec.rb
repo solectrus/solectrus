@@ -37,6 +37,19 @@ describe Insights::HeatmapAllTime do
       end
     end
 
+    # The battery shows the energy it gives back
+    context 'with the battery' do
+      let(:sensor) { Sensor::Registry[:battery_power] }
+
+      before do
+        create_summary(date: Date.new(2023, 1, 15), values: [[:battery_discharging_power, :sum, 800.0]])
+      end
+
+      it 'takes the discharge' do
+        expect(call[2023][1]).to eq(800)
+      end
+    end
+
     context 'with house_power sensor' do
       let(:sensor) { Sensor::Registry[:house_power] }
 

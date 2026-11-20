@@ -228,11 +228,12 @@ describe 'Car Home' do
 
       before { Summary.create!(date: day, updated_at: day + 2.days) }
 
-      # The spans of a day read each day (see Car::Spans)
-      it 'builds the summaries of the whole time first' do
+      # The rates of a day read the days around it (see Car::Driving)
+      it 'builds the summaries of its window first' do
+        reach = Car::Report.reach(Timeframe.new(day.iso8601))
         get cars_home_path(timeframe: day.iso8601)
 
-        expect(response.body).to include("d_#{Rails.configuration.x.installation_date}_", "_#{Date.current}\"")
+        expect(response.body).to include("d_#{reach.begin}_", "_#{reach.end}\"")
       end
     end
 

@@ -303,6 +303,9 @@ Rails.application.routes.draw do
       get '/insights/:sensor_name(/:timeframe)',
           to: 'insights#index',
           as: :insights
+
+      # The trends of a page, which the sheet of the insights opens with
+      get '/trends/:timeframe', to: 'trends#index', as: :trends
     end
   end
 

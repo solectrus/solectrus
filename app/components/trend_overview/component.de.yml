@@ -1,0 +1,11 @@
+de:
+  groups:
+    driving: Fahren
+    charging: Laden
+    generation: Erzeugung
+    consumption: Verbrauch
+    heat: Wärme
+    grid_battery: Netz & Akku
+    finance: Finanzen
+    quotas: Quoten
+    averages: Mittelwerte

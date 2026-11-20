@@ -1,97 +1,96 @@
 class Trend
-  def self.available_for?(sensor:, timeframe:)
-    return false unless timeframe.year_like? || timeframe.month_like?
+  BASES = %i[previous_year previous_period].freeze
+  public_constant :BASES
 
-    return false unless sensor.trendable?
+  # The earlier period of a timeframe, which depends on no sensor: the year
+  # before or, for a month, the month before. A year has no other earlier
+  # period than the year before.
+  def self.base_timeframe(timeframe, base)
+    raise ArgumentError, "Invalid base: #{base}" unless base.in?(BASES)
 
-    true
+    base == :previous_period && !timeframe.year_like? ? shift(timeframe, 1.month) : shift(timeframe, 1.year)
   end
 
-  def initialize(sensor:, timeframe:, current_value:, base:)
-    unless base.in?(%i[previous_year previous_period])
-      raise ArgumentError, "Invalid base: #{base}"
+  # The days of a period that compare with the earlier period. Today has
+  # not ended, so a running period compares its days up to yesterday, and
+  # the earlier period the same days. A visitor of the car page sees fewer
+  # days already (see Car::AdminOnlyDays). A past period compares as a
+  # whole, and the whole time has no earlier period.
+  def self.compared_timeframe(timeframe)
+    return timeframe if timeframe.all? || !timeframe.current?
+
+    Timeframe.new("#{timeframe.effective_beginning_date}..#{[timeframe.effective_ending_date, Date.yesterday].min}")
+  end
+
+  # The same days one step earlier (see .compared_timeframe), a past month
+  # or year as a whole. The days of a running month can shrink to a single
+  # day the month before, like the 29th to the 30th of March to the 28th of
+  # February.
+  def self.shift(timeframe, step)
+    raise ArgumentError, "timeframe unknown: #{timeframe}" unless timeframe.month_like? || timeframe.year_like?
+
+    if timeframe.current?
+      compared = compared_timeframe(timeframe)
+      from = compared.effective_beginning_date - step
+      to = compared.effective_ending_date - step
+      Timeframe.new(from == to ? from.to_s : "#{from}..#{to}")
+    else
+      day = timeframe.date - step
+      Timeframe.new(timeframe.year_like? ? day.year.to_s : day.strftime('%Y-%m'))
     end
+  end
+  private_class_method :shift
+
+  # Whether the earlier period has data from its first day on, so it
+  # compares as a whole. The year of the installation begins before the
+  # first day of data and has fewer days, also where the period itself
+  # starts at the installation (Timeframe#effective_beginning_date).
+  def self.complete?(base_timeframe, first_date:)
+    first_date.present? && base_timeframe.beginning.to_date >= first_date
+  end
+
+  # The first day of the summaries of a sensor, nil without one. A sensor
+  # without summaries of its own counts from the first of the sensors it is
+  # calculated from. `first_dates` holds the first day of each field (see
+  # TrendOverview#first_dates).
+  def self.first_date(sensor, first_dates:)
+    first_dates.values_at(*summary_fields(sensor).map(&:to_s)).compact.min
+  end
+
+  # The fields of the summaries that a sensor is calculated from
+  def self.summary_fields(sensor)
+    Sensor::DependencyResolver
+      .new(sensor.name, context: :sql)
+      .resolve
+      .select { Sensor::Registry[it].store_in_summary? }
+  end
+
+  # `base_data` holds the values of the earlier period, which a caller
+  # fetches once for all its sensors (see TrendOverview::Changes), and
+  # `first_date` the first day of the sensor (Trend.first_date)
+  def initialize(sensor:, timeframe:, current_value:, base:, base_data:, first_date:)
+    raise ArgumentError, "Invalid base: #{base}" unless base.in?(BASES)
 
     @sensor = sensor
     @timeframe = timeframe
     @base = base
     @current_value = current_value
+    @base_data = base_data
+    @first_date = first_date
   end
 
-  attr_reader :sensor, :timeframe, :base, :current_value
+  attr_reader :sensor, :timeframe, :base, :current_value, :first_date
 
   def valid?
+    return @valid if defined?(@valid)
+
     # Don't show trends for single-day ranges - check this first to avoid
     # creating invalid base_timeframe ranges
-    return false if timeframe.days_passed <= 1
-
-    if first_date.nil? || base_timeframe.effective_beginning_date < first_date
-      return false
-    end
-
-    true
-  end
-
-  def first_date
-    @first_date ||= SummaryValue.where(field: relevant_sensors).minimum(:date)
+    @valid = timeframe.days_passed > 1 && Trend.complete?(base_timeframe, first_date:)
   end
 
   def base_timeframe
-    @base_timeframe ||=
-      case base
-      when :previous_year
-        previous_year
-      when :previous_period
-        if timeframe.year_like?
-          previous_year
-        elsif timeframe.month_like?
-          previous_month
-        else
-          raise ArgumentError, "timeframe unknown: #{timeframe}"
-        end
-      end
-  end
-
-  def previous_year
-    if timeframe.year_like?
-      if timeframe.current?
-        first_day = timeframe.effective_beginning_date - 1.year
-        last_day = timeframe.effective_ending_date - 1.year
-
-        Timeframe.new "#{first_day}..#{last_day}"
-      else
-        year = timeframe.date.year - 1
-        Timeframe.new year.to_s
-      end
-    elsif timeframe.month_like?
-      month_from_previous_year
-    end
-  end
-
-  def previous_month
-    if timeframe.current?
-      first_day = timeframe.effective_beginning_date - 1.month
-      last_day = timeframe.effective_ending_date - 1.month
-
-      Timeframe.new "#{first_day}..#{last_day}"
-    else
-      day = timeframe.date - 1.month
-
-      Timeframe.new "#{day.year}-#{format('%02d', day.month)}"
-    end
-  end
-
-  def month_from_previous_year
-    if timeframe.current?
-      first_day = timeframe.effective_beginning_date - 1.year
-      last_day = timeframe.effective_ending_date - 1.year
-
-      Timeframe.new "#{first_day}..#{last_day}"
-    else
-      day = timeframe.date - 1.year
-
-      Timeframe.new "#{day.year}-#{format('%02d', day.month)}"
-    end
+    @base_timeframe ||= Trend.base_timeframe(timeframe, base)
   end
 
   def base_value
@@ -106,29 +105,13 @@ class Trend
     base_value.present? && !base_value.zero?
   end
 
-  # Decimal places of a value of the trend: an average has one, a sum or a
-  # percentage none
-  def precision
-    sensor.trend_aggregation == :avg && sensor.unit != :percent ? 1 : 0
-  end
-
-  def factor
-    return unless comparable?
-
-    current_value.fdiv(base_value)
-  end
-
+  # The change in percent of the base value. Its sign is the sign of the
+  # difference, also for a negative base value, like savings below zero.
   def percent
-    return unless factor
+    return unless comparable? && current_value
 
-    (factor - 1) * 100
+    diff.fdiv(base_value.abs) * 100
   end
-
-  def same?
-    percent&.round&.zero?
-  end
-
-  delegate :more_is_better?, to: :sensor
 
   def diff
     return unless base_value && current_value
@@ -138,20 +121,5 @@ class Trend
 
   private
 
-  def base_data
-    @base_data ||=
-      Sensor::Query::Total
-        .new(base_timeframe) do |q|
-          q.public_send(sensor.trend_aggregation, sensor.name)
-        end
-        .call
-  end
-
-  def relevant_sensors
-    # Use DependencyResolver to get all dependencies, then filter to storable ones
-    Sensor::DependencyResolver
-      .new(sensor.name, context: :sql)
-      .resolve
-      .select { |s| Sensor::Registry[s].store_in_summary? }
-  end
+  attr_reader :base_data
 end

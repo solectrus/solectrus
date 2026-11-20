@@ -32,6 +32,8 @@ Keep every section, an empty one included.
 - **Heat pump vs. oil or gas heating:** compares the costs of the heat pump with an oil or a gas heating that makes the same heat, with and without PV. The heat pump page shows the savings beside the costs. Needs the sensor of the generated heat, the euro as currency and the prices of the Public Data Collector. Set up the fossil heating and record the payments of the heat pump, like its maintenance, in Settings > Heat pump
 - **Year comparison:** the chart of the total timeframe compares the years by month, quarter or season, with the average as a dashed line. Pick it in the OVERALL menu (#2131)
 - **Base fee:** an electricity tariff can have a base fee for the grid connection. It counts into the grid costs, prorated by day. The AI access gives it too (#2560)
+- **Trends:** a button beside the timeframe, on a phone in the row of the date, opens the trends of the page for a month, a year or the whole time, also on the car page. It takes the place of the light bulb next to the chart. For a month or a year, a bar shows the change of each value against the year before or the month before. A running month or year compares its days up to yesterday. A tap on a row shows the value of both periods and the average day. For a year, it also shows the change of each month as a bar and the calendar. The lowest and the highest day lead to their page. The car page shows only the highest day. For the whole time, a row shows the value of each year and marks the best full year. A tap on it shows the calendar of all months and the lowest and the highest day. Without a sponsorship, the button tells what the trends show
+- **Yield per kWp:** the tooltip of the generation shows the yield per installed kWp, also on a desktop. Needs a sponsorship
 - **Timeframe menu:** the tab of the current timeframe offers readings like "This month" or "Last 30 days"
 - **AI access:** two new tools read the raw InfluxDB data, also the other measurements in the same bucket that no sensor reads. They stay off until the admin allows raw data in the system settings
 
@@ -53,13 +55,13 @@ Keep every section, an empty one included.
 - **Date:** stands below the tabs and opens the calendar. Arrows or a swipe change the period, and the page follows the finger. On Now and Today, a swipe leads to yesterday or to the forecast
 - **Settings:** open on a list of all sections, with a switch for each option. Prices, payments, cars and places open an entry in a tall sheet
 - **Notifications:** a list, with a dot on each unread one
-- **Info:** opens in a panel from the bottom. A long press on a bar of the balance opens its insights
+- **Info:** opens in a panel from the bottom. A long press on a bar of the balance opens its details
 - **Controls:** small controls are easier to tap, and the labels of the key figures are larger. A tap on a link clears the content at once
 - **Number fields:** a field like a price opens the keypad of digits
 
 ### Charts and display
 
-- **Insights:** the light bulb next to the chart shows all values of the tooltip as a list. On a phone, the heatmap is a page of its own. Without a sponsorship, it shows the total and the values of the tooltip
+- **Details of a bar:** all values of the tooltip as a list, without a comparison. The comparison with the month or the year before moved to the trends. On a phone, the calendar is a page of its own. Without a sponsorship, a long press opens the tooltip of the bar instead
 - **Tooltips:** a lighter look on desktop, and long words break by syllable. A tooltip of a live value stays open while the values refresh
 - **Empty state:** an empty list or chart shows the same note everywhere
 - **Sponsoring note:** it looks like the other empty places of the app. If the free month is still unused, the note says that one click in the registration starts it

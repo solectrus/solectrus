@@ -19,8 +19,9 @@ class Sensor::Definitions::CarDistanceChart < Sensor::Definitions::Base
   # distances of their odometers (see Sensor::Query::Ranking)
   aggregations computed: [:sum], top10: true
 
-  # Less driving is the better outcome, like car_odometer_<n>
-  trend
+  # The distance follows the need, so it is neither better nor worse, like
+  # car_odometer_<n>
+  trend neutral: true
 
   def storable_fields(_visited = nil) = data_sensors.keys
 

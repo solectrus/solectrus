@@ -105,16 +105,6 @@ describe Insights do
       # Day 2: 6000 - 2000 = 4000
       # Total: 9000
       it { is_expected.to eq(9000) }
-
-      describe 'trends' do
-        it 'yearly_trend is available' do
-          expect(insights.yearly_trend).to be_a(Trend)
-        end
-
-        it 'monthly_trend is available' do
-          expect(insights.monthly_trend).to be_a(Trend)
-        end
-      end
     end
 
     context 'when sensor is :heatpump_cop (uses avg aggregation)' do

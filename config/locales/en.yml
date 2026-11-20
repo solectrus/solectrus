@@ -56,7 +56,6 @@ en:
     missing_heatpump: Here you could visualize COP, heat generated, and other interesting metrics of your heat pump. Add additional sensors to your configuration (<code>INFLUX_SENSOR_HEATPUMP_HEATING_POWER</code> etc).
     incomplete_car: Electric vehicle
     missing_car: Here you could visualize the distance driven, remaining range and charging costs of your electric vehicle. Add the odometer of the car to your configuration (<code>INFLUX_SENSOR_CAR_ODOMETER_1</code>), and for charging at home the wallbox (<code>INFLUX_SENSOR_WALLBOX_POWER</code>).
-    insights: Figures & Trends
   more:
     show:
       appearance: Appearance
@@ -76,6 +75,22 @@ en:
     years: Last %{count} years
     all: Since commissioning
     total: All time
+  trend:
+    percentage_points: pp
+    period:
+      from_same_month: '%b %-d'
+      to_same_month: '%-d, %Y'
+      from_same_year: '%b %-d'
+      to: '%b %-d, %Y'
+      month: '%b %Y'
+  trends:
+    index:
+      title: 'Trends %{period}'
+      title_all: Years compared
+      base: Compare with
+      compared_with: 'compared with %{period}'
+      previous_year: Previous year
+      previous_period: Previous month
   sensors:
     car_roles:
       car_battery_soc: SOC
@@ -179,6 +194,7 @@ en:
     autarky: Autarky
     inverter_power_total: Total generation
     specific_yield: Specific yield
+    specific_yield_short: Yield per kWp
     heatpump_status: Heat pump status
     custom_power_total: Custom consumers
     wallbox_car_connected: Car connected

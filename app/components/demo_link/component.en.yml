@@ -8,9 +8,9 @@ en:
   relative_timeframe:
     title: Relative timeframes
     description: Whether it's the last 30 days or the last 12 months – SOLECTRUS can also display flexible timeframes.
-  insights:
-    title: Insights
-    description: Shows additional key figures and trends relating to the selected sensor and time period, including yield per kWp, average per day, and comparisons with the previous month and year.
+  trends:
+    title: Trends
+    description: Shows how each value of the page changed against the previous month or the previous year, and compares the years since commissioning. A tap on a value shows its figures, like the calendar and the highest day.
   heatpump:
     title: Heat pump
     description: SOLECTRUS can monitor and visualize the heat output, coefficient of performance, and outdoor temperature.

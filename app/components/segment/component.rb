@@ -90,7 +90,8 @@ class Segment::Component < ViewComponent::Base # rubocop:disable Metrics/ClassLe
   end
 
   # A long press opens it on a phone, in place of the sheet of the tooltip.
-  # The insights show everyone the values of the tooltip.
+  # Without the permission, it has none and the long press opens the tooltip
+  # (see SensorPathHelper#sensor_insights_path).
   def insights_path
     helpers.sensor_insights_path(sensor, timeframe: parent.timeframe)
   end

@@ -1,24 +1,32 @@
-/ A chart of the car page has figures of its own, for the selected car. They
-/ all need the permission.
-- if sensor.is_a?(Sensor::Definitions::CarPageChart)
-  - insights = Car::Insights::Component.new(sensor:, timeframe:, car: params[:car]) if ApplicationPolicy.insights?
+/ Below the trend overview, the insights are a page of its sheet, with the
+  way back to it (see TrendsController). They show what is behind the
+  change of the overview. The whole time has no earlier period: its
+  insights show what the page does not.
+- if trend_overview?
+  - label = TrendOverview.label(sensor, page: controller_namespace)
+  - back_label = timeframe.all? ? t('trends.index.title_all') : t('trends.index.title', period: Trend::PeriodLabel.short(timeframe))
+  = render Ui::SheetPage::Component.new(title: label, back_href: trends_path(timeframe:, base: TrendOverview.base_param(compared_with), car: params[:car].presence), back_label:, width: :medium, fit: true) do
+    = render Insights::Comparison::Component.new(comparison:, page_label: label, base: compared_with, controller_namespace:)
+
 - else
-  - insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:)
+  / The details of a segment, without a comparison. A chart of the car page
+    has its details below its trends only, so here it shows its head alone.
+  - insights = Insights::Component.new(sensor:, timeframe:, controller_namespace:) unless sensor.is_a?(Sensor::Definitions::CarPageChart)
 
-= render Ui::TurboModal::Component.new(width: :medium) do |modal|
-  - modal.with_title do
-    / One row for name, period and total, so the list starts high up
-    .insights-heading
-      = render Sensor::Icon::Component.new(sensor)
-      .min-w-0.flex-1
-        .truncate = sensor.display_name
-        .insights-heading-period = timeframe.localized
-      - if (total = insights&.heading_total)
-        = render total
+  = render Ui::TurboModal::Component.new(width: :medium) do |modal|
+    - modal.with_title do
+      / One row for name, period and total, so the list starts high up
+      .insights-heading
+        = render Sensor::Icon::Component.new(sensor)
+        .min-w-0.flex-1
+          .truncate = sensor.display_name
+          .insights-heading-period = timeframe.localized
+        - if (total = insights&.heading_total)
+          = render total
 
-  - if insights
-    = render insights
+    - if insights
+      = render insights
 
-  / In place of the figures that need the permission
-  - unless ApplicationPolicy.insights?
-    = render DemoLink::Component.new(feature: 'insights', url: { controller: 'balance/home', timeframe: params[:timeframe] })
+    / In place of the figures that need the permission
+    - unless ApplicationPolicy.trends?
+      = render DemoLink::Component.new(feature: 'trends', url: { controller: 'balance/home', timeframe: params[:timeframe] })

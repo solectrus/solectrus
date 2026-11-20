@@ -2,7 +2,8 @@
 # the block on the right, and an optional gray detail below the label. A note
 # stands in parentheses beside the label, like a period or a share. A row
 # with a URL leads to that page, a row with an action (Stimulus) is a button.
-# Both show a chevron.
+# Both show a chevron. A link loads into `frame`, like `_top` to leave a
+# sheet for the page.
 class Insights::Row::Component < ViewComponent::Base
   renders_one :swatch
 
@@ -10,20 +11,21 @@ class Insights::Row::Component < ViewComponent::Base
   SHORT_LABEL_LENGTH = 20
   private_constant :SHORT_LABEL_LENGTH
 
-  def initialize(label:, note: nil, detail: nil, url: nil, action: nil)
+  def initialize(label:, note: nil, detail: nil, url: nil, action: nil, frame: nil)
     super()
     @label = label
     @note = note
     @detail = detail
     @url = url
     @action = action
+    @frame = frame
   end
 
   attr_reader :label, :note, :detail, :url, :action
 
   def container_tag
     if url
-      [:a, { href: url, class: 'insights-row insights-row-link' }]
+      [:a, { href: url, class: 'insights-row insights-row-link', data: { turbo_frame: @frame }.compact }]
     elsif action
       [:button, { type: 'button', class: 'insights-row insights-row-link w-full text-left cursor-pointer', data: { action: } }]
     else

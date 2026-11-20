@@ -31,7 +31,7 @@ module Sensor
         end
 
         # Boolean getters with false default
-        %i[trendable more_is_better].each do |attr|
+        %i[trendable more_is_better neutral].each do |attr|
           define_method(attr) { meta_data.fetch(attr, false) }
         end
 
@@ -156,9 +156,13 @@ module Sensor
           end
         end
 
-        def trend(more_is_better: false, aggregation: :sum)
+        # A `neutral` trend has no better or worse, like the distance, which
+        # follows the need. Its change shows without a color, and its years
+        # have no best one.
+        def trend(more_is_better: false, neutral: false, aggregation: :sum)
           meta_data[:trendable] = true
           meta_data[:more_is_better] = more_is_better
+          meta_data[:neutral] = neutral
           meta_data[:trend_aggregation] = aggregation
         end
 

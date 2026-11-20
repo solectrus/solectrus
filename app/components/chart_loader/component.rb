@@ -56,14 +56,6 @@ class ChartLoader::Component < ViewComponent::Base
     Currency.symbol
   end
 
-  def path_to_insights
-    return if timeframe.now?
-    return unless sensor.trendable?
-
-    # The car page keeps its selected car (see Car::Insights::Component)
-    helpers.insights_path(sensor_name: sensor.name, timeframe:, **helpers.selection_params)
-  end
-
   def demo_url
     {
       controller: "#{helpers.controller_namespace}/home",

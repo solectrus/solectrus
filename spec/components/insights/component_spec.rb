@@ -93,7 +93,19 @@ describe Insights::Component, type: :component do
   end
 
   describe '#heading_total' do
+    # An average shows its value with the sign of the average
     context 'when sensor uses avg aggregation' do
+      let(:sensor) { Sensor::Registry[:heatpump_cop] }
+
+      before do
+        create_summary(date: Date.new(2025, 1, 1), values: [[:heatpump_power, :sum, 1_000], [:heatpump_heating_power, :sum, 3_000]])
+      end
+
+      it { expect(component.heading_total).to be_average }
+    end
+
+    # Not a zero that looks like a measured value
+    context 'with an average without data' do
       let(:sensor) { Sensor::Registry[:heatpump_cop] }
 
       it { expect(component.heading_total).to be_nil }
@@ -103,7 +115,8 @@ describe Insights::Component, type: :component do
   describe 'the links' do
     subject(:links) { render_inline(component).css('a').pluck('href') }
 
-    context 'with the trends of the house' do
+    # The trends compare, the details of a segment do not
+    context 'with an earlier period of the house' do
       let(:sensor) { Sensor::Registry[:house_power] }
 
       before do
@@ -114,8 +127,8 @@ describe Insights::Component, type: :component do
         ].each { |date, value| create_summary(date:, values: [[:house_power, :sum, value]]) }
       end
 
-      it 'links each trend to the period it compares with' do
-        expect(links).to include('/house_power/2024-12', '/house_power/2024-01')
+      it 'links to no earlier period' do
+        expect(links).not_to include('/house_power/2024-12', '/house_power/2024-01')
       end
     end
 

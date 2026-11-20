@@ -10,7 +10,8 @@ class Sensor::Definitions::HeatpumpTankTemp < Sensor::Definitions::Base
         text: 'text-white dark:text-red-100'
 
   aggregations stored: %i[avg min max], top10: true
-  trend aggregation: :avg, more_is_better: true
+  # The hot water follows its set point, so it is neither better nor worse
+  trend aggregation: :avg, neutral: true
 
   home_pages :heatpump
 

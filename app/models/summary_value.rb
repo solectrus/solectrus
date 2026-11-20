@@ -43,4 +43,21 @@ class SummaryValue < ApplicationRecord
        enum_type: :aggregation_enum
 
   validates :field, :aggregation, :value, presence: true
+
+  # The first day of each field, like { 'inverter_power' => date }, without
+  # a field that has no value.
+  #
+  # `where(field:).group(:field).minimum(:date)` reads every value of the
+  # fields, as PostgreSQL has no skip scan, so it grows with the number of
+  # days. A MIN for a single field stops at its first entry in the index.
+  # `unnest` turns the fields into rows, so one query runs that MIN for
+  # each of them, without a round trip per field. The array needs the type
+  # of the enum column to compare with it.
+  def self.first_dates(fields)
+    sql = sanitize_sql_array([<<~SQL.squish, fields.map(&:to_s)])
+      SELECT fields.field, (SELECT MIN(date) FROM summary_values WHERE summary_values.field = fields.field)
+      FROM unnest(ARRAY[?]::field_enum[]) AS fields(field)
+    SQL
+    connection.select_all(sql).cast_values.to_h.compact
+  end
 end

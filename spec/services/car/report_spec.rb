@@ -143,12 +143,13 @@ describe Car::Report do
   describe '.pending_days' do
     before { allow(Summary).to receive(:missing_or_stale_days).and_return([]) }
 
-    # The spans of a month read each month (see Car::Spans)
-    it 'asks for the days of the whole time for a calendar period' do
+    # The year of the month for the factors of its months, and the widest
+    # margin before it, up to today
+    it 'asks for the days of the year of a month plus the widest margin' do
       described_class.pending_days(timeframe)
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Rails.configuration.x.installation_date, to: Date.new(2026, 9, 23), current_tolerance: 155,
+        from: Date.new(2025, 11, 19), to: Date.new(2026, 9, 23), current_tolerance: 155,
       )
     end
 
@@ -168,7 +169,7 @@ describe Car::Report do
       described_class.pending_days(Timeframe.new('2026-09-23'))
 
       expect(Summary).to have_received(:missing_or_stale_days).with(
-        from: Rails.configuration.x.installation_date, to: Date.new(2026, 9, 23), current_tolerance: 5,
+        from: Date.new(2025, 11, 19), to: Date.new(2026, 9, 23), current_tolerance: 5,
       )
     end
   end
@@ -188,6 +189,22 @@ describe Car::Report do
       let(:timeframe) { Timeframe.new('2026-02') }
 
       it { expect(report.distance).to be_nil }
+    end
+  end
+
+  describe '#value' do
+    it 'reads a part of the timeframe, like a column of the chart' do
+      days = Date.new(2026, 1, 1)..Date.new(2026, 1, 10)
+
+      expect(report.value(:car_distance, dates: days)).to eq(120)
+      expect(report.value(:car_charging, dates: days)).to eq(10_000)
+      expect(report.value(:car_charging)).to eq(38_000)
+    end
+
+    # The cars of "all" have batteries of their own (see #max_range)
+    it 'has the maximum range of a single car only' do
+      expect(report.value(:car_max_range)).to be_nil
+      expect(described_class.new(timeframe, [cars.first]).value(:car_max_range)).to eq(400)
     end
   end
 

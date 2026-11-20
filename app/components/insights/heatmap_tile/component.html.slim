@@ -14,6 +14,7 @@
           - date = Date.new(current_year, month, day)
           - if date
             = link_to link_path_for_date(date),
+                      data: { turbo_frame: @frame },
                       class: ['aspect-square', background_class(value)],
                       style: "opacity: #{opacity(value)}" do
               = render Insights::HeatmapTile::Tooltip::Component.new(value:, sensor:, date:)
@@ -38,6 +39,7 @@
         - if (value = value_for(year, month))
           - date = Date.new(year, month)
           = link_to link_path_for_date(date.strftime('%Y-%m')),
+                    data: { turbo_frame: @frame },
                     class: ['aspect-square', background_class(value)],
                     style: "opacity: #{opacity(value)}" do
               = render Insights::HeatmapTile::Tooltip::Component.new(value:, sensor:, date:, date_format: :month)

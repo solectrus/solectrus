@@ -45,7 +45,6 @@ between charging and driving, because the car drives on energy of other days. A 
 | `Car::Driving`                      | the rates of each day from its window                                   |
 | `Car::EnergySources`                | the driven energy and its cost split into PV, grid and offsite          |
 | `Car::Report`                       | the numbers of a timeframe, for the page and for its charts             |
-| `Car::Spans`                        | the lowest and the highest value of the periods of one kind             |
 | `Car::DayTimeline`                  | the drives, the charging sessions and the state of charge of a day      |
 | `Car::Live`                         | the live values of the wallbox and of each car                          |
 | `Car::RangeEstimate`                | the range of a car without a range sensor                               |
@@ -798,17 +797,9 @@ each column for each car.
 A rate column without a day with a rate has a gap. The distance has no split by energy
 source, because the source of the energy belongs to the charge, not to the drive.
 
-Each chart shows its insights below it (`Car::Insights::Component`). A rate and the maximum
-range also name the best and the worst period of the same kind (`Car::Spans`). These rules
-for the best and the worst period are decisions:
-
-- Only a day, a week, a month or a year has periods of its kind. The whole time, a relative
-  timeframe and a range of dates name no best and no worst period.
-- A period counts only when the cars were in use on each of its days. A month in which a
-  car started gives a value of a few days. The shown period always counts.
-- The best and the worst period need three periods with a value. Fewer periods say nothing.
-- They read each day of the whole time. Before the car page shows a calendar period, it
-  therefore builds the missing daily summaries of the whole time.
+The trends of the car page (`Car::ChangesOverview`, `Car::YearsOverview`) lead to the
+insights of each chart (`Insights::CarComparison`). They take their values from the report
+of the cars, like the chart.
 
 ## The car page
 
@@ -906,7 +897,7 @@ long press opens the sheet.
 
 These rules are decisions:
 
-- The figures show no comparison with the previous month or year. Only the insights show
+- The figures show no comparison with the previous month or year. Only the trends show
   them.
 - The values show no red, because red marks a low cost as bad. Only a loss against a
   combustion car is red, because it is a real loss.

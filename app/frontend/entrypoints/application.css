@@ -45,6 +45,7 @@
 @import '../../components/ui/bottom_sheet/component.css' layer(base);
 @import '../../components/ui/confirm_dialog/component.css' layer(base);
 @import '../../components/insights/component.css' layer(base);
+@import '../../components/trend_overview/component.css' layer(base);
 @import '../../components/ui/title_bar/component.css' layer(base);
 @import '../../components/splitted_costs/component.css' layer(base);
 @import '../../components/tooltip/row/component.css' layer(base);

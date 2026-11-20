@@ -14,7 +14,7 @@ module TimeframePager
         timeframe:,
         path: ->(timeframe) { path_with_timeframe(timeframe) },
         forecast_path: (forecast_path if TimeframePage::Sensor.new(namespace: helpers.controller_namespace, sensor_name: nil).forecast?),
-      ).to_h
+      ).to_h.merge(timeframe:)
       year_comparison? ? items.merge(period: nil) : items
     end
 

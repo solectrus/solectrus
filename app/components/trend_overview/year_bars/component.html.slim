@@ -1,0 +1,19 @@
+/ A year without a value keeps its place, so the years of all rows line up.
+  Each year is as high as the row, so a mouse finds a low column too.
+span.trend-overview-years aria-hidden='true' data-controller='tooltip' data-tooltip-delegate-value='true'
+  - values.each do |year, value|
+    - if value
+      span.trend-overview-slot
+        span class=bar_class(year) style=bar_style(value)
+        span.hidden data-tooltip-target='html'
+          strong = year
+          br
+          = formatted(value)
+          - if (text = note(year))
+            br
+            span.text-muted = text
+    - else
+      span
+/ The color of the best year is not for everyone
+- if best_year
+  span.sr-only = t('.best_year', year: best_year)

@@ -139,28 +139,10 @@ class Insights # rubocop:disable Metrics/ClassLength
            :specific_yield,
            to: :data
 
-  def monthly_trend
-    @monthly_trend ||=
-      if timeframe.month_like? && Trend.available_for?(sensor:, timeframe:)
-        Trend.new(
-          sensor:,
-          timeframe:,
-          current_value: value,
-          base: :previous_period,
-        )
-      end
-  end
-
-  def yearly_trend
-    @yearly_trend ||=
-      if Trend.available_for?(sensor:, timeframe:)
-        Trend.new(
-          sensor:,
-          timeframe:,
-          current_value: value,
-          base: :previous_year,
-        )
-      end
+  # The value of a sensor as it came: nil where the insights did not query
+  # it or it has none, unlike #value, which reads zero
+  def raw_value(sensor_name)
+    data.public_send(sensor_name) if data.respond_to?(sensor_name)
   end
 
   def maximum(key = :value)

@@ -1,9 +1,16 @@
+# The grid of the calendar (Insights::Heatmap::Component). A chart of the car
+# page has a `color` of its own where its sensor has none, and its links
+# keep the selected car (`link_params`, see CarSelection). In a sheet, the
+# links leave its frame (`frame`).
 class Insights::HeatmapTile::Component < ViewComponent::Base
-  def initialize(data:, sensor:, timeframe:)
+  def initialize(data:, sensor:, timeframe:, color: nil, link_params: {}, frame: nil)
     super()
     @data = data
     @sensor = sensor
     @timeframe = timeframe
+    @color = color
+    @link_params = link_params
+    @frame = frame
   end
 
   attr_reader :data, :sensor, :timeframe
@@ -102,8 +109,10 @@ class Insights::HeatmapTile::Component < ViewComponent::Base
     values.min || 0
   end
 
+  # An average, like a rate per 100 km of the car page, which has no
+  # aggregation of its own but its trend
   def use_range_based_opacity?
-    sensor.allowed_aggregations.first == :avg
+    (sensor.allowed_aggregations.first || sensor.trend_aggregation) == :avg
   end
 
   def grid_power?
@@ -172,6 +181,8 @@ class Insights::HeatmapTile::Component < ViewComponent::Base
   end
 
   def sensor_background_color(sensor_name = sensor.name)
+    return @color if @color && sensor_name == sensor.name
+
     sensor_def = Sensor::Registry[sensor_name]
 
     # Sensors with dynamic colors may return context-dependent classes
@@ -188,6 +199,6 @@ class Insights::HeatmapTile::Component < ViewComponent::Base
   def link_path_for_date(date)
     timeframe = date.respond_to?(:strftime) ? date.strftime('%Y-%m-%d') : date
 
-    helpers.sensor_home_path(sensor.name, timeframe:)
+    helpers.sensor_home_path(sensor.name, timeframe:, **@link_params)
   end
 end

@@ -75,6 +75,14 @@
                     span.tabular-nums
                       = render Sensor::Value::Component.new(data, inverter_sensor.name, context: now? ? :rate : :total, precision: 3)
 
+          / The yield per kWp of a period compares the system with others. It
+            needs the sponsorship, like the figures of the trends.
+          - if sensor.name == :inverter_power && !now? && ApplicationPolicy.trends? && data.respond_to?(:specific_yield) && data.specific_yield
+            .tooltip-group
+              .label-value-row
+                span = Sensor::Registry[:specific_yield].display_name(:short)
+                = render Sensor::Value::Component.new(data, :specific_yield, context: :total, scaling: :kilo)
+
           - if sensor.name == :inverter_power && data.respond_to?(:co2_reduction) && data.co2_reduction&.nonzero?
             .tooltip-group
               .label-value-row.label-value-column

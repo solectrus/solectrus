@@ -18,25 +18,16 @@ class Car::Report # rubocop:disable Metrics/ClassLength
   public_constant :Source
 
   # The days that a report of the timeframe reads and that have no fresh
-  # summary yet. The spans of a calendar period read the whole time (see
-  # Car::Spans). The running day is stale after the tolerance of the shown
+  # summary yet. The running day is stale after the tolerance of the shown
   # timeframe, not of the days it reads, so a day keeps it fresh.
   def self.pending_days(timeframe)
-    read = Car::Spans.kind(timeframe) ? Timeframe.all : timeframe
-    pending_in(reach(read), timeframe)
+    days = reach(timeframe)
+    current_tolerance = Summary.current_tolerance_minutes(from: timeframe.effective_beginning_date, to: timeframe.effective_ending_date)
+    Summary.missing_or_stale_days(from: days.begin, to: days.end, current_tolerance:)
   end
-
-  # The same without the spans, which only the page shows
-  def self.pending_report_days(timeframe) = pending_in(reach(timeframe), timeframe)
 
   # The days that a report of the timeframe reads
   def self.reach(timeframe) = Car::Driving.reach(timeframe.effective_dates, min_date: timeframe.min_date)
-
-  def self.pending_in(reach, timeframe)
-    current_tolerance = Summary.current_tolerance_minutes(from: timeframe.effective_beginning_date, to: timeframe.effective_ending_date)
-    Summary.missing_or_stale_days(from: reach.begin, to: reach.end, current_tolerance:)
-  end
-  private_class_method :pending_in
 
   # The sources of the Sums of the wallbox and the offsite sessions, from the
   # bottom of a column up: PV and grid of the wallbox with the power
@@ -124,8 +115,8 @@ class Car::Report # rubocop:disable Metrics/ClassLength
   end
 
   # The distance (km) of the cars, nil without a value
-  def distance
-    memo(:distance) { ledger.distance(dates) }
+  def distance(dates = self.dates)
+    memo(:distance, dates) { ledger.distance(dates) }
   end
 
   # The distance (km) of each selected car, nil for a car without a value
@@ -151,12 +142,6 @@ class Car::Report # rubocop:disable Metrics/ClassLength
     ledger.max_range(car, dates) if car
   end
 
-  # The spans of the rates and the maximum range over the periods of the
-  # kind of the timeframe (see Car::Spans), nil for another timeframe
-  def spans
-    memo(:spans) { Car::Spans.for(timeframe, cars) }
-  end
-
   # The driving of the cars on the given dates, day by day at the rates of the
   # window around each day. Several cars are the sum of each car, so a chart
   # with a part for each car does not drive each day twice.
@@ -171,14 +156,14 @@ class Car::Report # rubocop:disable Metrics/ClassLength
   # The cost of the distance, the sum of its days. It differs from the
   # charging cost, because the battery holds energy that the car charged on
   # other days. Without a rate there is no driving cost.
-  def driving_cost
-    driving.cost if distance && driving.cost_rated?
+  def driving_cost(dates = self.dates)
+    driving(dates).cost if distance(dates) && driving(dates).cost_rated?
   end
 
   # The energy of the distance in Wh, the sum of its days. It differs from
   # the charged energy like the driving cost from the charging cost.
-  def driving_energy
-    driving.energy_wh if distance && driving.rated?
+  def driving_energy(dates = self.dates)
+    driving(dates).energy_wh if distance(dates) && driving(dates).rated?
   end
 
   # The comparison of the cars with their combustion cars (see
@@ -201,18 +186,28 @@ class Car::Report # rubocop:disable Metrics/ClassLength
 
   # The value of a chart of the car page for its insights and its trend (see
   # Car::Trend), nil without one. The energy is in Wh, like a column of the
-  # chart. Sessions without a price have no cost.
-  def value(sensor_name) # rubocop:disable Metrics/CyclomaticComplexity
+  # chart. Sessions without a price have no cost. `dates` is a part of the
+  # timeframe, like a year of the whole time (see Car::YearsOverview).
+  def value(sensor_name, dates: self.dates) # rubocop:disable Metrics/CyclomaticComplexity
     case sensor_name
-    when :car_distance then distance
-    when :car_charging then sessions.kwh * 1000
-    when :car_charging_costs then sessions.cost if sessions.cost?
-    when :car_driving_energy then driving_energy
-    when :car_driving_costs then driving_cost
-    when :car_cost_rate then driving.cost_per_100km
-    when :car_consumption_rate then driving.consumption_per_100km
-    when :car_max_range then max_range
+    when :car_distance then distance(dates)
+    when :car_charging then sessions(dates:).kwh * 1000
+    when :car_charging_costs then sessions(dates:).then { it.cost if it.cost? }
+    when :car_driving_energy then driving_energy(dates)
+    when :car_driving_costs then driving_cost(dates)
+    when :car_cost_rate then driving(dates).cost_per_100km
+    when :car_consumption_rate then driving(dates).consumption_per_100km
+    when :car_max_range then max_range(dates)
     end
+  end
+
+  # The dates of the report in a range for each year or each month, keyed
+  # by the year or by the first day of the month. With `from`, they start
+  # in the year or in the month of that day.
+  def date_ranges(by:, from: nil)
+    start = by == :year ? from&.beginning_of_year : from&.beginning_of_month
+    days = start ? dates.select { it >= start } : dates
+    days.group_by { by == :year ? it.year : it.beginning_of_month }.transform_values { it.first..it.last }
   end
 
   # [date, value] of the day with the highest distance, charged energy (Wh),

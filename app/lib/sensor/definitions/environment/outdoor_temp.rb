@@ -14,7 +14,8 @@ class Sensor::Definitions::OutdoorTemp < Sensor::Definitions::Base
 
   aggregations stored: %i[avg min max], top10: true
 
-  trend aggregation: :avg, more_is_better: true
+  # The weather is neither better nor worse
+  trend aggregation: :avg, neutral: true
 
   home_pages :heatpump
 
