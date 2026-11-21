@@ -25,3 +25,4 @@ Keep every section, an empty one included.
 ## Maintenance
 
 - Ruby 4.0.10 with security fixes for regular expressions and string case conversion, Alpine 3.24.4 with security fixes for OpenSSL, the PostgreSQL client and zlib
+- Security updates for Rack and Puma
