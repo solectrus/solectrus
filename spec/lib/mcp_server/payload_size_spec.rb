@@ -91,7 +91,7 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # admin allows raw data pays them.
       'tool definitions + instructions' => 37_500,
       'get_current_values (all sensors)' => 13_500,
-      'list_sensors' => 16_400,
+      'list_sensors' => 16_900,
       'get_sensor_details (3 sensors)' => 1_000,
       'get_system_info' => 400,
       'get_prices' => 1_900,

@@ -21,6 +21,20 @@ export type DatasetWithId = ChartDataset & {
   opacity?: number;
   // The opacity on the dark theme, instead of `opacity`
   darkOpacity?: number;
+  // A line darker (light theme) or lighter (dark theme) than its color, so it
+  // stands out from an area of the same color
+  contrastLine?: boolean;
+  // A stretch of the line between two zero values stays invisible, like a
+  // forecast at night
+  hideZeroSegments?: boolean;
+  // A faint fill below the line: this opacity at the top, fading out toward
+  // the foot of the chart. The line keeps `opacity`.
+  fillOpacity?: number;
+  // The opacity of that fill at the foot of the chart (default 0)
+  fillOpacityBottom?: number;
+  // The fill opacity on the dark theme, instead of `fillOpacity`. The opacity
+  // at the foot changes by the same factor.
+  darkFillOpacity?: number;
   colorClass?: string;
   // A hex color that tints the color of colorClass, like the color of a car
   tintColor?: string;

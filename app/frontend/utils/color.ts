@@ -40,14 +40,31 @@ export function lightenColor(
   color: string | undefined,
   amount: number,
 ): string | undefined {
+  return mixToward(color, 255, amount);
+}
+
+export function darkenColor(
+  color: string | undefined,
+  amount: number,
+): string | undefined {
+  return mixToward(color, 0, amount);
+}
+
+// Moves each channel of the color the given share of the way to the target
+// (255 for white, 0 for black), keeping its alpha
+function mixToward(
+  color: string | undefined,
+  target: number,
+  amount: number,
+): string | undefined {
   if (!color) return;
   const rgb = parseColor(color);
   if (!rgb) return;
 
   const clamped = Math.min(Math.max(amount, 0), 1);
-  const r = Math.round(rgb.r + (255 - rgb.r) * clamped);
-  const g = Math.round(rgb.g + (255 - rgb.g) * clamped);
-  const b = Math.round(rgb.b + (255 - rgb.b) * clamped);
+  const r = Math.round(rgb.r + (target - rgb.r) * clamped);
+  const g = Math.round(rgb.g + (target - rgb.g) * clamped);
+  const b = Math.round(rgb.b + (target - rgb.b) * clamped);
 
   if (rgb.a !== undefined && rgb.a < 1) {
     return `rgba(${r}, ${g}, ${b}, ${rgb.a})`;

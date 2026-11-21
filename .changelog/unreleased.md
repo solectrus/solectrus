@@ -36,6 +36,7 @@ Keep every section, an empty one included.
 - **Yield per kWp:** the tooltip of the generation shows the yield per installed kWp, also on a desktop. Needs a sponsorship
 - **Timeframe menu:** the tab of the current timeframe offers readings like "This month" or "Last 30 days"
 - **AI access:** two new tools read the raw InfluxDB data, also the other measurements in the same bucket that no sensor reads. They stay off until the admin allows raw data in the system settings
+- **Forecast range:** the PV forecast and the generation of today show a shaded range from the lower to the upper limit of the coming hours, and the tooltip names both. The forecast itself is a dashed line instead of a hatched area. The power balance and the stacked inverters keep the hatched area for the rest of today, with the dashed line as its edge. Needs the new sensors `INFLUX_SENSOR_INVERTER_POWER_FORECAST_MIN` and `INFLUX_SENSOR_INVERTER_POWER_FORECAST_MAX`, which the Forecast Collector fills with the Plus plan of pvnode
 
 ## Improvements
 

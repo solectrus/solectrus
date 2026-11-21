@@ -114,6 +114,8 @@ en:
     inverter_power_difference: Unassigned
     inverter_power_forecast: PV forecast
     inverter_power_forecast_clearsky: Clear sky
+    inverter_power_forecast_min: PV forecast (lower limit)
+    inverter_power_forecast_max: PV forecast (upper limit)
     house_power: House consumption
     house_power_without_custom: Other consumers
     wallbox_power: EV charging
@@ -372,6 +374,7 @@ en:
     expect_remaining_html: '%{value} still expected'
     unknown: No forecast available
     today_and_tomorrow: Today and tomorrow
+    range: Range
   login:
     title: Log in as admin
     missing_password_error: Unable to log in because no password has been configured.
@@ -839,6 +842,8 @@ en:
     inverter_power_difference: 'Generation not attributable to any individual string (rounding/unassigned remainder).'
     inverter_power_forecast: 'Forecasted PV generation.'
     inverter_power_forecast_clearsky: 'Theoretical PV generation under a clear sky (no clouds).'
+    inverter_power_forecast_min: 'Lower limit of the forecasted PV generation (range around the PV forecast).'
+    inverter_power_forecast_max: 'Upper limit of the forecasted PV generation (range around the PV forecast).'
     inverter_power_total: 'Combined PV generation across all configured inverters.'
     specific_yield: 'Specific yield: PV generation relative to the installed capacity (per kWp).'
     house_power: 'Total household electricity consumption.'

@@ -153,4 +153,95 @@ describe Sensor::Chart::InverterPowerForecast do
       end
     end
   end
+
+  describe 'variability band' do
+    let(:forecast) do
+      timestamps = Array.new(3 * 24 * 4) { |i| start + (i * 15).minutes }
+      timestamps.to_h do |t|
+        hours_from_noon = (t.hour + (t.min / 60.0) - 12).abs
+        [t, [8000 - ((hours_from_noon**2) * 100), 0].max.to_f]
+      end
+    end
+    let(:datasets) { chart.data[:datasets] }
+
+    def start = Date.current.beginning_of_day.in_time_zone
+    def horizon = start + 40.hours
+    def lower = datasets.find { |d| d[:id] == 'inverter_power_forecast_min' }
+    def upper = datasets.find { |d| d[:id] == 'inverter_power_forecast_max' }
+
+    # A band of +/- 20 % up to the horizon, flat beyond it
+    def band(factor)
+      forecast.to_h { |t, v| [t, t < horizon ? v * factor : v] }
+    end
+
+    before do
+      allow(chart).to receive_messages(
+        chart_sensor_names: %i[
+          inverter_power_forecast
+          inverter_power_forecast_min
+          inverter_power_forecast_max
+        ],
+        series:
+          Sensor::Data::Series.new(
+            {
+              %i[inverter_power_forecast avg avg] => forecast,
+              %i[inverter_power_forecast_min avg avg] => band(0.8),
+              %i[inverter_power_forecast_max avg avg] => band(1.2),
+            },
+            timeframe: timeframe,
+          ),
+      )
+    end
+
+    it 'fills the band from the upper limit down to the lower one' do
+      expect(upper[:fill]).to eq(datasets.index(lower))
+      expect(lower[:fill]).to be(false)
+    end
+
+    it 'shows the band as one tooltip row' do
+      expect(upper).to include(label: I18n.t('forecast.range'))
+      expect(upper).not_to have_key(:tooltip)
+      expect(lower).to include(tooltip: false)
+    end
+
+    # The tooltip lists the datasets from the last to the first
+    it 'lists the band after the forecast in the tooltip' do
+      expect(datasets.first(2)).to eq([lower, upper])
+    end
+
+    it 'keeps the band where it has width' do
+      noon = chart.data[:labels].index((start + 36.hours).to_i * 1000)
+
+      expect(lower[:data][noon]).to be < upper[:data][noon]
+    end
+
+    it 'removes the band before now, where the actual generation shows' do
+      travel_to(start + 12.hours) do
+        noon = chart.data[:labels].index((start + 12.hours).to_i * 1000)
+
+        expect(upper[:data][..noon]).to all(be_nil)
+        expect(upper[:data][noon + 1]).to be_present
+      end
+    end
+
+    # The fixture forecast is zero before 03:04 and rises from 03:15 on
+    it 'removes the forecast at night, but keeps the zero next to the day' do
+      forecast = datasets.find { |d| d[:id] == 'inverter_power_forecast' }
+      labels = chart.data[:labels]
+      night = labels.index((start + 1.hour).to_i * 1000)
+      edge = labels.index((start + 3.hours).to_i * 1000)
+
+      expect(forecast[:data][night]).to be_nil
+      expect(forecast[:data][edge]).to eq(0)
+    end
+
+    it 'removes the band where it has no width' do
+      labels = chart.data[:labels]
+      beyond = labels.index((horizon + 12.hours).to_i * 1000)
+      night = labels.index((start + 25.hours).to_i * 1000)
+
+      expect(upper[:data].values_at(beyond, night)).to all(be_nil)
+      expect(lower[:data].values_at(beyond, night)).to all(be_nil)
+    end
+  end
 end

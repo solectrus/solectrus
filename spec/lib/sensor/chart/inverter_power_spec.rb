@@ -152,4 +152,114 @@ describe Sensor::Chart::InverterPower do
       expect(chart.sunset).to be_nil
     end
   end
+
+  describe 'variability band' do
+    let(:chart) { described_class.new(timeframe:) }
+
+    context 'when the timeframe counts hours back from now' do
+      let(:timeframe) { Timeframe.new('P24H') }
+
+      it 'leaves the band out' do
+        expect(chart.chart_sensor_names).not_to include(:inverter_power_forecast_min)
+      end
+    end
+
+    context 'when the day is over' do
+      let(:timeframe) { Timeframe.new('2025-03-03') }
+
+      it 'leaves the band out' do
+        expect(chart.chart_sensor_names).not_to include(:inverter_power_forecast_min)
+      end
+    end
+
+    context 'when the day is today' do
+      let(:timeframe) { Timeframe.new(Date.current.iso8601) }
+      let(:start) { Date.current.beginning_of_day.in_time_zone }
+      let(:datasets) { chart.data[:datasets] }
+
+      # The actual power comes every 5 minutes up to now, the forecast
+      # every 15 minutes for the whole day, on the same 5-minute grid
+      def series
+        actual = (0...(12 * 12)).to_h { |i| [start + (i * 5).minutes, 500.0] }
+        grid = (0...(24 * 12)).map { |i| start + (i * 5).minutes }
+        band = lambda do |factor|
+          grid.index_with do |t|
+            next if (t.min % 15).nonzero?
+
+            t.hour.between?(8, 16) ? factor * 1000.0 : 0.0
+          end
+        end
+
+        Sensor::Data::Series.new(
+          {
+            %i[inverter_power avg avg] => actual,
+            %i[inverter_power_forecast avg avg] => band.call(1),
+            %i[inverter_power_forecast_min avg avg] => band.call(0.8),
+            %i[inverter_power_forecast_max avg avg] => band.call(1.2),
+          },
+          timeframe: timeframe,
+        )
+      end
+
+      before { travel_to(start + 12.hours) }
+
+      it 'shows the band after now, bridging the finer grid' do
+        allow(chart).to receive(:series).and_return(series)
+
+        lower = datasets.index { |d| d[:id] == 'inverter_power_forecast_min' }
+        upper = datasets.find { |d| d[:id] == 'inverter_power_forecast_max' }
+        labels = chart.data[:labels]
+        afternoon = labels.index((start + 14.hours).to_i * 1000)
+
+        expect(upper[:fill]).to eq(lower)
+        expect(upper[:data][afternoon]).to eq(1200)
+        # A numeric spanGaps would not bridge the empty 5-minute points
+        expect(upper[:spanGaps]).to be(true)
+      end
+
+      # The last actual point is at 11:55, between two forecast points
+      it 'begins the band where the actual generation ends' do
+        allow(chart).to receive(:series).and_return(series)
+
+        lower = datasets.find { |d| d[:id] == 'inverter_power_forecast_min' }
+        upper = datasets.find { |d| d[:id] == 'inverter_power_forecast_max' }
+        last = chart.data[:labels].index((start + 11.hours + 55.minutes).to_i * 1000)
+
+        expect(upper[:data][...last]).to all(be_nil)
+        expect(lower[:data][...last]).to all(be_nil)
+        expect([lower[:data][last], upper[:data][last]]).to eq([800, 1200])
+      end
+
+      # The band narrows to the forecast at 17:00
+      it 'draws the forecast as a line without a fill' do
+        allow(chart).to receive(:series).and_return(series)
+
+        lower = datasets.find { |d| d[:id] == 'inverter_power_forecast_min' }
+        forecast = datasets.find { |d| d[:id] == 'inverter_power_forecast' }
+        labels = chart.data[:labels]
+        band_end = labels.index((start + 17.hours).to_i * 1000)
+
+        expect(lower[:data].rindex { |value| value }).to eq(band_end)
+        expect(forecast[:fill]).to be(false)
+      end
+    end
+  end
+
+  describe 'stacked view' do
+    let(:chart) { described_class.new(timeframe: Timeframe.day) }
+
+    before { allow(chart).to receive(:stackable?).and_return(true) }
+
+    it 'hatches the rest of today with the dashed edge of the forecast' do
+      sensor = Sensor::Registry[:inverter_power_forecast]
+      style = chart.__send__(:style_for_sensor, sensor)
+
+      expect(style).to include(
+        hatchFill: true,
+        borderDash: [6, 4],
+        contrastLine: true,
+        hideZeroSegments: true,
+      )
+    end
+  end
 end

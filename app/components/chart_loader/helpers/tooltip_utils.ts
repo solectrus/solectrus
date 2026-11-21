@@ -1,5 +1,13 @@
 // Shared utilities for tooltip renderers.
-import type { Chart, ChartType, Color, TooltipItem } from 'chart.js';
+import type {
+  Chart,
+  ChartDataset,
+  ChartType,
+  Color,
+  TooltipItem,
+} from 'chart.js';
+
+import { extractNumericValue } from './data_extents';
 
 // Computes a value once per tooltip render. Chart.js builds a fresh dataPoints
 // array for every render, so the array itself keys the cache: the labels, the
@@ -107,4 +115,18 @@ export const positionTooltipElement = (
   if (top > maxTop) top = maxTop;
 
   showTooltip(tooltipEl, left, top);
+};
+
+// The lower end of a band, from the dataset that a numeric `fill` names. Null
+// for every other line, and where the band has no lower value.
+export const bandLowerValue = (
+  tooltipItem: TooltipItem<ChartType>,
+): number | null => {
+  const { fill } = tooltipItem.dataset as ChartDataset<'line'>;
+  if (typeof fill !== 'number') return null;
+
+  return extractNumericValue(
+    tooltipItem.chart.data.datasets[fill]?.data[tooltipItem.dataIndex],
+    'min',
+  );
 };

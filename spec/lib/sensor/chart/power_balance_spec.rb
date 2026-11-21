@@ -448,6 +448,18 @@ describe Sensor::Chart::PowerBalance do
         [nil, nil, nil, 5372.0, nil, nil, 5004.0],
       )
     end
+
+    it 'draws the forecast as a hatched area with a dashed edge' do
+      sensor = Sensor::Registry[:inverter_power_forecast]
+      style = chart.__send__(:style_for_dataset, sensor, 0)
+
+      expect(style).to include(
+        fill: true,
+        hatchFill: true,
+        borderDash: [6, 4],
+        hideZeroSegments: true,
+      )
+    end
   end
 
   describe 'when no sensor has data' do

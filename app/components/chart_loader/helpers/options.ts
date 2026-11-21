@@ -2,6 +2,7 @@
 import type { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
 
 import type { PowerBalanceFlags } from './power_balance';
+import { bandLowerValue } from './tooltip_utils';
 import type { DatasetWithId, TimeScaleOptions, TooltipConfig } from './types';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -95,6 +96,10 @@ export const configureChartTooltip = (
   tooltip.filter = (tooltipItem: TooltipItem<ChartType>): boolean => {
     const dataset = tooltipItem.dataset as DatasetWithId;
     if (dataset.tooltip === false) return false;
+
+    // A band without width has nothing to add to the line it surrounds. The
+    // server makes both limits equal where the band has no width.
+    if (bandLowerValue(tooltipItem) === tooltipItem.raw) return false;
 
     if (dataset.id === 'inverter_power') {
       const timestamp = getTimestamp(tooltipItem);

@@ -162,6 +162,23 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   FLASH_DOT_HEADROOM = POINT_HOVER_RADIUS + 1
   private_constant :FLASH_DOT_HEADROOM
 
+  # The line of the PV forecast, alone or as the edge of a hatched area. A
+  # darker (light theme) or lighter (dark theme) tone keeps it visible next to
+  # the area of the actual generation.
+  #
+  # On a grid finer than the forecast, the points of the forecast have empty
+  # points between them. A numeric spanGaps of Chart.js never bridges an empty
+  # point, so only true draws this line. The night stays invisible, as a
+  # stretch between two zero values.
+  FORECAST_LINE_STYLE = {
+    borderWidth: 2,
+    borderDash: [6, 4],
+    contrastLine: true,
+    spanGaps: true,
+    hideZeroSegments: true,
+  }.freeze
+  public_constant :FORECAST_LINE_STYLE
+
   def layout_options
     { padding: { right: FLASH_DOT_HEADROOM } } if timeframe.now?
   end
@@ -935,14 +952,15 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
     holds_value? ? HOLD_MS : SPAN_GAPS_MS
   end
 
-  # Chart.js spanGaps value for a specific dataset, mirroring the server-side
-  # bridge limit so the client connects line points across gaps up to the
-  # same threshold the server interpolated. Numeric spanGaps with a time
-  # scale also gates the segment between *consecutive non-null* points: if
-  # their X-distance exceeds the value, Chart.js breaks the line. A fixed
-  # floor (e.g. 5 min) would therefore hide every step of a 15-min sensor.
-  # Returning the adaptive limit keeps fast-poll outage detection while
-  # letting sparse cadences (forecast, slow-poll sensors) still render.
+  # Chart.js spanGaps value for a specific dataset. A number never bridges an
+  # empty point: Chart.js breaks the line at every null, whatever the number.
+  # It only adds a break between two neighbouring entries whose X-distance
+  # exceeds it. The server bridges the short gaps itself (#process_gaps), so
+  # the line stays whole up to the same limit and breaks at a longer outage.
+  # On a grid at the cadence of the sensor, a fixed floor (e.g. 5 min) would
+  # break every step of a 15-min sensor, so the limit adapts to the cadence.
+  # A dataset that keeps empty points on a finer grid, like the forecast,
+  # needs true instead (see Concerns::ForecastBand).
   # Passing 0 is *not* "span nothing" -- Chart.js reads it as a 0 ms
   # threshold and breaks the line at every point. Collapse a zero
   # #gap_bridge_limit to false (the Chart.js default: never span, but still

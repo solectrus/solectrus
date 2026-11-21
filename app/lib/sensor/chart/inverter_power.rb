@@ -1,4 +1,7 @@
 class Sensor::Chart::InverterPower < Sensor::Chart::Base
+  include Sensor::Chart::Concerns::RemainingForecast
+  prepend Sensor::Chart::Concerns::ForecastBand
+
   def initialize(timeframe:, variant: nil)
     super(timeframe:)
     @variant = variant
@@ -97,14 +100,19 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     end
   end
 
-  # For today and hours-based timeframes (P24H/P48H/P72H): forecast as hatched
-  # area on today, plain line on hours-based; clearsky line if not stacked.
+  # For today and hours-based timeframes (P24H/P48H/P72H): forecast as dashed
+  # line, in the stacked view as hatched area on today; clearsky line and
+  # variability band if not stacked. The band shows only after now, so only a
+  # day that is not over has one.
   # For other days: forecast lines only in non-stacked view.
   def forecast_sensors
     return [] unless show_forecast?
 
     names = [:inverter_power_forecast]
-    names << :inverter_power_forecast_clearsky unless stackable?
+    unless stackable?
+      names << :inverter_power_forecast_clearsky
+      names.push(*BAND_SENSOR_NAMES) if timeframe.day? && !timeframe.past?
+    end
     names.select { |name| Sensor::Config.exists?(name) }
   end
 
@@ -150,50 +158,16 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
         colorClass: sensor.color_background,
       }
     when :inverter_power_forecast
-      timeframe.today? ? hatched_forecast_style(sensor) : super.merge(spanGaps: true)
+      # The stacked view has no band, so its forecast stays hatched
+      if stackable?
+        remaining_forecast_style(sensor)
+      else
+        super.merge(forecast_line_style)
+      end
     else
       super.merge(
         noGradient: stackable?,
       )
-    end
-  end
-
-  # Hatched fill style for remaining forecast area
-  def hatched_forecast_style(sensor)
-    {
-      tension: 0.4,
-      cubicInterpolationMode: 'monotone',
-      borderWidth: 0.3,
-      colorClass: sensor.color_background,
-      fill: true,
-      noGradient: true,
-      hatchFill: true,
-      spanGaps: true,
-    }
-  end
-
-  # Build forecast data item with past values masked (nil)
-  def build_remaining_forecast_data_item(sensor_name)
-    points_hash =
-      series.public_send(sensor_name, *aggregations_for_sensor(sensor_name))
-    return empty_dataset(sensor_name) unless points_hash
-
-    sorted_points = points_hash.sort_by { |time_key, _| time_key }
-
-    {
-      sensor_name:,
-      labels: sorted_points.map { |time_key, _| timestamp_to_ms(time_key) },
-      data: mask_past_values(sorted_points, sensor_name),
-    }
-  end
-
-  # Set past values to nil so only future forecast is displayed
-  def mask_past_values(sorted_points, sensor_name)
-    now = Time.current
-    data_values = transform_data(sorted_points.map(&:second), sensor_name)
-
-    sorted_points.zip(data_values).map! do |(time_key, _), value|
-      normalize_timestamp(time_key) >= now ? value : nil
     end
   end
 end

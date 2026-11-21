@@ -10,7 +10,7 @@ import {
   numberFormatter,
 } from './formatting';
 import { isTemperatureDataset, tooltipRange } from './tooltip_range';
-import { perRender } from './tooltip_utils';
+import { bandLowerValue, perRender } from './tooltip_utils';
 import type {
   ChartDataWithAverages,
   ChartPointExtras,
@@ -222,6 +222,11 @@ export const buildTooltipCallbacks = (
         const { min, max } = tooltipItem.parsed._custom;
         return label + formatInterval(min, max, formattedValue);
       }
+
+      // A band shows both ends as well, its lower end from its fill target
+      const lower = bandLowerValue(tooltipItem);
+      if (lower !== null && parsedValue !== null)
+        return label + formatInterval(lower, parsedValue, formattedValue);
 
       if (
         isHeatingStack &&

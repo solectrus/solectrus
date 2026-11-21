@@ -114,6 +114,8 @@ de:
     inverter_power_difference: Ohne Zuordnung
     inverter_power_forecast: Erwartete Erzeugung
     inverter_power_forecast_clearsky: Bei klarem Himmel
+    inverter_power_forecast_min: PV-Prognose (Untergrenze)
+    inverter_power_forecast_max: PV-Prognose (Obergrenze)
     house_power: "Haus\u00ADverbrauch"
     house_power_without_custom: Andere Verbraucher
     wallbox_power: E-Auto
@@ -372,6 +374,7 @@ de:
     expect_remaining_html: Erwartet werden noch %{value}
     unknown: Keine Prognose verfügbar
     today_and_tomorrow: Heute und morgen
+    range: Spanne
   login:
     title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.
@@ -839,6 +842,8 @@ de:
     inverter_power_difference: 'Erzeugung ohne Zuordnung zu einem einzelnen String (Rundungs-/Restanteil).'
     inverter_power_forecast: 'Prognostizierte PV-Erzeugung.'
     inverter_power_forecast_clearsky: 'Theoretische PV-Erzeugung bei klarem Himmel (ohne Wolken).'
+    inverter_power_forecast_min: 'Untergrenze der prognostizierten PV-Erzeugung (Spanne um die PV-Prognose).'
+    inverter_power_forecast_max: 'Obergrenze der prognostizierten PV-Erzeugung (Spanne um die PV-Prognose).'
     inverter_power_total: 'Summierte PV-Erzeugung über alle konfigurierten Wechselrichter.'
     specific_yield: 'Spezifischer Ertrag: PV-Erzeugung bezogen auf die installierte Leistung (pro kWp).'
     house_power: 'Gesamter Hausverbrauch (Strom).'

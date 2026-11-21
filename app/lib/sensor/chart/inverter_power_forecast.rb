@@ -2,11 +2,13 @@ module Sensor
   module Chart
     class InverterPowerForecast < Base
       include Concerns::Forecast
+      prepend Concerns::ForecastBand
 
-      FORECAST_SENSOR_NAMES = %i[
-        inverter_power
-        inverter_power_forecast
-        inverter_power_forecast_clearsky
+      FORECAST_SENSOR_NAMES = [
+        :inverter_power,
+        :inverter_power_forecast,
+        :inverter_power_forecast_clearsky,
+        *BAND_SENSOR_NAMES,
       ].freeze
       public_constant :FORECAST_SENSOR_NAMES
 
@@ -89,6 +91,8 @@ module Sensor
         when :inverter_power
           # Actual power: solid line with fill
           super.merge(fill: true)
+        when :inverter_power_forecast
+          super.merge(forecast_line_style)
         else
           super
         end

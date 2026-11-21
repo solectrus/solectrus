@@ -2,7 +2,13 @@
 import { Chart, ChartData, ChartDataset, ChartType } from 'chart.js';
 
 import ChartBackgroundGradient from '@/utils/chartGradientDefault';
-import { resolveColor, colorToRgba, lightenColor, toRgb } from '@/utils/color';
+import {
+  resolveColor,
+  colorToRgba,
+  darkenColor,
+  lightenColor,
+  toRgb,
+} from '@/utils/color';
 
 import type {
   ChartDataWithOverlap,
@@ -53,9 +59,22 @@ export class ColorManager {
     // Resolve colorClass to actual CSS colors
     for (const dataset of data.datasets) {
       const datasetWithId = dataset as DatasetWithId;
+      if (datasetWithId.hideZeroSegments) this.hideZeroSegments(dataset);
+
       // A faint line can be stronger on the dark background
       if (isDarkTheme && typeof datasetWithId.darkOpacity === 'number')
         datasetWithId.opacity = datasetWithId.darkOpacity;
+      if (
+        isDarkTheme &&
+        datasetWithId.darkFillOpacity !== undefined &&
+        datasetWithId.fillOpacity
+      ) {
+        const factor =
+          datasetWithId.darkFillOpacity / datasetWithId.fillOpacity;
+        datasetWithId.fillOpacity = datasetWithId.darkFillOpacity;
+        if (datasetWithId.fillOpacityBottom !== undefined)
+          datasetWithId.fillOpacityBottom *= factor;
+      }
       const opacity =
         typeof datasetWithId.opacity === 'number'
           ? datasetWithId.opacity
@@ -70,8 +89,9 @@ export class ColorManager {
           datasetWithId.tooltipColor = resolvedColor;
           const lineDataset = dataset as ChartDataset<'line'>;
           const isStacked = lineDataset.stack !== undefined;
-          const baseLineColor =
-            isStacked || isDarkTheme
+          const baseLineColor = datasetWithId.contrastLine
+            ? this.contrastColor(resolvedColor, isDarkTheme)
+            : isStacked || isDarkTheme
               ? (lightenColor(resolvedColor, lineColorFactor) ?? resolvedColor)
               : resolvedColor;
           const lineColor =
@@ -95,6 +115,37 @@ export class ColorManager {
               const { ctx, chartArea } = context.chart;
               if (!chartArea) return;
               return this.createHatchPattern(ctx, resolvedColor);
+            };
+            dataset.borderColor = lineColor;
+            continue;
+          }
+
+          // A faint fill below a line fades out toward the foot of the chart,
+          // while the line stays solid. The default gradient leaves it alone.
+          if (datasetWithId.fillOpacity !== undefined) {
+            const topColor = colorToRgba(
+              resolvedColor,
+              datasetWithId.fillOpacity,
+            );
+            const fadedColor = colorToRgba(
+              resolvedColor,
+              datasetWithId.fillOpacityBottom ?? 0,
+            );
+            dataset.backgroundColor = (context: {
+              chart: Chart;
+            }): CanvasGradient | string => {
+              const { ctx, chartArea } = context.chart;
+              if (!chartArea) return topColor;
+
+              const gradient = ctx.createLinearGradient(
+                0,
+                chartArea.top,
+                0,
+                chartArea.bottom,
+              );
+              gradient.addColorStop(0, topColor);
+              gradient.addColorStop(1, fadedColor);
+              return gradient;
             };
             dataset.borderColor = lineColor;
             continue;
@@ -128,13 +179,56 @@ export class ColorManager {
       if (
         maxValue > minValue &&
         !Array.isArray(dataset.backgroundColor) &&
-        !datasetWithId.noGradient
+        !datasetWithId.noGradient &&
+        datasetWithId.fillOpacity === undefined
       ) {
         // Apply gradient only when backgroundColor is a single color (not an array)
         // and noGradient is not set
         this.setDefaultGradient(dataset, minValue, maxValue, minAlpha);
       }
     }
+  }
+
+  // A line along zero has nothing to show, and with spanGaps it would bridge
+  // a night. Chart.js styles each pair of neighbouring points, the empty ones
+  // between the values included. So each pair between two zero values goes
+  // transparent. The server makes a value next to the night exactly zero.
+  private hideZeroSegments(dataset: ChartDataset): void {
+    const values = dataset.data.map((value) => this.extractLineValue(value));
+    const isZero = (value: number | null) => value === 0;
+
+    const hidden = values.map(() => false);
+    let last: number | undefined;
+    values.forEach((value, index) => {
+      if (value === null) return;
+      if (last !== undefined && isZero(values[last]) && isZero(value))
+        hidden.fill(true, last, index);
+      last = index;
+    });
+
+    this.mergeSegment(dataset, {
+      borderColor: ({ p0DataIndex }) =>
+        hidden[p0DataIndex] ? 'transparent' : undefined,
+    });
+  }
+
+  // Several features style the segments of one line, so each one adds its
+  // own callbacks instead of replacing those of the others
+  private mergeSegment(
+    dataset: ChartDataset,
+    segment: NonNullable<ChartDataset<'line'>['segment']>,
+  ): void {
+    const lineDataset = dataset as ChartDataset<'line'>;
+    lineDataset.segment = { ...lineDataset.segment, ...segment };
+  }
+
+  // A line that stands out from an area of its own color: darker on the light
+  // theme, lighter on the dark one
+  private contrastColor(color: string, isDarkTheme: boolean): string {
+    return (
+      (isDarkTheme ? lightenColor(color, 0.5) : darkenColor(color, 0.45)) ??
+      color
+    );
   }
 
   private getMinAlpha(data: ChartData): number {
