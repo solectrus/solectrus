@@ -1,6 +1,7 @@
 {
   "name": "solectrus",
   "private": true,
+  "packageManager": "bun@1.4.5",
   "scripts": {
     "lint": "eslint --cache .",
     "format": "bun fmt",
