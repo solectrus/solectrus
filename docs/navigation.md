@@ -24,7 +24,7 @@ Left of the name, a home page has a button for its trends (`Timeframe::TrendsBut
 
 The live view shows no period. Its arrows stay in the page, hidden, because the swipe takes its pages from them. So a swipe on the live view leads to yesterday and to the forecast. A comparison of the years shows no period either, because the menu of its tab picks the comparison.
 
-The lists of the car have no tabs. Their period stands at the top of the list, below the title bar. On the car page and on its lists, the cars follow below the period as chips (`Ui::Chips`). On the forecast, the period names the next days. Its tabs, the arrow back to today and its timeframe select belong to the view that led to the forecast. The desktop keeps the tabs and the timeframe with its arrows in the header.
+The lists of the car have no tabs. Their period stands at the top of the list, below the title bar. On the car page and on its lists, the cars follow below the period as chips (`Ui::Chips`). On the forecast, the period first names today and tomorrow. The arrow to the right shows all days of the forecast, and its arrow back returns to today and tomorrow. The tabs, the arrow back from today and tomorrow and the timeframe select belong to the view that led to the forecast. The desktop keeps the tabs and the timeframe with its arrows in the header.
 
 In the timeframe select, each field of a day, a week, a month and a year has two buttons. The first selects the period that it shows. The chevron opens the picker for another one. On the forecast, the select marks the forecast and none of the fields.
 

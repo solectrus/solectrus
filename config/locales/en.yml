@@ -371,6 +371,7 @@ en:
     expect_html: '%{value} expected'
     expect_remaining_html: '%{value} still expected'
     unknown: No forecast available
+    today_and_tomorrow: Today and tomorrow
   login:
     title: Log in as admin
     missing_password_error: Unable to log in because no password has been configured.

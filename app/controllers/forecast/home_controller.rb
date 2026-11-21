@@ -2,8 +2,13 @@ class Forecast::HomeController < ApplicationController
   # The period of a phone opens the timeframe select here
   include TimeframeSelectModal
 
+  # The page shows today and tomorrow first, the days after them on request
+  SHORT_DAYS = 2
+  private_constant :SHORT_DAYS
+
   def index
     return redirect_to(root_path) unless Sensor::Config.exists?(:inverter_power_forecast)
+    return redirect_to(forecast_path) if all_days? && !more_days?
 
     # Render HTML page with lazy frame placeholders
     render
@@ -11,17 +16,34 @@ class Forecast::HomeController < ApplicationController
 
   private
 
-  helper_method def days
-    @days ||=
-      begin
-        max_date =
-          Sensor::Query::ForecastAvailability.new(
-            :inverter_power_forecast,
-            :outdoor_temp_forecast,
-          ).call(limit: 7.days)
+  # Only the route /forecast/all sets it, not a query parameter
+  def all_days? = request.path_parameters[:range] == 'all'
 
-        max_date ? ((max_date - Date.current).to_i + 1).clamp(2..) : nil
-      end
+  # Whether the forecast has days after tomorrow
+  def more_days? = available_days.to_i > SHORT_DAYS
+
+  helper_method def days
+    all_days? ? available_days : (SHORT_DAYS if available_days)
+  end
+
+  # The days the forecast has: today and up to 7 more, as far as the query
+  # looks ahead. A day counts once the forecast reaches its afternoon.
+  def available_days
+    return @available_days if defined?(@available_days)
+
+    max_date =
+      Sensor::Query::ForecastAvailability.new(
+        :inverter_power_forecast,
+        :outdoor_temp_forecast,
+      ).call(limit: 7.days)
+
+    @available_days = max_date ? ((max_date - Date.current).to_i + 1).clamp(SHORT_DAYS..) : nil
+  end
+
+  def period_name
+    return title unless days
+
+    all_days? ? t('forecast.next_days', count: days) : t('forecast.today_and_tomorrow')
   end
 
   helper_method def timeframe
@@ -35,13 +57,17 @@ class Forecast::HomeController < ApplicationController
     t('forecast.title')
   end
 
-  # The period of a phone, as the home pages have it (see
-  # Timeframe::Pager::Component). It opens the timeframe select, which marks
-  # the forecast. The arrow back to today leads to the page that led here.
+  # The period, as the home pages have it (see Timeframe::Pager::Component).
+  # It opens the timeframe select, which marks the forecast. The arrows lead
+  # from today to today and tomorrow, and from there to all days. Back from
+  # today and tomorrow is the page that led here.
   helper_method def pager_items
     {
-      period: { name: days ? t('forecast.next_days', count: days) : title, href: forecast_path },
-      arrows: { prev: timeframe_page.path('day') },
+      period: { name: period_name, href: forecast_path },
+      arrows: {
+        prev: all_days? ? forecast_path : timeframe_page.path('day'),
+        next: (forecast_all_path if !all_days? && more_days?),
+      },
     }
   end
 

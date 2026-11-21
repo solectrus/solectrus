@@ -1,7 +1,9 @@
 describe Forecast::HomeController do
   let(:controller) { described_class.new }
 
-  describe '#days' do
+  # The days the forecast has. The page shows two of them first, see the
+  # request spec.
+  describe '#available_days' do
     let(:availability_query) do
       instance_double(Sensor::Query::ForecastAvailability)
     end
@@ -17,7 +19,7 @@ describe Forecast::HomeController do
       before { allow(availability_query).to receive(:call).and_return(nil) }
 
       it 'returns nil' do
-        expect(controller.__send__(:days)).to be_nil
+        expect(controller.__send__(:available_days)).to be_nil
       end
     end
 
@@ -29,7 +31,7 @@ describe Forecast::HomeController do
       end
 
       it 'returns 5 days' do
-        expect(controller.__send__(:days)).to eq(5)
+        expect(controller.__send__(:available_days)).to eq(5)
       end
     end
 
@@ -39,7 +41,19 @@ describe Forecast::HomeController do
       end
 
       it 'returns 2 days (clamped minimum)' do
-        expect(controller.__send__(:days)).to eq(2)
+        expect(controller.__send__(:available_days)).to eq(2)
+      end
+    end
+
+    context 'when forecast data is available for a full day a week ahead' do
+      before do
+        allow(availability_query).to receive(:call).and_return(
+          Date.current + 7.days,
+        )
+      end
+
+      it 'returns today and the next 7 days' do
+        expect(controller.__send__(:available_days)).to eq(8)
       end
     end
   end

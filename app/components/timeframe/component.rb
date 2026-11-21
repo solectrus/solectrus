@@ -1,13 +1,14 @@
 class Timeframe::Component < ViewComponent::Base
   # A page that is not a sensor page gives its own addresses as `page`, see
-  # TimeframePage::Sensor
-  def initialize(timeframe:, forecast_days: nil, page: nil)
+  # TimeframePage::Sensor. The forecast gives its period and its arrows as
+  # `forecast`, in the shape of Timeframe::Pager::Component.
+  def initialize(timeframe:, forecast: nil, page: nil)
     super()
     @timeframe = timeframe
-    @forecast_days = forecast_days
+    @forecast = forecast
     @page = page
   end
-  attr_reader :timeframe, :forecast_days
+  attr_reader :timeframe, :forecast
 
   def page
     @page ||= TimeframePage::Sensor.new(
@@ -20,14 +21,14 @@ class Timeframe::Component < ViewComponent::Base
   delegate :label_for_all, to: :page
 
   def forecast_mode?
-    forecast_days.present?
+    forecast.present?
   end
 
   # The period for the bottom sheet of a tooltip, which repeats it
   # (utils/tooltipSheet.ts). A phone hides this navigation and shows
   # Timeframe::Pager::Component instead, but the sheet reads it here too.
   def period_name
-    forecast_mode? ? t('forecast.next_days', count: forecast_days) : timeframe.localized
+    forecast_mode? ? forecast.dig(:period, :name) : timeframe.localized
   end
 
   # First and last date of a period whose name does not say them. The
@@ -53,20 +54,20 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   # Check if backward navigation is possible
-  # - in forecast mode (back to today), or
+  # - in forecast mode (back to today, or to today and tomorrow), or
   # - previous timeframe exists
   def can_navigate_backward?
     forecast_mode? || timeframe.prev
   end
 
   # Check if forward navigation is possible
-  # Forward navigation into the future is only allowed for:
-  # - not in forecast mode
+  # In forecast mode, if the forecast has a period after this one.
+  # Otherwise, forward navigation into the future is only allowed for:
   # - inverter category sensors (no other sensors support future data)
   # - day timeframe only (not week, month, year, etc.)
   # - and next timeframe exists
   def can_navigate_forward?
-    return false if forecast_mode?
+    return next_path.present? if forecast_mode?
 
     if timeframe.next
       true
@@ -76,7 +77,7 @@ class Timeframe::Component < ViewComponent::Base
   end
 
   def next_path
-    return if forecast_mode?
+    return forecast.dig(:arrows, :next) if forecast_mode?
 
     if timeframe.next
       page.path(timeframe.next)
@@ -87,7 +88,7 @@ class Timeframe::Component < ViewComponent::Base
 
   def prev_path
     if forecast_mode?
-      balance_home_path(sensor_name: 'inverter_power', timeframe: 'day')
+      forecast.dig(:arrows, :prev)
     else
       page.path(timeframe.prev)
     end

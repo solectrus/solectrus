@@ -371,6 +371,7 @@ de:
     expect_html: Erwartet werden %{value}
     expect_remaining_html: Erwartet werden noch %{value}
     unknown: Keine Prognose verfügbar
+    today_and_tomorrow: Heute und morgen
   login:
     title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.

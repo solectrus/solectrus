@@ -16,8 +16,8 @@ describe 'Forecast' do
     # Check that forecast timeframe navigation is present
     expect(page).to have_css('#forecast-timeframe')
 
-    # The page should show timeframe navigation
-    expect(page).to have_text('Die nächsten 3 Tage')
+    # The page shows today and tomorrow first
+    expect(page).to have_text('Heute und morgen')
 
     # Check that the inverter power forecast chart is loaded and displayed
     within('#inverter-power-forecast-chart') do
@@ -28,6 +28,20 @@ describe 'Forecast' do
     within('#outdoor-temp-forecast-chart') do
       expect(page).to have_css('canvas')
     end
+  end
+
+  it 'switches between today and tomorrow and all days' do
+    visit '/forecast'
+
+    within('#forecast-timeframe') { find('a[data-nav=next]').click }
+
+    expect(page).to have_current_path('/forecast/all')
+    expect(page).to have_text('Die nächsten 3 Tage')
+
+    within('#forecast-timeframe') { find('a[data-nav=prev]').click }
+
+    expect(page).to have_current_path('/forecast')
+    expect(page).to have_text('Heute und morgen')
   end
 
   it 'navigates to day view from forecast page' do

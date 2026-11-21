@@ -21,6 +21,7 @@
 #                                   POST             /oauth/authorize(.:format)                                              oauth/authorizations#create
 #                       oauth_token POST             /oauth/token(.:format)                                                  oauth/tokens#create
 #                          forecast GET              /forecast(.:format)                                                     forecast/home#index
+#                      forecast_all GET              /forecast/all(.:format)                                                 forecast/home#index {range: "all"}
 #                    forecast_chart GET              /forecast/:id(.:format)                                                 forecast/charts#show {id: /inverter_power|outdoor_temp/}
 #                  cars_fuel_prices GET              /cars(/:car)/savings/fuel_prices(/:timeframe)(.:format)                 cars/fuel_prices#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
 #                      cars_savings GET              /cars(/:car)/savings(/:timeframe)(.:format)                             cars/savings#index {car: /\d/, timeframe: /\d{4}-\d{2}-\d{2}\.\.\d{4}-\d{2}-\d{2}|P\d{1,2}H|\d{4}-\d{2}-\d{2}|P\d{1,3}D|\d{4}-W\d{2}|\d{4}-\d{2}|P\d{1,2}M|\d{4}|P\d{1,2}Y|now|day|week|month|year|all/}
@@ -205,6 +206,8 @@ Rails.application.routes.draw do
   draw :mcp
 
   get '/forecast', to: 'forecast/home#index', as: :forecast
+  # All days the forecast has, while /forecast shows today and tomorrow
+  get '/forecast/all', to: 'forecast/home#index', as: :forecast_all, defaults: { range: 'all' }
 
   scope :forecast, module: :forecast do
     get '/:id',
