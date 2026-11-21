@@ -9,3 +9,22 @@ minimumReleaseAge = 259200 # seconds (3 days)
 # Run package binaries with Bun even if their shebang points to node. This
 # applies to `bun run` and `bun <bin>`, but not to `bunx`.
 bun = true
+
+[fmt]
+singleQuote = true
+sortTailwindcss = true
+# `bun fmt` already skips node_modules and the entries of .gitignore.
+ignorePatterns = [
+  ".ruby-lsp/",
+  "db/schema.rb",
+  "public/",
+  "spec/support/cassettes/",
+  "vendor/",
+  # Written by bin/llm-test, in the format the harness produces
+  "spec/llm_test/baselines/",
+  "spec/llm_test/results/",
+]
+
+[[fmt.overrides]]
+files = ["tsconfig.json"]
+options = { trailingComma = "none" }

@@ -3,9 +3,9 @@
   "private": true,
   "scripts": {
     "lint": "eslint --cache .",
-    "format": "prettier . --write --plugin=prettier-plugin-tailwindcss",
-    "format:check": "prettier . --check --plugin=prettier-plugin-tailwindcss",
-    "tsc": "tsc --noEmit"
+    "format": "bun fmt",
+    "format:check": "bun fmt --check",
+    "tsc": "bun check"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
@@ -36,10 +36,7 @@
     "@types/sinon": "^22.0.2",
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.7",
     "playwright": "^1.65.1",
-    "prettier": "^3.10.1",
-    "prettier-plugin-tailwindcss": "^0.8.1",
     "rails-vite-plugin": "^0.4.0",
     "sinon": "^22.1.0",
     "size-limit": "^14.3.0",

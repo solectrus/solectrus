@@ -15,8 +15,6 @@ Dockerfile
 # Editor, linter and tool configuration
 .annotaterb.yml
 .eslintcache
-.prettierignore
-.prettierrc.json
 .rspec
 .rubocop.yml
 .ruby-lsp

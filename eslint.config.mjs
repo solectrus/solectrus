@@ -1,12 +1,14 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
-import pluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+// Formatting belongs to `bun fmt`. This config only turns off the rules that
+// conflict with it.
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 export default [
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
-  pluginPrettierRecommended,
+  eslintConfigPrettier,
 
   {
     ignores: [

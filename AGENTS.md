@@ -31,7 +31,7 @@ After changing code, run the matching linter and fix what it reports:
 - Slim (`.slim`): `bin/slim-lint`
 - TypeScript (`.ts`): `bun run tsc` **and** `bun run lint` — both must pass
 - Shell (`.sh`): `shellcheck`
-- Markdown, JSON, YAML, CSS: `bun run format` (Prettier)
+- Markdown, JSON, YAML, CSS: `bun run format` (`bun fmt`)
 
 `bin/brakeman` before a release, or after a change to authentication, parameters
 or SQL.
