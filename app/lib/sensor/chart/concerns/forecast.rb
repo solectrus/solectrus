@@ -8,7 +8,10 @@ module Sensor
         NOON_HOUR = 12
         MS_PER_SECOND = 1000
 
-        public_constant :BOUNDARY_INTERVAL, :NOON_HOUR, :MS_PER_SECOND
+        # The step of the time series in both forecast charts
+        SERIES_INTERVAL = 15.minutes
+
+        public_constant :BOUNDARY_INTERVAL, :NOON_HOUR, :MS_PER_SECOND, :SERIES_INTERVAL
 
         def type
           'line'
@@ -38,6 +41,10 @@ module Sensor
                   enabled: true,
                   labels: x_axis_labels,
                 },
+                # A dashed line at the current time (chartPluginNowLine.ts),
+                # at the start of its step. There the measured values end and
+                # the band begins, so the line meets them.
+                nowLine: { enabled: true, step: SERIES_INTERVAL.in_milliseconds },
               ),
           )
         end
@@ -62,7 +69,7 @@ module Sensor
               chart_sensor_names,
               timeframe,
               timestamp_method: :to_time,
-              interval: 15.minutes,
+              interval: SERIES_INTERVAL,
             )
             .call(interpolate: true)
             &.tap { |result| add_series_boundaries!(result.raw_data) }

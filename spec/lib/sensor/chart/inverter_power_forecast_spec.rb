@@ -121,6 +121,10 @@ describe Sensor::Chart::InverterPowerForecast do
       )
     end
 
+    it 'marks the current time' do
+      expect(chart.options.dig(:plugins, :nowLine)).to eq(enabled: true, step: 15.minutes.in_milliseconds)
+    end
+
     it 'keeps the forecast values on the dataset (not silently dropped)' do
       forecast_dataset =
         chart.data[:datasets].find { |d| d[:id] == 'inverter_power_forecast' }

@@ -31,6 +31,7 @@ import zoomPlugin from 'chartjs-plugin-zoom';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';
 
 import { buildCustomXAxisPlugin } from '@/utils/chartPluginCustomXAxis';
+import { buildNowLinePlugin } from '@/utils/chartPluginNowLine';
 import { buildRoundedStackTopPlugin } from '@/utils/chartPluginRoundedStackTop';
 
 // Axes & styling
@@ -377,6 +378,7 @@ export default class extends Controller<HTMLCanvasElement> {
   private buildCustomPlugins(options: Record<string, unknown>): Plugin[] {
     return [
       ...buildCustomXAxisPlugin(options),
+      ...buildNowLinePlugin(options, this.getCssVar.bind(this)),
       buildRoundedStackTopPlugin(),
       buildAverageMarksPlugin(this.getCssVar.bind(this)),
     ];
