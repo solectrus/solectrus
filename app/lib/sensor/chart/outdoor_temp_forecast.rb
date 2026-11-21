@@ -209,6 +209,8 @@ module Sensor
           pointHitRadius: 6,
           colorScale: sensor.color_scale,
           opacity: 0.35,
+          # The dark colors of the scale vanish on the dark background
+          darkOpacity: 0.8,
           order: 0,
         }
       end

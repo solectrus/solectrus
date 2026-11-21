@@ -53,6 +53,9 @@ export class ColorManager {
     // Resolve colorClass to actual CSS colors
     for (const dataset of data.datasets) {
       const datasetWithId = dataset as DatasetWithId;
+      // A faint line can be stronger on the dark background
+      if (isDarkTheme && typeof datasetWithId.darkOpacity === 'number')
+        datasetWithId.opacity = datasetWithId.darkOpacity;
       const opacity =
         typeof datasetWithId.opacity === 'number'
           ? datasetWithId.opacity

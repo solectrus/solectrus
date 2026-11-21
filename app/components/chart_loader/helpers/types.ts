@@ -19,6 +19,8 @@ export type DatasetWithId = ChartDataset & {
   showTime?: boolean;
   noGradient?: boolean;
   opacity?: number;
+  // The opacity on the dark theme, instead of `opacity`
+  darkOpacity?: number;
   colorClass?: string;
   // A hex color that tints the color of colorClass, like the color of a car
   tintColor?: string;
