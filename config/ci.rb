@@ -50,7 +50,7 @@ ParallelCI.run do
     check 'Shell', "shellcheck $(git ls-files '*.sh')"
     check 'Markdown, JSON, YAML, CSS', 'bun run format:check'
     check 'Gem audit', 'bin/bundler-audit'
-    check 'JavaScript vulnerability audit', 'bun audit'
+    check 'JavaScript vulnerability audit', 'bin/bun-audit'
     check 'Brakeman code analysis', 'bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error'
 
     # slim-lint runs on one core and keeps no cache, so it is the slowest

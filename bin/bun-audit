@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+# JavaScript vulnerability audit, used by bin/ci and the security workflow.
+#
+# GHSA-rj75-hqrm-r3gf: postcss-selector-parser below 6.1.5, pinned by
+# @tailwindcss/typography. It only parses our own CSS at build time.
+# Remove the ignore when the plugin moves to 6.1.5.
+#
+# GHSA-g3hv-75wg-m249: minimatch below 11.0.1, required by eslint and
+# typescript-eslint. It only matches our own lint globs.
+# Remove the ignore when both allow minimatch 11.0.1.
+exec bun audit \
+  --ignore=GHSA-rj75-hqrm-r3gf \
+  --ignore=GHSA-g3hv-75wg-m249 \
+  "$@"
