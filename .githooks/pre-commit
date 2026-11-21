@@ -1,0 +1,14 @@
+#!/bin/sh
+# Formats the staged files with bun fmt and stages them again, so every
+# commit matches the format check, whoever writes it. bin/setup activates
+# this directory with `git config core.hooksPath .githooks`.
+#
+# bun fmt skips a file that has staged and unstaged changes and fails. The
+# commit then stops, so that no unstaged change goes into it.
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo 'pre-commit: bun not found, cannot format the staged files' >&2
+  exit 1
+fi
+
+exec bun fmt --staged

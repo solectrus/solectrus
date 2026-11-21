@@ -18,6 +18,9 @@ FileUtils.chdir APP_ROOT do
   # Install JavaScript dependencies
   system! 'bun install'
 
+  puts "\n== Activating Git hooks =="
+  system! 'git config core.hooksPath .githooks'
+
   # puts "\n== Copying sample files =="
   # unless File.exist?('config/database.yml')
   #   FileUtils.cp 'config/database.yml.sample', 'config/database.yml'
