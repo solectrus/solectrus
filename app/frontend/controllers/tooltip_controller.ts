@@ -121,6 +121,7 @@ export default class TooltipController extends Controller {
   declare delegateValue: boolean;
   declare sheetUrlValue: string;
   declare readonly hasHtmlTarget: boolean;
+  declare readonly htmlTarget: HTMLElement;
   declare readonly anchorTargets: HTMLElement[];
 
   private positionCleanup: (() => void) | null = null;
@@ -222,10 +223,11 @@ export default class TooltipController extends Controller {
     });
   }
 
+  // Only a target of this controller counts, not one of a tooltip nested
+  // inside it, like the values of a tile that holds a tooltip each
+  // (Heatpump::OutdoorTemps::Component)
   private getContent(): string {
-    const htmlTarget = this.element.querySelector(
-      '[data-tooltip-target="html"]',
-    );
+    const htmlTarget = this.hasHtmlTarget ? this.htmlTarget : null;
     if (htmlTarget?.innerHTML) return htmlTarget.innerHTML;
 
     // The label is plain text (it came from the title), but the content is
@@ -423,15 +425,9 @@ export default class TooltipController extends Controller {
     if (this.isVisible) return;
 
     const content = this.getContent();
-    const contentElement = this.hasHtmlTarget
-      ? this.element.querySelector('[data-tooltip-target="html"]')
-      : null;
+    const contentElement = this.hasHtmlTarget ? this.htmlTarget : undefined;
 
-    this.showTooltip(
-      this.element as HTMLElement,
-      content,
-      contentElement instanceof HTMLElement ? contentElement : undefined,
-    );
+    this.showTooltip(this.element as HTMLElement, content, contentElement);
   };
 
   private async showTooltip(
