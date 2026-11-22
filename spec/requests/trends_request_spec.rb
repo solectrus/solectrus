@@ -114,6 +114,22 @@ describe 'Trends' do
         expect(page).to have_css('.insights-comparison-diff.text-signal-positive', text: '+2.0 kWh')
       end
 
+      # The page of the same days a year before, out of the sheet
+      it 'leads from the earlier period to its page' do
+        get_insights
+
+        expect(page).to have_css('a.insights-row[data-turbo-frame="_top"][href="/inverter_power/2025-01"]', text: 'Jan 2025')
+      end
+
+      it 'leads from the days of a running year before to their page' do
+        stub_feature(:trends, :heatpump)
+        create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 2.0], [:heatpump_heating_power, :sum, 20_000]])
+        get insights_path(sensor_name: 'outdoor_temp', timeframe: '2026'),
+            headers: { 'Turbo-Frame' => 'sheet-page', 'Referer' => 'http://www.example.com/heatpump/2026' }
+
+        expect(page).to have_link(href: '/heatpump/outdoor_temp/2025-01-01..2025-02-28', class: 'insights-row')
+      end
+
       # The change of the values as they read, not "+0 kWh"
       it 'shows the change of the rounded values' do
         create_summary(date: Date.new(2025, 1, 1), values: [[:inverter_power, :sum, 10_740]])
@@ -189,7 +205,7 @@ describe 'Trends' do
         get insights_path(sensor_name: 'house_power', timeframe: '2026'),
             headers: { 'Turbo-Frame' => 'sheet-page', 'Referer' => 'http://www.example.com/2026' }
 
-        expect(page).to have_css('.insights-row', text: /2025\s*–/)
+        expect(page).to have_css('div.insights-row', text: /2025\s*–/)
         expect(page).to have_no_css('.insights-comparison-diff')
         expect(page).to have_no_css('.insights-month')
       end

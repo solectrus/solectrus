@@ -82,13 +82,11 @@ class Insights::Comparison::Component < ViewComponent::Base
 
   # The page of the sensor on a day. Its link leaves the sheet for the
   # page. The car page keeps the selected car.
-  def day_path(day)
-    if sensor.is_a?(Sensor::Definitions::CarPageChart)
-      helpers.cars_home_path(sensor_name: nil, timeframe: day.to_s, car: comparison.car_param)
-    else
-      page_path(day.to_s)
-    end
-  end
+  def day_path(day) = period_path(day.to_s)
+
+  # The page of the sensor in the earlier period, the same days as the
+  # current one (Trend.base_timeframe)
+  def base_path = period_path(base_timeframe.to_s)
 
   # The longest streak of a charged battery leads to its days on the page
   def row_path(row)
@@ -99,6 +97,14 @@ class Insights::Comparison::Component < ViewComponent::Base
   end
 
   private
+
+  def period_path(timeframe)
+    if sensor.is_a?(Sensor::Definitions::CarPageChart)
+      helpers.cars_home_path(sensor_name: nil, timeframe:, car: comparison.car_param)
+    else
+      page_path(timeframe)
+    end
+  end
 
   def page_path(timeframe) = url_for(sensor_name: sensor.name, timeframe:, controller: "#{@controller_namespace}/home")
 

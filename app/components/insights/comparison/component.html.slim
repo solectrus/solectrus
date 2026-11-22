@@ -6,7 +6,8 @@
           = text(total, total.current)
           - if (diff = value_change(total))
             span.insights-comparison-diff class=change_class(total) = diff
-      = render Insights::Row::Component.new(label: base_period) do
+      / Only a value leads to its page
+      = render Insights::Row::Component.new(label: base_period, url: (base_path if total.base), frame: '_top') do
         span.insights-comparison-base = text(total, total.base)
 
   - if months.any?
