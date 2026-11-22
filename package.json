@@ -6,7 +6,7 @@
     "lint": "eslint --cache .",
     "format": "bun fmt",
     "format:check": "bun fmt --check",
-    "tsc": "bun check"
+    "tsc": "tsc --noEmit"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
