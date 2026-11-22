@@ -62,9 +62,16 @@ end
 # - q.avg(sensor_name, base_aggregation = :avg)
 # - q.min(sensor_name, base_aggregation = :min)
 # - q.max(sensor_name, base_aggregation = :max)
+# - q.trend(sensor_name)  # As the trend of the sensor aggregates it
 #
 # - q.group_by(value)   # Optional: :day/:month/:week/:year for time series
 ```
+
+`q.trend` uses the aggregation of the trend of the sensor (see the `trend`
+option in `docs/sensor-reference.md`). A weighted trend asks for the
+meta-aggregation `weighted_avg`: each day counts by the daily sum of the
+weight sensor. The hours of InfluxDB have no days to weight, so there
+`q.trend` takes the plain aggregation.
 
 **Examples:**
 

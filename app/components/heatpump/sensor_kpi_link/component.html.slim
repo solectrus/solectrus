@@ -1,5 +1,9 @@
 = link_to link_url,
           class: css_class,
           data: link_data do
-  = render RectBadge::Component.new(title:) do
-    = render Sensor::Value::Component.new(data, sensor_name, context: sensor_value_context)
+  / Centered, so all tiles of the row keep their value in line
+  = render RectBadge::Component.new(title:, css_class: 'h-full justify-center') do
+    - if values?
+      = values
+    - else
+      = render Sensor::Value::Component.new(data, sensor_name, context: sensor_value_context)

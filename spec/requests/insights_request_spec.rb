@@ -87,6 +87,17 @@ describe 'Insights' do
       expect(page).to have_css('.insights-row', text: 'Maximum')
     end
 
+    # A figure derived from the days, so it comes last
+    it 'shows the outdoor temperature while heating in the last row' do
+      stub_feature(:trends, :heatpump)
+      create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 2.0], [:outdoor_temp, :min, -1.0], [:outdoor_temp, :max, 5.0], [:heatpump_heating_power, :sum, 30_000]])
+      create_summary(date: Date.new(2025, 1, 2), values: [[:outdoor_temp, :avg, 14.0], [:outdoor_temp, :min, 10.0], [:outdoor_temp, :max, 18.0], [:heatpump_heating_power, :sum, 0]])
+      get_insights('outdoor_temp')
+
+      expect(page.all('.insights-row').last.text.squish).to match(/\AWhile heating\s*2.0 °C\z/)
+      expect(page).to have_css('.tooltip-footnote', text: 'weighted by the heat')
+    end
+
     it 'shows the costs and the revenue of the grid' do
       Price.create!(name: :electricity, starts_at: Date.new(2024, 1, 1), amount_per_kwh: 0.3)
       Price.create!(name: :feed_in, starts_at: Date.new(2024, 1, 1), amount_per_kwh: 0.08)

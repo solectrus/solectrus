@@ -14,8 +14,10 @@ class Sensor::Definitions::OutdoorTemp < Sensor::Definitions::Base
 
   aggregations stored: %i[avg min max], top10: true
 
-  # The weather is neither better nor worse
-  trend aggregation: :avg, neutral: true
+  # The weather is neither better nor worse. For the heat pump, each day
+  # counts by the heat it made: a hot summer says nothing about the
+  # heating.
+  trend aggregation: :avg, neutral: true, weight: :heatpump_heating_power
 
   home_pages :heatpump
 

@@ -38,12 +38,25 @@ module Sensor
                 calculation =
                   adapt_sql_calculation_for_final(sensor, meta_agg, base_agg)
                 "#{calculation} AS #{final_column}"
+              elsif meta_agg == :weighted_avg
+                "#{weighted_avg(sensor, base_agg)} AS #{final_column}"
               else
                 # Standard sensors use meta-aggregation on base columns
                 column = daily_column(sensor, base_agg)
                 "#{meta_agg.upcase}(#{column}) AS #{final_column}"
               end
             end
+          end
+
+          # The average of the days, each counted by the daily sum of the
+          # weight sensor of its trend (see Sensor::Definitions::Dsl#trend). A
+          # day without the value or without the weight drops out, and without
+          # any weight there is no average at all.
+          def weighted_avg(sensor, base_agg)
+            column = "#{sensor.name}_#{base_agg}"
+            weight = "#{sensor.trend_weight}_sum"
+
+            "SUM(#{column} * #{weight}) / NULLIF(SUM(#{weight}) FILTER (WHERE #{column} IS NOT NULL), 0)"
           end
 
           # The daily value the meta-aggregation runs over.

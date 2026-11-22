@@ -80,6 +80,29 @@ describe Sensor::Query::Helpers::Sql::DslBuilder do
     end
   end
 
+  describe '#trend' do
+    it 'requests an average weighted by the heat of the heat pump' do
+      builder.trend :outdoor_temp
+
+      expect(builder.sensor_requests).to eq([%i[outdoor_temp weighted_avg avg]])
+    end
+
+    it 'averages every day alike without the weight sensor' do
+      allow(Sensor::Config).to receive(:exists?).and_call_original
+      allow(Sensor::Config).to receive(:exists?).with(:heatpump_heating_power, check_policy: false).and_return(false)
+
+      builder.trend :outdoor_temp
+
+      expect(builder.sensor_requests).to eq([%i[outdoor_temp avg avg]])
+    end
+
+    it 'uses the trend aggregation of a sensor without a weight' do
+      builder.trend :house_power
+
+      expect(builder.sensor_requests).to eq([%i[house_power sum sum]])
+    end
+  end
+
   describe '#group_by' do
     it 'sets group_by value' do
       builder.group_by :month

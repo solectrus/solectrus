@@ -18,6 +18,7 @@ describe TrendOverview::Changes do
         [:battery_discharging_power, :sum, 1_000],
         [:house_power, :sum, 4_000],
         [:outdoor_temp, :avg, 3.0],
+        [:heatpump_heating_power, :sum, 20_000],
       ],
     )
     create_summary(
@@ -30,6 +31,7 @@ describe TrendOverview::Changes do
         [:battery_discharging_power, :sum, 500],
         [:house_power, :sum, 3_600],
         [:outdoor_temp, :avg, 3.5],
+        [:heatpump_heating_power, :sum, 20_000],
       ],
     )
   end
@@ -115,9 +117,25 @@ describe TrendOverview::Changes do
       end
 
       it 'shows the difference from a base value of zero' do
-        create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 0.0]])
+        create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 0.0], [:heatpump_heating_power, :sum, 20_000]])
 
         expect(row(:outdoor_temp).change).to be_within(0.01).of(3.5)
+      end
+
+      # A warm day with little heat counts little, a day without heat not at
+      # all: (3.5 * 20 + 13.5 * 5) / 25 = 5.5 against 3.0
+      it 'weights the outdoor temperature by the heat of each day' do
+        create_summary(date: Date.new(2026, 1, 2), values: [[:outdoor_temp, :avg, 13.5], [:heatpump_heating_power, :sum, 5_000]])
+        create_summary(date: Date.new(2026, 1, 3), values: [[:outdoor_temp, :avg, 20.0], [:heatpump_heating_power, :sum, 0]])
+        create_summary(date: Date.new(2026, 1, 4), values: [[:outdoor_temp, :avg, 20.0]])
+
+        expect(row(:outdoor_temp).trend.current_value).to be_within(0.01).of(5.5)
+      end
+
+      it 'has no outdoor temperature for a period without heat' do
+        create_summary(date: Date.new(2026, 1, 1), values: [[:outdoor_temp, :avg, 3.5], [:heatpump_heating_power, :sum, 0]])
+
+        expect(row(:outdoor_temp).trend.current_value).to be_nil
       end
 
       # The weather is neither better nor worse

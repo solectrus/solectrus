@@ -67,9 +67,10 @@ class TrendOverview
   # Whether the sheet of the insights of this sensor opens with the
   # overview: the permission shows it, the page has one for the period, and
   # the sensor is one of the page or has a row in the overview, like a part
-  # of the grid
+  # of the grid, and its row leads there (see .insights?)
   def self.available?(page:, sensor:, timeframe:)
-    ApplicationPolicy.trends? && page_period?(page:, timeframe:) && overview_names(page).include?(sensor.name)
+    ApplicationPolicy.trends? && page_period?(page:, timeframe:) && overview_names(page).include?(sensor.name) &&
+      insights?(sensor, timeframe:)
   end
 
   # Whether the page has an overview for the period: a month or a year past
@@ -111,14 +112,26 @@ class TrendOverview
   # The parameter of an earlier period in a link, none for the default
   def self.base_param(base) = (base unless base == :previous_year)
 
+  # Whether a row leads to the insights of its sensor. The whole time has
+  # no earlier period, so a trend without details has no figures there
+  # (see Sensor::Definitions::Base#trend_details?).
+  def self.insights?(sensor, timeframe:) = !timeframe.all? || sensor.trend_details?
+
   # Whether the sensor sums up the rows below it (see TOTALS)
   def self.total?(sensor) = TOTALS.include?(sensor.name)
 
   # The name of a row and of the insights below it. On its own page, the
   # heat pump stands for its electricity, as the page calls it beside a
-  # name of its own (Heatpump::PowerCard::Component).
+  # name of its own (Heatpump::PowerCard::Component). A weighted trend
+  # names its weighted value, like the outdoor temperature while heating.
   def self.label(sensor, page:)
-    page.to_sym == :heatpump && sensor.name == :heatpump_power ? I18n.t('sensors.heatpump_power_short') : sensor.display_name
+    if page.to_sym == :heatpump && sensor.name == :heatpump_power
+      I18n.t('sensors.heatpump_power_short')
+    elsif sensor.trend_weighted?
+      sensor.weighted_name
+    else
+      sensor.display_name
+    end
   end
 
   # The sensors of the page and the parts of its net sensors, whose sheet

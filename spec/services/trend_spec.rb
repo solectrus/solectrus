@@ -107,6 +107,45 @@ describe Trend do
     end
   end
 
+  describe '.weighted_value' do
+    before do
+      travel_to Date.new(2026, 3, 1)
+      create_summary(date: Date.new(2026, 1, 1), values: [[:outdoor_temp, :avg, 2.0], [:heatpump_heating_power, :sum, 30_000]])
+      create_summary(date: Date.new(2026, 1, 2), values: [[:outdoor_temp, :avg, 14.0], [:heatpump_heating_power, :sum, 0]])
+    end
+
+    def weighted_value(name, timeframe) = described_class.weighted_value(Sensor::Registry[name], Timeframe.new(timeframe))
+
+    # The day without heat counts not at all
+    it 'weights the days of a period' do
+      expect(weighted_value(:outdoor_temp, '2026-01')).to eq(2.0)
+    end
+
+    it 'has none for a single day' do
+      expect(weighted_value(:outdoor_temp, '2026-01-01')).to be_nil
+    end
+
+    it 'has none for a sensor without a weighted trend' do
+      expect(weighted_value(:house_power, '2026-01')).to be_nil
+    end
+  end
+
+  describe '.first_date' do
+    subject { described_class.first_date(sensor, first_dates: SummaryValue.first_dates(described_class.summary_fields(sensor))) }
+
+    let(:sensor) { Sensor::Registry[:outdoor_temp] }
+
+    before do
+      create_summary(date: Date.new(2023, 1, 1), values: [[:outdoor_temp, :avg, 3.0]])
+      create_summary(date: Date.new(2024, 7, 1), values: [[:outdoor_temp, :avg, 20.0], [:heatpump_heating_power, :sum, 5_000]])
+    end
+
+    # A day without heat does not count, so the trend begins with the heat
+    it 'begins a weighted trend with its weight' do
+      is_expected.to eq(Date.new(2024, 7, 1))
+    end
+  end
+
   describe '.new' do
     let(:sensor) { Sensor::Registry[:inverter_power] }
     let(:timeframe) { Timeframe.new('2025-04') }

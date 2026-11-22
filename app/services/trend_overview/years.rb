@@ -77,7 +77,7 @@ class TrendOverview::Years < TrendOverview
     @series ||=
       Sensor::Query::Total
         .new(timeframe) do |q|
-          sensor_names.each { q.public_send(Sensor::Registry[it].trend_aggregation, it) }
+          sensor_names.each { q.trend(it) }
           q.group_by :year
         end
         .call

@@ -404,7 +404,25 @@ trend more_is_better: true   # Rising values = better
 trend more_is_better: false  # Falling values = better
 trend                        # Default: more_is_better: false
 trend aggregation: :avg      # Default: :sum
+trend aggregation: :avg, weight: :heatpump_heating_power
 ```
+
+A `weight` counts each day of the average by the daily sum of another
+sensor. A day without that sum does not count. The outdoor temperature uses
+the heat of the heat pump, so a hot summer counts little. Without the weight
+sensor, every day counts alike.
+
+The weighted value has a name of its own, like "Outdoor temperature while
+heating". I18n holds it as `sensors.<name>_weighted`, with a short form
+`sensors.<name>_weighted_short`, and its explanation as
+`sensor_descriptions.<name>_weighted`.
+
+The insights of a weighted trend show the two values alone, without months,
+calendar or extreme days. The days, the calendar and the extreme days are
+plain values, which do not fit the name of the weighted value. The heat pump
+makes hot water on nearly every day, so in summer the days of a month weigh
+about the same, and a month shows the plain weather too. The whole time has
+no earlier period, so its row leads nowhere.
 
 ### Naming and Description
 

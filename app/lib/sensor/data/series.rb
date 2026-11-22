@@ -202,7 +202,7 @@ class Sensor::Data::Series < Sensor::Data::Base
   end
 
   def validate_aggregation!(element)
-    return if element.is_a?(Symbol) && %i[sum avg min max].include?(element)
+    return if element.is_a?(Symbol) && AGGREGATIONS.include?(element)
 
     raise ArgumentError, "Invalid aggregation: #{element.inspect}"
   end

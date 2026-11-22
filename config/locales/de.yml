@@ -171,6 +171,8 @@ de:
     heatpump_costs_short: Kosten
     outdoor_temp: Außentemperatur
     outdoor_temp_short: Außen
+    outdoor_temp_weighted: Außentemperatur beim Heizen
+    outdoor_temp_weighted_short: Beim Heizen
     outdoor_temp_forecast: Erwartete Außentemperatur
     self_consumption: Eigenverbrauch
     self_consumption_quote: Eigenverbrauchsquote
@@ -884,6 +886,7 @@ de:
     car_driving_costs: 'Energiekosten des E-Autos für die gefahrene Strecke: die gefahrenen Kilometer jedes Tages mal die Kosten pro 100 km der Tage um ihn herum.'
     wallbox_car_connected: 'Ob aktuell ein E-Auto an der Wallbox angeschlossen ist.'
     outdoor_temp: 'Außenlufttemperatur.'
+    outdoor_temp_weighted: 'Durchschnitt der Tagestemperaturen, gewichtet mit der Wärme, die die Wärmepumpe an jedem Tag erzeugt hat. Ein Tag mit 40 kWh zählt zehnmal so viel wie ein Tag mit 4 kWh.'
     outdoor_temp_forecast: 'Prognostizierte Außentemperatur.'
     co2_reduction: 'Vermiedene CO₂-Emissionen durch die eigene PV-Erzeugung.'
     self_consumption: 'Vor Ort verbrauchte PV-Erzeugung (nicht eingespeist).'

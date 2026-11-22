@@ -163,7 +163,10 @@
               timeframe:,
               css_class: kpi_link_classes,
               chart_url: heatpump_charts_path(sensor_name: 'outdoor_temp', timeframe:),
-            )
+            ) do |tile|
+            - if (heating = outdoor_temp_heating)
+              - tile.with_values do
+                = render Heatpump::OutdoorTemps::Component.new(average: data.outdoor_temp, heating:)
 
           = render Heatpump::SensorKpiLink::Component.new( \
               data:,

@@ -47,6 +47,7 @@ solid:
   - fan
   - file-invoice
   - filter
+  - fire
   - gauge
   - gear
   - gift
@@ -84,6 +85,7 @@ solid:
   - spinner
   - sun
   - table-list
+  - temperature-half
   - trash
   - triangle-exclamation
   - trophy

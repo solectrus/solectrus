@@ -25,8 +25,11 @@ class TrendOverview::Component < ViewComponent::Base
   def label(row) = TrendOverview.label(row.sensor, page: overview.page)
 
   # The insights of the sensor, which keep the parameters of the overview,
-  # like its earlier period
+  # like its earlier period. None where they have nothing to show (see
+  # TrendOverview.insights?).
   def href(row)
+    return unless TrendOverview.insights?(row.sensor, timeframe: overview.timeframe)
+
     helpers.insights_path(sensor_name: row.sensor.name, timeframe: overview.timeframe, **overview.link_params)
   end
 

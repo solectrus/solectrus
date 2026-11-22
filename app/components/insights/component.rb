@@ -17,6 +17,10 @@ class Insights::Component < ViewComponent::Base
     ApplicationPolicy.trends?
   end
 
+  # The weighted value of the sensor, like the outdoor temperature while
+  # heating (see Trend.weighted_value)
+  def weighted_value = Trend.weighted_value(sensor, timeframe)
+
   # The values of the tooltip, for a sensor and a period that a page shows the
   # user. Without the permission, a sensor that needs a permission of its own,
   # a sensor that only a page with a permission shows, or a relative period

@@ -107,6 +107,12 @@ describe Sensor::Definitions::Dsl do
     end
   end
 
+  describe '.trend' do
+    it 'needs the aggregation :avg for a weight' do
+      expect { Class.new(Sensor::Definitions::Base) { trend weight: :heatpump_heating_power } }.to raise_error(ArgumentError, 'A weight needs the aggregation :avg')
+    end
+  end
+
   describe '.allowed_aggregations' do
     it 'stores the given aggregations, flattened' do
       sensor_class = Class.new(Sensor::Definitions::Base) do

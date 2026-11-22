@@ -43,6 +43,14 @@ module Sensor
             @sensor_requests << [sensor_name, :max, base_aggregation]
           end
 
+          # The value of a sensor as its trend aggregates it, like the SQL
+          # builder does. A weighted trend counts each day by its weight,
+          # and the hours of InfluxDB have no days to weight, so it takes the
+          # plain aggregation.
+          def trend(sensor_name)
+            public_send(Sensor::Registry[sensor_name].trend_aggregation, sensor_name)
+          end
+
           private
 
           def validate_aggregation(sensor_name, aggregation)

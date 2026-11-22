@@ -159,11 +159,23 @@ module Sensor
         # A `neutral` trend has no better or worse, like the distance, which
         # follows the need. Its change shows without a color, and its years
         # have no best one.
-        def trend(more_is_better: false, neutral: false, aggregation: :sum)
+        #
+        # A `weight` makes an average count each day by the sum of another
+        # sensor that the summaries store, like the outdoor temperature by
+        # the heat of the heat pump (see Sql::DslBuilder#trend).
+        def trend(more_is_better: false, neutral: false, aggregation: :sum, weight: nil)
+          raise ArgumentError, 'A weight needs the aggregation :avg' if weight && aggregation != :avg
+
           meta_data[:trendable] = true
           meta_data[:more_is_better] = more_is_better
           meta_data[:neutral] = neutral
           meta_data[:trend_aggregation] = aggregation
+          meta_data[:trend_weight] = weight
+        end
+
+        # The sensor whose sum weights each day of the trend, nil for none
+        def trend_weight
+          meta_data[:trend_weight]
         end
 
         # Aggregations

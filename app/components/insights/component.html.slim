@@ -89,3 +89,11 @@
     / The calendar below the extremes, whose days it shows in context
     - if insights.heatmap_data
       = render Insights::Heatmap::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
+
+  / The weighted value, like the outdoor temperature while heating: a
+    figure derived from the days above, so it comes last
+  - if tooltip_values? && (weighted = weighted_value)
+    .tooltip-group
+      = render Insights::Row::Component.new(label: sensor.weighted_name(:short)) do
+        = render Sensor::Value::Component.new(weighted, sensor.name, context: :total)
+    p.tooltip-footnote = sensor.weighted_description

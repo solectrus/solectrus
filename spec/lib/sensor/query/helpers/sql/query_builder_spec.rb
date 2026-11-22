@@ -48,6 +48,12 @@ describe Sensor::Query::Helpers::Sql::QueryBuilder do
         expect(sql).to include('FROM daily')
       end
 
+      it 'fetches the daily sum of the weight of a weighted average' do
+        sql = described_class.new(sensor_requests: [%i[outdoor_temp weighted_avg avg]], timeframe:).call
+
+        expect(sql).to include("SUM(sv.value) FILTER (WHERE sv.aggregation = 'sum' AND sv.field = 'heatpump_heating_power')")
+      end
+
       it 'includes correct date range filtering' do
         builder =
           described_class.new(

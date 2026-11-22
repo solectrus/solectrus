@@ -29,4 +29,13 @@ describe Sensor::Query::Helpers::Influx::DslBuilder do
       )
     end
   end
+
+  # The hours of InfluxDB have no days to weight
+  describe '#trend' do
+    it 'takes the plain aggregation of a weighted trend' do
+      builder.trend :outdoor_temp
+
+      expect(builder.sensor_requests).to eq([%i[outdoor_temp avg avg]])
+    end
+  end
 end

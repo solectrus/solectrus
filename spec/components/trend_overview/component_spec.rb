@@ -56,7 +56,7 @@ describe TrendOverview::Component, type: :component do
   end
 
   it 'shows the difference of an average without a bar' do
-    temp_row = row_of(Sensor::Registry[:outdoor_temp].display_name)
+    temp_row = row_of('Outdoor temperature while heating')
 
     expect(temp_row.at_css('.trend-overview-track.is-empty')).to be_present
     expect(temp_row.at_css('.trend-overview-bar')).to be_nil

@@ -96,7 +96,7 @@ class TrendOverview::Changes < TrendOverview
   def totals(frame)
     Sensor::Query::Total
       .new(frame) do |q|
-        sensor_names.each { q.public_send(Sensor::Registry[it].trend_aggregation, it) }
+        sensor_names.each { q.trend(it) }
       end
       .call
   end

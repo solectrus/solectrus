@@ -124,7 +124,7 @@ class Sensor::Data::Single < Sensor::Data::Base
                 "Sensor name must be a Symbol, got #{element.class}: #{element.inspect}"
         end
       else
-        unless element.is_a?(Symbol) && %i[sum avg min max last].include?(element)
+        unless element.is_a?(Symbol) && AGGREGATIONS.include?(element)
           raise ArgumentError, "Invalid aggregation: #{element.inspect}"
         end
       end

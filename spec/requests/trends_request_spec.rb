@@ -140,6 +140,34 @@ describe 'Trends' do
         expect(page).to have_css('.insights-comparison-diff', text: '+0.1 kWh')
       end
 
+      # A warm day without heat counts not at all
+      it 'compares the outdoor temperature of the days with heat' do
+        stub_feature(:trends, :heatpump)
+        create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 2.0], [:heatpump_heating_power, :sum, 20_000]])
+        create_summary(date: Date.new(2026, 1, 1), values: [[:outdoor_temp, :avg, 3.0], [:heatpump_heating_power, :sum, 20_000]])
+        create_summary(date: Date.new(2026, 1, 2), values: [[:outdoor_temp, :avg, 15.0], [:heatpump_heating_power, :sum, 0]])
+        get insights_path(sensor_name: 'outdoor_temp', timeframe: '2026-01'),
+            headers: { 'Turbo-Frame' => 'sheet-page', 'Referer' => 'http://www.example.com/heatpump/2026-01' }
+
+        expect(page).to have_css('header', text: 'Outdoor temperature while heating')
+        expect(page).to have_css('.insights-row', text: /Jan 2026\s*3\.0\s*°C/)
+        expect(page).to have_css('.insights-comparison-diff', text: '+1.0 °C')
+      end
+
+      # In summer, the hot water weighs each day about the same, so a month or
+      # a day of the weighted temperature shows the plain weather
+      it 'shows the outdoor temperature of a year without its months and days' do
+        stub_feature(:trends, :heatpump)
+        create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 2.0], [:outdoor_temp, :min, -1.0], [:outdoor_temp, :max, 5.0], [:heatpump_heating_power, :sum, 20_000]])
+        create_summary(date: Date.new(2026, 1, 1), values: [[:outdoor_temp, :avg, 3.0], [:outdoor_temp, :min, 0.0], [:outdoor_temp, :max, 6.0], [:heatpump_heating_power, :sum, 20_000]])
+        get insights_path(sensor_name: 'outdoor_temp', timeframe: '2026'),
+            headers: { 'Turbo-Frame' => 'sheet-page', 'Referer' => 'http://www.example.com/heatpump/2026' }
+
+        expect(page).to have_css('.insights-comparison-diff', text: '+1.0 °C')
+        expect(page).to have_no_css('.insights-months, .insights-subpage')
+        expect(page).to have_no_text('Maximum')
+      end
+
       it 'compares with the month before' do
         get_insights(base: 'previous_period')
 

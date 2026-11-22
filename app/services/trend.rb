@@ -41,6 +41,24 @@ class Trend
   end
   private_class_method :shift
 
+  # The value of a sensor in a period, aggregated like its trend (see
+  # Sensor::Query::Helpers::Sql::DslBuilder#trend). Nil without a value.
+  def self.value(sensor, timeframe)
+    data = Sensor::Query::Total.new(timeframe) { it.trend(sensor.name) }.call
+    data.public_send(sensor.name) if data.respond_to?(sensor.name)
+  end
+
+  # The weighted value of a sensor in a period of days (see
+  # Sensor::Definitions::Dsl#trend), which a page shows beside the plain
+  # average. A single day has no other days to weight, and a sensor
+  # without a weighted trend has none.
+  def self.weighted_value(sensor, timeframe)
+    return unless sensor.trend_weighted?
+    return if timeframe.now? || timeframe.hours? || timeframe.days_passed <= 1
+
+    value(sensor, timeframe)
+  end
+
   # Whether the earlier period has data from its first day on, so it
   # compares as a whole. The year of the installation begins before the
   # first day of data and has fewer days, also where the period itself
@@ -51,19 +69,32 @@ class Trend
 
   # The first day of the summaries of a sensor, nil without one. A sensor
   # without summaries of its own counts from the first of the sensors it is
-  # calculated from. `first_dates` holds the first day of each field (see
+  # calculated from. A weighted trend begins no earlier than its weight: a
+  # day without it does not count (see Sensor::Definitions::Dsl#trend).
+  # `first_dates` holds the first day of each field (see
   # TrendOverview#first_dates).
   def self.first_date(sensor, first_dates:)
-    first_dates.values_at(*summary_fields(sensor).map(&:to_s)).compact.min
+    first = first_dates.values_at(*source_fields(sensor).map(&:to_s)).compact.min
+    return first unless sensor.trend_weighted?
+
+    weight_first = first_dates[sensor.trend_weight.to_s]
+    [first, weight_first].max if first && weight_first
   end
 
-  # The fields of the summaries that a sensor is calculated from
+  # The fields of the summaries that a sensor is calculated from, and the
+  # field that weights its trend
   def self.summary_fields(sensor)
+    fields = source_fields(sensor)
+    sensor.trend_weighted? ? fields | [sensor.trend_weight] : fields
+  end
+
+  def self.source_fields(sensor)
     Sensor::DependencyResolver
       .new(sensor.name, context: :sql)
       .resolve
       .select { Sensor::Registry[it].store_in_summary? }
   end
+  private_class_method :source_fields
 
   # `base_data` holds the values of the earlier period, which a caller
   # fetches once for all its sensors (see TrendOverview::Changes), and

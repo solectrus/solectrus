@@ -20,6 +20,16 @@ describe TrendOverview::Component, type: :component do
     expect(page.at_css('.trend-overview-row')[:href]).to eq('/insights/inverter_power/all')
   end
 
+  # The whole time has no comparison of the weighted average
+  context 'with the outdoor temperature' do
+    let(:years_row) { TrendOverview::Years::Row.new(sensor: Sensor::Registry[:outdoor_temp], values: { 2024 => 7.0, 2025 => 7.3 }, partial_years: []) }
+
+    it 'shows the row without a link' do
+      expect(page.css('div.trend-overview-row')).to be_present
+      expect(page.css('a, .trend-overview-chevron')).to be_empty
+    end
+  end
+
   context 'with a single complete year' do
     let(:values) { { 2025 => 10_000.0 } }
 

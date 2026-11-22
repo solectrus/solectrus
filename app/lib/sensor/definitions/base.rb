@@ -9,6 +9,7 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
            :summary_meta_aggregations,
            :summary_version,
            :trend_aggregation,
+           :trend_weight,
            :state?,
            to: :class
 
@@ -277,6 +278,29 @@ class Sensor::Definitions::Base # rubocop:disable Metrics/ClassLength
   # Whether the grid costs of this sensor contain the base fee of the tariff,
   # which a cost breakdown names then.
   def costs_carry_base_fee? = false
+
+  # Whether the trend weights its average (see Dsl#trend): only with the
+  # weight sensor. The weight only shapes the value, so it needs no
+  # permission.
+  def trend_weighted?
+    trend_weight.present? && Sensor::Config.exists?(trend_weight, check_policy: false)
+  end
+
+  # Whether the sheet of the trend shows the figures below the total. A
+  # weighted trend leaves them out. The days, the calendar and the lowest
+  # and the highest day are plain values, which do not fit the name of the
+  # weighted value. A month in summer, when its days weigh about the same,
+  # would show the plain value too.
+  def trend_details? = !trend_weighted?
+
+  # The name of the weighted value of the trend (see Dsl#trend), like
+  # "Outdoor temperature while heating"
+  def weighted_name(format = :long)
+    I18n.t(format == :short ? "sensors.#{name}_weighted_short" : "sensors.#{name}_weighted")
+  end
+
+  # How the weighted value of the trend comes about
+  def weighted_description = I18n.t("sensor_descriptions.#{name}_weighted")
 
   def sql_calculated?
     respond_to?(:sql_calculation)

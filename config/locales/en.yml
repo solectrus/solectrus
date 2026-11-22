@@ -171,6 +171,8 @@ en:
     heatpump_costs_short: Costs
     outdoor_temp: Outdoor temperature
     outdoor_temp_short: Outdoor
+    outdoor_temp_weighted: Outdoor temperature while heating
+    outdoor_temp_weighted_short: While heating
     outdoor_temp_forecast: Expected outdoor temperature
     grid_quote: Grid share
     total_consumption: Total consumption
@@ -884,6 +886,7 @@ en:
     car_driving_costs: 'Energy cost of the electric vehicle for the distance driven: the distance of each day times the cost per 100 km of the days around it.'
     wallbox_car_connected: 'Whether an electric vehicle is currently connected to the wallbox.'
     outdoor_temp: 'Outdoor air temperature.'
+    outdoor_temp_weighted: 'Average of the daily temperatures, weighted by the heat that the heat pump made on each day. A day with 40 kWh counts ten times as much as a day with 4 kWh.'
     outdoor_temp_forecast: 'Forecasted outdoor air temperature.'
     co2_reduction: 'Avoided CO₂ emissions thanks to PV self-generation.'
     self_consumption: 'PV generation consumed on-site (not exported).'

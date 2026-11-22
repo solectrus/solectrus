@@ -18,6 +18,8 @@ class Heatpump::StatsController < ApplicationController
 
   private
 
+  helper_method def outdoor_temp_heating = Trend.weighted_value(Sensor::Registry[:outdoor_temp], timeframe)
+
   def refresh_summaries_if_needed
     return if timeframe.now? || timeframe.hours?
 

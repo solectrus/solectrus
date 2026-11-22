@@ -5,8 +5,8 @@ describe TrendOverview do
   end
 
   describe '.available?' do
-    def available?(sensor_name, page: :balance)
-      described_class.available?(page:, sensor: Sensor::Registry[sensor_name], timeframe: Timeframe.new('2026-01'))
+    def available?(sensor_name, page: :balance, timeframe: Timeframe.new('2026-01'))
+      described_class.available?(page:, sensor: Sensor::Registry[sensor_name], timeframe:)
     end
 
     it 'is available for a sensor of the page' do
@@ -16,6 +16,13 @@ describe TrendOverview do
 
     it 'is available for a part of a net sensor, which has a row' do
       expect(available?(:grid_import_power)).to be(true)
+    end
+
+    # The whole time has no earlier period to compare a weighted trend with
+    it 'is not available for a weighted trend of the whole time' do
+      expect(available?(:outdoor_temp, page: :heatpump)).to be(true)
+      expect(available?(:outdoor_temp, page: :heatpump, timeframe: Timeframe.all)).to be(false)
+      expect(available?(:grid_power, timeframe: Timeframe.all)).to be(true)
     end
 
     it 'is not available for a sensor of another page' do
@@ -72,6 +79,17 @@ describe TrendOverview do
 
       expect(described_class.label(sensor, page: 'heatpump')).to eq('Power consumption')
       expect(described_class.label(sensor, page: :balance)).to eq(sensor.display_name)
+    end
+
+    it 'calls the outdoor temperature by the heat that weights it' do
+      expect(described_class.label(Sensor::Registry[:outdoor_temp], page: :heatpump)).to eq('Outdoor temperature while heating')
+    end
+
+    it 'keeps the name of the outdoor temperature without the heat' do
+      allow(Sensor::Config).to receive(:exists?).and_call_original
+      allow(Sensor::Config).to receive(:exists?).with(:heatpump_heating_power, check_policy: false).and_return(false)
+
+      expect(described_class.label(Sensor::Registry[:outdoor_temp], page: :heatpump)).to eq('Outdoor temperature')
     end
   end
 

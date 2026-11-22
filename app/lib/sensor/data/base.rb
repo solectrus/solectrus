@@ -1,4 +1,10 @@
 class Sensor::Data::Base
+  # The aggregations a key can name, like [:house_power, :sum, :max]: the
+  # stored ones of a day, and the weighted average of a trend (see
+  # Sensor::Query::Helpers::Sql::DslBuilder#trend)
+  AGGREGATIONS = %i[sum avg weighted_avg min max last].freeze
+  public_constant :AGGREGATIONS
+
   # `times` maps a raw sensor name to the timestamp of its latest data point.
   # It is populated for "latest"-style reads (Sensor::Query::Latest) and lets
   # callers reason about per-sensor freshness; it defaults to {} otherwise.

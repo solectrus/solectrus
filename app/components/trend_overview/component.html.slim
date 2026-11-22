@@ -11,7 +11,9 @@
         ul.trend-overview-group
           - rows.each do |row|
             li
-              a.trend-overview-row href=href(row) data-nav-title=label(row)
+              - url = href(row)
+              = content_tag(url ? :a : :div, class: 'trend-overview-row', href: url, data: { nav_title: (label(row) if url) }) do
                 span.trend-overview-name = label(row)
                 = render trend(row)
-                = icon 'chevron-right', class: 'trend-overview-chevron'
+                - if url
+                  = icon 'chevron-right', class: 'trend-overview-chevron'

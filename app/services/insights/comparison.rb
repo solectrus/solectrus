@@ -59,11 +59,15 @@ class Insights::Comparison
     @total = row(:total, sensor.unit, ->(source) { value_of(source) })
   end
 
+  # Whether the figures below the total have a meaning (see
+  # Sensor::Definitions::Base#trend_details?)
+  def details? = sensor.trend_details?
+
   # The change of each month against the same month of the year before,
   # for a year alone and where it compares (see #base). A month has no row
   # without a value of its own.
   def months
-    return [] unless timeframe.year? && base
+    return [] unless timeframe.year? && base && details?
 
     @months ||= begin
       base_values = monthly(base)
@@ -75,12 +79,16 @@ class Insights::Comparison
 
   # The figures of the days, then and now
   def days
+    return [] unless details?
+
     @days ||= day_figures.filter_map { row(*it) }
   end
 
   # [key, day, value] of the lowest and the highest day of the period. A
   # single day says nothing about a trend, so it has no comparison.
   def extremes
+    return [] unless details?
+
     %i[minimum maximum].filter_map do |key|
       day = current.public_send(key, :date)
       [key, day, current.public_send(key, :value)] if day
@@ -94,6 +102,7 @@ class Insights::Comparison
   # grid (Insights::HeatmapTile::Component)
   def heatmap_data
     return @heatmap_data if defined?(@heatmap_data)
+    return @heatmap_data = nil unless details?
 
     @heatmap_data = (current_timeframe.equal?(timeframe) ? current : source(timeframe)).heatmap_data
   end
@@ -125,7 +134,8 @@ class Insights::Comparison
     @first_date = Trend.first_date(sensor, first_dates: SummaryValue.first_dates(Trend.summary_fields(sensor)))
   end
 
-  def value_of(insights) = insights.raw_value(sensor.name)
+  # The value of a period, aggregated like the trend of the overview
+  def value_of(source) = Trend.value(sensor, source.timeframe)
 
   # A figure is better with more, as its sensor, unless it says otherwise.
   # A neutral sensor rates its figures neither way.
@@ -158,7 +168,7 @@ class Insights::Comparison
     data =
       Sensor::Query::Total
         .new(source.timeframe) do |q|
-          q.public_send(sensor.trend_aggregation, sensor.name)
+          q.trend(sensor.name)
           q.group_by :month
         end
         .call

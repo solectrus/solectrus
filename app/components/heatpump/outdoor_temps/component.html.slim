@@ -1,0 +1,16 @@
+.flex.items-baseline.justify-center.divide-x.divide-slate-400/60.dark:divide-slate-600
+  span.inline-flex.items-baseline.gap-1.pr-2 data-controller='tooltip'
+    = icon 'temperature-half', class: 'self-center text-[0.55em] opacity-70'
+    span.sr-only = t('.average')
+    = render Sensor::Value::Component.new(average, :outdoor_temp, context: :total)
+    span.hidden data-tooltip-target='html'
+      strong = sensor.display_name
+      p.mt-1 = t('.average')
+  span.inline-flex.items-baseline.gap-1.pl-2 data-controller='tooltip'
+    = icon 'fire', class: 'self-center text-[0.55em] opacity-70'
+    span.sr-only = sensor.weighted_name
+    = render Sensor::Value::Component.new(heating, :outdoor_temp, context: :total)
+    span.hidden data-tooltip-target='html'
+      strong = sensor.weighted_name
+      p.mt-1 = sensor.weighted_description
+      p.mt-2 = t('.summer')

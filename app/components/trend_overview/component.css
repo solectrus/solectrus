@@ -33,11 +33,15 @@
   }
 }
 
-/* The columns of all rows line up. Like a cell of Ui::GroupedList, the row
-   dims while pressed, and a mouse gets a highlight. */
+/* The columns of all rows line up. Like a cell of Ui::GroupedList, a row
+   with a link dims while pressed, and a mouse gets a highlight. */
 .trend-overview-row {
-  @apply focus-ring-inset active:bg-fill-strong pointer-fine:hover:bg-fill grid min-h-12 items-center gap-x-2 px-4 py-2 md:gap-x-2.5;
+  @apply grid min-h-12 items-center gap-x-2 px-4 py-2 md:gap-x-2.5;
   grid-template-columns: var(--trend-columns);
+}
+
+a.trend-overview-row {
+  @apply focus-ring-inset active:bg-fill-strong pointer-fine:hover:bg-fill;
 }
 
 .trend-overview-name {

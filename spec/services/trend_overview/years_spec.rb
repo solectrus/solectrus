@@ -45,6 +45,20 @@ describe TrendOverview::Years do
     expect(row.best_year).to be_nil
   end
 
+  # A weighted average grouped by year, from the database: the day without
+  # heat counts not at all
+  it 'weights the outdoor temperature of each year by the heat' do
+    stub_feature(:trends, :heatpump)
+    create_summary(date: Date.new(2024, 1, 1), values: [[:outdoor_temp, :avg, 2.0], [:heatpump_heating_power, :sum, 30_000]])
+    create_summary(date: Date.new(2024, 7, 1), values: [[:outdoor_temp, :avg, 20.0], [:heatpump_heating_power, :sum, 0]])
+    create_summary(date: Date.new(2025, 1, 1), values: [[:outdoor_temp, :avg, 3.0], [:heatpump_heating_power, :sum, 30_000]])
+    heatpump = described_class.new(page: :heatpump, timeframe: Timeframe.all)
+
+    values = heatpump.rows.find { it.sensor.name == :outdoor_temp }.values
+
+    expect(values.values_at(2024, 2025)).to eq([2.0, 3.0])
+  end
+
   it 'groups the rows like the overview of a period' do
     expect(overview.groups.keys).to include(:generation, :consumption, :grid_battery)
   end

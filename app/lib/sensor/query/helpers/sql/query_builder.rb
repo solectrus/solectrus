@@ -80,6 +80,14 @@ module Sensor
             standard_sensors << [sensor_name, meta_agg, base_agg]
             required_fields << sensor_name
             required_aggregations << base_agg
+            add_weight_field(sensor_name) if meta_agg == :weighted_avg
+          end
+
+          # A weighted average needs the daily sum of its weight sensor (see
+          # SelectBuilder#weighted_avg)
+          def add_weight_field(sensor_name)
+            required_fields << Sensor::Registry[sensor_name].trend_weight
+            required_aggregations << :sum
           end
         end
       end

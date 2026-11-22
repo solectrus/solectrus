@@ -1,4 +1,9 @@
+# A tile below the donut of the heat pump page. A block of `values` can
+# take the place of the one value, like the two outdoor temperatures
+# (Heatpump::OutdoorTemps::Component).
 class Heatpump::SensorKpiLink::Component < ViewComponent::Base
+  renders_one :values
+
   def initialize(data:, sensor_name:, timeframe:, chart_url:, url: nil, css_class: nil)
     super()
     @data = data

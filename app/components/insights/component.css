@@ -17,6 +17,11 @@
    groups apart */
 .bottom-sheet .insights {
   @apply gap-5;
+
+  /* A footnote explains the group above it, so it stays close to it */
+  > .tooltip-group + .tooltip-footnote {
+    @apply -mt-3;
+  }
 }
 
 .insights-row {

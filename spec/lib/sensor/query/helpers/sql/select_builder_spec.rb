@@ -28,6 +28,17 @@ describe Sensor::Query::Helpers::Sql::SelectBuilder do
       end
     end
 
+    context 'with a weighted average' do
+      it 'weights each day by the daily sum of the weight sensor' do
+        builder = described_class.new(sensor_requests: [%i[outdoor_temp weighted_avg avg]])
+
+        expect(builder.build_final_select).to include(
+          'SUM(outdoor_temp_avg * heatpump_heating_power_sum) / ' \
+            'NULLIF(SUM(heatpump_heating_power_sum) FILTER (WHERE outdoor_temp_avg IS NOT NULL), 0) AS outdoor_temp_weighted_avg_avg',
+        )
+      end
+    end
+
     context 'with group_by' do
       it 'generates SELECT with grouping for month' do
         sensor_requests = [%i[inverter_power_1 sum sum]]
