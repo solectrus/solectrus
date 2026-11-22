@@ -261,12 +261,10 @@ color background: gradient(
       ),
       text: 'text-red-100 dark:text-red-300'
 
-# Static color with the optional extras: a border class, and hatch_fill to
-# draw the bars of the chart hatched (the forecast uses it)
+# Static color with an optional border class
 color background: 'bg-sensor-pv',
       text: 'text-white dark:text-slate-400',
-      border: 'border-emerald-200 dark:border-emerald-900',
-      hatch_fill: true
+      border: 'border-emerald-200 dark:border-emerald-900'
 
 # Dynamic color (block)
 color do |index|

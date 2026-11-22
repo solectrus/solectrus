@@ -61,7 +61,7 @@ module Sensor
         # reads as a forecast. A darker (light theme) or lighter (dark theme)
         # tone keeps it visible on the area of the same color.
         def forecast_line_style
-          Base::FORECAST_LINE_STYLE.merge(fill: false, hatchFill: false, order: -1)
+          Base::FORECAST_LINE_STYLE.merge(fill: false, order: -1)
         end
 
         def datasets(chart_data_items)

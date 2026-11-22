@@ -530,8 +530,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
       clip: live_flash_clip,
       colorClass: color_class(sensor),
       colorScale: (sensor.color_scale if sensor.respond_to?(:color_scale)),
-      hatchFill: sensor.hatch_fill?,
-      noGradient: type == 'bar' || sensor.hatch_fill?,
+      noGradient: type == 'bar',
       borderRadius: (3 if type == 'bar'),
       borderSkipped: (bar_border_skip if type == 'bar'),
       # A state carries its last value forward, so render crisp steps

@@ -61,8 +61,8 @@ module Sensor
           inherited_meta_data(:state) || false
         end
 
-        def color(background: nil, text: nil, border: nil, hatch_fill: nil, &)
-          color_dsl.color(background:, text:, border:, hatch_fill:, &)
+        def color(background: nil, text: nil, border: nil, &)
+          color_dsl.color(background:, text:, border:, &)
         end
 
         def gradient(from: nil, to: nil, start: nil, stop: nil, stops: nil)

@@ -19,7 +19,7 @@ describe Sensor::Chart::YearComparison::BySeason do
   # Whether the dataset hatches the point at `index`
   def hatched?(dataset, index)
     hatch = dataset[:hatchFill]
-    hatch.is_a?(Array) ? hatch[index] : hatch
+    hatch.is_a?(Array) ? hatch[index] : hatch == true
   end
 
   def hatched_of?(year, season)

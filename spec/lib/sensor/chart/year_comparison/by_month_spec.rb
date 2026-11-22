@@ -7,7 +7,7 @@ describe Sensor::Chart::YearComparison::ByMonth do
   # Whether the dataset hatches the point at `index`
   def hatched?(dataset, index = 0)
     hatch = dataset[:hatchFill]
-    hatch.is_a?(Array) ? hatch[index] : hatch
+    hatch.is_a?(Array) ? hatch[index] : hatch == true
   end
 
   describe '#data' do
