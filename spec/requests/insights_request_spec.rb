@@ -30,7 +30,7 @@ describe 'Insights' do
     it 'shows the values of the tooltip' do
       get_insights('inverter_power')
 
-      expect(page).to have_css('.insights-heading-total', text: '20.000 kWh')
+      expect(page).to have_css('.insights-row', text: /Total\s*20.000 kWh/)
       expect(page).to have_css('.insights-row', text: 'CO₂ reduction')
     end
 
@@ -53,7 +53,7 @@ describe 'Insights' do
       it "shows no value of #{name}" do
         get_insights(name)
 
-        expect(page).to have_no_css('.insights-heading-total')
+        expect(page).to have_no_css('.insights-row', text: /\A\s*(Total|So far|Average)/)
         expect(page).to have_link(href: sponsoring_path)
       end
     end
@@ -62,7 +62,7 @@ describe 'Insights' do
     it 'shows no value of a relative period' do
       get_insights('inverter_power', timeframe: 'P30D')
 
-      expect(page).to have_no_css('.insights-heading-total')
+      expect(page).to have_no_css('.insights-row', text: /\A\s*(Total|So far|Average)/)
       expect(page).to have_no_css('.insights-row', text: 'CO₂ reduction')
     end
   end
@@ -117,7 +117,7 @@ describe 'Insights' do
     it 'shows the values of a relative period' do
       get_insights('inverter_power', timeframe: 'P30D')
 
-      expect(page).to have_css('.insights-heading-total')
+      expect(page).to have_css('.insights-row', text: /\A\s*(Total|So far)/)
     end
 
     # The referer names the page that holds the frame, and a day leads to

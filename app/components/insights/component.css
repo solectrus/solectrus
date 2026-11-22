@@ -4,18 +4,13 @@
  * tooltip: rows that lead to another page.
  */
 
-/* The heading of the sheet: icon, name with the period below, and the
-   total on the right */
+/* The heading of the sheet: icon, and the name with the period below */
 .insights-heading {
   @apply flex items-center gap-3;
 }
 
 .insights-heading-period {
   @apply text-subhead text-muted font-normal;
-}
-
-.insights-heading-total {
-  @apply shrink-0 font-semibold whitespace-nowrap;
 }
 
 /* Without a title above a group, more room than in a tooltip keeps the
@@ -68,14 +63,9 @@
 }
 
 /* Rows with a bar for a share, like the strings of the inverter, as one row of
-   the list. The grid lines up the bars. Where other rows of the group have a
-   chevron, the room of it keeps the values in one column with theirs. */
+   the list. The grid lines up the bars. */
 .insights-bars {
   @apply grid grid-cols-[auto_minmax(3rem,1fr)_auto] items-center gap-x-3 gap-y-1.5;
-
-  .tooltip-group:has(.insights-row-link) & {
-    padding-right: calc(1.25 * var(--text-sm) + --spacing(3));
-  }
 
   .insights-row-value {
     @apply text-right;
@@ -125,16 +115,26 @@
 }
 
 /* A row without a link holds the room of the chevron, where another row of
-   its group has one: so the values of a group end in one column. An empty
+   the sheet has one: so the values of all groups end in one column. An empty
    box as wide as the icon holds it: Font Awesome gives every icon 1.25em.
    A hidden icon would show, because Font Awesome sets its display outside
    of the layers, which wins over hiding it here. */
 .insights-row-chevron-spacer {
   @apply hidden w-[1.25em];
 
-  .tooltip-group:has(.insights-row-link) & {
+  .insights:has(.insights-row-link) & {
     @apply block;
   }
+}
+
+/* Any other content of a group, like the bars of the strings or the rows of
+   the costs, holds the room of the chevron the same way: the icon and the
+   gap of a row before it. The share of PV stands without a group around it
+   and keeps the full width. */
+.insights:has(.insights-row-link)
+  .tooltip-group
+  > :not(.insights-row, .splitted-costs-ratio) {
+  padding-right: calc(1.25 * var(--text-sm) + --spacing(3));
 }
 
 /* The page of the heatmap. On a phone, it covers the panel of the sheet and

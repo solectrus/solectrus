@@ -92,7 +92,7 @@ describe Insights::Component, type: :component do
     end
   end
 
-  describe '#heading_total' do
+  describe '#total_row' do
     # An average shows its value with the sign of the average
     context 'when sensor uses avg aggregation' do
       let(:sensor) { Sensor::Registry[:heatpump_cop] }
@@ -101,14 +101,14 @@ describe Insights::Component, type: :component do
         create_summary(date: Date.new(2025, 1, 1), values: [[:heatpump_power, :sum, 1_000], [:heatpump_heating_power, :sum, 3_000]])
       end
 
-      it { expect(component.heading_total).to be_average }
+      it { expect(render_inline(component.total_row).text).to include('Average') }
     end
 
     # Not a zero that looks like a measured value
     context 'with an average without data' do
       let(:sensor) { Sensor::Registry[:heatpump_cop] }
 
-      it { expect(component.heading_total).to be_nil }
+      it { expect(component.total_row).to be_nil }
     end
   end
 

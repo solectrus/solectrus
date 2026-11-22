@@ -15,14 +15,13 @@
 
   = render Ui::TurboModal::Component.new(width: :medium) do |modal|
     - modal.with_title do
-      / One row for name, period and total, so the list starts high up
+      / One row for name and period, so the list starts high up. The total is
+        the first row of the list (Insights::Total::Component).
       .insights-heading
         = render Sensor::Icon::Component.new(sensor)
         .min-w-0.flex-1
           .truncate = sensor.display_name
           .insights-heading-period = timeframe.localized
-        - if (total = insights&.heading_total)
-          = render total
 
     - if insights
       = render insights

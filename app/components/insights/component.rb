@@ -37,9 +37,8 @@ class Insights::Component < ViewComponent::Base
     (timeframe.year? || timeframe.month?) && timeframe.current?
   end
 
-  # The total of the period, which the heading of the sheet shows
-  # (insights/index.html.slim), or the average of an average. An average
-  # without data has none.
+  # The total of the period, which the first row of the sheet shows, or
+  # the average of an average. An average without data has none.
   def total_value
     if average?
       value = insights.raw_value(sensor.name)
@@ -73,12 +72,12 @@ class Insights::Component < ViewComponent::Base
     end
   end
 
-  # The total for the heading of the sheet
-  def heading_total
+  # The first row of the sheet: the total of the period
+  def total_row
     return unless tooltip_values?
     return unless (total = total_value)
 
-    Insights::HeadingTotal::Component.new(total:, running: running_period?, average: average?)
+    Insights::Total::Component.new(total:, running: running_period?, average: average?)
   end
 
   # The share of PV and grid, and the costs it causes. A consumer shows the
@@ -100,14 +99,14 @@ class Insights::Component < ViewComponent::Base
   end
 
   # The energy by its source, below the share. The parts take the digits of
-  # the total in the heading, so they add up to it as shown.
+  # the total in the first row, so they add up to it as shown.
   def power_sources
     return unless (parts = insights.power_by_source)
 
     parts.keys.zip(RoundedSum.new(parts.values, **total_format).parts).to_h
   end
 
-  # The format of the total in the heading
+  # The format of the total in the first row
   def total_format
     @total_format ||= begin
       format = { unit: sensor.unit, context: :total, scaling: :kilo }

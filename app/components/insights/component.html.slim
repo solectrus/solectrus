@@ -3,6 +3,9 @@
 / beyond it need a permission (permitted?). Without it, the view adds a
 / teaser (insights/index.html.slim).
 .tooltip-layout.insights data-controller= 'insights--component' data-action= 'cancel@document->insights--component#back:capture'
+  - if (total = total_row)
+    = render total
+
   - if sensor.name == :inverter_power
     - if insights.multi_inverter? || (permitted? && insights.specific_yield)
       .tooltip-group
@@ -65,9 +68,6 @@
         div
           = render GridCosts::Graph::Component.new(costs: insights.grid_costs, revenue: insights.feed_in_revenue)
 
-    - if insights.heatmap_data
-      = render Insights::Heatmap::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
-
     ruby:
       min_day = insights.minimum(:date)
       max_day = insights.maximum(:date)
@@ -85,3 +85,7 @@
         - if per_day
           = render Insights::Row::Component.new(label: t('.average_per_day')) do
             = render Sensor::Value::Component.new(per_day, sensor.name, context: :total, scaling: :kilo)
+
+    / The calendar below the extremes, whose days it shows in context
+    - if insights.heatmap_data
+      = render Insights::Heatmap::Component.new(data: insights.heatmap_data, sensor:, timeframe:)
