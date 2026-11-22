@@ -85,10 +85,10 @@ jobs:
         env:
           POSTGRES_PASSWORD: postgres
 
-      # Redis 7 is the oldest major version a SOLECTRUS installation runs.
-      # The specs tagged :redis use it (see spec/support/redis.rb).
+      # The version that HELIOS installs. The specs tagged :redis use it (see
+      # spec/support/redis.rb), and bin/redis-restart.sh starts the same one.
       redis:
-        image: redis:7-alpine
+        image: redis:8-alpine
         ports: ['6379:6379']
 
     env:

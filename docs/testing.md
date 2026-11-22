@@ -6,6 +6,8 @@ Every test runner of this repository, and what each one is for. `docs/convention
 
 `bin/rspec [path]` runs the specs. InfluxDB must run before they start. Start it with `bin/influxdb-restart.sh` and never by hand. The script recreates the `influxdb_v2` container with the org, the bucket and the token that the test environment expects. The local InfluxDB exists for the tests alone, so its data costs nothing to drop. Run the script whenever a spec cannot reach InfluxDB.
 
+The specs tagged `:redis` need a Redis server on port 6379. `bin/redis-restart.sh` starts Redis 8 in the `redis_v8` container. HELIOS installs this version, and the GitHub workflow uses it too. `bin/ci` runs the script in its `Setup` step. Under `bin/ci`, a spec tagged `:redis` fails when it cannot reach Redis. A plain `bin/rspec` run without Redis skips it.
+
 ## System specs
 
 System specs drive Playwright and they are slow. Run them only when the change affects UI behavior or JavaScript, and when a request spec cannot cover it.

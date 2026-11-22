@@ -32,6 +32,7 @@ SYSTEM_RUNTIME_LOG = 'tmp/parallel_runtime_system.log'.freeze
 ParallelCI.run do
   parallel_step 'Setup' do
     check 'InfluxDB', 'bin/influxdb-restart.sh'
+    check 'Redis', 'bin/redis-restart.sh'
     check 'Remove previous coverage results', 'rm -rf coverage/.resultset.json coverage/.last_run.json'
 
     # One database per worker. Creating them is idempotent, and the boot of
