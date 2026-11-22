@@ -30,12 +30,12 @@ describe 'Forecast' do
     end
   end
 
-  it 'switches between today and tomorrow and all days' do
+  it 'switches between today and tomorrow and the full forecast' do
     visit '/forecast'
 
     within('#forecast-timeframe') { find('a[data-nav=next]').click }
 
-    expect(page).to have_current_path('/forecast/all')
+    expect(page).to have_current_path('/forecast/full')
     expect(page).to have_text('Die nächsten 3 Tage')
 
     within('#forecast-timeframe') { find('a[data-nav=prev]').click }

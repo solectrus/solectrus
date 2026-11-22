@@ -89,8 +89,8 @@ describe 'Timeframe pager' do
   end
 
   # The forecast is the period after today, first today and tomorrow. The
-  # arrow to the right shows all days. Its tabs, the arrow back to today and
-  # its timeframe select belong to the page that led here.
+  # arrow to the right shows the full forecast. Its tabs, the arrow back to
+  # today and its timeframe select belong to the page that led here.
   describe 'on the forecast' do
     before do
       allow(Sensor::Query::ForecastAvailability).to receive(:new).and_return(instance_double(Sensor::Query::ForecastAvailability, call: Date.current + 6.days))
@@ -104,7 +104,7 @@ describe 'Timeframe pager' do
       expect(period.text.squish).to eq('Today and tomorrow')
       expect(URI(period['href']).path).to eq('/forecast')
 
-      get '/forecast/all'
+      get '/forecast/full'
 
       expect(period.text.squish).to eq('The next 7 days')
       expect(arrows).to eq(%w[/forecast])
@@ -115,14 +115,14 @@ describe 'Timeframe pager' do
       get '/forecast'
 
       expect(tabs.first(2)).to eq(%w[/power_balance/now /power_balance/day])
-      expect(arrows).to eq(%w[/power_balance/day /forecast/all])
+      expect(arrows).to eq(%w[/power_balance/day /forecast/full])
     end
 
     it 'leads to the power balance of the inverter without a page before' do
       get '/forecast'
 
       expect(tabs.first(2)).to eq(%w[/inverter_power/now /inverter_power/day])
-      expect(arrows).to eq(%w[/inverter_power/day /forecast/all])
+      expect(arrows).to eq(%w[/inverter_power/day /forecast/full])
     end
 
     # The timeframe select of the forecast marks the forecast alone, not the

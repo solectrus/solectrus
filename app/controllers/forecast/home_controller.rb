@@ -8,7 +8,7 @@ class Forecast::HomeController < ApplicationController
 
   def index
     return redirect_to(root_path) unless Sensor::Config.exists?(:inverter_power_forecast)
-    return redirect_to(forecast_path) if all_days? && !more_days?
+    return redirect_to(forecast_path) if full? && !more_days?
 
     # Render HTML page with lazy frame placeholders
     render
@@ -16,14 +16,14 @@ class Forecast::HomeController < ApplicationController
 
   private
 
-  # Only the route /forecast/all sets it, not a query parameter
-  def all_days? = request.path_parameters[:range] == 'all'
+  # Only the route /forecast/full sets it, not a query parameter
+  def full? = request.path_parameters[:range] == 'full'
 
   # Whether the forecast has days after tomorrow
   def more_days? = available_days.to_i > SHORT_DAYS
 
   helper_method def days
-    all_days? ? available_days : (SHORT_DAYS if available_days)
+    full? ? available_days : (SHORT_DAYS if available_days)
   end
 
   # The days the forecast has: today and up to 7 more, as far as the query
@@ -43,7 +43,7 @@ class Forecast::HomeController < ApplicationController
   def period_name
     return title unless days
 
-    all_days? ? t('forecast.next_days', count: days) : t('forecast.today_and_tomorrow')
+    full? ? t('forecast.next_days', count: days) : t('forecast.today_and_tomorrow')
   end
 
   helper_method def timeframe
@@ -59,14 +59,14 @@ class Forecast::HomeController < ApplicationController
 
   # The period, as the home pages have it (see Timeframe::Pager::Component).
   # It opens the timeframe select, which marks the forecast. The arrows lead
-  # from today to today and tomorrow, and from there to all days. Back from
-  # today and tomorrow is the page that led here.
+  # from today to today and tomorrow, and from there to the full forecast.
+  # Back from today and tomorrow is the page that led here.
   helper_method def pager_items
     {
       period: { name: period_name, href: forecast_path },
       arrows: {
-        prev: all_days? ? forecast_path : timeframe_page.path('day'),
-        next: (forecast_all_path if !all_days? && more_days?),
+        prev: full? ? forecast_path : timeframe_page.path('day'),
+        next: (forecast_full_path if !full? && more_days?),
       },
     }
   end

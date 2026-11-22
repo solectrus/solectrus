@@ -48,18 +48,18 @@ describe 'Forecast' do
         expect(response.body).to include('data-nav="prev"')
       end
 
-      it 'shows today and tomorrow, with a way to all days' do
+      it 'shows today and tomorrow, with a way to the full forecast' do
         get forecast_path
 
         expect(response.body).to include(I18n.t('forecast.today_and_tomorrow'))
         expect(response.body).to include(forecast_chart_path(:inverter_power, days: 2))
-        expect(nav_targets('next')).to eq([forecast_all_path])
+        expect(nav_targets('next')).to eq([forecast_full_path])
       end
     end
 
-    context 'when all days are requested' do
-      it 'shows all days, with the way back to today and tomorrow' do
-        get forecast_all_path
+    context 'when the full forecast is requested' do
+      it 'shows the full forecast, with the way back to today and tomorrow' do
+        get forecast_full_path
 
         expect(response.body).to include(I18n.t('forecast.next_days', count: 7))
         expect(response.body).to include(forecast_chart_path(:inverter_power, days: 7))
@@ -70,7 +70,7 @@ describe 'Forecast' do
       it 'leads to today and tomorrow when the forecast has no more days' do
         allow(availability_query).to receive(:call).and_return(Date.current + 1.day)
 
-        get forecast_all_path
+        get forecast_full_path
 
         expect(response).to redirect_to(forecast_path)
       end
