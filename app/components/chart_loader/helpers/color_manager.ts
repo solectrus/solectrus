@@ -59,7 +59,10 @@ export class ColorManager {
     // Resolve colorClass to actual CSS colors
     for (const dataset of data.datasets) {
       const datasetWithId = dataset as DatasetWithId;
-      if (datasetWithId.hideZeroSegments) this.hideZeroSegments(dataset);
+      const lineDataset = dataset as ChartDataset<'line'>;
+      if (datasetWithId.hideZeroSegments) this.hideZeroSegments(lineDataset);
+      if (datasetWithId.dashFrom !== undefined)
+        this.applyDashFrom(lineDataset, datasetWithId.dashFrom);
 
       // A faint line can be stronger on the dark background
       if (isDarkTheme && typeof datasetWithId.darkOpacity === 'number')
@@ -87,7 +90,6 @@ export class ColorManager {
         );
         if (resolvedColor) {
           datasetWithId.tooltipColor = resolvedColor;
-          const lineDataset = dataset as ChartDataset<'line'>;
           const isStacked = lineDataset.stack !== undefined;
           const baseLineColor = datasetWithId.contrastLine
             ? this.contrastColor(resolvedColor, isDarkTheme)
@@ -193,7 +195,7 @@ export class ColorManager {
   // a night. Chart.js styles each pair of neighbouring points, the empty ones
   // between the values included. So each pair between two zero values goes
   // transparent. The server makes a value next to the night exactly zero.
-  private hideZeroSegments(dataset: ChartDataset): void {
+  private hideZeroSegments(dataset: ChartDataset<'line'>): void {
     const values = dataset.data.map((value) => this.extractLineValue(value));
     const isZero = (value: number | null) => value === 0;
 
@@ -212,14 +214,24 @@ export class ColorManager {
     });
   }
 
+  // A segment that ends at or before `dashFrom` is solid, every later one
+  // keeps the dash of the dataset
+  private applyDashFrom(dataset: ChartDataset<'line'>, dashFrom: number): void {
+    this.mergeSegment(dataset, {
+      borderDash: ({ p1 }) => {
+        const { x } = p1.parsed;
+        return x !== null && x <= dashFrom ? [] : undefined;
+      },
+    });
+  }
+
   // Several features style the segments of one line, so each one adds its
   // own callbacks instead of replacing those of the others
   private mergeSegment(
-    dataset: ChartDataset,
+    dataset: ChartDataset<'line'>,
     segment: NonNullable<ChartDataset<'line'>['segment']>,
   ): void {
-    const lineDataset = dataset as ChartDataset<'line'>;
-    lineDataset.segment = { ...lineDataset.segment, ...segment };
+    dataset.segment = { ...dataset.segment, ...segment };
   }
 
   // A line that stands out from an area of its own color: darker on the light
@@ -336,17 +348,17 @@ export class ColorManager {
       return;
     }
 
-    // Break the line (and its fill) at data gaps for solid colour-scale lines,
-    // so sensor outages show as gaps like plain-colour charts. The per-segment
+    // Break the line (and its fill) at data gaps for colour-scale lines, so
+    // sensor outages show as gaps like plain-colour charts. The per-segment
     // styling below otherwise makes Chart.js bridge every gap regardless of the
-    // numeric spanGaps limit. Dashed lines (forecast projections) and explicit
-    // spanGaps:true datasets connect sparse samples on purpose, so those keep
+    // numeric spanGaps limit. Datasets with spanGaps:true (forecasts,
+    // forward-filled SOC) connect sparse samples on purpose, so those keep
     // spanning.
-    if (lineDataset.spanGaps !== true && !lineDataset.borderDash) {
+    if (lineDataset.spanGaps !== true) {
       lineDataset.spanGaps = false;
     }
 
-    lineDataset.segment = {
+    this.mergeSegment(dataset, {
       borderColor: (ctx: { p0DataIndex: number }) => {
         const data = dataset.data ?? [];
         const index = ctx.p0DataIndex;
@@ -367,7 +379,7 @@ export class ColorManager {
 
         return defaultColor;
       },
-    };
+    });
 
     dataset.backgroundColor = (context: {
       chart: Chart;

@@ -25,7 +25,7 @@ class Sensor::Chart::OutdoorTemp < Sensor::Chart::MinmaxBase
 
   def style_for_sensor(sensor)
     if sensor.name == :outdoor_temp_forecast
-      super.merge(fill: false, borderDash: [2, 3])
+      super.merge(fill: false, **Sensor::Chart::OutdoorTempForecast::CURVE_STYLE)
     else
       super
     end

@@ -27,6 +27,9 @@ export type DatasetWithId = ChartDataset & {
   // A stretch of the line between two zero values stays invisible, like a
   // forecast at night
   hideZeroSegments?: boolean;
+  // The x value (ms) from which the line takes its `borderDash`. Before it,
+  // the line is solid, like a measured part in front of a forecast.
+  dashFrom?: number;
   // A faint fill below the line: this opacity at the top, fading out toward
   // the foot of the chart. The line keeps `opacity`.
   fillOpacity?: number;

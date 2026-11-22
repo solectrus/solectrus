@@ -69,6 +69,7 @@ Keep every section, an empty one included.
 - **Forecast:** the temperature chart shows the high and the low of each day instead of the average
 - **Forecast:** the page shows today and tomorrow first. The arrow to the right shows all days of the forecast, up to today and the next 7 days. On a desktop, the arrow to the left leads back to the page that led to the forecast, as on a phone
 - **Forecast:** a dashed line marks the current time in both charts, as on the car page
+- **Temperature forecast:** a dashed line, like the PV forecast, on the forecast page and in the day chart of the outdoor temperature. The measured part up to now stays solid
 - **Live view:** the bars glide to a new value in 0.3 instead of 1 second, which takes the device less work
 - **Electric vehicles:** the live view shows "On the road" as soon as the charge level falls. With more than one car, the balance shows only the home battery (#6020)
 - **Desktop:** a page is as high as its content and glides to its new height on a page change

@@ -18,6 +18,19 @@ module Sensor
       MIN_BAR_RANGE_EPSILON = 0.2
       public_constant :MIN_BAR_RANGE_EPSILON
 
+      # The temperature forecast, here and in the day chart (OutdoorTemp):
+      # dashed like every forecast and faint. The dark colors of the scale
+      # vanish on the dark background, so the dark theme draws it stronger.
+      # The forecast has fewer points than the grid of the day chart, so the
+      # line spans the empty points between them.
+      CURVE_STYLE = {
+        borderDash: FORECAST_DASH,
+        opacity: 0.35,
+        darkOpacity: 0.8,
+        spanGaps: true,
+      }.freeze
+      public_constant :CURVE_STYLE
+
       def type
         'bar'
       end
@@ -190,7 +203,10 @@ module Sensor
       end
 
       def build_high_res_curve_dataset(sensor)
-        points = build_high_res_curve_points
+        # One reading of the clock, so the line turns dashed exactly where the
+        # measured points end
+        now = Time.current
+        points = build_high_res_curve_points(now)
         return if points.blank?
 
         {
@@ -204,23 +220,21 @@ module Sensor
           showLine: true,
           fill: false,
           tension: 0.4,
-          borderWidth: 3,
+          **CURVE_STYLE,
+          # The measured part up to now stays solid
+          dashFrom: timestamp_to_ms(now),
           pointRadius: 0,
           pointHitRadius: 6,
           colorScale: sensor.color_scale,
-          opacity: 0.35,
-          # The dark colors of the scale vanish on the dark background
-          darkOpacity: 0.8,
           order: 0,
         }
       end
 
-      def build_high_res_curve_points
+      def build_high_res_curve_points(now)
         forecast_points = extract_sensor_data(:outdoor_temp_forecast)
         actual_points = extract_sensor_data(:outdoor_temp)
         return if forecast_points.blank? && actual_points.blank?
 
-        now = Time.current
         points = []
 
         append_curve_points(points, actual_points) do |time|

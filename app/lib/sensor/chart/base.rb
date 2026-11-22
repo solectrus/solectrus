@@ -162,6 +162,10 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   FLASH_DOT_HEADROOM = POINT_HOVER_RADIUS + 1
   private_constant :FLASH_DOT_HEADROOM
 
+  # The dash of every forecast line, so a forecast reads the same in each chart
+  FORECAST_DASH = [6, 4].freeze
+  public_constant :FORECAST_DASH
+
   # The line of the PV forecast, alone or as the edge of a hatched area. A
   # darker (light theme) or lighter (dark theme) tone keeps it visible next to
   # the area of the actual generation.
@@ -172,7 +176,7 @@ class Sensor::Chart::Base # rubocop:disable Metrics/ClassLength
   # stretch between two zero values.
   FORECAST_LINE_STYLE = {
     borderWidth: 2,
-    borderDash: [6, 4],
+    borderDash: FORECAST_DASH,
     contrastLine: true,
     spanGaps: true,
     hideZeroSegments: true,

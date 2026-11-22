@@ -456,7 +456,7 @@ describe Sensor::Chart::PowerBalance do
       expect(style).to include(
         fill: true,
         hatchFill: true,
-        borderDash: [6, 4],
+        borderDash: Sensor::Chart::Base::FORECAST_DASH,
         hideZeroSegments: true,
       )
     end

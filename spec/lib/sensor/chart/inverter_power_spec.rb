@@ -256,7 +256,7 @@ describe Sensor::Chart::InverterPower do
 
       expect(style).to include(
         hatchFill: true,
-        borderDash: [6, 4],
+        borderDash: Sensor::Chart::Base::FORECAST_DASH,
         contrastLine: true,
         hideZeroSegments: true,
       )
