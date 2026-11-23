@@ -1,5 +1,5 @@
 // Manages dataset colors, scales, gradients, and hatch patterns for charts.
-import { Chart, ChartData, ChartDataset, ChartType } from 'chart.js';
+import type { Chart, ChartData, ChartDataset, ChartType } from 'chart.js';
 
 import ChartBackgroundGradient from '@/utils/chartGradientDefault';
 import {

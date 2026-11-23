@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import * as Turbo from '@hotwired/turbo';
+import type * as Turbo from '@hotwired/turbo';
 import { IntervalTimer } from '@/utils/intervalTimer';
 
 const REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes

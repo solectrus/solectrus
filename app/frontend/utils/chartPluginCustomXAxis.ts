@@ -1,4 +1,5 @@
-import { Chart, Plugin, Scale, Tick } from 'chart.js';
+import type { Plugin, Scale, Tick } from 'chart.js';
+import { Chart } from 'chart.js';
 
 // Constants for responsive design
 const TAILWIND_MD_BREAKPOINT = 768;

@@ -1,5 +1,5 @@
 // Applies default axis colors (ticks/grid/border) from CSS variables.
-import { ChartOptions } from 'chart.js';
+import type { ChartOptions } from 'chart.js';
 
 export type AxisColors = { tick: string; grid: string; zeroLine: string };
 

@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import * as Turbo from '@hotwired/turbo';
+import type * as Turbo from '@hotwired/turbo';
 
 export default class extends Controller {
   intervalId: number | NodeJS.Timeout = 0;

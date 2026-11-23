@@ -1,4 +1,4 @@
-import { BarElement, Chart, Plugin } from 'chart.js';
+import type { BarElement, Chart, Plugin } from 'chart.js';
 
 // Minimum corner radius applied to every bar-stack top, even when the bars
 // themselves carry no (or a zero) borderRadius.

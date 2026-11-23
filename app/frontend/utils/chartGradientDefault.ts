@@ -1,4 +1,4 @@
-import { Chart, ChartArea, ChartDataset } from 'chart.js';
+import type { Chart, ChartArea, ChartDataset } from 'chart.js';
 import { colorToRgba } from '@/utils/color';
 
 export default class ChartGradientDefault {

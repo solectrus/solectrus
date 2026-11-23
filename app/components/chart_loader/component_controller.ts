@@ -4,6 +4,14 @@ import { isReducedMotion, isTouchEnabled } from '@/utils/device';
 import { appLocale } from '@/utils/locale';
 import * as Turbo from '@hotwired/turbo';
 
+import type {
+  ChartOptions,
+  ChartType,
+  ChartData,
+  ChartEvent,
+  ActiveElement,
+  Plugin,
+} from 'chart.js';
 import {
   Chart,
   LineElement,
@@ -18,12 +26,6 @@ import {
   Filler,
   Title,
   Tooltip,
-  ChartOptions,
-  ChartType,
-  ChartData,
-  ChartEvent,
-  ActiveElement,
-  Plugin,
 } from 'chart.js';
 
 import 'chartjs-adapter-luxon';

@@ -1,7 +1,8 @@
 import { Controller, type ActionEvent } from '@hotwired/stimulus';
 import type { TurboBeforeFetchResponseEvent } from '@hotwired/turbo';
 import * as Turbo from '@hotwired/turbo';
-import { Chart, ChartDataset } from 'chart.js';
+import type { ChartDataset } from 'chart.js';
+import { Chart } from 'chart.js';
 import { IntervalTimer } from '@/utils/intervalTimer';
 import { isModifiedClick } from '@/utils/click';
 

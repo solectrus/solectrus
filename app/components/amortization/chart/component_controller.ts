@@ -4,6 +4,12 @@ import { isReducedMotion } from '@/utils/device';
 import { appLocale } from '@/utils/locale';
 import * as Turbo from '@hotwired/turbo';
 
+import type {
+  ChartEvent,
+  ActiveElement,
+  Plugin,
+  ScriptableContext,
+} from 'chart.js';
 import {
   Chart,
   LineController,
@@ -11,10 +17,6 @@ import {
   PointElement,
   LinearScale,
   Tooltip,
-  ChartEvent,
-  ActiveElement,
-  Plugin,
-  ScriptableContext,
   Filler,
 } from 'chart.js';
 import { CrosshairPlugin } from 'chartjs-plugin-crosshair';

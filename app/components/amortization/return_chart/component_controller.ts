@@ -3,6 +3,7 @@ import { debounce } from '@/utils/debounce';
 import { isReducedMotion } from '@/utils/device';
 import { appLocale } from '@/utils/locale';
 
+import type { Plugin, ScriptableContext } from 'chart.js';
 import {
   Chart,
   LineController,
@@ -11,8 +12,6 @@ import {
   LinearScale,
   TimeScale,
   Tooltip,
-  Plugin,
-  ScriptableContext,
   Filler,
 } from 'chart.js';
 import 'chartjs-adapter-luxon';
