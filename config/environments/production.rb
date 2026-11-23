@@ -15,13 +15,14 @@ Rails.application.configure do
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
 
-  # Cache assets for far-future expiry since they are all digest stamped.
+  # A day for the files in public/, a year for the digested Vite assets among
+  # them (see ImmutableAssets)
   config.public_file_server.headers = {
-    'X-Content-Type-Options' => 'nosniff',
-    'cache-control' =>
-      "public, s-maxage=#{1.year.to_i}, max-age=#{1.year.to_i}, immutable",
-    'Expires' => 1.year.from_now.to_fs(:rfc822),
+    'x-content-type-options' => 'nosniff',
+    'cache-control' => "public, max-age=#{1.day.to_i}",
   }
+  require Rails.root.join('app', 'middleware', 'immutable_assets').to_s
+  config.middleware.insert_before ActionDispatch::Static, ImmutableAssets
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = 'http://assets.example.com'
