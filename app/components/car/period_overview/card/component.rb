@@ -36,8 +36,11 @@ class Car::PeriodOverview::Card::Component < ViewComponent::Base
   public_constant :List
 
   # A period without a value, like a day without charging: a crossed out
-  # icon and a text
-  Empty = Data.define(:icon, :text)
+  # icon and a text. `add` is a button for a new entry below them, a hash
+  # with :href, :sheet_href for a phone and :label.
+  Empty = Data.define(:icon, :text, :add) do
+    def initialize(add: nil, **) = super
+  end
   public_constant :Empty
 
   # `title` names the card for a screen reader, like "Charging". `main` is

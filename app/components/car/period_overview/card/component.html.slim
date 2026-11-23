@@ -3,9 +3,14 @@ section class=['flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl text-whi
     figures with 0, and the text stands in the place of the bar.
   - empty_state = capture do
     - if empty
-      div class='flex flex-1 items-center justify-center gap-2 px-3 lg:gap-3'
-        = helpers.slashed_icon empty.icon, class: 'shrink-0 text-xl opacity-60 lg:text-3xl'
-        span.truncate.text-base.font-medium.opacity-80.lg:text-xl = empty.text
+      div class='flex flex-1 flex-col items-center justify-center gap-3 px-3 lg:gap-4'
+        div class='flex max-w-full items-center gap-2 lg:gap-3'
+          = helpers.slashed_icon empty.icon, class: 'shrink-0 text-xl opacity-60 lg:text-3xl'
+          span.truncate.text-base.font-medium.opacity-80.lg:text-xl = empty.text
+        - if (add = empty.add)
+          - add_class = 'size-9 items-center justify-center rounded-md bg-white/15 click-animation focus-ring active:bg-white/25 lg:size-11 lg:hover:bg-white/25'
+          = link_to icon('plus', class: 'text-lg'), add[:href], class: ['hidden lg:flex', add_class], title: add[:label], aria: { label: add[:label] }, data: Ui::TurboModal::Component.link_data(tooltip: true)
+          = link_to icon('plus', class: 'text-sm'), add[:sheet_href], class: ['flex lg:hidden', add_class], aria: { label: add[:label] }, data: Ui::TurboModal::Component.link_data
   - if blank?
     = empty_state
   - else

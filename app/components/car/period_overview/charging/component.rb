@@ -94,7 +94,18 @@ class Car::PeriodOverview::Charging::Component < ViewComponent::Base
   # A period without charging says so. Sessions that the numbers leave out
   # keep the figures with 0, beside the link that names them (see
   # Car::PeriodOverview::Card::Component#blank?).
-  def empty = (Car::PeriodOverview::Card::Component::Empty.new(icon: 'charging-station', text: t('.none')) if sources.none?)
+  def empty = (Car::PeriodOverview::Card::Component::Empty.new(icon: 'charging-station', text: t('.none'), add:) if sources.none?)
+
+  # The admin adds a charge that no detection found
+  def add
+    return unless helpers.admin?
+
+    {
+      href: helpers.new_cars_charging_session_path(return_to: sessions_path('offsite')),
+      sheet_href: helpers.new_cars_charging_session_path(sheet: 1, return_to: sessions_path('offsite', sheet: 1)),
+      label: t('charging_sessions.new'),
+    }
+  end
 
   # The note of the sessions to review of each kind that has some
   def review_notes

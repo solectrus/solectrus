@@ -123,6 +123,25 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
       expect(html.css('a[href*="/charging_sessions/"]')).to be_empty
     end
 
+    # The admin adds a charge that no detection found
+    context 'when the admin is logged in' do
+      before { allow(vc_test_controller).to receive(:admin?).and_return(true) }
+
+      it 'offers a new offsite session, which goes back to the list of the period' do
+        links = card.css('a[href*="/charging_sessions/new"]')
+
+        expect(card.text.squish).to eq('No charging sessions')
+        expect(links.pluck('aria-label')).to eq(['New charging session'] * 2)
+        expect(links.map { CGI.unescape(it['href']) }).to eq(
+          [
+            '/cars/charging_sessions/new?return_to=/cars/charging_sessions/offsite/2025',
+            '/cars/charging_sessions/new?return_to=/cars/charging_sessions/offsite/2025?sheet=1&sheet=1',
+          ],
+        )
+        expect(links.pluck('data-turbo-frame')).to eq(%w[modal modal])
+      end
+    end
+
     # The link names the sessions that the numbers leave out
     context 'with sessions without a car' do
       before { allow(report).to receive(:unassigned_sessions).and_return(sums(count: 2)) }

@@ -238,7 +238,7 @@ describe 'Car Stats' do
           cards = Nokogiri::HTML5.fragment(response.body.gsub(%r{</?template>}, '')).css('section[aria-label]')
           expect(cards.pluck('aria-label')).to eq([I18n.t('car_breakdown.charging'), I18n.t('car_breakdown.driving')])
           expect(cards.map { it.text.squish }).to eq(['No charging sessions', 'No drives'])
-          expect(cards.css('a[href*="/charging_sessions/"]')).to be_empty
+          expect(cards.css('a[href*="/charging_sessions/"]').pluck('href')).to all(start_with('/cars/charging_sessions/new?'))
           expect(response.body).not_to include('The data is not enough')
         end
       end
