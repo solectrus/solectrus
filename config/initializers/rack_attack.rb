@@ -1,5 +1,16 @@
 module Rack
   class Attack
+    # The throttles count per client. Behind a trusted proxy
+    # (TRUSTED_PROXY_RANGES), the client is the address that
+    # ActionDispatch::RemoteIp found, not the address of the proxy that
+    # Rack::Request#ip returns. Rack::Attack runs after RemoteIp, so the value
+    # is ready here.
+    class Request < Rack::Request
+      def remote_ip
+        @remote_ip ||= ActionDispatch::Request.new(env).remote_ip
+      end
+    end
+
     ### Configure Cache ###
 
     # If you don't want to use Rails.cache (Rack::Attack's default), then
@@ -26,7 +37,7 @@ module Rack
     # Key: "rack::attack:#{Time.now.to_i/:period}:req/ip:#{req.ip}"
     throttle('req/ip', limit: 300, period: 5.minutes) do |req|
       # Exclude SummariesController requests, which is legitimate and can be very frequent
-      req.ip unless req.path.start_with?('/summaries/')
+      req.remote_ip unless req.path.start_with?('/summaries/')
     end
 
     ### Prevent Brute-Force Login Attacks ###
@@ -45,12 +56,12 @@ module Rack
     #   req.ip if req.path == '/login' && req.post?
     # end
     throttle('logins/ip', limit: 5, period: 1.minute) do |req|
-      req.ip if req.path == '/login' && req.post?
+      req.remote_ip if req.path == '/login' && req.post?
     end
 
     # Throttle POST requests to /lockup/unlock by IP address
     throttle('lockup/ip', limit: 5, period: 1.minute) do |req|
-      req.ip if req.path == '/lockup/unlock' && req.post?
+      req.remote_ip if req.path == '/lockup/unlock' && req.post?
     end
 
     # Throttle MCP requests by IP. SOLECTRUS is self-hosted and meant to be
@@ -58,19 +69,19 @@ module Rack
     # turn's handful of tool calls is the realistic ceiling. Keep it tight to
     # blunt scraping/abuse; raise it only if a heavy turn ever gets throttled.
     throttle('mcp/ip', limit: 20, period: 1.minute) do |req|
-      req.ip if req.path == '/mcp' && req.post?
+      req.remote_ip if req.path == '/mcp' && req.post?
     end
 
     # Throttle the OAuth authorize POST by IP. This is the password-guess
     # surface for the MCP connector, so keep it as tight as the login throttle.
     throttle('oauth-authorize/ip', limit: 5, period: 1.minute) do |req|
-      req.ip if req.path == '/oauth/authorize' && req.post?
+      req.remote_ip if req.path == '/oauth/authorize' && req.post?
     end
 
     # Throttle the OAuth token endpoint by IP. Legitimate clients hit it once
     # per authorization plus the occasional refresh, so a low ceiling is plenty.
     throttle('oauth-token/ip', limit: 30, period: 1.minute) do |req|
-      req.ip if req.path == '/oauth/token' && req.post?
+      req.remote_ip if req.path == '/oauth/token' && req.post?
     end
 
     # Throttle POST requests to /login by email param

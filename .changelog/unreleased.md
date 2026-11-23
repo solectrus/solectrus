@@ -111,5 +111,6 @@ Keep every section, an empty one included.
 - **Settings:** a delete now says "Deleted", and an empty price shows one error. Before, it said "Saved" and showed two errors
 - **Amortization:** a payment of 100 million or more now shows an error. Before, the save failed with an error page
 - **Battery icon:** a charge level at a step like 15 %, 30 % or 60.5 % now shows the matching level. Before, it showed a full battery
+- **Rate limits behind a proxy:** with `TRUSTED_PROXY_RANGES`, for example for Cloudflare, the limits of the login and the AI access now count per visitor. Before, all visitors shared one limit, the one of the proxy address
 
 ## Maintenance
