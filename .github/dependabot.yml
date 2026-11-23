@@ -47,6 +47,10 @@ updates:
         patterns:
           - 'rspec'
           - 'rspec-*'
+      redis:
+        patterns:
+          - 'redis'
+          - 'redis-client'
 
   - package-ecosystem: bun
     directory: '/'
