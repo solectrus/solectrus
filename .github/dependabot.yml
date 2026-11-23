@@ -71,10 +71,6 @@ updates:
         update-types:
           - 'version-update:semver-major'
     groups:
-      vite:
-        patterns:
-          - 'vite'
-          - 'vite-plugin-rails'
       eslint:
         patterns:
           - 'eslint*'
