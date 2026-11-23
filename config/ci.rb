@@ -38,7 +38,7 @@ ParallelCI.run do
     # One database per worker. Creating them is idempotent, and the boot of
     # the test environment loads the schema into an empty or outdated one
     # through maintain_test_schema! (config/application.rb).
-    check 'Test databases', "bin/rake 'parallel:create[#{MAX_WORKERS}]'", env: { RAILS_ENV: 'test', DISABLE_SPRING: 1 }
+    check 'Test databases', "bin/rake 'parallel:create[#{MAX_WORKERS}]'", env: { RAILS_ENV: 'test' }
   end
 
   parallel_step 'Style and security' do
@@ -64,8 +64,6 @@ ParallelCI.run do
   # layouts that read the Vite manifest, so this runs before both spec steps.
   step 'Build: Vite assets', 'bun vite build --mode test --logLevel warn'
 
-  # parallel_tests sets DISABLE_SPRING itself, so the spec steps carry only
-  # what differs between them.
   spec_step(
     'Tests: Unit',
     'spec',
