@@ -310,6 +310,14 @@ describe 'Charging sessions' do
         expect(date_value(:started_at)).to eq('2026-10-13T09:41:00')
       end
 
+      # The time of the charge is unknown, the user enters it
+      it 'starts at midnight in the list of a past day' do
+        new_session(timeframe: "#{year - 1}-06-15")
+
+        expect(date_value(:started_at)).to eq("#{year - 1}-06-15T00:00:00")
+        expect(car_choices.find { it['selected'] }&.text).to eq('Trabant')
+      end
+
       it 'leaves the start empty in a past list' do
         new_session(timeframe: (year - 1).to_s)
 

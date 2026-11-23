@@ -217,20 +217,27 @@ class Cars::ChargingSessionsController < ApplicationController
 
   # The car of the list, or the first car of its timeframe. In a list that
   # reaches today the start is now,
-  # and the first car is one in use today. A start in a past list would offer
-  # only the cars of today. A car of the list that is no longer in use keeps
-  # the start empty.
+  # and the first car is one in use today. A list of a past day starts on
+  # that day at midnight, so the user enters the time alone. A start in
+  # another past list would offer only the cars of today. A car of the list
+  # that is not in use on the day keeps the start empty.
   def prefilled_session
-    today = Date.current unless timeframe.past? || timeframe.future?
-    car = prefilled_car(today)
-    started_at = Time.current.beginning_of_minute if today && car&.active_on?(today)
+    day = prefilled_day
+    car = prefilled_car(day)
+    started_at = (day == Date.current ? Time.current.beginning_of_minute : day.in_time_zone) if day && car&.active_on?(day)
 
     ChargingSession.new(kind: 'offsite', car:, started_at:)
   end
 
-  def prefilled_car(today)
+  def prefilled_day
+    return Date.current unless timeframe.past? || timeframe.future?
+
+    timeframe.date if timeframe.day? && timeframe.past?
+  end
+
+  def prefilled_car(day)
     car_selection.car ||
-      (car_selection.offered.find { it.active_on?(today) } if today) ||
+      (car_selection.offered.find { it.active_on?(day) } if day) ||
       car_selection.offered.first ||
       car_selection.installed.first
   end
