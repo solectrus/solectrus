@@ -16,6 +16,8 @@ module McpServer
           - installed_peak_power_kwp: installed PV peak power, if known.
           - has_battery / has_wallbox / has_heatpump / has_forecast: which
             subsystems are configured, derived from the actual sensor setup.
+          - cars: the number and the name of each electric car, absent
+            without a car. A tool that takes `car` takes this number.
           - data: when this installation last received anything (last_seen_at,
             age_seconds; null only if it never received anything at all). This
             is the health check "is data still arriving?" — seconds old means
@@ -47,6 +49,11 @@ module McpServer
         # rather than reporting a guessed/zero peak power.
         kwp = UpdateCheck.kwp&.to_f
         info[:installed_peak_power_kwp] = kwp if kwp&.positive?
+
+        # The number of a car named by the user, without a query of its
+        # figures (see get_car_costs)
+        cars = Car.configured.map { { number: it.id, name: it.display_name } }
+        info[:cars] = cars if cars.any?
 
         info
       end

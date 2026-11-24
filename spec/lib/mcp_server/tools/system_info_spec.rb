@@ -87,5 +87,22 @@ describe McpServer::Tools::SystemInfo do
 
       expect(data[:installed_peak_power_kwp]).to eq(9.24)
     end
+
+    # A tool that takes `car` takes this number
+    it 'names each car with its number' do
+      Car.create!(id: 1, name: 'Car A', active_from: Date.new(2025, 1, 1))
+      response = described_class.call(server_context: nil)
+      data = JSON.parse(response.content.first[:text], symbolize_names: true)
+
+      expect(data[:cars]).to eq([{ number: 1, name: 'Car A' }])
+    end
+
+    it 'leaves out the cars without a car' do
+      allow(Car).to receive(:configured).and_return([])
+      response = described_class.call(server_context: nil)
+      data = JSON.parse(response.content.first[:text], symbolize_names: true)
+
+      expect(data).not_to have_key(:cars)
+    end
   end
 end

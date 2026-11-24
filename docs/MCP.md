@@ -32,8 +32,8 @@ setup guide instead, for the admin alone.)
   handful of named sensors, on the rare occasion the index is not enough
 - `get_system_info` — installation date, currency, timezone, installed peak
   power, which subsystems (battery, wallbox, heat pump, forecast) are
-  configured, and when data last arrived (the cheap "is the system still
-  delivering?" check)
+  configured, the number and the name of each car, and when data last arrived
+  (the cheap "is the system still delivering?" check)
 - `get_prices` — electricity tariff and feed-in compensation (time-dependent);
   per price type the value `effective` on the requested date, the change
   `history` up to that date. For a past date, the changes up to today follow
