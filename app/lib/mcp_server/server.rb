@@ -111,7 +111,11 @@ module McpServer
     # a long conversation would otherwise pay several times over, so the hint
     # spans a working session rather than a few turns. An update still reaches
     # a client within the hour, and immediately on its next connect.
-    CACHE_TTL = 1.hour
+    #
+    # In development a description changes with each edit, while the version
+    # in `serverInfo` stays the commit, so a reconnect would keep the old list.
+    # There the hint tells a client not to cache.
+    CACHE_TTL = Rails.env.development? ? 0.seconds : 1.hour
     private_constant :CACHE_TTL
 
     # `private` because nothing here is shareable across operators, and because
