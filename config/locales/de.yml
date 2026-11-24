@@ -391,26 +391,26 @@ de:
     bye: Du wurdest abgemeldet.
   oauth:
     authorize:
-      title: KI-Client verbinden
-      subtitle: Ein KI-Client möchte lesenden Zugriff auf deine SOLECTRUS-Daten. Gib dein Admin-Passwort ein, um ihn zuzulassen.
+      title: KI-Agenten verbinden
+      subtitle: Ein KI-Agent möchte lesenden Zugriff auf die SOLECTRUS-Daten. Die Freigabe erfordert das Admin-Passwort.
       client_host: 'Angefragt von:'
       client_local: Ein Client auf diesem Gerät
-      client_insecure: Unverschlüsselte Verbindung – die Freigabe wird im Klartext an diesen Host übertragen. Erlaube das nur in deinem eigenen Netzwerk.
+      client_insecure: Unverschlüsselte Verbindung – die Freigabe wird im Klartext an diesen Host übertragen. Das ist nur im eigenen Netzwerk sicher.
       password_label: Admin-Passwort
       submit: Zugriff erlauben
       error: Falsches Passwort.
       invalid_title: Ungültige Anfrage
-      invalid_body: Diese Autorisierungsanfrage ist ungültig oder unvollständig. Bitte starte erneut aus deinem KI-Client.
+      invalid_body: Diese Autorisierungsanfrage ist ungültig oder unvollständig. Die Verbindung muss im KI-Agenten neu beginnen.
       throttled_title: Zu viele Versuche
-      throttled_body: Von dieser Adresse kamen zu viele Autorisierungsversuche. Warte einige Minuten und starte erneut aus deinem KI-Client.
+      throttled_body: Von dieser Adresse kamen zu viele Autorisierungsversuche. Ein neuer Versuch aus dem KI-Agenten ist in einigen Minuten möglich.
   mcp_info:
     title: MCP-Endpunkt
-    intro: 'Über diese Schnittstelle (MCP, Model Context Protocol) erhalten KI-Clients lesenden Zugriff auf deine SOLECTRUS-Daten: Messwerte, Prognosen, Preise und Anlagendetails.'
+    intro: 'Über diese Schnittstelle (MCP, Model Context Protocol) erhalten KI-Agenten lesenden Zugriff auf die SOLECTRUS-Daten: Messwerte, Prognosen, Preise und Anlagendetails.'
     url_label: 'Endpunkt-URL:'
-    how_title: So verbindest du dich
-    step_client: Füge in deinem KI-Client (z.B. Claude, ChatGPT oder einem lokalen Tool wie LM Studio) einen neuen MCP-Connector mit der obigen URL hinzu.
-    step_auth: Bestätige die Verbindung bei der Aufforderung mit deinem SOLECTRUS-Admin-Passwort.
-    step_use: Der KI-Client kann dann deine Daten auswerten. Frag z.B., ob dein Stromverbrauch in letzter Zeit ungewöhnliche Auffälligkeiten zeigt.
+    how_title: Verbindung einrichten
+    step_client: Im KI-Agenten (z.B. Claude, ChatGPT oder einem lokalen Tool wie LM Studio) einen neuen MCP-Connector mit der obigen URL hinzufügen.
+    step_auth: Die Verbindung bei der Aufforderung mit dem SOLECTRUS-Admin-Passwort bestätigen.
+    step_use: Der KI-Agent kann dann die Daten auswerten, etwa ob der Stromverbrauch in letzter Zeit Auffälligkeiten zeigt.
   lockup:
     headline: Geschützter Zugang
     description: Diese SOLECTRUS-Instanz ist nicht öffentlich.
@@ -532,10 +532,10 @@ de:
       mcp:
         title: Zugriff für KI
         enable: Model-Context-Protocol (MCP) aktivieren
-        hint: Erlaubt KI-Clients (z.B. Claude oder ChatGPT) lesenden Zugriff auf deine SOLECTRUS-Daten (Messwerte, Prognosen, Preise und Anlagendetails).
+        hint: Erlaubt KI-Agenten (z.B. Claude oder ChatGPT) lesenden Zugriff auf die SOLECTRUS-Daten (Messwerte, Prognosen, Preise und Anlagendetails).
         endpoint: 'Endpunkt:'
         raw_data: Auch Rohdaten freigeben
-        raw_data_hint: KI-Clients können dann jeden Messwert im InfluxDB-Bucket lesen, auch Daten, die keinem Sensor zugeordnet sind.
+        raw_data_hint: KI-Agenten können dann alle Messwerte im InfluxDB-Bucket lesen, auch ohne zugeordneten Sensor.
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.

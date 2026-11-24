@@ -391,26 +391,26 @@ en:
     bye: You have been logged out.
   oauth:
     authorize:
-      title: Connect AI client
-      subtitle: An AI client wants read-only access to your SOLECTRUS data. Enter your admin password to allow it.
+      title: Connect AI agent
+      subtitle: An AI agent asks for read-only access to the SOLECTRUS data. The admin password allows it.
       client_host: 'Requested by:'
       client_local: A client on this device
-      client_insecure: Unencrypted connection – the authorization is sent to this host in cleartext. Allow this only inside your own network.
+      client_insecure: Unencrypted connection – the authorization is sent to this host in cleartext. This is safe only inside a private network.
       password_label: Admin password
       submit: Allow access
       error: Wrong password.
       invalid_title: Invalid request
-      invalid_body: This authorization request is invalid or incomplete. Please start again from your AI client.
+      invalid_body: This authorization request is invalid or incomplete. The connection must start again in the AI agent.
       throttled_title: Too many attempts
-      throttled_body: Too many authorization attempts were made from this address. Please wait a few minutes and start again from your AI client.
+      throttled_body: Too many authorization attempts came from this address. A new attempt from the AI agent is possible in a few minutes.
   mcp_info:
     title: MCP endpoint
-    intro: 'Through this interface (MCP, Model Context Protocol), AI clients get read-only access to your SOLECTRUS data: measurements, forecasts, prices and system details.'
+    intro: 'Through this interface (MCP, Model Context Protocol), AI agents get read-only access to the SOLECTRUS data: measurements, forecasts, prices and system details.'
     url_label: 'Endpoint URL:'
-    how_title: How to connect
-    step_client: In your AI client (e.g. Claude, ChatGPT, or a local tool like LM Studio), add a new MCP connector using the URL above.
-    step_auth: When prompted, authorize the connection with your SOLECTRUS admin password.
-    step_use: The AI client can then analyze your data. Try asking whether your electricity consumption has shown any unusual anomalies lately.
+    how_title: Setting up the connection
+    step_client: The AI agent (e.g. Claude, ChatGPT, or a local tool like LM Studio) gets a new MCP connector with the URL above.
+    step_auth: When asked, the SOLECTRUS admin password confirms the connection.
+    step_use: The AI agent can then analyze the data, for example whether the electricity consumption showed anything unusual lately.
   lockup:
     headline: Protected access
     description: This SOLECTRUS instance is not public.
@@ -532,10 +532,10 @@ en:
       mcp:
         title: Access for AI
         enable: Enable Model Context Protocol (MCP)
-        hint: Allows AI clients (e.g. Claude or ChatGPT) read-only access to your SOLECTRUS data (measurements, forecasts, prices and system details).
+        hint: Allows AI agents (e.g. Claude or ChatGPT) read-only access to the SOLECTRUS data (measurements, forecasts, prices and system details).
         endpoint: 'Endpoint:'
         raw_data: Also allow raw data
-        raw_data_hint: AI clients can then read every measurement in the InfluxDB bucket, also data that no sensor reads.
+        raw_data_hint: AI agents can then read every measurement in the InfluxDB bucket, also without a sensor.
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.
