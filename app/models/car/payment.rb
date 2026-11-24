@@ -12,6 +12,8 @@
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string
+#  origin     :string           default("user"), not null
+#  reference  :string
 #  type       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -19,8 +21,9 @@
 #
 # Indexes
 #
-#  index_payments_on_car_id         (car_id)
-#  index_payments_on_type_and_date  (type,date)
+#  index_payments_on_car_id              (car_id)
+#  index_payments_on_type_and_date       (type,date)
+#  index_payments_on_type_and_reference  (type,reference) UNIQUE WHERE (reference IS NOT NULL)
 #
 # Foreign Keys
 #

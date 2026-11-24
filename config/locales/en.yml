@@ -506,6 +506,8 @@ en:
     deleted: Deleted
     error: An error occurred
   settings:
+    # The number of the document of a payment, which an AI client finds it by
+    reference_hint: For example the number of the bill. An AI agent finds the entry again by it.
     # The longer title above the content of a page with a side navigation
     titles:
       plant_data: System and operator
@@ -723,6 +725,7 @@ en:
         date: Date
         amount: Amount
         note: Note
+        reference: Document number
       car/payment:
         car: Car
         car_id: Car
@@ -790,6 +793,7 @@ en:
         date: Date
         amount: Amount
         note: Purpose
+        reference: Document number
         category: Category
         categories:
           investment: Investment

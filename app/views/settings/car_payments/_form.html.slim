@@ -6,6 +6,9 @@ ruby:
   cars = Car.configured.map { [it.display_name, it.id] }
 
 = form_page_with(model: payment, url: payment.persisted? ? settings_car_payment_path(payment) : settings_car_payments_path) do |f|
+  / The head of the modal names an entry of an AI client (see the view edit),
+    the form does it in the sheet of a phone and on a page of its own
+  = render OriginNote::Component.new(record: payment) unless form_in_modal?
   = f.group footer: t('settings.car_payments.footer') do
     / The car needs a choice with more than one car only. The first field
       takes the focus, like in the other forms.
@@ -19,5 +22,6 @@ ruby:
 
   = f.group do
     = f.text_field :note
+    = f.text_field :reference, hint: t('settings.reference_hint')
 
   = render Ui::SubmitButton::Component.new delete_path: (settings_car_payment_path(payment) if payment.persisted?)

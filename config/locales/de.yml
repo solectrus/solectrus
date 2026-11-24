@@ -506,6 +506,8 @@ de:
     deleted: Gelöscht
     error: Es ist ein Fehler aufgetreten
   settings:
+    # The number of the document of a payment, which an AI client finds it by
+    reference_hint: Zum Beispiel die Rechnungsnummer. Ein KI-Agent findet den Eintrag über sie wieder.
     # The longer title above the content of a page with a side navigation
     titles:
       plant_data: Anlage und Betreiber
@@ -723,6 +725,7 @@ de:
         date: Datum
         amount: Betrag
         note: Notiz
+        reference: Belegnummer
       car/payment:
         car: Auto
         car_id: Auto
@@ -790,6 +793,7 @@ de:
         date: Datum
         amount: Betrag
         note: Zweck
+        reference: Belegnummer
         category: Kategorie
         categories:
           investment: Investition

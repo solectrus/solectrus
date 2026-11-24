@@ -17,6 +17,8 @@
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string
+#  origin     :string           default("user"), not null
+#  reference  :string
 #  type       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -24,14 +26,17 @@
 #
 # Indexes
 #
-#  index_payments_on_car_id         (car_id)
-#  index_payments_on_type_and_date  (type,date)
+#  index_payments_on_car_id              (car_id)
+#  index_payments_on_type_and_date       (type,date)
+#  index_payments_on_type_and_reference  (type,reference) UNIQUE WHERE (reference IS NOT NULL)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (car_id => cars.id)
 #
 class Payment < ApplicationRecord
+  include Origin
+
   scope :ordered, -> { order(date: :desc, id: :desc) }
 
   # The sum of the payments, positive for more income than expense. One
@@ -44,6 +49,11 @@ class Payment < ApplicationRecord
   def self.income?(category) = category.in?(self::INCOMES)
 
   normalizes :note, with: -> { it.strip.presence }
+
+  # The number of the document that a payment comes from, like the number of
+  # a bill. It finds the payment of a document again.
+  normalizes :reference, with: -> { it.strip.presence }
+  validates :reference, uniqueness: { scope: :type }, allow_nil: true
 
   validates :date, presence: true
   validates :amount, presence: true, numericality: { other_than: 0, greater_than: -100_000_000, less_than: 100_000_000 }

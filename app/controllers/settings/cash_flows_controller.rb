@@ -40,7 +40,8 @@ class Settings::CashFlowsController < ApplicationController
 
   def create = respond_to_save(@cash_flow, @cash_flow.save)
 
-  def update = respond_to_save(@cash_flow, @cash_flow.update(permitted_params))
+  # A saved cash flow is the admin's, also one that an AI client wrote
+  def update = respond_to_save(@cash_flow, @cash_flow.update(permitted_params.merge(origin: :user)))
 
   def destroy
     @cash_flow.destroy!
@@ -71,7 +72,7 @@ class Settings::CashFlowsController < ApplicationController
   end
 
   def permitted_params
-    params.expect(cash_flow: %i[date amount note category])
+    params.expect(cash_flow: %i[date amount note category reference])
   end
 
   def load_cash_flow

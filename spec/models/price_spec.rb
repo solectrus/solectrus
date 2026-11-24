@@ -6,6 +6,7 @@
 #  amount_per_month :decimal(8, 2)
 #  name             :string           not null
 #  note             :string
+#  origin           :string           default("user"), not null
 #  starts_at        :date             not null
 #  value            :decimal(8, 5)    not null
 #  created_at       :datetime         not null

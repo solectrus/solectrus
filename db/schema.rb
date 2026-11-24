@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,7 +44,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
     t.date "date", null: false
     t.string "note", null: false
     t.datetime "updated_at", null: false
+    t.string "origin", default: "user", null: false
+    t.string "reference"
     t.index ["date"], name: "index_cash_flows_on_date"
+    t.index ["reference"], name: "index_cash_flows_on_reference", unique: true, where: "(reference IS NOT NULL)"
   end
 
   create_table "charging_sessions", force: :cascade do |t|
@@ -74,6 +77,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
     t.index ["car_id", "started_at"], name: "index_charging_sessions_on_car_id_and_started_at"
     t.index ["kind", "started_at"], name: "index_charging_sessions_on_kind_and_started_at"
     t.index ["started_at"], name: "index_charging_sessions_on_wallbox_start", unique: true, where: "(((kind)::text = 'wallbox'::text) AND ((origin)::text = 'detection'::text))"
+    t.check_constraint "(origin::text <> ALL (ARRAY['user'::character varying, 'mcp'::character varying]::text[])) OR kind::text = 'offsite'::text AND assigned_manually", name: "charging_sessions_user"
     t.check_constraint "(soc_from IS NULL OR soc_from >= 0::numeric AND soc_from <= 100::numeric) AND (soc_to IS NULL OR soc_to >= 0::numeric AND soc_to <= 100::numeric)", name: "charging_sessions_soc"
     t.check_constraint "NOT dismissed OR kind::text = 'offsite'::text AND assigned_manually", name: "charging_sessions_dismissed"
     t.check_constraint "NOT guest OR kind::text = 'wallbox'::text AND car_id IS NULL", name: "charging_sessions_guest"
@@ -84,7 +88,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
     t.check_constraint "kwh > 0::numeric", name: "charging_sessions_kwh"
     t.check_constraint "kwh IS NOT NULL OR kind::text = 'offsite'::text AND (NOT assigned_manually OR dismissed)", name: "charging_sessions_kwh_present"
     t.check_constraint "kwh_grid IS NULL OR kwh_grid >= 0::numeric AND kwh_grid <= kwh", name: "charging_sessions_kwh_grid"
-    t.check_constraint "origin::text <> 'user'::text OR kind::text = 'offsite'::text AND assigned_manually", name: "charging_sessions_user"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -107,8 +110,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
     t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "origin", default: "user", null: false
+    t.string "reference"
     t.index ["car_id"], name: "index_payments_on_car_id"
     t.index ["type", "date"], name: "index_payments_on_type_and_date"
+    t.index ["type", "reference"], name: "index_payments_on_type_and_reference", unique: true, where: "(reference IS NOT NULL)"
     t.check_constraint "amount <> 0::numeric", name: "payments_amount"
     t.check_constraint "type::text <> 'Car::Payment'::text OR car_id IS NOT NULL", name: "payments_car"
   end
@@ -145,6 +151,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_120000) do
     t.date "starts_at", null: false
     t.datetime "updated_at", null: false
     t.decimal "value", precision: 8, scale: 5, null: false
+    t.string "origin", default: "user", null: false
     t.index ["name", "starts_at"], name: "index_prices_on_name_and_starts_at", unique: true
   end
 

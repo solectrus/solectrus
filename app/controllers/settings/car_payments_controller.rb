@@ -36,7 +36,7 @@ class Settings::CarPaymentsController < ApplicationController
   def cars = (@cars ||= Car.configured)
 
   def permitted_params
-    params.expect(car_payment: %i[car_id category date amount note])
+    params.expect(car_payment: %i[car_id category date amount note reference])
   end
 
   # A new payment takes the car of the filter, so the next rate of a lease

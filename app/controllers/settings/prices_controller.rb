@@ -24,7 +24,8 @@ class Settings::PricesController < ApplicationController
 
   def create = respond_to_save(@price, @price.save)
 
-  def update = respond_to_save(@price, @price.update(permitted_params))
+  # A saved price is the admin's, also one that an AI client wrote
+  def update = respond_to_save(@price, @price.update(permitted_params.merge(origin: :user)))
 
   def destroy
     @price.destroy!

@@ -42,4 +42,18 @@ describe Price::List::Component, type: :component do
       end
     end
   end
+
+  context 'when an AI client wrote a price' do
+    before do
+      allow(vc_test_controller).to receive(:admin?).and_return(true)
+      Price.create!(name:, starts_at: 2.days.ago, amount_per_kwh: 0.06)
+      Price.create!(name:, starts_at: 1.day.ago, amount_per_kwh: 0.08, origin: :mcp)
+
+      render_inline(component)
+    end
+
+    it 'marks only that price' do
+      expect(page).to have_css('span[role="img"][data-controller="tooltip"] svg', count: 1)
+    end
+  end
 end

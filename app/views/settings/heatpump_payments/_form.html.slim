@@ -5,6 +5,9 @@ ruby:
   end
 
 = form_page_with(model: payment, url: payment.persisted? ? settings_heatpump_payment_path(payment) : settings_heatpump_payments_path) do |f|
+  / The head of the modal names an entry of an AI client (see the view edit),
+    the form does it in the sheet of a phone and on a page of its own
+  = render OriginNote::Component.new(record: payment) unless form_in_modal?
   = f.group footer: t('settings.heatpump_payments.footer') do
     = f.select :category, categories, { include_blank: true, hint: t('settings.heatpump_payments.category_hint') }, autofocus: true
     = f.date_field :date
@@ -12,5 +15,6 @@ ruby:
 
   = f.group do
     = f.text_field :note
+    = f.text_field :reference, hint: t('settings.reference_hint')
 
   = render Ui::SubmitButton::Component.new delete_path: (settings_heatpump_payment_path(payment) if payment.persisted?)

@@ -7,12 +7,15 @@
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string           not null
+#  origin     :string           default("user"), not null
+#  reference  :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 # Indexes
 #
-#  index_cash_flows_on_date  (date)
+#  index_cash_flows_on_date       (date)
+#  index_cash_flows_on_reference  (reference) UNIQUE WHERE (reference IS NOT NULL)
 #
 class CashFlow < ApplicationRecord
   # Business classification of a cash flow. The category - not the sign alone -
@@ -63,8 +66,15 @@ class CashFlow < ApplicationRecord
   ].freeze
   public_constant :OPERATING_CATEGORIES
 
+  include Origin
+
   validates :date, presence: true
   validates :note, presence: true
+
+  # The number of the document that a cash flow comes from, like the number
+  # of a bill. It finds the cash flow of a document again.
+  normalizes :reference, with: -> { it.strip.presence }
+  validates :reference, uniqueness: true, allow_nil: true
   # The column holds up to eight digits before the decimal point
   validates :amount,
             presence: true,

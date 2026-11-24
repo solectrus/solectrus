@@ -1,4 +1,7 @@
 = form_page_with(model: price, url: [:settings, price]) do |f|
+  / The head of the modal names an entry of an AI client (see the view edit),
+    the form does it in the sheet of a phone and on a page of its own
+  = render OriginNote::Component.new(record: price) unless form_in_modal?
   = f.hidden_field :name
 
   = f.group do

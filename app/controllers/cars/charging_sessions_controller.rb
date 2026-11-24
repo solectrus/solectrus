@@ -196,6 +196,8 @@ class Cars::ChargingSessionsController < ApplicationController
     return @charging_session.update_parts(update_params) if @charging_session.wallbox?
 
     @charging_session.assign_attributes(update_params)
+    # A saved session is the admin's, also one that an AI client wrote
+    @charging_session.origin = 'user' if @charging_session.origin_mcp?
     ChargingSession::AddressLookup.new(@charging_session).save
   end
 

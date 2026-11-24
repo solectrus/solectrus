@@ -13,6 +13,9 @@
       = f.text_area :note, rows: 3
 
   - else
+    / The head of the modal names an entry of an AI client (see the partial
+      form_page), the form does it on a page of its own
+    = render OriginNote::Component.new(record: charging_session) unless form_in_modal?
     - if charging_session.proposal?
       / A save accepts the proposal of the build. Its dismissal stands beside
         the hint, but submits a form of its own (see the view edit), so Enter

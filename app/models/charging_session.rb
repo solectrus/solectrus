@@ -38,8 +38,10 @@
 #  charging_sessions_car_id_fkey  (car_id => cars.id)
 #
 # A charge of a car. The kind says where the energy flowed, and the origin
-# says who made the row: the detection (see ChargingSession::Detection) or
-# the user. An accepted proposal keeps its origin.
+# says who made the row: the detection (see ChargingSession::Detection), the
+# user, or an AI client over MCP. A proposal that the user accepts keeps its
+# origin. An AI client that enters or changes a session marks it as its own,
+# until the user saves it in the form.
 #
 # A wallbox session is in one of three states: it belongs to a car, it is a
 # guest charge, or it is not assigned yet. Only a session of a car counts for
@@ -67,7 +69,7 @@ class ChargingSession < ApplicationRecord
   include ChargingSession::StateOfCharge
 
   enum :kind, wallbox: 'wallbox', offsite: 'offsite'
-  enum :origin, { detection: 'detection', user: 'user' }, prefix: true
+  enum :origin, { detection: 'detection', user: 'user', mcp: 'mcp' }, prefix: true
   enum :power_type, { ac: 'ac', dc: 'dc' }, prefix: true
 
   # The ID of a charge point as the station shows it. The format of ISO 15118
@@ -111,6 +113,7 @@ class ChargingSession < ApplicationRecord
     'kind',
     'car_id',
     'guest',
+    '(ARRAY_AGG(origin ORDER BY started_at))[1] AS origin',
     'BOOL_OR(assigned_manually) AS assigned_manually',
     'MIN(started_at) AS started_at',
     'MAX(ended_at) AS ended_at',

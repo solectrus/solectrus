@@ -235,14 +235,16 @@ of a period is not the average of its days.
 
 A charging session is a charge of a car. The kind says where the energy flowed:
 
-| Kind      | Charged at              | Origin                                | Energy and cost from    |
-| --------- | ----------------------- | ------------------------------------- | ----------------------- |
-| `wallbox` | own wallbox             | `detection`                           | wallbox curve, splitter |
-| `offsite` | public or other wallbox | `user`, or `detection` for a proposal | manual input, estimate  |
+| Kind      | Charged at              | Origin                                       | Energy and cost from    |
+| --------- | ----------------------- | -------------------------------------------- | ----------------------- |
+| `wallbox` | own wallbox             | `detection`                                  | wallbox curve, splitter |
+| `offsite` | public or other wallbox | `user`, `mcp`, or `detection` for a proposal | manual input, estimate  |
 
 The column `origin` says who made the row. It has no default, so each writer must name
-itself. An accepted proposal keeps `detection`. The detection changes only its own rows, so
-a later import, for example from evcc, will get an origin of its own.
+itself. A proposal that the user accepts keeps `detection`. An AI client that enters or
+changes a session over MCP sets `mcp`. The list marks such a session until the user saves
+it in the form, which sets `user`. The detection changes only its own rows, so a later
+import, for example from evcc, will get an origin of its own.
 
 A `wallbox` session is in one of three states:
 

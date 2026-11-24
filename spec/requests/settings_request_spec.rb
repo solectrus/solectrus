@@ -317,6 +317,14 @@ describe 'Settings' do
         expect(price.reload.note).to eq('New tariff')
       end
     end
+
+    it 'makes a price of an AI client the admin\'s' do
+      price.origin_mcp!
+
+      patch "/settings/prices/#{price.id}", params: { price: { note: 'Checked' } }
+
+      expect(price.reload.origin).to eq('user')
+    end
   end
 
   describe 'GET /settings/prices/:id/edit' do

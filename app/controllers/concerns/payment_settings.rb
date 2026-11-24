@@ -40,7 +40,8 @@ module PaymentSettings
 
   def create = respond_to_save(@payment, @payment.save)
 
-  def update = respond_to_save(@payment, @payment.update(permitted_params))
+  # A saved payment is the admin's, also one that an AI client wrote
+  def update = respond_to_save(@payment, @payment.update(permitted_params.merge(origin: :user)))
 
   def destroy
     @payment.destroy!
@@ -84,7 +85,7 @@ module PaymentSettings
   def filtered_payments = filter.apply(payment_scope.ordered)
 
   def permitted_params
-    params.expect(payment_class.model_name.param_key => %i[category date amount note])
+    params.expect(payment_class.model_name.param_key => %i[category date amount note reference])
   end
 
   def load_payment

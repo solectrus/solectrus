@@ -9,7 +9,8 @@
       = render ChargingSession::PvRing::Component.new(percent: pv_percent)
 
   / The day is a target of its own on the desktop, with its own hover. On a
-    phone a tap opens the session, so the day is plain text there.
+    phone a tap opens the session, so the day is plain text there. The place
+    of the mark of an AI client is at the end of the column.
   div class=['min-w-0 flex items-center gap-2 whitespace-nowrap lg:p-2 max-lg:row-start-1', phone_columns[:text]]
     = link_to day_path, class: 'max-lg:pointer-events-none shrink-0 rounded-sm text-fg lg:hover:underline underline-offset-4 focus-ring-inset' do
       time datetime=charging_session.started_at.iso8601
@@ -18,6 +19,7 @@
     span.lg:hidden.truncate.text-muted.tabular-nums = "· #{start_time}"
     - if charging_session.ongoing?
       span.lg:hidden.flex = ongoing_dot
+    = render OriginBadge::Component.new(record: charging_session)
 
   / The desktop has the time in a column of its own, so the times of the
     rows stand one below the other

@@ -22,6 +22,15 @@ describe CreatePayments do
 
   delegate :connection, to: :'ActiveRecord::Base'
 
+  # SQL rather than the models, because a model knows the columns that later
+  # migrations add
+  def insert_payment(values)
+    connection.select_value(<<~SQL.squish)
+      INSERT INTO payments (type, car_id, category, date, amount, created_at, updated_at)
+      VALUES (#{values}, '2025-06-01', 150, NOW(), NOW()) RETURNING id
+    SQL
+  end
+
   before do
     car
     migrate(:down)
@@ -38,19 +47,17 @@ describe CreatePayments do
 
     migrate(:up)
 
-    expect(Car::Payment.find(5)).to have_attributes(car:, category: 'insurance', amount: 480, note: 'Insurance')
-    expect(car.payments.create!(category: :maintenance, date: Date.new(2025, 6, 1), amount: 150).id).to be > 5
+    expect(connection.select_rows('SELECT id, type, car_id, category, amount, note FROM payments'))
+      .to eq([[5, 'Car::Payment', 1, 'insurance', 480, 'Insurance']])
+    expect(insert_payment("'Car::Payment', 1, 'maintenance'")).to be > 5
   end
 
   # A payment without a car, like one of the heat pump, has no place in the
   # old table
   it 'keeps the payments of the cars on the way down' do
     migrate(:up)
-    car.payments.create!(category: :insurance, date: Date.new(2025, 3, 1), amount: 480)
-    connection.execute(<<~SQL.squish)
-      INSERT INTO payments (type, category, date, amount, created_at, updated_at)
-      VALUES ('Heatpump::Payment', 'maintenance', '2025-06-01', 150, NOW(), NOW())
-    SQL
+    insert_payment("'Car::Payment', 1, 'insurance'")
+    insert_payment("'Heatpump::Payment', NULL, 'maintenance'")
 
     migrate(:down)
 

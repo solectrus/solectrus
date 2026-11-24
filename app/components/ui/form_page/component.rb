@@ -7,6 +7,8 @@
 #
 # A `subtitle`, like the address of a place, stands below the title in the
 # head of the sheet. The modal and the page show it in place of the title.
+# A `title_mark`, like the mark of an entry of an AI client, stands beside the
+# title in the head of the modal.
 #
 # FormPageHelper gives the form what differs between the places, and the
 # controller answers with FormPageResponse.
@@ -25,15 +27,16 @@ class Ui::FormPage::Component < ViewComponent::Base
     uri.to_s
   end
 
-  def initialize(title:, subtitle: nil, width: :wide, form: nil)
+  def initialize(title:, subtitle: nil, title_mark: nil, width: :wide, form: nil)
     super()
     @title = title
     @subtitle = subtitle
+    @title_mark = title_mark
     @width = width
     @form = form
   end
 
-  attr_reader :title, :subtitle, :width, :form
+  attr_reader :title, :subtitle, :title_mark, :width, :form
 
   def heading = subtitle || title
 end

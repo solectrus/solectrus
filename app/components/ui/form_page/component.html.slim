@@ -3,7 +3,10 @@
     - page.with_save(form:) if form
     = content
 - elsif helpers.form_in_modal?
-  = render Ui::TurboModal::Component.new(title: heading, width:) do
+  = render Ui::TurboModal::Component.new(width:) do |modal|
+    - modal.with_title do
+      = heading
+      = title_mark
     = content
 - else
   .lg:max-w-2xl

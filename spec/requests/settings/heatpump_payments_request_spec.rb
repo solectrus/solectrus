@@ -63,6 +63,39 @@ describe 'Settings heat pump payments' do
       expect(Heatpump::Payment.count).to eq(0)
     end
 
+    it 'keeps the number of the document of a payment, unique like the tools need it' do
+      post settings_heatpump_payments_path, params: { heatpump_payment: { category: 'maintenance', date: '2025-03-01', amount: '150', reference: ' INV-1 ' } }
+      expect(Heatpump::Payment.sole.reference).to eq('INV-1')
+
+      get edit_settings_heatpump_payment_path(Heatpump::Payment.sole)
+      expect(response.parsed_body.at_css('input[name="heatpump_payment[reference]"]')['value']).to eq('INV-1')
+
+      post settings_heatpump_payments_path, params: { heatpump_payment: { category: 'maintenance', date: '2025-04-01', amount: '90', reference: 'INV-1' } }, as: :turbo_stream
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    it 'makes a payment of an AI client the admin\'s, and marks it until then' do
+      payment = Heatpump::Payment.create!(category: :maintenance, date: Date.new(2024, 6, 1), amount: 150, origin: :mcp)
+
+      get settings_heatpump_payments_path
+      expect(response.body).to include('Entered by AI')
+
+      patch settings_heatpump_payment_path(payment), params: { heatpump_payment: { note: 'Checked' } }
+      expect(payment.reload.origin).to eq('user')
+    end
+
+    it 'names a payment of an AI client in the head of the modal, else in the form' do
+      payment = Heatpump::Payment.create!(category: :maintenance, date: Date.new(2024, 6, 1), amount: 150, origin: :mcp)
+      form = "form[action='#{settings_heatpump_payment_path(payment)}']"
+
+      get edit_settings_heatpump_payment_path(payment), headers: { 'Turbo-Frame' => 'modal' }
+      expect(response.body).to include('Entered by AI')
+      expect(response.parsed_body.at_css(form).text).not_to include('Entered by AI')
+
+      get edit_settings_heatpump_payment_path(payment)
+      expect(response.parsed_body.at_css(form).text).to include('Entered by AI')
+    end
+
     it 'loads the next page into its frame' do
       26.times { Heatpump::Payment.create!(category: :maintenance, date: Date.new(2025, 1, 1) + it, amount: 5) }
 

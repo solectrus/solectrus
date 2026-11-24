@@ -3,7 +3,9 @@
   of a grouped list: the note over the date, the category and the car, the
   amount at the right.
 = render Ui::TableRow::Component.new(href: edit_path, nav_title:, css_class: 'group grid items-center lg:col-span-full lg:grid-cols-subgrid max-lg:grid-cols-[minmax(0,1fr)_auto_auto] max-lg:grid-rows-[auto_auto]') do |row|
-  .inline-flex.items-center.gap-1.5.whitespace-nowrap.lg:p-2.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:min-w-0.max-lg:text-subhead.max-lg:text-muted
+  / The place of the mark of an AI client at the end of the column of the
+    date
+  .flex.items-center.gap-1.5.whitespace-nowrap.lg:p-2.lg:tabular-nums.max-lg:col-start-1.max-lg:row-start-2.max-lg:min-w-0.max-lg:text-subhead.max-lg:text-muted
     = row.link css_class: 'max-lg:truncate' do
       time datetime=payment.date.iso8601
         = l payment.date
@@ -12,6 +14,7 @@
         - if car_column?
           = " · #{payment.car.short_name}"
     span.max-lg:hidden = render Ui::FilterLink::Component.new(filter:, narrowed: filter.with_year(payment.date), label: t('.filter_by_year'))
+    = render OriginBadge::Component.new(record: payment)
   - if car_column?
     .inline-flex.items-center.gap-1.5.whitespace-nowrap.p-2.max-lg:hidden
       = render Car::Badge::Component.new(car: payment.car, short: true)

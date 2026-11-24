@@ -333,6 +333,14 @@ describe 'Settings::CashFlows' do
 
         expect(cash_flow.reload.note).to eq('New')
       end
+
+      it 'makes a cash flow of an AI client the admin\'s' do
+        cash_flow.origin_mcp!
+
+        patch "/settings/cash_flows/#{cash_flow.id}", params: { cash_flow: { note: 'Checked' } }
+
+        expect(cash_flow.reload.origin).to eq('user')
+      end
     end
   end
 

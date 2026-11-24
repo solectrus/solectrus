@@ -7,12 +7,15 @@
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string           not null
+#  origin     :string           default("user"), not null
+#  reference  :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
 #
 # Indexes
 #
-#  index_cash_flows_on_date  (date)
+#  index_cash_flows_on_date       (date)
+#  index_cash_flows_on_reference  (reference) UNIQUE WHERE (reference IS NOT NULL)
 #
 describe CashFlow do
   describe 'database' do
@@ -163,5 +166,13 @@ describe CashFlow do
 
       expect(described_class.ordered).to eq([newer, older])
     end
+  end
+
+  # The number of a document finds its cash flow again
+  it 'holds the number of a document once, and a blank number as none' do
+    described_class.create!(date: Date.current, amount: -100, note: 'Repair', reference: 'R-1')
+
+    expect(described_class.new(date: Date.current, amount: -50, note: 'Other', reference: 'R-1')).not_to be_valid
+    expect(described_class.new(reference: ' ').reference).to be_nil
   end
 end

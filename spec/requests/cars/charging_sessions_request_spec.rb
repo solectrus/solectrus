@@ -172,6 +172,14 @@ describe 'Charging sessions' do
         expect(response.body).not_to include('Main Street', '/edit', '/cars/charging_sessions/new', '/map"')
       end
 
+      it 'does not mark a session of an AI client, which only the admin checks' do
+        recent.update_columns(origin: 'mcp') # rubocop:disable Rails/SkipsModelValidations
+        get page('offsite')
+
+        expect(response.body).to include(recent.started_at.iso8601)
+        expect(response.body).not_to include('Entered by AI')
+      end
+
       it 'loads the next page of the list' do
         get '/cars/charging_sessions/offsite/all', params: { page: 2 }, headers: { 'Turbo-Frame' => 'sessions_page_2' }
         expect(response).to have_http_status(:success)
@@ -739,6 +747,23 @@ describe 'Charging sessions' do
       expect(response.parsed_body.at_css('a.ui-title-bar-back')['href']).to eq('/cars/charging_sessions/offsite')
     end
 
+    describe 'a session of an AI client' do
+      before { recent.update_columns(origin: 'mcp') } # rubocop:disable Rails/SkipsModelValidations
+
+      it 'names it in the head of the modal' do
+        get "/cars/charging_sessions/#{recent.id}/edit", headers: { 'Turbo-Frame' => 'modal' }
+
+        expect(response.body).to include('Entered by AI')
+        expect(response.parsed_body.at_css("form[action='/cars/charging_sessions/#{recent.id}']").text).not_to include('Entered by AI')
+      end
+
+      it 'names it in the form on a page of its own' do
+        get "/cars/charging_sessions/#{recent.id}/edit"
+
+        expect(response.parsed_body.at_css("form[action='/cars/charging_sessions/#{recent.id}']").text).to include('Entered by AI')
+      end
+    end
+
     it 'offers to delete an offsite session in the form' do
       get "/cars/charging_sessions/#{recent.id}/edit"
 
@@ -799,6 +824,17 @@ describe 'Charging sessions' do
             as: :turbo_stream
 
       expect(response.body).to include('<turbo-stream action="back_to" target="/cars/charging_sessions/offsite">')
+    end
+
+    it 'marks a session of an AI client in the list, until the admin saves it' do
+      recent.update_columns(origin: 'mcp') # rubocop:disable Rails/SkipsModelValidations
+
+      get page('offsite')
+      expect(response.body).to include('Entered by AI')
+
+      update_recent
+      expect(recent.reload.origin).to eq('user')
+      expect(response.body).not_to include('Entered by AI')
     end
   end
 

@@ -9,6 +9,8 @@ require 'rails_helper'
 #  category   :string           not null
 #  date       :date             not null
 #  note       :string
+#  origin     :string           default("user"), not null
+#  reference  :string
 #  type       :string           not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -16,8 +18,9 @@ require 'rails_helper'
 #
 # Indexes
 #
-#  index_payments_on_car_id         (car_id)
-#  index_payments_on_type_and_date  (type,date)
+#  index_payments_on_car_id              (car_id)
+#  index_payments_on_type_and_date       (type,date)
+#  index_payments_on_type_and_reference  (type,reference) UNIQUE WHERE (reference IS NOT NULL)
 #
 # Foreign Keys
 #
@@ -58,6 +61,15 @@ describe Car::Payment do
     %i[ghg_quota vehicle_tax charging_fees insurance purchase leasing_rate loan_rate subsidy sale].each { payment(it).save! }
 
     expect(described_class.compared.map(&:category)).to contain_exactly('ghg_quota', 'vehicle_tax', 'charging_fees', 'insurance')
+  end
+
+  # The number of a document finds its payment again. A payment of the heat
+  # pump is another kind of payment.
+  it 'holds the number of a document once per kind of payment' do
+    payment(:insurance).update!(reference: 'POL-7')
+
+    expect(described_class.new(car:, category: :maintenance, date: Date.new(2025, 7, 1), amount: 50, reference: 'POL-7')).not_to be_valid
+    expect(Heatpump::Payment.new(category: :maintenance, date: Date.new(2025, 7, 1), amount: 50, reference: 'POL-7')).to be_valid
   end
 
   it 'falls in the period of use of its car' do

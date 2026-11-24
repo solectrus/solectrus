@@ -12,5 +12,5 @@
     = render Ui::TitleBar::Component.new(title: heading, back_href: list_path, back_label: t('car_breakdown.charging')) do |bar|
       - bar.with_save(form: form_page_id(@charging_session))
 
-  = render Ui::FormPage::Component.new(title: heading, width:) do
+  = render Ui::FormPage::Component.new(title: heading, title_mark: render(OriginNote::Component.new(record: @charging_session, inline: true)), width:) do
     = yield
