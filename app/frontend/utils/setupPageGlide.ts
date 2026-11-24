@@ -15,8 +15,9 @@ type Glide = { move?: Animation; size?: Animation; end: Box };
 // A page that still loads a frame keeps at least the height of the old
 // page, so the card does not shrink to the empty page first and grow again.
 // A page of full height does not wait: its frames do not change its height.
-// While the card glides or waits, it follows each change of its content,
-// from a frame or a stream, from where it is.
+// Nor does a hidden frame, like a frame of the Summary::Builder, which only
+// carries a request. While the card glides or waits, it follows each change
+// of its content, from a frame or a stream, from where it is.
 //
 // A card that shrinks gives its content the end height at once. The padding
 // below the content takes the difference, so a chart draws at its own size
@@ -48,7 +49,9 @@ export function setupPageGlide() {
 
     const loading =
       !to.card.closest('.page-full-height') &&
-      to.card.querySelector('turbo-frame[busy]') !== null;
+      [...to.card.querySelectorAll('turbo-frame[busy]')].some((frame) =>
+        frame.checkVisibility(),
+      );
     if (loading) to.height = Math.max(to.height, from.height);
     const fill = loading ? 'forwards' : 'none';
 
