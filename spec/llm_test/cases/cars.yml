@@ -44,3 +44,26 @@
   judge: >
     Names the saving of last month as an amount of money. Giving the saving
     as a percentage or a factor of the costs fails.
+
+- id: car_single_charge
+  note: >
+    The date and the energy of one charge are no sum, so only
+    get_charging_sessions has them. get_car_costs adds the charges of a
+    period up.
+  prompt: Wann hat mein Auto zuletzt an der Wallbox geladen, und wie viel kWh waren es?
+  expect_tools: [get_charging_sessions]
+  max_tool_calls: 2
+  expect_facts: [car_last_charge_kwh]
+  judge: >
+    Names the date of the latest charge at the wallbox and its energy. A sum
+    over a period in place of the single charge fails.
+
+- id: car_single_payment
+  note: >
+    One payment of the car, with its date, comes only from get_car_payments.
+    get_car_costs gives the payments of a period added up by category.
+  prompt: Wann habe ich die Versicherung für mein Auto bezahlt, und wie viel war es?
+  expect_tools: [get_car_payments]
+  max_tool_calls: 2
+  expect_facts: [car_insurance_payment]
+  judge: Names the date and the amount of the insurance payment of the car.

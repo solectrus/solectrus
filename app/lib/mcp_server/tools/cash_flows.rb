@@ -13,9 +13,10 @@ module McpServer
         question about an entry needs this tool alone: get_amortization only
         adds the entries up into profitability.
 
-        Each entry carries `date`, `category`, `amount` and the free-text `note`
-        its owner wrote. A negative `amount` is money out, a positive one money
-        in. The CATEGORY, not the sign, decides how an entry counts:
+        Each entry carries `id`, `date`, `category`, `amount`, the free-text
+        `note` its owner wrote, the number of its document as `reference` and
+        its `origin` (`user` = the admin, `mcp` = an AI agent). A negative
+        `amount` is money out, a positive one money in. The CATEGORY, not the sign, decides how an entry counts:
           - investment base (#{CashFlow::INVESTMENT_BASE_CATEGORIES.join(', ')}):
             what has to be earned back — investment raises it, the other two
             lower it as a whole, never one investment. Their `sum` is the net
@@ -156,26 +157,19 @@ module McpServer
       end
       private_class_method :resolve_categories
 
-      # An inverted range silently matches nothing, and "no entries" is an
-      # answer a client believes - so the swapped dates are named instead.
-      def self.reject_inverted_range(first_day, last_day)
-        return unless first_day && last_day && first_day > last_day
-
-        raise ArgumentError,
-              "Invalid range: from (#{first_day.iso8601}) is after to " \
-                "(#{last_day.iso8601}). Use from=#{last_day.iso8601}, to=#{first_day.iso8601}."
-      end
-      private_class_method :reject_inverted_range
-
+      # An entry as get_cash_flows lists it, which set_cash_flow answers with
+      # as well
       def self.serialize(cash_flow)
         {
-          date: cash_flow.date.iso8601,
+          id: cash_flow.id,
+          date: cash_flow.date&.iso8601,
           category: cash_flow.category,
           amount: money(cash_flow.amount),
           note: cash_flow.note,
+          reference: cash_flow.reference,
+          origin: cash_flow.origin,
         }
       end
-      private_class_method :serialize
 
       def self.money(value)
         Precision.round(value, :money)

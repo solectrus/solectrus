@@ -16,6 +16,9 @@ module McpServer
       Tools::Amortization,
       Tools::CashFlows,
       Tools::CarCosts,
+      Tools::ChargingSessions,
+      Tools::CarPayments,
+      Tools::HeatpumpPayments,
       Tools::ListMeasurements,
       Tools::RawSeries,
     ].freeze
@@ -56,10 +59,13 @@ module McpServer
         .join(', ')
     end
 
-    def self.car_tool
-      return '' unless Tools::CarCosts.available?
-
-      "\nget_car_costs for the distance, charging and driving costs of the cars."
+    # The tools of the cars and of the payments, each where the instance has it
+    def self.car_tools
+      {
+        Tools::CarCosts => 'get_car_costs for the distance, charging and driving costs of the cars, get_charging_sessions for each charge',
+        Tools::CarPayments => 'get_car_payments for each payment of a car',
+        Tools::HeatpumpPayments => 'get_heatpump_payments for each payment of the heat pump',
+      }.filter_map { |tool, text| "\n#{text}." if tool.available? }.join
     end
 
     # The conventions that hold across every tool, stated here so no tool
@@ -76,7 +82,7 @@ module McpServer
         get_system_info for installation metadata and currency,
         get_prices for the (time-dependent) tariffs, get_forecast for expected PV
         energy, get_amortization for payback, break-even and NPV/IRR, and
-        get_cash_flows for the single investments and costs behind it.#{car_tool}
+        get_cash_flows for the single investments and costs behind it.#{car_tools}
 
         list_sensors is for DISCOVERY alone: call it to learn which sensors
         exist, or to resolve a sensor the user named. It is not a prerequisite -

@@ -103,14 +103,12 @@ module SettingsNavigation
 
   private
 
-  # The settings of the heat pump: the fossil heating of the comparison and
-  # the payments of the heat pump. They need the heat pump page and the
-  # comparison (see Heatpump::Comparison.available?). The page and the
-  # navigation ask both, so the fuel prices load once.
+  # The settings of the heat pump (see Heatpump::Comparison.settings?). The
+  # page and the navigation ask both, so the fuel prices load once.
   def heatpump_settings?
     return @heatpump_settings if defined?(@heatpump_settings)
 
-    @heatpump_settings = Sensor::HomePage.available?(:heatpump) && Heatpump::Comparison.available?
+    @heatpump_settings = Heatpump::Comparison.settings?
   end
 
   # A page of the heat pump settings without them goes to the settings

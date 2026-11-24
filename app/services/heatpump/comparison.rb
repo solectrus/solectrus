@@ -56,6 +56,11 @@ class Heatpump::Comparison
       ((heating.configured? && heating.fuel_prices.any?) || FuelPrices.any?(Heatpump::Heating::FUEL_TYPES - [heating.fuel_type]))
   end
 
+  # The settings of the heat pump: the fossil heating of the comparison and
+  # the payments of the heat pump. They need the heat pump page and the
+  # comparison.
+  def self.settings? = Sensor::HomePage.available?(:heatpump) && available?
+
   def self.timeframe?(timeframe) = Car::Comparison.timeframe?(timeframe)
 
   # `days` are the compared days of a part of the timeframe, `daily_payments`

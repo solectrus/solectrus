@@ -462,6 +462,8 @@ module LlmTest
         'car_pv_kwh_last_month' => days * (CAR_DAY[:kwh] - CAR_DAY[:kwh_grid]),
         'car_cost_per_100km_last_month' => (CAR_DAY[:cost] / CAR_DAY[:km] * 100).round(2),
         'car_savings_last_month' => car_savings(days).round(2),
+        'car_last_charge_kwh' => CAR_DAY[:kwh],
+        'car_insurance_payment' => INSURANCE,
       }
     end
 

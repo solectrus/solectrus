@@ -236,8 +236,12 @@ describe 'MCP' do
           expect(response).to have_http_status(:success)
         end
 
+        # The payments of a car and of the heat pump need the comparisons, which
+        # depend on prices in InfluxDB, so the example sets them itself
         it 'lists the available tools' do
           Setting.mcp_raw_data = true
+          allow(Car::Comparison).to receive(:available?).and_return(true)
+          allow(Heatpump::Comparison).to receive(:settings?).and_return(true)
           post_mcp(tools_list)
 
           expect(response).to have_http_status(:success)
@@ -256,6 +260,9 @@ describe 'MCP' do
             'get_amortization',
             'get_cash_flows',
             'get_car_costs',
+            'get_charging_sessions',
+            'get_car_payments',
+            'get_heatpump_payments',
             'list_measurements',
             'get_raw_series',
           )

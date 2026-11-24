@@ -88,6 +88,16 @@ module McpServer
                 "Invalid #{label}: #{value.inspect} is not an ISO 8601 date (e.g. \"2026-06-21\")."
         end
 
+        # An inverted range silently matches nothing, and "no entries" is an
+        # answer a client believes - so the swapped dates are named instead.
+        def reject_inverted_range(first_day, last_day)
+          return unless first_day && last_day && first_day > last_day
+
+          raise ArgumentError,
+                "Invalid range: from (#{first_day.iso8601}) is after to " \
+                  "(#{last_day.iso8601}). Use from=#{last_day.iso8601}, to=#{first_day.iso8601}."
+        end
+
         # Timeframe.new, with an error a model can act on. The domain class
         # stays free of that prose: which forms exist is its business, but
         # spelling them out for a language model is this layer's.

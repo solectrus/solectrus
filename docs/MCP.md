@@ -57,14 +57,23 @@ setup guide instead, for the admin alone.)
   investment pays off (break-even, NPV, IRR), combining the measured savings
   with the manually kept cash flow register
 - `get_cash_flows` — that register itself: the single investments, subsidies,
-  costs and revenue with date, category, amount and note, filterable by
-  category and date range
+  costs and revenue with date, category, amount, note, document number and
+  origin, filterable by category and date range
 - `get_car_costs` — the electric cars over whole days, for all cars or for one:
   the distance, the charging with its sources and cost, and the driving cost
   and consumption per 100 km. With fuel prices it adds the saving against a
   combustion car. Only an installation with a car offers it. It
   stops where more summaries are missing than one call builds, see
   [cars.md](cars.md#mcp)
+- `get_charging_sessions` — the single charges of the cars, at the wallbox and
+  away from it, with energy, cost, state and origin. A charge over midnight
+  comes as one charge, like in the list of the browser. A proposal comes with
+  its state, and a dismissed proposal stays out. Only an installation with a
+  car offers it
+- `get_car_payments` — the single payments of the cars, with their sums by
+  category. Only where the settings list them, which needs fuel prices
+- `get_heatpump_payments` — the single payments of the heat pump, with their
+  sums by category. Only where the settings of the heat pump exist
 - `list_measurements` — the raw structure of InfluxDB: the measurements that
   hold data, and the fields and tags of one measurement. See
   [Raw InfluxDB data](#raw-influxdb-data). Only when the admin allows raw data
@@ -309,7 +318,8 @@ The server does not offer the locations by default, because the data goes to
 the provider of the AI. A series of locations shows the movements of a person,
 also of other people who drive the car. The admin turns them on in the system
 settings, with "Also allow locations" below the MCP switch. Then every tool
-answers for the location sensors, the raw data tools included. The checkbox
+answers for the location sensors, the raw data tools included, and
+`get_charging_sessions` gives the address and the position. The checkbox
 shows once MCP is on, and switching MCP off takes the locations back.
 
 ### Raw InfluxDB data

@@ -27,7 +27,8 @@ module McpServer
         the newest of them is the tariff of today. A change after today is
         scheduled and listed under `upcoming`, oldest first. Each field is
         absent when empty. Never quote an `upcoming` value as the current
-        price.
+        price. Each entry carries its `id` and its `origin` (`user` = the
+        admin, `mcp` = an AI agent).
 
         Every rate is per kWh in the system currency (see get_system_info).
 
@@ -153,15 +154,18 @@ module McpServer
       end
       private_class_method :sort_history
 
+      # An entry as get_prices lists it, which set_price answers with as well
+      # A price as get_prices lists it, which set_price answers with as well
       def self.serialize(price)
         {
-          starts_at: price.starts_at.iso8601,
+          id: price.id,
+          starts_at: price.starts_at&.iso8601,
           value: Precision.round(price.amount_per_kwh, :money_per_kwh),
           **base_fee_of(price),
           note: price.note,
+          origin: price.origin,
         }
       end
-      private_class_method :serialize
 
       # The fee is left out where a tariff has none, and it only ever appears
       # on electricity: the fee buys the grid connection, so the feed-in tariff

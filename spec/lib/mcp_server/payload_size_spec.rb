@@ -89,12 +89,20 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # bytes, ~530 of them for the timeframe grammar. They replace exporting
       # raw data by hand, which no other tool can do. Only an instance whose
       # admin allows raw data pays them.
-      'tool definitions + instructions' => 37_500,
+      #
+      # The lists of single entries raised it from 37_500, by ~3_100 bytes:
+      # get_charging_sessions, get_car_payments, and the `id` and `origin` in
+      # get_prices and get_cash_flows. They give what get_car_costs only adds
+      # up, with the `id` that a check or a correction of an entry needs. Only
+      # an instance with a car pays for the two tools. get_heatpump_payments
+      # adds ~1_200 bytes where the instance has the settings of the heat
+      # pump, which the test configuration lacks.
+      'tool definitions + instructions' => 40_700,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_900,
       'get_sensor_details (3 sensors)' => 1_000,
       'get_system_info' => 400,
-      'get_prices' => 1_900,
+      'get_prices' => 2_500,
       # Over the running month, so the response carries the note saying the
       # period is not over - the common case for a "how am I doing" question.
       'get_totals (12 sensors, month)' => 1_750,
@@ -117,6 +125,10 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # The running month, with each entry of the response and the comparison
       # with a combustion car (see seed_car).
       'get_car_costs (all cars, month)' => 1_250,
+      # The charges of the month with each state (see seed_car), and the two
+      # payments of the car
+      'get_charging_sessions (month)' => 1_050,
+      'get_car_payments' => 420,
     }
   end
 
@@ -345,7 +357,11 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   end
 
   def car_benchmark
-    { 'get_car_costs (all cars, month)' => -> { payload(McpServer::Tools::CarCosts, timeframe: 'month') } }
+    {
+      'get_car_costs (all cars, month)' => -> { payload(McpServer::Tools::CarCosts, timeframe: 'month') },
+      'get_charging_sessions (month)' => -> { payload(McpServer::Tools::ChargingSessions, from: '2024-06-01') },
+      'get_car_payments' => -> { payload(McpServer::Tools::CarPayments) },
+    }
   end
 
   # The two tools that read the PostgreSQL summaries, over the same sensors:

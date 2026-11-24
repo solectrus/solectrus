@@ -22,9 +22,12 @@ describe McpServer::Tools::CashFlows do
         %w[2024-02-01 2023-04-15 2021-06-01 2021-03-01],
       )
       expect(data[:entries].first).to include(
+        id: CashFlow.find_by(note: 'Inverter fan').id,
         category: 'repair',
         amount: -320.0,
         note: 'Inverter fan',
+        reference: nil,
+        origin: 'user',
       )
     end
 
