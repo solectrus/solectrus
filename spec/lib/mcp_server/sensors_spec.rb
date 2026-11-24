@@ -1,16 +1,16 @@
 describe McpServer::Sensors do
+  before do
+    Sensor::Config.setup(
+      ENV.to_h.merge(
+        'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
+        'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
+      ),
+    )
+  end
+
+  after { Sensor::Config.setup(ENV) }
+
   describe '.all' do
-    before do
-      Sensor::Config.setup(
-        ENV.to_h.merge(
-          'INFLUX_SENSOR_CAR_LATITUDE_1' => 'Trabant:latitude',
-          'INFLUX_SENSOR_CAR_LONGITUDE_1' => 'Trabant:longitude',
-        ),
-      )
-    end
-
-    after { Sensor::Config.setup(ENV) }
-
     it 'leaves out the admin-only sensors' do
       expect(Sensor::Config.sensors.map(&:name)).to include(:car_latitude_1, :car_longitude_1)
       expect(described_class.all.map(&:name)).not_to include(:car_latitude_1, :car_longitude_1)
@@ -18,6 +18,24 @@ describe McpServer::Sensors do
 
     it 'keeps the other sensors' do
       expect(described_class.all.map(&:name)).to include(:car_battery_soc_1)
+    end
+
+    it 'offers the admin-only sensors when locations are allowed' do
+      Setting.mcp_locations = true
+
+      expect(described_class.all.map(&:name)).to include(:car_latitude_1, :car_longitude_1)
+    end
+  end
+
+  describe '.withheld_fields' do
+    it 'holds the fields of the admin-only sensors' do
+      expect(described_class.withheld_fields).to include(%w[Trabant latitude], %w[Trabant longitude])
+    end
+
+    it 'is empty when locations are allowed' do
+      Setting.mcp_locations = true
+
+      expect(described_class.withheld_fields).to be_empty
     end
   end
 end

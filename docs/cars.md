@@ -1066,7 +1066,8 @@ personal data, so only the admin sees it. The definitions declare `admin_only`:
 - The lists of the places and of the visits, the map of the places and the tooltips of the
   places ask a visitor to log in. The overview still shows a visitor the link to the places.
 - The live view shows a visitor a sample map of a made-up place, with the login.
-- The MCP server does not offer the sensors.
+- The MCP server offers the sensors only when the admin allows locations for MCP (see
+  [MCP.md](MCP.md#locations)).
 
 A position needs the latitude and the longitude. InfluxDB has no type for a point, so a
 collector writes two fields, at best in one point. Each coordinate is a state that holds
@@ -1218,7 +1219,7 @@ of that step, so that the build runs again.
 
 The numbered sensors `car_battery_soc_<n>`, `car_odometer_<n>`, `car_range_<n>`,
 `car_max_range_<n>` and `car_connected_<n>` reach MCP as all sensors do. The location of a
-car does not reach MCP (see [Location](#location)).
+car reaches MCP only when the admin allows locations (see [Location](#location)).
 
 `car_odometer_<n>` has two meanings. A live value and a curve give the odometer reading. A
 total, a period and a ranking give the distance driven. Its description says both.

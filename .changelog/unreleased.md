@@ -26,6 +26,7 @@ Keep every section, an empty one included.
 - **Settings > Electric vehicles:** the cars, their places, the combustion car for the comparison, and running costs and incomes like the insurance or the GHG quota
 - **Sensors:** each car sensor has a number, for example `INFLUX_SENSOR_CAR_BATTERY_SOC_1`. Without a number, it means the first car. New optional sensors: odometer, range, plugged in, location
 - **AI access:** a new tool gives the distance, the charging costs and the driving costs per 100 km of the cars, and the savings against a combustion car
+- **AI access to locations:** the AI access reads the locations of the cars only when the admin allows locations in the system settings. They stay off by default
 
 ### More
 

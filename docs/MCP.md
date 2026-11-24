@@ -299,6 +299,19 @@ counts: `investment`/`subsidy`/`refund` shape the investment base,
 `compensation`/`manual_savings`/`operating_cost`/`repair` the operating cash
 flow, and `other` counts nowhere.
 
+### Locations
+
+A location tells where a person was. The cars are the only source of
+locations: the coordinates of a car, from the sensors `car_latitude_<n>` and
+`car_longitude_<n>`. In the browser, only the admin sees them.
+
+The server does not offer the locations by default, because the data goes to
+the provider of the AI. A series of locations shows the movements of a person,
+also of other people who drive the car. The admin turns them on in the system
+settings, with "Also allow locations" below the MCP switch. Then every tool
+answers for the location sensors, the raw data tools included. The checkbox
+shows once MCP is on, and switching MCP off takes the locations back.
+
 ### Raw InfluxDB data
 
 The sensor tools read only the configured sensors. The same InfluxDB bucket
@@ -376,8 +389,8 @@ The limits protect a small computer such as a Raspberry Pi:
 
 The access is read-only. The client sends names, not Flux. SOLECTRUS puts
 each name into the query as a string literal, and the query uses only read
-functions. The fields of a sensor that only the admin sees, like the location
-of a car, are not available here either.
+functions. The fields of a location, like the position of a car, are available
+here only when the admin allows locations (see [Locations](#locations)).
 
 ## Connecting a client
 

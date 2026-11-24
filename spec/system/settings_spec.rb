@@ -75,6 +75,7 @@ describe 'Settings' do
       after do
         Setting.mcp_enabled = false
         Setting.mcp_raw_data = false
+        Setting.mcp_locations = false
       end
 
       let(:endpoint_label) do
@@ -102,29 +103,35 @@ describe 'Settings' do
           expect(page).to have_no_text(endpoint_label)
         end
 
-        it 'hides the raw data while MCP is unchecked, and brings it back unchecked' do
+        it 'hides the parts while MCP is unchecked, and brings them back unchecked' do
           check 'setting_mcp_raw_data'
+          check 'setting_mcp_locations'
 
           uncheck 'setting_mcp_enabled'
           expect(page).to have_no_field('setting_mcp_raw_data')
+          expect(page).to have_no_field('setting_mcp_locations')
 
           check 'setting_mcp_enabled'
           expect(page).to have_unchecked_field('setting_mcp_raw_data')
+          expect(page).to have_unchecked_field('setting_mcp_locations')
         end
       end
 
       context 'when MCP is disabled' do
         before { visit '/settings/system' }
 
-        it 'shows the raw data once MCP is checked, before saving' do
+        it 'shows the parts once MCP is checked, before saving' do
           expect(page).to have_no_field('setting_mcp_raw_data')
+          expect(page).to have_no_field('setting_mcp_locations')
 
           check 'setting_mcp_enabled'
           check 'setting_mcp_raw_data'
+          check 'setting_mcp_locations'
           click_on save_button
 
           expect(page).to have_text(success_message)
           expect(page).to have_checked_field('setting_mcp_raw_data')
+          expect(page).to have_checked_field('setting_mcp_locations')
         end
 
         it 'shows the endpoint after enabling and saving' do

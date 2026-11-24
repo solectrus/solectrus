@@ -357,6 +357,12 @@ describe McpServer::Tools::RawSeries do
     it 'withholds the field of an admin-only sensor' do
       expect(error(fields: %w[level latitude])).to include('latitude', 'only the admin sees')
     end
+
+    it 'gives the field when locations are allowed' do
+      Setting.mcp_locations = true
+
+      expect(field(answer(fields: %w[latitude]), :latitude)).to include(values: [1.40706])
+    end
   end
 
   describe 'a failing InfluxDB' do

@@ -21,11 +21,15 @@
                     rel: 'noopener'
 
       / A part of MCP, so only there while MCP is checked, also before saving
-      .ps-7 data-checkbox-reveal-target="part" hidden=!Setting.mcp_enabled
+      .ps-7.flex.flex-col.gap-4 data-checkbox-reveal-target="part" hidden=!Setting.mcp_enabled
         = f.check_box :mcp_raw_data,
                       checked: Setting.mcp_enabled && Setting.mcp_raw_data,
                       label: t('settings.system.mcp.raw_data'),
                       hint: t('settings.system.mcp.raw_data_hint')
+        = f.check_box :mcp_locations,
+                      checked: Setting.mcp_enabled && Setting.mcp_locations,
+                      label: t('settings.system.mcp.locations'),
+                      hint: t('settings.system.mcp.locations_hint')
     - else
       = f.check_box :mcp_enabled,
                     checked: false,

@@ -59,6 +59,11 @@ class Setting < RailsSettings::Base
   # bucket can hold data that SOLECTRUS knows nothing about.
   field :mcp_raw_data, type: :boolean, default: false
 
+  # Whether MCP also reads the locations, like the position of a car. Off by
+  # default, because the data goes to the provider of the AI, and a location
+  # tells where a person was.
+  field :mcp_locations, type: :boolean, default: false
+
   # Rotatable salt mixed into the OAuth signing key. Rotating it invalidates
   # every issued token at once (used to drop all clients when MCP is disabled).
   # Blank until first rotated. See McpOauth.signing_key.

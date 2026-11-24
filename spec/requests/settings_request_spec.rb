@@ -159,53 +159,57 @@ describe 'Settings' do
           ).to be_nil
         end
 
-        describe 'the raw data' do
-          before { Setting.mcp_enabled = true }
+        # The parts of MCP, which hold only while MCP is on
+        %i[mcp_raw_data mcp_locations].each do |part|
+          describe "the part #{part}" do
+            before { Setting.mcp_enabled = true }
 
-          it 'is allowed, and taken back' do
-            patch '/settings/system', params: { setting: { mcp_enabled: '1', mcp_raw_data: '1' } }
-            expect(Setting.mcp_raw_data).to be(true)
+            it 'is allowed, and taken back' do
+              patch '/settings/system', params: { setting: { mcp_enabled: '1', part => '1' } }
+              expect(Setting.public_send(part)).to be(true)
 
-            patch '/settings/system', params: { setting: { mcp_enabled: '1', mcp_raw_data: '0' } }
-            expect(Setting.mcp_raw_data).to be(false)
-          end
+              patch '/settings/system', params: { setting: { mcp_enabled: '1', part => '0' } }
+              expect(Setting.public_send(part)).to be(false)
+            end
 
-          it 'is taken back with MCP, also from a form that still holds it' do
-            Setting.mcp_raw_data = true
+            it 'is taken back with MCP, also from a form that still holds it' do
+              Setting.public_send(:"#{part}=", true)
 
-            patch '/settings/system', params: { setting: { mcp_enabled: '0', mcp_raw_data: '1' } }
+              patch '/settings/system', params: { setting: { mcp_enabled: '0', part => '1' } }
 
-            expect(Setting.mcp_raw_data).to be(false)
-          end
+              expect(Setting.public_send(part)).to be(false)
+            end
 
-          it 'stays off when MCP is switched on again' do
-            Setting.mcp_enabled = false
-            Setting.mcp_raw_data = true
+            it 'stays off when MCP is switched on again' do
+              Setting.mcp_enabled = false
+              Setting.public_send(:"#{part}=", true)
 
-            patch '/settings/system', params: { setting: { mcp_enabled: '1' } }
+              patch '/settings/system', params: { setting: { mcp_enabled: '1' } }
 
-            expect(Setting.mcp_raw_data).to be(false)
-          end
+              expect(Setting.public_send(part)).to be(false)
+            end
 
-          it 'is refused while MCP is off' do
-            Setting.mcp_enabled = false
+            it 'is refused while MCP is off' do
+              Setting.mcp_enabled = false
 
-            patch '/settings/system', params: { setting: { mcp_raw_data: '1' } }
+              patch '/settings/system', params: { setting: { part => '1' } }
 
-            expect(Setting.mcp_raw_data).to be(false)
-          end
+              expect(Setting.public_send(part)).to be(false)
+            end
 
-          # The checkbox of MCP shows and hides it in the browser (checkbox-reveal)
-          it 'hides its checkbox while MCP is off, and leaves it unchecked' do
-            Setting.mcp_raw_data = true
-            get '/settings/system'
-            expect(response.parsed_body.at_css('[data-checkbox-reveal-target="part"]')['hidden']).to be_nil
+            # The checkbox of MCP shows and hides it in the browser (checkbox-reveal)
+            it 'hides its checkbox while MCP is off, and leaves it unchecked' do
+              Setting.public_send(:"#{part}=", true)
+              checkbox = "[data-checkbox-reveal-target='part'] input[type='checkbox'][name='setting[#{part}]']"
+              get '/settings/system'
+              expect(response.parsed_body.at_css('[data-checkbox-reveal-target="part"]')['hidden']).to be_nil
+              expect(response.parsed_body.at_css(checkbox)['checked']).not_to be_nil
 
-            Setting.mcp_enabled = false
-            get '/settings/system'
-            part = response.parsed_body.at_css('[data-checkbox-reveal-target="part"]')
-            expect(part['hidden']).not_to be_nil
-            expect(part.at_css('input[type="checkbox"]')['checked']).to be_nil
+              Setting.mcp_enabled = false
+              get '/settings/system'
+              expect(response.parsed_body.at_css('[data-checkbox-reveal-target="part"]')['hidden']).not_to be_nil
+              expect(response.parsed_body.at_css(checkbox)['checked']).to be_nil
+            end
           end
         end
       end
@@ -220,10 +224,11 @@ describe 'Settings' do
           expect(Setting.mcp_enabled).to be(false)
         end
 
-        it 'refuses to allow the raw data' do
-          patch '/settings/system', params: { setting: { mcp_raw_data: '1' } }
+        it 'refuses to allow a part of MCP' do
+          patch '/settings/system', params: { setting: { mcp_raw_data: '1', mcp_locations: '1' } }
 
           expect(Setting.mcp_raw_data).to be(false)
+          expect(Setting.mcp_locations).to be(false)
         end
       end
     end

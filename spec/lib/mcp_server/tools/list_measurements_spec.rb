@@ -153,6 +153,12 @@ describe McpServer::Tools::ListMeasurements do
       expect(data).not_to include(:matching_fields, :fields)
       expect(data[:note]).to include('No measurement or field name contains "latitude"')
     end
+
+    it 'gives the field when locations are allowed' do
+      Setting.mcp_locations = true
+
+      expect(answer(measurement: 'RAW_CAR')[:fields].keys).to contain_exactly(:latitude, :odometer)
+    end
   end
 
   it 'rejects a lookback out of range' do
