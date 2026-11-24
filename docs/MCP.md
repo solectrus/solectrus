@@ -346,7 +346,12 @@ holds only while MCP is on.
 
 The rules for the tools that write:
 
-- A tool adds and changes entries. No tool deletes an entry.
+- A tool adds and changes entries. No tool deletes an entry, and the server
+  asks a client not to offer a change in its place, like an amount of 0.
+- The server asks a client to check an entry against the instance first. If
+  the user does not say what a payment belongs to, or which car charged, and
+  more than one is possible, the client asks instead of recording. It asks
+  too when the data contradict the values.
 - An entry follows the same rules as in the form. The tool reports what the
   rules reject, and saves nothing.
 - An entry that a client wrote carries a mark with a robot in its list, until

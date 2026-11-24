@@ -114,7 +114,13 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # set_offsite_session raised it from 46_900, by ~2_500 bytes. A receipt
       # of a charge has more fields than a payment, and the tool says how it
       # completes a proposal.
-      'tool definitions + instructions' => 49_400,
+      #
+      # The rules to check an entry against the instance, to ask when
+      # something is unclear and to offer no change in place of a deletion
+      # raised it from 49_400, by ~600 bytes. Without them, a model recorded
+      # whatever it was told, booked an unclear maintenance on the PV system
+      # and offered to set an amount to 0 instead of a deletion.
+      'tool definitions + instructions' => 50_000,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_900,
       'get_sensor_details (3 sensors)' => 1_000,

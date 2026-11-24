@@ -17,7 +17,8 @@ module McpServer
         Records a payment of an electric car, for example from a bill or a
         contract: its purchase, a rate of a lease or a loan, the insurance, the
         vehicle tax, maintenance, the fees of a charging tariff, a subsidy, the
-        GHG quota or its sale.
+        GHG quota or its sale. The GHG quota always belongs to a car, never to
+        the PV system.
 
         `amount` is in the system currency (see get_system_info) and positive:
         the category says if it is an expense or an income. Only a refund of

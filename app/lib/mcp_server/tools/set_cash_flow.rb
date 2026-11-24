@@ -18,7 +18,9 @@ module McpServer
         get_amortization counts, for example from a bill. get_cash_flows lists
         the existing entries. Not for the payments of a car or of the heat
         pump, and not for the electricity bought or fed in: that comes from the
-        measurements and the prices.
+        measurements and the prices. A payment like a maintenance can also
+        belong to a car: if the user does not name the PV system or a part of
+        it, ask first.
 
         `amount` is in the system currency (see get_system_info) and carries a
         sign: negative for money paid (investment, operating_cost, repair),

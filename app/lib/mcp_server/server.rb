@@ -95,8 +95,13 @@ module McpServer
 
 
         To record what a bill or a contract states: #{tools.join('; ')}.
-        Nothing is ever deleted. Record only what the user asked for or what a
-        document states.
+        Nothing is ever deleted: point to the settings, and never offer a change
+        instead, like an amount of 0 or another category or note. Record only what the
+        user or a document states, no value of your own, and check first that it fits
+        the instance. A payment belongs to the PV system, a car or the heat pump, a
+        charge to one car: if the user does not say which and more than one is
+        possible, ask instead of recording, but record when only one fits. Ask too
+        when the data contradict the values.
         A tool answers `created`, `updated` or `accepted` (with the `previous` entry),
         `unchanged` or `exists`: tell the user what changed.
         Each answer names the `id` of the entry. To correct an entry that you
