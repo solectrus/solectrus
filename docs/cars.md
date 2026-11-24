@@ -242,9 +242,9 @@ A charging session is a charge of a car. The kind says where the energy flowed:
 
 The column `origin` says who made the row. It has no default, so each writer must name
 itself. A proposal that the user accepts keeps `detection`. An AI client that enters or
-changes a session over MCP sets `mcp`. The list marks such a session until the user saves
-it in the form, which sets `user`. The detection changes only its own rows, so a later
-import, for example from evcc, will get an origin of its own.
+changes a session over MCP sets `mcp`, also on a proposal that it accepts. The list marks
+such a session until the user saves it in the form, which sets `user`. The detection changes
+only its own rows, so a later import, for example from evcc, will get an origin of its own.
 
 A `wallbox` session is in one of three states:
 
@@ -464,6 +464,12 @@ the car a new estimate.
 An entered or accepted offsite session gets the state of charge and the position of its
 rise (`OffsiteDetection::EnteredState`). A wrong value is worse than none, so a session
 gets them only when exactly one rise matches its time and no other session claims it.
+
+A receipt that an AI client enters over MCP finds its session by the car and the time
+(`ChargingSession.for_charge`). A session that counts and overlaps the time is the same
+charge. Else a proposal within `PROPOSAL_MARGIN` of the time gets the values of the receipt,
+and the client accepts it. Else the receipt gives a new session. See
+[MCP.md](MCP.md#writing).
 
 ### The position
 

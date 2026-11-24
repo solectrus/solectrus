@@ -47,4 +47,12 @@ describe McpServer::Tools::SetCarPayment do
     expect(error).to be(true)
     expect(text).to start_with('Nothing was saved: date')
   end
+
+  it 'names the cars for an unknown one' do
+    error, text = call(**bill, car: 3)
+
+    expect(error).to be(true)
+    expect(text).to include('Unknown car 3', '1 (')
+    expect(Car::Payment.count).to eq(0)
+  end
 end

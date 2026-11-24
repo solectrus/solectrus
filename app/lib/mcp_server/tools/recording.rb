@@ -49,6 +49,15 @@ module McpServer
         raise ArgumentError, "Missing #{missing.join(', ')}: #{missing.one? ? 'it is' : 'they are'} needed without `id`."
       end
 
+      # The car that the call gives, nil without one. An unknown number names
+      # the cars of the instance, so the client can pick the right one.
+      def car_of(args)
+        return unless args.key?(:car)
+
+        Car.configured.find { it.id == args[:car].to_i } ||
+          raise(ArgumentError, "Unknown car #{args[:car]}. This instance has: #{Car.configured.map { "#{it.id} (#{it.display_name})" }.join(', ')}.")
+      end
+
       # The arguments with the date of `key` read as ISO 8601, where the call
       # gives it
       def with_date(args, key)
@@ -102,13 +111,15 @@ module McpServer
 
       # Saves an entry as written by an AI client, and returns what happened
       # to it. An entry without a change stays as it is, also its origin.
-      # `arguments` names the argument of each attribute for an error.
+      # `arguments` names the argument of each attribute for an error. A
+      # block saves the entry in place of `save`.
       def save_entry(entry, arguments)
         return 'unchanged' if entry.persisted? && !entry.changed?
 
         result = entry.new_record? ? 'created' : 'updated'
         entry.origin = :mcp
-        entry.save or raise ArgumentError, rejection(entry, arguments)
+        # `save`, not `save!`: the errors of the model become the answer
+        (block_given? ? yield : entry.save) or raise ArgumentError, rejection(entry, arguments) # rubocop:disable Rails/SaveBang
         result
       end
 
@@ -124,6 +135,22 @@ module McpServer
         Date.iso8601(value.to_s)
       rescue Date::Error
         raise ArgumentError, "Invalid #{label}: #{value.inspect} is not an ISO 8601 date (e.g. \"2026-01-01\")."
+      end
+
+      # A time in ISO 8601 with its offset. Without the offset, the time of a
+      # receipt can be the local time of another zone, so the tool does not
+      # guess it.
+      ISO_TIME = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})\z/
+      private_constant :ISO_TIME
+
+      # DateTime, because Time.iso8601 needs the seconds and turns an
+      # impossible date like February 30 into March 2
+      def iso_time(value, label)
+        raise Date::Error unless value.to_s.match?(ISO_TIME)
+
+        DateTime.iso8601(value).to_time.in_time_zone # rubocop:disable Style/DateTime
+      rescue Date::Error
+        raise ArgumentError, "Invalid #{label}: #{value.inspect} is not an ISO 8601 time with its offset (e.g. \"2026-03-15T14:05:00+01:00\")."
       end
 
       private

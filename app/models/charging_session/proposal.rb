@@ -42,6 +42,23 @@ module ChargingSession::Proposal
       kwh if kwh.positive?
     end
 
+    # The offsite session of a car that a record of a charge from elsewhere
+    # describes, like a receipt: the session that counts in its time, else
+    # the proposal in its time, else a new session. A car charges at one
+    # station at a time (see ChargingSession::Overlap), so a session in the
+    # same time is the same charge. A proposal comes from the rise of the
+    # state of charge, which can start before and end after the times of the
+    # receipt, so its time counts with PROPOSAL_MARGIN around it.
+    def for_charge(car:, started_at:, ended_at: nil)
+      ended_at ||= started_at
+      entered = offsite.effective.where(car:)
+      margin = Car::Rules::PROPOSAL_MARGIN
+
+      entered.overlapping(started_at, ended_at).or(entered.where(started_at:)).order(:started_at).first ||
+        proposals.where(car:).overlapping(started_at - margin, ended_at + margin).min_by { (it.started_at - started_at).abs } ||
+        offsite.new(car:)
+    end
+
     # The user dismisses the proposals of the scope at once, for example the
     # charges of a time without receipts. A dismissed proposal does not come
     # back (see #dismiss!). Gives the number of the dismissed proposals.

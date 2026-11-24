@@ -65,6 +65,7 @@ module McpServer
 
       def self.perform(**args)
         require_without_id(args[:id], args, NEEDED)
+        car_of(args)
         attributes = attributes_from(with_date(args, :date), ARGUMENTS)
 
         record_payment(

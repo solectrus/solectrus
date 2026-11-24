@@ -969,4 +969,44 @@ describe ChargingSession do
       end
     end
   end
+
+  # A charge from elsewhere, like a receipt, finds its session by the time
+  describe '.for_charge' do
+    let(:day) { Date.new(2026, 6, 15) }
+
+    def at(hour, min = 0) = day.in_time_zone.change(hour:, min:)
+
+    def proposal(from, to)
+      described_class.insert!({ kind: 'offsite', origin: 'detection', car_id: car.id, started_at: from, ended_at: to, soc_from: 30, soc_to: 70, kwh: 20 }) # rubocop:disable Rails/SkipsModelValidations
+      described_class.find_by!(started_at: from)
+    end
+
+    it 'finds the session of the car in the same time' do
+      entered = described_class.create!(kind: :offsite, origin: :user, car:, started_at: at(10), ended_at: at(11), kwh: 20, cost: 9)
+
+      expect(described_class.for_charge(car:, started_at: at(10, 30), ended_at: at(11, 30))).to eq(entered)
+    end
+
+    it 'finds the proposal of the car, also with the margin around it' do
+      found = proposal(at(10), at(11))
+
+      expect(described_class.for_charge(car:, started_at: at(11, 30), ended_at: at(12))).to eq(found)
+    end
+
+    it 'prefers the session that counts to a proposal' do
+      proposal(at(10), at(11))
+      entered = described_class.create!(kind: :offsite, origin: :user, car:, started_at: at(12), ended_at: at(13), kwh: 20, cost: 9)
+
+      expect(described_class.for_charge(car:, started_at: at(11, 30), ended_at: at(12, 30))).to eq(entered)
+    end
+
+    it 'gives a new session of the car otherwise' do
+      proposal(at(10), at(11))
+
+      session = described_class.for_charge(car:, started_at: at(14), ended_at: at(15))
+
+      expect(session).to be_new_record
+      expect(session).to have_attributes(kind: 'offsite', car:)
+    end
+  end
 end

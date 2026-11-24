@@ -2,7 +2,7 @@ module McpServer
   # Builds the MCP::Server instance exposing the data tools of SOLECTRUS: the
   # ones that read, and those that write once the admin allows them.
   # A fresh server is created per request (stateless transport).
-  module Server
+  module Server # rubocop:disable Metrics/ModuleLength
     TOOLS = [
       Tools::ListSensors,
       Tools::SensorDetails,
@@ -26,6 +26,7 @@ module McpServer
       Tools::SetCarPayment,
       Tools::SetHeatpumpPayment,
       Tools::SetCashFlow,
+      Tools::SetOffsiteSession,
     ].freeze
     private_constant :TOOLS
 
@@ -96,7 +97,7 @@ module McpServer
         To record what a bill or a contract states: #{tools.join('; ')}.
         Nothing is ever deleted. Record only what the user asked for or what a
         document states.
-        A tool answers `created`, `updated` (with the `previous` entry),
+        A tool answers `created`, `updated` or `accepted` (with the `previous` entry),
         `unchanged` or `exists`: tell the user what changed.
         Each answer names the `id` of the entry. To correct an entry that you
         recorded, call again with its `id`: that changes the entry, also its date or

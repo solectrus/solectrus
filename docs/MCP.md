@@ -87,6 +87,9 @@ setup guide instead, for the admin alone.)
 - `set_car_payment`, `set_heatpump_payment` and `set_cash_flow` — add or change
   a payment of a car, of the heat pump or of the PV system. Only when the admin
   allows writing. See [Writing](#writing)
+- `set_offsite_session` — enters a charge of a car away from the wallbox, or
+  completes the proposal of its time. Only when the admin allows writing. See
+  [Writing](#writing)
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,
@@ -319,14 +322,16 @@ flow, and `other` counts nowhere.
 
 A location tells where a person was. The cars are the only source of
 locations: the coordinates of a car, from the sensors `car_latitude_<n>` and
-`car_longitude_<n>`. In the browser, only the admin sees them.
+`car_longitude_<n>`, and the address and the position of an offsite charging
+session. In the browser, only the admin sees them.
 
 The server does not offer the locations by default, because the data goes to
 the provider of the AI. A series of locations shows the movements of a person,
 also of other people who drive the car. The admin turns them on in the system
 settings, with "Also allow locations" below the MCP switch. Then every tool
 answers for the location sensors, the raw data tools included, and
-`get_charging_sessions` gives the address and the position. The checkbox
+`get_charging_sessions` and `set_offsite_session` give the address and the
+position. The checkbox
 shows once MCP is on, and switching MCP off takes the locations back.
 
 ### Writing
@@ -393,6 +398,25 @@ payment again:
 Without a number, a tool changes a payment only by its `id`, so only an own
 payment that the admin has not saved yet. The forms show the number as
 "Document number", so the admin can add or correct it.
+
+`set_offsite_session` enters a charge away from the wallbox, for example from
+the receipt of a charging provider. The call gives the number of the car and
+the start, and mostly the end, the energy and the cost. A time must be in ISO
+8601 with its offset, like `2026-03-15T14:05:00+01:00`, because a receipt
+can show the local time of another zone. The car and the time find the
+session (see [cars.md](cars.md#proposals)):
+
+- A car charges at one station at a time. So a session of the car that counts
+  and overlaps the time is the same charge, and the tool changes it.
+- Else, a proposal of the car within an hour of the time gets the values of
+  the receipt. It keeps its state of charge and counts from then on. The
+  answer is `accepted`.
+- Else, the tool adds a session.
+
+The address of the receipt goes through the same lookup as in the form. The
+answer gives the address and the position only when the admin allows
+[locations](#locations). The position of a proposal comes from the car, so it
+stays hidden otherwise.
 
 ### Raw InfluxDB data
 
