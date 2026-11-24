@@ -23,6 +23,9 @@ module McpServer
       Tools::ListMeasurements,
       Tools::RawSeries,
       Tools::SetPrice,
+      Tools::SetCarPayment,
+      Tools::SetHeatpumpPayment,
+      Tools::SetCashFlow,
     ].freeze
     private_constant :TOOLS
 
@@ -93,11 +96,13 @@ module McpServer
         To record what a bill or a contract states: #{tools.join('; ')}.
         Nothing is ever deleted. Record only what the user asked for or what a
         document states.
-        A tool answers `created`, `updated` (with the `previous` entry) or
-        `unchanged`: tell the user what changed.
+        A tool answers `created`, `updated` (with the `previous` entry),
+        `unchanged` or `exists`: tell the user what changed.
         Each answer names the `id` of the entry. To correct an entry that you
-        recorded, call again with its `id`: that changes the entry, also its date,
-        until the admin saves it.
+        recorded, call again with its `id`: that changes the entry, also its date or
+        category, until the admin saves it.
+        Give a payment the number of its document as `reference`: a later call with it
+        changes that entry. Without it, the same date, category and amount mean `exists`.
       TEXT
     end
 

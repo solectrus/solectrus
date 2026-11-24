@@ -84,6 +84,9 @@ setup guide instead, for the admin alone.)
 - `set_price` — adds or changes a price of the electricity tariff or of the
   feed-in compensation. Only when the admin allows writing. See
   [Writing](#writing)
+- `set_car_payment`, `set_heatpump_payment` and `set_cash_flow` — add or change
+  a payment of a car, of the heat pump or of the PV system. Only when the admin
+  allows writing. See [Writing](#writing)
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,
@@ -348,8 +351,8 @@ The rules for the tools that write:
 - Each answer names the `id` of the entry, and so do the lists of `get_prices`,
   `get_cash_flows`, `get_car_payments`, `get_heatpump_payments` and
   `get_charging_sessions`. A call with this `id` changes only the values that
-  it gives, also the values that find the entry, like its start
-  date. The other values stay. This works only for an entry that a client
+  it gives, also the values that find the entry, like its date or its
+  category. The other values stay. This works only for an entry that a client
   wrote and the admin has not saved since, so a client can correct its own
   mistake but not an entry that the admin checked. Without `id`, a call must
   give the values that find an entry.
@@ -361,6 +364,35 @@ tool changes the values that the call gives and keeps the others. A null
 clears the base fee or the note. The answer says if the entry is new, changed
 or unchanged. For a change, it also gives the previous entry. The start date
 must be an ISO 8601 date, like `2026-01-01`.
+
+Three tools write a payment:
+
+- `set_car_payment` writes a cost or an income of a car, as in Settings >
+  Electric vehicles. Like the page of the payments, it needs the fuel prices
+  for the comparison with a combustion car.
+- `set_heatpump_payment` writes a cost or an income of the heat pump, as in
+  Settings > Heat pump. It needs the settings of the heat pump.
+- `set_cash_flow` writes a cash flow for the amortization.
+
+A call without `id` gives the date, the category and the amount, and a car
+payment gives the number of the car. The date must be an ISO 8601 date. A payment
+can also carry the number of its document, like the number of a bill, as
+`reference`. Each kind of payment holds a number once. The number finds the
+payment again:
+
+- With a number that is known, the tool changes that payment. It keeps the
+  note when the call leaves it out.
+- With a new number, the tool adds the payment. If a payment without a number
+  has the same date, category and amount (and car), the tool adds nothing.
+  The answer is `exists` and names that payment. It is probably the same
+  payment, entered by hand.
+- Without a number, a payment with the same date, category and amount (and
+  car) also gives `exists`. To add a second, equal payment, the client gives
+  the number of its document.
+
+Without a number, a tool changes a payment only by its `id`, so only an own
+payment that the admin has not saved yet. The forms show the number as
+"Document number", so the admin can add or correct it.
 
 ### Raw InfluxDB data
 

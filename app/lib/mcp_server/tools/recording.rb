@@ -4,6 +4,23 @@ module McpServer
     # than once, so an entry is found again before one is added. The rules of
     # an entry stay in its model: a tool only reports what the model rejects.
     module Recording
+      # The `reference` input-schema property of a payment
+      REFERENCE_PROPERTY = {
+        type: 'string',
+        minLength: 1,
+        description:
+          'The number of the document, like the number of a bill. Give it ' \
+          'whenever the document has one.',
+      }.freeze
+      public_constant :REFERENCE_PROPERTY
+
+      # The `note` input-schema property of an optional note
+      NOTE_PROPERTY = {
+        type: %w[string null],
+        description: 'A short note, e.g. what was paid. null removes it.',
+      }.freeze
+      public_constant :NOTE_PROPERTY
+
       # The `id` input-schema property: the entry of an earlier answer, which
       # the call changes (see #own_entry). A call with it changes only the
       # arguments that it gives. `needed` are the arguments that a call
@@ -47,6 +64,41 @@ module McpServer
                 "No entry #{id} to change by id: an id finds only an entry with origin mcp, " \
                 'which an AI agent recorded and the admin has not saved since.'
       end
+
+      # Adds or changes a payment of `scope`. The `id` of an earlier answer, or
+      # else the number of its document, finds it. Without them, an entry with
+      # the same values of `match` is the same payment, unless it has a number
+      # of another document: then the tool adds nothing and names the entry.
+      # The block serializes an entry.
+      def record_payment(scope, reference:, attributes:, match:, arguments:, id: nil, &)
+        entry, twin = payment_of(scope, id:, reference:, match:)
+        return { result: 'exists', entry: yield(twin), hint: EXISTS_HINT } if twin
+
+        previous = yield(entry) if entry.persisted?
+        entry.assign_attributes(attributes)
+        entry.reference = reference if reference
+        result = save_entry(entry, arguments)
+
+        { result:, entry: yield(entry), previous: (previous if result == 'updated') }.compact
+      end
+
+      # [the entry to save, an equal payment that is the one of the document]
+      def payment_of(scope, id:, reference:, match:)
+        return [own_entry(scope, id), nil] if id
+
+        existing = scope.find_by(reference:) if reference
+        return [existing, nil] if existing
+
+        # One without a number, or any for a call without a number
+        twin = (reference ? scope.where(reference: nil) : scope).find_by(match)
+        [scope.new(reference:), twin]
+      end
+
+      EXISTS_HINT =
+        'An entry with the same date, category and amount exists, so nothing ' \
+        'was added. If this is another payment, call again with the number ' \
+        'of its document as `reference`.'.freeze
+      private_constant :EXISTS_HINT
 
       # Saves an entry as written by an AI client, and returns what happened
       # to it. An entry without a change stays as it is, also its origin.

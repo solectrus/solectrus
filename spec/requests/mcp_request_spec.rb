@@ -267,6 +267,9 @@ describe 'MCP' do
             'list_measurements',
             'get_raw_series',
             'set_price',
+            'set_car_payment',
+            'set_heatpump_payment',
+            'set_cash_flow',
           )
         end
 
@@ -281,7 +284,7 @@ describe 'MCP' do
           post_mcp(tools_list)
 
           names = response.parsed_body.dig('result', 'tools').pluck('name')
-          expect(names).not_to include('set_price')
+          expect(names).not_to include('set_price', 'set_car_payment', 'set_heatpump_payment', 'set_cash_flow')
         end
 
         # The SEP-2549 cache hints are mandatory on tools/list at 2026-07-28,

@@ -103,7 +103,14 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # what it changes and what it keeps, and the instructions say how an agent
       # corrects its own entry. Only an instance whose admin allows writing pays
       # them.
-      'tool definitions + instructions' => 43_100,
+      #
+      # set_car_payment and set_cash_flow raised it from 43_100, by ~3_800
+      # bytes. The rules that all tools that write share (the answers, the
+      # `id`, the number of a document, `exists`) stand once in the
+      # instructions, not in each tool. set_heatpump_payment adds ~1_800 bytes
+      # where the instance has the settings of the heat pump, which the test
+      # configuration lacks.
+      'tool definitions + instructions' => 46_900,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_900,
       'get_sensor_details (3 sensors)' => 1_000,

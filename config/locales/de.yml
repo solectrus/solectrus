@@ -541,7 +541,7 @@ de:
         locations: Auch Standorte freigeben
         locations_hint: KI-Agenten können dann die Geo-Koordinaten der Autos lesen. Die Daten gehen an den KI-Anbieter und zeigen, wo jemand war.
         write: Auch Schreiben erlauben
-        write_hint: KI-Agenten können dann Strompreise eintragen und ändern, aber nichts löschen.
+        write_hint: KI-Agenten können dann Strompreise und Zahlungen eintragen und ändern, aber nichts löschen.
       summaries:
         title: Tageszusammenfassungen
         description: Es wird für jeden Tag eine Zusammenfassung berechnet, um effiziente Analysen zu ermöglichen. In seltenen Fällen (wie nach einem Import historischer Messwerte) kann es nötig sein, diese Zusammenfassungen zurückzusetzen.
