@@ -1,0 +1,194 @@
+# The tools that write: set_price, set_car_payment, set_cash_flow and
+# set_offsite_session. A case with `writes: true` runs alone, and the fixture
+# comes back after it (see Runner). `expect_records` checks the database
+# after the run, so a case measures what the model wrote, not only what it
+# called.
+#
+# The dates are fixed and in the past. The car of the fixture is in use since
+# the installation in 2020, so each date is a valid one. No case names an
+# address: the lookup of an address needs Nominatim, which the tests do not
+# reach.
+#
+# Keys: see cases/core.yml and spec/llm_test/README.md.
+
+- id: write_price_from_bill
+  note: >
+    A new tariff from a bill. The unit rate is in cents on the bill and in
+    the currency in the tool, and the base fee goes into its own argument.
+  prompt: >
+    Laut meiner neuen Stromrechnung kostet die Kilowattstunde ab dem 1. März
+    2026 genau 31,25 Cent, dazu kommt ein Grundpreis von 12,50 € im Monat.
+    Trag das bitte ein.
+  writes: true
+  expect_tools: [set_price]
+  max_tool_calls: 4
+  expect_args:
+    set_price:
+      name: electricity
+      starts_at: '2026-03-01'
+  expect_records:
+    - model: Price
+      find: { name: electricity, starts_at: '2026-03-01' }
+      attributes:
+        { amount_per_kwh: 0.3125, amount_per_month: 12.5, origin: mcp }
+  judge: >
+    Says that the price was recorded: 31.25 cents (or 0.3125 €) per kWh from
+    1 March 2026 and a base fee of 12.50 € per month.
+
+- id: write_cash_flow_with_number
+  note: >
+    A repair of the PV system is a cash flow with a sign: money paid is
+    negative. The number of the bill becomes the reference, so a later call
+    with the same bill finds the entry again.
+  prompt: >
+    Rechnung R-2026-117 vom 12. Februar 2026: Reparatur des Wechselrichters,
+    840 €. Bitte für die Amortisation erfassen.
+  writes: true
+  expect_tools: [set_cash_flow]
+  max_tool_calls: 4
+  expect_args:
+    set_cash_flow:
+      category: repair
+      reference: R-2026-117
+      date: '2026-02-12'
+  expect_records:
+    - model: CashFlow
+      find: { reference: R-2026-117 }
+      attributes:
+        { date: '2026-02-12', category: repair, amount: -840, origin: mcp }
+  judge: Says that the repair of 840 € on 12 February 2026 was recorded.
+
+- id: write_cash_flow_exists
+  note: >
+    The repair of the fixture (450 € on 27 May 2023) is already in the
+    register, entered by hand and without a number. The tool answers
+    `exists` and adds nothing, and the model must say so instead of claiming
+    a new entry.
+  prompt: >
+    Hier die Rechnung für die Reparatur am Wechselrichter vom 27. Mai 2023
+    über 450 €. Bitte für die Amortisation eintragen.
+  writes: true
+  max_tool_calls: 4
+  forbid_tools: [set_price, set_car_payment, set_offsite_session]
+  expect_records:
+    - model: CashFlow
+      find: { date: '2023-05-27', amount: -450 }
+      attributes: { origin: user }
+  judge: >
+    Says that this repair is already recorded and that nothing was added.
+    An answer that says the repair was added fails.
+
+- id: write_car_payment
+  note: >
+    A payment of a car is positive, and its category says that it is an
+    expense. The car is named by its name, so the model must find its number.
+  prompt: >
+    Die Kfz-Versicherung für meinen Stromer wurde am 2. Januar 2026
+    abgebucht: 389,40 €, Vertragsnummer KV-778812. Trag das bitte ein.
+  writes: true
+  expect_tools: [set_car_payment]
+  max_tool_calls: 4
+  expect_args:
+    set_car_payment:
+      car: 1
+      category: insurance
+      reference: KV-778812
+      date: '2026-01-02'
+  expect_records:
+    - model: Car::Payment
+      find: { reference: KV-778812 }
+      attributes:
+        {
+          car_id: 1,
+          category: insurance,
+          amount: 389.4,
+          date: '2026-01-02',
+          origin: mcp,
+        }
+  judge: Says that the insurance of 389.40 € on 2 January 2026 was recorded for the car.
+
+- id: write_offsite_receipt
+  note: >
+    A receipt names the local time without an offset, and the tool takes
+    none without it. The model has to add the offset of the instance, which
+    is +02:00 in September (get_system_info gives the time zone). A wrong
+    offset saves the charge an hour off, which the record shows.
+  prompt: >
+    Ladebeleg vom Ladeverbund Nord: 14. September 2026 von 10:55 bis 12:50
+    Uhr, 27,0 kWh, 12,18 €. Bitte als Ladevorgang meines Stromers eintragen.
+  writes: true
+  expect_tools: [set_offsite_session]
+  max_tool_calls: 5
+  expect_args:
+    set_offsite_session:
+      car: 1
+  expect_records:
+    - model: ChargingSession
+      find: { kind: offsite, car_id: 1, started_at: '2026-09-14 10:55' }
+      attributes:
+        { ended_at: '2026-09-14 12:50', kwh: 27, cost: 12.18, origin: mcp }
+  judge: >
+    Says that the charge of 14 September 2026 from 10:55 to 12:50 with 27 kWh
+    and 12.18 € was recorded.
+
+- id: question_does_not_write
+  note: >
+    A comparison with a bill is a question, not an order to write. The model
+    reads the tariff and answers, and no tool that writes may run. The case
+    is `writes: true` all the same, so a model that writes anyway changes no
+    other run.
+  prompt: >
+    Auf meiner Stromrechnung steht ein Arbeitspreis von 33 Cent pro kWh.
+    Stimmt das mit dem Preis überein, der in SOLECTRUS hinterlegt ist?
+  writes: true
+  expect_tools: [get_prices]
+  forbid_tools: [set_price, set_car_payment, set_cash_flow, set_offsite_session]
+  max_tool_calls: 3
+  answer_must_match: ['35']
+  judge: >
+    Says that SOLECTRUS has 35 cents per kWh, which differs from the 33 cents
+    of the bill, and does not claim to have changed anything.
+
+- id: write_own_charge_cost
+  note: >
+    The fixture holds an offsite charge that an AI agent entered in an earlier
+    conversation (Dataset::OWN_CHARGE). A model finds it in
+    get_charging_sessions and corrects the cost by its id. The other values
+    stay, because a call with an id changes only what it gives.
+  prompt: Bei der Ladung im Ladepark Süd, die du eingetragen hast, stehen 9,36 €. Richtig sind 10,36 €, bitte korrigieren.
+  writes: true
+  expect_tools: [get_charging_sessions, set_offsite_session]
+  expect_records:
+    - model: ChargingSession
+      find: { kind: offsite, provider: Ladepark Süd }
+      attributes: { cost: 10.36, kwh: 19.5, origin: mcp }
+  judge: Says that the cost of that charge is now 10.36 €.
+
+- id: write_own_charge_details
+  note: >
+    Details of the same charge, which the first receipt lacked. The call gives
+    the id and the new values alone, and the cost stays.
+  prompt: 'Zur Ladung im Ladepark Süd, die du eingetragen hast, noch nachtragen: Das war DC, Ladepunkt DE*LPS*E1234.'
+  writes: true
+  expect_tools: [get_charging_sessions, set_offsite_session]
+  expect_records:
+    - model: ChargingSession
+      find: { kind: offsite, provider: Ladepark Süd }
+      attributes: { power_type: dc, evse_id: 'DE*LPS*E1234', cost: 9.36 }
+  judge: Says that the charge got the power type and the charge point.
+
+- id: admin_entry_unchanged
+  note: >
+    The insurance of the car is an entry of the admin without a document
+    number, so no tool changes it. A model must say so and point to the
+    settings, without trying the id and without adding a second payment.
+  prompt: Die Kfz-Versicherung vom letzten Monat war falsch, es waren 380 € und nicht 365 €. Bitte korrigieren.
+  writes: true
+  expect_records:
+    - model: Car::Payment
+      find: { category: insurance }
+      count: 1
+      attributes: { amount: 365 }
+  judge: >
+    Explains that it cannot change this entry and points to the settings of
+    SOLECTRUS. It neither changes the entry nor adds a second one.

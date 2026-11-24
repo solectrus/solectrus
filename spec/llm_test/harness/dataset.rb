@@ -145,13 +145,29 @@ module LlmTest
 
     def seed!
       Setting.sensor_names = SENSOR_NAMES.stringify_keys
-      # The pool cases (cases/raw.yml) need the raw data tools
+      # The pool cases (cases/raw.yml) need the raw data tools, and the cases
+      # of cases/writing.yml the tools that write. Every case sees them, like
+      # an admin who allows both, so a question also shows that a model does
+      # not write when it is not asked to.
       Setting.mcp_raw_data = true
+      Setting.mcp_write = true
       seed_summaries!
       seed_influx!
       seed_prices!
       seed_cash_flows!
       seed_car!
+    end
+
+    # Puts back what a tool that writes can change, after a case of
+    # cases/writing.yml (see Runner). A new price also gives the wallbox
+    # sessions of its days a new cost (see ChargingSession.reprice), so the
+    # sessions come back too.
+    def reset_writes!
+      seed_prices!
+      seed_cash_flows!
+      Car::Payment.delete_all
+      Car.find(1).payments.create!(category: :insurance, date: last_month, amount: INSURANCE)
+      seed_sessions!
     end
 
     # When this installation went live. The money half of the fixture hangs off
@@ -264,8 +280,27 @@ module LlmTest
       car.payments.create!(category: :insurance, date: last_month, amount: INSURANCE)
 
       seed_car_summaries!
-      ChargingSession.insert_all!(car_days.map { car_session(_1) })
+      seed_sessions!
       seed_fuel_prices!
+    end
+
+    # A wallbox session of the car on each day of last month, and an offsite
+    # charge that an AI agent entered in an earlier conversation. That one
+    # lies two months back, so no figure of last month counts it, and the
+    # cases of cases/writing.yml correct it by its id.
+    def seed_sessions!
+      ChargingSession.delete_all
+      ChargingSession.insert_all!(car_days.map { car_session(_1) })
+      ChargingSession.insert_all!([own_charge])
+    end
+
+    OWN_CHARGE = { provider: 'Ladepark Süd', kwh: 19.5, cost: 9.36 }.freeze
+    public_constant :OWN_CHARGE
+
+    def own_charge
+      started_at = ((today << 2).beginning_of_month + 20).in_time_zone.change(hour: 17, min: 40)
+
+      { kind: 'offsite', origin: 'mcp', assigned_manually: true, car_id: 1, started_at:, ended_at: started_at + 50.minutes, **OWN_CHARGE, created_at: now, updated_at: now }
     end
 
     # One price each week, as the collector writes them, from before the

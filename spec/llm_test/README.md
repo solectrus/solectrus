@@ -143,12 +143,13 @@ become the baseline for a server that ships the sentence.
 
 ## How a case works
 
-A case is one entry in `spec/llm_test/cases/*.yml`. There are five files:
+A case is one entry in `spec/llm_test/cases/*.yml`. There are six files:
 `core.yml` holds the questions a user asks most, `conventions.yml` one case per
 rule in `McpServer::Facts`, `money.yml` the tariffs, the cash flow register and
-the amortization, `cars.yml` the cost of the electric car, and `raw.yml` the
-raw InfluxDB data. `--only` matches a case id as a regular expression, so a
-subset runs with `--only 'totals|current|resolve'`.
+the amortization, `cars.yml` the cost of the electric car, `raw.yml` the raw
+InfluxDB data, and `writing.yml` the tools that write. `--only` matches a case
+id as a regular expression, so a subset runs with
+`--only 'totals|current|resolve'`.
 
 One case looks like this:
 
@@ -178,11 +179,41 @@ The keys:
 | `answer_must_match`     | Regular expressions the answer must match.                          |
 | `answer_must_not_match` | Regular expressions the answer must not match.                      |
 | `allow_tool_errors`     | Permits a rejected tool call, which is a failure by default.        |
+| `writes`                | The run can change the fixture, so it runs alone (see below).       |
+| `expect_records`        | Records the database must hold after the run (see below).           |
 | `judge`                 | One criterion for the LLM judge. It runs only if all checks passed. |
 | `note`                  | Why this case exists. It is documentation, not a check.             |
 
 A case never repeats a number. It names a fact, and `Dataset.facts` computes
 the value from the same curves that the fixture was built from.
+
+## A case that writes
+
+The fixture allows the tools that write, and every case sees them. A case with
+`writes: true` runs alone: the other runs wait until it is done, so none of
+them reads the database while it changes. After the run, the harness puts
+back the prices, the cash flows, the payments of the car and the charging
+sessions, also after a failed run. Each run of such a case therefore starts
+from the same fixture.
+
+A case that writes checks the database with `expect_records`, before the
+fixture comes back:
+
+```yaml
+expect_records:
+  - model: CashFlow
+    find: { reference: R-2026-117 }
+    attributes:
+      { date: '2026-02-12', category: repair, amount: -840, origin: mcp }
+```
+
+`find` is a `where` of the model. The records it finds must be `count` many,
+one if the entry leaves it out, and the first one must have the `attributes`.
+A number may differ by half a cent. A time is a local time of the instance,
+like `'2026-09-14 10:55'`. `count: 0` states that the run added nothing.
+
+A question that must not write is a case that writes too, so a model that
+writes anyway changes no other run.
 
 ## The fixture
 

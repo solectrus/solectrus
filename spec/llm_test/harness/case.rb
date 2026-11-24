@@ -16,6 +16,8 @@ module LlmTest
       answer_must_match
       answer_must_not_match
       allow_tool_errors
+      writes
+      expect_records
       judge
       note
     ].freeze
@@ -65,6 +67,7 @@ module LlmTest
       failures.concat(check_arguments(result))
       failures.concat(check_facts(result))
       failures.concat(check_text(result))
+      failures.concat(RecordCheck.call(expect_records)) if expect_records
       failures
     end
 

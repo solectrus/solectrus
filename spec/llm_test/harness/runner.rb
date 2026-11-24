@@ -20,6 +20,7 @@ module LlmTest
       @judge = judge
       @verbose = verbose
       @output = Mutex.new
+      @fixture = Concurrent::ReentrantReadWriteLock.new
       @done = 0
     end
 
@@ -49,18 +50,31 @@ module LlmTest
 
     def perform(test_case, model, run)
       started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      result =
-        ClaudeCli
-          .new(model:, socket: @socket)
-          .call(test_case.prompt, system: SystemPrompt.call)
-
-      failures = test_case.check(result)
+      result, failures =
+        with_fixture(test_case) do
+          answer = ClaudeCli.new(model:, socket: @socket).call(test_case.prompt, system: SystemPrompt.call)
+          [answer, test_case.check(answer)]
+        end
       verdict = judge(test_case, result) if failures.empty?
       failures << "judge: #{verdict.reason}" if verdict && !verdict.pass
 
       record(test_case, model, run, result, failures, started, verdict).tap { report(_1, result) }
     rescue ClaudeCli::Error => e
       failed(test_case, model, run, "claude failed: #{e.message}")
+    end
+
+    # The runs share one fixture. A case that writes runs alone, so no other
+    # run reads the database while it changes, and the fixture is back before
+    # the next run starts - also after a failed run. Its checks of the records
+    # run before that, inside the block. The other cases run side by side.
+    def with_fixture(test_case, &)
+      return @fixture.with_read_lock(&) unless test_case.writes
+
+      @fixture.with_write_lock do
+        yield
+      ensure
+        ActiveRecord::Base.connection_pool.with_connection { Dataset.reset_writes! }
+      end
     end
 
     # The judge is asked only when the mechanical checks passed. It costs a
