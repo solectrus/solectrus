@@ -153,6 +153,102 @@ describe Sensor::Chart::InverterPower do
     end
   end
 
+  describe 'x-axis range' do
+    let(:chart) { described_class.new(timeframe:) }
+    let(:x_scale) { chart.__send__(:x_scale_options) }
+
+    def at(hour, minute = 0)
+      Time.zone.local(2025, 12, 3, hour, minute)
+    end
+
+    def stub_series(raw_data)
+      series = Sensor::Data::Series.new(raw_data, timeframe:)
+      allow(chart).to receive(:series).and_return(series)
+    end
+
+    context 'when the timeframe is a day' do
+      let(:timeframe) { Timeframe.new('2025-12-03') }
+
+      it 'covers the hours with actual or forecast production, plus a margin' do
+        stub_series(
+          %i[inverter_power avg avg] => {
+            at(3) => 0, at(7, 40) => 200, at(12) => 4000, at(16, 5) => 100, at(20) => 0
+          },
+          %i[inverter_power_forecast avg avg] => {
+            at(8) => 0, at(8, 15) => 500, at(16, 25) => 300, at(17) => 0
+          },
+        )
+
+        expect(x_scale).to include(
+          min: at(6, 40).to_i * 1000,
+          max: at(17, 25).to_i * 1000,
+          ticks: include(stepSize: 2),
+        )
+      end
+
+      it 'uses a 3-hour step on a long day' do
+        stub_series(
+          %i[inverter_power avg avg] => {
+            at(4, 50) => 100, at(12) => 8000, at(21, 40) => 100
+          },
+        )
+
+        expect(x_scale).to include(
+          min: at(3, 50).to_i * 1000,
+          max: at(22, 40).to_i * 1000,
+          ticks: include(stepSize: 3),
+        )
+      end
+
+      it 'ignores noise below 1% of the peak' do
+        stub_series(
+          %i[inverter_power avg avg] => {
+            at(1) => 0.1, at(9, 10) => 40, at(12) => 2000, at(15, 50) => 30, at(23) => 0.1
+          },
+        )
+
+        expect(x_scale).to include(
+          min: at(8, 10).to_i * 1000,
+          max: at(16, 50).to_i * 1000,
+        )
+      end
+
+      it 'keeps the margin within the day' do
+        stub_series(
+          %i[inverter_power avg avg] => { at(0, 20) => 1000, at(23, 30) => 1000 },
+        )
+
+        expect(x_scale).to include(
+          min: timeframe.beginning.to_i * 1000,
+          max: timeframe.ending.to_i * 1000,
+        )
+      end
+
+      it 'keeps the whole day without production' do
+        stub_series(%i[inverter_power avg avg] => { at(12) => 0 })
+
+        expect(x_scale).to include(
+          min: timeframe.beginning.to_i * 1000,
+          max: timeframe.ending.to_i * 1000,
+          ticks: include(stepSize: 3),
+        )
+      end
+    end
+
+    context 'when the timeframe counts hours back from now' do
+      let(:timeframe) { Timeframe.new('P24H') }
+
+      it 'keeps the whole timeframe' do
+        stub_series(%i[inverter_power avg avg] => { 2.hours.ago => 1000 })
+
+        expect(x_scale).to include(
+          min: timeframe.beginning.to_i * 1000,
+          max: timeframe.ending.to_i * 1000,
+        )
+      end
+    end
+  end
+
   describe 'variability band' do
     let(:chart) { described_class.new(timeframe:) }
 

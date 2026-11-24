@@ -2,6 +2,14 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
   include Sensor::Chart::Concerns::RemainingForecast
   prepend Sensor::Chart::Concerns::ForecastBand
 
+  # Share of the day's peak that a value must exceed to count as production
+  # for the range of the x-axis
+  PRODUCTION_THRESHOLD = 0.01
+
+  # Space on the x-axis before the first and after the last production
+  PRODUCTION_MARGIN = 1.hour
+  private_constant :PRODUCTION_THRESHOLD, :PRODUCTION_MARGIN
+
   def initialize(timeframe:, variant: nil)
     super(timeframe:)
     @variant = variant
@@ -81,6 +89,48 @@ class Sensor::Chart::InverterPower < Sensor::Chart::Base
     return super if Sensor::Registry[sensor_name].forecast?
 
     super.merge(stack: 'InverterPower')
+  end
+
+  # On a single day, the x-axis covers only the production plus a margin,
+  # so the curve is not squeezed into a third of the width in winter. The
+  # margin shows the zero line, so the end of the day stays visible.
+  # Without any production (actual or forecast), the axis keeps the day.
+  def x_scale_options
+    options = super
+    first, last = production_range if timeframe.day?
+    return options unless first
+
+    min = [first - PRODUCTION_MARGIN, timeframe.beginning].max
+    max = [last + PRODUCTION_MARGIN, timeframe.ending].min
+    options.merge(
+      min: min.to_i * 1000,
+      max: max.to_i * 1000,
+      # A tick every 2 hours on a short winter day, every 3 on a long one
+      ticks: options[:ticks].merge(stepSize: max - min <= 12.hours ? 2 : 3),
+    )
+  end
+
+  # First and last timestamp with production in any dataset: actual
+  # production, forecast and clearsky. The forecast fills the range on a
+  # morning before sunrise, the actual data a day without forecast.
+  #
+  # Some inverters report a few tenths of a watt all night. Only values
+  # above a share of the day's peak count, so this noise is ignored at any
+  # system size.
+  def production_range
+    points = series_points
+    peak = points.map(&:last).max.to_f
+    return unless peak.positive?
+
+    threshold = peak * PRODUCTION_THRESHOLD
+    points
+      .filter_map { |time, value| normalize_timestamp(time) if value > threshold }
+      .minmax
+  end
+
+  # [time, value] pairs of all datasets, without nil values
+  def series_points
+    (series&.raw_data || {}).values.flat_map(&:to_a).select(&:last)
   end
 
   def forecast_daylight_range
