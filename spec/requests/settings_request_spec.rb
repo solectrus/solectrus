@@ -160,7 +160,7 @@ describe 'Settings' do
         end
 
         # The parts of MCP, which hold only while MCP is on
-        %i[mcp_raw_data mcp_locations].each do |part|
+        %i[mcp_raw_data mcp_locations mcp_write].each do |part|
           describe "the part #{part}" do
             before { Setting.mcp_enabled = true }
 
@@ -225,10 +225,11 @@ describe 'Settings' do
         end
 
         it 'refuses to allow a part of MCP' do
-          patch '/settings/system', params: { setting: { mcp_raw_data: '1', mcp_locations: '1' } }
+          patch '/settings/system', params: { setting: { mcp_raw_data: '1', mcp_locations: '1', mcp_write: '1' } }
 
           expect(Setting.mcp_raw_data).to be(false)
           expect(Setting.mcp_locations).to be(false)
+          expect(Setting.mcp_write).to be(false)
         end
       end
     end

@@ -4,7 +4,7 @@ class Settings::SystemsController < ApplicationController
   before_action :admin_required!
 
   # The settings that are a part of MCP
-  MCP_PARTS = %i[mcp_raw_data mcp_locations].freeze
+  MCP_PARTS = %i[mcp_raw_data mcp_locations mcp_write].freeze
   private_constant :MCP_PARTS
 
   def edit

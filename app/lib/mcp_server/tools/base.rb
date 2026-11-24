@@ -46,6 +46,21 @@ module McpServer
           )
         end
 
+        # Declare the annotations of a tool that writes. No tool deletes, but
+        # one that changes an existing entry overwrites its values, which
+        # `destructive:` says.
+        def writes(idempotent:, destructive:)
+          annotations(
+            read_only_hint: false,
+            destructive_hint: destructive,
+            idempotent_hint: idempotent,
+            open_world_hint: false,
+          )
+        end
+
+        # Whether the admin allows the tools that write (see Setting.mcp_write)
+        def write_enabled? = Setting.mcp_write
+
         # The `timeframe` input-schema property. `lead` carries what the
         # individual tool needs on top (get_series rejects the instant "now",
         # get_ranking ranks periods within the range); the accepted forms

@@ -240,6 +240,7 @@ describe 'MCP' do
         # depend on prices in InfluxDB, so the example sets them itself
         it 'lists the available tools' do
           Setting.mcp_raw_data = true
+          Setting.mcp_write = true
           allow(Car::Comparison).to receive(:available?).and_return(true)
           allow(Heatpump::Comparison).to receive(:settings?).and_return(true)
           post_mcp(tools_list)
@@ -265,6 +266,7 @@ describe 'MCP' do
             'get_heatpump_payments',
             'list_measurements',
             'get_raw_series',
+            'set_price',
           )
         end
 
@@ -273,6 +275,13 @@ describe 'MCP' do
 
           names = response.parsed_body.dig('result', 'tools').pluck('name')
           expect(names).not_to include('list_measurements', 'get_raw_series')
+        end
+
+        it 'leaves out the tools that write unless the admin allows them' do
+          post_mcp(tools_list)
+
+          names = response.parsed_body.dig('result', 'tools').pluck('name')
+          expect(names).not_to include('set_price')
         end
 
         # The SEP-2549 cache hints are mandatory on tools/list at 2026-07-28,

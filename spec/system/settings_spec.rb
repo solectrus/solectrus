@@ -76,6 +76,7 @@ describe 'Settings' do
         Setting.mcp_enabled = false
         Setting.mcp_raw_data = false
         Setting.mcp_locations = false
+        Setting.mcp_write = false
       end
 
       let(:endpoint_label) do
@@ -127,11 +128,13 @@ describe 'Settings' do
           check 'setting_mcp_enabled'
           check 'setting_mcp_raw_data'
           check 'setting_mcp_locations'
+          check 'setting_mcp_write'
           click_on save_button
 
           expect(page).to have_text(success_message)
           expect(page).to have_checked_field('setting_mcp_raw_data')
           expect(page).to have_checked_field('setting_mcp_locations')
+          expect(page).to have_checked_field('setting_mcp_write')
         end
 
         it 'shows the endpoint after enabling and saving' do

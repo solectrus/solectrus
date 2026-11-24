@@ -97,7 +97,13 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
       # an instance with a car pays for the two tools. get_heatpump_payments
       # adds ~1_200 bytes where the instance has the settings of the heat
       # pump, which the test configuration lacks.
-      'tool definitions + instructions' => 40_700,
+      #
+      # set_price raised it from 40_700, by ~2_300 bytes, ~400 of them in the
+      # instructions. It is the first tool that writes, so its description says
+      # what it changes and what it keeps, and the instructions say how an agent
+      # corrects its own entry. Only an instance whose admin allows writing pays
+      # them.
+      'tool definitions + instructions' => 43_100,
       'get_current_values (all sensors)' => 13_500,
       'list_sensors' => 16_900,
       'get_sensor_details (3 sensors)' => 1_000,
@@ -317,8 +323,10 @@ describe 'MCP payload size' do # rubocop:disable RSpec/DescribeClass
   # receives them in `tools/list`. Not a response but the entry fee: it is sent
   # before a single measurement is read, so it belongs in the same benchmark.
   def tool_definitions
-    # The largest list, with the raw data tools the admin can allow
+    # The largest list, with the raw data tools and the tools that write,
+    # which the admin can allow
     Setting.mcp_raw_data = true
+    Setting.mcp_write = true
     server = McpServer::Server.build
     definitions = server.tools.values.map { it.to_h.to_json }
 

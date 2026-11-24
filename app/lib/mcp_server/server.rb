@@ -1,5 +1,6 @@
 module McpServer
-  # Builds the MCP::Server instance exposing SOLECTRUS' read-only data tools.
+  # Builds the MCP::Server instance exposing the data tools of SOLECTRUS: the
+  # ones that read, and those that write once the admin allows them.
   # A fresh server is created per request (stateless transport).
   module Server
     TOOLS = [
@@ -21,6 +22,7 @@ module McpServer
       Tools::HeatpumpPayments,
       Tools::ListMeasurements,
       Tools::RawSeries,
+      Tools::SetPrice,
     ].freeze
     private_constant :TOOLS
 
@@ -68,6 +70,37 @@ module McpServer
       }.filter_map { |tool, text| "\n#{text}." if tool.available? }.join
     end
 
+    # The first line says what the server does, so it names the writing only
+    # where the admin allows it
+    def self.access
+      if write_tools.any?
+        'Data of a SOLECTRUS photovoltaic monitoring system, to read and to record.'
+      else
+        'Read-only data of a SOLECTRUS photovoltaic monitoring system.'
+      end
+    end
+
+    # The tools that write and are available, each with what it records
+    def self.write_tools = TOOLS.select { it.respond_to?(:records) && it.available? }.map { "#{it.name_value} for #{it.records}" }
+
+    def self.recording
+      tools = write_tools
+      return '' if tools.empty?
+
+      <<~TEXT.chomp
+
+
+        To record what a bill or a contract states: #{tools.join('; ')}.
+        Nothing is ever deleted. Record only what the user asked for or what a
+        document states.
+        A tool answers `created`, `updated` (with the `previous` entry) or
+        `unchanged`: tell the user what changed.
+        Each answer names the `id` of the entry. To correct an entry that you
+        recorded, call again with its `id`: that changes the entry, also its date,
+        until the admin saves it.
+      TEXT
+    end
+
     # The conventions that hold across every tool, stated here so no tool
     # description has to repeat them (Facts explains why each is said at all).
     #
@@ -75,14 +108,14 @@ module McpServer
     # the instance is configured, and the configuration outlives no boot.
     def self.instructions
       <<~TEXT.strip
-        Read-only data of a SOLECTRUS photovoltaic monitoring system.
+        #{access}
         get_current_values for live readings, get_totals for a
         timeframe, get_periods for a value per day/week/month/year, get_ranking
         for best/worst periods, get_series for intraday curves;
         get_system_info for installation metadata and currency,
         get_prices for the (time-dependent) tariffs, get_forecast for expected PV
         energy, get_amortization for payback, break-even and NPV/IRR, and
-        get_cash_flows for the single investments and costs behind it.#{car_tools}
+        get_cash_flows for the single investments and costs behind it.#{car_tools}#{recording}
 
         list_sensors is for DISCOVERY alone: call it to learn which sensors
         exist, or to resolve a sensor the user named. It is not a prerequisite -
@@ -111,8 +144,8 @@ module McpServer
     # to the spec default `ttlMs: 0`, which tells a client not to cache at all.
     #
     # The tools are a fixed list with static descriptions, so the response only
-    # changes with a new release, with the first car or with the setting for
-    # raw data (see Tools::Base.available?) - and a client that reconnects
+    # changes with a new release, with the first car or with the settings for
+    # raw data and for writing (see Tools::Base.available?) - and a client that reconnects
     # after one reads the new version out of `serverInfo` anyway. It weighs ~28 KB, which
     # a long conversation would otherwise pay several times over, so the hint
     # spans a working session rather than a few turns. An update still reaches

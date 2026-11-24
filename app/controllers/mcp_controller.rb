@@ -1,4 +1,4 @@
-# Model Context Protocol endpoint. Exposes read-only sensor data to MCP clients
+# Model Context Protocol endpoint. Exposes the data of SOLECTRUS to MCP clients
 # (Claude Desktop, Claude Code, ...) via stateless Streamable HTTP.
 #
 # Deliberately an ActionController::API subclass, so it does NOT inherit the

@@ -48,7 +48,7 @@ class Setting < RailsSettings::Base
   field :heatpump_heating_efficiency, type: :integer, default: 85
   field :heatpump_heating_fixed_costs, type: :float
 
-  # Read-only data access via Model Context Protocol (/mcp). Disabled by
+  # Data access via Model Context Protocol (/mcp). Disabled by
   # default; admins opt in via the system settings. When enabled, access is
   # protected by stateless OAuth (auth code + PKCE), authenticated with the
   # existing admin password - no token is stored. See McpOauth.
@@ -63,6 +63,11 @@ class Setting < RailsSettings::Base
   # default, because the data goes to the provider of the AI, and a location
   # tells where a person was.
   field :mcp_locations, type: :boolean, default: false
+
+  # Whether MCP also writes: it adds and changes entries like the prices, but
+  # deletes nothing. Off by default, because an AI client can act on content
+  # that the admin did not check, like an e-mail.
+  field :mcp_write, type: :boolean, default: false
 
   # Rotatable salt mixed into the OAuth signing key. Rotating it invalidates
   # every issued token at once (used to drop all clients when MCP is disabled).

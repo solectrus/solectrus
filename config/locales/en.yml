@@ -540,6 +540,8 @@ en:
         raw_data_hint: AI agents can then read every measurement in the InfluxDB bucket, also without a sensor.
         locations: Also allow locations
         locations_hint: AI agents can then read the geographic coordinates of the cars. The data goes to the AI provider and shows where someone was.
+        write: Also allow writing
+        write_hint: AI agents can then add and change electricity prices, but not delete anything.
       summaries:
         title: Daily summaries
         description: A summary is calculated for each day to allow efficient analyses. In rare cases (such as after an import of historical measurements) it may be necessary to reset these summaries.

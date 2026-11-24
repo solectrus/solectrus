@@ -7,9 +7,10 @@ highest solar production?", "How was my self-consumption last month?").
 
 AI access (MCP) is a **sponsor-only feature** and is **disabled by default**.
 Sponsors enable it under **Settings → System → AI access (MCP)**. The endpoint
-is read-only and protected by OAuth 2.1 (authorization code + PKCE); the only
-credential is your existing **admin password** (`ADMIN_PASSWORD`), and the
-authorization page accepts ten attempts per three minutes from one address —
+is read-only unless the admin allows [writing](#writing). It is protected by
+OAuth 2.1 (authorization code + PKCE); the only credential is your existing
+**admin password** (`ADMIN_PASSWORD`), and the authorization page accepts ten
+attempts per three minutes from one address —
 enough for the one time you type it, not enough to guess it. Without an
 active sponsorship — or while the toggle is off — the endpoint and the whole
 OAuth surface are invisible (respond with 404).
@@ -80,6 +81,9 @@ setup guide instead, for the admin alone.)
 - `get_raw_series` — the samples of any measurement and its fields, also of a
   field that no sensor reads. Only when the admin allows raw data. See
   [Raw InfluxDB data](#raw-influxdb-data)
+- `set_price` — adds or changes a price of the electricity tariff or of the
+  feed-in compensation. Only when the admin allows writing. See
+  [Writing](#writing)
 
 > **Units after aggregation.** Summing a power sensor (unit `watt`) yields an
 > _energy_, so in `get_totals`, `get_periods` and `get_ranking` the `value` is in Wh,
@@ -322,6 +326,42 @@ answers for the location sensors, the raw data tools included, and
 `get_charging_sessions` gives the address and the position. The checkbox
 shows once MCP is on, and switching MCP off takes the locations back.
 
+### Writing
+
+An AI client can enter data that comes from a document, for example the new
+tariff from an electricity bill. The tools that write are off by default,
+because a client can act on content that the admin did not check, like an
+e-mail. The admin turns them on in the system settings, with "Also allow
+writing" below the MCP switch. Without the setting, the server does not offer
+the tools and calls itself read-only. Like the other parts of MCP, the setting
+holds only while MCP is on.
+
+The rules for the tools that write:
+
+- A tool adds and changes entries. No tool deletes an entry.
+- An entry follows the same rules as in the form. The tool reports what the
+  rules reject, and saves nothing.
+- An entry that a client wrote carries a mark with a robot in its list, until
+  the admin saves it in the form.
+- A client reads the same document more than once. The second time, the tool
+  finds the entry of the first time and changes nothing.
+- Each answer names the `id` of the entry, and so do the lists of `get_prices`,
+  `get_cash_flows`, `get_car_payments`, `get_heatpump_payments` and
+  `get_charging_sessions`. A call with this `id` changes only the values that
+  it gives, also the values that find the entry, like its start
+  date. The other values stay. This works only for an entry that a client
+  wrote and the admin has not saved since, so a client can correct its own
+  mistake but not an entry that the admin checked. Without `id`, a call must
+  give the values that find an entry.
+
+`set_price` writes one price of the electricity tariff or of the feed-in
+compensation. A tariff has one entry per start date, so the name and the start
+date find the entry. Without such an entry, the tool adds one. With it, the
+tool changes the values that the call gives and keeps the others. A null
+clears the base fee or the note. The answer says if the entry is new, changed
+or unchanged. For a change, it also gives the previous entry. The start date
+must be an ISO 8601 date, like `2026-01-01`.
+
 ### Raw InfluxDB data
 
 The sensor tools read only the configured sensors. The same InfluxDB bucket
@@ -547,7 +587,8 @@ Business, Enterprise and Edu plans:
    `https://your-host/mcp`, and choose Authentication **OAuth**.
 3. Save → you are redirected to SOLECTRUS once to enter your admin password.
 
-On Plus/Pro the connector is read-only — which is all SOLECTRUS exposes anyway.
+On Plus/Pro the connector is read-only, so it cannot use the tools that
+[write](#writing).
 Once added on the web it also appears in the ChatGPT desktop app.
 
 ## Troubleshooting

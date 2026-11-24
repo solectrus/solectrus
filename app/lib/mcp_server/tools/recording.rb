@@ -1,0 +1,88 @@
+module McpServer
+  module Tools
+    # What the tools that write share. A client reads the same document more
+    # than once, so an entry is found again before one is added. The rules of
+    # an entry stay in its model: a tool only reports what the model rejects.
+    module Recording
+      # The `id` input-schema property: the entry of an earlier answer, which
+      # the call changes (see #own_entry). A call with it changes only the
+      # arguments that it gives. `needed` are the arguments that a call
+      # without it needs, because they find or add the entry (see
+      # #require_without_id). The schema cannot require them only without
+      # `id`, so the description names them.
+      def self.id_property(*needed)
+        {
+          type: 'integer',
+          minimum: 1,
+          description:
+            'The id of an entry with origin mcp, from an answer or a list: the call ' \
+            'changes only the arguments that it gives, the others keep their ' \
+            "value. Without id, give #{needed.to_sentence(locale: :en)}.",
+        }
+      end
+
+      protected
+
+      # The arguments that a call without `id` needs, because they find or add
+      # the entry. With `id`, each argument is optional.
+      def require_without_id(id, args, needed)
+        missing = needed.select { args[it].blank? }
+        return if id || missing.empty?
+
+        raise ArgumentError, "Missing #{missing.join(', ')}: #{missing.one? ? 'it is' : 'they are'} needed without `id`."
+      end
+
+      # The arguments with the date of `key` read as ISO 8601, where the call
+      # gives it
+      def with_date(args, key)
+        args.key?(key) ? args.merge(key => iso_date(args[key], key.to_s)) : args
+      end
+
+      # The entry of `id` in `scope`, which an AI agent wrote and the admin did
+      # not save since. A save is the check of the admin, so an agent can
+      # correct its own entry but never one that the admin checked or wrote.
+      def own_entry(scope, id)
+        scope.find_by(id:, origin: :mcp) or
+          raise ArgumentError,
+                "No entry #{id} to change by id: an id finds only an entry with origin mcp, " \
+                'which an AI agent recorded and the admin has not saved since.'
+      end
+
+      # Saves an entry as written by an AI client, and returns what happened
+      # to it. An entry without a change stays as it is, also its origin.
+      # `arguments` names the argument of each attribute for an error.
+      def save_entry(entry, arguments)
+        return 'unchanged' if entry.persisted? && !entry.changed?
+
+        result = entry.new_record? ? 'created' : 'updated'
+        entry.origin = :mcp
+        entry.save or raise ArgumentError, rejection(entry, arguments)
+        result
+      end
+
+      # The attributes that the given arguments set, by the map of argument to
+      # attribute. An argument that is left out sets nothing.
+      def attributes_from(args, arguments)
+        arguments.filter_map { |argument, attribute| [attribute, args[argument]] if args.key?(argument) }.to_h
+      end
+
+      # Only ISO 8601, unlike the dates that a reading tool takes: a write
+      # must not guess the date from a word like "Monday"
+      def iso_date(value, label)
+        Date.iso8601(value.to_s)
+      rescue Date::Error
+        raise ArgumentError, "Invalid #{label}: #{value.inspect} is not an ISO 8601 date (e.g. \"2026-01-01\")."
+      end
+
+      private
+
+      # The errors of the model, named by the arguments of the tool
+      def rejection(entry, arguments)
+        names = arguments.invert
+        messages = I18n.with_locale(:en) { entry.errors.map { "#{names.fetch(it.attribute, it.attribute)} #{it.message}" } }
+
+        "Nothing was saved: #{messages.to_sentence.delete_suffix('.')}."
+      end
+    end
+  end
+end

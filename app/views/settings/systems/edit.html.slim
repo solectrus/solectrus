@@ -30,6 +30,10 @@
                       checked: Setting.mcp_enabled && Setting.mcp_locations,
                       label: t('settings.system.mcp.locations'),
                       hint: t('settings.system.mcp.locations_hint')
+        = f.check_box :mcp_write,
+                      checked: Setting.mcp_enabled && Setting.mcp_write,
+                      label: t('settings.system.mcp.write'),
+                      hint: t('settings.system.mcp.write_hint')
     - else
       = f.check_box :mcp_enabled,
                     checked: false,
