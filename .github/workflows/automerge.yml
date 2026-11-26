@@ -18,9 +18,40 @@ jobs:
         with:
           github-token: '${{ secrets.PAT }}'
 
-      - name: Enable auto-merge for Dependabot PRs
-        if: ${{ steps.metadata.outputs.update-type != 'version-update:semver-major' }}
-        run: gh pr merge --auto --squash "$PR_URL"
+      # The bun cooldown can pick a version that a newer release already
+      # replaces. Such a pull request is closed, so Dependabot ignores that
+      # version and opens a new pull request once the newer release is out of
+      # the cooldown. Only releases in the same range count (same minor for a
+      # patch, same major for a minor or a major). Bundler has no cooldown, so
+      # there a newer release means a version constraint, and the pull request
+      # would come back. The actions come as one weekly group, so an extra
+      # update costs little.
+      - name: Close an outdated PR or enable auto-merge
+        shell: bash
+        run: |
+          outdated=""
+          while IFS=$'\t' read -r name type version; do
+            case "$type" in
+              version-update:semver-patch) range="$(cut -d. -f1-2 <<<"$version")." ;;
+              *) range="${version%%.*}." ;;
+            esac
+
+            latest=$(curl -fsSL --compressed -H 'Accept: application/vnd.npm.install-v1+json' \
+              "https://registry.npmjs.org/${name/\//%2F}" |
+              jq -r --arg range "$range" '.versions | keys[] | select(startswith($range) and (contains("-") | not))' |
+              sort -V | tail -n 1)
+            if [ "$latest" != "$version" ]; then
+              outdated+="- \`$name\` $version: $latest is available"$'\n'
+            fi
+          done < <(jq -r '.[] | select(.packageEcosystem == "bun") | [.dependencyName, .updateType, .newVersion] | @tsv' <<<"$DEPENDENCIES")
+
+          if [ -n "$outdated" ]; then
+            gh pr close "$PR_URL" --comment "A newer release replaces this update:"$'\n\n'"$outdated"
+          elif [ "$UPDATE_TYPE" != version-update:semver-major ]; then
+            gh pr merge --auto --squash "$PR_URL"
+          fi
         env:
+          DEPENDENCIES: ${{ steps.metadata.outputs.updated-dependencies-json }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.PAT}}
