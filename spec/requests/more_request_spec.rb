@@ -134,19 +134,6 @@ describe 'Page More' do
       expect(first.at_css('a[href="/sponsoring"]')).to be_present
     end
 
-    it 'says at the theme and the colors that they are for sponsors' do
-      hints = group('Appearance').css('a[href="/sponsoring"]').map { it.text.strip }
-
-      expect(hints).to eq(['Only for sponsors'] * 2)
-    end
-  end
-
-  context 'with a sponsorship' do
-    before do
-      allow(PremiumStatus).to receive(:reason).and_return(:sponsoring)
-      get '/more'
-    end
-
     it 'offers the theme and the colors without a hint' do
       expect(group('Appearance').at_css('a[href="/sponsoring"]')).to be_nil
     end

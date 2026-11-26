@@ -1,12 +1,10 @@
 form.relative.isolate.flex.items-center.focus:outline-hidden[
   class=form_class
-  data-controller= (ApplicationPolicy.themes? ? 'theme--selector--component segment-slide' : 'tooltip')
+  data-controller= 'theme--selector--component segment-slide'
   data-action= 'click->segment-slide#move'
-  title= (t('premium.sponsors_only') unless ApplicationPolicy.themes?)
-  data-tooltip-placement-value= 'top'
 ]
   label.relative.touch-target.cursor-pointer.transition-colors[
-    class=[label_class, 'hover:bg-gray-100 dark:hover:bg-gray-800 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700/60', ('pointer-events-none' unless ApplicationPolicy.themes?)]
+    class=[label_class, 'hover:bg-gray-100 dark:hover:bg-gray-800 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700/60']
     title= t('.dark')
     data-controller= 'tooltip'
     data-segment-slide-target= 'segment'
@@ -32,7 +30,7 @@ form.relative.isolate.flex.items-center.focus:outline-hidden[
       ]
 
   label.relative.touch-target.cursor-pointer.transition-colors[
-    class=[label_class, 'hover:bg-gray-100 dark:hover:bg-gray-800 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700/60', ('pointer-events-none' unless ApplicationPolicy.themes?)]
+    class=[label_class, 'hover:bg-gray-100 dark:hover:bg-gray-800 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700/60']
     title= t('.auto')
     data-controller= 'tooltip'
     data-segment-slide-target= 'segment'
@@ -58,7 +56,7 @@ form.relative.isolate.flex.items-center.focus:outline-hidden[
       ]
 
   label.relative.touch-target.cursor-pointer.transition-colors[
-    class=[label_class, 'hover:bg-gray-100 dark:hover:bg-gray-800 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700/60', ('pointer-events-none' unless ApplicationPolicy.themes?)]
+    class=[label_class, 'hover:bg-gray-100 dark:hover:bg-gray-800 has-[:checked]:bg-white dark:has-[:checked]:bg-gray-700/60']
     title= t('.light')
     data-controller= 'tooltip'
     data-segment-slide-target= 'segment'

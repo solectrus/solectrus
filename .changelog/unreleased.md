@@ -64,6 +64,7 @@ Keep every section, an empty one included.
 
 ### Charts and display
 
+- **Dark mode and contrast palette:** free for everyone. Before, they needed a sponsorship
 - **Details of a bar:** all values of the tooltip as a list, without a comparison. The comparison with the month or the year before moved to the trends. On a phone, the calendar is a page of its own. Without a sponsorship, a long press opens the tooltip of the bar instead
 - **Tooltips:** a lighter look on desktop, and long words break by syllable. A tooltip of a live value stays open while the values refresh
 - **Empty state:** an empty list or chart shows the same note everywhere

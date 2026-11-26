@@ -2,8 +2,6 @@
 # website data. The controllers that read or write it must work anyway.
 describe 'Blocked localStorage' do
   it 'connects the theme and palette selectors' do
-    allow(ApplicationPolicy).to receive(:themes?).and_return(true)
-
     checked, errors =
       with_blocked_local_storage('/') do |blocked|
         blocked.evaluate(<<~JS)

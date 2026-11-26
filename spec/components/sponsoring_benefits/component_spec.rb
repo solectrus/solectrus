@@ -5,7 +5,7 @@ describe SponsoringBenefits::Component, type: :component do
     result = render_inline(component)
 
     expect(result.to_html).to include('All consumers')
-    expect(result.to_html).to include('Dark mode')
+    expect(result.to_html).to include('AI analysis (MCP)')
     expect(result.css('li').size).to eq(component.benefits.size)
   end
 

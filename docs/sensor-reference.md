@@ -804,7 +804,6 @@ class-level predicate, for example `ApplicationPolicy.heatpump?`:
 | Feature                | Meaning                              |
 | ---------------------- | ------------------------------------ |
 | `:power_splitter`      | Grid/PV split                        |
-| `:themes`              | Color themes                         |
 | `:car`                 | Car/Wallbox extended                 |
 | `:custom_consumer`     | Custom power sensors                 |
 | `:multi_inverter`      | Multiple inverters                   |

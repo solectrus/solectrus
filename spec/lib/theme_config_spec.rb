@@ -13,134 +13,109 @@ describe ThemeConfig do
   let(:env_light) { { 'UI_THEME' => 'light' } }
   let(:env_dark) { { 'UI_THEME' => 'dark' } }
 
-  context 'when the ApplicationPolicy does not allow themes' do
-    before { allow(ApplicationPolicy).to receive(:themes?).and_return(false) }
+  describe '.setup' do
+    before { described_class.setup(env_light) }
 
-    describe '.setup' do
-      before { described_class.setup(env_dark) }
-
-      it 'ignores the given theme' do
-        expect(Rails.application.config.theme).not_to be_static
-      end
-
-      it 'returns the light color' do
-        expect(Rails.application.config.theme.color).to eq('#4f46e5')
-      end
-
-      it 'ignores the choice of the visitor' do
-        expect(Rails.application.config.theme.color('dark')).to eq('#4f46e5')
-        expect(Rails.application.config.theme.auto?('dark')).to be(false)
-      end
+    it 'sets up the theme configuration' do
+      expect(Rails.application.config.theme).to be_an_instance_of(
+        described_class,
+      )
     end
   end
 
-  context 'when the ApplicationPolicy allows themes' do
-    before { allow(ApplicationPolicy).to receive(:themes?).and_return(true) }
+  describe '.x' do
+    subject { described_class.x }
 
-    describe '.setup' do
-      before { described_class.setup(env_light) }
+    before { described_class.setup(env_light) }
 
-      it 'sets up the theme configuration' do
-        expect(Rails.application.config.theme).to be_an_instance_of(
-          described_class,
-        )
-      end
+    it { is_expected.to be_an_instance_of(described_class) }
+  end
+
+  shared_examples 'a valid theme' do |color:, static:, html_class:|
+    it 'returns the correct color' do
+      expect(theme_config.color).to eq(color)
     end
 
-    describe '.x' do
-      subject { described_class.x }
-
-      before { described_class.setup(env_light) }
-
-      it { is_expected.to be_an_instance_of(described_class) }
+    it 'returns the correct static status' do
+      expect(theme_config.static?).to be(static)
     end
 
-    shared_examples 'a valid theme' do |color:, static:, html_class:|
-      it 'returns the correct color' do
-        expect(theme_config.color).to eq(color)
-      end
+    it 'returns the correct html_class' do
+      expect(theme_config.html_class).to eq(html_class)
+    end
+  end
 
-      it 'returns the correct static status' do
-        expect(theme_config.static?).to be(static)
-      end
+  context 'when the theme is light' do
+    let(:theme) { env_light }
 
-      it 'returns the correct html_class' do
-        expect(theme_config.html_class).to eq(html_class)
-      end
+    it_behaves_like 'a valid theme',
+                    color: '#4f46e5',
+                    static: true,
+                    html_class: 'light'
+  end
+
+  context 'when the theme is dark' do
+    let(:theme) { env_dark }
+
+    it_behaves_like 'a valid theme',
+                    color: '#312e81',
+                    static: true,
+                    html_class: 'dark'
+  end
+
+  context 'when the theme is nil' do
+    let(:theme) { {} }
+
+    it_behaves_like 'a valid theme',
+                    color: '#4f46e5',
+                    static: false,
+                    html_class: nil
+  end
+
+  context 'when the theme is invalid' do
+    let(:theme) { { 'UI_THEME' => 'invalid_theme' } }
+
+    it 'raises an error' do
+      expect { theme_config }.to raise_error(ThemeConfig::Error)
+    end
+  end
+
+  # Without UI_THEME the visitor decides, and the cookie carries the choice
+  # to the server, so the first response already has the right theme.
+  describe 'the choice of the visitor' do
+    let(:theme) { {} }
+
+    it 'follows a visitor who picked dark' do
+      expect(theme_config.html_class('dark')).to eq('dark')
+      expect(theme_config.color('dark')).to eq(described_class::DARK_COLOR)
+      expect(theme_config.auto?('dark')).to be(false)
     end
 
-    context 'when the theme is light' do
-      let(:theme) { env_light }
-
-      it_behaves_like 'a valid theme',
-                      color: '#4f46e5',
-                      static: true,
-                      html_class: 'light'
+    it 'follows a visitor who picked light' do
+      expect(theme_config.html_class('light')).to eq('light')
+      expect(theme_config.color('light')).to eq(described_class::LIGHT_COLOR)
+      expect(theme_config.auto?('light')).to be(false)
     end
 
-    context 'when the theme is dark' do
-      let(:theme) { env_dark }
-
-      it_behaves_like 'a valid theme',
-                      color: '#312e81',
-                      static: true,
-                      html_class: 'dark'
+    it 'leaves the theme to the browser when nothing was picked' do
+      expect(theme_config.auto?(nil)).to be(true)
+      expect(theme_config.html_class(nil)).to be_nil
+      expect(theme_config.color(nil)).to eq(described_class::LIGHT_COLOR)
     end
 
-    context 'when the theme is nil' do
-      let(:theme) { {} }
-
-      it_behaves_like 'a valid theme',
-                      color: '#4f46e5',
-                      static: false,
-                      html_class: nil
+    it 'treats a value that is not a theme as no choice' do
+      expect(theme_config.auto?('bogus')).to be(true)
+      expect(theme_config.html_class('bogus')).to be_nil
     end
+  end
 
-    context 'when the theme is invalid' do
-      let(:theme) { { 'UI_THEME' => 'invalid_theme' } }
+  context 'when UI_THEME fixes the theme for everyone' do
+    let(:theme) { env_dark }
 
-      it 'raises an error' do
-        expect { theme_config }.to raise_error(ThemeConfig::Error)
-      end
-    end
-
-    # Without UI_THEME the visitor decides, and the cookie carries the choice
-    # to the server, so the first response already has the right theme.
-    describe 'the choice of the visitor' do
-      let(:theme) { {} }
-
-      it 'follows a visitor who picked dark' do
-        expect(theme_config.html_class('dark')).to eq('dark')
-        expect(theme_config.color('dark')).to eq(described_class::DARK_COLOR)
-        expect(theme_config.auto?('dark')).to be(false)
-      end
-
-      it 'follows a visitor who picked light' do
-        expect(theme_config.html_class('light')).to eq('light')
-        expect(theme_config.color('light')).to eq(described_class::LIGHT_COLOR)
-        expect(theme_config.auto?('light')).to be(false)
-      end
-
-      it 'leaves the theme to the browser when nothing was picked' do
-        expect(theme_config.auto?(nil)).to be(true)
-        expect(theme_config.html_class(nil)).to be_nil
-        expect(theme_config.color(nil)).to eq(described_class::LIGHT_COLOR)
-      end
-
-      it 'treats a value that is not a theme as no choice' do
-        expect(theme_config.auto?('bogus')).to be(true)
-        expect(theme_config.html_class('bogus')).to be_nil
-      end
-    end
-
-    context 'when UI_THEME fixes the theme for everyone' do
-      let(:theme) { env_dark }
-
-      it 'ignores the choice of the visitor' do
-        expect(theme_config.html_class('light')).to eq('dark')
-        expect(theme_config.color('light')).to eq(described_class::DARK_COLOR)
-        expect(theme_config.auto?('light')).to be(false)
-      end
+    it 'ignores the choice of the visitor' do
+      expect(theme_config.html_class('light')).to eq('dark')
+      expect(theme_config.color('light')).to eq(described_class::DARK_COLOR)
+      expect(theme_config.auto?('light')).to be(false)
     end
   end
 

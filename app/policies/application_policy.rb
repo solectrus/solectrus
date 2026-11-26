@@ -24,7 +24,6 @@ class ApplicationPolicy
 
   SPONSOR_FEATURES = %i[
     power_splitter
-    themes
     car
     custom_consumer
     multi_inverter

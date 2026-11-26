@@ -72,12 +72,9 @@ module ApplicationHelper
   # palette class, a visitor on the contrast palette sees the standard sensor
   # colors until the theme selector connects.
   def html_theme_classes
-    contrast =
-      ApplicationPolicy.themes? && cookies[:color_palette] == 'contrast'
-
     class_names(
       ThemeConfig.x.html_class(chosen_theme),
-      'palette-contrast' => contrast,
+      'palette-contrast' => cookies[:color_palette] == 'contrast',
     ).presence
   end
 

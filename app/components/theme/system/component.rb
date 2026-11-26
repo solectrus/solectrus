@@ -11,7 +11,7 @@
 # have, so the header would carry none and the browser would refuse the script.
 #
 # It renders for nobody else. A visitor who picked a theme gets the class from
-# the server, and `auto?` is false when themes are off or UI_THEME fixes one.
+# the server, and `auto?` is false when UI_THEME fixes one.
 class Theme::System::Component < ViewComponent::Base
   def initialize(chosen: nil)
     super()

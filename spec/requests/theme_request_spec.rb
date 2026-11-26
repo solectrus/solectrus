@@ -4,7 +4,6 @@
 # every load.
 describe 'Theme of the first response' do
   before do
-    allow(ApplicationPolicy).to receive(:themes?).and_return(true)
     allow(ThemeConfig).to receive(:x).and_return(theme_config)
   end
 
@@ -189,14 +188,6 @@ describe 'Theme of the first response' do
 
     it 'ignores a value that is not a palette' do
       get page, headers: { 'Cookie' => 'color_palette=bogus' }
-
-      expect(html_class).to be_nil
-    end
-
-    # A sponsor feature, same gate as the theme selector that offers it.
-    it 'ignores the palette when themes are off' do
-      allow(ApplicationPolicy).to receive(:themes?).and_return(false)
-      get page, headers: { 'Cookie' => 'color_palette=contrast' }
 
       expect(html_class).to be_nil
     end

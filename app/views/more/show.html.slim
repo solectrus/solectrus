@@ -33,20 +33,11 @@
                         disabled: locale == I18n.locale,
                         data: { segment_slide_target: 'segment' },
                         class: ['rounded-md px-3 py-1 text-sm font-medium', locale == I18n.locale ? 'bg-white text-slate-800 shadow-sm dark:bg-slate-600 dark:text-white' : 'text-slate-500 dark:text-slate-400 cursor-pointer']
-    / The colors are for sponsors. Without a sponsorship, both cells say so
-      and lead to the sponsoring.
-    - unless ApplicationPolicy.themes?
-      - sponsors_only = capture do
-        / A badge in the colors of the state of the sponsorship at the top
-          (see PremiumStatus::Component)
-        = link_to sponsoring_path, class: 'mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-900 dark:bg-pink-800 dark:text-pink-100' do
-          = icon('lock', class: 'text-xs')
-          = t('premium.sponsors_only')
     - unless ThemeConfig.x.static?
-      - list.with_cell(name: t('layout.theme'), icon: 'circle-half-stroke', detail: sponsors_only) do |cell|
+      - list.with_cell(name: t('layout.theme'), icon: 'circle-half-stroke') do |cell|
         - cell.with_accessory do
           = render Theme::Selector::Component.new(cell: true)
-    - list.with_cell(name: t('.palette'), icon: 'palette', detail: sponsors_only) do |cell|
+    - list.with_cell(name: t('.palette'), icon: 'palette') do |cell|
       - cell.with_accessory do
         = render Theme::ColorPaletteSelector::Component.new(cell: true)
     / A mode, which stays on from page to page (see the fullscreen controller)

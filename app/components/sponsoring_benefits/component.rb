@@ -1,6 +1,6 @@
 # The offer of the sponsoring page: what the money buys.
 #
-# Twelve features in one sentence are not read, so they are a list.
+# Eleven features in one sentence are not read, so they are a list.
 class SponsoringBenefits::Component < ViewComponent::Base
   # The locale file carries the names and their order, and nothing else here
   # depends on the single name. So this asks for the whole list at once, and a

@@ -1,12 +1,9 @@
 form.relative.isolate.flex.items-center.focus:outline-hidden[
   class=form_class
-  data-controller= (ApplicationPolicy.themes? ? 'theme--color-palette-selector--component segment-slide' : 'tooltip')
+  data-controller= 'theme--color-palette-selector--component segment-slide'
   data-action= 'click->segment-slide#move'
-  title= (t('premium.sponsors_only') unless ApplicationPolicy.themes?)
-  data-tooltip-placement-value= 'top'
 ]
   label.cursor-pointer[
-    class= ('pointer-events-none' unless ApplicationPolicy.themes?)
     title= t('.standard')
     data-controller= 'tooltip'
     data-tooltip-placement-value= 'top'
@@ -25,7 +22,6 @@ form.relative.isolate.flex.items-center.focus:outline-hidden[
       .rounded-sm class=swatch_class style="background-color: var(--palette-standard-preview-heatpump)"
 
   label.cursor-pointer[
-    class= ('pointer-events-none' unless ApplicationPolicy.themes?)
     title= t('.contrast')
     data-controller= 'tooltip'
     data-tooltip-placement-value= 'top'
