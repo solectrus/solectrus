@@ -9,16 +9,12 @@
 # its name first: some are passed in as a variable, not written in the markup.
 
 solid:
-  - angles-left
-  - angles-right
   - arrow-down-short-wide
   - arrow-down-wide-short
   - arrow-left
-  - arrow-right
   - arrow-up-right-from-square
   - arrow-right-from-bracket
   - arrow-right-to-bracket
-  - arrow-trend-down
   - arrow-trend-up
   - bars
   - battery-empty
@@ -38,10 +34,8 @@ solid:
   - circle-exclamation
   - circle-half-stroke
   - circle-info
-  - circle-question
   - code
   - compress
-  - copy
   - down-left-and-up-right-to-center
   - expand
   - fan
@@ -97,7 +91,6 @@ solid:
 regular:
   - calendar
   - circle-check
-  - lightbulb
 
 brands:
   - github

@@ -141,7 +141,6 @@ de:
     battery_soc_short: Ladestand
     car_battery_soc: Ladestand E-Auto
     car_battery_soc_short: Ladestand
-    car_charging_power_short: Ladeleistung
     wallbox_car_connected_short: Angeschlossen
     wallbox_car_disconnected_short: Nicht angeschlossen
     car_distance: Fahrleistung
@@ -150,11 +149,6 @@ de:
     car_max_range: Maximale Reichweite
     car_max_range_short: Max. Reichweite
     car_odometer_short: km-Stand
-    car_km_per_day_unit: Tag
-    car_avg_max_range_short: Ø Max. Reichweite
-    car_cost_per_100km_short: Ø Fahrkosten/100 km
-    car_consumption_per_100km_short: Ø Verbrauch/100 km
-    car_charged_short: Geladen
     case_temp: Gehäuse
     grid_export_limit: Begrenzung
     heatpump_power: Wärmepumpe
@@ -239,7 +233,6 @@ de:
     # The tab of the page beside the charging sessions and the places. The
     # title bar has the name of the menu (layout.car_comparison).
     tab: Ersparnis
-    nav: Vergleich
     fuel_prices: Kraftstoffpreise
     fuel_prices_of:
       petrol: Benzinpreise
@@ -317,7 +310,6 @@ de:
   balance_sheet:
     left: Herkunft
     right: Verwendung
-    soc: Ladestand
   balance_groups:
     source: Herkunft
     usage: Verwendung
@@ -360,9 +352,6 @@ de:
     car_no_driving: Keine Fahrten
     car_no_driving_yet: Noch keine Fahrten
     car_no_charging_cost: Kein Preis für die Ladevorgänge hinterlegt
-  chart:
-    inverter_total: Kumuliert
-    inverter_split: Einzeln
   forecast:
     title: Prognose
     today: Heute
@@ -374,7 +363,6 @@ de:
     worse_html: '%{value} weniger als erwartet'
     expect_html: Erwartet werden %{value}
     expect_remaining_html: Erwartet werden noch %{value}
-    unknown: Keine Prognose verfügbar
     today_and_tomorrow: Heute und morgen
     range: Spanne
   login:
@@ -468,7 +456,6 @@ de:
       title: Ladung bestätigen
       estimate: Geschätzt aus Ladestand und Akkukapazität
       no_estimate: Ohne Akkukapazität des Autos keine Schätzung
-      accept: Bestätigen
       dismiss: Verwerfen
       dismissed: Verworfen
       confirm_dismiss: Diese Ladung verwerfen? Sie bleibt gespeichert, wird aber nicht mehr angezeigt und nicht erneut vorgeschlagen.
@@ -501,10 +488,8 @@ de:
     dismiss_all: Ja, alle verwerfen
     make_home: Ja, festlegen
   crud:
-    edit: Bearbeiten
     success: Gespeichert
     deleted: Gelöscht
-    error: Es ist ein Fehler aufgetreten
   settings:
     # The number of the document of a payment, which an AI client finds it by
     reference_hint: Zum Beispiel die Rechnungsnummer. Ein KI-Agent findet den Eintrag über sie wieder.

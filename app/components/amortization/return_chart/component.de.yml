@@ -4,7 +4,6 @@ de:
   hint_volatility: Für jeden Punkt wird mit der Ersparnis der 365 Tage davor hochgerechnet. Dieser Wert gilt für die ganze Restlaufzeit, deshalb verschiebt schon ein schwaches Jahr oder ein neuer Strompreis die Kurve deutlich.
   hint_limits: Hochgerechnet wird nur die Ersparnis, Zahlungen zählen einmalig an ihrem Datum.
   hint_reference: Die Rendite ist der Zinssatz, den die PV-Anlage selbst erwirtschaftet. Der eingestellte Diskontsatz ändert daran nichts, er ist nur der Vergleichsmaßstab und wird als gestrichelte Linie eingezeichnet, sofern er in die Skala passt.
-  info: Erläuterung zum Renditeverlauf
   return: Rendite p.a.
   empty_period_title: Erstes Jahr
   empty_period_body: keine Hochrechnung

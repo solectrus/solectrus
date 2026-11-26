@@ -141,7 +141,6 @@ en:
     battery_soc_short: SOC
     car_battery_soc: EV SOC
     car_battery_soc_short: SOC
-    car_charging_power_short: Charging power
     wallbox_car_connected_short: Connected
     wallbox_car_disconnected_short: Not connected
     car_distance: Distance driven
@@ -150,11 +149,6 @@ en:
     car_max_range: Maximum range
     car_max_range_short: Max. range
     car_odometer_short: Odometer
-    car_km_per_day_unit: day
-    car_avg_max_range_short: Ø max. range
-    car_cost_per_100km_short: Ø driving cost/100 km
-    car_consumption_per_100km_short: Ø usage/100 km
-    car_charged_short: Charged
     case_temp: Case
     grid_export_limit: Limit
     heatpump_power: Heat pump
@@ -239,7 +233,6 @@ en:
     # The tab of the page beside the charging sessions and the places. The
     # title bar has the name of the menu (layout.car_comparison).
     tab: Savings
-    nav: Comparison
     fuel_prices: Fuel prices
     fuel_prices_of:
       petrol: Petrol prices
@@ -317,7 +310,6 @@ en:
   balance_sheet:
     left: Source
     right: Usage
-    soc: Charge
   balance_groups:
     source: Source
     usage: Usage
@@ -360,9 +352,6 @@ en:
     car_no_driving: No drives
     car_no_driving_yet: No drives yet
     car_no_charging_cost: No price for the charging sessions
-  chart:
-    inverter_total: Combined
-    inverter_split: Individual
   forecast:
     title: Forecast
     today: Today
@@ -374,7 +363,6 @@ en:
     worse_html: '%{value} less than expected'
     expect_html: '%{value} expected'
     expect_remaining_html: '%{value} still expected'
-    unknown: No forecast available
     today_and_tomorrow: Today and tomorrow
     range: Range
   login:
@@ -468,7 +456,6 @@ en:
       title: Confirm the charging session
       estimate: Estimated from the state of charge and the battery capacity
       no_estimate: No estimate without the battery capacity of the car
-      accept: Confirm
       dismiss: Dismiss
       dismissed: Dismissed
       confirm_dismiss: Dismiss this charging session? It stays saved, but no longer shows and is not proposed again.
@@ -501,10 +488,8 @@ en:
     dismiss_all: Yes, dismiss all
     make_home: Yes, make it home
   crud:
-    edit: Edit
     success: Saved
     deleted: Deleted
-    error: An error occurred
   settings:
     # The number of the document of a payment, which an AI client finds it by
     reference_hint: For example the number of the bill. An AI agent finds the entry again by it.

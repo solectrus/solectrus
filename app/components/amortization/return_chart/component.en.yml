@@ -4,7 +4,6 @@ en:
   hint_volatility: For each point, the extrapolation uses the savings of the 365 days before it. That figure covers the whole remaining period, so a weak year or a new electricity price moves the curve noticeably.
   hint_limits: Only the savings are extrapolated, payments count once, on their date.
   hint_reference: The return is the interest rate the system itself earns. The discount rate you set does not change it, it is only the benchmark and is drawn as a dashed line whenever it fits within the scale.
-  info: About the return history
   return: Return p.a.
   empty_period_title: First year
   empty_period_body: no extrapolation
