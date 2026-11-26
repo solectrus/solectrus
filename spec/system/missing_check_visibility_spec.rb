@@ -32,8 +32,23 @@ describe 'Missing checkVisibility' do
       old.goto("#{Capybara.current_session.server.base_url}#{path}")
       yield old
       errors
+    rescue StandardError
+      save_failure(old, errors) if old
+      raise
     ensure
       old&.close
     end
+  end
+
+  # The screenshot of Rails shows the page of Capybara, which stays blank here.
+  # Save what the page of its own shows instead, where CI uploads it.
+  def save_failure(old, errors)
+    base = Capybara.save_path.join('missing_check_visibility')
+    FileUtils.mkdir_p(Capybara.save_path)
+    old.screenshot(path: "#{base}.png")
+    File.write("#{base}.html", old.content)
+    warn "URL: #{old.url}", "Errors: #{errors.inspect}"
+  rescue StandardError => e
+    warn "Saving the failure failed: #{e.message}"
   end
 end
