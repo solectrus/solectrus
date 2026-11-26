@@ -50,8 +50,10 @@ class Status::Component < ViewComponent::Base
 
   # A capsule: of glass on a colored bar, filled like a chip on the page. The
   # text comes from the system and can be long, the capsule grows with it.
+  # Some systems send their status in capitals, so every text is set in
+  # capitals with letter spacing, the fallback "Live" as well.
   def outer_class
-    base = 'rounded-full px-3 py-1 text-sm font-medium'
+    base = 'rounded-full px-3 py-1 text-sm font-medium uppercase tracking-wider'
     return "#{base} bg-fill dark:bg-fill-strong text-fg-secondary" unless @on_bar
 
     "#{base} bg-white/20 ring-1 ring-inset ring-white/30 text-white " \
