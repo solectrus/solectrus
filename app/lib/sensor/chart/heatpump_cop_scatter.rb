@@ -199,7 +199,7 @@ class Sensor::Chart::HeatpumpCopScatter < Sensor::Chart::Base # rubocop:disable 
     radii = points.pluck(:r)
     {
       id: 'cop_scatter',
-      label: I18n.t('charts.cop_scatter'),
+      label: cop_sensor.display_name,
       data: points,
       colorClass: cop_sensor.color_background,
       borderWidth: 1,

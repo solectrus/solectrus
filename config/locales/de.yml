@@ -365,6 +365,7 @@ de:
     expect_remaining_html: Erwartet werden noch %{value}
     today_and_tomorrow: Heute und morgen
     range: Spanne
+    average: Durchschnitt
   login:
     title: Als Admin anmelden
     missing_password_error: Eine Anmeldung ist nicht möglich, da kein Passwort konfiguriert worden ist.

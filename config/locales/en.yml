@@ -365,6 +365,7 @@ en:
     expect_remaining_html: '%{value} still expected'
     today_and_tomorrow: Today and tomorrow
     range: Range
+    average: Average
   login:
     title: Log in as admin
     missing_password_error: Unable to log in because no password has been configured.
