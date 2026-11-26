@@ -37,6 +37,19 @@ class EssentialsTile::Component < ViewComponent::Base
     end
   end
 
+  # The timeframes that move with the clock have a name, like "Today". A fixed
+  # period like 2026-09-21 or P7D has none, so it shows its own label.
+  NAMED_TIMEFRAMES = %w[now day week month year all].freeze
+  private_constant :NAMED_TIMEFRAMES
+
+  def timeframe_label
+    if timeframe.original_string.in?(NAMED_TIMEFRAMES)
+      I18n.t("timeframe.#{timeframe.original_string}")
+    else
+      timeframe.localized
+    end
+  end
+
   def formatted_value
     return '---' unless value
 

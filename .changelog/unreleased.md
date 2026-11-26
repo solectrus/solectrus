@@ -98,6 +98,7 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- **Tiles:** a tile of a fixed period, like a single day or the last 7 days, now names the period below its value. Before, it showed "Translation missing"
 - **Forecast:** the curve of the temperature is now easy to see in dark mode. Before, it almost vanished on the dark background
 - **Sponsoring:** an outage of the update server right after an update now keeps the sponsor features on. Before, the features were locked and showed "Status unknown" for at least 15 minutes
 - **Live view:** now keeps its update every few seconds. Before, it sometimes stopped or slowed to once a minute, for example after a return to the browser tab or a short outage of the values

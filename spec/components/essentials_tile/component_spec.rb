@@ -104,6 +104,29 @@ describe EssentialsTile::Component, type: :component do
     end
   end
 
+  describe '#timeframe_label' do
+    let(:data) { double(Sensor::Data::Single, house_power: 100) }
+    let(:sensor_name) { :house_power }
+
+    context 'with a named timeframe' do
+      let(:timeframe) { Timeframe.day }
+
+      it { expect(component.timeframe_label).to eq 'Today' }
+    end
+
+    context 'with a fixed day' do
+      let(:timeframe) { Timeframe.new('2026-09-21') }
+
+      it { expect(component.timeframe_label).to eq timeframe.localized }
+    end
+
+    context 'with a relative timeframe' do
+      let(:timeframe) { Timeframe.new('P7D') }
+
+      it { expect(component.timeframe_label).to eq 'Last 7 days' }
+    end
+  end
+
   context 'when overall battery_soc' do
     let(:data) { double(Sensor::Data::Single, battery_soc: 50) }
 
