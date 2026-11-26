@@ -1,17 +1,34 @@
 # Safari has Element#checkVisibility only since 17.4, but the app supports
-# Safari from 16.4. The controllers that call it must work without it.
+# Safari from 16.4. The code that calls it must work without it.
 describe 'Missing checkVisibility' do
-  before { driven_by :playwright_mobile }
+  context 'with a phone' do
+    before { driven_by :playwright_mobile }
 
-  it 'moves the marking of the timeframe tabs' do
-    errors =
-      without_check_visibility('/house_power/all') do |old|
-        old.wait_for_selector('#stats-all')
-        old.click('nav[aria-label="Tabs"]:visible > a:has(span:text-is("Jahr"))')
-        old.wait_for_url(%r{/house_power/\d{4}\z})
-      end
+    it 'moves the marking of the timeframe tabs' do
+      errors =
+        without_check_visibility('/house_power/all') do |old|
+          old.wait_for_selector('#stats-all')
+          old.click('nav[aria-label="Tabs"]:visible > a:has(span:text-is("Jahr"))')
+          old.wait_for_url(%r{/house_power/\d{4}\z})
+        end
 
-    expect(errors).to be_empty
+      expect(errors).to be_empty
+    end
+  end
+
+  # The card glides on a desktop only. Top 10 still loads its frame when
+  # Turbo renders it, so the glide looks for the frames that load.
+  context 'with a desktop' do
+    it 'completes the visit of a page that loads a frame' do
+      errors =
+        without_check_visibility('/house_power/2022') do |old|
+          old.click('a[href^="/top10"]:visible')
+          old.wait_for_url(%r{/top10/})
+          old.wait_for_selector('html:not([aria-busy])', state: 'attached', timeout: 10_000)
+        end
+
+      expect(errors).to be_empty
+    end
   end
 
   private

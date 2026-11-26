@@ -49,9 +49,7 @@ export function setupPageGlide() {
 
     const loading =
       !to.card.closest('.page-full-height') &&
-      [...to.card.querySelectorAll('turbo-frame[busy]')].some((frame) =>
-        frame.checkVisibility(),
-      );
+      [...to.card.querySelectorAll('turbo-frame[busy]')].some(isVisible);
     if (loading) to.height = Math.max(to.height, from.height);
     const fill = loading ? 'forwards' : 'none';
 
@@ -154,6 +152,14 @@ function measureWithout(glide: Glide | undefined) {
   const box = measure();
   effects.forEach((effect, index) => (effect.target = targets[index]));
   return box;
+}
+
+// Safari has checkVisibility only since 17.4. Without it, an element in a
+// hidden container has no boxes either.
+function isVisible(element: Element) {
+  return typeof element.checkVisibility === 'function'
+    ? element.checkVisibility()
+    : element.getClientRects().length > 0;
 }
 
 function same(a: Box, b: Box) {
