@@ -445,6 +445,7 @@ jobs:
         with:
           context: .
           platforms: ${{ matrix.platform }}
+          # The publish job attests the image instead (see there)
           provenance: false
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
@@ -493,6 +494,9 @@ jobs:
     timeout-minutes: 10
     permissions:
       packages: write
+      # For the attestation of the image below
+      id-token: write
+      attestations: write
 
     steps:
       - name: Download digests
@@ -537,8 +541,23 @@ jobs:
           docker buildx imagetools create "${annotations[@]/#/--annotation=}" $tags $images
 
       - name: Inspect image
+        id: inspect
         run: |
-          docker buildx imagetools inspect ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          image="ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}"
+          docker buildx imagetools inspect "$image"
+          echo "digest=$(docker buildx imagetools inspect "$image" --format '{{ .Manifest.Digest }}')" >> "$GITHUB_OUTPUT"
+
+      # The build provenance names the commit and the workflow behind the
+      # image. It stays at GitHub and does not go into the registry: in the
+      # image index, an attestation shows on GHCR as an extra platform
+      # "unknown/unknown". So the build itself sets provenance: false. Check
+      # an image with:
+      # gh attestation verify oci://ghcr.io/solectrus/solectrus:<tag> --owner solectrus
+      - name: Attest build provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.inspect.outputs.digest }}
 
       - name: Send webhook to start deployment
         env:
