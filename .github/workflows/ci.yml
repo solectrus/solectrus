@@ -65,6 +65,13 @@ jobs:
   unit-test:
     runs-on: ubuntu-26.04
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        # On one runner, the unit specs took longer than every other job and
+        # held up the whole run. The run step below takes the count from
+        # strategy.job-total.
+        group: [1, 2, 3]
 
     services:
       influxdb:
@@ -125,26 +132,59 @@ jobs:
       - name: Build Vite assets for test
         run: bun vite build --mode test
 
-      # No runtime log here: the unit specs split by file size, and
-      # config/ci.rb says why that beats a split by runtime for them.
-      - name: Run Unit tests with RSpec (${{ env.UNIT_WORKERS }} processes)
+      # Every runner restores the same log, so all of them cut the specs into
+      # the same groups. coverage-report saves the log of the last run.
+      - name: Restore runtime log
+        uses: actions/cache/restore@v6
+        with:
+          path: tmp/parallel_runtime_unit.log
+          key: unit-runtime-${{ github.sha }}
+          restore-keys: |
+            unit-runtime-
+
+      # The specs fall into one group per worker of all runners. Each runner
+      # takes its own run of groups, so runner 2 of 3 with 4 workers runs
+      # groups 5 to 8. parallel_tests numbers the workers of a runner from 1
+      # again, so they use the databases of the step above.
+      #
+      # A few request specs take most of the time. A split by file size put
+      # them together, and the workers of one runner ended far apart. Unlike
+      # bin/ci (see config/ci.rb), the runners split by runtime. The first
+      # run without a log splits by file size.
+      - name: Run Unit tests with RSpec (group ${{ matrix.group }}/${{ strategy.job-total }}, ${{ env.UNIT_WORKERS }} processes)
         run: |
-          bundle exec parallel_rspec -n "$UNIT_WORKERS" \
+          if [ -s tmp/parallel_runtime_unit.log ]; then
+            group_by=runtime
+          else
+            group_by=filesize
+          fi
+          first=$(( (GROUP - 1) * UNIT_WORKERS + 1 ))
+          last=$(( GROUP * UNIT_WORKERS ))
+          bundle exec parallel_rspec -n $(( GROUPS_TOTAL * UNIT_WORKERS )) \
+            --only-group "$(seq -s, "$first" "$last")" \
+            --group-by "$group_by" \
+            --runtime-log tmp/parallel_runtime_unit.log \
             --serialize-stdout --combine-stderr \
             --exclude-pattern "spec/system/" \
-            -o "--format progress" \
+            -o '--format progress --format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_unit.log' \
             spec
         env:
+          GROUP: ${{ matrix.group }}
+          GROUPS_TOTAL: ${{ strategy.job-total }}
           SKIP_VITE_BUILD: 1
-          COVERAGE_NAME: unit
+          COVERAGE_NAME: unit-${{ matrix.group }}
 
-      - name: Upload coverage artifact
+      # Coverage and runtime log travel in one artifact, as for the system
+      # specs below
+      - name: Upload coverage and runtime log
         uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: coverage-unit
+          name: coverage-unit-${{ matrix.group }}
           include-hidden-files: true
-          path: coverage/
+          path: |
+            coverage/
+            tmp/parallel_runtime_unit.log
           retention-days: 1
 
   system-test:
@@ -296,18 +336,25 @@ jobs:
           token: ${{secrets.QLTY_COVERAGE_TOKEN}}
           files: coverage/.resultset.json
 
-      # The runtime logs come with the coverage artifacts. coverage-unit
-      # holds no runtime log, and the glob passes it over.
-      - name: Merge and cache runtime log
+      # The runtime logs come with the coverage artifacts. Each glob finds
+      # the logs of its own runs: the system specs and the unit specs.
+      - name: Merge runtime logs
         run: |
           mkdir -p tmp
           cat coverage-parts/*/tmp/parallel_runtime_rspec.log | sort > tmp/parallel_runtime_rspec.log
+          cat coverage-parts/*/tmp/parallel_runtime_unit.log | sort > tmp/parallel_runtime_unit.log
 
-      - name: Save runtime log to cache
+      - name: Save runtime log of the system specs to cache
         uses: actions/cache/save@v6
         with:
           path: tmp/parallel_runtime_rspec.log
           key: parallel-runtime-${{ github.sha }}
+
+      - name: Save runtime log of the unit specs to cache
+        uses: actions/cache/save@v6
+        with:
+          path: tmp/parallel_runtime_unit.log
+          key: unit-runtime-${{ github.sha }}
 
       # Last, so that Qlty and the cache get their files also when the
       # coverage is too low
