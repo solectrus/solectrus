@@ -17,20 +17,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "aggregation_enum", ["sum", "max", "min", "avg", "last"]
-  create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "battery_discharging_power_grid", "car_battery_soc_1", "car_battery_soc_2", "car_battery_soc_3", "car_battery_soc_4", "car_battery_soc_5", "car_odometer_1", "car_odometer_2", "car_odometer_3", "car_odometer_4", "car_odometer_5", "car_max_range_1", "car_max_range_2", "car_max_range_3", "car_max_range_4", "car_max_range_5", "car_range_1", "car_range_2", "car_range_3", "car_range_4", "car_range_5"]
+  create_enum "field_enum", ["battery_charging_power", "battery_charging_power_grid", "battery_discharging_power", "battery_soc", "car_battery_soc_1", "case_temp", "grid_export_power", "grid_import_power", "heatpump_power", "heatpump_power_grid", "house_power", "house_power_grid", "inverter_power", "inverter_power_forecast", "wallbox_power", "wallbox_power_grid", "custom_power_01", "custom_power_02", "custom_power_03", "custom_power_04", "custom_power_05", "custom_power_06", "custom_power_07", "custom_power_08", "custom_power_09", "custom_power_10", "custom_power_01_grid", "custom_power_02_grid", "custom_power_03_grid", "custom_power_04_grid", "custom_power_05_grid", "custom_power_06_grid", "custom_power_07_grid", "custom_power_08_grid", "custom_power_09_grid", "custom_power_10_grid", "custom_power_11", "custom_power_12", "custom_power_13", "custom_power_14", "custom_power_15", "custom_power_16", "custom_power_17", "custom_power_18", "custom_power_19", "custom_power_20", "custom_power_11_grid", "custom_power_12_grid", "custom_power_13_grid", "custom_power_14_grid", "custom_power_15_grid", "custom_power_16_grid", "custom_power_17_grid", "custom_power_18_grid", "custom_power_19_grid", "custom_power_20_grid", "inverter_power_1", "inverter_power_2", "inverter_power_3", "inverter_power_4", "inverter_power_5", "heatpump_heating_power", "outdoor_temp", "heatpump_tank_temp", "car_odometer_1", "car_max_range_1", "battery_discharging_power_grid", "car_battery_soc_2", "car_battery_soc_3", "car_battery_soc_4", "car_battery_soc_5", "car_odometer_2", "car_odometer_3", "car_odometer_4", "car_odometer_5", "car_max_range_2", "car_max_range_3", "car_max_range_4", "car_max_range_5", "car_range_1", "car_range_2", "car_range_3", "car_range_4", "car_range_5", "car_battery_soc"]
 
   create_table "cars", id: :integer, default: nil, force: :cascade do |t|
     t.string "name"
-    t.string "short_name", null: false
     t.date "active_from", null: false
     t.date "active_until"
     t.string "color"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "short_name", null: false
     t.decimal "battery_kwh", precision: 5, scale: 1
     t.string "fuel_type"
     t.decimal "fuel_consumption", precision: 4, scale: 1
     t.decimal "combustion_tax", precision: 8, scale: 2
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.check_constraint "active_until IS NULL OR active_until >= active_from", name: "cars_period_order"
     t.check_constraint "battery_kwh IS NULL OR battery_kwh > 0::numeric", name: "cars_battery_kwh"
     t.check_constraint "combustion_tax IS NULL OR combustion_tax >= 0::numeric", name: "cars_combustion_tax"
@@ -38,12 +38,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   end
 
   create_table "cash_flows", force: :cascade do |t|
-    t.decimal "amount", precision: 10, scale: 2, null: false
-    t.string "category", null: false
-    t.datetime "created_at", null: false
     t.date "date", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
     t.string "note", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "category", null: false
     t.string "origin", default: "user", null: false
     t.string "reference"
     t.index ["date"], name: "index_cash_flows_on_date"
@@ -52,28 +52,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
 
   create_table "charging_sessions", force: :cascade do |t|
     t.string "kind", null: false
-    t.string "origin", null: false
-    t.integer "car_id"
-    t.boolean "guest", default: false, null: false
-    t.boolean "assigned_manually", default: false, null: false
     t.datetime "started_at", null: false
-    t.datetime "ended_at"
     t.decimal "kwh", precision: 10, scale: 3
-    t.decimal "kwh_grid", precision: 10, scale: 3
     t.decimal "cost", precision: 10, scale: 2
-    t.decimal "cost_grid", precision: 10, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "note"
     t.string "evse_id"
     t.string "power_type"
+    t.datetime "ended_at"
     t.string "provider"
     t.string "address"
-    t.text "note"
+    t.integer "car_id"
+    t.boolean "guest", default: false, null: false
+    t.decimal "kwh_grid", precision: 10, scale: 3
+    t.decimal "cost_grid", precision: 10, scale: 2
+    t.boolean "assigned_manually", default: false, null: false
     t.boolean "dismissed", default: false, null: false
     t.decimal "soc_from", precision: 4, scale: 1
     t.decimal "soc_to", precision: 4, scale: 1
     t.float "latitude"
     t.float "longitude"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string "origin", null: false
     t.index ["car_id", "started_at"], name: "index_charging_sessions_on_car_id_and_started_at"
     t.index ["kind", "started_at"], name: "index_charging_sessions_on_kind_and_started_at"
     t.index ["started_at"], name: "index_charging_sessions_on_wallbox_start", unique: true, where: "(((kind)::text = 'wallbox'::text) AND ((origin)::text = 'detection'::text))"
@@ -91,11 +91,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   end
 
   create_table "notifications", force: :cascade do |t|
+    t.string "title", null: false
     t.text "body", null: false
-    t.datetime "created_at", null: false
     t.datetime "published_at", null: false
     t.datetime "read_at"
-    t.string "title", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["id"], name: "index_notifications_on_unread", where: "(read_at IS NULL)"
     t.index ["published_at"], name: "index_notifications_on_published_at"
@@ -120,12 +120,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   end
 
   create_table "place_visits", force: :cascade do |t|
-    t.integer "car_id", null: false
     t.date "date", null: false
-    t.datetime "ended_at", null: false
+    t.integer "car_id", null: false
     t.bigint "place_id", null: false
-    t.virtual "seconds", type: :integer, as: "(EXTRACT(epoch FROM (ended_at - started_at)))::integer", stored: true
     t.datetime "started_at", null: false
+    t.datetime "ended_at", null: false
+    t.virtual "seconds", type: :integer, as: "(EXTRACT(epoch FROM (ended_at - started_at)))::integer", stored: true
     t.index ["car_id", "started_at"], name: "index_place_visits_on_car_id_and_started_at", unique: true
     t.index ["date"], name: "index_place_visits_on_date"
     t.index ["place_id", "started_at"], name: "index_place_visits_on_place_id_and_started_at"
@@ -137,29 +137,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
     t.string "name"
     t.jsonb "geocoding"
     t.datetime "geocoded_at"
-    t.string "labels", default: [], null: false, array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "labels", default: [], null: false, array: true
     t.index "(1)", name: "index_places_on_home", unique: true, where: "('home'::text = ANY ((labels)::text[]))"
   end
 
   create_table "prices", force: :cascade do |t|
-    t.decimal "amount_per_month", precision: 8, scale: 2
-    t.datetime "created_at", null: false
     t.string "name", null: false
-    t.string "note"
     t.date "starts_at", null: false
-    t.datetime "updated_at", null: false
     t.decimal "value", precision: 8, scale: 5, null: false
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "amount_per_month", precision: 8, scale: 2
     t.string "origin", default: "user", null: false
     t.index ["name", "starts_at"], name: "index_prices_on_name_and_starts_at", unique: true
   end
 
   create_table "settings", force: :cascade do |t|
+    t.string "var", null: false
+    t.text "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "value"
-    t.string "var", null: false
     t.index ["var"], name: "index_settings_on_var", unique: true
   end
 
@@ -170,9 +170,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_23_120000) do
   end
 
   create_table "summary_values", primary_key: ["date", "aggregation", "field"], force: :cascade do |t|
-    t.enum "aggregation", null: false, enum_type: "aggregation_enum"
     t.date "date", null: false
     t.enum "field", null: false, enum_type: "field_enum"
+    t.enum "aggregation", null: false, enum_type: "aggregation_enum"
     t.float "value", null: false
     t.index ["field", "aggregation", "date"], name: "index_summary_values_on_field_and_aggregation_and_date"
   end
