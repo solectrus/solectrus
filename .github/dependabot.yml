@@ -89,13 +89,23 @@ updates:
           - '@tailwindcss/*'
           - 'tailwindcss'
 
+  # The actions are pinned to a commit, so each release brings an update. One
+  # group per week keeps that to one pull request for the workflows and one
+  # for the composite action. A group with a major update does not merge on
+  # its own (see automerge.yml).
   - package-ecosystem: 'github-actions'
-    directory: '/'
+    directories:
+      - '/'
+      - '/.github/actions/*'
     schedule:
       interval: cron
-      cronjob: '30 3 * * *'
+      cronjob: '30 3 * * 1'
       timezone: Europe/Berlin
     cooldown:
       default-days: 3
     labels:
       - 'dependencies'
+    groups:
+      github-actions:
+        patterns:
+          - '*'

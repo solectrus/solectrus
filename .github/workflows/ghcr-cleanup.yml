@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Delete untagged package versions
-        uses: dataaxiom/ghcr-cleanup-action@v1
+        uses: dataaxiom/ghcr-cleanup-action@ac45a8c04b1eb4b27974ca79a0a74f344c93664b # v1.3.0
         with:
           package: solectrus
           delete-untagged: true

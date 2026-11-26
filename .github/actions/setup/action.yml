@@ -5,12 +5,12 @@ runs:
   using: composite
   steps:
     - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
+      uses: ruby/setup-ruby@145243922b4465b78e04dd66294782c7de45901f # v1.345.0
       with:
         bundler-cache: true
 
     - name: Setup Bun
-      uses: oven-sh/setup-bun@v2
+      uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
 
     - name: Install JavaScript packages
       shell: bash
