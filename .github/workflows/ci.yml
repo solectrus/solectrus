@@ -196,9 +196,9 @@ jobs:
         # The one place that sets how many runners share the system specs.
         # The run step below takes the count from strategy.job-total.
         #
-        # Six is the end of the line. parallel_tests never splits a single
-        # file, and balance_navigation_battery_and_grid_spec.rb alone is 18%
-        # of the suite, about 86 seconds here. A seventh runner would wait.
+        # Each runner pays its setup again, so one more runner saves less
+        # than its share. parallel_tests never splits a single file, so the
+        # longest file is the least that one runner takes.
         group: [1, 2, 3, 4, 5, 6]
 
     services:
