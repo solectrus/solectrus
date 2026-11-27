@@ -463,7 +463,11 @@ the car a new estimate.
 
 An entered or accepted offsite session gets the state of charge and the position of its
 rise (`OffsiteDetection::EnteredState`). A wrong value is worse than none, so a session
-gets them only when exactly one rise matches its time and no other session claims it.
+gets them only when exactly one rise matches its time and no other session claims it. The
+build writes them, and so does each save in the form and over MCP
+(`OffsiteDetection.refresh`). The save runs the step again on the days of the session, so a
+moved session gives the rise of its old time back as a proposal. A day without a summary waits
+for its build.
 
 A receipt that an AI client enters over MCP finds its session by the car and the time
 (`ChargingSession.for_charge`). A session that counts and overlaps the time is the same

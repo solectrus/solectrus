@@ -44,6 +44,27 @@ describe McpServer::Tools::SetOffsiteSession do
     expect(ChargingSession.offsite.sole).to have_attributes(origin: 'mcp', assigned_manually: true, started_at: Time.zone.parse('2026-06-15T08:00:00Z'))
   end
 
+  context 'with a rise of the state of charge in the time' do
+    before do
+      Sensor::Config.setup(ENV.to_h.merge('INFLUX_SENSOR_CAR_ODOMETER_1' => 'Trabant:odometer'))
+      influx_batch do
+        [['09:00', 19], ['09:55', 19], ['10:20', 50], ['10:40', 80], ['11:30', 80]].each do |time, soc|
+          add_influx_point(name: 'Trabant', fields: { 'soc' => soc }, time: Time.zone.parse("2026-06-15T#{time}:00+02:00"))
+        end
+      end
+      Summary.create!(date: Date.new(2026, 6, 15))
+    end
+
+    after { Sensor::Config.setup(ENV) }
+
+    it 'gives a new charge its state of charge at once' do
+      data = answer(**receipt)
+
+      expect(data[:entry]).to include(soc_from: 19.0, soc_to: 80.0)
+      expect(ChargingSession.offsite.sole).to have_attributes(soc_from: 19, soc_to: 80)
+    end
+  end
+
   describe 'the location' do
     it 'keeps the address, but gives it back only while locations are allowed' do
       expect(answer(**receipt)[:entry]).not_to include(:address, :latitude, :longitude)

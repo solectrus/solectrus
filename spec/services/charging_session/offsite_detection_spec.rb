@@ -433,4 +433,57 @@ describe ChargingSession::OffsiteDetection do
       expect(proposals.size).to eq(1)
     end
   end
+
+  # The form and set_offsite_session both save through the lookup
+  describe '.refresh' do
+    before do
+      write(:car_battery_soc_1, [[at(8), 30], [at(10), 30], [at(10, 30), 50], [at(11), 70], [at(13), 70]])
+      Summary.create!(date: day)
+    end
+
+    def save(session, **attributes)
+      session.assign_attributes(attributes)
+      ChargingSession::AddressLookup.new(session).save
+    end
+
+    def enter(**) = ChargingSession.new(kind: :offsite, origin: :user, car:, kwh: 20, cost: 9).tap { save(it, **) }
+
+    it 'gives a new session the state of charge of its rise at once' do
+      expect(enter(started_at: at(10, 5), ended_at: at(11))).to have_attributes(soc_from: 30, soc_to: 70)
+    end
+
+    it 'gives a session with a new time the state of charge of this time' do
+      session = enter(started_at: at(16), ended_at: at(17))
+      expect(session.soc_from).to be_nil
+
+      save(session, started_at: at(10, 5), ended_at: at(11))
+
+      expect(session).to have_attributes(soc_from: 30, soc_to: 70)
+    end
+
+    it 'gives the rise of the old day back as a proposal after a move to another day' do
+      session = enter(started_at: at(10, 5), ended_at: at(11))
+
+      save(session, started_at: at(10, date: day + 1), ended_at: at(11, date: day + 1))
+
+      expect(session).to have_attributes(soc_from: nil, soc_to: nil)
+      expect(proposals).to eq([[at(10), at(11), 30.0, 70.0, 20.0]])
+    end
+
+    it 'gives a session without its address the position of its rise' do
+      write_position(at(7), 50.0, 8.0)
+      address = 'DE-12345 Town, Main Street 1'
+      session = enter(started_at: at(10, 5), ended_at: at(11), address:, address_of_position: address, latitude: 51.0, longitude: 7.0)
+
+      save(session, address: nil)
+
+      expect(session).to have_attributes(latitude: 50.0, longitude: 8.0)
+    end
+
+    it 'leaves a day without a summary to its build' do
+      Summary.delete_all
+
+      expect(enter(started_at: at(10, 5), ended_at: at(11)).soc_from).to be_nil
+    end
+  end
 end

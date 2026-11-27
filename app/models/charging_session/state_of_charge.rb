@@ -1,8 +1,8 @@
 # The state of charge of the car at the start and at the end of a session
 # (`soc_from`, `soc_to`), the loss of the charge that follows from it, and
 # whether it fits the charged energy.
-# The detection writes it for a wallbox session, and the build for an offsite
-# session (see ChargingSession::OffsiteDetection).
+# The detection writes it for a wallbox session, and the build and the save
+# of the user for an offsite session (see ChargingSession::OffsiteDetection).
 module ChargingSession::StateOfCharge
   extend ActiveSupport::Concern
 
@@ -33,9 +33,10 @@ module ChargingSession::StateOfCharge
   private_constant :FULL
 
   included do
-    # The state of charge belongs to the car of the session. A new build
-    # reads it for the car of the user again.
-    before_save -> { self.soc_from = self.soc_to = nil }, if: -> { persisted? && will_save_change_to_car_id? }
+    # The state of charge belongs to the car of the session, and that of an
+    # offsite session to the rise of its day too, like its position (see
+    # ChargingSession::Location). A new build reads it again.
+    before_save -> { self.soc_from = self.soc_to = nil }, if: -> { persisted? && (will_save_change_to_car_id? || (offsite? && other_day?)) }
   end
 
   class_methods do

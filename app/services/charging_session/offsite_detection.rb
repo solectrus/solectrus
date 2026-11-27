@@ -97,6 +97,24 @@ class ChargingSession::OffsiteDetection
   # The curves of the cars. The wallbox sessions come from the database.
   def self.sensor_names = ChargingSession::Curves.car_sensor_names
 
+  # Runs the step again on the days of an offsite session that the user
+  # saved. So the session gets the state of charge and the position of its
+  # rise at once, and not only on the next build (see EnteredState). The day
+  # that a moved session left gets the proposal of its rise back. A day
+  # without a summary waits for its build, because the rises need the wallbox
+  # sessions of the day. InfluxDB is read before the transaction.
+  def self.refresh(session)
+    return unless enabled?
+
+    dates = Summary.where(date: [session.started_at_before_last_save, session.started_at].compact.map { it.in_time_zone.to_date }).pluck(:date)
+    return if dates.empty?
+
+    step = new(dates)
+    results = step.call
+    ChargingSession.transaction { step.persist(results) }
+    session.reload
+  end
+
   # `curves` are the curves of the cars, which the detection of the wallbox
   # sessions reads as well (see ChargingSession::Curves)
   def initialize(dates, cars: Car.configured, curves: ChargingSession::Curves.new(dates, cars:))

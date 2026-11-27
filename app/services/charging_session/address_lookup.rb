@@ -17,10 +17,13 @@ class ChargingSession::AddressLookup
   end
 
   # Looks up the address, and saves the session after the lookup. The save
-  # opens the transaction.
+  # opens the transaction. A saved session then gets the state of charge and
+  # the position of its rise (see ChargingSession::OffsiteDetection.refresh).
   def save
     look_up
-    session.save
+    saved = session.save
+    ChargingSession::OffsiteDetection.refresh(session) if saved
+    saved
   end
 
   # The form checks the address without a save, so the session shows the
