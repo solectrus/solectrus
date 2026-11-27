@@ -793,14 +793,12 @@ describe ChargingSession do
         expect(session.reload.loss).to be_nil
       end
 
-      # The state of charge rose more than the energy explains, for example
-      # in the cold
-      it 'is negative for a rise above the energy' do
+      it 'is nil for a rise above the energy' do
         car.update!(battery_kwh: 50)
         session.update!(kwh: 18)
 
         # 40 % of 50 kWh = 20 kWh of 18 kWh
-        expect(session.reload.loss).to be_within(0.001).of(1 - (20.0 / 18))
+        expect(session.reload.loss).to be_nil
       end
 
       it 'is nil for a rise that contradicts the energy' do
@@ -808,6 +806,34 @@ describe ChargingSession do
         session.update!(kwh: 8)
 
         expect(session.reload.loss).to be_nil
+      end
+    end
+
+    describe '#soc_above_energy?' do
+      before { car.update!(battery_kwh: 50) }
+
+      it 'is false for a rise that fits the energy' do
+        expect(session.reload).not_to be_soc_above_energy
+      end
+
+      # 40 % of 50 kWh = 20 kWh of 18 kWh, and still 19 kWh at 38 %
+      it 'is true for a rise above the energy' do
+        session.update!(kwh: 18)
+
+        expect(session.reload).to be_soc_above_energy
+      end
+
+      # 40 % of 50 kWh = 20 kWh of 19.8 kWh, but only 19 kWh at 38 %
+      it 'is false for a rise within the whole percents of its ends' do
+        session.update!(kwh: 19.8)
+
+        expect(session.reload).not_to be_soc_above_energy
+      end
+
+      it 'is false for a rise that contradicts the energy' do
+        session.update!(kwh: 8)
+
+        expect(session.reload).not_to be_soc_above_energy
       end
     end
 

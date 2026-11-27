@@ -85,11 +85,21 @@ module ChargingSession::StateOfCharge
   end
 
   # The share of the energy that did not reach the battery, from the rise of
-  # the state of charge and the capacity of the car. It is negative when the
-  # state of charge rose more than the energy explains, nil for a rise that
-  # contradicts the energy.
+  # the state of charge and the capacity of the car. It is nil for a rise
+  # that contradicts the energy, and for a rise that puts more than the
+  # energy into the battery, because a loss cannot be negative.
   def loss
-    1 - battery_share(soc_rise) if loss?
+    return unless loss?
+
+    share = battery_share(soc_rise)
+    1 - share if share <= 1
+  end
+
+  # Whether the state of charge rose more than the energy explains, for
+  # example in the cold. A rise within the whole percents of its ends does
+  # not count (see SOC_TOLERANCE).
+  def soc_above_energy?
+    loss? && battery_share(soc_rise - SOC_TOLERANCE) > 1
   end
 
   private

@@ -31,6 +31,13 @@ describe ChargingSession::SocFacts::Component, type: :component do
     expect(page).to have_no_text('-11')
   end
 
+  # 40 % of 50 kWh = 20 kWh of 19.8 kWh, but only 19 kWh at 38 %
+  it 'names neither a loss nor a finding for a rise within the whole percents' do
+    render_inline(described_class.new(charging_session: session(soc_from: 30, soc_to: 70, kwh: 19.8)))
+
+    expect(page).to have_css('p', exact_text: I18n.t('charging_sessions.soc', range: '30 → 70%'))
+  end
+
   it 'explains a state of charge that contradicts the energy' do
     render_inline(described_class.new(charging_session: session(soc_from: 75, soc_to: 75, kwh: 20)))
 

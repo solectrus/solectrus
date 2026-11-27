@@ -33,7 +33,7 @@ class ChargingSession::SocFacts::Component < ViewComponent::Base
     @finding =
       if charging_session.soc_mismatch?
         :mismatch
-      elsif charging_session.loss&.negative?
+      elsif charging_session.soc_above_energy?
         :above_energy
       end
   end
