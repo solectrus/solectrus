@@ -146,9 +146,10 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
     end
   end
 
-  # The content of the block, or else the hint, and the errors
-  def below_input(method, hint, show_errors)
-    [(block_given? ? yield : (hint_tag(hint) if hint)), (errors(method) if show_errors)]
+  # The content of the block, or else the hint, and the errors. A block of a
+  # template writes into its buffer, so capture takes its content from there.
+  def below_input(method, hint, show_errors, &block)
+    [(block ? @template.capture(&block) : (hint_tag(hint) if hint)), (errors(method) if show_errors)]
   end
 
   def input_classes(options, method)
