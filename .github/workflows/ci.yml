@@ -545,7 +545,16 @@ jobs:
         run: |
           image="ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.version }}"
           docker buildx imagetools inspect "$image"
-          echo "digest=$(docker buildx imagetools inspect "$image" --format '{{ .Manifest.Digest }}')" >> "$GITHUB_OUTPUT"
+          # Shortly after the push, GHCR can answer "not found" for a moment
+          digest=""
+          for attempt in 1 2 3 4 5; do
+            if digest=$(docker buildx imagetools inspect "$image" --format '{{ .Manifest.Digest }}'); then
+              break
+            fi
+            sleep $((attempt * 5))
+          done
+          test -n "$digest"
+          echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
       # The build provenance names the commit and the workflow behind the
       # image. It stays at GitHub and does not go into the registry: in the
