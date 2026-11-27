@@ -68,7 +68,14 @@ class Car::PeriodOverview::Card::Component < ViewComponent::Base
   def lead? = @lead
 
   # The sources with a share of the whole. A source of 0 would be a line.
-  def shown_segments = segments.to_a.select { it.weight.positive? }
+  def shown_segments = @shown_segments ||= segments.to_a.select { it.weight.positive? }
+
+  # The width of a source as its share of 100. Flex grows with a sum below 1
+  # fill only that part of the bar, like weights of less than 1 kWh.
+  def segment_style(segment)
+    share = segment.weight * 100 / shown_segments.sum(&:weight)
+    "flex: #{share.round(3)} 1 0%"
+  end
 
   # The bar of the sources, or its place without charging
   def bar? = !segments.nil?

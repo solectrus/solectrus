@@ -42,7 +42,17 @@ describe Car::PeriodOverview::Charging::Component, type: :component do
   # its share stands in its tooltip
   it 'shows each source as wide as its energy, with its icon and its energy or its icon alone' do
     expect(source_labels).to eq([['sun 1,157 kWh', 'sun'], ['bolt 767 kWh', 'bolt'], ['charging-station 154 kWh', 'charging-station']])
-    expect(card.css(%([data-car--share-bar--component-target="segment"])).map { it.parent['style'] }).to eq(['flex: 1157.0 1 0%', 'flex: 767.0 1 0%', 'flex: 154.0 1 0%'])
+    expect(card.css(%([data-car--share-bar--component-target="segment"])).map { it.parent['style'] }).to eq(['flex: 55.679 1 0%', 'flex: 36.91 1 0%', 'flex: 7.411 1 0%'])
+  end
+
+  # Flex grows with a sum below 1 would leave a part of the bar empty
+  context 'with less than 1 kWh charged' do
+    let(:wallbox) { sums(count: 1, kwh: 0.848, kwh_grid: 0.128, cost: 0.1, cost_grid: 0.1) }
+    let(:offsite) { sums }
+
+    it 'fills the bar with the sources' do
+      expect(card.css(%([data-car--share-bar--component-target="segment"])).map { it.parent['style'] }).to eq(['flex: 84.906 1 0%', 'flex: 15.094 1 0%'])
+    end
   end
 
   it 'names the energy, the share and the cost of each source in its own tooltip' do

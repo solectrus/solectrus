@@ -36,7 +36,7 @@ section class=['flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl text-whi
       div class='flex min-h-0 flex-1 divide-x divide-slate-200 dark:divide-black' data-controller='car--share-bar--component'
         - if shown_segments.any?
           - shown_segments.each do |segment|
-            = figure_tag(segment.figure, class: ['flex min-w-0 focus-ring', segment.css], style: "flex: #{segment.weight.round(3)} 1 0%", link_class: 'lg:hover:brightness-110')
+            = figure_tag(segment.figure, class: ['flex min-w-0 focus-ring', segment.css], style: segment_style(segment), link_class: 'lg:hover:brightness-110')
               span class=['flex size-full items-center justify-center overflow-hidden px-3 lg:px-4', press_class(segment.figure)] data-car--share-bar--component-target='segment'
                 span class='flex flex-col items-center gap-1.5 lg:gap-2.5' hidden=true data-tooltip-target='anchor'
                   = icon segment.figure.icon, class: 'text-sm lg:text-xl'
