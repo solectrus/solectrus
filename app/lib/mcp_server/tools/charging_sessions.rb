@@ -123,7 +123,8 @@ module McpServer
       def self.location(session)
         return {} unless McpServer::Sensors.locations?
 
-        { address: session.address, latitude: session.latitude, longitude: session.longitude }
+        # The found address comes only after a lookup (see set_offsite_session)
+        { address: session.address, found_address: session.found_address, latitude: session.latitude, longitude: session.longitude }
       end
       private_class_method :location
     end

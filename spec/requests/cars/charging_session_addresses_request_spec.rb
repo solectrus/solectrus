@@ -14,15 +14,25 @@ describe 'The address check of the form of a charging session' do
 
   def field(name) = html.at_css("input[name=\"charging_session[#{name}]\"]")
 
-  it 'gives the address in its normal form with its position and its map' do
+  it 'keeps the address, and gives the found address, its position and its map' do
     allow(Place).to receive(:search).with('main street 1, town').and_return(found_place)
     check(address: 'main street 1, town', address_of_position: 'DE-99999 Old Town, Old Street 1')
 
     body = html
-    expect(body.at_css('input[name="charging_session[address]"]')['value']).to eq('DE-12345 Town, Main Street 1')
-    expect(body.at_css('input[name="charging_session[address_of_position]"]')['value']).to eq('DE-12345 Town, Main Street 1')
+    expect(body.at_css('input[name="charging_session[address]"]')['value']).to eq('main street 1, town')
+    expect(body.at_css('input[name="charging_session[address_of_position]"]')['value']).to eq('main street 1, town')
+    expect(body.at_css('[data-address-lookup-target="suggestion"] span').text).to eq('Suggestion: DE-12345 Town, Main Street')
+    expect(body.at_css('button[data-action="address-lookup#adopt"]')['data-address-lookup-address-param']).to eq('DE-12345 Town, Main Street')
     expect(body.at_css('input[name="charging_session[latitude]"]')['value']).to eq('51.0')
     expect(body.at_css('[data-controller="car--map--component"]')).to be_present
+  end
+
+  it 'suggests nothing when the address is the one that Nominatim found' do
+    allow(Place).to receive(:search).and_return(found_place)
+    check(address: 'DE-12345 Town, Main Street')
+
+    expect(html.at_css('[data-address-lookup-target="suggestion"]')).to be_nil
+    expect(field(:latitude)['value']).to eq('51.0')
   end
 
   it 'lets the save keep the checked position, without a second request' do
@@ -34,7 +44,7 @@ describe 'The address check of the form of a charging session' do
 
     patch "/cars/charging_sessions/#{session.id}", params: { charging_session: hidden }, as: :turbo_stream
 
-    expect(session.reload).to have_attributes(address: 'DE-12345 Town, Main Street 1', latitude: 51.0, longitude: 7.0)
+    expect(session.reload).to have_attributes(address: 'main street 1, town', latitude: 51.0, longitude: 7.0)
     expect(Place).to have_received(:search).once
   end
 
@@ -90,13 +100,13 @@ describe 'The address check of the form of a charging session' do
       expect(Place).not_to have_received(:search)
     end
 
-    it 'gives an address from before its position and its normal form, and saves nothing' do
+    it 'gives an address from before its position, and saves nothing' do
       session.update_columns(address: 'Main Street 1, 12345 Town') # rubocop:disable Rails/SkipsModelValidations
       allow(Place).to receive(:search).with('Main Street 1, 12345 Town').and_return(found_place)
 
       check(id: session.id, opened: '1', address: 'Main Street 1, 12345 Town')
 
-      expect(field(:address)['value']).to eq('DE-12345 Town, Main Street 1')
+      expect(field(:address)['value']).to eq('Main Street 1, 12345 Town')
       expect(html.at_css('[data-controller="car--map--component"]')['data-car--map--component-cars-value']).to eq([{ places: [[51.0, 7.0, 1]] }].to_json)
       expect(session.reload).to have_attributes(address: 'Main Street 1, 12345 Town', latitude: nil)
     end

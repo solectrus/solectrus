@@ -2,13 +2,20 @@
   address keeps the position (see ChargingSession::Location). The
   address-lookup controller replaces it after a change of the address, and
   the spinner beside the label shows while it asks the server. The map shows
-  the error of the address in its place, so the form keeps its height.
+  the error of the address in its place, so the form keeps its height. After a
+  check, a button takes the suggestion of Nominatim into the field (see
+  ChargingSession::Location#found_address).
 .ui-form-contents#charging_session_address_field data-address-lookup-target='fields'
   = f.text_field :address,
                  label: safe_join([ChargingSession.human_attribute_name(:address), tag.span(icon('spinner', class: 'fa-spin'), class: 'ml-2 hidden', data: { address_lookup_target: 'spinner' })]),
                  errors: false,
                  aria: { describedby: ('charging_session_map_message' if charging_session.errors[:address].any?) },
-                 data: { action: 'change->address-lookup#lookUp', address_lookup_target: 'address' }
-  = f.hidden_field :address_of_position
+                 data: { action: 'change->address-lookup#lookUp', address_lookup_target: 'address' } do
+    - if charging_session.found_address
+      .mt-3.label-hint.flex.flex-wrap.items-center.gap-x-2.gap-y-1 data-address-lookup-target='suggestion'
+        span = t('charging_sessions.suggested_address', address: charging_session.found_address)
+        button.touch-target.relative.cursor-pointer.rounded.border.border-current.px-2.text-xs.hover:bg-fill.focus-ring type='button' data-action='address-lookup#adopt' data-address-lookup-address-param=charging_session.found_address
+          = t('charging_sessions.adopt_address')
+  = f.hidden_field :address_of_position, data: { address_lookup_target: 'addressOfPosition' }
   = f.hidden_field :latitude, data: { address_lookup_target: 'latitude' }
   = f.hidden_field :longitude, data: { address_lookup_target: 'longitude' }

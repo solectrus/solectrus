@@ -110,15 +110,38 @@ describe 'Charging sessions' do
       within('#modal') do
         fill_in 'charging_session_address', with: 'main street 1, town'
         find_field('charging_session_note').click
-        expect(page).to have_field('charging_session_address', with: 'DE-12345 Town, Main Street 1')
+        expect(page).to have_field('charging_session_address', with: 'main street 1, town')
+        expect(page).to have_text('Vorschlag: DE-12345 Town, Main Street')
 
         click_on 'Änderungen verwerfen'
 
         expect(page).to have_field('charging_session_address', with: '')
+        expect(page).to have_no_text('Vorschlag:')
         expect(page).to have_text('Die Karte zeigt den Ort, sobald die Adresse gefunden ist.')
         expect(page).to have_button('Speichern', disabled: true, visible: :hidden)
         expect(find_field('charging_session_latitude', type: :hidden).value).to eq('')
       end
+    end
+
+    it 'takes the suggestion into the field, and the save keeps its position without a second request' do
+      found_place = Place.new(latitude: 51.0, longitude: 7.0, geocoding: { 'address' => { 'country_code' => 'de', 'postcode' => '12345', 'town' => 'Town', 'road' => 'Main Street' } })
+      allow(Place).to receive(:search).and_return(found_place)
+      visit '/cars/charging_sessions/offsite/2022-06'
+
+      row('June trip').click
+      within('#modal') do
+        fill_in 'charging_session_address', with: 'main street 1, town'
+        find_field('charging_session_note').click
+        click_on 'Übernehmen'
+
+        expect(page).to have_field('charging_session_address', with: 'DE-12345 Town, Main Street')
+        expect(page).to have_no_text('Vorschlag:')
+        click_on 'Speichern'
+      end
+
+      expect(page).to have_no_css('#modal dialog')
+      expect(ChargingSession.find_by(note: 'June trip')).to have_attributes(address: 'DE-12345 Town, Main Street', latitude: 51.0, longitude: 7.0)
+      expect(Place).to have_received(:search).once
     end
 
     # The check replaces the field, whose rendered value is then the checked
@@ -132,7 +155,8 @@ describe 'Charging sessions' do
       within('#modal') do
         fill_in 'charging_session_address', with: 'main street 1, town'
         find_field('charging_session_note').click
-        expect(page).to have_field('charging_session_address', with: 'DE-12345 Town, Main Street 1')
+        expect(page).to have_field('charging_session_address', with: 'main street 1, town')
+        expect(page).to have_text('Vorschlag: DE-12345 Town, Main Street')
 
         click_on 'Schließen'
       end

@@ -50,6 +50,11 @@ class Place < ApplicationRecord
   STREET_RANK = 26
   private_constant :STREET_RANK
 
+  # The country code in front of an address: "DE-", or "de-" as the user
+  # typed it. A mixed case is a word: "St-Martin".
+  COUNTRY_CODE = /\A([A-Z]{2}|[a-z]{2})-/
+  private_constant :COUNTRY_CODE
+
   has_many :visits, class_name: 'PlaceVisit', dependent: :delete_all
 
   normalizes :name, with: -> { it.strip.presence }
@@ -179,7 +184,7 @@ class Place < ApplicationRecord
   # too, but no failure. Two spellings that differ only in case and spaces
   # share an answer. Each server of Nominatim has answers of its own.
   def self.search(address)
-    country_code, query = Place::PostalAddress.split_country(address)
+    country_code, query = split_country(address)
     # The check of the form and the save can ask for the same address at once.
     # The lock makes the second one wait for the answer in the cache.
     answer =
@@ -192,6 +197,14 @@ class Place < ApplicationRecord
 
     new(latitude: answer['lat'].to_f, longitude: answer['lon'].to_f, geocoding: answer)
   end
+
+  # The country code in front of an address and the rest of it: "DE-12345
+  # Town" gives ["DE", "12345 Town"], an address without a code [nil, text]
+  def self.split_country(address)
+    match = COUNTRY_CODE.match(address)
+    match ? [match[1].upcase, match.post_match] : [nil, address]
+  end
+  private_class_method :split_country
 
   # Two decimals are about one kilometer, so a car on the road asks Nominatim
   # far less often than the live view refreshes. A town is larger, so its name
@@ -229,17 +242,6 @@ class Place < ApplicationRecord
   # charging point: "DE-12345 Town, Main Street 15"
   def postal_address = postal_parts.to_s.presence
 
-  def postal_parts
-    parts = address_parts
-    Place::PostalAddress.new(
-      country_code: parts['country_code']&.upcase,
-      postcode: parts['postcode'],
-      town:,
-      street: parts['road'],
-      house_number: parts['house_number'],
-    )
-  end
-
   def geocoded? = geocoding.present?
 
   def distance_to(other_latitude, other_longitude)
@@ -261,6 +263,17 @@ class Place < ApplicationRecord
   private
 
   def address_parts = geocoding&.dig('address') || {}
+
+  def postal_parts
+    parts = address_parts
+    Place::PostalAddress.new(
+      country_code: parts['country_code']&.upcase,
+      postcode: parts['postcode'],
+      town:,
+      street: parts['road'],
+      house_number: parts['house_number'],
+    )
+  end
 
   def release_home
     Place.labeled('home').where.not(id:).update_all(['labels = array_remove(labels, ?)', 'home']) # rubocop:disable Rails/SkipsModelValidations

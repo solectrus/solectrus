@@ -1,10 +1,10 @@
-import { Controller } from '@hotwired/stimulus';
+import { Controller, type ActionEvent } from '@hotwired/stimulus';
 import * as Turbo from '@hotwired/turbo';
 import { metaContent } from '@/utils/metaContent';
 
 // Checks the address of an offsite charging session after the user changed
-// it. The server answers with streams: the address in its normal form with
-// its position and its map, or with an error (see
+// it. The server answers with streams: the address with the address that
+// Nominatim found for it, its position and its map, or with an error (see
 // Cars::ChargingSessionAddressesController). The save checks the address
 // again, so a failed request changes nothing.
 //
@@ -20,16 +20,20 @@ export default class extends Controller<HTMLElement> {
   static readonly targets = [
     'fields',
     'address',
+    'addressOfPosition',
     'latitude',
     'longitude',
     'spinner',
     'map',
+    'suggestion',
   ];
 
   declare readonly urlValue: string;
   declare pendingValue: boolean;
   declare readonly fieldsTarget: HTMLElement;
   declare readonly addressTarget: HTMLInputElement;
+  declare readonly addressOfPositionTarget: HTMLInputElement;
+  declare readonly suggestionTarget: HTMLElement;
   declare readonly latitudeTarget: HTMLInputElement;
   declare readonly longitudeTarget: HTMLInputElement;
   declare readonly spinnerTarget: HTMLElement;
@@ -59,24 +63,41 @@ export default class extends Controller<HTMLElement> {
     this.request?.abort();
   }
 
-  // The streams replace the fields without an event, so a change event tells
-  // the form that they changed, and its save button follows (see the
-  // form-dirty controller)
+  // The streams replace the fields without an event
   fieldsTargetConnected(fields: HTMLElement) {
-    fields.dispatchEvent(new Event('change', { bubbles: true }));
+    this.markChanged(fields);
   }
 
   async lookUp() {
     await this.check();
   }
 
+  // Takes the suggestion, the address that Nominatim found, into the field.
+  // The form then carries the position for this address, so the save keeps
+  // the position and asks Nominatim no second time (see
+  // ChargingSession::Location#position_carried?). The value changes without
+  // a change event of the field, so it starts no check.
+  adopt(event: ActionEvent) {
+    const address = String(event.params.address);
+    this.addressTarget.value = address;
+    this.addressOfPositionTarget.value = address;
+    this.suggestionTarget.remove();
+    this.markChanged(this.fieldsTarget);
+  }
+
   // The point that the user moved on the map (see movable_point.ts). The
   // address stays, so the form still carries the position for it, and the
-  // save keeps the new point. A change event tells the form that it changed.
+  // save keeps the new point.
   move(event: CustomEvent<{ latitude: number; longitude: number }>) {
     this.setPosition(this.latitudeTarget, event.detail.latitude);
     this.setPosition(this.longitudeTarget, event.detail.longitude);
-    this.fieldsTarget.dispatchEvent(new Event('change', { bubbles: true }));
+    this.markChanged(this.fieldsTarget);
+  }
+
+  // A change event tells the form that the fields changed, and its save
+  // button follows (see the form-dirty controller)
+  private markChanged(fields: HTMLElement) {
+    fields.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
   // A hidden field takes its value as its default, so a reset of the form,

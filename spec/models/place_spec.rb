@@ -177,6 +177,15 @@ describe Place do
       expect(Place::Nominatim).to have_received(:search).with('12345 Town, Main Street 1', country_code: 'de')
     end
 
+    it 'takes a country code in lowercase, and a word in mixed case as no code' do
+      allow(Place::Nominatim).to receive(:search).and_return(nil)
+      described_class.search('de-12345 Town')
+      described_class.search('St-Martin 5')
+
+      expect(Place::Nominatim).to have_received(:search).with('12345 Town', country_code: 'de')
+      expect(Place::Nominatim).to have_received(:search).with('St-Martin 5', country_code: nil)
+    end
+
     it 'searches an address without a code in each country' do
       allow(Place::Nominatim).to receive(:search).and_return(nil)
       described_class.search('Main Street 1, 12345 Town')

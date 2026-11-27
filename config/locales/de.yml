@@ -436,6 +436,8 @@ de:
     edit: Ladevorgang bearbeiten
     new: Neuer Ladevorgang
     map_empty: Die Karte zeigt den Ort, sobald die Adresse gefunden ist.
+    suggested_address: 'Vorschlag: %{address}'
+    adopt_address: Übernehmen
     guest: Gast
     unassigned: Nicht zugeordnet
     no_cost: Keine Kosten, weil für den Tag kein Preis hinterlegt ist

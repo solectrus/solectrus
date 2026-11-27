@@ -7,8 +7,9 @@ module McpServer
     # counts from then on. The tool deletes nothing.
     #
     # The address goes through the same lookup as in the form. A position
-    # tells where a person was, so the answer gives the address and the
-    # position only while the admin allows locations (see McpServer::Sensors).
+    # tells where a person was, so the answer gives the address, the found
+    # address and the position only while the admin allows locations (see
+    # McpServer::Sensors).
     class SetOffsiteSession < Base
       extend Recording
 
@@ -34,6 +35,8 @@ module McpServer
         receipt bills and its total cost in the system currency (see
         get_system_info). When a charge changes, an argument that is left out
         keeps its value, and null clears an optional one.
+
+        If `found_address` names another town than the receipt, tell the user.
       TEXT
       input_schema(
         properties: {

@@ -1,8 +1,9 @@
 # Checks the address of the form of an offsite session (see the
-# address-lookup controller) and answers with the address in its normal form
-# and its map, or with an error. It saves nothing. A saved session compares
-# the address with the saved one. With `opened`, the form asks for what the
-# edit left to it (see ChargingSession::AddressLookup#complete).
+# address-lookup controller) and answers with the address, the address that
+# Nominatim found for it and its map, or with an error. It saves nothing. A
+# saved session compares the address with the saved one. With `opened`, the
+# form asks for what the edit left to it (see
+# ChargingSession::AddressLookup#complete).
 class Cars::ChargingSessionAddressesController < ApplicationController
   include Cars::PageGate
 

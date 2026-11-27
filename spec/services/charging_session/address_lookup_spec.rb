@@ -19,12 +19,40 @@ describe ChargingSession::AddressLookup do
   before { allow(Place).to receive(:search).and_return(found) }
 
   describe '#save' do
-    it 'gives a new address its position and its normal form' do
+    it 'gives a new address its position, and keeps the text of the user' do
       session.address = 'main street 1, 12345 Town'
 
       expect(lookup.save).to be(true)
-      expect(session.reload).to have_attributes(address: 'DE-12345 Town, Main Street 1', location: [51.0, 7.0])
+      expect(session.reload).to have_attributes(address: 'main street 1, 12345 Town', location: [51.0, 7.0])
       expect(Place).to have_received(:search).with('main street 1, 12345 Town')
+    end
+
+    # Nominatim does not know the house number in the town of the user, so
+    # it finds the same street in another town
+    it 'gives the address that Nominatim found, and changes the address of the user in no part' do
+      allow(Place).to receive(:search).and_return(
+        Place.new(
+          latitude: 50.5,
+          longitude: 6.2,
+          geocoding: { 'address' => { 'country_code' => 'de', 'postcode' => '54321', 'town' => 'Other Town', 'road' => 'Main Street', 'house_number' => '88' } },
+        ),
+      )
+      session.address = 'Town, Main Street 88'
+
+      expect(lookup.save).to be(true)
+      expect(session.found_address).to eq('DE-54321 Other Town, Main Street 88')
+      expect(session.reload).to have_attributes(address: 'Town, Main Street 88', location: [50.5, 6.2])
+    end
+
+    it 'keeps the street of the user when Nominatim has none' do
+      allow(Place).to receive(:search).and_return(
+        Place.new(latitude: 47.3, longitude: 11.1, geocoding: { 'address' => { 'country_code' => 'at', 'postcode' => '1234', 'village' => 'Village', 'house_number' => '264' } }),
+      )
+      session.address = 'AT-1234 Village, Hamlet Lane 264'
+
+      expect(lookup.save).to be(true)
+      expect(session.found_address).to eq('AT-1234 Village, 264')
+      expect(session.reload.address).to eq('AT-1234 Village, Hamlet Lane 264')
     end
 
     it 'asks Nominatim before the save opens its transaction' do
@@ -90,16 +118,16 @@ describe ChargingSession::AddressLookup do
 
       expect(described_class.new(offsite).save).to be(true)
 
-      expect(offsite.reload).to have_attributes(address: 'DE-12345 Town, Main Street 1', location: [51.0, 7.0])
+      expect(offsite.reload).to have_attributes(address: 'Main Street 1, Town', location: [51.0, 7.0])
     end
   end
 
   describe '#check' do
-    it 'gives the position and the normal form without a save' do
+    it 'gives the position and the found address without a save' do
       offsite = ChargingSession.new(kind: :offsite, address: 'Main Street 1, 12345 Town')
       described_class.new(offsite).check
 
-      expect(offsite).to have_attributes(address: 'DE-12345 Town, Main Street 1', location: [51.0, 7.0], persisted?: false)
+      expect(offsite).to have_attributes(address: 'Main Street 1, 12345 Town', found_address: 'DE-12345 Town, Main Street 1', location: [51.0, 7.0], persisted?: false)
     end
 
     it 'marks an address that Nominatim does not find, and clears the position' do
@@ -152,10 +180,10 @@ describe ChargingSession::AddressLookup do
     context 'with an address from before without a position' do
       before { session.update_columns(latitude: nil, longitude: nil, address: 'Main Street 1, 12345 Town') } # rubocop:disable Rails/SkipsModelValidations
 
-      it 'gives the address its position and its normal form, and saves nothing' do
+      it 'gives the address its position, and saves nothing' do
         lookup.complete
 
-        expect(session).to have_attributes(address: 'DE-12345 Town, Main Street 1', address_of_position: 'DE-12345 Town, Main Street 1', location: [51.0, 7.0])
+        expect(session).to have_attributes(address: 'Main Street 1, 12345 Town', address_of_position: 'Main Street 1, 12345 Town', location: [51.0, 7.0])
         expect(session.reload).to have_attributes(address: 'Main Street 1, 12345 Town', location: nil)
       end
 

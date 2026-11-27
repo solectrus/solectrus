@@ -3,11 +3,14 @@
 # lookup before the save, and no transaction of the database waits for it.
 #
 # It gives an address that waits for its position (see
-# ChargingSession::Location#position_pending?) its position and its normal
-# form: "DE-12345 Town, Main Street 15". Else it notes the problem in the
-# session, and the validation of the session reports it. The form carries the
-# position for the address it found, so a save after the check of the form
-# asks Nominatim no second time.
+# ChargingSession::Location#position_pending?) its position. Else it notes
+# the problem in the session, and the validation of the session reports it.
+# The form carries the position for the address, so a save after the check of
+# the form asks Nominatim no second time.
+#
+# The address keeps the text of the user. The address that Nominatim found
+# is only a suggestion beside it (see ChargingSession::Location#found_address
+# and docs/cars.md).
 class ChargingSession::AddressLookup
   def initialize(session)
     @session = session
@@ -42,9 +45,9 @@ class ChargingSession::AddressLookup
   end
 
   # Completes the form once it opened (see #prepare). An address from before
-  # gets its position and its normal form, and the save keeps them. A
-  # position without an address offers the address at it (see
-  # Place.address_at). The form then carries the position for the address.
+  # gets its position, and the save keeps it. A position without an address
+  # offers the address at it (see Place.address_at). The form then carries
+  # the position for the address.
   def complete
     check if session.position_pending?
     return unless session.location
@@ -58,7 +61,7 @@ class ChargingSession::AddressLookup
   attr_reader :session
 
   def look_up
-    session.address_problem = nil
+    session.address_problem = session.found_address = nil
     restore_position
     # Without Nominatim, the session keeps the position of its car (see
     # ChargingSession::Location)
@@ -70,8 +73,8 @@ class ChargingSession::AddressLookup
     place = Place.search(session.address)
     return session.address_problem = :not_found unless place
 
-    address = Place::PostalAddress.parse(session.address).completed_by(place.postal_parts).to_s
-    session.assign_attributes(address:, latitude: place.latitude, longitude: place.longitude, address_of_position: address)
+    session.found_address = place.postal_address unless place.postal_address == session.address
+    session.assign_attributes(latitude: place.latitude, longitude: place.longitude, address_of_position: session.address)
   rescue Place::Nominatim::Unavailable
     session.address_problem = :unavailable
   end

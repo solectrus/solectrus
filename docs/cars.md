@@ -488,12 +488,18 @@ request to Nominatim takes seconds, so the lookup runs before the save and outsi
 transaction (`ChargingSession::AddressLookup`). Each caller that saves a new address must
 run the lookup first.
 
-Each address has one form: "DE-12345 Town, Main Street 15" (`Place::PostalAddress`).
-Nominatim gives the country, the postcode and the spelling of the street. The town and the
-house number come from the user, because Nominatim does not know each house number, and its
-town can be a part of the town or a group of towns.
+An address keeps the text of the user, as the receipt shows it. Nominatim gives only the
+position. The address parts of OpenStreetMap are not reliable enough to replace the text.
+They can miss the street or the house number, or name a part of the town. If OpenStreetMap
+does not know the house number, Nominatim can find the same street in another town. The
+form shows the address that Nominatim found below the field as a suggestion. A button
+takes it into the field and keeps the position. The MCP answer gives it as
+`found_address`. The user or the AI agent compares it with the receipt and moves the
+point if the town is wrong. The app does not compare the two, because no rule can tell a
+part of the town from another town.
 
-For a session without an address, the form offers the address at the position of the car.
+For a session without an address, the form offers the address at the position of the car,
+in the form "DE-12345 Town, Main Street 15" (`Place::PostalAddress`).
 A save with this address keeps the position of the car, because it is more exact. The build
 never changes the position of an address.
 

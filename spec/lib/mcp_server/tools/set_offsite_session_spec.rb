@@ -52,6 +52,26 @@ describe McpServer::Tools::SetOffsiteSession do
       Setting.mcp_locations = true
       expect(answer(**receipt)[:entry]).to include(address: 'Main Street 15, 12345 Town')
     end
+
+    context 'with Nominatim' do
+      before do
+        allow(Place::Nominatim).to receive(:enabled?).and_return(true)
+        allow(Place).to receive(:search).and_return(
+          Place.new(latitude: 50.5, longitude: 6.2, geocoding: { 'address' => { 'country_code' => 'de', 'postcode' => '54321', 'town' => 'Other Town', 'road' => 'Main Street', 'house_number' => '15' } }),
+        )
+      end
+
+      it 'keeps the address, and gives the found address beside it' do
+        Setting.mcp_locations = true
+        data = answer(**receipt)
+
+        expect(data[:entry]).to include(address: 'Main Street 15, 12345 Town', found_address: 'DE-54321 Other Town, Main Street 15', latitude: 50.5, longitude: 6.2)
+      end
+
+      it 'gives no found address while locations are not allowed' do
+        expect(answer(**receipt)[:entry]).not_to include(:found_address)
+      end
+    end
   end
 
   context 'with a proposal in the time' do

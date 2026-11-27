@@ -2,9 +2,10 @@
 # the address:
 #
 # - A session with an address has the position of its address, from
-#   Nominatim (see ChargingSession::AddressLookup). A new address without its
-#   position is an error, so a caller that saves a new address runs the
-#   lookup first. The build does not change the position (see
+#   Nominatim (see ChargingSession::AddressLookup). The address keeps the
+#   text of the user. A new address without its position is an error, so a
+#   caller that saves a new address runs the lookup first. The build does
+#   not change the position (see
 #   ChargingSession::OffsiteDetection::EnteredState).
 # - A session without an address has the position of its car during its
 #   rise, which the build writes, or none. An address without a position
@@ -24,6 +25,11 @@ module ChargingSession::Location
 
     # Why the lookup gave the address no position: :not_found or :unavailable
     attr_accessor :address_problem
+
+    # The address that Nominatim found, after a lookup and only when it
+    # differs from the address. It is not saved: the form and the MCP answer
+    # offer it as a suggestion (see docs/cars.md).
+    attr_accessor :found_address
 
     validate :validate_address
 
