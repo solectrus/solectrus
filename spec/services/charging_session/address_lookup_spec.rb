@@ -55,7 +55,7 @@ describe ChargingSession::AddressLookup do
       session.address = 'DE-12345 Town, Main Street 1'
 
       expect(lookup.save).to be(false)
-      expect(session.errors[:address]).to include('cannot be checked right now. Try again later.')
+      expect(session.errors[:address]).to include('cannot be checked right now, because OpenStreetMap does not answer')
     end
 
     it 'keeps an address without Nominatim as it is, with the position of the car' do

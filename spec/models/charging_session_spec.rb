@@ -881,7 +881,7 @@ describe ChargingSession do
       session.address_problem = :unavailable
 
       expect(session.update(address: 'DE-12345 Town, Main Street 1')).to be(false)
-      expect(session.errors[:address]).to include('cannot be checked right now. Try again later.')
+      expect(session.errors[:address]).to include('cannot be checked right now, because OpenStreetMap does not answer')
     end
 
     it 'takes a new address without a position when Nominatim is turned off' do

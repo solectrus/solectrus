@@ -828,7 +828,7 @@ en:
               invalid: may contain only A–Z, 0–9, *, + and - (48 characters at most)
             address:
               not_found: was not found
-              unavailable: cannot be checked right now. Try again later.
+              unavailable: cannot be checked right now, because OpenStreetMap does not answer
       messages:
         must_be_negative: must be negative for this category (outflow)
         must_be_positive: must be positive for this category (inflow)

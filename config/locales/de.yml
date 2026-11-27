@@ -828,7 +828,7 @@ de:
               invalid: darf nur A–Z, 0–9, *, + und - enthalten (höchstens 48 Zeichen)
             address:
               not_found: wurde nicht gefunden
-              unavailable: kann gerade nicht geprüft werden. Versuche es später noch einmal.
+              unavailable: kann gerade nicht geprüft werden, weil OpenStreetMap nicht antwortet
       messages:
         must_be_negative: muss für diese Kategorie negativ sein (Auszahlung)
         must_be_positive: muss für diese Kategorie positiv sein (Einzahlung)
