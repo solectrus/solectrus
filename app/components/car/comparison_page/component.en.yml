@@ -6,7 +6,7 @@ en:
   to_settings: Go to the settings
   edit: Edit %{car}
   no_prices_title: No fuel prices yet
-  no_prices: The comparison needs the weekly fuel prices. This is still in progress. A later update brings them, also for the past years.
+  no_prices: The comparison needs the weekly fuel prices. The Public Data Collector delivers them, also for the past years.
   no_distance_title: No distance to compare
   no_distance: The timeframe has no distance with charging data and a fuel price.
   figures:

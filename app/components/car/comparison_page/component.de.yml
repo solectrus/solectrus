@@ -6,7 +6,7 @@ de:
   to_settings: Zu den Einstellungen
   edit: '%{car} bearbeiten'
   no_prices_title: Noch keine Kraftstoffpreise
-  no_prices: Der Vergleich braucht die wöchentlichen Kraftstoffpreise. Daran wird noch gearbeitet. Ein späteres Update liefert sie, auch für die vergangenen Jahre.
+  no_prices: Der Vergleich braucht die wöchentlichen Kraftstoffpreise. Der Public Data Collector liefert sie, auch für die vergangenen Jahre.
   no_distance_title: Keine Strecke zum Vergleichen
   no_distance: Im Zeitraum gibt es keine Strecke mit Ladedaten und Kraftstoffpreis.
   figures:
