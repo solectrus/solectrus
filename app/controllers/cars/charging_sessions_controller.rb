@@ -69,10 +69,12 @@ class Cars::ChargingSessionsController < ApplicationController
     respond_with_list(notice: t('charging_sessions.proposal.dismissed_all', count:))
   end
 
-  # Only an offsite session can go (see ChargingSession)
+  # Only an offsite session can go (see ChargingSession). Its rise comes back
+  # as a proposal (see ChargingSession::OffsiteDetection.refresh).
   def destroy
     return head(:unprocessable_content) unless @charging_session.destroy
 
+    ChargingSession::OffsiteDetection.refresh(@charging_session)
     respond_with_list(notice: t('crud.deleted'))
   end
 

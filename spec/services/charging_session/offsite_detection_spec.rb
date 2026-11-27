@@ -480,6 +480,14 @@ describe ChargingSession::OffsiteDetection do
       expect(session).to have_attributes(latitude: 50.0, longitude: 8.0)
     end
 
+    it 'gives the rise of a deleted session back as a proposal' do
+      session = enter(started_at: at(10, 5), ended_at: at(11))
+
+      described_class.refresh(session.destroy)
+
+      expect(proposals).to eq([[at(10), at(11), 30.0, 70.0, 20.0]])
+    end
+
     it 'leaves a day without a summary to its build' do
       Summary.delete_all
 
