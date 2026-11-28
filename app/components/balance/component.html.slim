@@ -55,9 +55,8 @@ div class= 'flex-1 flex h-full' id= "stats-#{timeframe.id}"
       end
 
       balance.with_segment :house_power, peak: peak&.dig(:house_power)
-      house_power_sensor = Sensor::Registry[:house_power]
       Sensor::Config.house_power_excluded_custom_sensors.each do |sensor|
-        balance.with_segment sensor.name, color_class: "#{house_power_sensor.color_background} #{house_power_sensor.color_text}"
+        balance.with_segment sensor.name
       end
       balance.with_segment :heatpump_power, peak: peak&.dig(:heatpump_power)
       balance.with_segment :wallbox_power, peak: peak&.dig(:wallbox_power)

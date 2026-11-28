@@ -23,17 +23,6 @@ class Sensor::Chart::TotalConsumption < Sensor::Chart::Base
     )
   end
 
-  # Excluded custom consumers were subtracted from house_power, so they render in
-  # the house color here -- matching their segments in the balance sheet, which
-  # also use the house color (see balance/component).
-  def color_class(sensor)
-    if excluded_custom_sensor_names.include?(sensor.name)
-      Sensor::Registry[:house_power].color_background
-    else
-      super
-    end
-  end
-
   private
 
   def chart_sensor_names

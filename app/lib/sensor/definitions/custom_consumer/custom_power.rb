@@ -60,7 +60,25 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
   ].freeze
   private_constant :COLOR_BACKGROUNDS_20
 
+  # Shades of the house color, lighter with each step, for the consumers
+  # excluded from house_power. Spelled out, so Tailwind finds the classes.
+  HOUSE_SHADES = %w[
+    bg-sensor-house-shade-1
+    bg-sensor-house-shade-2
+    bg-sensor-house-shade-3
+    bg-sensor-house-shade-4
+    bg-sensor-house-shade-5
+  ].freeze
+  private_constant :HOUSE_SHADES
+
   color do |index|
+    # A consumer excluded from house_power stands next to the house segment on
+    # the power balance, so it takes a shade of the house color instead
+    excluded = Sensor::Config.house_power_excluded_custom_sensors
+    if (position = excluded.index { |s| s.name == name })
+      next { background: house_shade(position, excluded.length), text: COLOR_TEXT }
+    end
+
     # Choose color set based on total number of custom sensors
     sensors = Sensor::Config.house_power_included_custom_sensors
     backgrounds =
@@ -93,5 +111,15 @@ class Sensor::Definitions::CustomPower < Sensor::Definitions::Base
 
   def costs_pv_sensor_name
     :"custom_#{format('%02d', @number)}_costs_pv"
+  end
+
+  private
+
+  # Spreads the excluded consumers evenly over the shades and leaves out both
+  # ends: the darkest step is close to the house color, the lightest one
+  # close to the panel. One consumer takes the middle shade.
+  def house_shade(position, count)
+    step = ((position + 1) * (HOUSE_SHADES.length + 1) / (count + 1).to_f).round
+    HOUSE_SHADES[step.clamp(1, HOUSE_SHADES.length) - 1]
   end
 end

@@ -9,6 +9,7 @@
  *    can't be reproduced via color-mix)
  * 4. Contrast inverter shades computed via color-mix() from PV base color
  * 5. Consumer shades use shared hex values (cool blue-gray)
+ * 6. House shades computed via color-mix() from the house color
  *
  * Naming: --palette-{palette}-{mode}-{sensor}
  *   e.g. --palette-contrast-light-grid, --palette-standard-dark-savings
@@ -114,6 +115,11 @@
   --palette-contrast-preview-house: var(--palette-contrast-light-house);
   --palette-contrast-preview-wallbox: var(--palette-contrast-light-wallbox);
   --palette-contrast-preview-heatpump: var(--palette-contrast-light-heatpump);
+
+  /* The white that each house shade adds (see --color-sensor-house-shade-*).
+     The same white lightens a dark color more, so dark mode takes a smaller
+     step (overridden in .dark). */
+  --house-shade-step: 7%;
 }
 
 /* ─── Sensor color theme tokens (Tailwind generates bg-sensor-* from these) */
@@ -255,6 +261,36 @@
   --color-sensor-consumer-18: #9aa7b8;
   --color-sensor-consumer-19: #98a5b6;
   --color-sensor-consumer-20: #95a2b4;
+
+  /* House shades for the consumers excluded from house_power. Their segments
+     stand next to the house segment, so they derive from the house color and
+     follow every palette and mode. Each shade adds one step of white, so the
+     lightest stays apart from the panel behind the segments. */
+  --color-sensor-house-shade-1: color-mix(
+    in oklch,
+    var(--color-sensor-house),
+    white calc(var(--house-shade-step) * 1)
+  );
+  --color-sensor-house-shade-2: color-mix(
+    in oklch,
+    var(--color-sensor-house),
+    white calc(var(--house-shade-step) * 2)
+  );
+  --color-sensor-house-shade-3: color-mix(
+    in oklch,
+    var(--color-sensor-house),
+    white calc(var(--house-shade-step) * 3)
+  );
+  --color-sensor-house-shade-4: color-mix(
+    in oklch,
+    var(--color-sensor-house),
+    white calc(var(--house-shade-step) * 4)
+  );
+  --color-sensor-house-shade-5: color-mix(
+    in oklch,
+    var(--color-sensor-house),
+    white calc(var(--house-shade-step) * 5)
+  );
 }
 
 /* ─── Mode/palette overrides ───────── */
@@ -286,6 +322,7 @@
     );
     --color-sensor-car-cost-rate: var(--palette-standard-dark-car-cost-rate);
     --color-sensor-car-range: var(--palette-standard-dark-car-range);
+    --house-shade-step: 5%;
 
     /* Signal colors: light-mode values, lightened further below */
     --color-signal-negative: var(--palette-standard-light-grid);

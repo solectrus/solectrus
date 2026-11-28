@@ -47,10 +47,10 @@ describe Sensor::Chart::TotalConsumption do
       expect(ids.index(:custom_power_01)).to eq(ids.index(:house_power) + 1)
     end
 
-    it 'colors the excluded custom sensor with the house color (matching its segment)' do
+    it 'colors the excluded custom sensor with its own color (matching its segment)' do
       dataset = chart.data[:datasets].find { |d| d[:id] == 'custom_power_01' }
 
-      expect(dataset[:colorClass]).to eq(Sensor::Registry[:house_power].color_background)
+      expect(dataset[:colorClass]).to eq(Sensor::Registry[:custom_power_01].color_background)
     end
   end
 

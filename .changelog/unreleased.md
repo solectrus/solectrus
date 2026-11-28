@@ -20,6 +20,8 @@ Keep every section, an empty one included.
 
 ## Improvements
 
+- A consumer that is excluded from the house consumption now has a lighter shade of the house color, the same in the balance sheet and in the charts. If several consumers are excluded, each one gets its own shade (#6243).
+
 ## Fixes
 
 - The map of the car locations now explains when the browser cannot display it, for example without hardware acceleration. Before, its box stayed empty.
