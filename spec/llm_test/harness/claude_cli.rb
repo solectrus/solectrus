@@ -134,7 +134,8 @@ module LlmTest
     end
 
     # Reads the stream-json events: assistant turns carry the tool calls and
-    # the usage, the final result event carries the answer.
+    # the context of each turn, the final result event carries the answer and
+    # the tokens of the run.
     class Parser
       def initialize(events)
         @events = events
@@ -226,8 +227,11 @@ module LlmTest
         windows.transform_values { _1['utilization'] }
       end
 
+      # The tokens of the whole run come from the result event. An assistant
+      # event carries the usage of the stream start, where output_tokens is a
+      # placeholder, and the CLI repeats it for each content block.
       def tokens(key)
-        assistant_messages.sum { _1.dig('usage', key).to_i }
+        final&.dig('usage', key).to_i
       end
 
       # The largest context a turn was given, cached parts included. This is
