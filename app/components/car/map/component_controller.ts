@@ -154,7 +154,7 @@ function loadMapLibre(): Promise<MapLibre> {
 const isDark = () => document.documentElement.classList.contains('dark');
 
 export default class extends Controller<HTMLElement> {
-  static readonly targets = ['container', 'loading'];
+  static readonly targets = ['container', 'loading', 'unsupported'];
 
   static readonly values = {
     cars: Array,
@@ -167,6 +167,7 @@ export default class extends Controller<HTMLElement> {
 
   declare readonly containerTarget: HTMLElement;
   declare readonly loadingTarget: HTMLTemplateElement;
+  declare readonly unsupportedTarget: HTMLTemplateElement;
   declare readonly carsValue: CarPlaces[];
   declare readonly liveValue: boolean;
   declare readonly tooltipUrlValue: string;
@@ -197,12 +198,23 @@ export default class extends Controller<HTMLElement> {
 
     this.lib = lib;
     this.containerTarget.replaceChildren();
-    this.map = new lib.Map({
-      container: this.containerTarget,
-      style: this.styleUrl,
-      attributionControl: { compact: true },
-      bounds: DEFAULT_BOUNDS,
-    });
+    try {
+      this.map = new lib.Map({
+        container: this.containerTarget,
+        style: this.styleUrl,
+        attributionControl: { compact: true },
+        bounds: DEFAULT_BOUNDS,
+      });
+    } catch (error) {
+      // A browser without WebGL2 cannot draw the map, and the box tells so.
+      // MapLibre removes what it added to the container.
+      if (!(error instanceof lib.GPUInitializationError)) throw error;
+
+      this.containerTarget.replaceChildren(
+        this.unsupportedTarget.content.cloneNode(true),
+      );
+      return;
+    }
     this.fit();
     this.fadeIn();
 

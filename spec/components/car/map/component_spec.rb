@@ -15,6 +15,16 @@ describe Car::Map::Component, type: :component do
     end
   end
 
+  context 'when the browser cannot draw the map' do
+    subject(:component) { described_class.new(cars:) }
+
+    it 'has a hint for the box' do
+      template = root.at_css('template[data-car--map--component-target="unsupported"]')
+
+      expect(template.inner_html).to include('This browser cannot display the map.')
+    end
+  end
+
   context 'when not movable' do
     subject(:component) { described_class.new(cars:, live: true) }
 

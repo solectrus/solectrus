@@ -22,4 +22,6 @@ Keep every section, an empty one included.
 
 ## Fixes
 
+- The map of the car locations now explains when the browser cannot display it, for example without hardware acceleration. Before, its box stayed empty.
+
 ## Maintenance

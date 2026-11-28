@@ -1,6 +1,7 @@
 en:
   label: Map of the locations
   unknown_place: Unknown place
+  unsupported: This browser cannot display the map. WebGL2 is missing or turned off, for example by a disabled hardware acceleration.
   move_hint: Drag the point or tap the map
   station: Use the charging station “%{name}”
   unnamed_station: Use the charging station

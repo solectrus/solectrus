@@ -21,5 +21,10 @@
       div class='flex h-[3lh] w-24 items-center justify-center text-faint' role='status'
         = icon 'spinner', class: 'fa-spin text-lg'
 
+  / What the box shows instead of a map that the browser cannot draw
+  template data-car--map--component-target='unsupported'
+    p class='flex size-full items-center justify-center p-3 text-center text-sm text-muted text-balance'
+      = t('.unsupported')
+
   / What the caller lays on the map, like a note
   = content
