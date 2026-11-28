@@ -23,10 +23,16 @@ const resizeObserverMessages = [
 // from such an extension, never from the application.
 const extensionMessages = ['webkit-masked-url://'];
 
+// The in-app browsers of Facebook and Instagram on iOS inject an autofill
+// script into every page. It calls a callback their WebView does not always
+// define, and the error is reported against the page itself.
+const inAppBrowserMessages = ['_AutofillCallbackHandler'];
+
 const ignoredMessages = [
   ...networkErrorMessages,
   ...resizeObserverMessages,
   ...extensionMessages,
+  ...inAppBrowserMessages,
 ];
 
 // Other browsers keep the real URL of an extension script. An error thrown in
