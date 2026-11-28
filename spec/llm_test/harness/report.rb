@@ -146,6 +146,11 @@ module LlmTest
       }
     end
 
+    # What a later run compares against: the summary, without the single runs.
+    # A baseline lives in the repository, and the answers of 450 runs would add
+    # half a megabyte to it that no diff reads. They stay in results/.
+    def to_baseline = to_h.except('records')
+
     # The versions that ran behind each model alias, and behind the judge,
     # like { "haiku" => ["claude-haiku-5-5"] }. An alias moves to the next
     # version of a model, so a saved run keeps them.

@@ -160,10 +160,15 @@ module LlmTest
       report.show
       report.show_diff(baseline) if baseline
 
-      path = @options[:save] || File.join(ROOT, 'results', "#{Time.current.to_i}.json")
+      puts
+      write(File.join(ROOT, 'results', "#{Time.current.to_i}.json"), report.to_h)
+      write(@options[:save], report.to_baseline) if @options[:save]
+    end
+
+    def write(path, data)
       FileUtils.mkdir_p(File.dirname(path))
-      File.write(path, "#{JSON.pretty_generate(report.to_h)}\n")
-      puts "\nWritten to #{path}"
+      File.write(path, "#{JSON.pretty_generate(data)}\n")
+      puts "Written to #{path}"
     end
 
     def load_cases
@@ -186,7 +191,9 @@ module LlmTest
         opts.on('--baseline PATH', 'Compare against this result file') { @options[:baseline] = _1 }
         confirm = "With --baseline, run a case that got worse up to N times (default: #{Significance::RUNS}, 0 = off)"
         opts.on('--confirm N', Integer, confirm) { @options[:confirm] = _1 }
-        opts.on('--save PATH', 'Write the result file here') { @options[:save] = _1 }
+        opts.on('--save PATH', 'Also write a baseline here, the summary without the single runs') do |path|
+          @options[:save] = path
+        end
         opts.on('--no-judge', 'Skip the LLM judge, run the mechanical checks alone') do
           @options[:judge] = false
         end

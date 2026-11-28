@@ -88,6 +88,11 @@ bin/llm-test --runs 10 --save spec/llm_test/baselines/before.json
 bin/llm-test --baseline spec/llm_test/baselines/before.json
 ```
 
+`--save` writes the baseline in addition to the result file. The baseline holds
+the summary of each case and model, but not the single runs. A diff reads only
+the summary, and the repository keeps each baseline. The tool calls and the
+answers stay in the result file under `spec/llm_test/results/`.
+
 The diff shows the pass rate, the average number of tool calls and the context
 size, for each case and model, before and after. If the baseline ran other model
 versions, the diff says so first. Such a diff measures the model, not the
