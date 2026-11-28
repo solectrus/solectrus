@@ -49,9 +49,12 @@ module LlmTest
     end
 
     def perform(test_case, model, run)
-      started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      started = nil
       result, failures =
         with_fixture(test_case) do
+          # A run that writes waits for the lock first. The wait is the time of
+          # the other runs, not of this one.
+          started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
           answer = ClaudeCli.new(model:, socket: @socket).call(test_case.prompt, system: SystemPrompt.call)
           [answer, test_case.check(answer)]
         end
