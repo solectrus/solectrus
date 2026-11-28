@@ -23,5 +23,6 @@ Keep every section, an empty one included.
 ## Fixes
 
 - The map of the car locations now explains when the browser cannot display it, for example without hardware acceleration. Before, its box stayed empty.
+- The tooltip of the power balance chart now always lists the consumers that are excluded from the house consumption. Before, it left out such a consumer if it had used no power when the chart was loaded (#6243).
 
 ## Maintenance

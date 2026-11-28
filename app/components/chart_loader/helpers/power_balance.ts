@@ -56,11 +56,21 @@ export const getPowerBalanceFlags = (data: ChartData): PowerBalanceFlags => {
     'grid_export_power',
   ]);
 
-  // Dynamically classify unrecognized datasets (e.g. excluded custom sensors)
-  // by checking if their data values are negative (usage) or positive (source)
+  // Classify unrecognized datasets (e.g. excluded custom sensors). A line
+  // chart names the side in its stack. A bar chart stacks everything as
+  // 'combined', so the sign of the first non-zero value decides there.
   for (const dataset of data.datasets) {
     const id = (dataset as DatasetWithId).id ?? '';
     if (sourceIds.has(id) || usageIds.has(id)) continue;
+
+    if (dataset.stack === 'usage') {
+      usageIds.add(id);
+      continue;
+    }
+    if (dataset.stack === 'source') {
+      sourceIds.add(id);
+      continue;
+    }
 
     const values = dataset.data as (number | null)[];
     const firstNonNull = values?.find((v): v is number => v != null && v !== 0);
