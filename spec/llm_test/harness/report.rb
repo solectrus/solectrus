@@ -89,8 +89,20 @@ module LlmTest
       failures.each { |text, count| puts "  #{count}x #{text}" }
     end
 
+    # The cases whose pass rate fell below the baseline and that have fewer
+    # than `runs` runs: { [case id, model] => runs done }. More runs of these
+    # tell a change from chance (see Significance).
+    def doubtful(baseline, runs)
+      summary.filter_map do |key, now|
+        old = baseline['summary'][key.join(' / ')]
+        next unless old && now['runs'] < runs && Significance.lower?(old, now)
+
+        [key, now['runs']]
+      end.to_h
+    end
+
     # Every case+model the two runs share, with the numbers that moved.
-    def show_diff(baseline)
+    def show_diff(baseline) # rubocop:disable Metrics/AbcSize
       before = baseline['summary']
       print_version_change(baseline['versions'])
 
@@ -98,20 +110,26 @@ module LlmTest
       puts format(ROW, 'CASE', 'MODEL', 'PASS', 'CALLS', 'CONTEXT', '')
       puts '-' * 84
 
-      summary.each do |key, now|
-        old = before[key.join(' / ')]
-        next puts(format(ROW, key.first[0, 29], key.last, 'new', '', '', '')) unless old
+      flags =
+        summary.filter_map do |key, now|
+          old = before[key.join(' / ')]
+          next puts(format(ROW, key.first[0, 29], key.last, 'new', '', '', '')) unless old
 
-        puts format(
-               ROW,
-               key.first[0, 29],
-               key.last,
-               "#{rate(old)} -> #{rate(now)}#{flag(old, now)}",
-               "#{old['tool_calls'].round(1)}->#{now['tool_calls'].round(1)}",
-               "#{thousands(old['context_tokens'])}->#{thousands(now['context_tokens'])}",
-               '',
-             )
-      end
+          flag = flag(old, now)
+          puts format(
+                 ROW,
+                 key.first[0, 29],
+                 key.last,
+                 "#{rate(old)} -> #{rate(now)}#{flag}",
+                 "#{old['tool_calls'].round(1)}->#{now['tool_calls'].round(1)}",
+                 "#{thousands(old['context_tokens'])}->#{thousands(now['context_tokens'])}",
+                 '',
+               )
+          flag.strip.presence
+        end
+
+      print_verdict(flags.tally)
+      print_small_baseline(before)
     end
 
     # The saved run, without the subscription usage: that number belongs on the
@@ -164,12 +182,34 @@ module LlmTest
 
     def rate(data) = "#{data['passed']}/#{data['runs']}"
 
-    # A regression is worth a mark; an improvement speaks for itself.
+    # A regression is worth a mark; an improvement speaks for itself. `!` is
+    # a drop that chance does not explain, `?` one that it does.
     def flag(old, now)
-      return ' !' if now['passed'].to_f / now['runs'] < old['passed'].to_f / old['runs']
+      return '' unless Significance.lower?(old, now)
 
-      ''
+      Significance.worse?(old, now) ? ' !' : ' ?'
     end
+
+    def print_verdict(flags)
+      return if flags.empty?
+
+      puts
+      puts "! worse beyond chance (p < #{Significance::ALPHA}): #{count(flags['!'])}" if flags['!']
+      puts "? lower, but chance can explain it: #{count(flags['?'])}" if flags['?']
+    end
+
+    # A small baseline hides all but a large drop. Saying so keeps a `?` from
+    # reading as "all is well".
+    def print_small_baseline(before)
+      runs = summary.keys.filter_map { before.dig(_1.join(' / '), 'runs') }.min
+      return if runs.nil? || runs >= Significance::RUNS
+
+      puts
+      puts "The baseline has #{runs} runs per case, too few to show a moderate drop. " \
+             "Record it with --runs #{Significance::RUNS}."
+    end
+
+    def count(number) = number == 1 ? '1 case' : "#{number} cases"
 
     def thousands(number) = "#{(number / 1000.0).round(1)}k"
     # rubocop:enable RSpec/Output

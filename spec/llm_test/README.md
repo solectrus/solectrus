@@ -83,15 +83,35 @@ A single report says "8 of 10 runs passed". A comparison says what a change to
 a description did:
 
 ```sh
-bin/llm-test --runs 5 --save spec/llm_test/baselines/before.json
+bin/llm-test --runs 10 --save spec/llm_test/baselines/before.json
 # change a tool description
-bin/llm-test --runs 5 --baseline spec/llm_test/baselines/before.json
+bin/llm-test --baseline spec/llm_test/baselines/before.json
 ```
 
 The diff shows the pass rate, the average number of tool calls and the context
-size, for each case and model, before and after. A `!` marks a case that got
-worse. If the baseline ran other model versions, the diff says so first. Such a
-diff measures the model, not the server.
+size, for each case and model, before and after. If the baseline ran other model
+versions, the diff says so first. Such a diff measures the model, not the
+server.
+
+A lower pass rate alone is not a finding. The same code passes a case 2 of 3
+times on one day and 3 of 3 times on the next. A full run with 3 runs per case
+usually has 1 to 4 such failures, each time in other cases.
+
+The comparison therefore does two things. First, each case with a lower pass
+rate than the baseline runs again, until it has 10 runs. `--confirm N` sets this
+number, and `--confirm 0` turns the extra runs off. Second, a one-sided Fisher
+exact test compares the two pass rates. The test gives the probability that
+chance alone causes a drop of this size.
+
+A `!` marks a drop that chance explains in fewer than 1 of 20 cases
+(p < 0.05). A `?` marks a drop that chance can explain. A `?` does not tell you
+that the case is intact. It tells you that the runs are too few to show a
+change.
+
+Record the baseline with 10 runs per case. Against a baseline with 3 runs, only
+a drop to about 2 of 10 is beyond chance. Against 10 of 10, a drop to 6 of 10 is
+beyond chance, and a drop to 7 of 10 is not. If the baseline has fewer than 10
+runs per case, the diff says so.
 
 ## Ablation: does a sentence still earn its bytes?
 

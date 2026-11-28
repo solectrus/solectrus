@@ -24,10 +24,11 @@ module LlmTest
       @done = 0
     end
 
-    def call
+    def call(jobs = all_jobs)
       queue = Queue.new
-      @models.each { |model| @cases.each { |c| @runs.times { |run| queue << [c, model, run] } } }
+      jobs.each { queue << _1 }
       @total = queue.size
+      @done = 0
       records = Concurrent::Array.new
 
       workers = Array.new([@jobs, @total].min) { worker(queue, records) }
@@ -36,7 +37,20 @@ module LlmTest
       records.to_a
     end
 
+    # The runs that bring single cases up to `runs`, numbered after the ones
+    # they already have: { [case id, model] => runs done }.
+    def more_jobs(done, runs)
+      done.flat_map do |(id, model), count|
+        test_case = @cases.find { _1.id == id }
+        (count...runs).map { [test_case, model, _1] }
+      end
+    end
+
     private
+
+    def all_jobs
+      @models.flat_map { |model| @cases.flat_map { |c| Array.new(@runs) { [c, model, _1] } } }
+    end
 
     def worker(queue, records)
       Thread.new do # rubocop:disable ThreadSafety/NewThread

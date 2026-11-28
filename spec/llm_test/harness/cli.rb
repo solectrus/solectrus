@@ -44,6 +44,7 @@ module LlmTest
         verbose: false,
         only: nil,
         baseline: nil,
+        confirm: Significance::RUNS,
         save: nil,
         ablate: nil,
       }
@@ -56,6 +57,7 @@ module LlmTest
       cases = load_cases
       abort 'No cases selected.' if cases.empty?
       ablate # resolved here, so a text that matches nothing aborts before the seeding
+      baseline # read here, so a wrong path aborts before the seeding
 
       finish(Report.new(run(cases), ablated: @options[:ablate]))
     end
@@ -73,12 +75,14 @@ module LlmTest
 
         begin
           announce(cases)
-          records =
+          runner =
             Runner.new(
               cases:,
               socket: SOCKET,
               **@options.slice(:models, :runs, :jobs, :judge, :verbose),
-            ).call
+            )
+          records = runner.call
+          records += confirm(runner, records)
         ensure
           bridge.stop
         end
@@ -107,6 +111,29 @@ module LlmTest
              "#{@options[:jobs]} at a time. A single run takes 10-30 seconds."
     end
 
+    # A case that got worse than the baseline runs again, until it has enough
+    # runs to tell a change from chance (see Significance). Only those cases:
+    # all of them at that count cost three times as much and mostly confirm
+    # what stayed the same.
+    def confirm(runner, records)
+      return [] unless baseline
+
+      done = Report.new(records).doubtful(baseline, @options[:confirm])
+      return [] if done.empty?
+
+      puts "\n#{done.size == 1 ? '1 case' : "#{done.size} cases"} got worse than the baseline. " \
+             "Running them again, up to #{@options[:confirm]} runs each:"
+      runner.call(runner.more_jobs(done, @options[:confirm]))
+    end
+
+    def baseline
+      return @baseline if defined?(@baseline)
+
+      @baseline = @options[:baseline] && JSON.parse(File.read(@options[:baseline]))
+    rescue SystemCallError, JSON::ParserError => e
+      abort "Cannot read the baseline: #{e.message}"
+    end
+
     # Built once and kept, so the announcement and the bridge cannot disagree
     # about what was removed.
     def ablate
@@ -131,7 +158,7 @@ module LlmTest
 
     def finish(report)
       report.show
-      report.show_diff(JSON.parse(File.read(@options[:baseline]))) if @options[:baseline]
+      report.show_diff(baseline) if baseline
 
       path = @options[:save] || File.join(ROOT, 'results', "#{Time.current.to_i}.json")
       FileUtils.mkdir_p(File.dirname(path))
@@ -157,6 +184,8 @@ module LlmTest
         opts.on('--jobs N', Integer, 'Runs in parallel (default: 4)') { @options[:jobs] = _1 }
         opts.on('--only PATTERN', 'Only cases whose id matches') { @options[:only] = _1 }
         opts.on('--baseline PATH', 'Compare against this result file') { @options[:baseline] = _1 }
+        confirm = "With --baseline, run a case that got worse up to N times (default: #{Significance::RUNS}, 0 = off)"
+        opts.on('--confirm N', Integer, confirm) { @options[:confirm] = _1 }
         opts.on('--save PATH', 'Write the result file here') { @options[:save] = _1 }
         opts.on('--no-judge', 'Skip the LLM judge, run the mechanical checks alone') do
           @options[:judge] = false
